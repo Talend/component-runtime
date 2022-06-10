@@ -12,74 +12,8 @@
         {
           "entity": {
             "type": "Service",
-            "id": "3eac31c6-d501-4fd7-817f-623074754901",
-            "name": "Security"
-          },
-          "children": [
-            {
-              "entity": {
-                "type": "Scenario",
-                "id": "54ae603e-4361-463a-862f-6c5fd4532a6a",
-                "name": "1 - Error management"
-              },
-              "children": [
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": []
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/unknow"
-                    },
-                    "description": "",
-                    "id": "c4c8176e-7bf9-46fa-95b2-dcff2f3ea7eb",
-                    "name": "Wrong endpoint",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "404"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "enabled": true,
-                        "path": "length",
-                        "value": "0"
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "entity": {
-            "type": "Service",
             "id": "e56de659-dde4-4a61-9a9e-10242c93407e",
-            "name": "action"
+            "name": "action TODO"
           },
           "children": [
             {
@@ -177,6 +111,12 @@
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "^{\"components\""
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "input"
                       }
                     ]
                   }
@@ -495,7 +435,7 @@
                     },
                     "description": "",
                     "id": "dd9c32ce-f366-41bb-891e-f0fd52ce1516",
-                    "name": "component/index - default",
+                    "name": "Get component list",
                     "headers": [],
                     "assertions": [
                       {
@@ -685,6 +625,12 @@
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "^{\"details\":"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "Filesystems"
                       }
                     ]
                   }
@@ -811,7 +757,7 @@
                     },
                     "description": "",
                     "id": "104f4306-9cb7-488a-be05-1c7ddcf61faf",
-                    "name": "component/index - default",
+                    "name": "Get component list ",
                     "headers": [],
                     "assertions": [
                       {
@@ -1188,7 +1134,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "73a0d0bf-ec7d-4fbb-9abf-033d11899b4d",
-                "name": "4 - component/icon"
+                "name": "4 - component/icon and component/icon/family"
               },
               "children": [
                 {
@@ -1233,7 +1179,7 @@
                     },
                     "description": "",
                     "id": "7195f4ca-fa95-4546-9488-c114eb31a53b",
-                    "name": "component/index - default",
+                    "name": "Get component list",
                     "headers": [],
                     "assertions": [
                       {
@@ -1654,7 +1600,7 @@
                         "items": [
                           {
                             "enabled": true,
-                            "name": "lang",
+                            "name": "language",
                             "value": "ja"
                           },
                           {
@@ -1804,7 +1750,7 @@
                     },
                     "description": "",
                     "id": "f4ed65ce-6780-465c-b9e5-535430431a3b",
-                    "name": "configurationtype/index - lightPayload - true FIXME (question in #api-tester)",
+                    "name": "configurationtype/index - lightPayload - true",
                     "headers": [],
                     "assertions": [
                       {
@@ -1880,7 +1826,7 @@
                     },
                     "description": "",
                     "id": "b880f30a-0b19-43e1-bb61-2448ddae0d96",
-                    "name": "configurationtype/index - default",
+                    "name": "Get configurationtype list",
                     "headers": [],
                     "assertions": [
                       {
@@ -2204,19 +2150,13 @@
                     },
                     "description": "",
                     "id": "3bc9ef4c-1c2e-4c8b-a1b1-e589efd2d7b4",
-                    "name": "component/index - default",
+                    "name": "Get component list ",
                     "headers": [],
                     "assertions": [
                       {
                         "comparison": "Equals",
                         "subject": "ResponseStatus",
                         "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Exists",
-                        "subject": "ResponseBody",
-                        "path": "content",
                         "value": "200"
                       },
                       {
@@ -2690,6 +2630,72 @@
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Service",
+            "id": "3eac31c6-d501-4fd7-817f-623074754901",
+            "name": "security"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Scenario",
+                "id": "54ae603e-4361-463a-862f-6c5fd4532a6a",
+                "name": "1 - Error management"
+              },
+              "children": [
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": []
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/unknow"
+                    },
+                    "description": "",
+                    "id": "c4c8176e-7bf9-46fa-95b2-dcff2f3ea7eb",
+                    "name": "Wrong endpoint",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "404"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseBody",
+                        "enabled": true,
+                        "path": "length",
+                        "value": "0"
                       }
                     ]
                   }
