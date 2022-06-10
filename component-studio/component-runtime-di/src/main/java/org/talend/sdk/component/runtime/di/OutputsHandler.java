@@ -22,6 +22,7 @@ import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
@@ -56,7 +57,7 @@ public class OutputsHandler extends BaseIOHandler {
 
     /**
      * Guess schema special use-case for processor Studio mock.
-     * Same as asOutputFactory but stores the record as the pojo class isn't available.
+     * Same as asOutputFactory but stores the record'schema or schema as the pojo class isn't available.
      *
      * @return GuessSchema OutputFactory
      */
@@ -67,6 +68,8 @@ public class OutputsHandler extends BaseIOHandler {
                 if (value instanceof javax.json.JsonValue) {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
                 } else if (value instanceof Record) {
+                    ref.add(((Record) value).getSchema());
+                } else if (value instanceof Schema) {
                     ref.add(value);
                 } else {
                     ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
