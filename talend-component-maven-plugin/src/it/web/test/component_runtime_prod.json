@@ -52,7 +52,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "6fedc1ed-d1ab-4db9-a28d-218808236772",
-                "name": "1 - component/index"
+                "name": "1-component/index"
               },
               "children": [
                 {
@@ -390,7 +390,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "2b5e8281-597d-459e-b3af-95474f5c5f6d",
-                "name": "2 - component/details"
+                "name": "2-component/details"
               },
               "children": [
                 {
@@ -712,7 +712,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "922e845b-0e30-477e-a32c-64eb687ac221",
-                "name": "3 - component/dependencies and dependency"
+                "name": "3-component/dependencies_and_dependency"
               },
               "children": [
                 {
@@ -1134,7 +1134,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "73a0d0bf-ec7d-4fbb-9abf-033d11899b4d",
-                "name": "4 - component/icon and component/icon/family"
+                "name": "4-component/icon_and_component/icon/family"
               },
               "children": [
                 {
@@ -1498,7 +1498,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "e666dcae-ee07-47b3-9ae4-ab205c0de6a1",
-                "name": "5 - component/migrate TODO"
+                "name": "5-component/migrate_TODO"
               }
             }
           ]
@@ -1516,7 +1516,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "f75bd712-1883-4c94-9f9d-fa2824318607",
-                "name": "1 - configurationtype/index"
+                "name": "1-configurationtype/index"
               },
               "children": [
                 {
@@ -1561,7 +1561,7 @@
                     },
                     "description": "",
                     "id": "c68ed507-1492-4d84-a456-b4d42759a20c",
-                    "name": "configurationtype/index - default",
+                    "name": "configurationtype/index-default",
                     "headers": [],
                     "assertions": [
                       {
@@ -1620,9 +1620,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/index"
                     },
-                    "description": "",
+                    "description": "TODO No language dependent so no body change",
                     "id": "0af44c7a-7832-478c-a99f-209ed165bf6d",
-                    "name": "configurationtype/index - lang TODO No language dependent so no body change",
+                    "name": "configurationtype/index-language-TODO",
                     "headers": [],
                     "assertions": [
                       {
@@ -1683,7 +1683,7 @@
                     },
                     "description": "",
                     "id": "73bcd242-f5fe-425f-8944-30a87db15af6",
-                    "name": "configurationtype/index - lightPayload - false",
+                    "name": "configurationtype/index-lightPayload-false",
                     "headers": [],
                     "assertions": [
                       {
@@ -1750,7 +1750,7 @@
                     },
                     "description": "",
                     "id": "f4ed65ce-6780-465c-b9e5-535430431a3b",
-                    "name": "configurationtype/index - lightPayload - true",
+                    "name": "configurationtype/index-lightPayload-true",
                     "headers": [],
                     "assertions": [
                       {
@@ -1781,7 +1781,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "434d244e-34c6-4428-a908-f39d384bfa60",
-                "name": "2 - configurationtype/details"
+                "name": "2-configurationtype/details"
               },
               "children": [
                 {
@@ -2113,7 +2113,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "165f992a-08d6-4ed1-836d-5fba9b5e11a0",
-                "name": "1 - documentation/component"
+                "name": "1-documentation/component"
               },
               "children": [
                 {
@@ -2582,7 +2582,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "417d6e0c-9f5e-47c7-bc03-84557e8cc11d",
-                "name": "2 - environment"
+                "name": "2-environment"
               },
               "children": [
                 {
@@ -2649,7 +2649,7 @@
               "entity": {
                 "type": "Scenario",
                 "id": "54ae603e-4361-463a-862f-6c5fd4532a6a",
-                "name": "1 - Error management"
+                "name": "1-Errors"
               },
               "children": [
                 {
