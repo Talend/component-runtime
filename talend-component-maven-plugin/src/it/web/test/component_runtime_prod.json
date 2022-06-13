@@ -3045,7 +3045,7 @@
                     "headers": [
                       {
                         "enabled": true,
-                        "name": "charset",
+                        "name": "Accept-Charset",
                         "value": "utf-8"
                       }
                     ],
