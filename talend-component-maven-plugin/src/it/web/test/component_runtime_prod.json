@@ -308,7 +308,7 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Equals",
+                        "comparison": "Matches",
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "^{\"components\""
@@ -317,7 +317,7 @@
                         "comparison": "Equals",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "67380"
+                        "value": "67383"
                       }
                     ]
                   }
@@ -1712,7 +1712,7 @@
                         "comparison": "Equals",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "25264"
+                        "value": "25267"
                       }
                     ]
                   }
