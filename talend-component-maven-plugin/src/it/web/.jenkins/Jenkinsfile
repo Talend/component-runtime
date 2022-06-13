@@ -132,12 +132,21 @@ pipeline {
       steps {
         container(tsbiImage) {
           script {
-            println("Tenant instance: ${tenantInstance}")
-            println("Tenant ID used for API Tester: ${tenantId}")
-            println("Runtime version: ${runtimeVersion}")
-            println("Test branch: ${branchToUse}")
-            println("Test file executed: ${fileToRun}" + ".json")
-            println("API Tester used environment: ${apiTesterEnv}")
+            println("Job info:" +
+                " - Tenant instance: ${tenantInstance}" +
+                " - Tenant ID used for API Tester: ${tenantId}" +
+                " - Runtime version: ${runtimeVersion}" +
+                " - Test branch: ${branchToUse}" +
+                " - Test file executed: ${fileToRun}" + ".json" +
+                " - API Tester used environment: ${apiTesterEnv}")
+
+            println("Talend Test Orchestrator info:" +
+                "${params.PLATFORM}" +
+                "${params.ENVIRONMENT}" +
+                "${params.FRAGMENT_URL}" +
+                "${params.DEPLOYMENT_UNIT}" +
+                "${params.CYCLE}" +
+                "${params.DEPLOYED_PRODUCTS}")
 
             def runtimeName = "master"
             if (runtimeVersion != "") {
