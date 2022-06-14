@@ -1,0 +1,77 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "id": "8fae24a6-9027-4858-b5ff-01f49224f82f",
+        "name": "debug_size_issue"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Scenario",
+            "id": "c63d527b-8116-4047-8e53-61c942f3454d",
+            "name": "Size issue on icon"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "172.29.140.130:8081",
+                  "path": "/api/v1/component/icon/YXp1cmUtZGxzLWdlbjIjQXp1cmUjQWRsc0dlbjJJbnB1dA"
+                },
+                "id": "8909e667-5958-4a95-a7e3-d3f7b3fb20e4",
+                "name": "icon",
+                "headers": []
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "18bf351f-9c68-4b27-a824-00083bddde00",
+      "name": "localhost",
+      "variables": {
+        "98617fb1-23bd-44bf-b9f8-b424a6c98e38": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2022-05-06T08:30:39.511Z",
+          "private": false
+        },
+        "a8075682-4c57-4bf2-ac7a-2c9dcbecb86f": {
+          "name": "server-ip",
+          "value": "127.0.0.1",
+          "enabled": true,
+          "createdAt": "2022-05-06T08:30:39.511Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}
