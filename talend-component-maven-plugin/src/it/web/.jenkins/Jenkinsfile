@@ -206,7 +206,14 @@ pipeline {
                     """
             }
             sh """
-                mvn -f ${TESTED_CONNECTOR_PATH}/pom.xml clean install -DskipTests -Dspotless.apply.skip=true -Dspotbugs.skip=true -Dcheckstyle.skip=true
+                mvn -f ${TESTED_CONNECTOR_PATH}/pom.xml -T3C -Dspotless.apply.skip=true\
+                                                             -Dspotbugs.skip=true\
+                                                             -Dcheckstyle.skip=true\
+                                                             -Drat.skip=true\
+                                                             -DskipTests\
+                                                             -Dmaven.javadoc.skip=true\
+                                                             -Dinvoker.skip=true\
+                                                             -Dmaven.artifact.threads=25
                 """
           }
         }
@@ -233,6 +240,11 @@ pipeline {
       steps {
         withCredentials([nexusCredentials]) {
           container(tsbiImage) {
+            // Execute test with curl
+            sh """
+              curl http://localhost:8081/api/v1/configurationtype/index?lightPayload=true > test_size.json
+              ls -l test_size.json
+            """
             // Execute test
             sh """
               cd ${TESTS_PATH}
@@ -256,7 +268,7 @@ pipeline {
   post {
     always {
       container(tsbiImage) {
-        archiveArtifacts artifacts: "**/${serverLog}, **/target/surefire-reports/*, **/target/site/**/*, **/test_scenarios/**/*"
+        archiveArtifacts artifacts: "**/${serverLog}, **/target/surefire-reports/*, **/target/site/**/*, **/test_scenarios/**/*, **/test_size.json"
         junit healthScaleFactor: 5.0, testResults: "**/target/surefire-reports/*.xml"
       }
     }
