@@ -244,7 +244,7 @@ pipeline {
           container(tsbiImage) {
             // Execute test with curl
             sh """
-              curl http://localhost:8081/api/v1/configurationtype/index?lightPayload=true > test_size.json
+              curl http://localhost:8081/api/v1/configurationtype/index?lightPayload=false > test_size.json
               ls -l test_size.json
             """
             // Execute test
