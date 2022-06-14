@@ -44,7 +44,15 @@
                 },
                 "id": "8909e667-5958-4a95-a7e3-d3f7b3fb20e4",
                 "name": "icon",
-                "headers": []
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "2056"
+                  }
+                ]
               }
             }
           ]
