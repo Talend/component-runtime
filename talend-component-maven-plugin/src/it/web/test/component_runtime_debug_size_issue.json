@@ -1,0 +1,138 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "id": "8fae24a6-9027-4858-b5ff-01f49224f82f",
+        "name": "component_runtime-debug_size_issue"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Scenario",
+            "id": "c63d527b-8116-4047-8e53-61c942f3454d",
+            "name": "Size issue"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "lightPayload",
+                        "value": "true"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "localhost:8081",
+                  "path": "/api/v1/configurationtype/index"
+                },
+                "id": "bca3be5b-b659-4e71-99f1-37926b639037",
+                "name": "configurationtype lightPayload=true",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "enabled": false,
+                    "path": "length",
+                    "value": "936"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "lightPayload",
+                        "value": "false"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "localhost:8081",
+                  "path": "/api/v1/configurationtype/index"
+                },
+                "id": "8909e667-5958-4a95-a7e3-d3f7b3fb20e4",
+                "name": "configurationtype lightPayload=false",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "25264"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "f122bbc5-8017-42d1-9ec9-98cf8a004462",
+      "name": "acatoire-local",
+      "variables": {
+        "d6d314b6-d13c-4152-b503-8e21a78a14aa": {
+          "name": "server-ip",
+          "value": "172.25.33.134",
+          "enabled": true,
+          "createdAt": "2022-05-05T09:43:06.786Z",
+          "private": false
+        },
+        "bacedbea-2b3d-47e5-802a-dce25ef29e53": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2022-05-05T09:44:32.475Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}
