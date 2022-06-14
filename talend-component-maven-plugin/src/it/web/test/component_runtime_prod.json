@@ -2235,19 +2235,13 @@
                         "comparison": "Matches",
                         "subject": "ResponseBody",
                         "path": "content",
-                        "value": "^{\"source\":\".+:\"asciidoc\"}"
+                        "value": "^{\"source\":\"== AdlsGen2Input\\n\\nMapper for Azure Data Lake Storage Gen2\\n\\n//configuration_start\\n\\n=== Configuration\\n\\n[cols=\\\"d,d,m,a,e,d\\\".+:\"asciidoc\"}"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "Client ID"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "4289"
                       }
                     ]
                   }
@@ -2310,7 +2304,7 @@
                         "comparison": "Matches",
                         "subject": "ResponseBody",
                         "path": "content",
-                        "value": "^{\"source\":\".+:\"asciidoc\"}"
+                        "value": "^{\"source\":\"== AdlsGen2Input\\n\\nMapper for Azure Data Lake Storage Gen2\\n\\n//configuration_start\\n\\n=== Configuration\\n\\n[cols=\\\"d,d,m,a,e,d\\\".+:\"asciidoc\"}"
                       },
                       {
                         "comparison": "Contains",
@@ -2376,16 +2370,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"source\":\".+:\"asciidoc\"}"
-                      },
-                      {
                         "comparison": "Equals",
                         "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "70"
+                        "path": "content",
+                        "value": "{\"source\":\"Mapper for Azure Data Lake Storage Gen2\",\"type\":\"asciidoc\"}"
                       }
                     ]
                   }
@@ -2448,13 +2436,7 @@
                         "comparison": "Matches",
                         "subject": "ResponseBody",
                         "path": "content",
-                        "value": "^{\"source\":\".+:\"asciidoc\"}"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "4157"
+                        "value": "{\"source\":\"[cols=\\\"d,d,m,a,e,d\\\".+:\"asciidoc\"}"
                       }
                     ]
                   }
@@ -2574,13 +2556,7 @@
                         "comparison": "Matches",
                         "subject": "ResponseBody",
                         "path": "content",
-                        "value": "^{\"source\":\".+:\"asciidoc\"}"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "4289"
+                        "value": "^{\"source\":\"== AdlsGen2Input\\n\\nMapper for Azure Data Lake Storage Gen2\\n\\n//configuration_start\\n\\n=== Configuration\\n\\n[cols=\\\"d,d,m,a,e,d\\\".+:\"asciidoc\"}"
                       }
                     ]
                   }
@@ -3041,7 +3017,7 @@
                     },
                     "description": "Test the French request",
                     "id": "8418e453-60f4-4f09-933a-f9e57def7c36",
-                    "name": "component list ja",
+                    "name": "component list ja TODO",
                     "headers": [
                       {
                         "enabled": true,
@@ -3067,7 +3043,7 @@
                       {
                         "comparison": "Matches",
                         "subject": "ResponseBody",
-                        "enabled": true,
+                        "enabled": false,
                         "path": "content",
                         "value": "\"displayName\":\".{0,30}の入力.*\""
                       }
@@ -3149,21 +3125,21 @@
   ],
   "environments": [
     {
-      "id": "18bf351f-9c68-4b27-a824-00083bddde00",
-      "name": "localhost",
+      "id": "f122bbc5-8017-42d1-9ec9-98cf8a004462",
+      "name": "acatoire-local",
       "variables": {
-        "98617fb1-23bd-44bf-b9f8-b424a6c98e38": {
+        "d6d314b6-d13c-4152-b503-8e21a78a14aa": {
+          "name": "server-ip",
+          "value": "172.25.33.134",
+          "enabled": true,
+          "createdAt": "2022-05-05T09:43:06.786Z",
+          "private": false
+        },
+        "bacedbea-2b3d-47e5-802a-dce25ef29e53": {
           "name": "server-port",
           "value": "8081",
           "enabled": true,
-          "createdAt": "2022-05-06T08:30:39.511Z",
-          "private": false
-        },
-        "a8075682-4c57-4bf2-ac7a-2c9dcbecb86f": {
-          "name": "server-ip",
-          "value": "127.0.0.1",
-          "enabled": true,
-          "createdAt": "2022-05-06T08:30:39.511Z",
+          "createdAt": "2022-05-05T09:44:32.475Z",
           "private": false
         }
       }
