@@ -39,7 +39,7 @@
                     "name": "http",
                     "version": "V11"
                   },
-                  "host": "172.29.140.130:8081",
+                  "host": "localhost:8081",
                   "path": "/api/v1/component/icon/YXp1cmUtZGxzLWdlbjIjQXp1cmUjQWRsc0dlbjJJbnB1dA"
                 },
                 "id": "8909e667-5958-4a95-a7e3-d3f7b3fb20e4",
