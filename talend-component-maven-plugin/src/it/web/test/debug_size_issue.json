@@ -12,7 +12,7 @@
           "entity": {
             "type": "Scenario",
             "id": "c63d527b-8116-4047-8e53-61c942f3454d",
-            "name": "Size issue on icon"
+            "name": "Size issue"
           },
           "children": [
             {
@@ -33,24 +33,76 @@
                 "uri": {
                   "query": {
                     "delimiter": "&",
-                    "items": []
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "lightPayload",
+                        "value": "false"
+                      }
+                    ]
                   },
                   "scheme": {
                     "name": "http",
                     "version": "V11"
                   },
                   "host": "localhost:8081",
-                  "path": "/api/v1/component/icon/YXp1cmUtZGxzLWdlbjIjQXp1cmUjQWRsc0dlbjJJbnB1dA"
+                  "path": "/api/v1/configurationtype/index"
                 },
                 "id": "8909e667-5958-4a95-a7e3-d3f7b3fb20e4",
-                "name": "icon",
+                "name": "configurationtype lightPayload=false",
                 "headers": [],
                 "assertions": [
                   {
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "2056"
+                    "value": "25264"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "lightPayload",
+                        "value": "true"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "localhost:8081",
+                  "path": "/api/v1/configurationtype/index"
+                },
+                "id": "bca3be5b-b659-4e71-99f1-37926b639037",
+                "name": "configurationtype lightPayload=true",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "936"
                   }
                 ]
               }
