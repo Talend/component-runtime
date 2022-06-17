@@ -155,7 +155,7 @@ pipeline {
             // updating build displayName
             currentBuild.displayName = (
                 "#" + currentBuild.number +
-                ": " + runtimeName
+                ": " + branchToUse
             )
             // updating build description
             currentBuild.description = ( "Branch: " + branchToUse + "\n" +
