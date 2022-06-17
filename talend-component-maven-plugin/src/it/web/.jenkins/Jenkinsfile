@@ -132,21 +132,21 @@ pipeline {
       steps {
         container(tsbiImage) {
           script {
-            println("Job info:" +
-                " - Tenant instance: ${tenantInstance}" +
-                " - Tenant ID used for API Tester: ${tenantId}" +
-                " - Runtime version: ${runtimeVersion}" +
-                " - Test branch: ${branchToUse}" +
-                " - Test file executed: ${fileToRun}" + ".json" +
-                " - API Tester used environment: ${apiTesterEnv}")
+            println("Job info:\n" +
+                " - Tenant instance: ${tenantInstance}\n" +
+                " - Tenant ID used for API Tester: ${tenantId}\n" +
+                " - Runtime version: ${runtimeVersion}\n" +
+                " - Test branch: ${branchToUse}\n" +
+                " - Test file executed: ${fileToRun}" + ".json\n" +
+                " - API Tester used environment: ${apiTesterEnv}\n")
 
-            println("Talend Test Orchestrator info:" +
-                "${params.PLATFORM}" +
-                "${params.ENVIRONMENT}" +
-                "${params.FRAGMENT_URL}" +
-                "${params.DEPLOYMENT_UNIT}" +
-                "${params.CYCLE}" +
-                "${params.DEPLOYED_PRODUCTS}")
+            println("Talend Test Orchestrator info:\n" +
+                "PLATFORM: ${params.PLATFORM}\n" +
+                "ENVIRONMENT: ${params.ENVIRONMENT}\n" +
+                "FRAGMENT_URL: ${params.FRAGMENT_URL}\n" +
+                "DEPLOYMENT_UNIT: ${params.DEPLOYMENT_UNIT}\n" +
+                "CYCLE: ${params.CYCLE}\n" +
+                "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
 
             def runtimeName = "master"
             if (runtimeVersion != "") {
