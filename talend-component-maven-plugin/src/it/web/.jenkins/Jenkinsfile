@@ -38,11 +38,11 @@ String fileToRun = "component_runtime_prod"
 String tenantInstance = "eu"
 
 // TENANT_ID
-try {
-  tenantId = "${TENANT_ID}".split(':')[1]
+if ("${TENANT_ID}" != "") {
+  tenantId = "${TENANT_ID}"
 }
-catch (groovy.lang.MissingPropertyException ignored) {
-  error("TENANT_ID_TXT not supplied, test can't be run")
+else {
+  error("TENANT_ID not supplied, test can't be run")
 }
 // RUNTIME_VERSION
 try {
