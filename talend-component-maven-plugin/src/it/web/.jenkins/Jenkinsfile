@@ -21,6 +21,11 @@ final def nexusCredentials = usernamePassword(
     usernameVariable: 'NEXUS_USER',
     passwordVariable: 'NEXUS_PASSWORD')
 
+final def tenantId_Rd = string(
+    credentialsId: 'component-runtime-api-tenant-id-rd',
+    variable: 'componentRuntimeApiTenantId_Rd'
+)
+
 final String tsbiImage = 'jdk11-svc-springboot-builder'
 final String tsbiVersion = '2.9.18-2.4-20220104141654'
 
@@ -30,20 +35,12 @@ final String serverLog = "component_server.log"
 final String serverTimeout = "1"
 
 // Default value for parameters
-String tenantId = "default"
 String runtimeVersion = "default"
 String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master before the first PR merge
 String apiTesterEnv = "localhost"
 String fileToRun = "component_runtime_prod"
 String tenantInstance = "eu"
 
-// TENANT_ID
-if ("${TENANT_ID}" != "") {
-  tenantId = "${TENANT_ID}"
-}
-else {
-  error("TENANT_ID not supplied, test can't be run")
-}
 // RUNTIME_VERSION
 try {
   runtimeVersion = "${RUNTIME_VERSION}"
@@ -134,7 +131,6 @@ pipeline {
           script {
             println("Job info:\n" +
                 " - Tenant instance: ${tenantInstance}\n" +
-                " - Tenant ID used for API Tester: ${tenantId}\n" +
                 " - Runtime version: ${runtimeVersion}\n" +
                 " - Test branch: ${branchToUse}\n" +
                 " - Test file executed: ${fileToRun}" + ".json\n" +
@@ -240,7 +236,7 @@ pipeline {
 
     stage('Test run') {
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([nexusCredentials, tenantId_Rd]) {
           container(tsbiImage) {
             // Execute test with curl
             sh """
@@ -252,7 +248,7 @@ pipeline {
               cd ${TESTS_PATH}
               mvn clean test --settings=${MAVEN_SETTINGS} \
                              --define instance=${tenantInstance} \
-                             --define accountId=${tenantId} \
+                             --define accountId=${tenantId_Rd} \
                              --define selectedEnvironment=${apiTesterEnv} \
                              --define file=${fileToRun}.json
               """
