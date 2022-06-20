@@ -236,8 +236,8 @@ pipeline {
 
     stage('Test run') {
       steps {
-        withCredentials([nexusCredentials, tenantId_Rd]) {
-          container(tsbiImage) {
+        container(tsbiImage) {
+          withCredentials([nexusCredentials, tenantId_Rd]) {
             // Execute test with curl
             // sh """
             //   curl http://localhost:8081/api/v1/configurationtype/index?lightPayload=false > test_size.json
