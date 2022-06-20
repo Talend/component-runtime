@@ -63,7 +63,7 @@ public class Decimal extends LogicalType {
 
         @Override
         public Schema getRecommendedSchema() {
-            throw new UnsupportedOperationException("No recommended schema for decimal (scale is required)");
+            throw new UnsupportedOperationException("No recommended schema for decimal");
         }
 
         @Override
