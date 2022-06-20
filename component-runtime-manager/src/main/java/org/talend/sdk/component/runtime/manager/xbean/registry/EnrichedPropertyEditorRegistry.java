@@ -39,6 +39,7 @@ import org.apache.xbean.propertyeditor.ClassEditor;
 import org.apache.xbean.propertyeditor.Converter;
 import org.apache.xbean.propertyeditor.DateEditor;
 import org.apache.xbean.propertyeditor.DoubleEditor;
+import org.apache.xbean.propertyeditor.EnumConverter;
 import org.apache.xbean.propertyeditor.FileEditor;
 import org.apache.xbean.propertyeditor.HashMapEditor;
 import org.apache.xbean.propertyeditor.HashtableEditor;
@@ -158,20 +159,19 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
 
     @Override
     protected Converter findStructuralConverter(final Type type) {
-        final Converter result = super.findStructuralConverter(type);
-
         final Class<?> clazz = toClass(type);
         if (Enum.class.isAssignableFrom(clazz)) {
-            // override default logic, allows convert an empty string to null enum value
-            return new AbstractConverter(clazz) {
+            return new EnumConverter(clazz) {
+
                 @Override
                 protected Object toObjectImpl(final String text) {
-                    return text.isEmpty() ? null : result.toObject(text);
+                    // override default logic, allows convert an empty string to null enum value
+                    return text.isEmpty() ? null : super.toObject(text);
                 }
             };
+        } else {
+            return super.findStructuralConverter(type);
         }
-
-        return result;
     }
 
     @Override
