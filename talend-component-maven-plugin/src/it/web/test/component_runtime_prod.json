@@ -65,7 +65,7 @@
                     },
                     "description": "",
                     "id": "46e7fcb2-546c-48ec-8562-0222341f2435",
-                    "name": "action:index - default",
+                    "name": "action/index - default",
                     "headers": [],
                     "assertions": [
                       {
@@ -147,7 +147,7 @@
                     },
                     "description": "",
                     "id": "3844cd98-8396-4007-a884-5697c080884c",
-                    "name": "action:index - language",
+                    "name": "action/index - language",
                     "headers": [],
                     "assertions": [
                       {
@@ -229,7 +229,7 @@
                     },
                     "description": "",
                     "id": "86c9c41f-957e-4d3e-9876-b5ed378d1256",
-                    "name": "action:index - type",
+                    "name": "action/index - type",
                     "headers": [],
                     "assertions": [
                       {
@@ -305,7 +305,7 @@
                     },
                     "description": "",
                     "id": "26d1396a-4df2-4134-9b7c-230e701e92c9",
-                    "name": "action:index - family",
+                    "name": "action/index - family",
                     "headers": [],
                     "assertions": [
                       {
@@ -381,7 +381,7 @@
                     },
                     "description": "",
                     "id": "c2626f65-465e-40ce-91b4-8a9e75d02654",
-                    "name": "action:index - family unknown - empty item list",
+                    "name": "action/index - family unknown - empty item list",
                     "headers": [],
                     "assertions": [
                       {
@@ -451,7 +451,7 @@
                     },
                     "description": "",
                     "id": "0d3495b7-a22c-4968-b45d-6cdbd6e24d6a",
-                    "name": "action:index - type unknown - empty list",
+                    "name": "action/index - type unknown - empty list",
                     "headers": [],
                     "assertions": [
                       {
@@ -1180,119 +1180,6 @@
                         "items": [
                           {
                             "name": "language",
-                            "value": "fr"
-                          },
-                          {
-                            "enabled": true,
-                            "name": "identifiers",
-                            "value": "non_existing_id"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/details"
-                    },
-                    "description": "",
-                    "id": "9138465e-c1a3-4a3e-9838-4e2f8bb20127",
-                    "name": "component/details - wrong identifier - error 400",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "400"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "\"code\":\"COMPONENT_MISSING\""
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
-                            "name": "identifiers",
-                            "value": "${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/details"
-                    },
-                    "description": "",
-                    "id": "0ec2a95f-c993-40b1-bf92-3ebe494e0eca",
-                    "name": "component/details - missing identifier - empty answer",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"details\":[]}"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
                             "value": "en"
                           },
                           {
@@ -1407,6 +1294,119 @@
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "^{\"details\":"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "fr"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "identifiers",
+                            "value": "non_existing_id"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/details"
+                    },
+                    "description": "",
+                    "id": "9138465e-c1a3-4a3e-9838-4e2f8bb20127",
+                    "name": "component/details - wrong identifier - error 400",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "400"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "\"code\":\"COMPONENT_MISSING\""
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "en"
+                          },
+                          {
+                            "name": "identifiers",
+                            "value": "${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/details"
+                    },
+                    "description": "",
+                    "id": "0ec2a95f-c993-40b1-bf92-3ebe494e0eca",
+                    "name": "component/details - missing identifier - empty answer",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "{\"details\":[]}"
                       }
                     ]
                   }
@@ -2289,7 +2289,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "f75bd712-1883-4c94-9f9d-fa2824318607",
-                "name": "1-configurationtype.index"
+                "name": "1 - configurationtype.index"
               },
               "children": [
                 {
@@ -2334,7 +2334,7 @@
                     },
                     "description": "",
                     "id": "c68ed507-1492-4d84-a456-b4d42759a20c",
-                    "name": "configurationtype/index-default",
+                    "name": "configurationtype/index - default",
                     "headers": [],
                     "assertions": [
                       {
@@ -2395,7 +2395,7 @@
                     },
                     "description": "TODO No language dependent so no body change",
                     "id": "0af44c7a-7832-478c-a99f-209ed165bf6d",
-                    "name": "configurationtype/index-language-TODO",
+                    "name": "configurationtype/index - language - TODO",
                     "headers": [],
                     "assertions": [
                       {
@@ -2456,7 +2456,7 @@
                     },
                     "description": "",
                     "id": "73bcd242-f5fe-425f-8944-30a87db15af6",
-                    "name": "configurationtype/index-lightPayload-false",
+                    "name": "configurationtype/index - lightPayload - false",
                     "headers": [],
                     "assertions": [
                       {
@@ -2523,7 +2523,7 @@
                     },
                     "description": "",
                     "id": "f4ed65ce-6780-465c-b9e5-535430431a3b",
-                    "name": "configurationtype/index-lightPayload-true",
+                    "name": "configurationtype/index - lightPayload - true",
                     "headers": [],
                     "assertions": [
                       {
@@ -2554,7 +2554,7 @@
                 "type": "Scenario",
                 "description": "",
                 "id": "434d244e-34c6-4428-a908-f39d384bfa60",
-                "name": "2-configurationtype.details"
+                "name": "2 - configurationtype.details"
               },
               "children": [
                 {
@@ -2878,7 +2878,7 @@
           "entity": {
             "type": "Service",
             "id": "303ccc0e-831c-4eaf-9211-2ce5c4716eeb",
-            "name": "info"
+            "name": "documentation"
           },
           "children": [
             {
@@ -3104,6 +3104,69 @@
                           {
                             "enabled": true,
                             "name": "segment",
+                            "value": "ALL"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/documentation/component/${getEntityById(\"3bc9ef4c-1c2e-4c8b-a1b1-e589efd2d7b4\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                    },
+                    "description": "",
+                    "id": "471c0f9f-1898-460c-b322-4775873be0de",
+                    "name": "documentation/component - segment - ALL",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Matches",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "^{\"source\":\"== AdlsGen2Input\\n\\nMapper for Azure Data Lake Storage Gen2\\n\\n//configuration_start\\n\\n=== Configuration\\n\\n[cols=\\\"d,d,m,a,e,d\\\".+:\"asciidoc\"}"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "fr"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "segment",
                             "value": "DESCRIPTION"
                           }
                         ]
@@ -3260,78 +3323,24 @@
                       }
                     ]
                   }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "fr"
-                          },
-                          {
-                            "enabled": true,
-                            "name": "segment",
-                            "value": "ALL"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"3bc9ef4c-1c2e-4c8b-a1b1-e589efd2d7b4\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
-                    },
-                    "description": "",
-                    "id": "471c0f9f-1898-460c-b322-4775873be0de",
-                    "name": "documentation/component - segment - ALL",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Exists",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"source\":\"== AdlsGen2Input\\n\\nMapper for Azure Data Lake Storage Gen2\\n\\n//configuration_start\\n\\n=== Configuration\\n\\n[cols=\\\"d,d,m,a,e,d\\\".+:\"asciidoc\"}"
-                      }
-                    ]
-                  }
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Service",
+            "id": "5e44b8c0-b8d9-42ab-bcdc-e608d53805e0",
+            "name": "environment"
+          },
+          "children": [
             {
               "entity": {
                 "type": "Scenario",
                 "description": "",
                 "id": "417d6e0c-9f5e-47c7-bc03-84557e8cc11d",
-                "name": "2 - environment"
+                "name": "1 - environment"
               },
               "children": [
                 {
@@ -3359,7 +3368,7 @@
                     },
                     "description": "",
                     "id": "92e5f599-6679-46af-91b8-a068640f0103",
-                    "name": "environment",
+                    "name": "environment - default",
                     "headers": [],
                     "assertions": [
                       {
