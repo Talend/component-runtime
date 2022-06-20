@@ -142,6 +142,7 @@ public final class Unsafes {
      * @param classLoader the classloader to use to define the proxy.
      * @param proxyName the class name to define.
      * @param proxyBytes the bytes of the class to define.
+     * @param <T> the Class type
      * @return the Class which got loaded in the classloader
      */
     public static <T> Class<T> defineAndLoadClass(final ClassLoader classLoader, final String proxyName,

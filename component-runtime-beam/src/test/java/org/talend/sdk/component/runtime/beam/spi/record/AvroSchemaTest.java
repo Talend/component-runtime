@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -26,20 +27,27 @@ import static org.talend.sdk.component.api.record.Schema.Type.DECIMAL;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.IndexedRecord;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.TypePropertyKey;
+import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 
 class AvroSchemaTest {
 
@@ -218,6 +226,28 @@ class AvroSchemaTest {
         assertEquals(3, schemaNew.getEntries().size());
         assertEquals(6, schemaNew.getAllEntries().count());
         assertEquals("meta1,data1,meta2,data2,data3,meta3", getSchemaFields(schemaNew));
+
+        // test move after last
+        final org.talend.sdk.component.api.record.Schema schema2 = new AvroSchemaBuilder() //
+                .withType(RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta1) //
+                .withEntry(data2) //
+                .withEntry(meta2) //
+                .moveAfter("meta2", "data1")
+                .build();
+        assertEquals("meta1,data2,meta2,data1", getSchemaFields(schema2));
+
+        // test move before first
+        final org.talend.sdk.component.api.record.Schema schema3 = new AvroSchemaBuilder() //
+                .withType(RECORD) //
+                .withEntry(data1) //
+                .withEntry(meta1) //
+                .withEntry(data2) //
+                .withEntry(meta2) //
+                .moveBefore("data1", "data2")
+                .build();
+        assertEquals("data2,data1,meta1,meta2", getSchemaFields(schema3));
     }
 
     @Test
@@ -250,6 +280,30 @@ class AvroSchemaTest {
         assertEquals("meta1,meta2,data1,data2", getSchemaFields(schema, entriesOrder));
         entriesOrder.swap("meta1", "data2").moveBefore("meta2", "data1");
         assertEquals("data2,data1,meta2,meta1", getSchemaFields(schema, entriesOrder));
+    }
+
+    @RepeatedTest(20)
+    void entriesOrderShouldBeDeterministic() {
+        final List<Entry> entries = IntStream
+                .range(0, 20)
+                .mapToObj(i -> newEntry(String.format("data0%02d", i), Type.STRING).build())
+                .collect(toList());
+        entries.add(data1);
+        entries.add(data2);
+        entries.add(meta1);
+        entries.add(meta2);
+        Collections.shuffle(entries);
+        final String shuffled = entries.stream()
+                .map(e -> e.getName())
+                .filter(s -> !s.matches("(data1|data2|meta1|meta2)"))
+                .collect(joining(","));
+        final Builder builder = new BuilderImpl().withType(Type.RECORD);
+        entries.forEach(builder::withEntry);
+        final org.talend.sdk.component.api.record.Schema schema = builder.build();
+        final String order = "meta1,meta2,data1,data2";
+        final EntriesOrder entriesOrder = EntriesOrder.of(order);
+        Assertions.assertEquals(shuffled, getSchemaFields(schema, entriesOrder).replace(order + ",", ""));
+        Assertions.assertEquals(order, getSchemaFields(schema, entriesOrder).replaceAll(",data0.*", ""));
     }
 
     private String getSchemaFields(final org.talend.sdk.component.api.record.Schema schema) {
@@ -396,12 +450,10 @@ class AvroSchemaTest {
             assertEquals("fp2", indexedRecordSchema.getField("two").getProp("prop2"));
             assertEquals("fp3", indexedRecordSchema.getField("three").getProp("prop3"));
             assertEquals("fp4", indexedRecordSchema.getField("four").getProp("prop4"));
-            assertEquals("es5", indexedRecordSchema.getField("four")
-                    .schema()
-                    .getTypes()
-                    .get(1)
-                    .getField("field")
-                    .getProp("prop5"));
+            assertEquals("es5", nonNullType(indexedRecordSchema.getField("four")
+                    .schema())
+                            .getField("field")
+                            .getProp("prop5"));
             // recreate an AvroRecord from an IndexedRecord
             final AvroRecord avroRecordFromIdx = new AvroRecord(indexedRecord);
             assertEquals("value1", avroRecordFromIdx.getString("one"));
@@ -417,6 +469,14 @@ class AvroSchemaTest {
                 System.setProperty("talend.component.beam.record.factory.impl", oldValue);
             }
         }
+    }
+
+    private Schema nonNullType(final Schema schema) {
+        return schema.getTypes()
+                .stream()
+                .filter((Schema sub) -> sub.getType() != Schema.Type.NULL)
+                .findFirst()
+                .orElse(schema);
     }
 
 }

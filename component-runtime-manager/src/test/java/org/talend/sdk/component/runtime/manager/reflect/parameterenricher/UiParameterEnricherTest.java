@@ -40,6 +40,7 @@ import org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Code;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
+import org.talend.sdk.component.api.configuration.ui.widget.ModuleList;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 
@@ -242,6 +243,19 @@ class UiParameterEnricherTest {
                     public Class<? extends Annotation> annotationType() {
                         return Credential.class;
                     }
+                }));
+    }
+
+    @Test
+    void moduleList() {
+        assertEquals(singletonMap("tcomp::ui::modulelist", "true"),
+                enricher.onParameterAnnotation("testParam", String.class, new ModuleList() {
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return ModuleList.class;
+                    }
+
                 }));
     }
 

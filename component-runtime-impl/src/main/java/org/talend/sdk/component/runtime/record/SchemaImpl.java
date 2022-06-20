@@ -16,18 +16,22 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
+import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
 
 import lombok.EqualsAndHashCode;
@@ -60,8 +64,8 @@ public class SchemaImpl implements Schema {
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
         this.type = builder.type;
         this.elementSchema = builder.elementSchema;
-        this.entries = unmodifiableList(builder.entries);
-        this.metadataEntries = unmodifiableList(builder.metadataEntries);
+        this.entries = unmodifiableList(builder.entries.streams().collect(toList()));
+        this.metadataEntries = unmodifiableList(builder.metadataEntries.streams().collect(toList()));
         this.props = builder.props;
         entriesOrder = EntriesOrder.of(getFieldsOrder());
     }
@@ -74,9 +78,9 @@ public class SchemaImpl implements Schema {
     @Override
     public int hashCode() {
         final String e1 =
-                this.entries != null ? this.entries.stream().map(Entry::getName).collect(Collectors.joining(",")) : "";
+                this.entries != null ? this.entries.stream().map(Entry::getName).collect(joining(",")) : "";
         final String m1 = this.metadataEntries != null
-                ? this.metadataEntries.stream().map(Entry::getName).collect(Collectors.joining(","))
+                ? this.metadataEntries.stream().map(Entry::getName).collect(joining(","))
                 : "";
 
         return Objects.hash(this.type, this.elementSchema, e1, m1);
@@ -129,14 +133,14 @@ public class SchemaImpl implements Schema {
                 .withProps(this.props
                         .entrySet()
                         .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
         getEntriesOrdered().forEach(builder::withEntry);
         return builder;
     }
 
     @JsonbTransient
     public List<Entry> getEntriesOrdered() {
-        return getAllEntries().sorted(entriesOrder).collect(Collectors.toList());
+        return getAllEntries().sorted(entriesOrder).collect(toList());
     }
 
     @Override
@@ -148,7 +152,7 @@ public class SchemaImpl implements Schema {
     private String getFieldsOrder() {
         String fields = getProp(ENTRIES_ORDER_PROP);
         if (fields == null || fields.isEmpty()) {
-            fields = getAllEntries().map(entry -> entry.getName()).collect(Collectors.joining(","));
+            fields = getAllEntries().map(entry -> entry.getName()).collect(joining(","));
             props.put(ENTRIES_ORDER_PROP, fields);
         }
         return fields;
@@ -160,9 +164,9 @@ public class SchemaImpl implements Schema {
 
         private Schema elementSchema;
 
-        private final List<Entry> entries = new ArrayList<>();
+        private final OrderedMap<Schema.Entry> entries = new OrderedMap<>(Schema.Entry::getName);
 
-        private final List<Entry> metadataEntries = new ArrayList<>();
+        private final OrderedMap<Schema.Entry> metadataEntries = new OrderedMap<>(Schema.Entry::getName);
 
         private Map<String, String> props = new LinkedHashMap<>(0);
 
@@ -188,15 +192,17 @@ public class SchemaImpl implements Schema {
             if (type != Type.RECORD) {
                 throw new IllegalArgumentException("entry is only valid for RECORD type of schema");
             }
-            final Entry entryToAdd = Schema.avoidCollision(entry, this::getAllEntries, this::replaceEntry);
+            final Entry entryToAdd = Schema.avoidCollision(entry,
+                    this::getEntry,
+                    this::replaceEntry);
             if (entryToAdd == null) {
                 // mean try to add entry with same name.
                 throw new IllegalArgumentException("Entry with name " + entry.getName() + " already exist in schema");
             }
             if (entry.isMetadata()) {
-                this.metadataEntries.add(entryToAdd);
+                this.metadataEntries.addValue(entryToAdd);
             } else {
-                this.entries.add(entryToAdd);
+                this.entries.addValue(entryToAdd);
             }
 
             entriesOrder.add(entry.getName());
@@ -216,25 +222,15 @@ public class SchemaImpl implements Schema {
         }
 
         private void replaceEntry(final String name, final Schema.Entry entry) {
-            boolean fromEntries = this.replaceEntryFrom(this.entries, name, entry);
-            if (!fromEntries) {
-                this.replaceEntryFrom(this.metadataEntries, name, entry);
+            if (this.entries.getValue(entry.getName()) != null) {
+                this.entries.replace(name, entry);
+            } else if (this.metadataEntries.getValue(name) != null) {
+                this.metadataEntries.replace(name, entry);
             }
-        }
-
-        private boolean replaceEntryFrom(final List<Entry> currentEntries, final String entryName,
-                final Schema.Entry entry) {
-            for (int index = 0; index < currentEntries.size(); index++) {
-                if (Objects.equals(entryName, currentEntries.get(index).getName())) {
-                    currentEntries.set(index, entry);
-                    return true;
-                }
-            }
-            return false;
         }
 
         private Stream<Entry> getAllEntries() {
-            return Stream.concat(this.entries.stream(), this.metadataEntries.stream());
+            return Stream.concat(this.entries.streams(), this.metadataEntries.streams());
         }
 
         @Override
@@ -253,25 +249,25 @@ public class SchemaImpl implements Schema {
 
         @Override
         public Builder remove(final String name) {
-            final Entry entry = Stream
-                    .concat(entries.stream(), metadataEntries.stream())
-                    .filter(e -> name.equals(e.getName()))
-                    .findFirst()
-                    .get();
+            final Entry entry = this.getEntry(name);
             if (entry == null) {
                 throw new IllegalArgumentException(String.format("%s not in schema", name));
             }
-            return remove(entry);
+            return this.remove(entry);
         }
 
         @Override
         public Builder remove(final Entry entry) {
-            if (entry.isMetadata()) {
-                metadataEntries.remove(entry);
-            } else {
-                entries.remove(entry);
+            if (entry != null) {
+                if (entry.isMetadata()) {
+                    if (this.metadataEntries.getValue(entry.getName()) != null) {
+                        metadataEntries.removeValue(entry);
+                    }
+                } else if (this.entries.getValue(entry.getName()) != null) {
+                    entries.removeValue(entry);
+                }
+                entriesOrder.remove(entry.getName());
             }
-            entriesOrder.remove(entry.getName());
             return this;
         }
 
@@ -308,8 +304,26 @@ public class SchemaImpl implements Schema {
 
         @Override
         public Schema build() {
-            this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(Collectors.joining(",")));
+            if (this.entriesOrder != null && !this.entriesOrder.isEmpty()) {
+                this.props.put(ENTRIES_ORDER_PROP, entriesOrder.stream().collect(joining(",")));
+            }
             return new SchemaImpl(this);
+        }
+
+        @Override
+        public Schema build(final Comparator<Entry> order) {
+            final String entriesOrder = this.getAllEntries().sorted(order).map(Entry::getName).collect(joining(","));
+            this.props.put(ENTRIES_ORDER_PROP, entriesOrder);
+
+            return new SchemaImpl(this);
+        }
+
+        private Schema.Entry getEntry(final String name) {
+            Entry entry = this.entries.getValue(name);
+            if (entry == null) {
+                entry = this.metadataEntries.getValue(name);
+            }
+            return entry;
         }
     }
 

@@ -72,6 +72,11 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
     }
 
     @Override
+    protected boolean isAvailable() {
+        return true;
+    }
+
+    @Override
     public ModuleWizardStep[] createWizardSteps(final WizardContext wizardContext,
             final ModulesProvider modulesProvider) {
 

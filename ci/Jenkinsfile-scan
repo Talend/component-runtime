@@ -16,7 +16,7 @@
 final def slackChannel = 'components-ci'
 final def veracodeCredentials = usernamePassword(credentialsId: 'veracode-api-credentials', usernameVariable: 'VERACODE_ID', passwordVariable: 'VERACODE_KEY')
 final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.9.18-2.4-20220104141654"
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:2.9.27-20220331162145"
 final def podLabel = "component-runtime-scan-${UUID.randomUUID().toString()}".take(53)
 pipeline {
     agent {
@@ -75,6 +75,28 @@ spec:
     }
 
     stages {
+        stage('Post login') {
+            steps {
+                container('main') {
+                    checkout([$class : 'GitSCM',
+                              branches: [[name: 'master']],
+                              extensions : [
+                                      [$class: 'CheckoutOption', timeout: 30],
+                                      [$class: 'CloneOption', depth: 30, noTags: true, shallow: true, timeout: 30]],
+                              userRemoteConfigs : [[url: 'https://github.com/Talend/component-runtime.git', credentialsId: 'github-credentials']]])
+
+                    script {
+                        try {
+                            sh """
+                                   bash .jenkins/scripts/npm_fix.sh
+                               """
+                        } catch (error) {
+                            //
+                        }
+                    }
+                }
+            }
+        }
         stage("SourceClear analysis") {
             steps {
                 container('main') {

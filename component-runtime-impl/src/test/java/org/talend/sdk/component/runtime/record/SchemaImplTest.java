@@ -16,12 +16,14 @@
 package org.talend.sdk.component.runtime.record;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +38,7 @@ import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -82,6 +85,7 @@ class SchemaImplTest {
                 .suppress(Warning.STRICT_HASHCODE) // Supress test hashcode use all fields used by equals (for legacy)
                 .forClass(SchemaImpl.class)
                 .withPrefabValues(Schema.Entry.class, first, second)
+                .withPrefabValues(EntriesOrder.class, EntriesOrder.of("First"), EntriesOrder.of("Second"))
                 .verify();
     }
 
@@ -394,11 +398,11 @@ class SchemaImplTest {
         final Map<String, Schema.Entry> entries = new HashMap<>();
         for (int index = 1; index < 8; index++) {
             final Schema.Entry e = this.newEntry(index + "name_b", Type.STRING);
-            final Schema.Entry realEntry = Schema.avoidCollision(e, entries.values()::stream, entries::put);
+            final Schema.Entry realEntry = Schema.avoidCollision(e, entries::get, entries::put);
             entries.put(realEntry.getName(), realEntry);
         }
         final Entry last = this.newEntry("name_b_5", Type.STRING);
-        final Schema.Entry realEntry = Schema.avoidCollision(last, entries.values()::stream, entries::put);
+        final Schema.Entry realEntry = Schema.avoidCollision(last, entries::get, entries::put);
         entries.put(realEntry.getName(), realEntry);
 
         Assertions.assertEquals(8, entries.size());
@@ -412,14 +416,49 @@ class SchemaImplTest {
         final Map<String, Entry> entriesDuplicate = new HashMap<>();
         final Schema.Entry e1 = this.newEntry("goodName", Type.STRING);
         final Schema.Entry realEntry1 =
-                Schema.avoidCollision(e1, entriesDuplicate.values()::stream, entriesDuplicate::put);
+                Schema.avoidCollision(e1, entriesDuplicate::get, entriesDuplicate::put);
         Assertions.assertSame(e1, realEntry1);
         entriesDuplicate.put(realEntry1.getName(), realEntry1);
         final Schema.Entry e2 = this.newEntry("goodName", Type.STRING);
         final Schema.Entry realEntry2 =
-                Schema.avoidCollision(e2, entriesDuplicate.values()::stream, entriesDuplicate::put);
+                Schema.avoidCollision(e2, entriesDuplicate::get, entriesDuplicate::put);
 
         Assertions.assertSame(realEntry2, e2);
+    }
+
+    @RepeatedTest(20)
+    void entriesOrderShouldBeDeterministic() {
+        final List<Entry> entries = IntStream
+                .range(0, 20)
+                .mapToObj(i -> newEntry(String.format("data0%02d", i), Type.STRING))
+                .collect(toList());
+        entries.add(data1);
+        entries.add(data2);
+        entries.add(meta1);
+        entries.add(meta2);
+        Collections.shuffle(entries);
+        final String shuffled = entries.stream()
+                .map(e -> e.getName())
+                .filter(s -> !s.matches("(data1|data2|meta1|meta2)"))
+                .collect(joining(","));
+        final Builder builder = new BuilderImpl().withType(Type.RECORD);
+        entries.forEach(builder::withEntry);
+        final Schema schema = builder.build();
+        final String order = "meta1,meta2,data1,data2";
+        final EntriesOrder entriesOrder = EntriesOrder.of(order);
+        assertEquals(shuffled, getSchemaFields(schema, entriesOrder).replace(order + ",", ""));
+        assertEquals(order, getSchemaFields(schema, entriesOrder).replaceAll(",data0.*", ""));
+    }
+
+    @Test
+    void emptyRecord() {
+        final Schema emptySchema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .build();
+        List<Entry> ordered = emptySchema.getEntriesOrdered();
+        RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test");
+        Record record = factory.newRecordBuilder(emptySchema).build();
+        Assertions.assertNotNull(record);
     }
 
     private String getSchemaFields(final Schema schema) {

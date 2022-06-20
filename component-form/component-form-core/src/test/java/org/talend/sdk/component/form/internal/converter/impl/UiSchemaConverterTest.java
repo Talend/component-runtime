@@ -24,9 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,6 +59,48 @@ class UiSchemaConverterTest {
                         null, NPROPS),
                 new SimplePropertyDefinition("configuration.list[].name", "name", "name", "STRING", null, NVAL,
                         emptyMap(), null, NPROPS));
+        final List<UiSchema> schemas = getUiSchemas(properties);
+        assertEquals(1, schemas.size());
+        final UiSchema configuration = schemas.iterator().next();
+        assertNull(configuration.getKey());
+        assertEquals(1, configuration.getItems().size());
+        final UiSchema list = configuration.getItems().iterator().next();
+        assertEquals("configuration.list", list.getKey());
+        assertEquals("collapsibleFieldset", list.getItemWidget());
+        assertEquals(1, list.getItems().size());
+        final UiSchema name = list.getItems().iterator().next();
+        assertEquals("configuration.list[].name", name.getKey());
+        assertEquals("text", name.getWidget());
+    }
+
+    @Test
+    void moduleListWithBeanList() throws Exception {
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put("ui::modulelist", "true");
+        final List<SimplePropertyDefinition> properties = asList(
+                new SimplePropertyDefinition("configuration", "configuration", "configuration", "OBJECT", null, NVAL,
+                        emptyMap(), null, NPROPS),
+                new SimplePropertyDefinition("configuration.drivers", "drivers", "drivers", "ARRAY", null, NVAL,
+                        emptyMap(),
+                        null, NPROPS),
+                new SimplePropertyDefinition("configuration.drivers[].path", "path", "path", "STRING", null, NVAL,
+                        metadata, null, NPROPS));
+        final List<UiSchema> schemas = getUiSchemas(properties);
+        assertEquals(1, schemas.size());
+        final UiSchema configuration = schemas.iterator().next();
+        assertNull(configuration.getKey());
+        assertEquals(1, configuration.getItems().size());
+        final UiSchema list = configuration.getItems().iterator().next();
+        assertEquals("configuration.drivers", list.getKey());
+        assertEquals("collapsibleFieldset", list.getItemWidget());
+        assertEquals(1, list.getItems().size());
+        final UiSchema name = list.getItems().iterator().next();
+        assertEquals("configuration.drivers[].path", name.getKey());
+        // use text type in react ui form for the item, it mean ignore @ModuleList which only works for studio now
+        assertEquals("text", name.getWidget());
+    }
+
+    private List<UiSchema> getUiSchemas(List<SimplePropertyDefinition> properties) throws Exception {
         final PropertyContext<Object> propertyContext =
                 new PropertyContext<>(properties.iterator().next(), null, new PropertyContext.Configuration(false));
         final List<UiSchema> schemas = new ArrayList<>();
@@ -72,17 +116,7 @@ class UiSchemaConverterTest {
                             .toCompletableFuture()
                             .get();
         }
-        assertEquals(1, schemas.size());
-        final UiSchema configuration = schemas.iterator().next();
-        assertNull(configuration.getKey());
-        assertEquals(1, configuration.getItems().size());
-        final UiSchema list = configuration.getItems().iterator().next();
-        assertEquals("configuration.list", list.getKey());
-        assertEquals("collapsibleFieldset", list.getItemWidget());
-        assertEquals(1, list.getItems().size());
-        final UiSchema name = list.getItems().iterator().next();
-        assertEquals("configuration.list[].name", name.getKey());
-        assertEquals("text", name.getWidget());
+        return schemas;
     }
 
     @Test

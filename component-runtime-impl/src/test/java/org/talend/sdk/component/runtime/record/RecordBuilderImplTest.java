@@ -20,21 +20,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
@@ -53,6 +57,11 @@ class RecordBuilderImplTest {
                         .build())
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
+
+        Schema.EntriesOrder e = Schema.EntriesOrder.of(new RecordImpl.BuilderImpl().getCurrentEntries()
+                .stream()
+                .map(Schema.Entry::getName)
+                .collect(Collectors.toList()));
     }
 
     @Test
@@ -388,7 +397,7 @@ class RecordBuilderImplTest {
         final Entry entry = entries.stream().filter((Entry e) -> "field1".equals(e.getName())).findFirst().get();
         builder.removeEntry(entry);
         Assertions.assertEquals(1, builder.getCurrentEntries().size());
-        Assertions.assertTrue(entries.stream().anyMatch((Entry e) -> "fieldInt".equals(e.getName())));
+        assertTrue(entries.stream().anyMatch((Entry e) -> "fieldInt".equals(e.getName())));
 
         Schema.Entry unknownEntry = newEntry("fieldUnknown", "fieldUnknown", Type.STRING, true, "unknown", "Comment");
         assertThrows(IllegalArgumentException.class, () -> builder.removeEntry(unknownEntry));
@@ -418,10 +427,9 @@ class RecordBuilderImplTest {
         final Entry entry = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
         builder.updateEntryByName("field1", entry);
         Assertions.assertEquals(2, builder.getCurrentEntries().size());
-        Assertions
-                .assertTrue(entries
-                        .stream()
-                        .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
+        assertTrue(builder.getCurrentEntries()
+                .stream()
+                .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
         assertEquals("Hello", builder.getValue("field2"));
 
         final Entry entryTypeNotCompatible = newEntry("field3", "newFieldName", Type.INT, true, 5, "Comment");
@@ -444,12 +452,11 @@ class RecordBuilderImplTest {
         final Entry entry1 = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
         Record.Builder newBuilder = builder1.updateEntryByName("field1", entry1);
         Assertions.assertEquals(1, newBuilder.getCurrentEntries().size());
-        Assertions
-                .assertTrue(newBuilder
-                        .getCurrentEntries()
-                        .stream()
-                        .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
-                                && Type.STRING.equals(e.getType())));
+        assertTrue(newBuilder
+                .getCurrentEntries()
+                .stream()
+                .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
+                        && Type.STRING.equals(e.getType())));
         assertEquals("10", newBuilder.getValue("field2"));
     }
 
@@ -573,6 +580,109 @@ class RecordBuilderImplTest {
                 .withString("meta0", "meta0") //
                 .build();
         assertEquals("meta0,103,104,data0,101,102", getRecordValues(record2));
+    }
+
+    @Test
+    void recordAfterBefore() {
+        final Record record = new RecordImpl.BuilderImpl()
+                .withString("_10", "10")
+                .withString("_20", "20")
+                .withString("_30", "30")
+                .withString("_40", "40")
+                .withString("_50", "50")
+                .before("_10")
+                .withString("_00", "0")
+                .after("_20")
+                .withString("_25", "25")
+                .after("_50")
+                .withString("_55", "55")
+                .before("_55")
+                .withString("_53", "53")
+                .build();
+        assertEquals("_00,_10,_20,_25,_30,_40,_50,_53,_55", getSchemaFields(record.getSchema()));
+        assertEquals("_00,_10,_20,_25,_30,_40,_50,_53,_55", record.getSchema().naturalOrder().toFields());
+        assertEquals("0,10,20,25,30,40,50,53,55", getRecordValues(record));
+    }
+
+    @Test
+    void recordOrderingWithProvidedSchema() {
+        final Schema schema = new RecordImpl.BuilderImpl()
+                .withString("_10", "10")
+                .withString("_20", "20")
+                .withString("_30", "30")
+                .withString("_40", "40")
+                .withString("_50", "50")
+                .withString("_00", "0")
+                .withString("_25", "25")
+                .withString("_55", "55")
+                .withString("_53", "53")
+                .build()
+                .getSchema();
+        final EntriesOrder order = schema.naturalOrder()
+                .moveBefore("_10", "_00")
+                .moveAfter("_20", "_25")
+                .swap("_53", "_55");
+        assertEquals("_00,_10,_20,_25,_30,_40,_50,_53,_55", order.toFields());
+        final Record record = new RecordImpl.BuilderImpl(schema.toBuilder().build(order))
+                .withString("_10", "10")
+                .withString("_20", "20")
+                .withString("_30", "30")
+                .withString("_40", "40")
+                .withString("_50", "50")
+                .withString("_00", "0")
+                .withString("_25", "25")
+                .withString("_55", "55")
+                .before("_30")
+                .withString("_53", "53")
+                .build();
+        assertTrue(RecordImpl.class.isInstance(record));
+        assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", getSchemaFields(record.getSchema()));
+        assertEquals("_00,_10,_20,_25,_53,_30,_40,_50,_55", record.getSchema().naturalOrder().toFields());
+        assertEquals("0,10,20,25,53,30,40,50,55", getRecordValues(record));
+        final Schema newSchema = record
+                .getSchema()
+                .toBuilder()
+                .remove("_00")
+                .remove("_10")
+                .remove("_20")
+                .withEntry(newEntry("_60", Type.INT))
+                .withEntry(newEntry("_56", Type.INT))
+                .build();
+        assertEquals("_25,_53,_30,_40,_50,_55,_60,_56", getSchemaFields(newSchema));
+        assertEquals("_25,_53,_30,_40,_50,_55,_60,_56", newSchema.naturalOrder().toFields());
+        // provide an order w/ obsolete/missing entries
+        final List<String> newOrder = record.getSchema().naturalOrder().getFieldsOrder().collect(Collectors.toList());
+        Collections.sort(newOrder);
+        Collections.reverse(newOrder);
+        assertEquals("_55,_53,_50,_40,_30,_25,_20,_10,_00", newOrder.stream().collect(joining(",")));
+        //
+        final Schema newSchemaBis = newSchema.toBuilder().build(EntriesOrder.of(newOrder));
+        assertEquals("_55,_53,_50,_40,_30,_25,_60,_56", getSchemaFields(newSchemaBis));
+        assertEquals("_55,_53,_50,_40,_30,_25,_60,_56", newSchemaBis.naturalOrder().toFields());
+        //
+        final Record newRecord = record.withNewSchema(newSchemaBis)
+                .after("_40")
+                .withInt("_60", 60)
+                .before("_60")
+                .withInt("_56", 56)
+                .build();
+        assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", getSchemaFields(newRecord.getSchema()));
+        assertEquals("_55,_53,_50,_40,_56,_60,_30,_25", newRecord.getSchema().naturalOrder().toFields());
+        assertEquals("55,53,50,40,56,60,30,25", getRecordValues(newRecord));
+    }
+
+    @Test
+    void recordAfterBeforeFail() {
+        assertThrows(IllegalArgumentException.class, () -> new RecordImpl.BuilderImpl()
+                .withString("_10", "10")
+                .before("_50")
+                .withString("_45", "45")
+                .build());
+        assertThrows(IllegalArgumentException.class, () -> new RecordImpl.BuilderImpl()
+                .withString("_10", "10")
+                .after("_50")
+                .withString("_55", "55")
+                .build());
     }
 
     private String getSchemaFields(final Schema schema) {

@@ -469,6 +469,10 @@ public class TaCoKitGuessSchema {
     public boolean guessSchemaThroughResult(final Object rowObject) throws Exception {
         if (rowObject instanceof java.util.Map) {
             return guessSchemaThroughResult((java.util.Map) rowObject);
+        } else if (rowObject instanceof Schema) {
+            return fromSchema(Schema.class.cast(rowObject));
+        } else if (rowObject instanceof Record) {
+            return fromSchema(Record.class.cast(rowObject).getSchema());
         } else if (rowObject instanceof java.util.Collection) {
             throw new Exception("Can't guess schema from a Collection");
         } else {

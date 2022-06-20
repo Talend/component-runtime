@@ -44,6 +44,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.starter.server.configuration.StarterConfiguration;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXNotRecognizedException;
@@ -67,6 +68,22 @@ public class ServerInfo {
     @Inject
     @Getter(NONE)
     private StarterConfiguration configuration;
+
+    @Inject
+    @ConfigProperty(name = "git.build.version")
+    private String release;
+
+    @Inject
+    @ConfigProperty(name = "git.branch")
+    private String branch;
+
+    @Inject
+    @ConfigProperty(name = "git.commit.id")
+    private String commit;
+
+    @Inject
+    @ConfigProperty(name = "git.build.time")
+    private String buildTime;
 
     private ScheduledExecutorService thread;
 

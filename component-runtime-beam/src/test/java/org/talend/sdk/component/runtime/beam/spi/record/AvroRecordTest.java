@@ -27,25 +27,34 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
-import org.apache.avro.Conversions;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.avro.reflect.ReflectData;
+import org.apache.avro.Conversions;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.io.JsonEncoder;
 import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.transforms.Create;
-import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
@@ -65,10 +74,6 @@ import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
-
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
 
 class AvroRecordTest {
 
@@ -202,11 +207,7 @@ class AvroRecordTest {
 
     @Test
     void withNullEntry() {
-        final AvroRecordBuilderFactoryProvider provider = new AvroRecordBuilderFactoryProvider();
-        final String oldValue = System.setProperty("talend.component.beam.record.factory.impl", "avro");
-        try {
-            final RecordBuilderFactory factory = provider.apply("test");
-
+        final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
                     .withEntry(factory.newEntryBuilder()
                             .withName("field")
@@ -237,13 +238,8 @@ class AvroRecordTest {
             Assertions.assertEquals("world", record.getString("field"));
             Assertions.assertEquals("schemaV1", record.getSchema().getProp("schemaK1"));
             Assertions.assertEquals("v1", record.getSchema().getEntry("field").getProp("k1"));
-        } finally {
-            if (oldValue == null) {
-                System.clearProperty("talend.component.beam.record.factory.impl");
-            } else {
-                System.setProperty("talend.component.beam.record.factory.impl", oldValue);
-            }
-        }
+        };
+        this.executeTest(theTest);
     }
 
     @Test
@@ -410,12 +406,73 @@ class AvroRecordTest {
     }
 
     @Test
-    void arrayOfRecords() {
+    void arrayOfArrays() throws IOException {
+        final Schema arrayOfString = new AvroSchemaBuilder().withType(Schema.Type.ARRAY)
+                .withElementSchema(new AvroSchemaBuilder().withType(Schema.Type.STRING).build())
+                .build();
+        final Entry data = new AvroEntryBuilder()
+                .withName("data")
+                .withType(Schema.Type.ARRAY)
+                .withNullable(true)
+                .withElementSchema(arrayOfString)
+                .build();
+        final Schema schema = new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(data)
+                .build();
+        final AvroRecordBuilder builder = new AvroRecordBuilder(schema);
+
+        final List<String> list1 = asList("Hello", null, "World");
+        final List<String> list3 = asList("XX", null);
+        final List<List<String>> metaArray = asList(list1, null, list3);
+        final Record record = builder.withArray(data, metaArray).build();
+
+        // Coder will transform collection to GenericData.Array class.
+        // it will activate "value instanceof GenericArray" case of AvroRecord.doMap function
+        // So fieldSchema.getElementType() need to exist.
+        final SchemaRegistryCoder coder = new SchemaRegistryCoder();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        coder.encode(record, out);
+        final Record decodedRecord = coder.decode(new ByteArrayInputStream(out.toByteArray()));
+
+        Collection<List> array = decodedRecord.getArray(List.class, "data");
+        Assertions.assertEquals(3, array.size());
+        Iterator<List> iterator = array.iterator();
+        List next = iterator.next();
+        Assertions.assertEquals("Hello", next.get(0));
+        Assertions.assertEquals(null, next.get(1));
+        Assertions.assertEquals("World", next.get(2));
+        next = iterator.next();
+        Assertions.assertNull(next);
+        next = iterator.next();
+        Assertions.assertEquals("XX", next.get(0));
+        Assertions.assertEquals(null, next.get(1));
+        Assertions.assertFalse(iterator.hasNext());
+    }
+
+    interface FactoryTester<T extends Exception> {
+
+        void doTest(RecordBuilderFactory factory) throws T;
+    }
+
+    <T extends Exception> void executeTest(FactoryTester<T> theTest) throws T {
         final String before = System.getProperty("talend.component.beam.record.factory.impl");
         try {
             System.setProperty("talend.component.beam.record.factory.impl", "avro");
             final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
+            theTest.doTest(factory);
+        } finally {
+            if (before == null) {
+                System.clearProperty("talend.component.beam.record.factory.impl");
+            } else {
+                System.setProperty("talend.component.beam.record.factory.impl", before);
+            }
+        }
+    }
 
+    @Test
+    void arrayOfRecords() {
+        final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
             final Schema innerSchema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
 
@@ -434,23 +491,60 @@ class AvroRecordTest {
             Assertions.assertEquals(1, records.size());
             final Record next = records.iterator().next();
             Assertions.assertTrue(next instanceof Record);
-        } finally {
-            if (before == null) {
-                System.clearProperty("talend.component.beam.record.factory.impl");
-            } else {
-                System.setProperty("talend.component.beam.record.factory.impl", before);
-            }
-        }
+        };
+        this.executeTest(theTest);
+    }
+
+    @Test
+    void arrayWithNull() throws IOException {
+        final FactoryTester<IOException> theTest = (RecordBuilderFactory factory) -> {
+            final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
+            final Schema innerSchema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+
+            final Record record1 = factory.newRecordBuilder(innerSchema)
+                    .with(f1, "object1")
+                    .build();
+            final Record record2 = factory.newRecordBuilder(innerSchema)
+                    .with(f1, "object2")
+                    .build();
+
+            final Schema.Entry fArray = factory.newEntryBuilder()
+                    .withType(Schema.Type.ARRAY)
+                    .withName("farray")
+                    .withNullable(true)
+                    .withElementSchema(innerSchema)
+                    .build();
+            final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(fArray).build();
+
+            final Record record = factory.newRecordBuilder(schema)
+                    .withArray(fArray, asList(record1, null, record2))
+                    .build();
+            Collection<Record> array = record.getArray(Record.class, "farray");
+            Assertions.assertEquals(3, array.size());
+            Assertions.assertEquals(1, array.stream().filter(Objects::isNull).count());
+
+            AvroRecord avro = (AvroRecord) record;
+
+            IndexedRecord indexed = avro.unwrap(IndexedRecord.class);
+            final GenericDatumWriter<IndexedRecord> writer = new GenericDatumWriter<>(indexed.getSchema());
+
+            ByteArrayOutputStream outputArray = new ByteArrayOutputStream();
+            JsonEncoder encoder = EncoderFactory.get().jsonEncoder(indexed.getSchema(), outputArray, true);
+            writer.write(indexed, encoder);
+            encoder.flush();
+            String chain = new String(outputArray.toByteArray(), StandardCharsets.UTF_8);
+            JsonObject jsonObject = Json.createReader(new StringReader(chain)).readObject();
+            JsonArray jsonArray = jsonObject.getJsonObject("farray").getJsonArray("array");
+            Assertions.assertEquals(3, jsonArray.size());
+            Assertions.assertEquals(2, jsonArray.stream().filter(JsonObject.class::isInstance).count());
+        };
+        this.executeTest(theTest);
     }
 
     @ParameterizedTest
     @ValueSource(ints = { 2, 3, 4, 5 }) // number of nested arrays.
     void arrayOfArrayOfRecords(final int level) {
-        final String before = System.getProperty("talend.component.beam.record.factory.impl");
-        try {
-            System.setProperty("talend.component.beam.record.factory.impl", "avro");
-            final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
-
+        final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
             final Schema innerSchema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
             Schema currentSchema = innerSchema;
@@ -485,13 +579,8 @@ class AvroRecordTest {
 
             final Object rec = ((Collection) next).iterator().next();
             Assertions.assertTrue(rec instanceof Record);
-        } finally {
-            if (before == null) {
-                System.clearProperty("talend.component.beam.record.factory.impl");
-            } else {
-                System.setProperty("talend.component.beam.record.factory.impl", before);
-            }
-        }
+        };
+        this.executeTest(theTest);
     }
 
     public class RecordToRecord extends PTransform<PCollection<Record>, PCollection<Record>> {

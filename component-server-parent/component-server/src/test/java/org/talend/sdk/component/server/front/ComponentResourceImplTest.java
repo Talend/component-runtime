@@ -52,7 +52,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.ziplock.IO;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -229,15 +228,16 @@ class ComponentResourceImplTest {
                     {
                         put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
                         put("configuration.username", "username0");
-                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.connection.password",
+                                "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
                     }
                 }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
                 });
         assertEquals(4, migrated.size());
         assertEquals("true", migrated.get("migrated"));
-        assertEquals("test", migrated.get("configuration.url"));
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", migrated.get("configuration.url"));
         assertEquals("username0", migrated.get("configuration.username"));
-        assertEquals("test", migrated.get("configuration.password"));
+        assertEquals("test", migrated.get("configuration.connection.password"));
     }
 
     @RepeatedTest(2) // this also checks the cache and queries usage

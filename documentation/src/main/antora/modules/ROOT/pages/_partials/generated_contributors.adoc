@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":527,
+    "commits":561,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -29,7 +29,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":68,
+    "commits":71,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
     "id":"clesaec",
@@ -43,7 +43,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":37,
+    "commits":38,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",
@@ -78,6 +78,13 @@
     "name":"Colm O hEigeartaigh"
   },
   {
+    "commits":5,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
+    "id":"wwang-talend",
+    "name":"wang wei"
+  },
+  {
     "commits":4,
     "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?)\n\nBlog: https://ismaelmejia.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/79476?v=4",
@@ -97,13 +104,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/7931535?v=4",
     "id":"amaumont",
     "name":"Axel MAUMONT"
-  },
-  {
-    "commits":3,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
-    "id":"wwang-talend",
-    "name":"wang wei"
   },
   {
     "commits":3,
@@ -128,6 +128,13 @@
   },
   {
     "commits":2,
+    "description":"I'm a serial tooler.",
+    "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
+    "id":"quilicicf",
+    "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
+  },
+  {
+    "commits":2,
     "description":"\n\nBlog: https://www.linkedin.com/in/zoltantakacsdev/",
     "gravatar":"https://avatars.githubusercontent.com/u/2045409?v=4",
     "id":"ZoltanTakacs",
@@ -139,13 +146,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/11495292?v=4",
     "id":"zwxue",
     "name":"Zhiwei Xue"
-  },
-  {
-    "commits":1,
-    "description":"I'm a serial tooler.",
-    "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
-    "id":"quilicicf",
-    "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
   },
   {
     "commits":1,

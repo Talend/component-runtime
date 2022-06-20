@@ -16,21 +16,22 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
+import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
@@ -122,7 +123,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
                         Schema.Type.DECIMAL.name(), "true"));
     }
 
-    private List<Schema.Entry> fields;
+    private OrderedMap<Schema.Entry> fields;
 
     private Schema.Type type;
 
@@ -142,20 +143,12 @@ public class AvroSchemaBuilder implements Schema.Builder {
             throw new IllegalArgumentException("entry is only valid for RECORD type of schema");
         }
         if (fields == null) {
-            fields = new ArrayList<>();
+            fields = new OrderedMap<>(Schema.Entry::getName, Collections.singletonList(entry));
         }
-        final Schema.Entry realEntry = Schema.avoidCollision(entry, this.fields::stream, this::replaceEntry);
-        fields.add(realEntry);
-        return this;
-    }
 
-    private void replaceEntry(final String entryName, final Schema.Entry entry) {
-        for (int index = 0; index < fields.size(); index++) {
-            if (Objects.equals(entryName, fields.get(index).getName())) {
-                fields.set(index, entry);
-                return;
-            }
-        }
+        final Schema.Entry realEntry = Schema.avoidCollision(entry, fields::getValue, fields::replace);
+        fields.addValue(realEntry);
+        return this;
     }
 
     private Field entryToAvroField(final Schema.Entry entry) {
@@ -233,42 +226,41 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     @Override
     public Builder remove(final String name) {
-        return remove(fields.get(getEntryIndex(name)));
+        final Entry entry = fields.getValue(name);
+        return remove(entry);
     }
 
     @Override
     public Builder remove(final Entry entry) {
-        fields.remove(entry);
+        if (entry != null) {
+            fields.removeValue(entry);
+        }
         return this;
     }
 
     @Override
     public Builder moveAfter(final String after, final String name) {
-        if (getEntryIndex(after) == -1) {
-            throw new IllegalArgumentException(String.format("%s not in schema", after));
+        final Entry entryToMove = this.fields.getValue(name);
+        if (entryToMove == null) {
+            throw new IllegalArgumentException(String.format("%s not in schema", name));
         }
-        final Entry entry = fields.remove(getEntryIndex(name));
-        int destination = getEntryIndex(after);
-        if (!(destination + 1 == fields.size())) {
-            destination += 1;
-        }
-        fields.add(destination, entry);
+        this.fields.moveAfter(after, entryToMove);
         return this;
     }
 
     @Override
     public Builder moveBefore(final String before, final String name) {
-        if (getEntryIndex(before) == -1) {
-            throw new IllegalArgumentException(String.format("%s not in schema", before));
+        final Entry entryToMove = this.fields.getValue(name);
+        if (entryToMove == null) {
+            throw new IllegalArgumentException(String.format("%s not in schema", name));
         }
-        final Entry entry = fields.remove(getEntryIndex(name));
-        fields.add(getEntryIndex(before), entry);
+        this.fields.moveBefore(before, entryToMove);
         return this;
     }
 
     @Override
     public Builder swap(final String name, final String with) {
-        Collections.swap(fields, getEntryIndex(name), getEntryIndex(with));
+        this.fields.swap(name, with);
         return this;
     }
 
@@ -279,22 +271,28 @@ public class AvroSchemaBuilder implements Schema.Builder {
         }
         // Check schema is Avro Schema, otherwise, convert it.
         final Schema avroSchema = this.toAvroSchema(schema);
-        this.elementSchema = avroSchema;
+        final AvroSchema avro = (AvroSchema) avroSchema;
+
+        this.elementSchema = this.wrapNullable(avro);
         return this;
     }
 
-    private int getEntryIndex(final String name) {
-        for (int index = 0; index < fields.size(); index++) {
-            if (Objects.equals(name, fields.get(index).getName())) {
-                return index;
-            }
+    private AvroSchema wrapNullable(final AvroSchema schema) {
+        if (schema == null) {
+            return null;
         }
-        return -1;
+        org.apache.avro.Schema delegate = schema.getDelegate();
+        if (delegate.getType() != Type.UNION) {
+            org.apache.avro.Schema nullableType = org.apache.avro.Schema.createUnion(delegate,
+                    org.apache.avro.Schema.create(Type.NULL));
+            return new AvroSchema(nullableType);
+        }
+        return schema;
     }
 
     /**
      * Convert a non avro schema to schema.
-     * 
+     *
      * @param schema : Non Avro schema.
      * @return Avro schema.
      */
@@ -344,6 +342,11 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     @Override
     public Schema build() {
+        return build(null);
+    }
+
+    @Override
+    public Schema build(final Comparator<Entry> order) {
         switch (type) {
         case BYTES:
             return BYTES_SCHEMA;
@@ -375,12 +378,18 @@ public class AvroSchemaBuilder implements Schema.Builder {
                 return new AvroSchema(AvroSchemas.getEmptySchema());
             }
             final List<Field> avroFields =
-                    this.fields.stream().map(this::entryToAvroField).collect(Collectors.toList());
+                    this.fields.streams().map(this::entryToAvroField).collect(Collectors.toList());
             final org.apache.avro.Schema record = org.apache.avro.Schema
                     .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
                             false);
             record.setFields(avroFields);
-            record.addProp(ENTRIES_ORDER_PROP, fields.stream().map(e -> e.getName()).collect(Collectors.joining(",")));
+            if (order != null) {
+                final String entriesOrder = fields.streams().sorted(order).map(Entry::getName).collect(joining(","));
+                record.addProp(ENTRIES_ORDER_PROP, entriesOrder);
+            } else {
+                record.addProp(ENTRIES_ORDER_PROP,
+                        fields.streams().map(Entry::getName).collect(joining(",")));
+            }
             this.props.entrySet()
                     .stream()
                     .filter((Map.Entry<String, String> e) -> !ENTRIES_ORDER_PROP.equals(e.getKey()))

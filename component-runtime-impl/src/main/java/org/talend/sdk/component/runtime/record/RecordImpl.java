@@ -17,9 +17,7 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
@@ -36,9 +34,9 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -56,8 +54,10 @@ import javax.json.bind.annotation.JsonbTransient;
 import javax.json.bind.config.PropertyOrderStrategy;
 import javax.json.spi.JsonProvider;
 
+import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 
 import lombok.EqualsAndHashCode;
@@ -120,11 +120,11 @@ public final class RecordImpl implements Record {
 
         private final Map<String, Object> values = new HashMap<>(8);
 
-        private final List<Schema.Entry> entries = new ArrayList<>(8);
+        private final OrderedMap<Schema.Entry> entries;
 
         private final Schema providedSchema;
 
-        private Map<String, Schema.Entry> entryIndex;
+        private final OrderState orderState;
 
         public BuilderImpl() {
             this(null);
@@ -132,12 +132,24 @@ public final class RecordImpl implements Record {
 
         public BuilderImpl(final Schema providedSchema) {
             this.providedSchema = providedSchema;
+            if (this.providedSchema == null) {
+                this.entries = new OrderedMap<>(Schema.Entry::getName, Collections.emptyList());
+                this.orderState = new OrderState(Collections.emptyList());
+            } else {
+                this.entries = null;
+                final List<Entry> fields = providedSchema.naturalOrder()
+                        .getFieldsOrder()
+                        .map(providedSchema::getEntry)
+                        .collect(Collectors.toList());
+                this.orderState = new OrderState(fields);
+            }
         }
 
         private BuilderImpl(final List<Schema.Entry> entries, final Map<String, Object> values) {
-            this.entries.addAll(entries);
-            this.values.putAll(values);
             this.providedSchema = null;
+            this.entries = new OrderedMap<>(Schema.Entry::getName, entries);
+            this.values.putAll(values);
+            this.orderState = null;
         }
 
         @Override
@@ -173,26 +185,26 @@ public final class RecordImpl implements Record {
         }
 
         @Override
+        public Entry getEntry(final String name) {
+            if (this.providedSchema != null) {
+                return this.providedSchema.getEntry(name);
+            } else {
+                return this.entries.getValue(name);
+            }
+        }
+
+        @Override
         public List<Entry> getCurrentEntries() {
             if (this.providedSchema != null) {
                 return Collections.unmodifiableList(this.providedSchema.getAllEntries().collect(Collectors.toList()));
             }
-            return Collections.unmodifiableList(this.entries);
+            return this.entries.streams().collect(Collectors.toList());
         }
 
         @Override
         public Builder removeEntry(final Schema.Entry schemaEntry) {
             if (this.providedSchema == null) {
-                Optional<Entry> entry = this.entries
-                        .stream()
-                        .filter((Entry e) -> Objects.equals(e.getName(), schemaEntry.getName()))
-                        .findFirst();
-                if (entry.isPresent()) {
-                    this.entries.remove(entry.get());
-                } else {
-                    throw new IllegalArgumentException(
-                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
-                }
+                this.entries.removeValue(schemaEntry);
                 this.values.remove(schemaEntry.getName());
                 return this;
             }
@@ -205,57 +217,59 @@ public final class RecordImpl implements Record {
         @Override
         public Builder updateEntryByName(final String name, final Schema.Entry schemaEntry) {
             if (this.providedSchema == null) {
+                if (this.entries.getValue(name) == null) {
+                    throw new IllegalArgumentException(
+                            "No entry '" + schemaEntry.getName() + "' expected in entries");
+                }
+
                 final Object value = this.values.get(name);
                 if (!schemaEntry.getType().isCompatible(value)) {
                     throw new IllegalArgumentException(String
                             .format("Entry '%s' of type %s is not compatible with value of type '%s'",
-                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass().getName()));
+                                    schemaEntry.getName(), schemaEntry.getType(), value.getClass()
+                                            .getName()));
                 }
-                boolean found = false;
-                for (int i = 0; i < entries.size() && !found; i++) {
-                    final Schema.Entry entry = this.entries.get(i);
-                    if (Objects.equals(entry.getName(), name)) {
-                        this.entries.set(i, schemaEntry);
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    throw new IllegalArgumentException(
-                            "No entry '" + schemaEntry.getName() + "' expected in entries: " + this.entries);
-                }
+                this.entries.replace(name, schemaEntry);
+
                 this.values.remove(name);
                 this.values.put(schemaEntry.getName(), value);
                 return this;
             }
 
             final BuilderImpl builder =
-                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()), this.values);
+                    new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()),
+                            this.values);
             return builder.updateEntryByName(name, schemaEntry);
         }
 
-        private void replaceEntry(final String name, final Entry newEntry) {
-            for (int index = 0; index < this.entries.size(); index++) {
-                if (Objects.equals(name, this.entries.get(index).getName())) {
-                    this.entries.set(index, newEntry);
-                    return;
-                }
-            }
+        @Override
+        public Builder before(final String entryName) {
+            orderState.before(entryName);
+            return this;
+        }
+
+        @Override
+        public Builder after(final String entryName) {
+            orderState.after(entryName);
+            return this;
         }
 
         private Schema.Entry findExistingEntry(final String name) {
-            if (this.entryIndex == null) {
-                this.entryIndex = providedSchema.getAllEntries().collect(toMap(Schema.Entry::getName, identity()));
+            final Schema.Entry entry;
+            if (this.providedSchema != null) {
+                entry = this.providedSchema.getEntry(name);
+            } else {
+                entry = this.entries.getValue(name);
             }
-            final Schema.Entry entry = this.entryIndex.get(name);
             if (entry == null) {
                 throw new IllegalArgumentException(
-                        "No entry '" + name + "' expected in provided schema: " + entryIndex.keySet());
+                        "No entry '" + name + "' expected in provided schema");
             }
             return entry;
         }
 
         private Schema.Entry findOrBuildEntry(final String name, final Schema.Type type, final boolean nullable) {
-            if (providedSchema == null) {
+            if (this.providedSchema == null) {
                 return new SchemaImpl.EntryImpl.BuilderImpl().withName(name)
                         .withType(type)
                         .withNullable(nullable)
@@ -266,7 +280,7 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry validateTypeAgainstProvidedSchema(final String name, final Schema.Type type,
                 final Object value) {
-            if (providedSchema == null) {
+            if (this.providedSchema == null) {
                 return null;
             }
 
@@ -282,8 +296,9 @@ public final class RecordImpl implements Record {
         }
 
         public Record build() {
-            if (providedSchema != null) {
-                final String missing = providedSchema
+            final Schema currentSchema;
+            if (this.providedSchema != null) {
+                final String missing = this.providedSchema
                         .getAllEntries()
                         .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
                         .map(Schema.Entry::getName)
@@ -291,14 +306,15 @@ public final class RecordImpl implements Record {
                 if (!missing.isEmpty()) {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
-            }
-            final Schema currentSchema;
-            if (providedSchema == null) {
-                final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
-                this.entries.forEach(builder::withEntry);
-                currentSchema = builder.build();
+                if (orderState.isOverride()) {
+                    currentSchema = this.providedSchema.toBuilder().build(this.orderState.buildComparator());
+                } else {
+                    currentSchema = this.providedSchema;
+                }
             } else {
-                currentSchema = this.providedSchema;
+                final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
+                this.entries.forEachValue(builder::withEntry);
+                currentSchema = builder.build(orderState.buildComparator());
             }
             return new RecordImpl(unmodifiableMap(values), currentSchema);
         }
@@ -470,10 +486,13 @@ public final class RecordImpl implements Record {
         }
 
         private <T> Builder append(final Schema.Entry entry, final T value) {
-            final Entry realEntry;
-            if (this.providedSchema == null) {
+
+            final Schema.Entry realEntry;
+            if (this.entries != null) {
                 realEntry = Optional
-                        .ofNullable(Schema.avoidCollision(entry, this.entries::stream, this::replaceEntry))
+                        .ofNullable(Schema.avoidCollision(entry,
+                                this.entries::getValue,
+                                this.entries::replace))
                         .orElse(entry);
             } else {
                 realEntry = entry;
@@ -483,12 +502,87 @@ public final class RecordImpl implements Record {
             } else if (!realEntry.isNullable()) {
                 throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
             }
-            if (providedSchema == null) {
-                if (this.entries.stream().noneMatch((Entry e) -> Objects.equals(e.getName(), realEntry.getName()))) {
-                    this.entries.add(realEntry);
-                }
+
+            if (this.entries != null) {
+                this.entries.addValue(realEntry);
             }
+            orderState.update(realEntry);
             return this;
         }
+
+        private enum Order {
+            BEFORE,
+            AFTER,
+            LAST;
+        }
+
+        static class OrderState {
+
+            private Order state = Order.LAST;
+
+            private String target = "";
+
+            @Getter()
+            // flag if providedSchema's entriesOrder was altered
+            private boolean override = false;
+
+            private final OrderedMap<Schema.Entry> orderedEntries;
+
+            public OrderState(final Iterable<Schema.Entry> orderedEntries) {
+                this.orderedEntries = new OrderedMap<>(Schema.Entry::getName, orderedEntries);
+            }
+
+            public void before(final String entryName) {
+                setState(Order.BEFORE, entryName);
+            }
+
+            public void after(final String entryName) {
+                setState(Order.AFTER, entryName);
+            }
+
+            private void setState(final Order order, final String target) {
+                state = order; //
+                this.target = target;
+                override = true;
+            }
+
+            private void resetState() {
+                target = "";
+                state = Order.LAST;
+            }
+
+            public void update(final Schema.Entry entry) {
+                final Schema.Entry existingEntry = this.orderedEntries.getValue(entry.getName());
+                if (state == Order.LAST) {
+                    // if entry is already present, we keep its position otherwise put it all the end.
+                    if (existingEntry == null) {
+                        orderedEntries.addValue(entry);
+                    }
+                } else {
+                    final Schema.Entry targetIndex = orderedEntries.getValue(target);
+                    if (targetIndex == null) {
+                        throw new IllegalArgumentException(String.format("'%s' not in schema.", target));
+                    }
+                    if (existingEntry == null) {
+                        this.orderedEntries.addValue(entry);
+                    }
+
+                    if (state == Order.BEFORE) {
+                        orderedEntries.moveBefore(target, entry);
+                    } else {
+                        orderedEntries.moveAfter(target, entry);
+                    }
+                }
+                // reset default behavior
+                resetState();
+            }
+
+            public Comparator<Entry> buildComparator() {
+                final List<String> orderedFields =
+                        this.orderedEntries.streams().map(Entry::getName).collect(Collectors.toList());
+                return EntriesOrder.of(orderedFields);
+            }
+        }
     }
+
 }

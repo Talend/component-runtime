@@ -20,6 +20,7 @@ import static java.util.Optional.ofNullable;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,10 @@ public interface Record {
      * @return the column value.
      */
     <T> T get(Class<T> expectedType, String name);
+
+    default <T> T get(Class<T> expectedType, Schema.Entry entry) {
+        return this.get(expectedType, entry);
+    }
 
     /**
      * See {@link Record#get(Class, String)}.
@@ -284,6 +289,7 @@ public interface Record {
     /**
      * Allows to create a record with a fluent API. This is the unique recommended way to create a record.
      */
+
     interface Builder {
 
         Record build();
@@ -291,6 +297,50 @@ public interface Record {
         Object getValue(String name);
 
         List<Entry> getCurrentEntries();
+
+        default Entry getEntry(final String name) {
+            return this.getCurrentEntries()
+                    .stream()
+                    .filter((Entry e) -> name.equals(e.getName()))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        /**
+         * Mark that next entry created {@code withXXXX()} will be before {@code entryName} in schema order.
+         *
+         * @see
+         * <ul>
+         * <li>{@link Schema#naturalOrder()}</li>
+         * <li>{@link Schema#getEntriesOrdered()}</li>
+         * <li>{@link Schema#getEntriesOrdered(Comparator)}</li>
+         * </ul>
+         *
+         * @param entryName target entry name. This entry <b>must</b> exist!
+         *
+         * @return this Builder
+         */
+        default Builder before(String entryName) {
+            throw new UnsupportedOperationException("#before is not implemented");
+        }
+
+        /**
+         * Mark that next entry created {@code withXXXX()} will be after {@code entryName} in schema order.
+         *
+         * @see
+         * <ul>
+         * <li>{@link Schema#naturalOrder()}</li>
+         * <li>{@link Schema#getEntriesOrdered()}</li>
+         * <li>{@link Schema#getEntriesOrdered(Comparator)}</li>
+         * </ul>
+         *
+         * @param entryName target entry name. This entry <b>must</b> exist!
+         *
+         * @return this Builder
+         */
+        default Builder after(String entryName) {
+            throw new UnsupportedOperationException("#after");
+        }
 
         Builder removeEntry(Schema.Entry schemaEntry);
 
