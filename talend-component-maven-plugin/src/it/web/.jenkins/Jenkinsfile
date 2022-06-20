@@ -239,10 +239,11 @@ pipeline {
         withCredentials([nexusCredentials, tenantId_Rd]) {
           container(tsbiImage) {
             // Execute test with curl
-            sh """
-              curl http://localhost:8081/api/v1/configurationtype/index?lightPayload=false > test_size.json
-              ls -l test_size.json
-            """
+            // sh """
+            //   curl http://localhost:8081/api/v1/configurationtype/index?lightPayload=false > test_size.json
+            //   ls -l test_size.json
+            // """
+
             // Execute test
             sh """
               cd ${TESTS_PATH}
@@ -252,6 +253,7 @@ pipeline {
                              --define selectedEnvironment=${apiTesterEnv} \
                              --define file=${fileToRun}.json
               """
+
             // Generate Html reports
             sh """
               mvn surefire-report:report-only -f ${TESTS_PATH}
@@ -266,7 +268,7 @@ pipeline {
   post {
     always {
       container(tsbiImage) {
-        archiveArtifacts artifacts: "**/${serverLog}, **/target/surefire-reports/*, **/target/site/**/*, **/test_scenarios/**/*, **/test_size.json"
+        archiveArtifacts artifacts: "**/${serverLog}, **/target/surefire-reports/*, **/target/site/**/*, **/test_scenarios/**/*"
         junit healthScaleFactor: 5.0, testResults: "**/target/surefire-reports/*.xml"
       }
     }
