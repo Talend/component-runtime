@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_INPUT;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_PROCESSOR;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_STANDALONE;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -381,13 +384,14 @@ class ComponentResourceImplTest {
     }
 
     private void assertComponent(final String plugin, final String family, final String name, final String displayName,
-            final Iterator<ComponentIndex> component, final int version) {
+            final Iterator<ComponentIndex> component, final String type, final int version) {
         assertTrue(component.hasNext());
         final ComponentIndex data = component.next();
         assertEquals(family, data.getId().getFamily());
         assertEquals(name, data.getId().getName());
         assertEquals(plugin, data.getId().getPlugin());
         assertEquals(displayName, data.getDisplayName());
+        assertEquals(type, data.getType());
         assertEquals(version, data.getVersion());
         assertEquals(1, data.getLinks().size());
         final Link link = data.getLinks().iterator().next();
@@ -425,16 +429,18 @@ class ComponentResourceImplTest {
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
 
         final Iterator<ComponentIndex> component = list.iterator();
-        assertComponent("the-test-component", "chain", "count", "count", component, 1);
-        assertComponent("the-test-component", "chain", "file", "file", component, 1);
-        assertComponent("the-test-component", "chain", "list", "The List Component", component, 1);
-        assertComponent("the-test-component", "chain", "standalone", "standalone", component, 1);
-        assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
+        assertComponent("the-test-component", "chain", "count", "count", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("the-test-component", "chain", "file", "file", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("the-test-component", "chain", "list", "The List Component", component, COMPONENT_TYPE_INPUT,
+                1);
+        assertComponent("the-test-component", "chain", "standalone", "standalone", component, COMPONENT_TYPE_STANDALONE,
+                1);
+        assertComponent("another-test-component", "comp", "proc", "proc", component, COMPONENT_TYPE_PROCESSOR, 1);
         assertComponent("collection-of-object", "config", "configurationWithArrayOfObject",
-                "configurationWithArrayOfObject", component, 1);
-        assertComponent("component-with-user-jars", "custom", "noop", "noop", component, 1);
-        assertComponent("file-component", "file", "output", "output", component, 1);
-        assertComponent("jdbc-component", "jdbc", "input", "input", component, 2);
+                "configurationWithArrayOfObject", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("component-with-user-jars", "custom", "noop", "noop", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("file-component", "file", "output", "output", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("jdbc-component", "jdbc", "input", "input", component, COMPONENT_TYPE_INPUT, 2);
         assertTrue(list.stream().anyMatch(c -> c.getId().getPluginLocation().startsWith("org.talend.test2:")));
     }
 }
