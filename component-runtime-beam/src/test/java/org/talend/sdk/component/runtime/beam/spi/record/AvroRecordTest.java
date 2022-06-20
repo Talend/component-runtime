@@ -49,7 +49,6 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.IndexedRecord;
-import org.apache.avro.Conversions;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.io.JsonEncoder;
 import org.apache.avro.util.Utf8;
@@ -58,6 +57,7 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +65,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
-import org.talend.sdk.component.api.record.TypePropertyKey;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
@@ -155,7 +154,6 @@ class AvroRecordTest {
                         .withName("decimal")
                         .withNullable(true)
                         .withType(Schema.Type.DECIMAL)
-                        .withProp(TypePropertyKey.PRECISION, "32")
                         .build())
                 .build());
         { // null
@@ -378,8 +376,6 @@ class AvroRecordTest {
         final Schema.Entry f1 = factory.newEntryBuilder()
                 .withType(Schema.Type.DECIMAL)
                 .withName("t_decimal")
-                .withProp(TypePropertyKey.PRECISION, "3")
-                .withProp(TypePropertyKey.SCALE, "2")
                 .withNullable(true)
                 .build();
         final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
@@ -395,7 +391,8 @@ class AvroRecordTest {
         // data processing platform need to add this statement to enable decimal support for beam compiler
         // how to add this for cross threads/cross vm, maybe we need to do a fix for beam LazyAvroCoder/AvroCoder class
         // and all codec class like SchemaRegistryCoder too, to add this
-        GenericData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
+        // GenericData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
+        GenericData.get().addLogicalTypeConversion(new Decimal.DecimalConversion());
 
         // should not use ReflectData for any GenericRecord implements
         // ReflectData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());

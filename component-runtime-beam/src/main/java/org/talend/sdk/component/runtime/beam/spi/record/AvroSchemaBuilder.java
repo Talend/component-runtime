@@ -35,7 +35,6 @@ import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
-import org.talend.sdk.component.api.record.TypePropertyKey;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 
@@ -103,25 +102,21 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private static final AvroSchema BOOLEAN_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
             .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN))));
 
-    private AvroSchema createAvroDecimalNullableSchema(final int precision, final int scale) {
-        return new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
-        }
-                .setProp(
-                        LogicalTypes
-                                .decimal(precision, scale)
-                                .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BYTES)),
-                        Schema.Type.DECIMAL.name(), "true"))));
-    }
+    private static final AvroSchema DECIMAL_SCHEMA_NULLABLE =
+            new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
+            }
+                    .setProp(
+                            new Decimal()
+                                    .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)),
+                            Schema.Type.DECIMAL.name(), "true"))));
 
-    private AvroSchema createAvroDecimalSchema(final int precision, final int scale) {
-        return new AvroSchema(new AvroPropertyMapper() {
-        }
-                .setProp(
-                        LogicalTypes
-                                .decimal(precision, scale)
-                                .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BYTES)),
-                        Schema.Type.DECIMAL.name(), "true"));
-    }
+    private static final AvroSchema DECIMAL_SCHEMA = new AvroSchema(
+            new AvroPropertyMapper() {
+            }
+                    .setProp(
+                            new Decimal()
+                                    .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)),
+                            Schema.Type.DECIMAL.name(), "true"));
 
     private OrderedMap<Schema.Entry> fields;
 
@@ -195,15 +190,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
             unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
             break;
         case DECIMAL:
-            int precision = Integer.valueOf(entry.getProp(TypePropertyKey.PRECISION));
-
-            int scale = 0;
-            String scaleValue = entry.getProp(TypePropertyKey.SCALE);
-            if (scaleValue != null) {
-                scale = Integer.valueOf(scaleValue);
-            }
-            unwrappable = !entry.isNullable() ? this.createAvroDecimalSchema(precision, scale)
-                    : this.createAvroDecimalNullableSchema(precision, scale);
+            unwrappable = !entry.isNullable() ? DECIMAL_SCHEMA : DECIMAL_SCHEMA_NULLABLE;
             break;
         default:
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
@@ -365,14 +352,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
         case DATETIME:
             return DATETIME_SCHEMA;
         case DECIMAL:
-            int precision = Integer.valueOf(props.get(TypePropertyKey.PRECISION));
-
-            int scale = 0;
-            String scaleValue = props.get(TypePropertyKey.SCALE);
-            if (scaleValue != null) {
-                scale = Integer.valueOf(scaleValue);
-            }
-            return this.createAvroDecimalSchema(precision, scale);
+            return DECIMAL_SCHEMA;
         case RECORD:
             if (fields == null) {
                 return new AvroSchema(AvroSchemas.getEmptySchema());

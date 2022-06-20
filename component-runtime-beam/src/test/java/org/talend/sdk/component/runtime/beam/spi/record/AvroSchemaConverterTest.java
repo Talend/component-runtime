@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.api.record.TypePropertyKey;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroSchemaConverterTest {
@@ -58,8 +57,6 @@ class AvroSchemaConverterTest {
                         .withType(Schema.Type.DECIMAL)
                         .withNullable(true)
                         .withName("field1")
-                        .withProp(TypePropertyKey.PRECISION, "32")
-                        .withProp(TypePropertyKey.SCALE, "10")
                         .build())
                 .withProp("Hello", "World")
                 .build();

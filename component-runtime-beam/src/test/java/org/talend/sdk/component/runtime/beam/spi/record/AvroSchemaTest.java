@@ -41,7 +41,6 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
-import org.talend.sdk.component.api.record.TypePropertyKey;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -142,13 +141,11 @@ class AvroSchemaTest {
                         .withEntry(factory.newEntryBuilder()
                                 .withType(DECIMAL)
                                 .withName("decimal")
-                                .withProp(TypePropertyKey.PRECISION, "32")
-                                .withProp(TypePropertyKey.SCALE, "10")
                                 .build())
                         .build())
                 .getDelegate();
         assertEquals(DECIMAL, new AvroSchema(avro).getEntries().iterator().next().getType());
-        assertEquals(LogicalTypes.decimal(32, 10), LogicalTypes.fromSchema(avro.getField("decimal").schema()));
+        assertEquals(new Decimal(), avro.getField("decimal").schema().getLogicalType());
     }
 
     @Test
@@ -157,11 +154,11 @@ class AvroSchemaTest {
                 .record("test")
                 .fields()
                 .name("decimal")
-                .type(LogicalTypes.decimal(32, 10).addToSchema(Schema.create(Schema.Type.BYTES)))
+                .type(new Decimal().addToSchema(Schema.create(Schema.Type.STRING)))
                 .noDefault()
                 .endRecord();
         assertEquals(DECIMAL, new AvroSchema(avro).getEntries().iterator().next().getType());
-        assertEquals(LogicalTypes.decimal(32, 10), LogicalTypes.fromSchema(avro.getField("decimal").schema()));
+        assertEquals(new Decimal(), avro.getField("decimal").schema().getLogicalType());
     }
 
     @Test

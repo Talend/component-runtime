@@ -371,7 +371,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder withDecimal(final String name, final BigDecimal value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DECIMAL, false);
+            final Schema.Entry entry = this.findOrBuildEntry(name, DECIMAL, true);
             return withDecimal(entry, value);
         }
 
