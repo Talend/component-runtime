@@ -249,7 +249,7 @@ pipeline {
               cd ${TESTS_PATH}
               mvn clean test --settings=${MAVEN_SETTINGS} \
                              --define instance=${tenantInstance} \
-                             --define accountId=${tenantId_Rd} \
+                             --define accountId=${componentRuntimeApiTenantId_Rd} \
                              --define selectedEnvironment=${apiTesterEnv} \
                              --define file=${fileToRun}.json
               """
