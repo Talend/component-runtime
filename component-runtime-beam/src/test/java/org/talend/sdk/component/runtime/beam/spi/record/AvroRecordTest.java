@@ -368,11 +368,6 @@ class AvroRecordTest {
     void pipelineDecimalFieldsWithAvroRecord() throws Exception {
         final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
 
-        // must provide schema firstly, can't guess if decimal value maybe be null, and decimal must have fixed/same
-        // precision and scale
-        // final Record.Builder builder = factory.newRecordBuilder();
-
-        // in schema, precision and scale must match the value
         final Schema.Entry f1 = factory.newEntryBuilder()
                 .withType(Schema.Type.DECIMAL)
                 .withName("t_decimal")
@@ -382,10 +377,14 @@ class AvroRecordTest {
 
         final Record.Builder builder = factory.newRecordBuilder(schema);
 
-        final BigDecimal decimal = new BigDecimal("1.23");
-        builder.withDecimal("t_decimal", decimal);
+        final BigDecimal decimal1 = new BigDecimal("1.23");
+        builder.withDecimal("t_decimal", decimal1);
+        final Record rec1 = builder.build();
 
-        final Record rec = builder.build();
+        BigDecimal decimal2 = new BigDecimal("1.2345");
+        builder.withDecimal("t_decimal", decimal2);
+        final Record rec2 = builder.build();
+
         final Pipeline pipeline = Pipeline.create();
 
         // data processing platform need to add this statement to enable decimal support for beam compiler
@@ -397,7 +396,8 @@ class AvroRecordTest {
         // should not use ReflectData for any GenericRecord implements
         // ReflectData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
 
-        final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
+        final PCollection<Record> input =
+                pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
         final PCollection<Record> output = input.apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }

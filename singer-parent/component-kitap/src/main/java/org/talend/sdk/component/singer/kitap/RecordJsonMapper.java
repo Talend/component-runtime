@@ -136,7 +136,7 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
 
         @Override
         public void onDecimal(final Schema.Entry entry, final Optional<BigDecimal> decimal) {
-            decimal.ifPresent(v -> builder.add(entry.getName(), v.toPlainString()));//TODO check it
+            decimal.ifPresent(v -> builder.add(entry.getName(), v.toPlainString()));// TODO check it
         }
 
         @Override
@@ -246,7 +246,7 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
                             .add(entry.getName(),
                                     vs
                                             .stream()
-                                            .map(v -> v.toPlainString())//TODO check it
+                                            .map(v -> v.toPlainString())// TODO check it
                                             .collect(factory::createArrayBuilder, JsonArrayBuilder::add,
                                                     JsonArrayBuilder::addAll)
                                             .build()));
