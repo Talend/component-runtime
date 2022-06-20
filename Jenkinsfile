@@ -27,6 +27,7 @@ final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWi
 final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:2.9.27-20220331162145"
 final def jdk17Image= "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:2.9.27-20220331162145"
 final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+final boolean isOnMasterOrMaintenanceBranch = env.BRANCH_NAME == 'master' || env.BRANCH_NAME.startsWith('maintenance/')
 
 def EXTRA_BUILD_ARGS = ""
 
@@ -330,10 +331,26 @@ spec:
     }
     post {
         success {
-            slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+            script {
+                //Only post results to Slack for Master and Maintenance branches
+                if (isOnMasterOrMaintenanceBranch) {
+                    slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+                }
+            }
         }
         failure {
-            slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+            script {
+                //Only post results to Slack for Master and Maintenance branches
+                if (isOnMasterOrMaintenanceBranch) {
+                    //if previous build was a success, ping channel in the Slack message
+                    if ("SUCCESS".equals(currentBuild.previousBuild.result)) {
+                        slackSend(color: '#FF0000', message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+                    } else {
+                        //else send notification without pinging channel
+                        slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+                    }
+                }
+            }
         }
     }
 }
