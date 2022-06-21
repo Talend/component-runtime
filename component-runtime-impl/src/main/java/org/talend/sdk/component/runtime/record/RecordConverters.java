@@ -208,7 +208,7 @@ public class RecordConverters implements Serializable {
         if (Float.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.FLOAT).build();
         }
-        if (BigDecimal.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
+        if (JsonNumber.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
         }
         if (Double.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
@@ -357,7 +357,7 @@ public class RecordConverters implements Serializable {
             case DECIMAL: {
                 final BigDecimal value = record.get(BigDecimal.class, name);
                 if (value != null) {
-                    builder.add(name, value.toPlainString());// TODO check it
+                    builder.add(name, value.toString());// TODO check it
                 }
                 break;
             }

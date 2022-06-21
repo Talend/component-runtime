@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -205,11 +206,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (value != null && expectedType == value.getClass() && !(value instanceof Collection)) {
             return expectedType.cast(value);
         }
-        if (Boolean.parseBoolean(readProp(fieldSchemaRaw, Schema.Type.DECIMAL.name()))) {
-            // no need to do converter here as avro can ser/deser bigdecimal directly, and when to memory, is BigDecimal
-            // object
-            return expectedType.cast(value);
-        }
+
         if (value instanceof IndexedRecord && (Record.class == expectedType || Object.class == expectedType)) {
             return expectedType.cast(new AvroRecord(IndexedRecord.class.cast(value)));
         }
@@ -221,6 +218,15 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                 && Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name()))) {
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
+
+        // in avro record, we store decimal by string, and we use AvroCoder for beam, and AvroCoder no auto decimal type
+        // convert support
+        // so need this convert here
+        if (expectedType == BigDecimal.class
+                && Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DECIMAL.name()))) {
+            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
+        }
+
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
             final Class<?> itemType = expectedType == Collection.class ? Object.class : expectedType;
             return expectedType

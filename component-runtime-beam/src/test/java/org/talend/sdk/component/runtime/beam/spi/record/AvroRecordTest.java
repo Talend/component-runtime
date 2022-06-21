@@ -387,11 +387,14 @@ class AvroRecordTest {
 
         final Pipeline pipeline = Pipeline.create();
 
+        // if we want AvroCoder auto to support decimal conversion, we must patch beam's AvroCoder for cross vm case for
+        // ser/deser
+
         // data processing platform need to add this statement to enable decimal support for beam compiler
         // how to add this for cross threads/cross vm, maybe we need to do a fix for beam LazyAvroCoder/AvroCoder class
         // and all codec class like SchemaRegistryCoder too, to add this
         // GenericData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
-        GenericData.get().addLogicalTypeConversion(new Decimal.DecimalConversion());
+        // GenericData.get().addLogicalTypeConversion(new Decimal.DecimalConversion());
 
         // should not use ReflectData for any GenericRecord implements
         // ReflectData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());

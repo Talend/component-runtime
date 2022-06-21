@@ -379,7 +379,7 @@ public final class RecordImpl implements Record {
         public Builder withDecimal(final Entry entry, final BigDecimal value) {
             assertType(entry.getType(), DECIMAL);
             validateTypeAgainstProvidedSchema(entry.getName(), DECIMAL, value);
-            return append(entry, value);
+            return append(entry, value == null ? null : value.toString());
         }
 
         public Builder withTimestamp(final String name, final long value) {
