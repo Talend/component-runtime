@@ -211,7 +211,8 @@ pipeline {
                                   -DskipTests\
                                   -Dmaven.javadoc.skip=true\
                                   -Dinvoker.skip=true\
-                                  -Dmaven.artifact.threads=25
+                                  -Dmaven.artifact.threads=25\
+                                  -U
                 """
           }
         }
