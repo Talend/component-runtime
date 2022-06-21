@@ -602,6 +602,7 @@
                       {
                         "comparison": "Equals",
                         "subject": "ResponseStatus",
+                        "enabled": false,
                         "path": "code",
                         "value": "404"
                       },
