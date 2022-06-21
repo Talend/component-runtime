@@ -883,10 +883,52 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"components\":\\[{\"categories\":\\[.+\\],\"displayName\":\".+\",\"familyDisplayName\":\".+\",\"icon\":{.+},\"iconFamily\":{.+},\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"links\":\\[{\"contentType\":\".+\",\"name\":\".+\",\"path\":\".+\"}\\],\"metadata\":{.+},\"type\":\".+\",\"version\":.+},.+\\]}"
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].displayName",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].familyDisplayName",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].icon",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].id",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].links",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].metadata",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].type",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].version",
+                        "value": "200"
                       }
                     ]
                   }
@@ -1396,6 +1438,42 @@
                         "comparison": "Matches",
                         "subject": "ResponseBody",
                         "path": "content",
+                        "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details[0].actions",
+                        "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details[0].displayName",
+                        "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details[0].icon",
+                        "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details[0].id",
+                        "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details[0].inputFlows",
+                        "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details[0].inputFlow",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       }
                     ]
