@@ -15,9 +15,12 @@
  */
 package org.talend.sdk.component.api.record;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -74,6 +77,17 @@ class OrderedMapTest {
 
     private String reduce(final OrderedMap<String> container) {
         return container.streams().collect(Collectors.joining(","));
+    }
+
+    @Test
+    void forEachTest() {
+        final OrderedMap<Integer> container = new OrderedMap<>(Integer::toUnsignedString, Collections.emptyList());
+        Assertions.assertEquals(0l, container.streams().count());
+        container.addValue(1);
+        container.addValue(2);
+        AtomicInteger number = new AtomicInteger(0);
+        container.forEachValue(number::getAndAdd);
+        Assertions.assertEquals(3, number.get());
     }
 
     @Test
@@ -174,6 +188,7 @@ class OrderedMapTest {
             }
             index++;
         }
+        Assertions.assertThrows(NoSuchElementException.class, iterator::next);
     }
 
 }
