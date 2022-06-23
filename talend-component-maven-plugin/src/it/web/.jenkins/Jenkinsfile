@@ -253,6 +253,7 @@ pipeline {
                              --define instance=${tenantInstance} \
                              --define accountId=${componentRuntimeApiTenantId_Rd} \
                              --define selectedEnvironment=${apiTesterEnv} \
+                             --define stopOnFailure=false \
                              --define file=${fileToRun}.json
               """
 
