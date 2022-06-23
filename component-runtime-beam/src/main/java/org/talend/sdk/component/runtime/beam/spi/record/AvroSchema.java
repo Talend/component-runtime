@@ -250,7 +250,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             return Type.LONG;
         case STRING:
             if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
-                    || (schema.getLogicalType() != null && "decimal".equals(schema.getLogicalType().getName()))) {
+                    || (Decimal.logicalType().equals(schema.getLogicalType()))) {
                 return Type.DECIMAL;
             }
             return Type.STRING;

@@ -145,7 +145,7 @@ class AvroSchemaTest {
                         .build())
                 .getDelegate();
         assertEquals(DECIMAL, new AvroSchema(avro).getEntries().iterator().next().getType());
-        assertEquals(new Decimal(), avro.getField("decimal").schema().getLogicalType());
+        assertEquals(Decimal.logicalType(), avro.getField("decimal").schema().getLogicalType());
     }
 
     @Test
@@ -154,11 +154,11 @@ class AvroSchemaTest {
                 .record("test")
                 .fields()
                 .name("decimal")
-                .type(new Decimal().addToSchema(Schema.create(Schema.Type.STRING)))
+                .type(Decimal.logicalType().addToSchema(Schema.create(Schema.Type.STRING)))
                 .noDefault()
                 .endRecord();
         assertEquals(DECIMAL, new AvroSchema(avro).getEntries().iterator().next().getType());
-        assertEquals(new Decimal(), avro.getField("decimal").schema().getLogicalType());
+        assertEquals(Decimal.logicalType(), avro.getField("decimal").schema().getLogicalType());
     }
 
     @Test

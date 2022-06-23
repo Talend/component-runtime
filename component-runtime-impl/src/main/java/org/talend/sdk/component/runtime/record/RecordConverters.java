@@ -357,7 +357,7 @@ public class RecordConverters implements Serializable {
             case DECIMAL: {
                 final BigDecimal value = record.get(BigDecimal.class, name);
                 if (value != null) {
-                    builder.add(name, value.toString());// TODO check it
+                    builder.add(name, value.toString());
                 }
                 break;
             }

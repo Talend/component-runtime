@@ -224,7 +224,19 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         // so need this convert here
         if (expectedType == BigDecimal.class
                 && Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DECIMAL.name()))) {
-            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
+            // RECORD_CONVERTERS.coerce method is low performance as do too many if, even here we already know type here
+            if (value == null) {
+                return null;
+            }
+
+            if (value instanceof String) {
+                // avoid toString here as it cost something
+                return expectedType.cast(new BigDecimal(String.class.cast(value)));
+            } else if (value instanceof Utf8) {
+                return expectedType.cast(new BigDecimal(value.toString()));
+            } else {
+                // should impossible here
+            }
         }
 
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {

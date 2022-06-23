@@ -15,9 +15,6 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
-import java.math.BigDecimal;
-
-import org.apache.avro.Conversion;
 import org.apache.avro.LogicalType;
 import org.apache.avro.Schema;
 
@@ -25,8 +22,12 @@ public class Decimal extends LogicalType {
 
     private static final String DECIMAL = "decimal";
 
-    public Decimal() {
+    private Decimal() {
         super(DECIMAL);
+    }
+
+    public static Decimal logicalType() {
+        return new Decimal();
     }
 
     @Override
@@ -52,39 +53,6 @@ public class Decimal extends LogicalType {
     @Override
     public int hashCode() {
         return 0;
-    }
-
-    public static class DecimalConversion extends Conversion<BigDecimal> {
-
-        @Override
-        public Class<BigDecimal> getConvertedType() {
-            return BigDecimal.class;
-        }
-
-        @Override
-        public Schema getRecommendedSchema() {
-            throw new UnsupportedOperationException("No recommended schema for decimal");
-        }
-
-        @Override
-        public String getLogicalTypeName() {
-            return "decimal";
-        }
-
-        @Override
-        public BigDecimal fromCharSequence(final CharSequence value, final Schema schema, final LogicalType type) {
-            if (value == null) {
-                return null;
-            }
-            // TODO make sure here
-            return new BigDecimal(value.toString());
-        }
-
-        @Override
-        public CharSequence toCharSequence(final BigDecimal value, final Schema schema, final LogicalType type) {
-            // TODO correct here
-            return value.toString();
-        }
     }
 
 }

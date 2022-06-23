@@ -106,7 +106,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
             new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
             }
                     .setProp(
-                            new Decimal()
+                            Decimal.logicalType()
                                     .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)),
                             Schema.Type.DECIMAL.name(), "true"))));
 
@@ -114,7 +114,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
             new AvroPropertyMapper() {
             }
                     .setProp(
-                            new Decimal()
+                            Decimal.logicalType()
                                     .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)),
                             Schema.Type.DECIMAL.name(), "true"));
 
