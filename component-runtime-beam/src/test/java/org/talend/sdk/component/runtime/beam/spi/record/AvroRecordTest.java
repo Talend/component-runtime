@@ -157,9 +157,21 @@ class AvroRecordTest {
                         .build())
                 .build());
         { // null
-            final Record record = builder.get().withDecimal("decimal", (BigDecimal) null).build();
-            assertEquals(1, record.getSchema().getEntries().size());
-            assertNull(record.getDecimal("decimal"));
+            final Record record1 = builder.get().withDecimal("decimal", (BigDecimal) null).build();
+            assertEquals(1, record1.getSchema().getEntries().size());
+            assertNull(record1.getDecimal("decimal"));
+            assertNull(record1.get(Object.class, "decimal"));
+            // We should promise this?
+            assertNull(record1.get(String.class, "decimal"));
+
+            final BigDecimal value2 = new BigDecimal("123456789.123456789");
+            final Record record2 = builder.get().withDecimal("decimal", value2).build();
+            assertEquals(1, record2.getSchema().getEntries().size());
+            assertEquals(value2, record2.getDecimal("decimal"));
+            // like we support DATETIME, get Object return long, here return origin store type : string
+            assertEquals("123456789.123456789", record2.get(Object.class, "decimal"));
+            // We should promise this?
+            assertEquals("123456789.123456789", record2.get(String.class, "decimal"));
         }
     }
 

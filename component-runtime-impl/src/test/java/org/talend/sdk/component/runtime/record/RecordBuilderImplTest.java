@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -231,6 +232,23 @@ class RecordBuilderImplTest {
 
         final RecordImpl.BuilderImpl builder2 = new RecordImpl.BuilderImpl(schema);
         assertThrows(IllegalArgumentException.class, () -> builder2.withDateTime("date", (ZonedDateTime) null));
+    }
+
+    @Test
+    void decimal() {
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("decimal")
+                        .withNullable(true)
+                        .withType(Schema.Type.DECIMAL)
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withDecimal("decimal", new BigDecimal("123456789.123456789")).build();
+        assertEquals(new BigDecimal("123456789.123456789"), record.getDecimal("decimal"));
+        assertEquals("123456789.123456789", record.get(Object.class, "decimal"));
+        assertEquals("123456789.123456789", record.getString("decimal"));
     }
 
     @Test

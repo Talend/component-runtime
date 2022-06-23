@@ -447,6 +447,9 @@ public class RecordConverters implements Serializable {
         if (value == null) {
             return null;
         }
+
+        // here mean get(Object.class, name) return origin store type, like DATETIME return long, DECIMAL return string,
+        // is expected?
         if (!expectedType.isInstance(value)) {
             return expectedType.cast(MappingUtils.coerce(expectedType, value, name));
         }

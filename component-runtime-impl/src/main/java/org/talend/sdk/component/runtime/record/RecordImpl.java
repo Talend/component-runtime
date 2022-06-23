@@ -82,6 +82,8 @@ public final class RecordImpl implements Record {
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
         final Object value = values.get(name);
+        // here mean get(Object.class, name) return origin store type, like DATETIME return long, DECIMAL return string,
+        // is expected?
         if (value == null || expectedType.isInstance(value)) {
             return expectedType.cast(value);
         }

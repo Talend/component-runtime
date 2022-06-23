@@ -219,24 +219,10 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
 
-        // in avro record, we store decimal by string, and we use AvroCoder for beam, and AvroCoder no auto decimal type
-        // convert support
-        // so need this convert here
         if (expectedType == BigDecimal.class
                 && Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DECIMAL.name()))) {
-            // RECORD_CONVERTERS.coerce method is low performance as do too many if, even here we already know type here
-            if (value == null) {
-                return null;
-            }
-
-            if (value instanceof String) {
-                // avoid toString here as it cost something
-                return expectedType.cast(new BigDecimal(String.class.cast(value)));
-            } else if (value instanceof Utf8) {
-                return expectedType.cast(new BigDecimal(value.toString()));
-            } else {
-                // should impossible here
-            }
+            return RECORD_CONVERTERS.coerce(expectedType, (value instanceof Utf8) ? value.toString() : value,
+                    fieldSchema.getName());
         }
 
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
