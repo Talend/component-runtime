@@ -122,6 +122,7 @@ pipeline {
     buildDiscarder(logRotator(artifactNumToKeepStr: '30', numToKeepStr: '30'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
+    timestamps ()
   }
 
   stages {
@@ -197,23 +198,23 @@ pipeline {
           script {
             if (runtimeVersion != "default") {
               sh """
-                    chmod +x ${SCRIPTS_PATH}/pom-edit.sh
-                    ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
-                    """
+                chmod +x ${SCRIPTS_PATH}/pom-edit.sh
+                ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
+                """
             }
             sh """
-                mvn clean install -f ${TESTED_CONNECTOR_PATH}/pom.xml\
-                                  -T3C\
-                                  -Dspotless.apply.skip=true\
-                                  -Dspotbugs.skip=true\
-                                  -Dcheckstyle.skip=true\
-                                  -Drat.skip=true\
-                                  -DskipTests\
-                                  -Dmaven.javadoc.skip=true\
-                                  -Dinvoker.skip=true\
-                                  -Dmaven.artifact.threads=25\
-                                  -U
-                """
+              cd ${TESTED_CONNECTOR_PATH}
+              mvn clean install -U\
+                                -T3C\
+                                -Dspotless.apply.skip=true\
+                                -Dspotbugs.skip=true\
+                                -Dcheckstyle.skip=true\
+                                -Drat.skip=true\
+                                -DskipTests\
+                                -Dmaven.javadoc.skip=true\
+                                -Dinvoker.skip=true\
+                                -Dmaven.artifact.threads=25
+              """
           }
         }
       }
