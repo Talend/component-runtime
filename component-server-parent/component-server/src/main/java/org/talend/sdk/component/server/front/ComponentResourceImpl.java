@@ -118,6 +118,12 @@ public class ComponentResourceImpl implements ComponentResource {
 
     public static final String BASE64_PREFIX = "base64://"; //$NON-NLS-1$
 
+    public static final String COMPONENT_TYPE_STANDALONE = "standalone";
+
+    public static final String COMPONENT_TYPE_INPUT = "input";
+
+    public static final String COMPONENT_TYPE_PROCESSOR = "processor";
+
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
     @Inject
@@ -298,6 +304,7 @@ public class ComponentResourceImpl implements ComponentResource {
                                     detail.getId(),
                                     detail.getDisplayName(),
                                     detail.getId().getFamily(),
+                                    detail.getType(),
                                     new Icon(detail.getIcon(), null, null),
                                     new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()), null,
                                             null),
@@ -469,11 +476,11 @@ public class ComponentResourceImpl implements ComponentResource {
                 final Locale locale = localeMapper.mapLocale(language);
                 final String type;
                 if (ProcessorMeta.class.isInstance(meta)) {
-                    type = "processor";
+                    type = COMPONENT_TYPE_PROCESSOR;
                 } else if (PartitionMapperMeta.class.isInstance(meta)) {
-                    type = "input";
+                    type = COMPONENT_TYPE_INPUT;
                 } else {
-                    type = "standalone";
+                    type = COMPONENT_TYPE_STANDALONE;
                 }
 
                 final ComponentBundle bundle = meta.findBundle(container.getLoader(), locale);
@@ -518,19 +525,22 @@ public class ComponentResourceImpl implements ComponentResource {
                                         .values()
                                         .stream()
                                         .map(mapper -> toComponentIndex(c, locale, c.getId(), mapper,
-                                                c.get(ComponentManager.OriginalId.class), includeIconContent)),
+                                                c.get(ComponentManager.OriginalId.class), includeIconContent,
+                                                COMPONENT_TYPE_INPUT)),
                                         component
                                                 .getProcessors()
                                                 .values()
                                                 .stream()
                                                 .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
-                                                        c.get(ComponentManager.OriginalId.class), includeIconContent)),
+                                                        c.get(ComponentManager.OriginalId.class), includeIconContent,
+                                                        COMPONENT_TYPE_PROCESSOR)),
                                         component
                                                 .getDriverRunners()
                                                 .values()
                                                 .stream()
                                                 .map(runner -> toComponentIndex(c, locale, c.getId(), runner,
-                                                        c.get(ComponentManager.OriginalId.class), includeIconContent)))
+                                                        c.get(ComponentManager.OriginalId.class), includeIconContent,
+                                                        COMPONENT_TYPE_STANDALONE)))
                                 .flatMap(Function.identity())));
     }
 
@@ -577,7 +587,7 @@ public class ComponentResourceImpl implements ComponentResource {
 
     private ComponentIndex toComponentIndex(final Container container, final Locale locale, final String plugin,
             final ComponentFamilyMeta.BaseMeta meta, final ComponentManager.OriginalId originalId,
-            final boolean includeIcon) {
+            final boolean includeIcon, final String type) {
         final ClassLoader loader = container.getLoader();
         final String icon = meta.getIcon();
         final String familyIcon = meta.getParent().getIcon();
@@ -601,7 +611,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         ofNullable(originalId).map(ComponentManager.OriginalId::getValue).orElse(plugin),
                         meta.getParent().getName(), meta.getName()),
                 bundle.displayName().orElse(meta.getName()),
-                familyDisplayName,
+                familyDisplayName, type,
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),
                         !includeIcon ? null : (iconContent == null ? null : iconContent.getBytes())),
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
