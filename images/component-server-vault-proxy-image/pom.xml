@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.46.0-TDP-11154-SNAPSHOT</version>
+    <version>0.0.11154-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-vault-proxy-image</artifactId>
