@@ -105,6 +105,10 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (value instanceof Date) {
             return Date.class.cast(value).getTime();
         }
+        // those convert here is necessary?
+        if (value instanceof BigDecimal) {
+            return BigDecimal.class.cast(value).toString();
+        }
         if (value instanceof byte[]) {
             return ByteBuffer.wrap(byte[].class.cast(value));
         }
