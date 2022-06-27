@@ -131,7 +131,12 @@ pipeline {
         container(tsbiImage) {
           wrap([$class: 'BuildUser']) {
             script {
-              USER_NAME = "${BUILD_USER}"
+              try {
+                USER_NAME = "${BUILD_USER}"
+              }
+              catch (groovy.lang.MissingPropertyException ignored) {
+                USER_NAME = "auto"
+              }
             }
           }
           script {
