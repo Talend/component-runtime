@@ -65,10 +65,10 @@ catch (groovy.lang.MissingPropertyException ignored) {
 }
 // BUILD_USER_ID
 try {
-  buildUser = "${BUILD_USER}"
+  buildUser = ENV.BUILD_USER
 }
 catch (groovy.lang.MissingPropertyException ignored) {
-  echo "BUILD_USER_ID not supplied, this is an automatic start"
+  echo "BUILD_USER not supplied, this is an automatic start"
 }
 
 pipeline {
@@ -164,10 +164,9 @@ pipeline {
             )
             // updating build description
             currentBuild.description = (
-                "Branch: " + branchToUse + "\n" +
-                "Runtime: " + runtimeName + "\n" +
-                "Test batch: " + fileToRun + "\n" +
-                "User: " + buildUser
+              "User: " + buildUser + " - " + "Runtime: " + runtimeName + "\n" +
+              "Branch: " + branchToUse + "\n" +
+              "Test batch: " + fileToRun + "\n"
             )
           }
         }
