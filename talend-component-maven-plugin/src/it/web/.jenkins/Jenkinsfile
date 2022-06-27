@@ -38,7 +38,7 @@ final String serverTimeout = "1"
 String runtimeVersion = "default"
 String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master before the first PR merge
 String apiTesterEnv = "localhost"
-String fileToRun = "component_runtime_prod"
+String fileToRun = "component_runtime_prod_tat"
 String tenantInstance = "eu"
 
 // RUNTIME_VERSION
@@ -306,7 +306,7 @@ pipeline {
                 junitParser(
                     id: 'unit-test',
                     name: 'Unit Test',
-                    pattern: '**/target/surefire-reports/*.xml'
+                    pattern: '*/**/target/surefire-reports/*.xml'
                 ),
                 mavenConsole(
                     id: 'maven-build',
