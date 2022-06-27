@@ -298,10 +298,13 @@ pipeline {
                     name: 'Src - Known/Fixme/Todo',
                     includePattern: '**/*tat.json',
                     ignoreCase: true,
-                    isRegularExpression: true,
-                    highTags: '(KNOWN_ISSUE)(.*)',
-                    normalTags: '(FI.?XME)(.*)',
-                    lowTags: '(TO.?DO)(.*)'
+                    lowTags: 'KNOWN_ISSUE',
+                    normalTags: 'FIXME, FIX_ME',
+                    highTags: 'TODO, TO_DO'
+                    //isRegularExpression: true,
+                    //highTags: '(KNOWN_ISSUE)(.*)',
+                    //normalTags: '(FI.?XME)(.*)',
+                    //lowTags: '(TO.?DO)(.*)'
                 ),
                 junitParser(
                     id: 'unit-test',
