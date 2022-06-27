@@ -33,7 +33,7 @@ mvn clean test --define selectedEnvironment='localhost' --define accountId='YOUR
 mvn clean test --define instance='YOUR_TENANT_INSTANCE'\
                --define accountId='YOUR_ID_ON_TENANT'\
                --define selectedEnvironment='localhost'\
-               --define file='component_runtime_prod.json'
+               --define file='component_runtime_prod_tat.json'
 ```
 
 ## To edit the tests
