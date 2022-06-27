@@ -40,6 +40,7 @@ String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master 
 String apiTesterEnv = "localhost"
 String fileToRun = "component_runtime_prod"
 String tenantInstance = "eu"
+buildUser = "auto"
 
 // RUNTIME_VERSION
 try {
@@ -61,6 +62,13 @@ try {
 }
 catch (groovy.lang.MissingPropertyException ignored) {
   echo "FILE_TO_RUN not supplied, default value will be used ($fileToRun)"
+}
+// BUILD_USER_ID
+try {
+  buildUser = "${BUILD_USER}"
+}
+catch (groovy.lang.MissingPropertyException ignored) {
+  echo "BUILD_USER_ID not supplied, this is an automatic start"
 }
 
 pipeline {
@@ -155,9 +163,11 @@ pipeline {
                 ": " + branchToUse
             )
             // updating build description
-            currentBuild.description = ( "Branch: " + branchToUse + "\n" +
-                                         "Runtime: " + runtimeName + "\n" +
-                                         "Test batch: " + fileToRun
+            currentBuild.description = (
+                "Branch: " + branchToUse + "\n" +
+                "Runtime: " + runtimeName + "\n" +
+                "Test batch: " + fileToRun + "\n" +
+                "User: " + buildUser
             )
           }
         }
