@@ -283,8 +283,16 @@ pipeline {
   post {
     always {
       container(tsbiImage) {
-        archiveArtifacts artifacts: "**/${serverLog}, **/target/surefire-reports/*, **/target/site/**/*, **/test_scenarios/**/*"
-        junit healthScaleFactor: 5.0, testResults: "**/target/surefire-reports/*.xml"
+        archiveArtifacts(
+            artifacts: """\
+            **/${serverLog}, 
+            **/target/surefire-reports/*, 
+            **/target/site/**/*, 
+            **/test_scenarios/**/*""".stripIndent()
+        )
+        junit(
+            healthScaleFactor: 5.0,
+            testResults: "**/target/surefire-reports/*.xml")
       }
     }
   }
