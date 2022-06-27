@@ -299,9 +299,9 @@ pipeline {
                     includePattern: '**/*tat.json',
                     ignoreCase: true,
                     isRegularExpression: true,
-                    highTags: '(KNOWN_ISSUE(?:[0-9]*))(.*$)',
-                    normalTags: '(FI.?XME(?:[0-9]*))(.*$)',
-                    lowTags: '(TO.?DO(?:[0-9]*))(.*$)'
+                    highTags: '(KNOWN_ISSUE)(.*)',
+                    normalTags: '(FI.?XME)(.*)',
+                    lowTags: '(TO.?DO)(.*)'
                 ),
                 junitParser(
                     id: 'unit-test',
