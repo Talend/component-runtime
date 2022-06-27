@@ -59,7 +59,10 @@ public interface Record {
     <T> T get(Class<T> expectedType, String name);
 
     default <T> T get(Class<T> expectedType, Schema.Entry entry) {
-        return this.get(expectedType, entry);
+        if (entry == null) {
+            return null;
+        }
+        return this.get(expectedType, entry.getName());
     }
 
     /**
