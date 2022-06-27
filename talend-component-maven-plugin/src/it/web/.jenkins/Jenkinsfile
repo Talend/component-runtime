@@ -290,9 +290,30 @@ pipeline {
             **/target/site/**/*, 
             **/test_scenarios/**/*""".stripIndent()
         )
-        junit(
-            healthScaleFactor: 5.0,
-            testResults: "**/target/surefire-reports/*.xml")
+        recordIssues(
+            enabledForFailure: true,
+            tools: [
+                taskScanner(
+                    id: 'todo-src',
+                    name: 'Src - Known/Fixme/Todo',
+                    includePattern: '**/*tat.json',
+                    ignoreCase: true,
+                    isRegularExpression: true,
+                    highTags: '(KNOWN_ISSUE(?:[0-9]*))(.*)$)',
+                    normalTags: '(FI.?XME(?:[0-9]*))(.*)$)',
+                    lowTags: '(TO.?DO(?:[0-9]*))(.*)$)'
+                ),
+                junitParser(
+                    id: 'unit-test',
+                    name: 'Unit Test',
+                    pattern: '*/target/surefire-reports/*.xml'
+                ),
+                mavenConsole(
+                    id: 'maven-build',
+                    name: 'Maven Build'
+                ),
+            ]
+        )
       }
     }
   }
