@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>documentation-sample</artifactId>
-    <version>0.0.11154-SNAPSHOT</version>
+    <version>1.47.11154-SNAPSHOT</version>
   </parent>
 
   <artifactId>minmaxvalidation-component</artifactId>
