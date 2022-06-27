@@ -37,7 +37,7 @@ final String serverTimeout = "1"
 // Default value for parameters
 String runtimeVersion = "default"
 String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master before the first PR merge
-String apiTesterEnv = "localhost"
+String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "component_runtime_prod_tat"
 String tenantInstance = "eu"
 
