@@ -38,7 +38,7 @@ final String serverTimeout = "1"
 String runtimeVersion = "default"
 String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master before the first PR merge
 String apiTesterEnv = "component_runtime_ci"
-String fileToRun = "component_runtime_prod_tat"
+String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
 
 // RUNTIME_VERSION
@@ -57,10 +57,10 @@ catch (groovy.lang.MissingPropertyException ignored) {
 }
 // FILE_TO_RUN
 try {
-  fileToRun = "${FILE_TO_RUN}"
+  fileToRun = "${PROJECT_NAME}"
 }
 catch (groovy.lang.MissingPropertyException ignored) {
-  echo "FILE_TO_RUN not supplied, default value will be used ($fileToRun)"
+  echo "PROJECT_NAME not supplied, default value will be used ($fileToRun)"
 }
 
 pipeline {
@@ -284,34 +284,34 @@ pipeline {
     always {
       container(tsbiImage) {
         archiveArtifacts(
-            artifacts: """\
-            **/${serverLog}, 
-            **/target/surefire-reports/*, 
-            **/target/site/**/*, 
-            **/test_scenarios/**/*""".stripIndent()
+          artifacts: """\
+          **/${serverLog}, 
+          **/target/surefire-reports/*, 
+          **/target/site/**/*, 
+          **/test_scenarios/**/*""".stripIndent()
         )
         recordIssues(
-            enabledForFailure: true,
-            tools: [
-                taskScanner(
-                    id: 'todo-src',
-                    name: 'Src - Known/Fixme/Todo',
-                    includePattern: '**/*tat.json',
-                    ignoreCase: true,
-                    highTags: '@Disabled',
-                    normalTags: 'FIX_ME, FIXME',
-                    lowTags: 'TO_DO, TODO'
-                ),
-                junitParser(
-                    id: 'unit-test',
-                    name: 'Unit Test',
-                    pattern: '*/**/target/surefire-reports/*.xml'
-                ),
-                mavenConsole(
-                    id: 'maven-build',
-                    name: 'Maven Build'
-                ),
-            ]
+          enabledForFailure: true,
+          tools: [
+            taskScanner(
+              id: 'todo-src',
+              name: 'Src - Known/Fixme/Todo',
+              includePattern: '*/**/src/it/web/test/*.json',
+              ignoreCase: true,
+              highTags: '@Disabled',
+              normalTags: 'FIX_ME, FIXME',
+              lowTags: 'TO_DO, TODO'
+            ),
+            junitParser(
+              id: 'unit-test',
+              name: 'Unit Test',
+              pattern: '*/**/src/it/web/test/target/surefire-reports/*.xml'
+            ),
+            mavenConsole(
+              id: 'maven-build',
+              name: 'Maven Build'
+            ),
+          ]
         )
       }
     }
