@@ -52,7 +52,10 @@ public class ParameterSetter {
     private Map<String, TargetAndField> cache;
 
     /**
-     * xxx
+     * change the value for the option which the path point to
+     *
+     * @param path option path
+     * @param value new value
      */
     public void change(final String path, final Object value) {
         if (cache == null) {
