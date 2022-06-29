@@ -16,11 +16,11 @@ If you want to run the test with maven, you will need the followings:
 
 ## Execution
 The execution with maven plugin is done in several steps as follows:
-- Go into the mock connector folder [/talend-component-maven-plugin/src/it/web/mock/connector-mock](/talend-component-maven-plugin/src/it/web/mock/connector-mock)
+- Go into the mock connector folder (/talend-component-maven-plugin/src/it/web/mock/connector-mock)
 - Build the connector
 - Start the web tester
-  - Use Dtalend.web.batch, Dtalend.web.batch.timeout, Dtalend.web.port options depending on your needs (default test environment is [https://localhost:8081](https://localhost:8081))
-- Go to the test folder [/talend-component-maven-plugin/src/it/web/test](/talend-component-maven-plugin/src/it/web/test)
+  - Use Dtalend.web.batch, Dtalend.web.batch.timeout, Dtalend.web.port options depending on your needs (default test environment is (https://localhost:8081))
+- Go to the test folder (/talend-component-maven-plugin/src/it/web/test)
 - Run the tests with your Talend instance and account ID
 
 
@@ -33,7 +33,7 @@ mvn clean test --define selectedEnvironment='localhost' --define accountId='YOUR
 mvn clean test --define instance='YOUR_TENANT_INSTANCE'\
                --define accountId='YOUR_ID_ON_TENANT'\
                --define selectedEnvironment='localhost'\
-               --define file='component_runtime_prod_tat.json'
+               --define file='tcomp-approved.json'
 ```
 
 ## To edit the tests
@@ -47,7 +47,7 @@ If you are part of Talend
 - Request to be part of the XXX group in XXX Tenant
 
 If you are not part of Talend
-- Import the test project form [/talend-component-maven-plugin/src/it/web/test](/talend-component-maven-plugin/src/it/web/test) in your API Tester DRIVE
+- Import the test project form (/talend-component-maven-plugin/src/it/web/test) in your API Tester DRIVE
 
 
 
