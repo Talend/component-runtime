@@ -22,12 +22,14 @@ public class Decimal extends LogicalType {
 
     private static final String DECIMAL = "decimal";
 
+    private static final Decimal DECIMAL_TYPE = new Decimal();
+
     private Decimal() {
         super(DECIMAL);
     }
 
     public static Decimal logicalType() {
-        return new Decimal();
+        return DECIMAL_TYPE;
     }
 
     @Override
@@ -37,22 +39,6 @@ public class Decimal extends LogicalType {
         if (schema.getType() != Schema.Type.STRING) {
             throw new IllegalArgumentException("Logical type decimal must be backed by string");
         }
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return 0;
     }
 
 }

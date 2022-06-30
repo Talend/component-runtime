@@ -247,7 +247,7 @@ class RecordBuilderImplTest {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
         final Record record = builder.withDecimal("decimal", new BigDecimal("123456789.123456789")).build();
         assertEquals(new BigDecimal("123456789.123456789"), record.getDecimal("decimal"));
-        assertEquals("123456789.123456789", record.get(Object.class, "decimal"));
+        assertEquals(new BigDecimal("123456789.123456789"), record.get(Object.class, "decimal"));
         assertEquals("123456789.123456789", record.getString("decimal"));
     }
 

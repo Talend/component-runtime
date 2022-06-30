@@ -61,7 +61,7 @@ public class MappingUtils {
             }
         }
 
-        // we store decimal by string
+        // we store decimal by string for AvroRecord case
         if ((expectedType == BigDecimal.class) && String.class.isInstance(value)) {
             return new BigDecimal(String.class.cast(value));
         }

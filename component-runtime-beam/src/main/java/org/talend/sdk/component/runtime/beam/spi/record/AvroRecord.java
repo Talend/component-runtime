@@ -90,6 +90,13 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     private Object directMapping(final Object value) {
+        // RecordImpl store BigDecimal directly, no any convert as not necessary, so here need to convert to string for
+        // beam's AvroCoder which cloud platform use
+        // also here for any Collection<BigDecimal> as Array type
+        if (value instanceof BigDecimal) {
+            return BigDecimal.class.cast(value).toString();
+        }
+
         if (value instanceof Collection) {
             return Collection.class.cast(value).stream().map(this::directMapping).collect(toList());
         }
@@ -104,10 +111,6 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
         if (value instanceof Date) {
             return Date.class.cast(value).getTime();
-        }
-        // those convert here is necessary?
-        if (value instanceof BigDecimal) {
-            return BigDecimal.class.cast(value).toString();
         }
         if (value instanceof byte[]) {
             return ByteBuffer.wrap(byte[].class.cast(value));
@@ -223,10 +226,15 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
 
-        if (expectedType == BigDecimal.class
-                && Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DECIMAL.name()))) {
-            return RECORD_CONVERTERS.coerce(expectedType, (value instanceof Utf8) ? value.toString() : value,
-                    fieldSchema.getName());
+        if (Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DECIMAL.name()))) {
+            if (expectedType == BigDecimal.class) {
+                return RECORD_CONVERTERS.coerce(expectedType, (value instanceof Utf8) ? value.toString() : value,
+                        fieldSchema.getName());
+            } else if (expectedType == Object.class) {
+                return (T) RECORD_CONVERTERS.coerce(BigDecimal.class,
+                        (value instanceof Utf8) ? value.toString() : value,
+                        fieldSchema.getName());
+            }
         }
 
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {

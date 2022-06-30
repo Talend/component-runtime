@@ -82,8 +82,7 @@ public final class RecordImpl implements Record {
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
         final Object value = values.get(name);
-        // here mean get(Object.class, name) return origin store type, like DATETIME return long, DECIMAL return string,
-        // is expected?
+        // here mean get(Object.class, name) return origin store type, like DATETIME return long, is expected?
         if (value == null || expectedType.isInstance(value)) {
             return expectedType.cast(value);
         }
@@ -381,7 +380,7 @@ public final class RecordImpl implements Record {
         public Builder withDecimal(final Entry entry, final BigDecimal value) {
             assertType(entry.getType(), DECIMAL);
             validateTypeAgainstProvidedSchema(entry.getName(), DECIMAL, value);
-            return append(entry, value == null ? null : value.toString());
+            return append(entry, value);
         }
 
         public Builder withTimestamp(final String name, final long value) {
