@@ -1,5 +1,11 @@
 
 
+== Version 1.46.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2176[TCOMP-2176^]: Record : Infinite loop link:search.html?query=schema-record[schema-record^,role='dockey']
+
 == Version 1.46.0
 
 === New Feature
