@@ -41,28 +41,6 @@ String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
 
-// RUNTIME_VERSION
-try {
-  runtimeVersion = "${RUNTIME_VERSION}"
-}
-catch (groovy.lang.MissingPropertyException ignored) {
-  echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
-}
-// TEST_BRANCH
-try {
-  branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
-}
-catch (groovy.lang.MissingPropertyException ignored) {
-  echo "TEST_BRANCH not supplied, default value will be used ($branchToUse)"
-}
-// FILE_TO_RUN
-try {
-  fileToRun = "${PROJECT_NAME}"
-}
-catch (groovy.lang.MissingPropertyException ignored) {
-  echo "PROJECT_NAME not supplied, default value will be used ($fileToRun)"
-}
-
 pipeline {
   agent {
     kubernetes {
@@ -126,9 +104,13 @@ pipeline {
   }
 
   stages {
-    stage('Test Info') {
+    stage('Validate parameters') {
       steps {
         container(tsbiImage) {
+
+          ///////////////////////////////////////////
+          // Get the user name
+          ///////////////////////////////////////////
           wrap([$class: 'BuildUser']) {
             script {
               try {
@@ -139,6 +121,33 @@ pipeline {
               }
             }
           }
+          ///////////////////////////////////////////
+          // Validate parameters
+          ///////////////////////////////////////////
+          // RUNTIME_VERSION
+          try {
+            runtimeVersion = "${RUNTIME_VERSION}"
+          }
+          catch (groovy.lang.MissingPropertyException ignored) {
+            echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
+          }
+          // TEST_BRANCH
+          try {
+            branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
+          }
+          catch (groovy.lang.MissingPropertyException ignored) {
+            echo "TEST_BRANCH not supplied, default value will be used ($branchToUse)"
+          }
+          // FILE_TO_RUN
+          try {
+            fileToRun = "${PROJECT_NAME}"
+          }
+          catch (groovy.lang.MissingPropertyException ignored) {
+            echo "PROJECT_NAME not supplied, default value will be used ($fileToRun)"
+          }
+          ///////////////////////////////////////////
+          // Print build config
+          ///////////////////////////////////////////
           script {
 
             println("Job info:\n" +
@@ -163,18 +172,19 @@ pipeline {
             // updating build displayName
             currentBuild.displayName = (
                 "#" + currentBuild.number +
-                ": " + branchToUse
+                    ": " + branchToUse
             )
             // updating build description
             currentBuild.description = (
-              "User: " + "${USER_NAME}" + " - " + "Runtime: " + runtimeName + "\n" +
-              "Branch: " + branchToUse + "\n" +
-              "Test batch: " + fileToRun + "\n"
+                "User: " + "${USER_NAME}" + " - " + "Runtime: " + runtimeName + "\n" +
+                    "Branch: " + branchToUse + "\n" +
+                    "Test batch: " + fileToRun + "\n"
             )
           }
         }
       }
     }
+
     stage('Test Checkout') {
       steps {
         container(tsbiImage) {
@@ -204,17 +214,15 @@ pipeline {
       }
     }
 
-    stage('Connector Build') {
+    stage('Prepare build') {
       steps {
         container(tsbiImage) {
           script {
-            if (runtimeVersion != "default") {
-              sh """
-                chmod +x ${SCRIPTS_PATH}/pom-edit.sh
-                ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
-                """
-            }
             sh """
+              echo >>>>> Build the connector
+              chmod +x ${SCRIPTS_PATH}/pom-edit.sh
+              ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
+
               cd ${TESTED_CONNECTOR_PATH}
               mvn clean install -U\
                                 -T3C\
@@ -226,40 +234,27 @@ pipeline {
                                 -Dmaven.javadoc.skip=true\
                                 -Dinvoker.skip=true\
                                 -Dmaven.artifact.threads=25
-              """
+
+              echo >>>>> TCK component server start
+              chmod +x ${SCRIPTS_PATH}/server-start.sh
+              ${SCRIPTS_PATH}/server-start.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
+    
+              chmod +x ${SCRIPTS_PATH}/server-check.sh
+              ${SCRIPTS_PATH}/server-check.sh ${serverPort}
+  
+              cat ${TESTED_CONNECTOR_PATH}/${serverLog}
+            """
           }
         }
       }
     }
 
-    stage('TCK component server start') {
-      steps {
-        container(tsbiImage) {
-          sh """
-              chmod +x ${SCRIPTS_PATH}/server-start.sh
-              ${SCRIPTS_PATH}/server-start.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
-  
-              chmod +x ${SCRIPTS_PATH}/server-check.sh
-              ${SCRIPTS_PATH}/server-check.sh ${serverPort}
-
-              cat ${TESTED_CONNECTOR_PATH}/${serverLog}
-              """
-        }
-      }
-    }
-
-    stage('Test run') {
+    stage('Build') {
       steps {
         container(tsbiImage) {
           withCredentials([nexusCredentials, tenantId_Rd]) {
-            // Execute test with curl
-            // sh """
-            //   curl http://localhost:8081/api/v1/configurationtype/index?lightPayload=false > test_size.json
-            //   ls -l test_size.json
-            // """
-
-            // Execute test
             sh """
+              echo >>>>> Execute test
               cd ${TESTS_PATH}
               mvn clean test --settings=${MAVEN_SETTINGS} \
                              --define instance=${tenantInstance} \
@@ -268,51 +263,56 @@ pipeline {
                              --define stopOnFailure=false \
                              --define file=${fileToRun}.json
               """
-
-            // Generate Html reports
-            sh """
-              mvn surefire-report:report-only -f ${TESTS_PATH}
-              mvn site -DgenerateReports=false -f ${TESTS_PATH}
-              """
           }
         }
       }
     }
-  }
+    stage('Post Build') {
+      steps {
+        container(tsbiImage) {
+          sh """
+              echo >>>>> Generate Html reports
+              mvn surefire-report:report-only -f ${TESTS_PATH}
+              mvn site -DgenerateReports=false -f ${TESTS_PATH}
+              """
+        }
+      }
+    }
 
-  post {
-    always {
-      container(tsbiImage) {
-        archiveArtifacts(
-          artifacts: """\
+    post {
+      always {
+        container(tsbiImage) {
+          archiveArtifacts(
+              artifacts: """\
           **/${serverLog}, 
           **/target/surefire-reports/*, 
           **/target/site/**/*, 
           **/test_scenarios/**/*""".stripIndent()
-        )
-        recordIssues(
-          enabledForFailure: true,
-          tools: [
-            taskScanner(
-              id: 'todo-src',
-              name: 'Src - Known/Fixme/Todo',
-              includePattern: '**/src/it/web/test/**/*.json',
-              ignoreCase: true,
-              highTags: '@Disabled',
-              normalTags: 'FIX_ME, FIXME',
-              lowTags: 'TO_DO, TODO'
-            ),
-            junitParser(
-              id: 'unit-test',
-              name: 'Unit Test',
-              pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
-            ),
-            mavenConsole(
-              id: 'maven-build',
-              name: 'Maven Build'
-            ),
-          ]
-        )
+          )
+          recordIssues(
+              enabledForFailure: true,
+              tools: [
+                  taskScanner(
+                      id: 'todo-src',
+                      name: 'Src - Known/Fixme/Todo',
+                      includePattern: '**/src/it/web/test/**/*.json',
+                      ignoreCase: true,
+                      highTags: '@Disabled',
+                      normalTags: 'FIX_ME, FIXME',
+                      lowTags: 'TO_DO, TODO'
+                  ),
+                  junitParser(
+                      id: 'unit-test',
+                      name: 'Unit Test',
+                      pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
+                  ),
+                  mavenConsole(
+                      id: 'maven-build',
+                      name: 'Maven Build'
+                  ),
+              ]
+          )
+        }
       }
     }
   }
