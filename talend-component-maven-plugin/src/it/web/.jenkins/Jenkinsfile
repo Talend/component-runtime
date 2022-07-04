@@ -124,26 +124,28 @@ pipeline {
           ///////////////////////////////////////////
           // Validate parameters
           ///////////////////////////////////////////
-          // RUNTIME_VERSION
-          try {
-            runtimeVersion = "${RUNTIME_VERSION}"
-          }
-          catch (groovy.lang.MissingPropertyException ignored) {
-            echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
-          }
-          // TEST_BRANCH
-          try {
-            branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
-          }
-          catch (groovy.lang.MissingPropertyException ignored) {
-            echo "TEST_BRANCH not supplied, default value will be used ($branchToUse)"
-          }
-          // FILE_TO_RUN
-          try {
-            fileToRun = "${PROJECT_NAME}"
-          }
-          catch (groovy.lang.MissingPropertyException ignored) {
-            echo "PROJECT_NAME not supplied, default value will be used ($fileToRun)"
+          script {
+            // RUNTIME_VERSION
+            try {
+              runtimeVersion = "${RUNTIME_VERSION}"
+            }
+            catch (groovy.lang.MissingPropertyException ignored) {
+              echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
+            }
+            // TEST_BRANCH
+            try {
+              branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
+            }
+            catch (groovy.lang.MissingPropertyException ignored) {
+              echo "TEST_BRANCH not supplied, default value will be used ($branchToUse)"
+            }
+            // FILE_TO_RUN
+            try {
+              fileToRun = "${PROJECT_NAME}"
+            }
+            catch (groovy.lang.MissingPropertyException ignored) {
+              echo "PROJECT_NAME not supplied, default value will be used ($fileToRun)"
+            }
           }
           ///////////////////////////////////////////
           // Print build config
