@@ -134,7 +134,7 @@ spec:
                         env.PROJECT_VERSION = pom.version
                         try {
                             EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
-                        } catch (error) {
+                        } catch (ignored) {
                             EXTRA_BUILD_ARGS = ""
                         }
                     }
@@ -147,11 +147,11 @@ spec:
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                         script {
                             try {
-                                sh "${params.POST_LOGIN_SCRIPT}";
+                                sh "${params.POST_LOGIN_SCRIPT}"
                                 sh """
                                    bash .jenkins/scripts/npm_fix.sh
                                    """
-                            } catch (error) {
+                            } catch (ignored) {
                                 //
                             }
                         }
