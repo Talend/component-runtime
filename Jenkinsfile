@@ -366,7 +366,7 @@ spec:
         always {
             container(tsbiImage) {
                 recordIssues(
-                    enabledForFailure: true,
+                    enabledForFailure: false,
                     tools: [
                         taskScanner(
                             id: 'todo-test',
