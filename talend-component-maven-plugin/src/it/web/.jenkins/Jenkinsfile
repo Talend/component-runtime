@@ -280,42 +280,42 @@ pipeline {
         }
       }
     }
-
-    post {
-      always {
-        container(tsbiImage) {
-          archiveArtifacts(
-              artifacts: """\
-          **/${serverLog}, 
-          **/target/surefire-reports/*, 
-          **/target/site/**/*, 
-          **/test_scenarios/**/*""".stripIndent()
-          )
-          recordIssues(
-              enabledForFailure: true,
-              tools: [
-                  taskScanner(
-                      id: 'todo-src',
-                      name: 'Src - Known/Fixme/Todo',
-                      includePattern: '**/src/it/web/test/**/*.json',
-                      ignoreCase: true,
-                      highTags: '@Disabled',
-                      normalTags: 'FIX_ME, FIXME',
-                      lowTags: 'TO_DO, TODO'
-                  ),
-                  junitParser(
-                      id: 'unit-test',
-                      name: 'Unit Test',
-                      pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
-                  ),
-                  mavenConsole(
-                      id: 'maven-build',
-                      name: 'Maven Build'
-                  ),
-              ]
-          )
-        }
+  }
+  post {
+    always {
+      container(tsbiImage) {
+        archiveArtifacts(
+            artifacts: """\
+        **/${serverLog}, 
+        **/target/surefire-reports/*, 
+        **/target/site/**/*, 
+        **/test_scenarios/**/*""".stripIndent()
+        )
+        recordIssues(
+          enabledForFailure: true,
+          tools: [
+            taskScanner(
+              id: 'todo-src',
+              name: 'Src - Known/Fixme/Todo',
+              includePattern: '**/src/it/web/test/**/*.json',
+              ignoreCase: true,
+              highTags: '@Disabled',
+              normalTags: 'FIX_ME, FIXME',
+              lowTags: 'TO_DO, TODO'
+            ),
+            junitParser(
+              id: 'unit-test',
+              name: 'Unit Test',
+              pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
+            ),
+            mavenConsole(
+              id: 'maven-build',
+              name: 'Maven Build'
+            ),
+          ]
+        )
       }
     }
   }
 }
+
