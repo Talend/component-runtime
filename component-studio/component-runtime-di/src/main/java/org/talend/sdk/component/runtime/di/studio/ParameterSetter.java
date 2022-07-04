@@ -111,6 +111,8 @@ public class ParameterSetter {
 
                 currentClass = target.getClass();
             }
+
+            cache.put(path, new TargetAndField(target, field));
         } else {
             target = targetAndField.getTarget();
             field = targetAndField.getField();
@@ -118,9 +120,8 @@ public class ParameterSetter {
 
         try {
             field.set(target, value);
-            cache.put(path, new TargetAndField(target, field));
         } catch (Exception e) {
-            log.warn("fail to get option value with path " + path, e);
+            log.warn("fail to set option value with path " + path, e);
         }
     }
 
