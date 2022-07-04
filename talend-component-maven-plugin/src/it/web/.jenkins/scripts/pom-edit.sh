@@ -39,10 +39,10 @@ main() (
   version="${1:?Missing version}"
   connectorPath="${2:?Missing connector path}" # TODO optional, use mvn -f?
 
-  if [ -z "${version}" ]; then
-    echo "no version change"
+  if [ "default" = "${version}" ]; then
+    echo "No version change in the pom, keep the default one"
   else
-    echo "Change version ${element} to ${version} in ${connectorPath}"
+    echo "Change version in the pom ${element} to ${version} in ${connectorPath}"
     cd "${connectorPath}"
     pwd
     setMavenProperty "${element}" "${version}"
