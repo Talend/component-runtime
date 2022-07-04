@@ -296,7 +296,7 @@ pipeline {
             taskScanner(
               id: 'todo-src',
               name: 'Src - Known/Fixme/Todo',
-              includePattern: '*/**/src/it/web/test/*.json',
+              includePattern: '**/src/it/web/test/**/*.json',
               ignoreCase: true,
               highTags: '@Disabled',
               normalTags: 'FIX_ME, FIXME',
@@ -305,7 +305,7 @@ pipeline {
             junitParser(
               id: 'unit-test',
               name: 'Unit Test',
-              pattern: '*/**/src/it/web/test/target/surefire-reports/*.xml'
+              pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
             ),
             mavenConsole(
               id: 'maven-build',
