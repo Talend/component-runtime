@@ -74,20 +74,18 @@ public class ParameterSetterTest {
         // processor.onNext
         setter.change("configuration.preparedStatementParameters[0].dataValue", new java.math.BigDecimal("456"));
         setter.change("configuration.preparedStatementParameters[1].dataValue", "abc1");
-        JDBCRowConfig config1 =
+        JDBCRowConfig config =
                 TestOutputComponent.class.cast(Delegated.class.cast(processor).getDelegate()).getConfiguration();
-        Assert.assertEquals(config1.getPreparedStatementParameters().get(0).getDataValue(),
+        Assert.assertEquals(config.getPreparedStatementParameters().get(0).getDataValue(),
                 new java.math.BigDecimal("456"));
-        Assert.assertEquals(config1.getPreparedStatementParameters().get(1).getDataValue(), "abc1");
+        Assert.assertEquals(config.getPreparedStatementParameters().get(1).getDataValue(), "abc1");
 
         // processor.onNext
         setter.change("configuration.preparedStatementParameters[0].dataValue", new java.math.BigDecimal("789"));
         setter.change("configuration.preparedStatementParameters[1].dataValue", "abc12");
-        JDBCRowConfig config2 =
-                TestOutputComponent.class.cast(Delegated.class.cast(processor).getDelegate()).getConfiguration();
-        Assert.assertEquals(config1.getPreparedStatementParameters().get(0).getDataValue(),
+        Assert.assertEquals(config.getPreparedStatementParameters().get(0).getDataValue(),
                 new java.math.BigDecimal("789"));
-        Assert.assertEquals(config1.getPreparedStatementParameters().get(1).getDataValue(), "abc12");
+        Assert.assertEquals(config.getPreparedStatementParameters().get(1).getDataValue(), "abc12");
     }
 
     @org.talend.sdk.component.api.processor.Processor(name = "TestOutput", family = "TestFamily")
