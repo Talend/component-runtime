@@ -221,7 +221,7 @@ pipeline {
         container(tsbiImage) {
           script {
             sh """
-              echo >>>>> Build the connector
+              printf -------- Build the connector
               chmod +x ${SCRIPTS_PATH}/pom-edit.sh
               ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
 
@@ -237,7 +237,7 @@ pipeline {
                                 -Dinvoker.skip=true\
                                 -Dmaven.artifact.threads=25
 
-              echo >>>>> TCK component server start
+              printf -------- TCK component server start
               chmod +x ${SCRIPTS_PATH}/server-start.sh
               ${SCRIPTS_PATH}/server-start.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
     
@@ -256,7 +256,7 @@ pipeline {
         container(tsbiImage) {
           withCredentials([nexusCredentials, tenantId_Rd]) {
             sh """
-              echo >>>>> Execute test
+              printf -------- Execute test
               cd ${TESTS_PATH}
               mvn clean test --settings=${MAVEN_SETTINGS} \
                              --define instance=${tenantInstance} \
@@ -273,7 +273,7 @@ pipeline {
       steps {
         container(tsbiImage) {
           sh """
-              echo >>>>> Generate Html reports
+              printf -------- Generate Html reports
               mvn surefire-report:report-only -f ${TESTS_PATH}
               mvn site -DgenerateReports=false -f ${TESTS_PATH}
               """
