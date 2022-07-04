@@ -363,5 +363,33 @@ spec:
                 }
             }
         }
+        always {
+            container(tsbiImage) {
+                recordIssues(
+                    enabledForFailure: true,
+                    tools: [
+                        taskScanner(
+                            id: 'todo-test',
+                            name: 'Test - @Disabled/Fixme/Todo',
+                            includePattern: '**/src/test/**/*.java',
+                            ignoreCase: true,
+                            highTags: '@Disabled',
+                            normalTags: 'FIX_ME, FIXME',
+                            lowTags: 'TO_DO, TODO'
+                        ),
+                        taskScanner(
+                            id: 'todo-src',
+                            name: 'Src - @Disabled/Fixme/Todo',
+                            includePattern: '**/src/main/**/*.java',
+                            excludePattern: '**/src/test/**/*.java',
+                            ignoreCase: true,
+                            highTags: '@Disabled',
+                            normalTags: 'FIX_ME, FIXME',
+                            lowTags: 'TO_DO, TODO'
+                        )
+                    ]
+                )
+            }
+        }
     }
 }
