@@ -36,7 +36,7 @@ final String serverTimeout = "1"
 
 // Default value for parameters
 String runtimeVersion = "default"
-String branchToUse = "acatoire/TDI-47875_API_Test-creation"  // TODO set master before the first PR merge
+String branchToUse = "acatoire/TCOMP-2163_Component_Runtime_API_test"  // TODO set master before the first PR merge
 String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
