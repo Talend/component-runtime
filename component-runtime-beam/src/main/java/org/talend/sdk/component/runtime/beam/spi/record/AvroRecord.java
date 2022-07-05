@@ -128,17 +128,30 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (expectedType == Collection.class) {
             return expectedType.cast(getArray(Object.class, name));
         }
-        return doGet(expectedType, name);
+        return doGet(expectedType, sanitizeConnectionName(name));
+    }
+
+    @Override
+    public <T> T get(final Class<T> expectedType, final Schema.Entry entry) {
+        if (expectedType == Collection.class) {
+            return expectedType.cast(this.doGetArray(Object.class, entry.getName()));
+        }
+        return doGet(expectedType, entry.getName());
     }
 
     @Override
     public <T> Collection<T> getArray(final Class<T> type, final String name) {
-        final Collection<?> collection = doGet(Collection.class, name);
+        final String sanitizedName = sanitizeConnectionName(name);
+        return this.doGetArray(type, sanitizedName);
+    }
+
+    private <T> Collection<T> doGetArray(final Class<T> type, final String sanitizedName) {
+        final Collection<?> collection = doGet(Collection.class, sanitizedName);
         if (collection == null) {
             return null;
         }
         final org.apache.avro.Schema elementType =
-                unwrapUnion(delegate.getSchema().getField(name).schema()).getElementType();
+                unwrapUnion(delegate.getSchema().getField(sanitizedName).schema()).getElementType();
         return doMapCollection(type, collection, elementType);
     }
 
@@ -178,7 +191,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     private <T> T doGet(final Class<T> expectedType, final String name) {
-        final org.apache.avro.Schema.Field field = delegate.getSchema().getField(sanitizeConnectionName(name));
+        final org.apache.avro.Schema.Field field = delegate.getSchema().getField(name);
         if (field == null) {
             return null;
         }
@@ -188,28 +201,33 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchemaRaw, final Object value) {
-        final org.apache.avro.Schema fieldSchema = unwrapUnion(fieldSchemaRaw);
-        if (Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name())) && Long.class.isInstance(value)
-                && expectedType != Long.class) {
-            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
+
+        if (value != null && expectedType == value.getClass() && !(value instanceof Collection)) {
+            return expectedType.cast(value);
         }
         if (value instanceof IndexedRecord && (Record.class == expectedType || Object.class == expectedType)) {
             return expectedType.cast(new AvroRecord(IndexedRecord.class.cast(value)));
+        }
+        if (value instanceof ByteBuffer && byte[].class == expectedType) {
+            return expectedType.cast(ByteBuffer.class.cast(value).array());
+        }
+        final org.apache.avro.Schema fieldSchema = unwrapUnion(fieldSchemaRaw);
+        if (value instanceof Long && expectedType != Long.class
+                && Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name()))) {
+            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
             final Class<?> itemType = expectedType == Collection.class ? Object.class : expectedType;
             return expectedType
                     .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));
         }
-        if (value instanceof ByteBuffer && byte[].class == expectedType) {
-            return expectedType.cast(ByteBuffer.class.cast(value).array());
-        }
+
         if (value instanceof org.joda.time.DateTime && ZonedDateTime.class == expectedType) {
             final long epochMilli = org.joda.time.DateTime.class.cast(value).getMillis();
             return expectedType.cast(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(epochMilli), UTC));
         }
         if (!expectedType.isInstance(value)) {
-            if (Utf8.class.isInstance(value) && String.class == expectedType) {
+            if (value instanceof Utf8 && String.class == expectedType) {
                 return expectedType.cast(value.toString());
             }
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());

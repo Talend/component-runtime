@@ -46,7 +46,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BeamProducerFinder extends ProducerFinderImpl {
 
-    static final Queue<Record> QUEUE = new ArrayBlockingQueue<>(20, true);
+    static final int CAPACITY = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "100000"));
+
+    static final Queue<Record> QUEUE = new ArrayBlockingQueue<>(CAPACITY, true);
 
     @Override
     public Iterator<Record> find(final String familyName, final String inputName, final int version,
@@ -144,6 +146,13 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         public void processElement(final @Element Record record) {
             boolean ok = QUEUE.offer(record);
             while (!ok) {
+                if (QUEUE.size() >= CAPACITY) {
+                    final String msg = String.format(
+                            "Wrapper queue if full (capacity: %d). Consider increasing it according data with talend.beam.wrapper.capacity property.",
+                            CAPACITY);
+                    log.error("[processElement] {}", msg);
+                    throw new IllegalStateException(msg);
+                }
                 sleep();
                 ok = QUEUE.offer(record);
             }
