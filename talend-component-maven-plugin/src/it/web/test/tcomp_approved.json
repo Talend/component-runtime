@@ -77,15 +77,15 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"components\""
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].displayName",
                         "value": "input"
                       }
                     ]
@@ -144,10 +144,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"components\":[]}"
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "0"
                       }
                     ]
                   }
@@ -313,10 +313,16 @@
                         "value": "^{\"components\""
                       },
                       {
-                        "comparison": "Equals",
+                        "comparison": "GreateOrEqual",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "3690"
+                        "value": "3600"
+                      },
+                      {
+                        "comparison": "LessOrEqual",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "3800"
                       }
                     ]
                   }
@@ -374,16 +380,22 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"components\""
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
-                        "comparison": "Equals",
+                        "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "67380"
+                        "value": "67300"
+                      },
+                      {
+                        "comparison": "LessOrEqual",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "67600"
                       }
                     ]
                   }
@@ -441,15 +453,15 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"components\""
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[1].displayName",
                         "value": "Sortie"
                       }
                     ]
