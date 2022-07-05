@@ -271,7 +271,7 @@ class ActionResourceImplTest {
                 }, APPLICATION_JSON_TYPE));
         assertEquals(200, response.getStatus());
         final Map<String, String> result = response.readEntity(Map.class);
-        assertEquals("test", result.get("url"));
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", result.get("url"));
         assertEquals("username0", result.get("username"));
         assertEquals("test", result.get("password"));
     }

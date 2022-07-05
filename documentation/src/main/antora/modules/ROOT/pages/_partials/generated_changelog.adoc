@@ -1,5 +1,55 @@
 
 
+== Version 1.47.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2176[TCOMP-2176^]: Record : Infinite loop link:search.html?query=schema-record[schema-record^,role='dockey']
+
+
+
+== Version 1.46.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2176[TCOMP-2176^]: Record : Infinite loop link:search.html?query=schema-record[schema-record^,role='dockey']
+
+== Version 1.46.0
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2146[TCOMP-2146^]: Car bundler improvements link:search.html?query=car-bundler[car-bundler^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2151[TCOMP-2151^]: Add documentation translation to metadata link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2132[TCOMP-2132^]: Optimisation for preparation link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2143[TCOMP-2143^]: [JDBC TCK]: Support MODULE_LIST field for studio in tck connector ui for driver jars choose link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2152[TCOMP-2152^]: Upgrade jackson to 2.13.2 link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=bom[bom^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2153[TCOMP-2153^]: Bump netty to 4.1.77.Final due to CVE CVE-2022-24823 link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2154[TCOMP-2154^]: Upgrade maven-settings to 3.8.5 due to CVE-2021-26291 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2155[TCOMP-2155^]: Upgrade jdom2 to 2.0.6.1 due to CVE-2021-33813 link:search.html?query=beam[beam^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2164[TCOMP-2164^]: Ensure that decryption is done only on credential fields link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=vault-client[vault-client^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2171[TCOMP-2171^]: Add  component type to ComponentIndex link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.45.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2152[TCOMP-2152^]: Upgrade jackson to 2.13.2 link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=bom[bom^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+
+
+
+== Version 1.45.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2146[TCOMP-2146^]: Car bundler improvements link:search.html?query=car-bundler[car-bundler^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+
 == Version 1.45.0
 
 === Bug
@@ -1021,6 +1071,24 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
+== Version 1.1.15.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1685[TCOMP-1685^]: Provide docker images based on TSBI
+
 == Version 1.1.15
 
 === Bug
@@ -1053,24 +1121,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
-
-== Version 1.1.15.1
-
-=== New Feature
-
-- link:https://jira.talendforge.org/browse/TCOMP-1702[TCOMP-1702^]: Improve columns name
-
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1685[TCOMP-1685^]: Provide docker images based on TSBI
 
 == Version 1.1.14
 

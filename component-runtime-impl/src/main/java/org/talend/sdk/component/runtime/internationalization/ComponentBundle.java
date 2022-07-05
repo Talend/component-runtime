@@ -32,4 +32,8 @@ public class ComponentBundle extends InternalBundle {
     public Optional<String> displayName(final String meta) {
         return readValue(meta + "._displayName");
     }
+
+    public Optional<String> documentation() {
+        return readValue("_documentation");
+    }
 }
