@@ -301,7 +301,7 @@ pipeline {
             ),
             junitParser(
               id: 'unit-test',
-              name: 'Unit Test',
+              name: 'tcomp API Test',
               pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
             ),
             mavenConsole(
