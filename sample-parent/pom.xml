@@ -31,6 +31,7 @@
     <module>sample</module>
     <module>sample-beam</module>
     <module>documentation-sample</module>
+    <module>demo-connector</module>
   </modules>
 
   <dependencies>

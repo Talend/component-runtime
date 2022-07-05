@@ -18,14 +18,18 @@
 
   <parent>
     <groupId>org.talend.sdk.component</groupId>
-    <artifactId>documentation-sample</artifactId>
+    <artifactId>sample-parent</artifactId>
     <version>1.46.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>demo-component</artifactId>
+  <artifactId>demo-connector</artifactId>
 
-  <name>Mock connectors for tests automation</name>
+  <name>Component Runtime :: Sample Parent :: Mock connectors for tests automation</name>
   <description>Some dumb connectors for testing TCK APIs.</description>
+
+  <properties>
+    <talend.build.name>${talend.build.name.base}.demo</talend.build.name>
+  </properties>
 
   <dependencies>
     <dependency>
