@@ -48,6 +48,7 @@
     <module>textinput-component</module>
     <module>updatable-component</module>
     <module>urlvalidation-component</module>
+    <module>demo-component</module>
   </modules>
 
   <build>

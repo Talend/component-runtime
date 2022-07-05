@@ -18,18 +18,14 @@
 
   <parent>
     <groupId>org.talend.sdk.component</groupId>
-    <artifactId>component-api-tests-automation</artifactId>
+    <artifactId>documentation-sample</artifactId>
     <version>1.46.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>connectors</artifactId>
+  <artifactId>demo-component</artifactId>
 
   <name>Mock connectors for tests automation</name>
   <description>Some dumb connectors for testing TCK APIs.</description>
-
-  <properties>
-    <component-runtime.version>1.45.2</component-runtime.version>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -45,7 +41,7 @@
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
-      <version>${component-runtime.version}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -55,7 +51,7 @@
       <plugin>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>talend-component-maven-plugin</artifactId>
-        <version>${component-runtime.version}</version>
+        <version>${project.version}</version>
         <executions>
           <execution>
             <id>talend-svg2png</id>
