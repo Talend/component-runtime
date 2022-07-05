@@ -128,7 +128,6 @@
     <module>singer-parent</module>
     <module>remote-engine-customizer</module>
     <module>reporting</module>
-    <module>component-api-tests-automation</module>
   </modules>
 
   <scm>
