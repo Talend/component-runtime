@@ -1228,7 +1228,6 @@
           <consoleOutput>true</consoleOutput>
           <reportFile>${project.build.directory}/${project.build.finalName}.rat</reportFile>
           <excludes>
-            <exclude>**/connectors/**/*.properties</exclude>
             <exclude>.github/workflows/*</exclude>
             <exclude>.build/**/*</exclude>
             <exclude>.build_source/**/*</exclude>
