@@ -19,6 +19,7 @@
  */
 final String tsbiImage = 'jdk11-svc-springboot-builder'
 final String tsbiVersion = '2.9.18-2.4-20220104141654'
+final String stageDefaultContainer = tsbiImage
 final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 final String podConfiguration = """
   apiVersion: v1
@@ -86,6 +87,7 @@ pipeline {
     kubernetes {
       label podLabel
       yaml podConfiguration
+      defaultContainer stageDefaultContainer
     }
   }
   /**
@@ -126,7 +128,6 @@ pipeline {
   stages {
     stage('Validate parameters') {
       steps {
-        container(tsbiImage) {
           ///////////////////////////////////////////
           // Get the user name
           ///////////////////////////////////////////
@@ -202,12 +203,12 @@ pipeline {
                     "Test batch: " + fileToRun + "\n"
             )
           }
-        }
+
       }
     }
     stage('Test Checkout') {
       steps {
-        container(tsbiImage) {
+
           // Checkout of the connector directory (TODO Will be cleaned when test component will be ready)
           checkout([
               $class           : 'GitSCM',
@@ -230,12 +231,12 @@ pipeline {
               ],
               userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/component-runtime.git']]
           ])
-        }
+
       }
     }
     stage('Prepare build') {
       steps {
-        container(tsbiImage) {
+
           script {
             sh """
               printf "======== Build the connector"
@@ -264,12 +265,12 @@ pipeline {
               cat ${TESTED_CONNECTOR_PATH}/${serverLog}
             """
           }
-        }
+
       }
     }
     stage('Build') {
       steps {
-        container(tsbiImage) {
+
           withCredentials([nexusCredentials, tenantId_Rd]) {
             sh """
               printf "======== Execute test"
@@ -282,7 +283,7 @@ pipeline {
                              --define file=${fileToRun}.json
               """
           }
-        }
+
       }
     }
   }
@@ -291,7 +292,7 @@ pipeline {
    */
   post {
     always {
-      container(tsbiImage) {
+
         sh """
           printf "======== Generate Html reports"
           mvn surefire-report:report-only -f ${TESTS_PATH}
@@ -322,7 +323,7 @@ pipeline {
             )
           ]
         )
-      }
+
     }
   }
 }
