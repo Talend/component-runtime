@@ -37,7 +37,7 @@ public class InputConfig implements Serializable {
     private Dataset dataset;
 
     @Option
-    @Documentation("Retrieve only dataafter the given date.")
+    @Documentation("Retrieve only data after the given date.")
     private ZonedDateTime date;
 
 }
