@@ -307,10 +307,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"components\""
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
                         "comparison": "GreateOrEqual",
@@ -529,10 +529,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"components\""
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "1"
                       }
                     ]
                   }
@@ -592,10 +592,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"details\":"
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details",
+                        "value": "1"
                       },
                       {
                         "comparison": "Contains",
@@ -655,10 +655,10 @@
                         "value": "400"
                       },
                       {
-                        "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "\"code\":\"COMPONENT_MISSING\""
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$..code",
+                        "value": "COMPONENT_MISSING"
                       }
                     ]
                   }
@@ -711,10 +711,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"details\":[]}"
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details",
+                        "value": "0"
                       }
                     ]
                   }
@@ -898,10 +898,10 @@
                         "value": "rifier la connexion"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"details\":"
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details",
+                        "value": "1"
                       }
                     ]
                   }
@@ -968,10 +968,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"components\""
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "1"
                       }
                     ]
                   }
@@ -1021,63 +1021,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"dependencies\":{.+}}"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "enabled": true,
-                            "name": "identifier",
-                            "value": "wrong_identifier"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/dependencies"
-                    },
-                    "description": "",
-                    "id": "9c180cc6-111c-4778-a198-2e9f2045afef",
-                    "name": "component/dependencies - wrong identifier - error 400",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "500"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"code\":\"UNEXPECTED\"}"
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.dependencies.YXp1cmUtZGxzLWdlbjIjQXp1cmUjQWRsc0dlbjJPdXRwdXQ.dependencies",
+                        "value": "1"
                       }
                     ]
                   }
@@ -1130,6 +1077,12 @@
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "{\"dependencies\":{}}"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseHeader",
+                        "path": "Content-Type",
+                        "value": "application/json"
                       }
                     ]
                   }
@@ -1176,7 +1129,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "100000"
+                        "value": "155500"
+                      },
+                      {
+                        "comparison": "Less",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "155600"
                       }
                     ]
                   }
@@ -1229,7 +1188,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "1000000"
+                        "value": "1504600"
+                      },
+                      {
+                        "comparison": "Less",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "1509500"
                       }
                     ]
                   }
@@ -1277,12 +1242,6 @@
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "0"
                       }
                     ]
                   }
@@ -1331,9 +1290,68 @@
                       },
                       {
                         "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.code",
+                        "value": "PLUGIN_MISSING"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "identifier",
+                            "value": "wrong_identifier"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/dependencies"
+                    },
+                    "description": "",
+                    "id": "9c180cc6-111c-4778-a198-2e9f2045afef",
+                    "name": "component/dependencies - wrong identifier - error 500",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "500"
+                      },
+                      {
+                        "comparison": "Equals",
                         "subject": "ResponseBody",
                         "path": "content",
-                        "value": "{\"code\":\"PLUGIN_MISSING\",\"description\":\"No file found for: unknow_id\"}"
+                        "value": "{\"code\":\"UNEXPECTED\"}"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseHeader",
+                        "path": "Content-Type",
+                        "value": "application/json"
                       }
                     ]
                   }
@@ -1400,10 +1418,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"components\""
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "1"
                       }
                     ]
                   }
@@ -1488,7 +1506,7 @@
                     },
                     "description": "",
                     "id": "c6d3684b-b8e5-4e0b-8225-bcdcd3b75bb5",
-                    "name": "component/icon - wrong id - error 404",
+                    "name": "component/icon - wrong id - error 404 body",
                     "headers": [],
                     "assertions": [
                       {
@@ -1499,9 +1517,9 @@
                       },
                       {
                         "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"code\":\"COMPONENT_MISSING\",\"description\":\"No component for identifier: wrong_id\"}"
+                        "subject": "ResponseJsonBody",
+                        "path": "$.code",
+                        "value": "COMPONENT_MISSING"
                       }
                     ]
                   }
@@ -1531,7 +1549,7 @@
                     },
                     "description": "",
                     "id": "43e01bbb-cb8a-4e54-9ac7-c2fee52e7ad1",
-                    "name": "component/icon - missing id - error 404",
+                    "name": "component/icon - missing id - error 404 no body",
                     "headers": [],
                     "assertions": [
                       {
@@ -1648,9 +1666,9 @@
                       },
                       {
                         "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"code\":\"COMPONENT_MISSING\",\"description\":\"No component for identifier: family\"}"
+                        "subject": "ResponseJsonBody",
+                        "path": "$.code",
+                        "value": "COMPONENT_MISSING"
                       }
                     ]
                   }
@@ -1695,9 +1713,9 @@
                       },
                       {
                         "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"code\":\"FAMILY_MISSING\",\"description\":\"No family for identifier: unknow_identifier\"}"
+                        "subject": "ResponseJsonBody",
+                        "path": "$.code",
+                        "value": "FAMILY_MISSING"
                       }
                     ]
                   }
@@ -1910,10 +1928,16 @@
                         "value": "{\"nodes\":{.+}}"
                       },
                       {
-                        "comparison": "Equals",
+                        "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "25267"
+                        "value": "25260"
+                      },
+                      {
+                        "comparison": "Less",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "25270"
                       }
                     ]
                   }
@@ -1977,10 +2001,16 @@
                         "value": "{\"nodes\":{.+}}"
                       },
                       {
-                        "comparison": "Equals",
+                        "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "936"
+                        "value": "930"
+                      },
+                      {
+                        "comparison": "Less",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "940"
                       }
                     ]
                   }
@@ -1995,66 +2025,6 @@
                 "name": "2 - configurationtype.details"
               },
               "children": [
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "lang",
-                            "value": "en"
-                          },
-                          {
-                            "name": "lightPayload",
-                            "value": "true"
-                          },
-                          {
-                            "name": "q",
-                            "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/index"
-                    },
-                    "description": "",
-                    "id": "b880f30a-0b19-43e1-bb61-2448ddae0d96",
-                    "name": "Get configurationtype list",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.nodes.*",
-                        "value": "3"
-                      }
-                    ]
-                  }
-                },
                 {
                   "entity": {
                     "type": "Request",
@@ -2497,10 +2467,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"nodes\":{.+}}"
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.nodes",
+                        "value": "1"
                       }
                     ]
                   }
@@ -2568,10 +2538,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "^{\"components\""
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "1"
                       }
                     ]
                   }
@@ -2828,7 +2798,7 @@
                         "comparison": "Matches",
                         "subject": "ResponseBody",
                         "path": "content",
-                        "value": "{\"source\":\"[cols=\\\"d,d,m,a,e,d\\\".+:\"asciidoc\"}"
+                        "value": "^{\"source\":\"[cols=\\\"d,d,m,a,e,d\\\".+:\"asciidoc\"}"
                       }
                     ]
                   }
@@ -2872,7 +2842,7 @@
                     },
                     "description": "",
                     "id": "b46d58ab-23fb-487a-a1f5-1bd9693e1948",
-                    "name": "documentation/component - segment - unknow - error 404",
+                    "name": "documentation/component - segment - unknow - error 404 empty",
                     "headers": [],
                     "assertions": [
                       {
@@ -3022,6 +2992,54 @@
                         "comparison": "Matches",
                         "subject": "ResponseBody",
                         "path": "content",
+                        "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.commit",
+                        "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.connectors.pluginsHash",
+                        "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      },
+                      {
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.connectors.pluginsList",
+                        "value": "1"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.connectors.version",
+                        "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.lastUpdated",
+                        "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.latestApiVersion",
+                        "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.time",
+                        "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.version",
                         "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
                       }
                     ]
@@ -3424,7 +3442,7 @@
                     },
                     "description": "Test the French request",
                     "id": "8418e453-60f4-4f09-933a-f9e57def7c36",
-                    "name": "component list - ja - TODO",
+                    "name": "component list - ja",
                     "headers": [
                       {
                         "enabled": true,
