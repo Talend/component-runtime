@@ -75,15 +75,22 @@ String branchToUse = "acatoire/TCOMP-2163_Component_Runtime_API_test"  // TODO s
 String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
-
+/**
+ * The pipeline
+ */
 pipeline {
+  /**
+   * agent
+   */
   agent {
     kubernetes {
       label podLabel
       yaml podConfiguration
     }
   }
-
+  /**
+   * environment
+   */
   environment {
     MAVEN_SETTINGS = "${WORKSPACE}/.jenkins/settings.xml"
     DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
@@ -105,18 +112,21 @@ pipeline {
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
   }
-
+  /**
+   * options
+   */
   options {
     buildDiscarder(logRotator(artifactNumToKeepStr: '30', numToKeepStr: '30'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
-
+  /**
+   * stages
+   */
   stages {
     stage('Validate parameters') {
       steps {
         container(tsbiImage) {
-
           ///////////////////////////////////////////
           // Get the user name
           ///////////////////////////////////////////
@@ -195,7 +205,6 @@ pipeline {
         }
       }
     }
-
     stage('Test Checkout') {
       steps {
         container(tsbiImage) {
@@ -224,7 +233,6 @@ pipeline {
         }
       }
     }
-
     stage('Prepare build') {
       steps {
         container(tsbiImage) {
@@ -259,7 +267,6 @@ pipeline {
         }
       }
     }
-
     stage('Build') {
       steps {
         container(tsbiImage) {
@@ -279,6 +286,9 @@ pipeline {
       }
     }
   }
+  /**
+   * post stages
+   */
   post {
     always {
       container(tsbiImage) {
@@ -287,7 +297,6 @@ pipeline {
           mvn surefire-report:report-only -f ${TESTS_PATH}
           mvn site -DgenerateReports=false -f ${TESTS_PATH}
         """
-
         archiveArtifacts(
           artifacts: """\
             **/${serverLog}, 
@@ -295,7 +304,6 @@ pipeline {
             **/target/site/**/*, 
             **/test_scenarios/**/*""".stripIndent()
         )
-
         recordIssues(
           enabledForFailure: true,
           tools: [
@@ -318,4 +326,3 @@ pipeline {
     }
   }
 }
-
