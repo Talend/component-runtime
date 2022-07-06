@@ -1725,9 +1725,9 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "",
+                "description": "TODO:  wait for the demo connector to implement those tests",
                 "id": "e666dcae-ee07-47b3-9ae4-ab205c0de6a1",
-                "name": "5-component.migrate_TODO"
+                "name": "5-component.migrate*"
               }
             }
           ]
@@ -1791,67 +1791,6 @@
                     "description": "",
                     "id": "c68ed507-1492-4d84-a456-b4d42759a20c",
                     "name": "configurationtype/index - default",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"nodes\":{.+}}"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "enabled": true,
-                            "name": "language",
-                            "value": "ja"
-                          },
-                          {
-                            "name": "lightPayload",
-                            "value": "true"
-                          },
-                          {
-                            "name": "q",
-                            "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/index"
-                    },
-                    "description": "TODO No language dependent so no body change",
-                    "id": "0af44c7a-7832-478c-a99f-209ed165bf6d",
-                    "name": "configurationtype/index - language - TODO",
                     "headers": [],
                     "assertions": [
                       {
@@ -2011,6 +1950,67 @@
                         "subject": "ResponseBody",
                         "path": "length",
                         "value": "940"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "language",
+                            "value": "ja"
+                          },
+                          {
+                            "name": "lightPayload",
+                            "value": "true"
+                          },
+                          {
+                            "name": "q",
+                            "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/configurationtype/index"
+                    },
+                    "description": "TODO: No language dependent so no body change, need the demo connector",
+                    "id": "0af44c7a-7832-478c-a99f-209ed165bf6d",
+                    "name": "configurationtype/index - language*",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Matches",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "Not testable for now"
                       }
                     ]
                   }
@@ -2410,9 +2410,9 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "",
+                "description": "TODO:  wait for the demo connector to implement those tests",
                 "id": "79b2435b-a016-421f-b797-99ed62a73d09",
-                "name": "3 - configurationtype.migrate TODO"
+                "name": "3 - configurationtype.migrate*"
               },
               "children": [
                 {
@@ -3440,7 +3440,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test the French request",
+                    "description": "Test the Japanese request",
                     "id": "8418e453-60f4-4f09-933a-f9e57def7c36",
                     "name": "component list - ja",
                     "headers": [
