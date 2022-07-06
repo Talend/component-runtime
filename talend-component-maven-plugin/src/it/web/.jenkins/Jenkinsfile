@@ -272,42 +272,36 @@ pipeline {
   post {
     always {
       container(tsbiImage) {
-
         sh """
-              printf "======== Generate Html reports"
-              mvn surefire-report:report-only -f ${TESTS_PATH}
-              mvn site -DgenerateReports=false -f ${TESTS_PATH}
+          printf "======== Generate Html reports"
+          mvn surefire-report:report-only -f ${TESTS_PATH}
+          mvn site -DgenerateReports=false -f ${TESTS_PATH}
         """
 
         archiveArtifacts(
-            artifacts: """\
-        **/${serverLog}, 
-        **/target/surefire-reports/*, 
-        **/target/site/**/*, 
-        **/test_scenarios/**/*""".stripIndent()
+          artifacts: """\
+            **/${serverLog}, 
+            **/target/surefire-reports/*, 
+            **/target/site/**/*, 
+            **/test_scenarios/**/*""".stripIndent()
         )
 
         recordIssues(
           enabledForFailure: true,
           tools: [
             taskScanner(
-              id: 'todo-src',
-              name: 'Src - Known/Fixme/Todo',
+              id: 'todo-tck-api-test',
+              name: 'api-test Todo(low)/Fixme(hight)',
               includePattern: '**/src/it/web/test/**/*.json',
               ignoreCase: true,
-              highTags: '@Disabled',
-              normalTags: 'FIX_ME, FIXME',
+              highTags: 'FIX_ME, FIXME',
               lowTags: 'TO_DO, TODO'
             ),
             junitParser(
               id: 'unit-test',
               name: 'tcomp API Test',
               pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
-            ),
-            mavenConsole(
-              id: 'maven-build',
-              name: 'Maven Build'
-            ),
+            )
           ]
         )
       }
