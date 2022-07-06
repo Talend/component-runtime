@@ -369,22 +369,18 @@ spec:
                     enabledForFailure: true,
                     tools: [
                         taskScanner(
-                            id: 'todo-test',
-                            name: 'Test - @Disabled/Fixme/Todo',
-                            includePattern: '**/src/test/**/*.java',
+                            id: 'disabled',
+                            name: '@Disabled',
+                            includePattern: '**/src/**/*.java',
                             ignoreCase: true,
-                            highTags: '@Disabled',
-                            normalTags: 'FIX_ME, FIXME',
-                            lowTags: 'TO_DO, TODO'
+                            normalTags: '@Disabled'
                         ),
                         taskScanner(
-                            id: 'todo-src',
-                            name: 'Src - @Disabled/Fixme/Todo',
-                            includePattern: '**/src/main/**/*.java',
-                            excludePattern: '**/src/test/**/*.java',
+                            id: 'todo',
+                            name: 'Todo(low)/Fixme(high)',
+                            includePattern: '**/src/**/*.java',
                             ignoreCase: true,
-                            highTags: '@Disabled',
-                            normalTags: 'FIX_ME, FIXME',
+                            highTags: 'FIX_ME, FIXME',
                             lowTags: 'TO_DO, TODO'
                         )
                     ]
