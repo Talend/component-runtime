@@ -55,7 +55,7 @@
       <plugin>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>talend-component-maven-plugin</artifactId>
-        <version>${parent.version}</version>
+        <version>${project.version}</version>
         <executions>
           <execution>
             <id>talend-svg2png</id>
