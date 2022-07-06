@@ -59,8 +59,8 @@ public class Dataset implements Serializable {
     private DummySub dummySubSrc;
 
     @Option
-    @Documentation("Updatable sub-object that shluld retrieve its values from dummySubSrc.")
-    @Updatable(value = "UPDATE_DUMMYSUB", parameters = { "dummySubSrc" }, after = "dummySubDest")
+    @Documentation("Updatable sub-object that should retrieve its values from dummySubSrc.")
+    @Updatable(value = UIService.UPDATE_DUMMYSUB, parameters = { "dummySubSrc" }, after = "dummySubDest")
     private DummySub dummySubDest;
 
 }

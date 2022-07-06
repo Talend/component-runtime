@@ -30,6 +30,7 @@ import org.talend.sdk.component.test.connectors.config.DummySub;
 public class UIService {
 
     public final static String LIST_ENTITIES = "LIST_ENTITIES";
+    public final static String UPDATE_DUMMYSUB = "UPDATE_DUMMYSUB";
 
     /**
      * Suggestions action without any configuration.
@@ -46,7 +47,7 @@ public class UIService {
         return new SuggestionValues(true, entities);
     }
 
-    @Update("UPDATE_DUMMYSUB")
+    @Update(UPDATE_DUMMYSUB)
     public DummySub retrieveFeedback(final DummySub source) throws Exception {
         DummySub dest = new DummySub();
         dest.setAbc(source.getAbc());
