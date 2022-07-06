@@ -666,7 +666,7 @@
                       "path": "/api/v1/action/execut"
                     },
                     "id": "1a38f67e-6e5c-48c8-8f29-9b4c880a2fa7",
-                    "name": "action:execute - default TODO",
+                    "name": "action:execute - default",
                     "headers": [],
                     "assertions": [
                       {
