@@ -206,7 +206,7 @@ pipeline {
 
       }
     }
-    stage('Test Checkout') {
+    stage('Checkout test') {
       steps {
 
           // Checkout of the connector directory (TODO Will be cleaned when test component will be ready)
@@ -234,7 +234,7 @@ pipeline {
 
       }
     }
-    stage('Prepare build') {
+    stage('Prepare Test') {
       steps {
 
           script {
@@ -268,7 +268,7 @@ pipeline {
 
       }
     }
-    stage('Build') {
+    stage('Execute Test') {
       steps {
 
           withCredentials([nexusCredentials, tenantId_Rd]) {
