@@ -26,7 +26,7 @@
                 <!-- The Talend maven plugin -->
                 <groupId>org.talend.ci</groupId>
                 <artifactId>api-tester-maven-plugin</artifactId>
-                <version>1.10.0</version>
+                <version>(1.10.0,2.10.0)</version>
 
                 <executions>
                     <execution>
