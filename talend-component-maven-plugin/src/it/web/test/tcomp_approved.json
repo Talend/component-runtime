@@ -20,7 +20,7 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "",
+                "description": "This scenario will test all basic interaction with tcomp component/index endpoint",
                 "id": "6fedc1ed-d1ab-4db9-a28d-218808236772",
                 "name": "1-component.index"
               },
@@ -65,7 +65,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "",
+                    "description": "The default call, without any parameter, should be in English with all elements.",
                     "id": "5b788ef5-d3a4-42b4-acd7-9394a91d9830",
                     "name": "component/index - default",
                     "headers": [],
@@ -121,7 +121,7 @@
                           {
                             "enabled": true,
                             "name": "q",
-                            "value": "(name = input)"
+                            "value": "(name = AdlsGen2Input)"
                           }
                         ]
                       },
@@ -132,7 +132,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "",
+                    "description": "Call of the endpoint with \"q\" parameter, the list length should be affected by the query.",
                     "id": "7c10ef96-2251-45cf-90f8-0aa8d020ddd8",
                     "name": "component/index - query - empty answer caused by query filter",
                     "headers": [],
@@ -147,7 +147,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "0"
+                        "value": "1"
                       }
                     ]
                   }
@@ -192,7 +192,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Check the givens properties inside a components of the received list\nRelated to bugs:\n- TCOMP-2171",
+                    "description": "Check the givens properties inside a components of the received list  \nRelated to bugs: TCOMP-2171",
                     "id": "3421ec36-eef9-4d0b-9d3f-09aec26b9c2a",
                     "name": "component/index - content",
                     "headers": [],
@@ -295,7 +295,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "",
+                    "description": "Call of the endpoint with \"includeIconContent\" parameter set to false, the response should not contain any icons files.",
                     "id": "2501b2bb-5aaa-40bc-8d87-534537fecd98",
                     "name": "component/index - includeIconContent - false",
                     "headers": [],
@@ -313,15 +313,9 @@
                         "value": "5"
                       },
                       {
-                        "comparison": "GreateOrEqual",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "3600"
-                      },
-                      {
-                        "comparison": "LessOrEqual",
-                        "subject": "ResponseBody",
-                        "path": "length",
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].icon.customIcon",
                         "value": "3800"
                       }
                     ]
@@ -368,7 +362,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "",
+                    "description": "Call of the endpoint with \"includeIconContent\" parameter set to false, the response should contain any icons files.",
                     "id": "1d90480a-c3a2-4a3e-962c-62769e9ca592",
                     "name": "component/index - includeIconContent - true",
                     "headers": [],
@@ -386,15 +380,9 @@
                         "value": "5"
                       },
                       {
-                        "comparison": "Greater",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "67300"
-                      },
-                      {
-                        "comparison": "LessOrEqual",
-                        "subject": "ResponseBody",
-                        "path": "length",
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].icon.customIcon",
                         "value": "67600"
                       }
                     ]
@@ -441,7 +429,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "",
+                    "description": "Call of the endpoint with \"language\" parameter set to \"fr\", the response should contain French words.",
                     "id": "ee09634a-9216-4767-bb50-45122a2e71d4",
                     "name": "component/index - language",
                     "headers": [],
@@ -472,7 +460,7 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "",
+                "description": "This scenario will test all basic interaction with tcomp component/detail endpoint",
                 "id": "2b5e8281-597d-459e-b3af-95474f5c5f6d",
                 "name": "2-component.details"
               },
@@ -517,7 +505,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "",
+                    "description": "Get the component list to work with it in the next requests.",
                     "id": "dd9c32ce-f366-41bb-891e-f0fd52ce1516",
                     "name": "Get component list",
                     "headers": [],
@@ -561,9 +549,8 @@
                             "value": "en"
                           },
                           {
-                            "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"dd9c32ce-f366-41bb-891e-f0fd52ce1516\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": ""
                           }
                         ]
                       },
@@ -574,132 +561,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "",
-                    "id": "e4ef5a8e-1c4f-43d7-9950-7754111a94f9",
-                    "name": "component/details - default",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Exists",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.details",
-                        "value": "1"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "Filesystems"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "fr"
-                          },
-                          {
-                            "enabled": true,
-                            "name": "identifiers",
-                            "value": "non_existing_id"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/details"
-                    },
-                    "description": "",
-                    "id": "9138465e-c1a3-4a3e-9838-4e2f8bb20127",
-                    "name": "component/details - wrong identifier - error 400",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "400"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseJsonBody",
-                        "path": "$..code",
-                        "value": "COMPONENT_MISSING"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
-                            "name": "identifiers",
-                            "value": "${getEntityById(\"9387fb14-2d4d-40ac-bb9f-b9bc60476c75\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/details"
-                    },
-                    "description": "",
+                    "description": "The error call, with a no \"identifier\" parameter, should return a 200 status with a empty content",
                     "id": "0ec2a95f-c993-40b1-bf92-3ebe494e0eca",
                     "name": "component/details - missing identifier - empty answer",
                     "headers": [],
@@ -756,7 +618,150 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "Check the properties inside each components detail\nRelated to bugs:\n- TCOMP-2171",
+                    "description": "The correct call, with one correct \"identifiers\" parameter, should be in English with one component.",
+                    "id": "e4ef5a8e-1c4f-43d7-9950-7754111a94f9",
+                    "name": "component/details - identifiers (one)",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details",
+                        "value": "1"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "Filesystems"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "en"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "identifiers",
+                            "value": "${getEntityById(\"dd9c32ce-f366-41bb-891e-f0fd52ce1516\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "identifiers",
+                            "value": "${getEntityById(\"dd9c32ce-f366-41bb-891e-f0fd52ce1516\").\"response\".\"body\".\"components\".\"2\".\"id\".\"id\"}"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/details"
+                    },
+                    "description": "The correct call, with two correct \"identifiers\" parameter, should be in English with two component.",
+                    "id": "918ab191-00c5-47f4-9aca-f113ba0a583a",
+                    "name": "component/details - identifiers (two)",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details",
+                        "value": "2"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "Filesystems"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "en"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "identifiers",
+                            "value": "${getEntityById(\"dd9c32ce-f366-41bb-891e-f0fd52ce1516\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/details"
+                    },
+                    "description": "Check the properties inside the components details  \nRelated to bugs: TCOMP-2171",
                     "id": "2608f635-7e54-4048-8806-fe2c7b4a779f",
                     "name": "component/details - content",
                     "headers": [],
@@ -856,6 +861,63 @@
                         "delimiter": "&",
                         "items": [
                           {
+                            "name": "language",
+                            "value": "fr"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "identifiers",
+                            "value": "non_existing_id"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/details"
+                    },
+                    "description": "The error call, with a wrong \"identifier\" parameter, should return a 400 status with a json content",
+                    "id": "9138465e-c1a3-4a3e-9838-4e2f8bb20127",
+                    "name": "component/details - wrong identifier - error 400",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "400"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$..code",
+                        "value": "COMPONENT_MISSING"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
                             "enabled": true,
                             "name": "language",
                             "value": "fr"
@@ -874,7 +936,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "",
+                    "description": "Call of the endpoint with \"language\" parameter set to \"fr\", the response should contain French words.",
                     "id": "4ae04a6a-594d-4e4f-a489-2dd46766a104",
                     "name": "component/details - language",
                     "headers": [],
@@ -3550,21 +3612,21 @@
   ],
   "environments": [
     {
-      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
-      "name": "component_runtime_ci",
+      "id": "f122bbc5-8017-42d1-9ec9-98cf8a004462",
+      "name": "acatoire-local",
       "variables": {
-        "78e23335-f4c2-4fff-b764-83219c834815": {
+        "bacedbea-2b3d-47e5-802a-dce25ef29e53": {
           "name": "server-port",
           "value": "8081",
           "enabled": true,
-          "createdAt": "2022-06-24T10:07:00.309Z",
+          "createdAt": "2022-05-05T09:44:32.475Z",
           "private": false
         },
-        "03a24f13-bd11-45ed-9ed0-5fc9ccfffc48": {
+        "d6d314b6-d13c-4152-b503-8e21a78a14aa": {
           "name": "server-ip",
-          "value": "127.0.0.1",
+          "value": "172.18.29.186",
           "enabled": true,
-          "createdAt": "2022-06-24T10:07:00.309Z",
+          "createdAt": "2022-05-05T09:43:06.786Z",
           "private": false
         }
       }
