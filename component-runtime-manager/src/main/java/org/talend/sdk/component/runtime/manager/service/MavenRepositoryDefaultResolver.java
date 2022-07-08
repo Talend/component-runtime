@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
@@ -111,13 +112,13 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
 
     public Path fromMavenSettings() {
         return Stream.of(
-                System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS), //
-                System.getProperty("user.home") + M2_SETTINGS, //
-                System.getenv(MAVEN_HOME) + CONF_SETTINGS, //
-                System.getenv(M2_HOME) + CONF_SETTINGS //
-        )
+                Optional.ofNullable(System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS))
+                        .map(Paths::get)
+                        .orElse(null), //
+                Optional.ofNullable(System.getProperty("user.home")).map(it -> Paths.get(it, M2_SETTINGS)).orElse(null),
+                Optional.ofNullable(System.getenv(MAVEN_HOME)).map(it -> Paths.get(it, CONF_SETTINGS)).orElse(null),
+                Optional.ofNullable(System.getenv(M2_HOME)).map(it -> Paths.get(it, CONF_SETTINGS)).orElse(null))
                 .filter(Objects::nonNull)
-                .map(Paths::get)
                 .filter(Files::exists)
                 .map(MavenRepositoryDefaultResolver::parseSettings)
                 .filter(Objects::nonNull)
