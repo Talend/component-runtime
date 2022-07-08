@@ -22,10 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import lombok.RequiredArgsConstructor;
@@ -72,6 +75,70 @@ class RecordTest {
         assertThrows(UnsupportedOperationException.class, () -> record.withNewSchema(null));
     }
 
+    @Test
+    void testGetterWithEntry() {
+        MockRecordWithCol record = new MockRecordWithCol();
+        record.addValue("v1", "value");
+        Schema.Entry e1 = new Schema.Entry() {
+
+            @Override
+            public String getName() {
+                return "v1";
+            }
+
+            @Override
+            public String getRawName() {
+                return null;
+            }
+
+            @Override
+            public String getOriginalFieldName() {
+                return null;
+            }
+
+            @Override
+            public Schema.Type getType() {
+                return null;
+            }
+
+            @Override
+            public boolean isNullable() {
+                return false;
+            }
+
+            @Override
+            public boolean isMetadata() {
+                return false;
+            }
+
+            @Override
+            public <T> T getDefaultValue() {
+                return null;
+            }
+
+            @Override
+            public Schema getElementSchema() {
+                return null;
+            }
+
+            @Override
+            public String getComment() {
+                return null;
+            }
+
+            @Override
+            public Map<String, String> getProps() {
+                return null;
+            }
+
+            @Override
+            public String getProp(String property) {
+                return null;
+            }
+        };
+        Assertions.assertEquals("value", record.get(String.class, e1));
+    }
+
     @RequiredArgsConstructor
     private static class MockRecord implements Record {
 
@@ -85,6 +152,25 @@ class RecordTest {
         @Override
         public <T> T get(final Class<T> expectedType, final String name) {
             return expectedType.cast(value);
+        }
+    }
+
+    private static class MockRecordWithCol implements Record {
+
+        private final Map<String, Object> values = new HashMap<>();
+
+        @Override
+        public Schema getSchema() {
+            return null;
+        }
+
+        @Override
+        public <T> T get(final Class<T> expectedType, final String name) {
+            return (T) values.get(name);
+        }
+
+        public <T> void addValue(String name, T value) {
+            values.put(name, value);
         }
     }
 }
