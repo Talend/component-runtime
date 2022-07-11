@@ -297,9 +297,7 @@ pipeline {
       archiveArtifacts(
         artifacts: """\
           **/${serverLog}, 
-          **/target/surefire-reports/*, 
-          **/target/site/**/*, 
-          **/test_scenarios/**/*""".stripIndent()
+          **/src/it/web/test/target/**/*""".stripIndent()
       )
       recordIssues(
         enabledForFailure: true,
