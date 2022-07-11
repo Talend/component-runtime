@@ -689,6 +689,23 @@
               }
             }
           ]
+        },
+        {
+          "entity": {
+            "type": "Service",
+            "id": "3efe6ba1-ed91-44cc-880d-4443d6e47c1b",
+            "name": "configurationType"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Scenario",
+                "description": "This scenario will test all basic interaction with TCOMP configurationtype/migrate endpoint.  \nTODO:  wait for the demo connector to implement those tests",
+                "id": "79b2435b-a016-421f-b797-99ed62a73d09",
+                "name": "3 - configurationtype.migrate*"
+              }
+            }
+          ]
         }
       ]
     }
