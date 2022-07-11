@@ -104,9 +104,9 @@ pipeline {
       description: 'Choose the component-runtime.version to be used from Nexus. Keep default to use the pom version (1.45.0 minimum) or an other ex: 1.45.0-SNAPSHOT'
     )
     choice(
-      'PROJECT_NAME' ,
-      ['tcomp_approved', 'tcomp_draft'] ,
-      'Select test project to execute.'
+      name: 'PROJECT_NAME' ,
+      choices: ['tcomp_approved', 'tcomp_draft'] ,
+      description: 'Select test project to execute.'
     )
   }
   /**
@@ -116,11 +116,11 @@ pipeline {
     MAVEN_SETTINGS = "${WORKSPACE}/.jenkins/settings.xml"
     DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
     MAVEN_OPTS = [
-        "-Dmaven.artifact.threads=128",
-        "-Dorg.slf4j.simpleLogger.showDateTime=true",
-        "-Dorg.slf4j.simpleLogger.showThreadName=true",
-        "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
-        "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
+      "-Dmaven.artifact.threads=128",
+      "-Dorg.slf4j.simpleLogger.showDateTime=true",
+      "-Dorg.slf4j.simpleLogger.showThreadName=true",
+      "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
+      "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
 
     APP_ID = '579232'
@@ -289,38 +289,36 @@ pipeline {
    */
   post {
     always {
-
-        sh """
-          printf "======== Generate Html reports"
-          mvn surefire-report:report-only -f ${TESTS_PATH}
-          mvn site -DgenerateReports=false -f ${TESTS_PATH}
-        """
-        archiveArtifacts(
-          artifacts: """\
-            **/${serverLog}, 
-            **/target/surefire-reports/*, 
-            **/target/site/**/*, 
-            **/test_scenarios/**/*""".stripIndent()
-        )
-        recordIssues(
-          enabledForFailure: true,
-          tools: [
-            taskScanner(
-              id: 'todo-tck-api-test',
-              name: 'api-test Todo(low)/Fixme(high)',
-              includePattern: '**/src/it/web/test/**/*.json',
-              ignoreCase: true,
-              highTags: 'FIX_ME, FIXME',
-              lowTags: 'TO_DO, TODO'
-            ),
-            junitParser(
-              id: 'unit-test',
-              name: 'tcomp API Test',
-              pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
-            )
-          ]
-        )
-
+      sh """
+        printf "======== Generate Html reports"
+        mvn surefire-report:report-only -f ${TESTS_PATH}
+        mvn site -DgenerateReports=false -f ${TESTS_PATH}
+      """
+      archiveArtifacts(
+        artifacts: """\
+          **/${serverLog}, 
+          **/target/surefire-reports/*, 
+          **/target/site/**/*, 
+          **/test_scenarios/**/*""".stripIndent()
+      )
+      recordIssues(
+        enabledForFailure: true,
+        tools: [
+          taskScanner(
+            id: 'todo-tck-api-test',
+            name: 'api-test Todo(low)/Fixme(high)',
+            includePattern: '**/src/it/web/test/**/*.json',
+            ignoreCase: true,
+            highTags: 'FIX_ME, FIXME',
+            lowTags: 'TO_DO, TODO'
+          ),
+          junitParser(
+            id: 'unit-test',
+            name: 'tcomp API Test',
+            pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
+          )
+        ]
+      )
     }
   }
 }
