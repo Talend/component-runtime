@@ -1,10 +1,10 @@
 # Web Api Test
 
 ## Description
-This folder contains API test with TCOMP API Test to be run with Talend API Tester Maven plug-in.  
+This folder contains API test for TCOMP to be run with Talend API Tester Maven plug-in.  
 You will find:
  - The "test" folder containing test projects and scenarios pusheb by our API tester instance in eu.cloud.talend.com (tenant: rd.aws.eu.talend.com)
- - The ".jenkins" folder with jenkins files
+ - The ".jenkins" folder with jenkins files and scripts
 
 ## To run the tests
 ### Requirements
@@ -19,19 +19,19 @@ If you want to run the test with maven, you will need the followings:
 
 ## Execution
 The execution with maven plugin is done in several steps as follows:
-- Go into the mock connector folder (/talend-component-maven-plugin/src/it/web/mock/connector-mock)
+- Go into the tested connector folder (TO BE DEFINED)
 - Build the connector
 - Start the web tester
-  - Use Dtalend.web.batch, Dtalend.web.batch.timeout, Dtalend.web.port options depending on your needs (default test environment is (https://localhost:8081))
+  - Use Dtalend.web.batch, Dtalend.web.batch.timeout, Dtalend.web.port options depending on your needs (default test environment is (https://localhost:8080))
 - Go to the test folder (/talend-component-maven-plugin/src/it/web/test)
 - Run the tests with your Talend instance and account ID
 
-
+sample:
 ```bash
-cd "/talend-component-maven-plugin/src/it/web/mock/connector-mock"
+cd "/connector"
 mvn clean install
 mvn talend-component:web -Dtalend.web.batch=true -Dtalend.web.batch.timeout=30 -Dtalend.web.port=8081
-cd "/talend-component-maven-plugin/src/it/web/mock/connector-mock"
+cd "talend-component-maven-plugin/src/it/web/test"
 mvn clean test --define selectedEnvironment='localhost' --define accountId='YOUR_ID_ON_TENANT' 
 mvn clean test --define instance='YOUR_TENANT_INSTANCE'\
                --define accountId='YOUR_ID_ON_TENANT'\
@@ -47,12 +47,11 @@ If you want to edit the test or simply play them in API Tester environment, you 
 
 ## How To
 If you are part of Talend
-- Request to be part of the XXX group in XXX Tenant
+- Request to be part of the connectors group in rd.aws.eu.talend.com Tenant
 
 If you are not part of Talend
 - Import the test project form (/talend-component-maven-plugin/src/it/web/test) in your API Tester DRIVE
 
 
-
 ## REMARK
-If your server is running in a wsl container, but your API Tester is under windows, you wou have to replace localhost by your IP over the wsl network (ifconfig)
+If your server is running in a wsl container, but your API Tester is under windows, you have to replace localhost by your IP over the wsl network (ifconfig is your friend)
