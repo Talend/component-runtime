@@ -104,10 +104,9 @@ pipeline {
       description: 'Choose the component-runtime.version to be used from Nexus. Keep default to use the pom version (1.45.0 minimum) or an other ex: 1.45.0-SNAPSHOT'
     )
     choice(
-      name: 'PROJECT_NAME' ,
-      choices: ['tcomp_approved',
-                'tcomp_draft'] ,
-      description: 'Select test project to execute.'
+      'PROJECT_NAME' ,
+      ['tcomp_approved', 'tcomp_draft'] ,
+      'Select test project to execute.'
     )
   }
   /**
