@@ -94,10 +94,10 @@ pipeline {
    * parameters
    */
   parameters {
-    stringParam(
-        "CYCLE",
-        "default",
-        "Test Cycle Id filled by Test Orchestrator"
+    string(
+        name: 'CYCLE',
+        defaultValue: 'default',
+        description: 'Test Cycle Id filled by Test Orchestrator.'
     )
   }
   /**
