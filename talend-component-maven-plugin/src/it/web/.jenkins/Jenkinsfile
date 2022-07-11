@@ -97,7 +97,7 @@ pipeline {
     string(
         name: 'CYCLE',
         defaultValue: 'default',
-        description: 'Test Cycle Id filled by Test Orchestrator.'
+        description: 'Test Cycle Id filled by Test Orchestrator, it is only important for TTO.'
     )
   }
   /**
