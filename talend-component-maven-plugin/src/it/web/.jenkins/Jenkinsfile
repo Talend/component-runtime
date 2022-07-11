@@ -91,6 +91,16 @@ pipeline {
     }
   }
   /**
+   * parameters
+   */
+  parameters {
+    stringParam(
+        "CYCLE",
+        "default",
+        "Test Cycle Id filled by Test Orchestrator"
+    )
+  }
+  /**
    * environment
    */
   environment {
