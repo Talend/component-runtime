@@ -39,6 +39,8 @@ import lombok.Getter;
  */
 public class OrderedMap<T> {
 
+    private static final String NOT_IN_SCHEMA = "%s not in schema";
+
     @AllArgsConstructor
     static class Node<T> implements Iterable<Node<T>> {
 
@@ -79,12 +81,22 @@ public class OrderedMap<T> {
             this.prec = null;
         }
 
+        public void swapWith(final Node<T> other) {
+            if (this.next == other) { // case this -> other direct
+                this.swapWithNext();
+            } else if (other.next == this) { // case other -> this direct
+                other.swapWithNext();
+            } else { // general case
+                this.swapWithOther(other);
+            }
+        }
+
         /**
          * switch current node with its next
          * For example : 1 <=> 2(this) <=> 3 <=> 4
          * will be transformed to : 1 <=> 3 <=> 2(this) <=> 4
          */
-        public void swapWithNext() {
+        void swapWithNext() {
             final Node<T> nextNode = this.next;
             if (nextNode == null) {
                 return;
@@ -108,9 +120,38 @@ public class OrderedMap<T> {
             }
         }
 
+        void swapWithOther(final Node<T> other) {
+            // save prec & next
+            final Node<T> firstPrec = this.prec;
+            final Node<T> firstNext = this.next;
+
+            final Node<T> secondPrec = other.prec;
+            final Node<T> secondNext = other.next;
+
+            // Put this node at other node place
+            this.prec = secondPrec;
+            if (secondPrec != null) {
+                secondPrec.next = this;
+            }
+            this.next = secondNext;
+            if (secondNext != null) {
+                secondNext.prec = this;
+            }
+
+            // Put other node at this node place
+            other.prec = firstPrec;
+            if (firstPrec != null) {
+                firstPrec.next = other;
+            }
+            other.next = firstNext;
+            if (firstNext != null) {
+                firstNext.prec = other;
+            }
+        }
+
         @Override
         public Iterator<Node<T>> iterator() {
-            return new NodeIterator(this);
+            return new NodeIterator<>(this);
         }
 
         @AllArgsConstructor
@@ -139,7 +180,7 @@ public class OrderedMap<T> {
 
     private Node<T> last;
 
-    private final Map<String, Node<T>> values;
+    private final Map<String, Node<T>> values = new HashMap<>();
 
     private final Function<T, String> identifierGetter;
 
@@ -149,7 +190,6 @@ public class OrderedMap<T> {
 
     public OrderedMap(final Function<T, String> identifierGetter,
             final Iterable<T> inputValues) {
-        this.values = new HashMap<>();
         this.identifierGetter = identifierGetter;
         inputValues.forEach(this::addValue);
     }
@@ -158,9 +198,8 @@ public class OrderedMap<T> {
         if (this.first == null) {
             return Stream.empty();
         }
-        final Function<Node<T>, T> tFunction = (Node<T> f) -> f.getValue();
         return StreamSupport.stream(this.first.spliterator(), false)
-                .map(tFunction);
+                .map(Node<T>::getValue);
     }
 
     public void forEachValue(final Consumer<T> valueConsumer) {
@@ -190,13 +229,9 @@ public class OrderedMap<T> {
     }
 
     public T getValue(final String identifier) {
-        if (this.values != null) {
-            return Optional.ofNullable(this.values.get(identifier)) //
-                    .map(Node::getValue) //
-                    .orElse(null);
-        } else {
-            return null;
-        }
+        return Optional.ofNullable(this.values.get(identifier)) //
+                .map(Node::getValue) //
+                .orElse(null);
     }
 
     public void replace(final String identifier, final T newValue) {
@@ -210,7 +245,7 @@ public class OrderedMap<T> {
 
     public void addValue(final T value) {
         final String name = this.identifierGetter.apply(value);
-        if (this.values != null && this.values.containsKey(name)) {
+        if (this.values.containsKey(name)) {
             return;
         }
         if (this.first == null) {
@@ -227,7 +262,7 @@ public class OrderedMap<T> {
     public void moveAfter(final String pivotIdentifier, final T valueToMove) {
         final Node<T> pivotNode = this.values.get(pivotIdentifier);
         if (pivotNode == null) {
-            throw new IllegalArgumentException(String.format("%s not in schema", pivotIdentifier));
+            throw new IllegalArgumentException(String.format(NOT_IN_SCHEMA, pivotIdentifier));
         }
         final String identifier = this.identifierGetter.apply(valueToMove);
         final Node<T> nodeToMove = this.values.get(identifier);
@@ -248,7 +283,7 @@ public class OrderedMap<T> {
     public void moveBefore(final String pivotIdentifier, final T valueToMove) {
         final Node<T> nodePivot = this.values.get(pivotIdentifier);
         if (nodePivot == null) {
-            throw new IllegalArgumentException(String.format("%s not in schema", pivotIdentifier));
+            throw new IllegalArgumentException(String.format(NOT_IN_SCHEMA, pivotIdentifier));
         }
         final String newValueName = this.identifierGetter.apply(valueToMove);
         final Node<T> nodeToMove = this.values.get(newValueName);
@@ -269,44 +304,15 @@ public class OrderedMap<T> {
         }
         final Node<T> firstNode = this.values.get(first);
         if (firstNode == null) {
-            throw new IllegalArgumentException(String.format("%s not in schema", first));
+            throw new IllegalArgumentException(String.format(NOT_IN_SCHEMA, first));
         }
         final Node<T> secondNode = this.values.get(second);
         if (secondNode == null) {
-            throw new IllegalArgumentException(String.format("%s not in schema", secondNode));
+            throw new IllegalArgumentException(String.format(NOT_IN_SCHEMA, secondNode));
         }
 
-        if (firstNode.next == secondNode) { // case first -> second direct
-            firstNode.swapWithNext();
-        } else if (secondNode.next == firstNode) { // case second -> first direct
-            secondNode.swapWithNext();
-        } else { // general case
-                 // Put first node at second place
-            final Node<T> firstPrec = firstNode.prec;
-            final Node<T> firstNext = firstNode.next;
+        firstNode.swapWith(secondNode);
 
-            final Node<T> secondPrec = secondNode.prec;
-            final Node<T> secondNext = secondNode.next;
-
-            firstNode.prec = secondPrec;
-            if (secondPrec != null) {
-                secondPrec.next = firstNode;
-            }
-            firstNode.next = secondNext;
-            if (secondNext != null) {
-                secondNext.prec = firstNode;
-            }
-
-            // Put second node at first place
-            secondNode.prec = firstPrec;
-            if (firstPrec != null) {
-                firstPrec.next = secondNode;
-            }
-            secondNode.next = firstNext;
-            if (firstNext != null) {
-                firstNext.prec = secondNode;
-            }
-        }
         if (this.first == firstNode) {
             this.first = secondNode;
         } else if (this.first == secondNode) {

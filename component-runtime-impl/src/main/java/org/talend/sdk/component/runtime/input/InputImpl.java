@@ -89,24 +89,26 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     }
 
     private Jsonb jsonb() {
-        if (jsonb == null) {
-            synchronized (this) {
-                if (jsonb == null) {
-                    final LightContainer container = ContainerFinder.Instance.get().find(plugin());
-                    jsonb = container.findService(Jsonb.class);
-                }
+        if (jsonb != null) {
+            return jsonb;
+        }
+        synchronized (this) {
+            if (jsonb == null) {
+                final LightContainer container = ContainerFinder.Instance.get().find(plugin());
+                jsonb = container.findService(Jsonb.class);
             }
         }
         return jsonb;
     }
 
     private RecordBuilderFactory recordBuilderFactory() {
-        if (recordBuilderFactory == null) {
-            synchronized (this) {
-                if (recordBuilderFactory == null) {
-                    final LightContainer container = ContainerFinder.Instance.get().find(plugin());
-                    recordBuilderFactory = container.findService(RecordBuilderFactory.class);
-                }
+        if (recordBuilderFactory != null) {
+            return recordBuilderFactory;
+        }
+        synchronized (this) {
+            if (recordBuilderFactory == null) {
+                final LightContainer container = ContainerFinder.Instance.get().find(plugin());
+                recordBuilderFactory = container.findService(RecordBuilderFactory.class);
             }
         }
         return recordBuilderFactory;
