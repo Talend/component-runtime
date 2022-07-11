@@ -72,7 +72,6 @@ final String serverTimeout = "1"
 
 // Default value for parameters
 String runtimeVersion = "default"
-String branchToUse = "acatoire/TCOMP-2163_Component_Runtime_API_test"  // TODO set master before the first PR merge
 String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
@@ -95,9 +94,20 @@ pipeline {
    */
   parameters {
     string(
-        name: 'CYCLE',
-        defaultValue: 'default',
-        description: 'Test Cycle Id filled by Test Orchestrator, it is only important for TTO.'
+      name: 'CYCLE',
+      defaultValue: 'default',
+      description: 'Test Cycle Id filled by Test Orchestrator, it is only important for TTO.'
+    )
+    string(
+      name: 'RUNTIME_VERSION',
+      defaultValue: 'default',
+      description: 'Choose the component-runtime.version to be used from Nexus. Keep default to use the pom version (1.45.0 minimum) or an other ex: 1.45.0-SNAPSHOT'
+    )
+    choiceParam(
+      name: 'PROJECT_NAME' ,
+      choices: ['tcomp_approved',
+                'tcomp_draft'] ,
+      description: 'Select test project to execute.'
     )
   }
   /**
@@ -162,13 +172,6 @@ pipeline {
             catch (groovy.lang.MissingPropertyException ignored) {
               echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
             }
-            // TEST_BRANCH
-            try {
-              branchToUse = "${TEST_BRANCH}".replace("origin/", "") // Remove "origin/" prefix to avoid double in script
-            }
-            catch (groovy.lang.MissingPropertyException ignored) {
-              echo "TEST_BRANCH not supplied, default value will be used ($branchToUse)"
-            }
             // FILE_TO_RUN
             try {
               fileToRun = "${PROJECT_NAME}"
@@ -185,7 +188,6 @@ pipeline {
             println("Job info:\n" +
                 " - Tenant instance: ${tenantInstance}\n" +
                 " - Runtime version: ${runtimeVersion}\n" +
-                " - Test branch: ${branchToUse}\n" +
                 " - Test file executed: ${fileToRun}" + ".json\n" +
                 " - API Tester used environment: ${apiTesterEnv}\n")
 
@@ -201,16 +203,16 @@ pipeline {
             if (runtimeVersion != "") {
               runtimeName = runtimeVersion
             }
+
             // updating build displayName
             currentBuild.displayName = (
-                "#" + currentBuild.number +
-                    ": " + branchToUse
+                "#" + currentBuild.number + ": " + fileToRun
             )
+
             // updating build description
             currentBuild.description = (
                 "User: " + "${USER_NAME}" + " - " + "Runtime: " + runtimeName + "\n" +
-                    "Branch: " + branchToUse + "\n" +
-                    "Test batch: " + fileToRun + "\n"
+                    "Project: " + fileToRun + "\n"
             )
           }
 
