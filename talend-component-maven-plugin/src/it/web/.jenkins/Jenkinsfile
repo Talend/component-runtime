@@ -120,7 +120,7 @@ pipeline {
 
     ROOT_PATH = "${WORKSPACE}"
     SCRIPTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    TESTS_PATH = "${WORKSPACE}/test_scenarios/talend-component-maven-plugin/src/it/web/test"
+    TESTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/test"
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
     TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
   }
@@ -216,32 +216,18 @@ pipeline {
 
       }
     }
-    stage('Checkout test') {
+    stage('Checkout connector') {
       steps {
-
-          // Checkout of the connector directory (TODO Will be cleaned when test component will be ready)
-          checkout([
-              $class           : 'GitSCM',
-              branches         : [[name: '*/master']],
-              extensions       : [
-                  [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
-                  [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]
-              ],
-              userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/connectors-se.git']]
-          ])
-          // Checkout of the test directory from API Tester
-          checkout([
-              $class           : 'GitSCM',
-              branches         : [[name: "*/${branchToUse}"]],
-              extensions       : [
-                  [$class: 'RelativeTargetDirectory', relativeTargetDir: './test_scenarios'],
-                  [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                  //[$class: 'CloneOptions', shallow: true, depth: 1, noTags: true],
-                  [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'talend-component-maven-plugin/src/it/web/test']]]
-              ],
-              userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/component-runtime.git']]
-          ])
-
+        // Checkout of the connector directory (TODO Will be cleaned when test component will be ready)
+        checkout([
+            $class           : 'GitSCM',
+            branches         : [[name: '*/master']],
+            extensions       : [
+                [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
+                [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]
+            ],
+            userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/connectors-se.git']]
+        ])
       }
     }
     stage('Prepare Test') {

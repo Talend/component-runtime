@@ -1,7 +1,10 @@
 # Web Api Test
 
 ## Description
-TO BE WRITEN
+This folder contains API test with TCOMP API Test to be run with Talend API Tester Maven plug-in.  
+You will find:
+ - The "test" folder containing test projects and scenarios pusheb by our API tester instance in eu.cloud.talend.com (tenant: rd.aws.eu.talend.com)
+ - The ".jenkins" folder with jenkins files
 
 ## To run the tests
 ### Requirements
