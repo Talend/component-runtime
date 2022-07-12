@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
 
+import org.talend.sdk.component.api.context.RuntimeContainer;
 import org.talend.sdk.component.api.context.RuntimeContext;
 import routines.system.Dynamic;
 
@@ -126,7 +127,7 @@ public class DynamicColumnsTest {
 
     private void callCloseComponent(final ComponentManager manager) {
         String plugin = "test-classes";
-        RuntimeContextInjector.injectService(manager, plugin, globalMap);
+        RuntimeContextInjector.injectService(manager, plugin, new RuntimeContainer("close_1", globalMap));
 
         manager
                 .findPlugin(plugin)
@@ -156,7 +157,7 @@ public class DynamicColumnsTest {
 
         String plugin = "test-classes";
 
-        RuntimeContextInjector.injectService(manager, plugin, globalMap);
+        RuntimeContextInjector.injectService(manager, plugin, new RuntimeContainer("connection_1", globalMap));
 
         // TODO how to get the plugin id in client?
         manager
@@ -169,7 +170,7 @@ public class DynamicColumnsTest {
                 .filter(actionMeta -> "create_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object connnection = actionMeta.getInvoker().apply(runtimeParams);
-                    assertEquals("v1100value", connnection);
+                    assertEquals("v1100connection_1value", connnection);
 
                     globalMap.put("conn_tS3Connection_1", connnection);
                 });
@@ -180,7 +181,7 @@ public class DynamicColumnsTest {
         try {
             final Processor processor = proc.orElseThrow(() -> new IllegalStateException("scanning failed"));
 
-            RuntimeContextInjector.injectLifecycle(processor, globalMap);
+            RuntimeContextInjector.injectLifecycle(processor, new RuntimeContainer("outputDi_1", globalMap));
 
             try {
                 Field field = processor.getClass().getSuperclass().getDeclaredField("delegate");
@@ -224,7 +225,7 @@ public class DynamicColumnsTest {
             final Mapper tempMapperMapper = mapper.orElseThrow(() -> new IllegalStateException("scanning failed"));
             JobStateAware.init(tempMapperMapper, globalMap);
 
-            RuntimeContextInjector.injectLifecycle(tempMapperMapper, globalMap);
+            RuntimeContextInjector.injectLifecycle(tempMapperMapper, new RuntimeContainer("inputDi_1", globalMap));
 
             doRun(manager, sourceData, processorData, processorProcessor, inputsHandlerProcessor,
                     outputHandlerProcessor, inputsProcessor, outputsProcessor, tempMapperMapper);
@@ -339,7 +340,7 @@ public class DynamicColumnsTest {
     public static class OutputComponentDi implements Serializable {
 
         @RuntimeContext
-        private transient Map<String, Object> context;
+        private transient RuntimeContainer context;
 
         int counter;
 
@@ -351,7 +352,8 @@ public class DynamicColumnsTest {
             // can get connection, if not null, can use it directly instead of creating again
             assertNotNull(conn);
 
-            assertEquals("value", context.get("key"));
+            assertEquals("outputDi_1", context.getConnectorId());
+            assertEquals("value", context.getMap().get("key"));
 
             assertNotNull(record);
             assertNotNull(record.getString("id"));
@@ -422,12 +424,12 @@ public class DynamicColumnsTest {
     public static class MyService implements Serializable {
 
         @RuntimeContext
-        private transient Map<String, Object> context;
+        private transient RuntimeContainer context;
 
         @CreateConnection
         public Object createConn(@Option("conn") final TestDataStore dataStore) throws ComponentException {
             // create connection
-            return dataStore.para1 + dataStore.para2 + context.get("key");
+            return dataStore.para1 + dataStore.para2 + context.getConnectorId() + context.getMap().get("key");
         }
 
         @CloseConnection
@@ -435,7 +437,9 @@ public class DynamicColumnsTest {
             return new CloseConnectionObject() {
 
                 public boolean close() throws ComponentException {
-                    return "v1100value".equals(this.getConnection()) && "value".equals(context.get("key"));
+                    return "v1100connection_1value".equals(this.getConnection())
+                            && "value".equals(context.getMap().get("key"))
+                            && "close_1".equals(context.getConnectorId());
                 }
 
             };
@@ -446,7 +450,7 @@ public class DynamicColumnsTest {
     public static class InputComponentDi implements Serializable {
 
         @RuntimeContext
-        private transient Map<String, Object> context;
+        private transient RuntimeContainer context;
 
         private final PrimitiveIterator.OfInt stream;
 
@@ -463,7 +467,8 @@ public class DynamicColumnsTest {
                 return null;
             }
 
-            assertEquals("value", context.get("key"));
+            assertEquals("inputDi_1", context.getConnectorId());
+            assertEquals("value", context.getMap().get("key"));
 
             final Integer i = stream.next();
             final Record record = builderFactory
