@@ -1421,12 +1421,12 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+      <plugin><!-- Plugin - jacoco -->
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco.version}</version>
         <executions>
-          <execution>
+          <execution><!-- jacoco - prepare for unit-test -->
             <id>prepare-agent</id>
             <goals>
               <goal>prepare-agent</goal>
@@ -1434,8 +1434,8 @@
             <configuration>
               <append>true</append>
             </configuration>
-          </execution>
-          <execution>
+          </execution><!-- jacoco - prepare for unit-test -->
+          <execution><!-- jacoco - generate for unit-test -->
             <id>post-unit-test</id>
             <goals>
               <goal>report</goal>
@@ -1445,8 +1445,8 @@
               <dataFile>${project.build.directory}/jacoco.exec</dataFile>
               <outputDirectory>${project.build.directory}/jacoco-ut</outputDirectory>
             </configuration>
-          </execution>
-          <execution>
+          </execution><!-- jacoco - generate for unit-test -->
+          <execution><!-- jacoco - prepare for integration-test -->
             <id>prepare-agent-it</id>
             <goals>
               <goal>prepare-agent</goal>
@@ -1456,8 +1456,8 @@
               <propertyName>invoker.mavenOpts</propertyName>
               <append>true</append>
             </configuration>
-          </execution>
-          <execution>
+          </execution><!-- jacoco - prepare for integration-test -->
+          <execution><!-- jacoco - generate  for integration-test -->
             <id>post-integration-test</id>
             <goals>
               <goal>report</goal>
@@ -1467,8 +1467,18 @@
               <dataFile>${project.build.directory}/jacoco-it.exec</dataFile>
               <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
             </configuration>
-          </execution>
-          <execution>
+          </execution><!-- jacoco - post-integration-test -->
+          <execution><!-- jacoco - generate  for integration-test -->
+            <id>jacoco-instrument</id>
+            <phase>package</phase>
+            <goals>
+              <goal>instrument</goal>
+            </goals>
+            <!-- configuration>
+              <skip>${jacoco.skip.instrument}</skip>
+            </configuration-->
+          </execution><!-- jacoco for e2e test -->
+          <execution><!-- jacoco - coverage check -->
             <id>coverage-check</id>
             <goals>
               <goal>check</goal>
@@ -1488,9 +1498,9 @@
                 </rule>
               </rules>
             </configuration>
-          </execution>
+          </execution><!-- jacoco - coverage check -->
         </executions>
-      </plugin>
+      </plugin><!-- Plugin - jacoco -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
