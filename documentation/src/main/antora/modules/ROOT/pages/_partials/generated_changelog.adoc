@@ -8,6 +8,12 @@
 
 
 
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2184[TCOMP-2184^]: align bouncycastle to 1.70 link:search.html?query=bom[bom^,role='dockey']
+
+
+
 == Version 1.46.1
 
 === Bug
