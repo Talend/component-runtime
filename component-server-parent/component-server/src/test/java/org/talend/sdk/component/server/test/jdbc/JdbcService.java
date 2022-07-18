@@ -113,17 +113,10 @@ public class JdbcService {
         if (inputSchema == null || (!"main".equals(inputSchema.getOutputBranch()))) {
             throw new IllegalArgumentException("Wrong input schema");
         }
-        String schema = inputSchema.getSchema();
+        final Schema schema = inputSchema.getInputSchema(factory);
         if (schema == null) {
             throw new IllegalArgumentException("NULL records");
         }
-        /**
-         * RecordConverters.toSchema(factory, schema);
-         * 
-         * if (schema == null || schema.getType() != RECORD) {
-         * throw new IllegalArgumentException("No records");
-         * }
-         */
 
         return factory
                 .newSchemaBuilder(RECORD)

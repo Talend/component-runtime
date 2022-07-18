@@ -23,6 +23,8 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.converter.JsonToSchema;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 import lombok.Data;
 
@@ -44,6 +46,11 @@ public class InputSchema {
             final JsonObject jsonObject = jsonReader.readObject();
             return converter.apply(jsonObject);
         }
+    }
+
+    public Schema getInputSchema(final RecordBuilderFactory factory) {
+        final JsonToSchema toSchema = new JsonToSchema(factory);
+        return this.getInputSchema(toSchema::toSchema);
     }
 
 }
