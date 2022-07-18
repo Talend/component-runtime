@@ -73,4 +73,5 @@ public class Column {
     public void setDefault(final String value) {
         defaut = value;
     }
+
 }

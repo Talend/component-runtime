@@ -19,9 +19,6 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -66,8 +63,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TaCoKitGuessSchema {
-
-    public static final String STRING_ESCAPE = "\"";
 
     private ComponentManager componentManager;
 
@@ -325,95 +320,12 @@ public class TaCoKitGuessSchema {
     }
 
     private boolean fromSchema(final Schema schema) {
-        final Collection<Schema.Entry> entries = schema.getEntries();
-        if (entries == null || entries.isEmpty()) {
-            log.info("No column found by guess schema action");
-            return false;
+        Map<String, Column> columnMap = new Converter(this.javaTypesManager).toColumns(schema);
+        boolean isOK = columnMap != null;
+        if (isOK) {
+            this.columns = columnMap;
         }
-
-        for (Schema.Entry entry : entries) {
-            String name = entry.getName();
-            Schema.Type entryType = entry.getType();
-            String dbName = entry.getOriginalFieldName();
-            String pattern = null;
-            String length = null;
-            String precision = null;
-            boolean isDateTime = false;
-            if (entryType == null) {
-                entryType = Schema.Type.STRING;
-            }
-            String typeName;
-            switch (entryType) {
-            case BOOLEAN:
-                typeName = javaTypesManager.BOOLEAN.getId();
-                break;
-            case DOUBLE:
-                typeName = javaTypesManager.DOUBLE.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
-                break;
-            case INT:
-                typeName = javaTypesManager.INTEGER.getId();
-                break;
-            case LONG:
-                typeName = javaTypesManager.LONG.getId();
-                break;
-            case FLOAT:
-                typeName = javaTypesManager.FLOAT.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
-                break;
-            case BYTES:
-                typeName = javaTypesManager.BYTE_ARRAY.getId();
-                break;
-            case DATETIME:
-                typeName = javaTypesManager.DATE.getId();
-                isDateTime = true;
-                pattern = entry.getProp(STUDIO_PATTERN);
-                break;
-            case RECORD:
-                typeName = javaTypesManager.OBJECT.getId();
-                break;
-            case ARRAY:
-                typeName = javaTypesManager.LIST.getId();
-                break;
-            default:
-                typeName = javaTypesManager.STRING.getId();
-                break;
-            }
-
-            final Column column = new Column();
-            column.setLabel(name);
-            column.setOriginalDbColumnName(dbName);
-            column.setTalendType(typeName);
-            column.setNullable(entry.isNullable());
-            column.setComment(entry.getComment());
-            if (length != null && precision != null) {
-                try {
-                    column.setLength(Integer.valueOf(length));
-                    column.setPrecision(Integer.valueOf(precision));
-                } catch (NumberFormatException e) {
-                    // let default values if props are trash...
-                }
-            }
-            if (isDateTime) {
-                if (pattern != null) {
-                    column.setPattern(STRING_ESCAPE + pattern + STRING_ESCAPE);
-                } else {
-                    // studio default pattern
-                    column.setPattern(STRING_ESCAPE + "dd-MM-yyyy" + STRING_ESCAPE);
-                }
-            }
-            if (entry.getDefaultValue() != null) {
-                try {
-                    column.setDefault(entry.getDefaultValue().toString());
-                } catch (Exception e) {
-                    // nevermind as it's almost useless...
-                }
-            }
-            columns.put(name, column);
-        }
-        return true;
+        return isOK;
     }
 
     private boolean guessInputComponentSchemaThroughResult() throws Exception {

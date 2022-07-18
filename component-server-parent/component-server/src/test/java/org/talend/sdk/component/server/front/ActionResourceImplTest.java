@@ -18,6 +18,9 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
+import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
+import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,18 +30,25 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
@@ -54,7 +64,7 @@ class ActionResourceImplTest {
     void actionIndex() {
         { // default
             final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-            assertEquals(11, index.getItems().size());
+            assertEquals(12, index.getItems().size());
             assertEquals("jdbc", index.getItems().iterator().next().getComponent());
         }
         { // change the family
@@ -63,7 +73,7 @@ class ActionResourceImplTest {
                     .queryParam("family", "jdbc")
                     .request(APPLICATION_JSON_TYPE)
                     .get(ActionList.class);
-            assertEquals(4, index.getItems().size());
+            assertEquals(5, index.getItems().size());
             assertEquals("jdbc", index.getItems().iterator().next().getComponent());
         }
     }
@@ -71,7 +81,7 @@ class ActionResourceImplTest {
     @RepeatedTest(2)
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(11, index.getItems().size());
+        assertEquals(12, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
@@ -192,6 +202,70 @@ class ActionResourceImplTest {
                         "      \"props\":{\n\n      },\n      \"type\":\"ARRAY\"\n    }\n  ],\n  \"metadata\":[\n" +
                         "  ],\n  \"props\":{\n    \"talend.fields.order\":\"array\"\n  },\n  \"type\":\"RECORD\"\n}";
         assertEquals(expected, schema);
+    }
+
+    @Test
+    void checkProcessSchema() {
+
+        HashMap<String, String> cfg = new HashMap<>();
+        cfg.put("configuration.driver", "test_driver");
+        cfg.put("configuration.description", "test_description");
+
+        cfg.put("schema.outputBranch", "main");
+        final String input =
+                "{\n  \"entries\":[\n    {\n      \"elementSchema\":{\n        \"entries\":[\n        ],\n" +
+                        "        \"metadata\":[\n        ],\n        \"props\":{\n\n        },\n        \"type\":\"STRING\"\n"
+                        +
+                        "      },\n      \"metadata\":false,\n      \"name\":\"array\",\n      \"nullable\":false,\n" +
+                        "      \"props\":{\n\n      },\n      \"type\":\"ARRAY\"\n    }\n  ],\n  \"metadata\":[\n" +
+                        "  ],\n  \"props\":{\n    \"talend.fields.order\":\"array\"\n  },\n  \"type\":\"RECORD\"\n}";
+        cfg.put("schema.schema", input);
+
+        RecordBuilderFactoryImpl factory = new RecordBuilderFactoryImpl("test");
+        Schema array = factory.newSchemaBuilder(RECORD)
+                .withEntry(factory
+                        .newEntryBuilder()
+                        .withName("array")
+                        .withType(ARRAY)
+                        .withElementSchema(factory.newSchemaBuilder(STRING).build())
+                        .build())
+                .build();
+        Jsonb jsonb = JsonbBuilder.create();
+
+        String s = jsonb.toJson(array);
+        System.out.println(s);
+
+        final String schema = base
+                .path("action/execute")
+                .queryParam("type", "schema")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "jdbc_process_schema")
+                .queryParam("lang", "it")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(cfg, APPLICATION_JSON_TYPE), String.class);
+
+        Assertions.assertEquals("{\n" +
+                "  \"entries\":[\n    {\n" +
+                "      \"elementSchema\":{\n" +
+                "        \"entries\":[\n        ],\n" +
+                "        \"metadata\":[\n        ],\n" +
+                "        \"props\":{\n\n        },\n" +
+                "        \"type\":\"STRING\"\n" +
+                "      },\n" +
+                "      \"metadata\":false,\n" +
+                "      \"name\":\"array\",\n" +
+                "      \"nullable\":false,\n" +
+                "      \"props\":{\n\n      },\n" +
+                "      \"type\":\"ARRAY\"\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"metadata\":[\n" +
+                "  ],\n" +
+                "  \"props\":{\n" +
+                "    \"talend.fields.order\":\"array\"\n" +
+                "  },\n" +
+                "  \"type\":\"RECORD\"\n" +
+                "}", schema);
     }
 
     @Disabled

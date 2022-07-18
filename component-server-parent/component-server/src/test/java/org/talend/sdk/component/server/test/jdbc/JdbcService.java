@@ -33,7 +33,13 @@ import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.schema.InputSchema;
+import org.talend.sdk.component.api.service.schema.ProcessSchema;
+import org.talend.sdk.component.runtime.record.RecordConverters;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class JdbcService {
 
@@ -81,6 +87,44 @@ public class JdbcService {
 
     @DiscoverSchema("jdbc_discover_schema")
     public Schema guessSchema(final RecordBuilderFactory factory) {
+        return factory
+                .newSchemaBuilder(RECORD)
+                .withEntry(factory
+                        .newEntryBuilder()
+                        .withName("array")
+                        .withType(ARRAY)
+                        .withElementSchema(factory.newSchemaBuilder(STRING).build())
+                        .build())
+                .build();
+    }
+
+    @ProcessSchema("jdbc_process_schema")
+    public Schema processSchema(
+            @Option("configuration") JdbcConfig config,
+            @Option("schema") InputSchema inputSchema,
+            final RecordBuilderFactory factory) {
+
+        log.info("======= processSchema called ======");
+        if (config == null
+                || (!"test_description".equals(config.getDescription()))
+                || (!"test_driver".equals(config.getDriver()))) {
+            throw new IllegalArgumentException("Wrong config input");
+        }
+        if (inputSchema == null || (!"main".equals(inputSchema.getOutputBranch()))) {
+            throw new IllegalArgumentException("Wrong input schema");
+        }
+        String schema = inputSchema.getSchema();
+        if (schema == null) {
+            throw new IllegalArgumentException("NULL records");
+        }
+        /**
+         * RecordConverters.toSchema(factory, schema);
+         * 
+         * if (schema == null || schema.getType() != RECORD) {
+         * throw new IllegalArgumentException("No records");
+         * }
+         */
+
         return factory
                 .newSchemaBuilder(RECORD)
                 .withEntry(factory
