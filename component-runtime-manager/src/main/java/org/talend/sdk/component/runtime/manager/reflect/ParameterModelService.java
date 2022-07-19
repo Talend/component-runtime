@@ -31,12 +31,15 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -44,6 +47,8 @@ import java.util.stream.StreamSupport;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Max;
+import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.Configuration;
@@ -227,9 +232,18 @@ public class ParameterModelService {
     }
 
     private Stream<Annotation> getAnnotations(final Type type, final Annotation[] annotations) {
+        // we have a few implicit constraints. those constraints can be overwritten by explicit one.
+        // to avoid ambiguous exception we should filter out implicit annotation constraints
+        final Set<Class<? extends Annotation>> uniqueAnnotations = new HashSet<>(Arrays.asList(Min.class, Max.class));
+        final Set<? extends Class<? extends Annotation>> forbidImplicit = Stream.of(annotations)
+                .map(Annotation::annotationType)
+                .filter(uniqueAnnotations::contains)
+                .collect(toSet());
         return Stream
                 .concat(getReflectionAnnotations(type, annotations),
-                        implicitAnnotationsMapping.getOrDefault(type, emptyList()).stream());
+                        implicitAnnotationsMapping.getOrDefault(type, emptyList())
+                                .stream()
+                                .filter(it -> !forbidImplicit.contains(it.annotationType())));
     }
 
     private Stream<Annotation> getReflectionAnnotations(final Type genericType, final Annotation[] annotations) {
