@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.service.path;
 
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
@@ -64,7 +65,13 @@ public class PathHandlerImpl implements PathHandler {
                 p = value + matcher.group(2);
             }
         }
-        return Paths.get(p);
+
+        try {
+            return Paths.get(p);
+        } catch (InvalidPathException e) {
+            log.debug("[PathHandlerImpl] not valid path: {}.", p);
+            return null;
+        }
     }
 
     /**
