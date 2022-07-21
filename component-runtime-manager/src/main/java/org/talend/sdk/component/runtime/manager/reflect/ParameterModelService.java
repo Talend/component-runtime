@@ -232,18 +232,18 @@ public class ParameterModelService {
     }
 
     private Stream<Annotation> getAnnotations(final Type type, final Annotation[] annotations) {
-        // we have a few implicit constraints. those constraints can be overwritten by explicit one.
-        // to avoid ambiguous exception we should filter out implicit annotation constraints
-        final Set<Class<? extends Annotation>> uniqueAnnotations = new HashSet<>(Arrays.asList(Min.class, Max.class));
-        final Set<? extends Class<? extends Annotation>> forbidImplicit = Stream.of(annotations)
+        // we have a few constraints that are defined by implicit annotations. those constraints can be overwritten by explicit annotations.
+        // to avoid ambiguous exception we should filter out constraints that are provided by implicit annotation
+        final Set<Class<? extends Annotation>> overwrittableAnnotations = new HashSet<>(Arrays.asList(Min.class, Max.class));
+        final Set<? extends Class<? extends Annotation>> skipImplicit = Stream.of(annotations)
                 .map(Annotation::annotationType)
-                .filter(uniqueAnnotations::contains)
+                .filter(overwrittableAnnotations::contains)
                 .collect(toSet());
         return Stream
                 .concat(getReflectionAnnotations(type, annotations),
                         implicitAnnotationsMapping.getOrDefault(type, emptyList())
                                 .stream()
-                                .filter(it -> !forbidImplicit.contains(it.annotationType())));
+                                .filter(it -> !skipImplicit.contains(it.annotationType())));
     }
 
     private Stream<Annotation> getReflectionAnnotations(final Type genericType, final Annotation[] annotations) {

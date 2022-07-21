@@ -113,7 +113,7 @@ class ParameterModelServiceTest {
     }
 
     @Test
-    void intAsLongByDefault() throws NoSuchMethodException {
+    void intWithDefaultBoundaries() throws NoSuchMethodException {
         final List<ParameterMeta> params = service.buildParameterMetas(
                 MethodsHolder.class.getMethod("intOption", int.class, Integer.class), "def", context());
         assertEquals(2, params.size());
@@ -133,7 +133,7 @@ class ParameterModelServiceTest {
     }
 
     @Test
-    void intAsLongCustomOverWrite() throws NoSuchMethodException {
+    void intWithOverwrittenDefaultBoundaries() throws NoSuchMethodException {
         final List<ParameterMeta> params = service.buildParameterMetas(
                 MethodsHolder.class.getMethod("intOptionOverwrite", int.class, Integer.class), "def", context());
         assertEquals(2, params.size());
