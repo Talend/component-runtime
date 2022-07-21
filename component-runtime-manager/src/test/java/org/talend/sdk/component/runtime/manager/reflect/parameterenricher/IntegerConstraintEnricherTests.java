@@ -1,42 +1,42 @@
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
-import java.util.Collections;
-import java.util.HashMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Assertions;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.constraint.Max;
+import org.talend.sdk.component.api.configuration.constraint.Min;
 
 public class IntegerConstraintEnricherTests {
 
     private final IntegerConstraintEnricher enricher = new IntegerConstraintEnricher();
 
     @Test
-    void constraintOnPrimitive() {
-        Assertions.assertEquals(new HashMap<String, String>() {
-
-            {
-                put("tcomp::validation::max", String.valueOf(Integer.MAX_VALUE));
-                put("tcomp::validation::min", String.valueOf(Integer.MIN_VALUE));
-
-            }
-        }, enricher.onParameterAnnotation("bla", int.class, null));
+    void checkConstraints() {
+        assertTrue(enricher.onParameterAnnotation("bla", int.class, null).isEmpty());
+        assertTrue(enricher.onParameterAnnotation("bla", Integer.class, null).isEmpty());
     }
 
     @Test
-    void constraintOnBox() {
-        Assertions.assertEquals(new HashMap<String, String>() {
+    void checkImplicitAnnotations() {
+        final Map<Type, Collection<Annotation>> map = enricher.getImplicitAnnotationForTypes();
 
-            {
-                put("tcomp::validation::max", String.valueOf(Integer.MAX_VALUE));
-                put("tcomp::validation::min", String.valueOf(Integer.MIN_VALUE));
+        assertEquals(2, map.size());
+        final Collection<Annotation> intAnnotations = map.get(int.class);
+        assertEquals(2, intAnnotations.size());
+        final Collection<Annotation> integerAnnotations = map.get(Integer.class);
+        assertEquals(2, integerAnnotations.size());
 
-            }
-        }, enricher.onParameterAnnotation("bla", Integer.class, null));
+        Set<Class<? extends Annotation>> annotations = new HashSet<>(Arrays.asList(Min.class, Max.class));
+        assertTrue(intAnnotations.stream().allMatch(it -> annotations.contains(it.annotationType())));
+        assertTrue(integerAnnotations.stream().allMatch(it -> annotations.contains(it.annotationType())));
     }
-
-    @Test
-    void noConstraintOnObject() {
-        Assertions.assertEquals(Collections.emptyMap(), enricher.onParameterAnnotation("bla", Object.class, null));
-    }
-
 }
