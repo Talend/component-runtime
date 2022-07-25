@@ -5,6 +5,13 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2176[TCOMP-2176^]: Record : Infinite loop link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2181[TCOMP-2181^]: Numbers are not parsed correctly in JAVA_OPTS link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2184[TCOMP-2184^]: align bouncycastle to 1.70 link:search.html?query=bom[bom^,role='dockey']
 
 
 
