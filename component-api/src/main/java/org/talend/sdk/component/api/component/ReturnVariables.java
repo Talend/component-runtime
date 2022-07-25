@@ -23,37 +23,40 @@ import java.lang.annotation.Target;
 
 import org.talend.sdk.component.api.meta.Documentation;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
- * Use to group {@link FlowVariable} annotations.
- * Can be helpful either if you can't use {@link FlowVariable} as repeatable annotations or just to group annotations.
- *
+ * Use to group {@link ReturnVariable} annotations.
+ * Can be helpful either if you can't use {@link ReturnVariable} as repeatable annotations or just to group annotations.
+ * <p>
  * Note. This functionality is for the Studio only.
  */
-@Documentation("Declare the group of flow variable `@FlowVariable`, "
+@Documentation("Declare the group of return variable `@ReturnVariable`, "
         + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`, `@DriverRunner`."
         + "The functionality is for the Studio only.")
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FlowVariables {
+public @interface ReturnVariables {
 
-    FlowVariable[] value();
+    ReturnVariable[] value();
 
     /**
-     * Declare flow variable for the component.
-     *
+     * Declare return variable for the component.
+     * <p>
      * Put annotation on {@link org.talend.sdk.component.api.input.Emitter},
      * {@link org.talend.sdk.component.api.input.PartitionMapper},
-     * {@link org.talend.sdk.component.api.processor.Processor} to declare flow variables
-     *
+     * {@link org.talend.sdk.component.api.processor.Processor} to declare return variables
+     * <p>
      * Note. This functionality is for the Studio only.
      */
-    @Documentation("Declare the flow variable, "
+    @Documentation("Declare the return variable, "
             + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`, `@DriverRunner`."
             + "The functionality is for the Studio only.")
-    @Repeatable(FlowVariables.class)
+    @Repeatable(ReturnVariables.class)
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FlowVariable {
+    @interface ReturnVariable {
 
         /**
          * @return studio name for variable (like: QUERY)
@@ -69,5 +72,17 @@ public @interface FlowVariables {
          * @return type of variable
          */
         Class<?> type() default String.class;
+
+        AVAILABILITY availability() default AVAILABILITY.AFTER;
+
+        @RequiredArgsConstructor
+        enum AVAILABILITY {
+
+            AFTER("AFTER"),
+            FLOW("FLOW");
+
+            @Getter
+            private final String key;
+        }
     }
 }

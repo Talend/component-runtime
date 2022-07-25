@@ -22,10 +22,26 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class RuntimeContainer {
+public class RuntimeContextHolder {
 
-    private String connectorId;
+    private final String connectorId;
 
-    private Map<String, Object> map;
+    private final Map<String, Object> map;
+
+    public Object getGlobal(final String key) {
+        return map.get(key);
+    }
+
+    public void setGlobal(final String key, final Object value) {
+        map.put(key, value);
+    }
+
+    public Object get(final String key) {
+        return map.get(connectorId + "_" + key);
+    }
+
+    public void set(final String key, final Object value) {
+        map.put(connectorId + "_" + key, value);
+    }
 
 }

@@ -1,2 +1,2 @@
 org.talend.sdk.component.runtime.manager.extension.AfterVariableMetadataEnricher
-org.talend.sdk.component.runtime.manager.extension.FlowVariableMetadataEnricher
+org.talend.sdk.component.runtime.manager.extension.ReturnVariableMetadataEnricher

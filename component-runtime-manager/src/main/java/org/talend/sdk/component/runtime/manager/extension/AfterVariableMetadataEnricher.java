@@ -36,6 +36,7 @@ import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
  * Search annotation {@link AfterVariable} and add a new meta information about description of after variables.
  * NOTE. This functionality is used only in Studio.
  */
+@Deprecated
 public class AfterVariableMetadataEnricher implements ComponentMetadataEnricher {
 
     private static final Set<Class<? extends Annotation>> SUPPORTED_ANNOTATIONS =

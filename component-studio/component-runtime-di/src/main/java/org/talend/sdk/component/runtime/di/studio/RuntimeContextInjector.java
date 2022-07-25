@@ -15,8 +15,8 @@
  */
 package org.talend.sdk.component.runtime.di.studio;
 
-import org.talend.sdk.component.api.context.RuntimeContainer;
 import org.talend.sdk.component.api.context.RuntimeContext;
+import org.talend.sdk.component.api.context.RuntimeContextHolder;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -34,7 +34,7 @@ public class RuntimeContextInjector {
      * @param runtimeContext the runtime context
      * @see Lifecycle
      */
-    public static void injectLifecycle(final Lifecycle lifecycle, final RuntimeContainer runtimeContext) {
+    public static void injectLifecycle(final Lifecycle lifecycle, final RuntimeContextHolder runtimeContext) {
         if (lifecycle instanceof Delegated) {
             final Object delegate = ((Delegated) lifecycle).getDelegate();
 
@@ -65,7 +65,7 @@ public class RuntimeContextInjector {
      * @see ComponentManager
      */
     public static void injectService(final ComponentManager manager, final String plugin,
-            final RuntimeContainer runtimeContext) {
+            final RuntimeContextHolder runtimeContext) {
         manager.findPlugin(plugin)
                 .orElseThrow(() -> new IllegalStateException("Can't find the plugin : " + plugin))
                 .get(org.talend.sdk.component.runtime.manager.ContainerComponentRegistry.class)
