@@ -46,6 +46,7 @@ public @interface ReturnVariables {
      * <p>
      * Put annotation on {@link org.talend.sdk.component.api.input.Emitter},
      * {@link org.talend.sdk.component.api.input.PartitionMapper},
+     * {@link org.talend.sdk.component.api.standalone.DriverRunner},
      * {@link org.talend.sdk.component.api.processor.Processor} to declare return variables
      * <p>
      * Note. This functionality is for the Studio only.
