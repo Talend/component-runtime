@@ -80,6 +80,7 @@ class RecordTest {
         MockRecordWithCol record = new MockRecordWithCol();
         record.addValue("v1", "value");
         Schema.Entry e1 = new Schema.Entry() {
+
             @Override
             public String getName() {
                 return "v1";
