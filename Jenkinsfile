@@ -134,7 +134,7 @@ spec:
                         env.PROJECT_VERSION = pom.version
                         try {
                             EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
-                        } catch (error) {
+                        } catch (ignored) {
                             EXTRA_BUILD_ARGS = ""
                         }
                     }
@@ -147,11 +147,11 @@ spec:
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                         script {
                             try {
-                                sh "${params.POST_LOGIN_SCRIPT}";
+                                sh "${params.POST_LOGIN_SCRIPT}"
                                 sh """
                                    bash .jenkins/scripts/npm_fix.sh
                                    """
-                            } catch (error) {
+                            } catch (ignored) {
                                 //
                             }
                         }
@@ -330,10 +330,62 @@ spec:
     }
     post {
         success {
-            slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+            script {
+                //Only post results to Slack for Master and Maintenance branches
+                if (isStdBranch) {
+                    slackSend(
+                        color: '#00FF00',
+                        message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
+                        channel: "${slackChannel}"
+                    )
+                }
+            }
         }
         failure {
-            slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+            script {
+                //Only post results to Slack for Master and Maintenance branches
+                if (isStdBranch) {
+                    //if previous build was a success, ping channel in the Slack message
+                    if ("SUCCESS".equals(currentBuild.previousBuild.result)) {
+                        slackSend(
+                            color: '#FF0000',
+                            message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
+                            channel: "${slackChannel}"
+                        )
+                    } else {
+                        //else send notification without pinging channel
+                        slackSend(
+                            color: '#FF0000',
+                            message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
+                            channel: "${slackChannel}"
+                        )
+                    }
+                }
+            }
+        }
+        always {
+            container(tsbiImage) {
+                recordIssues(
+                    enabledForFailure: true,
+                    tools: [
+                        taskScanner(
+                            id: 'disabled',
+                            name: '@Disabled',
+                            includePattern: '**/src/**/*.java',
+                            ignoreCase: true,
+                            normalTags: '@Disabled'
+                        ),
+                        taskScanner(
+                            id: 'todo',
+                            name: 'Todo(low)/Fixme(high)',
+                            includePattern: '**/src/**/*.java',
+                            ignoreCase: true,
+                            highTags: 'FIX_ME, FIXME',
+                            lowTags: 'TO_DO, TODO'
+                        )
+                    ]
+                )
+            }
         }
     }
 }

@@ -58,7 +58,7 @@ class RecordBuilderImplTest {
                 .build();
         assertEquals(schema, new RecordImpl.BuilderImpl(schema).withString("name", "ok").build().getSchema());
 
-        Schema.EntriesOrder e = new Schema.EntriesOrder(new RecordImpl.BuilderImpl().getCurrentEntries()
+        Schema.EntriesOrder e = Schema.EntriesOrder.of(new RecordImpl.BuilderImpl().getCurrentEntries()
                 .stream()
                 .map(Schema.Entry::getName)
                 .collect(Collectors.toList()));
@@ -427,7 +427,7 @@ class RecordBuilderImplTest {
         final Entry entry = newEntry("field2", "newFieldName", Type.STRING, true, 5, "Comment");
         builder.updateEntryByName("field1", entry);
         Assertions.assertEquals(2, builder.getCurrentEntries().size());
-        assertTrue(entries
+        assertTrue(builder.getCurrentEntries()
                 .stream()
                 .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
         assertEquals("Hello", builder.getValue("field2"));
@@ -651,7 +651,7 @@ class RecordBuilderImplTest {
         assertEquals("_25,_53,_30,_40,_50,_55,_60,_56", getSchemaFields(newSchema));
         assertEquals("_25,_53,_30,_40,_50,_55,_60,_56", newSchema.naturalOrder().toFields());
         // provide an order w/ obsolete/missing entries
-        final List<String> newOrder = record.getSchema().naturalOrder().getFieldsOrder();
+        final List<String> newOrder = record.getSchema().naturalOrder().getFieldsOrder().collect(Collectors.toList());
         Collections.sort(newOrder);
         Collections.reverse(newOrder);
         assertEquals("_55,_53,_50,_40,_30,_25,_20,_10,_00", newOrder.stream().collect(joining(",")));

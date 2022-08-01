@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.api.record;
 
-import static java.util.Collections.emptyList;
-
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -25,15 +23,16 @@ import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,10 +40,10 @@ import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonValue;
 import javax.json.bind.annotation.JsonbTransient;
+import javax.json.stream.JsonParser;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 public interface Schema {
@@ -145,8 +144,9 @@ public interface Schema {
         if (prop == null) {
             return null;
         }
-        try {
-            return Json.createParser(new StringReader(prop)).getValue();
+        try (final StringReader reader = new StringReader(prop);
+                final JsonParser parser = Json.createParser(reader)) {
+            return parser.getValue();
         } catch (RuntimeException ex) {
             return Json.createValue(prop);
         }
@@ -267,8 +267,9 @@ public interface Schema {
             if (prop == null) {
                 return null;
             }
-            try {
-                return Json.createParser(new StringReader(prop)).getValue();
+            try (final StringReader reader = new StringReader(prop);
+                    final JsonParser parser = Json.createParser(reader)) {
+                return parser.getValue();
             } catch (RuntimeException ex) {
                 return Json.createValue(prop);
             }
@@ -500,13 +501,15 @@ public interface Schema {
         return sanitizedBuilder.toString();
     }
 
-    @AllArgsConstructor
+    @RequiredArgsConstructor
     @ToString
     @EqualsAndHashCode
     class EntriesOrder implements Comparator<Entry> {
 
-        @Getter
-        private final List<String> fieldsOrder;
+        private final OrderedMap<String> fieldsOrder;
+
+        // Keep comparator while no change occurs in fieldsOrder.
+        private Comparator<Entry> currentComparator = null;
 
         /**
          * Build an EntriesOrder according fields.
@@ -526,16 +529,26 @@ public interface Schema {
          *
          * @return the order EntriesOrder
          */
-        public static EntriesOrder of(final List<String> fields) {
-            return new EntriesOrder(fields);
+        public static EntriesOrder of(final Iterable<String> fields) {
+            final OrderedMap<String> orders = new OrderedMap<>(Function.identity(), fields);
+            return new EntriesOrder(orders);
         }
 
         public EntriesOrder(final String fields) {
-            if (fields == null) {
-                fieldsOrder = emptyList();
+            if (fields == null || fields.isEmpty()) {
+                fieldsOrder = new OrderedMap<>(Function.identity());
             } else {
-                fieldsOrder = Arrays.stream(fields.split(",")).collect(Collectors.toList());
+                final List<String> fieldList = Arrays.stream(fields.split(",")).collect(Collectors.toList());
+                fieldsOrder = new OrderedMap<>(Function.identity(), fieldList);
             }
+        }
+
+        public EntriesOrder(final Iterable<String> fields) {
+            this(new OrderedMap<>(Function.identity(), fields));
+        }
+
+        public Stream<String> getFieldsOrder() {
+            return this.fieldsOrder.streams();
         }
 
         /**
@@ -547,16 +560,8 @@ public interface Schema {
          * @return this EntriesOrder
          */
         public EntriesOrder moveAfter(final String after, final String name) {
-            if (getFieldsOrder().indexOf(after) == -1) {
-                throw new IllegalArgumentException(String.format("%s not in schema", after));
-            }
-            getFieldsOrder().remove(name);
-            final int destination = getFieldsOrder().indexOf(after) + 1;
-            if (destination < getFieldsOrder().size()) {
-                getFieldsOrder().add(destination, name);
-            } else {
-                getFieldsOrder().add(name);
-            }
+            this.currentComparator = null;
+            this.fieldsOrder.moveAfter(after, name);
             return this;
         }
 
@@ -569,11 +574,8 @@ public interface Schema {
          * @return this EntriesOrder
          */
         public EntriesOrder moveBefore(final String before, final String name) {
-            if (getFieldsOrder().indexOf(before) == -1) {
-                throw new IllegalArgumentException(String.format("%s not in schema", before));
-            }
-            getFieldsOrder().remove(name);
-            getFieldsOrder().add(getFieldsOrder().indexOf(before), name);
+            this.currentComparator = null;
+            this.fieldsOrder.moveBefore(before, name);
             return this;
         }
 
@@ -586,38 +588,74 @@ public interface Schema {
          * @return this EntriesOrder
          */
         public EntriesOrder swap(final String name, final String with) {
-            Collections.swap(getFieldsOrder(), getFieldsOrder().indexOf(name), getFieldsOrder().indexOf(with));
+            this.currentComparator = null;
+            this.fieldsOrder.swap(name, with);
             return this;
         }
 
         public String toFields() {
-            return getFieldsOrder().stream().collect(Collectors.joining(","));
+            return this.fieldsOrder.streams().collect(Collectors.joining(","));
+        }
+
+        public Comparator<Entry> getComparator() {
+            if (this.currentComparator == null) {
+                final Map<String, Integer> entryPositions = new HashMap<>();
+                final AtomicInteger index = new AtomicInteger(1);
+                this.fieldsOrder.streams()
+                        .forEach(
+                                (final String name) -> entryPositions.put(name, index.getAndIncrement()));
+                this.currentComparator = new EntryComparator(entryPositions);
+            }
+            return this.currentComparator;
         }
 
         @Override
         public int compare(final Entry e1, final Entry e2) {
-            final int index1 = getFieldsOrder().indexOf(e1.getName());
-            final int index2 = getFieldsOrder().indexOf(e2.getName());
-            if (index1 >= 0 && index2 >= 0) {
-                return index1 - index2;
+            return this.getComparator().compare(e1, e2);
+        }
+
+        @RequiredArgsConstructor
+        static class EntryComparator implements Comparator<Entry> {
+
+            private final Map<String, Integer> entryPositions;
+
+            @Override
+            public int compare(final Entry e1, final Entry e2) {
+                final int index1 = this.entryPositions.getOrDefault(e1.getName(), Integer.MAX_VALUE);
+                final int index2 = this.entryPositions.getOrDefault(e2.getName(), Integer.MAX_VALUE);
+                if (index1 >= 0 && index2 >= 0) {
+                    return index1 - index2;
+                }
+                if (index1 >= 0) {
+                    return -1;
+                }
+                if (index2 >= 0) {
+                    return 1;
+                }
+                return 0;
             }
-            if (index1 >= 0) {
-                return -1;
-            }
-            if (index2 >= 0) {
-                return 1;
-            }
-            return 0;
         }
     }
 
+    // use new avoid collision with entry getter.
+    @Deprecated
     static Schema.Entry avoidCollision(final Schema.Entry newEntry,
-            final Supplier<Stream<Schema.Entry>> allEntriesSupplier, final BiConsumer<String, Entry> replaceFunction) {
-        final Optional<Entry> collisionedEntry = allEntriesSupplier //
+            final Supplier<Stream<Schema.Entry>> allEntriesSupplier,
+            final BiConsumer<String, Entry> replaceFunction) {
+        final Function<String, Entry> entryGetter = (String name) -> allEntriesSupplier //
                 .get() //
-                .filter((final Entry field) -> field.getName().equals(newEntry.getName())
-                        && !Objects.equals(field, newEntry)) //
-                .findFirst();
+                .filter((final Entry field) -> field.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+        return avoidCollision(newEntry, entryGetter, replaceFunction);
+    }
+
+    static Schema.Entry avoidCollision(final Schema.Entry newEntry,
+            final Function<String, Entry> entryGetter,
+            final BiConsumer<String, Entry> replaceFunction) {
+        final Optional<Entry> collisionedEntry = Optional.ofNullable(entryGetter //
+                .apply(newEntry.getName())) //
+                .filter((final Entry field) -> !Objects.equals(field, newEntry));
         if (!collisionedEntry.isPresent()) {
             // No collision, return new entry.
             return newEntry;
@@ -636,11 +674,7 @@ public interface Schema {
         final String baseName = Schema.sanitizeConnectionName(fieldToChange.getRawName()); // recalc primiti name.
 
         String newName = baseName + "_" + indexForAnticollision;
-        final Set<String> existingNames = allEntriesSupplier //
-                .get() //
-                .map(Entry::getName) //
-                .collect(Collectors.toSet());
-        while (existingNames.contains(newName)) {
+        while (entryGetter.apply(newName) != null) {
             indexForAnticollision++;
             newName = baseName + "_" + indexForAnticollision;
         }
