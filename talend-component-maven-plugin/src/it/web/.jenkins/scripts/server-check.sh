@@ -18,22 +18,20 @@
 set -xe
 
 main() (
-    
+
   serverPort="${1:?Missing server port}"
   timeout="${2:-30}"
 
-	echo "Waiting server on ${serverPort}..."
+  echo "Waiting server on ${serverPort}..."
 
   i=0
 
-  while ! curl --output /dev/null --silent --head --fail http://localhost:${serverPort}
-  do
+  while ! curl --output /dev/null --silent --head --fail http://localhost:${serverPort}; do
     sleep 1
-    ((i=i+1))
-    echo "${i}"
+    ((i = i + 1))
+    echo "."
 
-    if test "${i}" -gt "${timeout}"
-    then
+    if test "${i}" -gt "${timeout}"; then
       echo "Timeout, stop waiting"
       exit 1
     fi

@@ -17,13 +17,6 @@
 
 set -xe
 
-setMavenVersion() (
-  version="$1"
-  mvn 'versions:set' \
-    --batch-mode \
-    --define "newVersion=${version}"
-)
-
 setMavenProperty() (
   propertyName="$1"
   propertyValue="$2"
@@ -37,7 +30,7 @@ setMavenProperty() (
 main() (
   element='component-runtime.version'
   version="${1:?Missing version}"
-  connectorPath="${2:?Missing connector path}" # TODO optional, use mvn -f?
+  connectorPath="${2:?Missing connector path}"
 
   if [ "default" = "${version}" ]; then
     echo "No version change in the pom, keep the default one"
@@ -46,7 +39,6 @@ main() (
     cd "${connectorPath}"
     pwd
     setMavenProperty "${element}" "${version}"
-    # setMavenProperty "component-runtime.version" "1.45.0-SNAPSHOT"
   fi
 )
 

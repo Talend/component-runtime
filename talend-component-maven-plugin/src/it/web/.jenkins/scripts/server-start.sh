@@ -55,7 +55,7 @@ main() (
 
   # execute command
   # shellcheck disable=SC2086
-  mvn talend-component:web ${cmdOption[*]} > ${logFile} 2>&1
+  mvn talend-component:web ${cmdOption[*]} >${logFile} 2>&1
 )
 
 main "$@"

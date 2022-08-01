@@ -41,8 +41,8 @@ mvn clean test --define instance='YOUR_TENANT_INSTANCE'\
 ## To edit the tests
 ### Requirements
 If you want to edit the test or simply play them in API Tester environment, you will need the followings:
-- A Chromium based web brother
-- The [API Tester plugin](https://chrome.google.com/webstore/detail/talend-api-tester-free-ed/aejoelaoggembcahagimdiliamlcdmfm) installed web brother
+- A Chromium based web browser
+- The [API Tester plugin](https://chrome.google.com/webstore/detail/talend-api-tester-free-ed/aejoelaoggembcahagimdiliamlcdmfm) installed web browser
 
 ### How To
 If you are part of Talend
