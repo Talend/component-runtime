@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonValue;
 import javax.json.bind.annotation.JsonbTransient;
+import javax.json.stream.JsonParser;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -144,8 +145,9 @@ public interface Schema {
         if (prop == null) {
             return null;
         }
-        try {
-            return Json.createParser(new StringReader(prop)).getValue();
+        try (final StringReader reader = new StringReader(prop);
+                final JsonParser parser = Json.createParser(reader)) {
+            return parser.getValue();
         } catch (RuntimeException ex) {
             return Json.createValue(prop);
         }
@@ -267,8 +269,9 @@ public interface Schema {
             if (prop == null) {
                 return null;
             }
-            try {
-                return Json.createParser(new StringReader(prop)).getValue();
+            try (final StringReader reader = new StringReader(prop);
+                    final JsonParser parser = Json.createParser(reader)) {
+                return parser.getValue();
             } catch (RuntimeException ex) {
                 return Json.createValue(prop);
             }

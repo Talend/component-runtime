@@ -57,7 +57,7 @@ public class SchemaImpl implements Schema {
     private final Map<String, String> props;
 
     @JsonbTransient
-    private final transient EntriesOrder entriesOrder;
+    private final EntriesOrder entriesOrder;
 
     public static final String ENTRIES_ORDER_PROP = "talend.fields.order";
 
@@ -138,6 +138,7 @@ public class SchemaImpl implements Schema {
         return builder;
     }
 
+    @Override
     @JsonbTransient
     public List<Entry> getEntriesOrdered() {
         return getAllEntries().sorted(entriesOrder).collect(toList());
@@ -152,7 +153,7 @@ public class SchemaImpl implements Schema {
     private String getFieldsOrder() {
         String fields = getProp(ENTRIES_ORDER_PROP);
         if (fields == null || fields.isEmpty()) {
-            fields = getAllEntries().map(entry -> entry.getName()).collect(joining(","));
+            fields = getAllEntries().map(Entry::getName).collect(joining(","));
             props.put(ENTRIES_ORDER_PROP, fields);
         }
         return fields;
@@ -312,8 +313,9 @@ public class SchemaImpl implements Schema {
 
         @Override
         public Schema build(final Comparator<Entry> order) {
-            final String entriesOrder = this.getAllEntries().sorted(order).map(Entry::getName).collect(joining(","));
-            this.props.put(ENTRIES_ORDER_PROP, entriesOrder);
+            final String entriesOrderProp =
+                    this.getAllEntries().sorted(order).map(Entry::getName).collect(joining(","));
+            this.props.put(ENTRIES_ORDER_PROP, entriesOrderProp);
 
             return new SchemaImpl(this);
         }

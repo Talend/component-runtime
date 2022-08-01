@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>singer-parent</artifactId>
-    <version>1.47.0-SNAPSHOT</version>
+    <version>1.48.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>singer-java</artifactId>
