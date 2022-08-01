@@ -3,7 +3,7 @@
 ## Description
 This folder contains API test for TCOMP to be run with Talend API Tester Maven plug-in.  
 You will find:
- - The "test" folder containing test projects and scenarios pusheb by our API tester instance in eu.cloud.talend.com (tenant: rd.aws.eu.talend.com)
+ - The "test" folder containing test projects and scenarios pushed by our API tester instance in eu.cloud.talend.com (tenant: rd.aws.eu.talend.com)
  - The ".jenkins" folder with jenkins files and scripts
 
 ## To run the tests
@@ -19,12 +19,12 @@ If you want to run the test with maven, you will need the followings:
 
 ## Execution
 The execution with maven plugin is done in several steps as follows:
-- Go into the tested connector folder (TO BE DEFINED)
+- Go into the tested connector folder (TODO: use the new demo component)
 - Build the connector
-- Start the web tester
+- Start the tcomp server using the component-tool-webapp 
   - Use Dtalend.web.batch, Dtalend.web.batch.timeout, Dtalend.web.port options depending on your needs (default test environment is (https://localhost:8080))
-- Go to the test folder (/talend-component-maven-plugin/src/it/web/test)
-- Run the tests with your Talend instance and account ID
+- Go to the test location folder (/talend-component-maven-plugin/src/it/web/test)
+- Run the tests from chosen file with your Talend instance and account ID
 
 sample:
 ```bash
@@ -32,9 +32,8 @@ cd "/connector"
 mvn clean install
 mvn talend-component:web -Dtalend.web.batch=true -Dtalend.web.batch.timeout=30 -Dtalend.web.port=8081
 cd "talend-component-maven-plugin/src/it/web/test"
-mvn clean test --define selectedEnvironment='localhost' --define accountId='YOUR_ID_ON_TENANT' 
 mvn clean test --define instance='YOUR_TENANT_INSTANCE'\
-               --define accountId='YOUR_ID_ON_TENANT'\
+               --define accountId='YOUR_ID'\
                --define selectedEnvironment='localhost'\
                --define file='tcomp-approved.json'
 ```
@@ -45,7 +44,7 @@ If you want to edit the test or simply play them in API Tester environment, you 
 - A Chromium based web brother
 - The [API Tester plugin](https://chrome.google.com/webstore/detail/talend-api-tester-free-ed/aejoelaoggembcahagimdiliamlcdmfm) installed web brother
 
-## How To
+### How To
 If you are part of Talend
 - Request to be part of the connectors group in rd.aws.eu.talend.com Tenant
 
@@ -53,5 +52,5 @@ If you are not part of Talend
 - Import the test project form (/talend-component-maven-plugin/src/it/web/test) in your API Tester DRIVE
 
 
-## REMARK
+### REMARK
 If your server is running in a wsl container, but your API Tester is under windows, you have to replace localhost by your IP over the wsl network (ifconfig is your friend)
