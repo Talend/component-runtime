@@ -235,7 +235,7 @@ pipeline {
 
           script {
             sh """
-              printf "======== Build the connector"
+              printf "======== Build the connector\n"
               chmod +x ${SCRIPTS_PATH}/pom-edit.sh
               ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
 
@@ -251,7 +251,7 @@ pipeline {
                                 -Dinvoker.skip=true\
                                 -Dmaven.artifact.threads=25
 
-              printf "======== TCK component server start"
+              printf "======== TCK component server start\n"
               chmod +x ${SCRIPTS_PATH}/server-start.sh
               ${SCRIPTS_PATH}/server-start.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
     
@@ -269,7 +269,7 @@ pipeline {
 
           withCredentials([nexusCredentials, tenantId_Rd]) {
             sh '''
-              printf "======== Execute test"
+              printf "======== Execute test\n"
               cd ${TESTS_PATH}
               mvn clean test --settings=${MAVEN_SETTINGS} \
                              --define instance=${tenantInstance} \
@@ -289,7 +289,7 @@ pipeline {
   post {
     always {
       sh """
-        printf "======== Generate Html reports"
+        printf "======== Generate Html reports\n"
         mvn surefire-report:report-only -f ${TESTS_PATH}
         mvn site -DgenerateReports=false -f ${TESTS_PATH}
       """
