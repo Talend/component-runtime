@@ -268,7 +268,7 @@ pipeline {
       steps {
 
           withCredentials([nexusCredentials, tenantId_Rd]) {
-            sh '''
+            sh """
               printf "======== Execute test\n"
               cd ${TESTS_PATH}
               mvn clean test --settings="${MAVEN_SETTINGS}" \
@@ -277,7 +277,7 @@ pipeline {
                              --define selectedEnvironment="${apiTesterEnv}" \
                              --define stopOnFailure=false \
                              --define file="${fileToRun}.json"
-              '''
+            """
           }
 
       }
