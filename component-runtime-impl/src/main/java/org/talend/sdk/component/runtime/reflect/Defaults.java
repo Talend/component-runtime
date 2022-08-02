@@ -19,6 +19,7 @@ import static lombok.AccessLevel.PRIVATE;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import lombok.NoArgsConstructor;
@@ -31,6 +32,24 @@ public class Defaults {
     private static final Handler HANDLER;
 
     static {
+        try {
+            /**
+             * Disable Access Warnings:
+             */
+            Class unsafeClazz = Class.forName("sun.misc.Unsafe");
+            Field field = unsafeClazz.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Object unsafe = field.get(null);
+            Method putObjectVolatile =
+                    unsafeClazz.getDeclaredMethod("putObjectVolatile", Object.class, long.class, Object.class);
+            Method staticFieldOffset = unsafeClazz.getDeclaredMethod("staticFieldOffset", Field.class);
+            Class loggerClass = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field loggerField = loggerClass.getDeclaredField("logger");
+            Long offset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
+            putObjectVolatile.invoke(unsafe, loggerClass, offset, null);
+        } catch (Exception e) {
+            System.err.println("Disabling unsafe warnings failed: " + e.getMessage());
+        }
         final String version = System.getProperty("java.version", "1.8");
         final Boolean isJava8 = version.startsWith("1.8.") || version.startsWith("8.");
         final Constructor<MethodHandles.Lookup> constructor = findLookupConstructor(isJava8);
