@@ -15,6 +15,11 @@
 //
 
 /**
+ * job-dsl plugin page api documentation for this project
+ * https://jenkins-connectors.datapwn.com/plugin/job-dsl/api-viewer/index.html
+ */
+
+/**
  * Pod configuration
  */
 final String tsbiImage = 'jdk11-svc-springboot-builder'
