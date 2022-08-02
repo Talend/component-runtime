@@ -268,16 +268,16 @@ pipeline {
       steps {
 
           withCredentials([nexusCredentials, tenantId_Rd]) {
-            sh """
+            sh '''
               printf "======== Execute test"
               cd ${TESTS_PATH}
-              mvn clean test --settings="${MAVEN_SETTINGS}" \
-                             --define instance="${tenantInstance}" \
-                             --define accountId="${componentRuntimeApiTenantId_Rd}" \
+              mvn clean test --settings=${MAVEN_SETTINGS} \
+                             --define instance=${tenantInstance} \
+                             --define accountId=${componentRuntimeApiTenantId_Rd} \
                              --define selectedEnvironment=${apiTesterEnv} \
                              --define stopOnFailure=false \
-                             --define file="${fileToRun}.json"
-              """
+                             --define file=${fileToRun}.json
+              '''
           }
 
       }
