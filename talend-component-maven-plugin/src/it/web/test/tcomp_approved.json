@@ -140,7 +140,7 @@
                     },
                     "description": "Call of the endpoint with \"q\" parameter, the list length should be affected by the query.",
                     "id": "7c10ef96-2251-45cf-90f8-0aa8d020ddd8",
-                    "name": "component/index - query - empty answer caused by query filter",
+                    "name": "component/index - query - filtered answer",
                     "headers": [],
                     "assertions": [
                       {
@@ -2105,12 +2105,6 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"nodes\":{.+}}"
-                      },
-                      {
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
@@ -2121,6 +2115,73 @@
                         "subject": "ResponseBody",
                         "path": "length",
                         "value": "940"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.nodes",
+                        "value": "3"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "lang",
+                            "value": "en"
+                          },
+                          {
+                            "name": "lightPayload",
+                            "value": "true"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "q",
+                            "value": "(name = AdlsGen2DataSet)"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/configurationtype/index"
+                    },
+                    "description": "Call, with query parameter, should be in English with one elements in light payload mode.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "08e9d6dc-224d-42ab-ba4f-4feec54ada45",
+                    "name": "configurationtype/index - query - filtered answer",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.nodes",
+                        "value": "1"
                       }
                     ]
                   }
