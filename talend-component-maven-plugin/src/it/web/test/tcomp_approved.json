@@ -2073,7 +2073,7 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "lang",
+                            "name": "language",
                             "value": "en"
                           },
                           {
@@ -2145,7 +2145,7 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "lang",
+                            "name": "language",
                             "value": "en"
                           },
                           {
@@ -2206,7 +2206,7 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "lang",
+                            "name": "language",
                             "value": "fr"
                           },
                           {
@@ -2279,7 +2279,7 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "lang",
+                            "name": "language",
                             "value": "fr"
                           },
                           {
@@ -2352,7 +2352,7 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "lang",
+                            "name": "language",
                             "value": "fr"
                           },
                           {
