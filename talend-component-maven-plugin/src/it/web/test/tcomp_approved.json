@@ -409,6 +409,73 @@
                         "items": [
                           {
                             "enabled": true,
+                            "name": "includeIconContent",
+                            "value": "wrong_value"
+                          },
+                          {
+                            "name": "language",
+                            "value": "fr"
+                          },
+                          {
+                            "name": "name",
+                            "value": "input"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/index"
+                    },
+                    "description": "Call of the endpoint with \"includeIconContent\" parameter set to a wrong value, the response should not contain any icons files.",
+                    "id": "c54f1f24-928f-479b-9935-9bc4b3758fd8",
+                    "name": "component/index - includeIconContent with wrong value - default answer (false)",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].icon.customIcon",
+                        "value": "3800"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
                             "name": "language",
                             "value": "fr"
                           },
@@ -1070,7 +1137,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependencies"
                     },
-                    "description": "",
+                    "description": "Error call, without \"identifier\" parameter, should return a 200 status with an empty dependencies list",
                     "id": "419613de-9af9-488c-aadc-9033c2731c91",
                     "name": "component/dependencies - missing identifier - empty answer",
                     "headers": [],
