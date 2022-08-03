@@ -87,6 +87,12 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].displayName",
                         "value": "input"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].icon.customIcon",
+                        "value": "200"
                       }
                     ]
                   }
