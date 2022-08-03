@@ -43,7 +43,8 @@ public class MethodsHolder {
         // no-op
     }
 
-    public void intOptionOverwrite(@Option("foo1") @Min(42) final int foo1, @Option("foo2") @Max(42) final Integer foo2) {
+    public void intOptionOverwrite(@Option("foo1") @Min(42) final int foo1,
+            @Option("foo2") @Max(42) final Integer foo2) {
         // no-op
     }
 

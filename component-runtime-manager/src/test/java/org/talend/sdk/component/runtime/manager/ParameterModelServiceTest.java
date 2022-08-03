@@ -145,7 +145,7 @@ class ParameterModelServiceTest {
             assertEquals(ParameterMeta.Type.NUMBER, param.getType());
             assertEquals("42.0", param.getMetadata().get("tcomp::validation::min"),
                     () -> param.getMetadata().toString());
-            assertEquals(String.valueOf((double)Integer.MAX_VALUE), param.getMetadata().get("tcomp::validation::max"),
+            assertEquals(String.valueOf((double) Integer.MAX_VALUE), param.getMetadata().get("tcomp::validation::max"),
                     () -> param.getMetadata().toString());
         }
         {
