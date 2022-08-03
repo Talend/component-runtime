@@ -3341,6 +3341,118 @@
                       }
                     ]
                   }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "en"
+                          },
+                          {
+                            "name": "segment",
+                            "value": "none"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/documentation/component/"
+                    },
+                    "description": "The default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "488ce37b-06ff-40fd-8646-2d60a57f1df4",
+                    "name": "documentation/component - id missing - error 404",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "404"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "200"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "en"
+                          },
+                          {
+                            "name": "segment",
+                            "value": "none"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/documentation/component/unknow_id"
+                    },
+                    "description": "The default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "5ef877a1-30a0-4c74-b88f-befd9afdfa9d",
+                    "name": "documentation/component - id unknow - error 404",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "404"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.code",
+                        "value": "\"COMPONENT_MISSING\""
+                      }
+                    ]
+                  }
                 }
               ]
             }
@@ -3967,21 +4079,21 @@
   ],
   "environments": [
     {
-      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
-      "name": "component_runtime_ci",
+      "id": "f122bbc5-8017-42d1-9ec9-98cf8a004462",
+      "name": "acatoire-local",
       "variables": {
-        "78e23335-f4c2-4fff-b764-83219c834815": {
+        "d6d314b6-d13c-4152-b503-8e21a78a14aa": {
+          "name": "server-ip",
+          "value": "172.23.235.77",
+          "enabled": true,
+          "createdAt": "2022-05-05T09:43:06.786Z",
+          "private": false
+        },
+        "bacedbea-2b3d-47e5-802a-dce25ef29e53": {
           "name": "server-port",
           "value": "8081",
           "enabled": true,
-          "createdAt": "2022-06-24T10:07:00.309Z",
-          "private": false
-        },
-        "03a24f13-bd11-45ed-9ed0-5fc9ccfffc48": {
-          "name": "server-ip",
-          "value": "127.0.0.1",
-          "enabled": true,
-          "createdAt": "2022-06-24T10:07:00.309Z",
+          "createdAt": "2022-05-05T09:44:32.475Z",
           "private": false
         }
       }
