@@ -1131,8 +1131,8 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "identifiers",
-                            "value": "${getEntityById(\"104f4306-9cb7-488a-be05-1c7ddcf61faf\").\"response\".\"body\".\"components\".\"1\".\"id\".\"id\"}"
+                            "name": "identifier",
+                            "value": "missing"
                           }
                         ]
                       },
@@ -1811,7 +1811,7 @@
                     },
                     "description": "The call with wrong id parameter",
                     "id": "c6d3684b-b8e5-4e0b-8225-bcdcd3b75bb5",
-                    "name": "component/icon - wrong id - error 404 body",
+                    "name": "component/icon - wrong id - error 404 with body",
                     "headers": [],
                     "assertions": [
                       {
@@ -1960,7 +1960,7 @@
                     },
                     "description": "The call with wrong id parameter",
                     "id": "beb7d614-078f-49f4-85b1-05389a260a76",
-                    "name": "component/icon/family - wrong identifier - error 404",
+                    "name": "component/icon/family - wrong id - error 404 with body",
                     "headers": [],
                     "assertions": [
                       {
@@ -2007,7 +2007,7 @@
                     },
                     "description": "The call without providing id parameter",
                     "id": "4ca94209-d27f-4803-8b2b-75589fff8524",
-                    "name": "component/icon/family - missing identifier - error 404",
+                    "name": "component/icon/family - missing id - error 404 with body",
                     "headers": [],
                     "assertions": [
                       {
@@ -2093,7 +2093,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/index"
                     },
-                    "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.",
+                    "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "c68ed507-1492-4d84-a456-b4d42759a20c",
                     "name": "configurationtype/index - default",
                     "headers": [],
@@ -2267,6 +2267,79 @@
                         "subject": "ResponseBody",
                         "path": "length",
                         "value": "940"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "lang",
+                            "value": "fr"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "lightPayload",
+                            "value": "wrong_value"
+                          },
+                          {
+                            "name": "q",
+                            "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/configurationtype/index"
+                    },
+                    "description": "The default call, with lightPayload parameter set to wrong value.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "7c4b2170-9b5a-42a2-bd73-b5a9aa6368c6",
+                    "name": "configurationtype/index - lightPayload - wrong value",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Matches",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "{\"nodes\":{.+}}"
+                      },
+                      {
+                        "comparison": "Greater",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "25260"
+                      },
+                      {
+                        "comparison": "Less",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "25270"
                       }
                     ]
                   }
