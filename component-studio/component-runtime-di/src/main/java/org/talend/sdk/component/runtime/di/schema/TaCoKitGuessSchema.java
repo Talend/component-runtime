@@ -422,7 +422,8 @@ public class TaCoKitGuessSchema {
     private boolean guessInputComponentSchemaThroughResult() throws Exception {
         // migration handler will be triggered and version of component will be passed
         // It is a Studio part. As fallback idea is to have Integer.MAX_VALUE in case if the version is null.
-        // MAX_VALUE because we think that all appropriate migrations were already executed at the time when user can invoke guess schema.
+        // MAX_VALUE because we think that all appropriate migrations were already executed at the time when user can
+        // invoke guess schema.
         final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
         final Mapper mapper = componentManager
                 .findMapper(family, componentName, version, configuration)
