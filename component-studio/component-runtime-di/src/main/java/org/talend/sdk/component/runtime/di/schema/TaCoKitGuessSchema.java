@@ -95,7 +95,7 @@ public class TaCoKitGuessSchema {
 
     private String action;
 
-    private Integer version;
+    private final Integer version;
 
     private final String type = "schema";
 
