@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2204[TCOMP-2204^]: Upgrade netty to 4.1.79.Final 
+- link:https://jira.talendforge.org/browse/TCOMP-2205[TCOMP-2205^]: Upgrade crawler-commons to 1.3 
 
 == Version 1.47.0
 
