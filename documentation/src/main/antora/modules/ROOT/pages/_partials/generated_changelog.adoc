@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2204[TCOMP-2204^]: Upgrade netty to 4.1.79.Final 
 - link:https://jira.talendforge.org/browse/TCOMP-2205[TCOMP-2205^]: Upgrade crawler-commons to 1.3 
+- link:https://jira.talendforge.org/browse/TCOMP-2206[TCOMP-2206^]: Upgrade guava to 31.1-jre 
 
 == Version 1.47.0
 
