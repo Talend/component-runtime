@@ -20,6 +20,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2205[TCOMP-2205^]: Upgrade crawler-commons to 1.3 
 - link:https://jira.talendforge.org/browse/TCOMP-2206[TCOMP-2206^]: Upgrade guava to 31.1-jre 
 - link:https://jira.talendforge.org/browse/TCOMP-2207[TCOMP-2207^]: Upgrade maven to 3.8.6 
+- link:https://jira.talendforge.org/browse/TCOMP-2208[TCOMP-2208^]: Upgrade maven-shade-plugin to 3.3.0 link:search.html?query=build[build^,role='dockey']
 
 
 
