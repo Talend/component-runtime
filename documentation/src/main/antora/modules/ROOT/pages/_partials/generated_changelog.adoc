@@ -22,6 +22,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2207[TCOMP-2207^]: Upgrade maven to 3.8.6 
 - link:https://jira.talendforge.org/browse/TCOMP-2208[TCOMP-2208^]: Upgrade maven-shade-plugin to 3.3.0 link:search.html?query=build[build^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2209[TCOMP-2209^]: Upgrade junit5 to 5.9.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2210[TCOMP-2210^]: Upgrade tomcat to 9.0.63 
 
 
 
