@@ -2,26 +2,46 @@
 
 == Version 1.48.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2190[TCOMP-2190^]: Handle partial messages for large payloads in websocket communications link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2177[TCOMP-2177^]: Suppress illegal reflective access operation has occurred warnings link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2204[TCOMP-2204^]: Upgrade netty to 4.1.79.Final 
 - link:https://jira.talendforge.org/browse/TCOMP-2205[TCOMP-2205^]: Upgrade crawler-commons to 1.3 
 - link:https://jira.talendforge.org/browse/TCOMP-2206[TCOMP-2206^]: Upgrade guava to 31.1-jre 
+- link:https://jira.talendforge.org/browse/TCOMP-2207[TCOMP-2207^]: Upgrade maven to 3.8.6 
 
-== Version 1.47.0
+
+
+== Version 1.47.1
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2176[TCOMP-2176^]: Record : Infinite loop link:search.html?query=schema-record[schema-record^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2181[TCOMP-2181^]: Numbers are not parsed correctly in JAVA_OPTS link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2190[TCOMP-2190^]: Handle partial messages for large payloads in websocket communications link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
 
 
 
-=== Work Item
+=== New Feature
 
-- link:https://jira.talendforge.org/browse/TCOMP-2184[TCOMP-2184^]: align bouncycastle to 1.70 link:search.html?query=bom[bom^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2177[TCOMP-2177^]: Suppress illegal reflective access operation has occurred warnings link:search.html?query=component-manager[component-manager^,role='dockey']
 
 
+
+== Version 1.47.0
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2177[TCOMP-2177^]: Suppress illegal reflective access operation has occurred warnings link:search.html?query=component-manager[component-manager^,role='dockey']
 
 == Version 1.46.1
 
