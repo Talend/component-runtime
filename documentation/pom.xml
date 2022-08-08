@@ -45,7 +45,7 @@
 
     <asciidoctorj-diagram.version>1.5.4.1</asciidoctorj-diagram.version>
     <asciidoctor-pdf-gem.version>1.6.0</asciidoctor-pdf-gem.version>
-    <crawler-commons.version>1.0</crawler-commons.version>
+    <crawler-commons.version>1.3</crawler-commons.version>
     <commons-net.version>3.6</commons-net.version>
     <!-- skip flags for the release -->
     <talend.documentation.generation.skip>false</talend.documentation.generation.skip>

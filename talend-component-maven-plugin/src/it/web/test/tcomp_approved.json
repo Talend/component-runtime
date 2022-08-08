@@ -87,6 +87,12 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].displayName",
                         "value": "input"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].icon.customIcon",
+                        "value": "200"
                       }
                     ]
                   }
@@ -134,7 +140,7 @@
                     },
                     "description": "Call of the endpoint with \"q\" parameter, the list length should be affected by the query.",
                     "id": "7c10ef96-2251-45cf-90f8-0aa8d020ddd8",
-                    "name": "component/index - query - empty answer caused by query filter",
+                    "name": "component/index - query - filtered answer",
                     "headers": [],
                     "assertions": [
                       {
@@ -384,6 +390,73 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].icon.customIcon",
                         "value": "67600"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "includeIconContent",
+                            "value": "wrong_value"
+                          },
+                          {
+                            "name": "language",
+                            "value": "fr"
+                          },
+                          {
+                            "name": "name",
+                            "value": "input"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/index"
+                    },
+                    "description": "Call of the endpoint with \"includeIconContent\" parameter set to a wrong value, the response should not contain any icons files.",
+                    "id": "c54f1f24-928f-479b-9935-9bc4b3758fd8",
+                    "name": "component/index - includeIconContent with wrong value - default answer (false)",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].icon.customIcon",
+                        "value": "3800"
                       }
                     ]
                   }
@@ -1058,8 +1131,8 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "identifiers",
-                            "value": "${getEntityById(\"104f4306-9cb7-488a-be05-1c7ddcf61faf\").\"response\".\"body\".\"components\".\"1\".\"id\".\"id\"}"
+                            "name": "identifier",
+                            "value": "missing"
                           }
                         ]
                       },
@@ -1070,7 +1143,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependencies"
                     },
-                    "description": "",
+                    "description": "Error call, without \"identifier\" parameter, should return a 200 status with an empty dependencies list",
                     "id": "419613de-9af9-488c-aadc-9033c2731c91",
                     "name": "component/dependencies - missing identifier - empty answer",
                     "headers": [],
@@ -1738,7 +1811,7 @@
                     },
                     "description": "The call with wrong id parameter",
                     "id": "c6d3684b-b8e5-4e0b-8225-bcdcd3b75bb5",
-                    "name": "component/icon - wrong id - error 404 body",
+                    "name": "component/icon - wrong id - error 404 with body",
                     "headers": [],
                     "assertions": [
                       {
@@ -1887,7 +1960,7 @@
                     },
                     "description": "The call with wrong id parameter",
                     "id": "beb7d614-078f-49f4-85b1-05389a260a76",
-                    "name": "component/icon/family - wrong identifier - error 404",
+                    "name": "component/icon/family - wrong id - error 404 with body",
                     "headers": [],
                     "assertions": [
                       {
@@ -1934,7 +2007,7 @@
                     },
                     "description": "The call without providing id parameter",
                     "id": "4ca94209-d27f-4803-8b2b-75589fff8524",
-                    "name": "component/icon/family - missing identifier - error 404",
+                    "name": "component/icon/family - missing id - error 404 with body",
                     "headers": [],
                     "assertions": [
                       {
@@ -2000,7 +2073,7 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "lang",
+                            "name": "language",
                             "value": "en"
                           },
                           {
@@ -2020,7 +2093,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/index"
                     },
-                    "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.",
+                    "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "c68ed507-1492-4d84-a456-b4d42759a20c",
                     "name": "configurationtype/index - default",
                     "headers": [],
@@ -2030,12 +2103,6 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"nodes\":{.+}}"
                       },
                       {
                         "comparison": "Greater",
@@ -2048,6 +2115,12 @@
                         "subject": "ResponseBody",
                         "path": "length",
                         "value": "940"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.nodes",
+                        "value": "3"
                       }
                     ]
                   }
@@ -2072,7 +2145,68 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "lang",
+                            "name": "language",
+                            "value": "en"
+                          },
+                          {
+                            "name": "lightPayload",
+                            "value": "true"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "q",
+                            "value": "(name = AdlsGen2DataSet)"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/configurationtype/index"
+                    },
+                    "description": "Call, with query parameter, should be in English with one elements in light payload mode.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "08e9d6dc-224d-42ab-ba4f-4feec54ada45",
+                    "name": "configurationtype/index - query - filtered answer",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.nodes",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
                             "value": "fr"
                           },
                           {
@@ -2145,7 +2279,7 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "lang",
+                            "name": "language",
                             "value": "fr"
                           },
                           {
@@ -2194,6 +2328,79 @@
                         "subject": "ResponseBody",
                         "path": "length",
                         "value": "940"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "fr"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "lightPayload",
+                            "value": "wrong_value"
+                          },
+                          {
+                            "name": "q",
+                            "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/configurationtype/index"
+                    },
+                    "description": "The default call, with lightPayload parameter set to wrong value.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "7c4b2170-9b5a-42a2-bd73-b5a9aa6368c6",
+                    "name": "configurationtype/index - lightPayload - wrong value",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Matches",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "{\"nodes\":{.+}}"
+                      },
+                      {
+                        "comparison": "Greater",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "25260"
+                      },
+                      {
+                        "comparison": "Less",
+                        "subject": "ResponseBody",
+                        "path": "length",
+                        "value": "25270"
                       }
                     ]
                   }
@@ -3134,6 +3341,118 @@
                       }
                     ]
                   }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "en"
+                          },
+                          {
+                            "name": "segment",
+                            "value": "none"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/documentation/component/"
+                    },
+                    "description": "The default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "488ce37b-06ff-40fd-8646-2d60a57f1df4",
+                    "name": "documentation/component - id missing - error 404",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "404"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "200"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "language",
+                            "value": "en"
+                          },
+                          {
+                            "name": "segment",
+                            "value": "none"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/documentation/component/unknow_id"
+                    },
+                    "description": "The default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "5ef877a1-30a0-4c74-b88f-befd9afdfa9d",
+                    "name": "documentation/component - id unknow - error 404",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "404"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.code",
+                        "value": "\"COMPONENT_MISSING\""
+                      }
+                    ]
+                  }
                 }
               ]
             }
@@ -3760,21 +4079,21 @@
   ],
   "environments": [
     {
-      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
-      "name": "component_runtime_ci",
+      "id": "f122bbc5-8017-42d1-9ec9-98cf8a004462",
+      "name": "acatoire-local",
       "variables": {
-        "78e23335-f4c2-4fff-b764-83219c834815": {
+        "d6d314b6-d13c-4152-b503-8e21a78a14aa": {
+          "name": "server-ip",
+          "value": "172.23.235.77",
+          "enabled": true,
+          "createdAt": "2022-05-05T09:43:06.786Z",
+          "private": false
+        },
+        "bacedbea-2b3d-47e5-802a-dce25ef29e53": {
           "name": "server-port",
           "value": "8081",
           "enabled": true,
-          "createdAt": "2022-06-24T10:07:00.309Z",
-          "private": false
-        },
-        "03a24f13-bd11-45ed-9ed0-5fc9ccfffc48": {
-          "name": "server-ip",
-          "value": "127.0.0.1",
-          "enabled": true,
-          "createdAt": "2022-06-24T10:07:00.309Z",
+          "createdAt": "2022-05-05T09:44:32.475Z",
           "private": false
         }
       }
