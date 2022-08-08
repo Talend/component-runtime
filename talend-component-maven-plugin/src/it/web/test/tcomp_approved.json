@@ -4079,21 +4079,21 @@
   ],
   "environments": [
     {
-      "id": "f122bbc5-8017-42d1-9ec9-98cf8a004462",
-      "name": "acatoire-local",
+      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "name": "component_runtime_ci",
       "variables": {
-        "d6d314b6-d13c-4152-b503-8e21a78a14aa": {
-          "name": "server-ip",
-          "value": "172.23.235.77",
-          "enabled": true,
-          "createdAt": "2022-05-05T09:43:06.786Z",
-          "private": false
-        },
-        "bacedbea-2b3d-47e5-802a-dce25ef29e53": {
+        "78e23335-f4c2-4fff-b764-83219c834815": {
           "name": "server-port",
           "value": "8081",
           "enabled": true,
-          "createdAt": "2022-05-05T09:44:32.475Z",
+          "createdAt": "2022-06-24T10:07:00.309Z",
+          "private": false
+        },
+        "03a24f13-bd11-45ed-9ed0-5fc9ccfffc48": {
+          "name": "server-ip",
+          "value": "127.0.0.1",
+          "enabled": true,
+          "createdAt": "2022-06-24T10:07:00.309Z",
           "private": false
         }
       }
