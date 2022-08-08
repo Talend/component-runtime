@@ -26,6 +26,8 @@ main() (
 
   i=0
 
+  which curl || { echo "curl is not present in tsbi image"; exit 1; }
+
   while ! curl --output /dev/null --silent --head --fail http://localhost:${serverPort}; do
     sleep 1
     ((i = i + 1))

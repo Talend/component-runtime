@@ -118,7 +118,7 @@ pipeline {
    * environment
    */
   environment {
-    MAVEN_SETTINGS = "${WORKSPACE}/.jenkins/settings.xml"
+    MAVEN_SETTINGS = "${SETTINGS_PATH}"
     DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
     MAVEN_OPTS = [
       "-Dmaven.artifact.threads=128",
@@ -132,6 +132,7 @@ pipeline {
     TALEND_REGISTRY = "artifactory.datapwn.com"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
+    SETTINGS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
     SCRIPTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
     TESTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/test"
     CONNECTORS_PATH = "${WORKSPACE}/connectors"
