@@ -15,12 +15,6 @@
 #  limitations under the License.
 #
 
-# Enter in a connector path and start a component test server in bash mode
-# This script will fail if the branch already exists.
-# $1: Connector name
-# $2: (Optional) Output log file path for background execution
-# $3: (Optional) Server port (default is 8080)
-
 INSTALL_DIR="/tmp/webtester/install"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 
