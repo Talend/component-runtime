@@ -17,9 +17,9 @@
 
 # Enter in a connector path and start a component test server in bash mode
 # This script will fail if the branch already exists.
-# $1: Connector name
-# $2: (Optional) Output log file path for background execution
-# $3: (Optional) Server port (default is 8080)
+# $1: 'tck_version'"
+# $2: 'connectors_version'"nd execution
+# $3: 'port'"
 
 JACOCO_VERSION="0.8.1"
 JAVAX_VERSION="1.1.1"
@@ -51,7 +51,6 @@ command -v wget || usage "'wget' command"
 TCK_VERSION="${1}"
 CONN_VERSION="${2}"
 PORT="${3}"
-INSTALL_DIR="${4}"
 
 main() (
   echo "##############################################"
