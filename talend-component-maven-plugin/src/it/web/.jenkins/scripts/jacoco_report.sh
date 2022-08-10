@@ -15,6 +15,8 @@
 #  limitations under the License.
 #
 
+# Jacoco report generation
+
 INSTALL_DIR="/tmp/webtester/install"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
