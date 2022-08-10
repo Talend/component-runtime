@@ -16,6 +16,7 @@
 #
 
 # Jacoco report generation
+# For now everything is hardcoded
 
 INSTALL_DIR="/tmp/webtester/install"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
