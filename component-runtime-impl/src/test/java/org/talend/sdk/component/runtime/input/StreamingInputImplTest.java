@@ -16,21 +16,28 @@
 package org.talend.sdk.component.runtime.input;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.runtime.input.StreamingInputImpl.RetryConfiguration;
+import org.talend.sdk.component.runtime.input.StreamingInputImpl.StopConfiguration;
+import org.talend.sdk.component.runtime.input.StreamingInputImpl.StopStrategy;
 
 class StreamingInputImplTest {
 
     private static final int TIME_TOLERANCE = 100;
+
+    private static final StopStrategy defaultStopStrategy = new StopConfiguration();
 
     @Test
     void respectConstantTimeout() {
@@ -42,7 +49,7 @@ class StreamingInputImplTest {
                 timestamps.add(System.nanoTime());
                 return timestamps.size() < 3 ? null : new Object();
             }
-        }, new StreamingInputImpl.RetryConfiguration(5, new StreamingInputImpl.RetryConfiguration.Constant(500)));
+        }, new RetryConfiguration(5, new RetryConfiguration.Constant(500)), defaultStopStrategy);
         input.start();
         try {
             for (int i = 0; i < 2; i++) {
@@ -63,8 +70,8 @@ class StreamingInputImplTest {
     @Test
     void respectExpTimeout() {
         final List<Long> timestamps = new ArrayList<>();
-        final StreamingInputImpl.RetryConfiguration.ExponentialBackoff strategy =
-                new StreamingInputImpl.RetryConfiguration.ExponentialBackoff(1.5, 0, Integer.MAX_VALUE, 1000, 0);
+        final RetryConfiguration.ExponentialBackoff strategy =
+                new RetryConfiguration.ExponentialBackoff(1.5, 0, Integer.MAX_VALUE, 1000, 0);
         final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
 
             @Producer
@@ -72,7 +79,7 @@ class StreamingInputImplTest {
                 timestamps.add(System.nanoTime());
                 return timestamps.size() < 3 ? null : new Object();
             }
-        }, new StreamingInputImpl.RetryConfiguration(5, strategy));
+        }, new RetryConfiguration(5, strategy), defaultStopStrategy);
         input.start();
         try {
             for (int i = 0; i < 2; i++) {
@@ -102,7 +109,7 @@ class StreamingInputImplTest {
                 timestamps.add(System.nanoTime());
                 return null;
             }
-        }, new StreamingInputImpl.RetryConfiguration(5, new StreamingInputImpl.RetryConfiguration.Constant(10)));
+        }, new RetryConfiguration(5, new RetryConfiguration.Constant(10)), defaultStopStrategy);
         input.start();
         try {
             assertNull(input.next());
@@ -111,4 +118,180 @@ class StreamingInputImplTest {
             input.stop();
         }
     }
+
+    @Test
+    void stopStrategy() {
+        final StopStrategy defaultStrategy = new StopConfiguration();
+        assertFalse(defaultStrategy.isActive());
+        assertFalse(defaultStrategy.shouldStop(111));
+        // maxRecord
+        final StopConfiguration recordStrategy = new StopConfiguration(100L, null, null);
+        assertTrue(recordStrategy.isActive());
+        assertFalse(recordStrategy.shouldStop(10));
+        assertEquals(100, recordStrategy.getMaxReadRecords());
+        assertEquals(-1, recordStrategy.getMaxActiveTime());
+        assertTrue(recordStrategy.shouldStop(100));
+        // maxActiveTime
+        ZonedDateTime start = ZonedDateTime.now();
+        final StopConfiguration timeStrategy = new StopConfiguration(-1L, 1L, start);
+        assertTrue(timeStrategy.isActive());
+        assertFalse(timeStrategy.shouldStop(1));
+        assertEquals(-1, timeStrategy.getMaxReadRecords());
+        assertEquals(1, timeStrategy.getMaxActiveTime());
+        assertEquals(start, timeStrategy.getStarted());
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        assertTrue(timeStrategy.shouldStop(-1));
+        // mixed
+        StopConfiguration bothStrategy = new StopConfiguration(100L, 2L, start);
+        assertTrue(bothStrategy.isActive());
+        assertFalse(bothStrategy.shouldStop(1));
+        assertEquals(100, bothStrategy.getMaxReadRecords());
+        assertEquals(2, bothStrategy.getMaxActiveTime());
+        assertEquals(start, bothStrategy.getStarted());
+        assertFalse(bothStrategy.shouldStop(40));
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        assertTrue(timeStrategy.shouldStop(100));
+        try {
+            Thread.sleep(950);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        assertTrue(timeStrategy.shouldStop(1));
+    }
+
+    @Test
+    void respectStopMaxReadRecords() {
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final StopStrategy stopStrategy = new StopConfiguration(5L, null, null);
+        final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
+
+            @Producer
+            public Object next() {
+                return new Object();
+            }
+        }, retryStrategy, stopStrategy);
+        input.start();
+        try {
+            for (int i = 0; i < 5; i++) {
+                assertNotNull(input.next());
+            }
+            assertNull(input.next());
+        } finally {
+            input.stop();
+        }
+    }
+
+    @Test
+    void respectStopMaxActiveTime() {
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final StopStrategy stopStrategy = new StopConfiguration(null, 1L, ZonedDateTime.now());
+        final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
+
+            @Producer
+            public Object next() {
+                return new Object();
+            }
+        }, retryStrategy, stopStrategy);
+        input.start();
+        try {
+            assertNotNull(input.next());
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            assertNotNull(input.next());
+
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            assertNotNull(input.next());
+
+            try {
+                Thread.sleep(550);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            assertNull(input.next());
+        } finally {
+            input.stop();
+        }
+    }
+
+    @Test
+    void respectStopBothMaxReadRecords() {
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final StopStrategy stopStrategy = new StopConfiguration(5L, 5L, null);
+        final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
+
+            @Producer
+            public Object next() {
+                return new Object();
+            }
+        }, retryStrategy, stopStrategy);
+        input.start();
+        try {
+            for (int i = 0; i < 5; i++) {
+                assertNotNull(input.next());
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            assertNull(input.next());
+        } finally {
+            input.stop();
+        }
+    }
+
+    @Test
+    void respectStopBothMaxActiveTime() {
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final StopStrategy stopStrategy = new StopConfiguration(1000L, 1L, ZonedDateTime.now());
+        final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
+
+            @Producer
+            public Object next() {
+                return new Object();
+            }
+        }, retryStrategy, stopStrategy);
+        input.start();
+        try {
+            assertNotNull(input.next());
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            assertNotNull(input.next());
+
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            assertNotNull(input.next());
+
+            try {
+                Thread.sleep(550);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            assertNull(input.next());
+        } finally {
+            input.stop();
+        }
+    }
+
 }

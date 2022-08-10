@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,12 +39,17 @@ public class StreamingInputImpl extends InputImpl {
 
     private transient Semaphore semaphore;
 
+    private StopStrategy stopStrategy;
+
+    private transient long readRecords = 0L;
+
     public StreamingInputImpl(final String rootName, final String name, final String plugin,
-            final Serializable instance, final RetryConfiguration retryConfiguration) {
+            final Serializable instance, final RetryConfiguration retryConfiguration, final StopStrategy stopStrategy) {
         super(rootName, name, plugin, instance);
         shutdownHook = new Thread(() -> running.compareAndSet(true, false),
                 getClass().getName() + "_" + rootName() + "-" + name() + "_" + hashCode());
         this.retryConfiguration = retryConfiguration;
+        this.stopStrategy = stopStrategy;
     }
 
     protected StreamingInputImpl() {
@@ -63,12 +69,16 @@ public class StreamingInputImpl extends InputImpl {
         }
 
         try {
+            if (stopStrategy.isActive() && stopStrategy.shouldStop(readRecords)) {
+                return null;
+            }
             final RetryStrategy strategy = retryConfiguration.getStrategy();
             int retries = retryConfiguration.getMaxRetries();
             while (running.get() && retries > 0) {
                 final Object next = super.readNext();
                 if (next != null) {
                     strategy.reset();
+                    readRecords++;
                     return next;
                 }
 
@@ -136,22 +146,27 @@ public class StreamingInputImpl extends InputImpl {
 
     @Override
     protected Object writeReplace() throws ObjectStreamException {
-        return new StreamSerializationReplacer(plugin(), rootName(), name(), serializeDelegate(), retryConfiguration);
+        return new StreamSerializationReplacer(plugin(), rootName(), name(), serializeDelegate(), retryConfiguration,
+                stopStrategy);
     }
 
     private static class StreamSerializationReplacer extends SerializationReplacer {
 
         private final RetryConfiguration retryConfiguration;
 
+        private final StopStrategy stopStrategy;
+
         StreamSerializationReplacer(final String plugin, final String component, final String name, final byte[] value,
-                final RetryConfiguration retryConfiguration) {
+                final RetryConfiguration retryConfiguration, final StopStrategy stopStrategy) {
             super(plugin, component, name, value);
             this.retryConfiguration = retryConfiguration;
+            this.stopStrategy = stopStrategy;
         }
 
         protected Object readResolve() throws ObjectStreamException {
             try {
-                return new StreamingInputImpl(component, name, plugin, loadDelegate(), retryConfiguration);
+                return new StreamingInputImpl(component, name, plugin, loadDelegate(), retryConfiguration,
+                        stopStrategy);
             } catch (final IOException | ClassNotFoundException e) {
                 final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
                 invalidObjectException.initCause(e);
@@ -223,6 +238,55 @@ public class StreamingInputImpl extends InputImpl {
             public void reset() {
                 iteration = 0;
             }
+        }
+    }
+
+    public interface StopStrategy {
+
+        boolean isActive();
+
+        boolean shouldStop(long read);
+
+    }
+
+    @Data
+    public static class StopConfiguration implements StopStrategy, Serializable {
+
+        private long maxReadRecords;
+
+        private long maxActiveTime;
+
+        private ZonedDateTime started;
+
+        public StopConfiguration() {
+            maxReadRecords = -1L;
+            maxActiveTime = -1L;
+            started = ZonedDateTime.now();
+        }
+
+        public StopConfiguration(final Long maxRecords, final Long maxTime, final ZonedDateTime start) {
+            maxReadRecords = maxRecords == null ? -1L : maxRecords;
+            maxActiveTime = maxTime == null ? -1L : maxTime;
+            started = start == null ? ZonedDateTime.now() : start;
+        }
+
+        @Override
+        public boolean isActive() {
+            return (maxReadRecords > -1) || (maxActiveTime > -1);
+        }
+
+        private boolean hasEnoughRecords(final long read) {
+            return maxReadRecords != -1 && read >= maxReadRecords;
+        }
+
+        private boolean isTimePassed() {
+            return maxActiveTime != -1
+                    && ZonedDateTime.now().toEpochSecond() - started.toEpochSecond() >= maxActiveTime;
+        }
+
+        @Override
+        public boolean shouldStop(final long readRecords) {
+            return hasEnoughRecords(readRecords) || isTimePassed();
         }
     }
 }

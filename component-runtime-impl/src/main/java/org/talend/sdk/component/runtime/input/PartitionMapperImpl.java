@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
@@ -58,6 +59,19 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     private transient Method inputFactory;
 
     private transient Function<Long, Object[]> splitArgSupplier;
+
+    private final Supplier<LocalConfiguration> defaultLocalConfiguration = () -> new LocalConfiguration() {
+
+        @Override
+        public String get(final String key) {
+            return null;
+        }
+
+        @Override
+        public Set<String> keys() {
+            return emptySet();
+        }
+    };
 
     public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
             final boolean stream, final Serializable instance) {
@@ -97,7 +111,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         // java 7/8 made enough progress to probably make it smooth OOTB
         final Serializable input = Serializable.class.cast(doInvoke(inputFactory));
         if (isStream()) {
-            return new StreamingInputImpl(rootName(), inputName, plugin(), input, loadRetryConfiguration());
+            return new StreamingInputImpl(rootName(), inputName, plugin(), input, loadRetryConfiguration(),
+                    loadStopStrategy());
         }
         return new InputImpl(rootName(), inputName, plugin(), input);
     }
@@ -106,18 +121,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         // note: this configuratoin could be read on the mapper too and distributed
         final LocalConfiguration configuration = ofNullable(ContainerFinder.Instance.get().find(plugin()))
                 .map(it -> it.findService(LocalConfiguration.class))
-                .orElseGet(() -> new LocalConfiguration() {
-
-                    @Override
-                    public String get(final String key) {
-                        return null;
-                    }
-
-                    @Override
-                    public Set<String> keys() {
-                        return emptySet();
-                    }
-                });
+                .orElseGet(defaultLocalConfiguration);
         final int maxRetries = ofNullable(configuration.get("talend.input.streaming.retry.maxRetries"))
                 .map(Integer::parseInt)
                 .orElse(Integer.MAX_VALUE);
@@ -148,6 +152,28 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
                             .map(Long::parseLong)
                             .orElse(500L));
         }
+    }
+
+    private StreamingInputImpl.StopStrategy loadStopStrategy() {
+        final LocalConfiguration configuration = ofNullable(ContainerFinder.Instance.get().find(plugin()))
+                .map(it -> it.findService(LocalConfiguration.class))
+                .orElseGet(defaultLocalConfiguration);
+        final Long maxReadRecords = ofNullable(configuration.get("talend.input.streaming.maxRecords"))
+                .map(Long::parseLong)
+                .orElse(
+                        ofNullable(configuration.get("streaming.maxRecords"))
+                        .map(Long::parseLong)
+                        .orElse(null)
+                                // TODO orElse system property
+                );
+        final Long maxActiveTime = ofNullable(configuration.get("talend.input.streaming.maxDurationMs"))
+                .map(Long::parseLong)
+                .orElse(
+                         ofNullable(configuration.get("streaming.maxDurationMs"))
+                        .map(Long::parseLong)
+                        .orElse(null)
+                );
+        return new StreamingInputImpl.StopConfiguration(maxReadRecords, maxActiveTime, null);
     }
 
     @Override
