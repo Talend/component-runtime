@@ -285,12 +285,12 @@ pipeline {
                              --define file="${fileToRun}.json"
 
               printf "======== Stop server\n"
-              chmod +x ${SCRIPTS_PATH}/jacoco-report.sh
-              ${SCRIPTS_PATH}/jacoco-report.sh ${serverPort}
-
-              printf "======== Generate jacoco report \n"
               chmod +x ${SCRIPTS_PATH}/server-stop-registry.sh
               ${SCRIPTS_PATH}/server-stop-registry.sh ${serverPort}
+
+              printf "======== Generate jacoco report \n"
+              chmod +x ${SCRIPTS_PATH}/jacoco-report.sh
+              ${SCRIPTS_PATH}/jacoco-report.sh ${serverPort}
             """
           }
 
