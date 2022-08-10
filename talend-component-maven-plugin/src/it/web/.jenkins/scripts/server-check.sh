@@ -15,12 +15,15 @@
 #  limitations under the License.
 #
 
-set -xe
+# Server check
+# Use curl to check if the server is running on the giving port
+# $1: Server port (default is 8080)
+# $2: Time in second to wait for the server to respond (default is 30s)
 
 main() (
 
-  serverPort="${1:?Missing server port}"
-  timeout="${2:-30}"
+  serverPort=${1:"8080"}
+  timeout=${2:-30}
 
   echo "Waiting server on ${serverPort}..."
 
