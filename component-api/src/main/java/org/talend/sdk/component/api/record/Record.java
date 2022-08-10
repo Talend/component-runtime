@@ -335,9 +335,11 @@ public interface Record {
 
         Builder updateEntryByName(String name, Schema.Entry schemaEntry);
 
-        Builder updateEntryByName(String name,
+        default Builder updateEntryByName(String name,
                 Schema.Entry schemaEntry,
-                Function<Object, Object> valueCastFunction);
+                Function<Object, Object> valueCastFunction) {
+            throw new UnsupportedOperationException("#updateEntryByName");
+        }
 
         Builder with(Schema.Entry entry, Object value);
 
