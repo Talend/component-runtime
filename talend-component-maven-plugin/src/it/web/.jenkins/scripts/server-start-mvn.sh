@@ -15,14 +15,12 @@
 #  limitations under the License.
 #
 
-set -xe
-
 # Enter in a connector path and start a component test server in bash mode
 # This script will fail if the branch already exists.
 # $1: Connector path
-# $2: (Optional) Server port (default is 8080)
-# $3: (Optional) Timeout value in minute for the server (default 2mn)
-# $4: (Optional) Output log file path for background execution
+# $2: (Optional) Output log file path for background execution
+# $3: (Optional) Server port (default is 8080)
+# $4: (Optional) Timeout value in minute for the server (default 2mn)
 main() (
 
   connectorPath="${1:?Missing connector path}"
@@ -30,11 +28,11 @@ main() (
   serverPort="${3}"
   timeout="${4}"
 
-  # Go into given path
+  echo "# Go into given path: ${connectorPath}"
   cd "${connectorPath}" || exit
   pwd
 
-  # create the command
+  echo "# Create the command"
   if [ -z "${serverPort}" ]; then
     portCmd=
   else
@@ -46,6 +44,7 @@ main() (
     timeoutCmd="-Dtalend.web.batch.timeout=${timeout}"
   fi
 
+  echo "# Execute the command"
   # shellcheck disable=SC2086
   cmdOption=(-Dtalend.web.batch=true ${portCmd} ${timeoutCmd} ${outputCmd})
   # echo ${cmdOption[*]}

@@ -258,8 +258,8 @@ pipeline {
                                 -Dmaven.artifact.threads=25
 
               printf "======== TCK component server start\n"
-              chmod +x ${SCRIPTS_PATH}/server-start.sh
-              ${SCRIPTS_PATH}/server-start.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
+              chmod +x ${SCRIPTS_PATH}/server-start-registry.sh
+              ${SCRIPTS_PATH}/server-start-registry.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
     
               chmod +x ${SCRIPTS_PATH}/server-check.sh
               ${SCRIPTS_PATH}/server-check.sh ${serverPort}
@@ -283,6 +283,14 @@ pipeline {
                              --define selectedEnvironment="${apiTesterEnv}" \
                              --define stopOnFailure=false \
                              --define file="${fileToRun}.json"
+
+              printf "======== Stop server\n"
+              chmod +x ${SCRIPTS_PATH}/jacoco-report.sh
+              ${SCRIPTS_PATH}/jacoco-report.sh ${serverPort}
+
+              printf "======== Generate jacoco report \n"
+              chmod +x ${SCRIPTS_PATH}/server-stop-registry.sh
+              ${SCRIPTS_PATH}/server-stop-registry.sh ${serverPort}
             """
           }
 
