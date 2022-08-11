@@ -85,13 +85,14 @@ function init {
   echo "Server version    : ${TCK_VERSION}"
   echo "Connector version : ${CONN_VERSION}"
   echo "Delete the install dir" && rm -r "${INSTALL_DIR}"
-  echo "##############################################"
-  echo "## Create needed directories"
+  echo "Create needed directories:"
+  mkdir "${INSTALL_DIR}"
+  mkdir "${DISTRIBUTION_DIR}"
   mkdir "${COVERAGE_DIR}"
-  mkdir "${SOURCES_DIR}"
   mkdir "${LIB_BACKUP_DIR}"
   mkdir "${LIB_INSTRUMENTED_DIR}"
-  mkdir "${INSTALL_DIR}"
+  mkdir "${M2_DIR}"
+  echo "##############################################"
 }
 
 function download_component_lib {
