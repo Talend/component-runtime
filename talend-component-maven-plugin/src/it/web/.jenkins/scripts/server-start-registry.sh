@@ -44,6 +44,8 @@ M2_DIR=${DISTRIBUTION_DIR}/m2
 
 # check command possibilities
 command -v wget || usage "'wget' command"
+command -v unzip || usage "'unzip' command"
+
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'tck_version'"
 [ -z ${2+x} ] && usage "Parameter 'connectors_version'"
@@ -86,12 +88,12 @@ function init {
   echo "Connector version : ${CONN_VERSION}"
   echo "Delete the install dir" && rm -rf "${INSTALL_DIR}"
   echo "Create needed directories:"
-  mkdir -p "${INSTALL_DIR}"
-  mkdir -p "${DISTRIBUTION_DIR}"
-  mkdir -p "${COVERAGE_DIR}"
-  mkdir -p "${LIB_BACKUP_DIR}"
-  mkdir -p "${LIB_INSTRUMENTED_DIR}"
-  mkdir -p "${M2_DIR}"
+  mkdir -vp "${INSTALL_DIR}"
+  mkdir -vp "${DISTRIBUTION_DIR}"
+  mkdir -vp "${COVERAGE_DIR}"
+  mkdir -vp "${LIB_BACKUP_DIR}"
+  mkdir -vp "${LIB_INSTRUMENTED_DIR}"
+  mkdir -vp "${M2_DIR}"
   echo "##############################################"
 }
 
@@ -123,11 +125,11 @@ function download_all {
   echo copy:
   cp -v "${DOWNLOAD_DIR}/activation-${JAVAX_VERSION}.jar" "${LIB_DIR}"
 
-  download_lib "component-tools"
-  download_lib "component-tools-webapp"
-  download_lib "component-form-core"
-  download_lib "component-form-model"
-  download_lib "component-runtime-beam"
+  download_component_lib "component-tools"
+  download_component_lib "component-tools-webapp"
+  download_component_lib "component-form-core"
+  download_component_lib "component-form-model"
+  download_component_lib "component-runtime-beam"
 
   echo "##############################################"
 }
