@@ -19,7 +19,7 @@
 # This script will fail if the branch already exists.
 # $1: 'tck_version'"
 # $2: 'connectors_version'"nd execution
-# $3: 'port'"
+# $3: 'port' default 8080"
 
 JACOCO_VERSION="0.8.1"
 JAVAX_VERSION="1.1.1"
@@ -46,11 +46,10 @@ command -v wget || usage "'wget' command"
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'tck_version'"
 [ -z ${2+x} ] && usage "Parameter 'connectors_version'"
-[ -z ${2+x} ] && usage "Parameter 'port'"
 
-TCK_VERSION="${1}"
-CONN_VERSION="${2}"
-PORT="${3}"
+TCK_VERSION=${1}
+CONN_VERSION=${2}
+PORT=${3:-"8080"}
 
 main() (
   echo "##############################################"

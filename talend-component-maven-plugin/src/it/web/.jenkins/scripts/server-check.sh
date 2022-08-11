@@ -22,7 +22,7 @@
 
 main() (
 
-  serverPort=${1:"8080"}
+  serverPort=${1:-"8080"}
   timeout=${2:-30}
 
   echo "Waiting server on ${serverPort}..."
