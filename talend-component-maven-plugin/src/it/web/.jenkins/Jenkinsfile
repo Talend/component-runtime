@@ -224,10 +224,12 @@ pipeline {
     }
     stage('Download connector') {
       steps {
-        script {
-          printf "======== Download the connector\n"
-          chmod +x ${SCRIPTS_PATH}/download_component.sh
-          ${SCRIPTS_PATH}/download_component.sh "1.36.0" "azure-dls-gen2"
+          script {
+            sh """
+              printf "======== Download the connector\n"
+              chmod +x ${SCRIPTS_PATH}/download_component.sh
+              ${SCRIPTS_PATH}/download_component.sh "1.36.0" "azure-dls-gen2"
+              """
         }
       }
     }
