@@ -25,7 +25,7 @@ main() (
   serverPort=${1:-"8080"}
   timeout=${2:-30}
 
-  echo "Waiting server on ${serverPort}..."
+  echo "Waiting server on ${serverPort}"
 
   i=0
 
@@ -34,7 +34,7 @@ main() (
   while ! curl --output /dev/null --silent --head --fail http://localhost:${serverPort}; do
     sleep 1
     ((i = i + 1))
-    echo "."
+    printf "."
 
     if test "${i}" -gt "${timeout}"; then
       echo "Timeout, stop waiting"
@@ -42,6 +42,7 @@ main() (
     fi
   done
 
+  printf "\n"
   echo "Server launched"
 )
 

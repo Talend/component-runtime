@@ -81,7 +81,6 @@ function init {
   printf "\n# Init the environment\n"
   echo "##############################################"
   echo "Install dir       : ${INSTALL_DIR}"
-  echo "Connectors list   : ${CONNECTORS_LIST}"
   echo "Server version    : ${TCK_VERSION}"
   echo "Connector version : ${CONN_VERSION}"
   echo "Delete the install dir" && rm -r "${INSTALL_DIR}"
