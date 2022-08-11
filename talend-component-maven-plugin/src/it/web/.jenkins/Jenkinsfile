@@ -222,21 +222,13 @@ pipeline {
 
       }
     }
-    stage('Checkout connector') {
+    stage('Download connector') {
       steps {
-        // Checkout of the connector directory (TODO Will be cleaned when test component will be ready)
-        checkout([
-            $class           : 'GitSCM',
-            branches         : [[name: '*/master']],
-            extensions       : [
-                [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
-                [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]
-            ],
-            userRemoteConfigs: [[credentialsId: 'github-credentials',
-                                 repoOwner: 'Talend',
-                                 repository: 'connectors-se',
-                                 configuredByUrl: 'false']]
-        ])
+        script {
+          printf "======== Download the connector\n"
+          chmod +x ${SCRIPTS_PATH}/download_component.sh
+          ${SCRIPTS_PATH}/download_component.sh "1.36.0" "azure-dls-gen2"
+        }
       }
     }
     stage('Prepare Test') {
