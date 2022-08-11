@@ -83,7 +83,7 @@ function init {
   echo "Install dir       : ${INSTALL_DIR}"
   echo "Server version    : ${TCK_VERSION}"
   echo "Connector version : ${CONN_VERSION}"
-  echo "Delete the install dir" && rm -r "${INSTALL_DIR}"
+  echo "Delete the install dir" && rm -rf "${INSTALL_DIR}"
   echo "Create needed directories:"
   mkdir -p "${INSTALL_DIR}"
   mkdir -p "${DISTRIBUTION_DIR}"
