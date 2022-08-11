@@ -235,7 +235,7 @@ pipeline {
     }
     stage('Prepare Test') {
       steps {
-
+        withCredentials([nexusCredentials]) {
           script {
             sh """
               printf "======== TCK component server start\n"
@@ -248,7 +248,7 @@ pipeline {
               cat ${TESTED_CONNECTOR_PATH}/${serverLog}
             """
           }
-
+        }
       }
     }
     stage('Execute Test') {

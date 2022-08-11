@@ -109,9 +109,6 @@ function download_component_lib {
 function download_all {
   printf "\n# Download ALL"
 
-  printf "\n## Check connector presence in .m2"
-  # TODO: Check connector presence in .m2
-
   printf "\n## Download and unzip component-server"
   wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip"
   unzip -d "${INSTALL_DIR}" "${DOWNLOAD_DIR}/component-server-${TCK_VERSION}.zip"
