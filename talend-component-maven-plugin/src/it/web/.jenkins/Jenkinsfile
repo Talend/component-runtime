@@ -232,7 +232,8 @@ pipeline {
                 [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
                 [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]
             ],
-            userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/connectors-se.git']]
+            userRemoteConfigs: [[credentialsId: '"github-credentials"',
+                                 url: 'https://github.com/Talend/connectors-se.git']]
         ])
       }
     }
