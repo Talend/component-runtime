@@ -39,6 +39,7 @@ SOURCES_DIR=${COVERAGE_DIR}/src
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
 REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
+M2_DIR=${DISTRIBUTION_DIR}/m2
 
 
 # check command possibilities
@@ -143,8 +144,8 @@ function create_setenv_script {
     export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"
     export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"
     """
-	} > "${SETENV}"
-	chmod +x "${SETENV}"
+	} > "${SETENV_PATH}"
+	chmod +x "${SETENV_PATH}"
 	echo "##############################"
 }
 
