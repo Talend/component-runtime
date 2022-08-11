@@ -86,12 +86,12 @@ function init {
   echo "Connector version : ${CONN_VERSION}"
   echo "Delete the install dir" && rm -r "${INSTALL_DIR}"
   echo "Create needed directories:"
-  mkdir "${INSTALL_DIR}"
-  mkdir "${DISTRIBUTION_DIR}"
-  mkdir "${COVERAGE_DIR}"
-  mkdir "${LIB_BACKUP_DIR}"
-  mkdir "${LIB_INSTRUMENTED_DIR}"
-  mkdir "${M2_DIR}"
+  mkdir -p "${INSTALL_DIR}"
+  mkdir -p "${DISTRIBUTION_DIR}"
+  mkdir -p "${COVERAGE_DIR}"
+  mkdir -p "${LIB_BACKUP_DIR}"
+  mkdir -p "${LIB_INSTRUMENTED_DIR}"
+  mkdir -p "${M2_DIR}"
   echo "##############################################"
 }
 
@@ -133,16 +133,20 @@ function download_all {
 }
 
 function create_setenv_script {
-  printf "\n# Create setenv file: %s" "${SETENV_PATH}"
+  printf "\n# Create the setenv.sh script"
 	{
-		printf 'export JAVA_HOME="%s"\n' "${JAVA_HOME}"
-		printf 'export ENDORSED_PROP="ignored.endorsed.dir"\n'
-		printf 'export MEECROWAVE_OPTS="-Dhttp=%s"\n' "${PORT}"
-		printf 'export MEECROWAVE_OPTS="-D_talend.studio.version=7.4.1 -Dtalend.vault.cache.vault.url=none -Dtalend.component.server.component.registry=conf/components-registry.properties ${MEECROWAVE_OPTS}"\n'
+		echo 	"""
+    export JAVA_HOME=\"${JAVA_HOME}\"
+    export ENDORSED_PROP=\"ignored.endorsed.dir\"
+    export MEECROWAVE_OPTS=\"-Dhttp=${PORT}\"
+    export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"
+    """
 	} > "${SETENV}"
 	chmod +x "${SETENV}"
-
-	echo "##############################################"
+	echo "##############################"
 }
 
 function generate_registry {
