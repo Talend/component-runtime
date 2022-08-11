@@ -238,22 +238,6 @@ pipeline {
 
           script {
             sh """
-              printf "======== Build the connector\n"
-              chmod +x ${SCRIPTS_PATH}/pom-edit.sh
-              ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
-
-              cd ${TESTED_CONNECTOR_PATH}
-              mvn clean install -U\
-                                -T3C\
-                                -Dspotless.apply.skip=true\
-                                -Dspotbugs.skip=true\
-                                -Dcheckstyle.skip=true\
-                                -Drat.skip=true\
-                                -DskipTests\
-                                -Dmaven.javadoc.skip=true\
-                                -Dinvoker.skip=true\
-                                -Dmaven.artifact.threads=25
-
               printf "======== TCK component server start\n"
               chmod +x ${SCRIPTS_PATH}/server-start-registry.sh
               ${SCRIPTS_PATH}/server-start-registry.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
