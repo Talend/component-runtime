@@ -178,8 +178,8 @@ pipeline {
             if (runtimeVersion == "default") {
               sh """
                   chmod +x ${SCRIPTS_PATH}/pom-get-version.sh
-                  runtimeVersion=${SCRIPTS_PATH}/pom-get-version.sh "${WORKSPACE}/pom.xml"
-                """
+                  runtimeVersion=`${SCRIPTS_PATH}"/pom-get-version.sh ${WORKSPACE}/pom.xml`
+              """
               echo "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)"
             }
 
