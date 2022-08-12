@@ -17,7 +17,7 @@
 
 TALEND_REPO="https://artifacts-zl.talend.com/nexus/service/local/repositories"
 COMPONENT_SE_REPO="${TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
-COMPONENT_LINK="${COMPONENT_SE_REPO}/azure-dls-gen2/VERSION/COMPONENT-VERSION-component.car"
+COMPONENT_LINK="${COMPONENT_SE_REPO}/azure-dls-gen2/VERSION/NAME-VERSION-component.car"
 
 INSTALL_DIR="/tmp/webtester/install"
 DOWNLOAD_DIR="/tmp/webtester/download"
@@ -33,14 +33,6 @@ command -v wget || usage "'wget' command"
 CONN_VERSION="$1"
 CONNECTOR="$2"
 
-main() (
-  echo "##############################################"
-  echo "Download components"
-  echo "##############################################"
-
-  download_connector
-)
-
 function usage(){
   # TODO: check it
   echo "Start TCK Web tester using registry"
@@ -51,14 +43,17 @@ function usage(){
   exit 1
 }
 
-function download_connector {
-  printf "# Download connector: %s\n" "${CONNECTOR}"
+function main {
+
+  echo "##############################################"
+  printf "# Download connector: %s\n" "${CONNECTOR}\n"
+  echo "##############################################"
   echo Downloaded connectors:
 
   # Replace "VERSION" by var $CONN_VERSION in $COMPONENT_LINK
   connector_final_link=${COMPONENT_LINK//VERSION/$CONN_VERSION}
   # Replace "COMPONENT" by var $connector
-  connector_final_link=${connector_final_link//COMPONENT/$connector}
+  connector_final_link=${connector_final_link//NAME/CONNECTOR}
 
   echo "From following link: ${connector_final_link}"
 
