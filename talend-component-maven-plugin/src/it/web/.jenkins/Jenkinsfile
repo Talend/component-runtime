@@ -39,9 +39,9 @@ final String podConfiguration = """
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
           { name: dockercache, mountPath: /root/.dockercache },
-          { name: tcomp-server-download-folder, mountPath: /tmp/download },
+          { name: tcomp-server-download-folder, mountPath: /tmp/download }
         ]
-        resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' } }
+        resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
     volumes:
       - name: docker
         hostPath: { path: /var/run/docker.sock }
