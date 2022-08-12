@@ -21,15 +21,10 @@
 # $2: 'connectors_version'"nd execution
 # $3: 'port' default 8080"
 
-JACOCO_VERSION="0.8.1"
-JAVAX_VERSION="1.1.1"
-MVN_CENTRAL="https://repo.maven.apache.org/maven2"
-LOCAL_IP=$(hostname -I | sed 's/ *$//g')
 
 EXTRA_INSTRUMENTED="vault-client*"
 
 INSTALL_DIR="/tmp/webtester/install"
-DOWNLOAD_DIR="/tmp/webtester/download"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
@@ -39,18 +34,10 @@ SOURCES_DIR=${COVERAGE_DIR}/src
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
 REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
-M2_DIR=${DISTRIBUTION_DIR}/m2
-
-
-# check command possibilities
-command -v wget || usage "'wget' command"
-command -v unzip || usage "'unzip' command"
 
 # check parameters
-[ -z ${1+x} ] && usage "Parameter 'tck_version'"
 [ -z ${2+x} ] && usage "Parameter 'connectors_version'"
 
-TCK_VERSION=${1}
 CONN_VERSION=${2}
 PORT=${3:-"8080"}
 
@@ -59,13 +46,10 @@ main() (
   echo "Start web tester"
   echo "##############################################"
 
-  init
-  download_all
   jacoco_instrument
   create_setenv_script
   generate_registry
-
-  jacoco_report
+  start_server
 )
 
 function usage(){
@@ -76,59 +60,6 @@ function usage(){
   echo "$1 is needed."
   echo
   exit 1
-}
-
-function init {
-
-  echo "##############################################"
-  printf "\n# Init the environment\n"
-  echo "##############################################"
-  echo "Install dir       : ${INSTALL_DIR}"
-  echo "Server version    : ${TCK_VERSION}"
-  echo "Connector version : ${CONN_VERSION}"
-  echo "Delete the install dir" && rm -rf "${INSTALL_DIR}"
-  echo "Create needed directories:"
-  mkdir -vp "${INSTALL_DIR}"
-  mkdir -vp "${DISTRIBUTION_DIR}"
-  mkdir -vp "${COVERAGE_DIR}"
-  mkdir -vp "${LIB_BACKUP_DIR}"
-  mkdir -vp "${LIB_INSTRUMENTED_DIR}"
-  mkdir -vp "${M2_DIR}"
-  echo "##############################################"
-}
-
-function download_component_lib {
-  printf "\n## Download %s" "${LIB_NAME}"
-  LIB_NAME="$1"
-  new_file_name="${LIB_NAME}-${TCK_VERSION}.jar"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${new_file_name}"
-  echo "copy the file in lib folder"
-  cp -v "${DOWNLOAD_DIR}/${new_file_name}" "${LIB_DIR}"
-}
-
-function download_all {
-  printf "\n# Download ALL"
-
-  printf "\n## Download and unzip component-server"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip"
-  unzip -d "${INSTALL_DIR}" "${DOWNLOAD_DIR}/component-server-${TCK_VERSION}.zip"
-
-  printf "\n## Download and unzip jacoco"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/jacoco/jacoco/0.8.1/jacoco-0.8.1.zip"
-  unzip "${DOWNLOAD_DIR}/jacoco-${JACOCO_VERSION}.zip" "lib/*" -d "${DISTRIBUTION_DIR}"
-
-  printf "\n## Download javax"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/javax/activation/activation/${JAVAX_VERSION}/activation-${JAVAX_VERSION}.jar"
-  echo copy:
-  cp -v "${DOWNLOAD_DIR}/activation-${JAVAX_VERSION}.jar" "${LIB_DIR}"
-
-  download_component_lib "component-tools"
-  download_component_lib "component-tools-webapp"
-  download_component_lib "component-form-core"
-  download_component_lib "component-form-model"
-  download_component_lib "component-runtime-beam"
-
-  echo "##############################################"
 }
 
 function create_setenv_script {
@@ -178,20 +109,6 @@ function jacoco_instrument {
 	echo "##############################################"
 }
 
-function jacoco_report {
-  printf "\n# Jacoco report ###############################"
-  java -jar "${JACOCO_CLI_PATH}" \
-    report "${DISTRIBUTION_DIR}/jacoco.exec" \
-    --classfiles "${LIB_BACKUP_DIR}" \
-    --csv "${COVERAGE_DIR}/report.csv" \
-    --xml "${COVERAGE_DIR}/report.xml" \
-    --html "${COVERAGE_DIR}/html" \
-    --name "TCK API test coverage" \
-    --sourcefiles "${SOURCES_DIR}"
-    # not used yet --sourcefiles <path> --quiet
-	echo "##############################################"
-}
-
 function start_server {
   printf "\n# Start server"
   # Go in the distribution directory
@@ -199,16 +116,11 @@ function start_server {
   # Start the server
   ./bin/meecrowave.sh start
 
+  LOCAL_IP=$(hostname -I | sed 's/ *$//g')
+
   echo ""
   echo "You can now connect on http://${LOCAL_IP}:${PORT}"
   echo ""
-	echo "##############################################"
-}
-
-function stop_server {
-  printf "\n# Stop server ###############################"
-  cd "${DISTRIBUTION_DIR}" || exit
-  ./bin/meecrowave.sh stop
 	echo "##############################################"
 }
 

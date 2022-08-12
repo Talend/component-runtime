@@ -38,17 +38,21 @@ final String podConfiguration = """
         volumeMounts: [
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
-          { name: dockercache, mountPath: /root/.dockercache }
+          { name: dockercache, mountPath: /root/.dockercache },
+          { name: tcomp-server-download-folder, mountPath: /tmp/download },
         ]
         resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' } }
     volumes:
       - name: docker
         hostPath: { path: /var/run/docker.sock }
-      - name: efs-jenkins-component-runtime-m2
-        persistentVolumeClaim:
-              claimName: efs-jenkins-component-runtime-m2
       - name: dockercache
         hostPath: { path: /tmp/jenkins/tdi/docker }
+      - name: efs-jenkins-component-runtime-m2
+        persistentVolumeClaim:
+          claimName: efs-jenkins-component-runtime-m2
+      - name: tcomp-server-download-folder
+        persistentVolumeClaim:
+          claimName: tcomp-server-download-folder
     imagePullSecrets:
       - name: talend-registry
 """
@@ -238,7 +242,9 @@ pipeline {
         withCredentials([nexusCredentials]) {
           script {
             sh """
-              printf "======== TCK component server start\n"
+              chmod +x ${SCRIPTS_PATH}/server-download-registry.sh
+              ${SCRIPTS_PATH}/server-download-registry.sh ${TESTED_CONNECTOR_PATH}
+
               chmod +x ${SCRIPTS_PATH}/server-start-registry.sh
               ${SCRIPTS_PATH}/server-start-registry.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
     
