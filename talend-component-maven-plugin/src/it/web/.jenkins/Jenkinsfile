@@ -170,20 +170,20 @@ pipeline {
           ///////////////////////////////////////////
           script {
 
-            printf "Setup all script as executables in ${SCRIPTS_PATH}\n"
+            println "Setup all script as executables in ${SCRIPTS_PATH}\n"
             sh """
               find ${SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
             """
 
             // Get actual tck version
 
-            printf "Get actual tck version from ${WORKSPACE}/pom.xml: \n"
+            println "Get actual tck version from ${WORKSPACE}/pom.xml: \n"
             TCOMP_VERSION = sh (
               script: "${SCRIPTS_PATH}/pom-get-version.sh ${WORKSPACE}/pom.xml",
               returnStdout: true
             ).trim()
 
-            printf "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}\n"
+            println "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}\n"
 
             // RUNTIME_VERSION
             try {
@@ -193,11 +193,11 @@ pipeline {
               runtimeVersion = "default"
             }
 
-            printf "Requested TCOMP_VERSION is ${runtimeVersion}\n"
+            println "Requested TCOMP_VERSION is ${runtimeVersion}\n"
 
             if (runtimeVersion == "default") {
               runtimeVersion = ${TCOMP_VERSION}
-              printf "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)\n"
+              println "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)\n"
             }
 
             // FILE_TO_RUN
@@ -205,7 +205,7 @@ pipeline {
               fileToRun = "${PROJECT_NAME}"
             }
             catch (groovy.lang.MissingPropertyException ignored) {
-              printf "PROJECT_NAME not supplied, default value will be used ($fileToRun)\n"
+              println "PROJECT_NAME not supplied, default value will be used ($fileToRun)\n"
             }
           }
           ///////////////////////////////////////////
@@ -244,8 +244,8 @@ pipeline {
     stage('Download connector') {
       steps {
           script {
+            println "======== Download the connector\n"
             sh """
-              printf "======== Download the connector\n"
               ${SCRIPTS_PATH}/download_connector.sh "1.36.0" "azure-dls-gen2"
               """
         }
@@ -298,8 +298,8 @@ pipeline {
    */
   post {
     always {
+      println "======== Generate Html reports\n"
       sh """
-        printf "======== Generate Html reports\n"
         mvn surefire-report:report-only -f ${TESTS_PATH}
         mvn site -DgenerateReports=false -f ${TESTS_PATH}
       """
