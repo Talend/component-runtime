@@ -175,7 +175,7 @@ pipeline {
             catch (groovy.lang.MissingPropertyException ignored) {
               runtimeVersion="default"
             }
-            if (runtimeVersion != "default") {
+            if (runtimeVersion == "default") {
               sh """
                   chmod +x ${SCRIPTS_PATH}/server-start-registry.sh
                   runtimeVersion=${SCRIPTS_PATH}/server-start-registry.sh "${WORKSPACE}/pom.xml"
@@ -210,8 +210,6 @@ pipeline {
                 "CYCLE: ${params.CYCLE}\n" +
                 "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
 
-            runtimeName = runtimeVersion
-
             // updating build displayName
             currentBuild.displayName = (
                 "#" + currentBuild.number + ": " + fileToRun
@@ -219,7 +217,7 @@ pipeline {
 
             // updating build description
             currentBuild.description = (
-                "User: " + "${USER_NAME}" + " - " + "Runtime: " + runtimeName + "\n" +
+                "User: " + "${USER_NAME}" + " - " + "Runtime: " + runtimeVersion + "\n" +
                     "Project: " + fileToRun + "\n"
             )
           }
