@@ -173,13 +173,16 @@ pipeline {
               runtimeVersion = "${RUNTIME_VERSION}"
             }
             catch (groovy.lang.MissingPropertyException ignored) {
+              runtimeVersion="default"
+            }
+            if (runtimeVersion != "default") {
               sh """
-                chmod +x ${SCRIPTS_PATH}/server-start-registry.sh
-                runtimeVersion=${SCRIPTS_PATH}/server-start-registry.sh "${WORKSPACE}/pom.xml"
-              """
-
+                  chmod +x ${SCRIPTS_PATH}/server-start-registry.sh
+                  runtimeVersion=${SCRIPTS_PATH}/server-start-registry.sh "${WORKSPACE}/pom.xml"
+                """
               echo "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)"
             }
+
             // FILE_TO_RUN
             try {
               fileToRun = "${PROJECT_NAME}"
@@ -207,10 +210,7 @@ pipeline {
                 "CYCLE: ${params.CYCLE}\n" +
                 "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
 
-            def runtimeName = "master"
-            if (runtimeVersion != "") {
-              runtimeName = runtimeVersion
-            }
+            runtimeName = runtimeVersion
 
             // updating build displayName
             currentBuild.displayName = (
