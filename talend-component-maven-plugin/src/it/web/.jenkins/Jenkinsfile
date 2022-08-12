@@ -38,8 +38,7 @@ final String podConfiguration = """
         volumeMounts: [
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
-          { name: dockercache, mountPath: /root/.dockercache },
-          { name: tcomp-server-download-folder, mountPath: /tmp/download }
+          { name: dockercache, mountPath: /root/.dockercache }
         ]
         resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
     volumes:
@@ -50,9 +49,6 @@ final String podConfiguration = """
       - name: efs-jenkins-component-runtime-m2
         persistentVolumeClaim:
           claimName: efs-jenkins-component-runtime-m2
-      - name: tcomp-server-download-folder
-        persistentVolumeClaim:
-          claimName: tcomp-server-download-folder
     imagePullSecrets:
       - name: talend-registry
 """
