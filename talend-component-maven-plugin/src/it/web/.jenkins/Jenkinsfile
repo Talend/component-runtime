@@ -73,7 +73,6 @@ final def tenantId_Rd = string(
 
 final String serverPort = "8081"
 final String serverLog = "component_server.log"
-final String serverTimeout = "1"
 
 // Default value for parameters
 String runtimeVersion = "default"
@@ -227,8 +226,8 @@ pipeline {
           script {
             sh """
               printf "======== Download the connector\n"
-              chmod +x ${SCRIPTS_PATH}/download_component.sh
-              ${SCRIPTS_PATH}/download_component.sh "1.36.0" "azure-dls-gen2"
+              chmod +x ${SCRIPTS_PATH}/download_connector.sh
+              ${SCRIPTS_PATH}/download_connector.sh "1.36.0" "azure-dls-gen2"
               """
         }
       }
