@@ -164,16 +164,17 @@ pipeline {
               }
             }
           }
-          //todo find /directory/of/interest/ -type f -iname "*.sh" -exec chmod +x {} \;
+
           ///////////////////////////////////////////
           // Validate parameters
           ///////////////////////////////////////////
-          // Get actual tck version
           script {
+            // Setup all script as executables
             sh """
-              chmod +x ${SCRIPTS_PATH}/pom-get-version.sh
+              find ${SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
             """
 
+            // Get actual tck version
             TCOMP_VERSION = sh (
               script: "${SCRIPTS_PATH}/pom-get-version.sh ${WORKSPACE}/pom.xml",
               returnStdout: true
