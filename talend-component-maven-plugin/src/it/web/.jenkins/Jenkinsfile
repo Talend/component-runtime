@@ -169,16 +169,20 @@ pipeline {
           // Validate parameters
           ///////////////////////////////////////////
           script {
-            // Setup all script as executables
+
+            printf "Setup all script as executables in ${SCRIPTS_PATH}\n"
             sh """
               find ${SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
             """
 
             // Get actual tck version
+
+            printf "Get actual tck version from ${WORKSPACE}/pom.xml: \n"
             TCOMP_VERSION = sh (
               script: "${SCRIPTS_PATH}/pom-get-version.sh ${WORKSPACE}/pom.xml",
               returnStdout: true
             ).trim()
+
             printf "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}\n"
 
             // RUNTIME_VERSION
@@ -188,6 +192,8 @@ pipeline {
             catch (groovy.lang.MissingPropertyException ignored) {
               runtimeVersion = "default"
             }
+
+            printf "Requested TCOMP_VERSION is ${runtimeVersion}\n"
 
             if (runtimeVersion == "default") {
               runtimeVersion = ${TCOMP_VERSION}
