@@ -52,7 +52,7 @@ function usage(){
 }
 
 function download_components {
-  printf "\n# Download components: "
+  printf "\n# Download connector: "
   echo Downloaded connectors:
 
   # Replace "VERSION" by var $CONN_VERSION in $COMPONENT_LINK

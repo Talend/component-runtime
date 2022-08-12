@@ -15,11 +15,8 @@
 #  limitations under the License.
 #
 
-# Enter in a connector path and start a component test server in bash mode
-# This script will fail if the branch already exists.
-# $1: 'tck_version'"
-# $2: 'connectors_version'"nd execution
-# $3: 'port' default 8080"
+# $1: 'connectors_version'
+# $2: 'port' default 8080"
 
 
 EXTRA_INSTRUMENTED="vault-client*"
@@ -36,10 +33,10 @@ SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
 REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
 
 # check parameters
-[ -z ${2+x} ] && usage "Parameter 'connectors_version'"
+[ -z ${1+x} ] && usage "Parameter 'connectors_version'"
 
-CONN_VERSION=${2}
-PORT=${3:-"8080"}
+CONN_VERSION=${1}
+PORT=${2:-"8080"}
 
 main() (
   echo "##############################################"

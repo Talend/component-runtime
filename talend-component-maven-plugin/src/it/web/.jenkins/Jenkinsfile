@@ -239,10 +239,10 @@ pipeline {
           script {
             sh """
               chmod +x ${SCRIPTS_PATH}/server-download-registry.sh
-              ${SCRIPTS_PATH}/server-download-registry.sh ${TESTED_CONNECTOR_PATH}
+              ${SCRIPTS_PATH}/server-download-registry.sh ${RUNTIME_VERSION}
 
               chmod +x ${SCRIPTS_PATH}/server-start-registry.sh
-              ${SCRIPTS_PATH}/server-start-registry.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
+              ${SCRIPTS_PATH}/server-start-registry.sh "1.36.0" ${serverPort}
     
               chmod +x ${SCRIPTS_PATH}/server-check.sh
               ${SCRIPTS_PATH}/server-check.sh ${serverPort}

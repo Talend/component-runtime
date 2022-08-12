@@ -18,7 +18,6 @@
 # Enter in a connector path and start a component test server in bash mode
 # This script will fail if the branch already exists.
 # $1: 'tck_version'"
-# $2: 'connectors_version'"nd execution
 
 JACOCO_VERSION="0.8.1"
 JAVAX_VERSION="1.1.1"
@@ -41,10 +40,8 @@ command -v unzip || usage "'unzip' command"
 
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'tck_version'"
-[ -z ${2+x} ] && usage "Parameter 'connectors_version'"
 
 TCK_VERSION=${1}
-CONN_VERSION=${2}
 
 main() (
   echo "##############################################"
@@ -72,7 +69,6 @@ function init {
   echo "##############################################"
   echo "Install dir       : ${INSTALL_DIR}"
   echo "Server version    : ${TCK_VERSION}"
-  echo "Connector version : ${CONN_VERSION}"
   echo "Delete the install dir" && rm -rf "${INSTALL_DIR}"
   echo "Create needed directories:"
   mkdir -vp "${INSTALL_DIR}"
@@ -86,7 +82,7 @@ function init {
 }
 
 function download_component_lib {
-  printf "\n## Download %s" "${LIB_NAME}"
+  printf "\n## Download component element: %s" "${LIB_NAME}"
   LIB_NAME="$1"
   new_file_name="${LIB_NAME}-${TCK_VERSION}.jar"
   wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${new_file_name}"
