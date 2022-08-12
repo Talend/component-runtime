@@ -176,7 +176,7 @@ pipeline {
 
             TCOMP_VERSION = sh (
               script: "${SCRIPTS_PATH}/pom-get-version.sh ${WORKSPACE}/pom.xml",
-              returnStdout: true
+              returnStdout: false
             ).trim()
             echo "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}"
           }
