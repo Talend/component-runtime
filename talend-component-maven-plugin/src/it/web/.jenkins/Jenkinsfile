@@ -179,7 +179,7 @@ pipeline {
               script: "${SCRIPTS_PATH}/pom-get-version.sh ${WORKSPACE}/pom.xml",
               returnStdout: true
             ).trim()
-            echo "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}"
+            printf "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}\n"
 
             // RUNTIME_VERSION
             try {
@@ -191,7 +191,7 @@ pipeline {
 
             if (runtimeVersion == "default") {
               runtimeVersion = ${TCOMP_VERSION}
-              echo "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)"
+              printf "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)\n"
             }
 
             // FILE_TO_RUN
@@ -199,7 +199,7 @@ pipeline {
               fileToRun = "${PROJECT_NAME}"
             }
             catch (groovy.lang.MissingPropertyException ignored) {
-              echo "PROJECT_NAME not supplied, default value will be used ($fileToRun)"
+              printf "PROJECT_NAME not supplied, default value will be used ($fileToRun)\n"
             }
           }
           ///////////////////////////////////////////
