@@ -167,21 +167,26 @@ pipeline {
           ///////////////////////////////////////////
           // Validate parameters
           ///////////////////////////////////////////
+          // Get actual tck version
+          script {
+            TCOMP_VERSION = sh (
+                script: "${SCRIPTS_PATH}/pom-get-version.sh ${WORKSPACE}/pom.xml",
+                returnStdout: true
+            ).trim()
+            echo "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}"
+          }
           script {
             // RUNTIME_VERSION
             try {
               runtimeVersion = "${RUNTIME_VERSION}"
             }
             catch (groovy.lang.MissingPropertyException ignored) {
-              runtimeVersion="default"
+              runtimeVersion = "default"
             }
-            if (runtimeVersion == "default") {
-              sh """
-                chmod +x ${SCRIPTS_PATH}/pom-get-version.sh
-                runtimeVersion=`${SCRIPTS_PATH}/pom-get-version.sh ${WORKSPACE}/pom.xml`
 
-                echo "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)"
-              """
+            if (runtimeVersion == "default") {
+              runtimeVersion = ${TCOMP_VERSION}
+              echo "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)"
             }
 
             // FILE_TO_RUN
