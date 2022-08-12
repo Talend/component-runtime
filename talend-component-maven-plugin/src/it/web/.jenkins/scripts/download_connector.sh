@@ -53,7 +53,7 @@ function main {
   # Replace "VERSION" by var $CONN_VERSION in $COMPONENT_LINK
   connector_final_link=${COMPONENT_LINK//VERSION/$CONN_VERSION}
   # Replace "COMPONENT" by var $connector
-  connector_final_link=${connector_final_link//NAME/CONNECTOR}
+  connector_final_link=${connector_final_link//NAME/$CONNECTOR}
 
   echo "From following link: ${connector_final_link}"
 
