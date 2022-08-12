@@ -84,11 +84,11 @@ function init {
 function download_component_lib {
 
   LIB_NAME="$1"
-  printf "\n## Download component element: %s" "${LIB_NAME}"
+  printf "\n## Download component element: %s\n" "${LIB_NAME}"
   file_name="${LIB_NAME}-${TCK_VERSION}.jar"
-  printf "\nFile Name: %s" "${LIB_NAME}"
+  printf "File Name: %s\n" "${LIB_NAME}"
   file_path="${MVN_CENTRAL}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${file_name}"
-  printf "\nFile path: %s" "${file_path}"
+  printf "File path: %s\n" "${file_path}"
 
   wget -N -P "${DOWNLOAD_DIR}" "${file_path}"
   echo "copy the file in lib folder"
@@ -96,17 +96,17 @@ function download_component_lib {
 }
 
 function download_all {
-  printf "\n# Download ALL"
+  printf "\n# Download ALL\n"
 
-  printf "\n## Download and unzip component-server"
+  printf "\n## Download and unzip component-server\n"
   wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip"
   unzip -d "${INSTALL_DIR}" "${DOWNLOAD_DIR}/component-server-${TCK_VERSION}.zip"
 
-  printf "\n## Download and unzip jacoco"
+  printf "\n## Download and unzip jacoco\n"
   wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/jacoco/jacoco/0.8.1/jacoco-0.8.1.zip"
   unzip "${DOWNLOAD_DIR}/jacoco-${JACOCO_VERSION}.zip" "lib/*" -d "${DISTRIBUTION_DIR}"
 
-  printf "\n## Download javax"
+  printf "\n## Download javax\n"
   wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/javax/activation/activation/${JAVAX_VERSION}/activation-${JAVAX_VERSION}.jar"
   echo copy:
   cp -v "${DOWNLOAD_DIR}/activation-${JAVAX_VERSION}.jar" "${LIB_DIR}"

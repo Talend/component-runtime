@@ -27,7 +27,7 @@ main() (
 )
 
 function stop_server {
-  printf "\n# Stop server ###############################"
+  printf "\n# Stop server\n"
   cd "${DISTRIBUTION_DIR}" || exit
   ./bin/meecrowave.sh stop
 	echo "##############################################"

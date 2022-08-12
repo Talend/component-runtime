@@ -52,7 +52,7 @@ function usage(){
 }
 
 function download_connector {
-  printf "\n# Download connector: %s" "${CONNECTOR}"
+  printf "# Download connector: %s\n" "${CONNECTOR}"
   echo Downloaded connectors:
 
   # Replace "VERSION" by var $CONN_VERSION in $COMPONENT_LINK

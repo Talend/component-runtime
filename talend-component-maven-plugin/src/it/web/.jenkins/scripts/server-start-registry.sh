@@ -60,7 +60,7 @@ function usage(){
 }
 
 function create_setenv_script {
-  printf "\n# Create the setenv.sh script"
+  printf "\n# Create the setenv.sh script\n"
 	{
 		echo 	"""
     export JAVA_HOME=\"${JAVA_HOME}\"
@@ -77,7 +77,7 @@ function create_setenv_script {
 }
 
 function generate_registry {
-  printf "\n# Generate components registry"
+  printf "\n# Generate components registry\n"
   # Create the file
 	echo "" > "${REGISTRY_PATH}"
 	# Add connectors TODO: make it more dynamic when needed
@@ -89,25 +89,25 @@ function generate_registry {
 }
 
 function jacoco_instrument {
-  printf "\n# Jacoco instrument ###############################"
-  printf "\n\n## Backup original files\n"
+  printf "\n# Jacoco instrument\n"
+  printf "\n## Backup original files\n"
   cp -v "${LIB_DIR}"/component-*".jar"  "${LIB_BACKUP_DIR}"
   cp -v "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*".jar " "${LIB_BACKUP_DIR}"
   cp -v ./*"org.talend.sdk.component."* "${SOURCES_DIR}" # TODO check it
 
-  printf "\n\n## Instrument classes in jar files\n"
+  printf "\n## Instrument classes in jar files\n"
   java -jar "${JACOCO_CLI_PATH}" \
     instrument "${LIB_DIR}/component-"*".jar "\
                "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*".jar" \
     --dest "${LIB_INSTRUMENTED_DIR}"
 
-  printf "\n## Copy instrumented jar to the lib folder \n"
+  printf "\n## Copy instrumented jar to the lib folder\n"
   cp -v "${LIB_INSTRUMENTED_DIR}"/*".jar" "${LIB_DIR}"
 	echo "##############################################"
 }
 
 function start_server {
-  printf "\n# Start server"
+  printf "# Start server\n"
   # Go in the distribution directory
   cd "${DISTRIBUTION_DIR}" || exit
   # Start the server

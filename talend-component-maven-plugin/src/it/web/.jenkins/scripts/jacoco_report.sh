@@ -43,7 +43,7 @@ main() (
 )
 
 function jacoco_report {
-  printf "\n# Jacoco report ###############################"
+  printf "\n# Jacoco report\n"
   java -jar "${LIB_DIR}/jacococli.jar" \
     report "${JACOCO_EXEC_PATH}" \
     --classfiles "${LIB_BACKUP_DIR}" \
