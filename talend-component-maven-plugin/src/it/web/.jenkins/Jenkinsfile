@@ -196,8 +196,8 @@ pipeline {
             println "Requested TCOMP_VERSION is ${runtimeVersion}\n"
 
             if (runtimeVersion == "default") {
-              runtimeVersion = ${TCOMP_VERSION}
-              println "RUNTIME_VERSION not supplied, local value will be used ($runtimeVersion)\n"
+              runtimeVersion = "${TCOMP_VERSION}"
+              println "RUNTIME_VERSION not supplied, local value will be used (${runtimeVersion})\n"
             }
 
             // FILE_TO_RUN
@@ -205,7 +205,7 @@ pipeline {
               fileToRun = "${PROJECT_NAME}"
             }
             catch (groovy.lang.MissingPropertyException ignored) {
-              println "PROJECT_NAME not supplied, default value will be used ($fileToRun)\n"
+              println "PROJECT_NAME not supplied, default value will be used (${fileToRun})\n"
             }
           }
           ///////////////////////////////////////////
