@@ -82,12 +82,17 @@ function init {
 }
 
 function download_component_lib {
-  printf "\n## Download component element: %s" "${LIB_NAME}"
+
   LIB_NAME="$1"
-  new_file_name="${LIB_NAME}-${TCK_VERSION}.jar"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${new_file_name}"
+  printf "\n## Download component element: %s" "${LIB_NAME}"
+  file_name="${LIB_NAME}-${TCK_VERSION}.jar"
+  printf "\nFile Name: %s" "${LIB_NAME}"
+  file_path="${MVN_CENTRAL}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${file_name}"
+  printf "\nFile path: %s" "${file_path}"
+
+  wget -N -P "${DOWNLOAD_DIR}" "${file_path}"
   echo "copy the file in lib folder"
-  cp -v "${DOWNLOAD_DIR}/${new_file_name}" "${LIB_DIR}"
+  cp -v "${DOWNLOAD_DIR}/${file_name}" "${LIB_DIR}"
 }
 
 function download_all {

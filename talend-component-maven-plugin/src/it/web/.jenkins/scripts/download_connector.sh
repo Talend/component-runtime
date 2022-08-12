@@ -38,7 +38,7 @@ main() (
   echo "Download components"
   echo "##############################################"
 
-  download_components
+  download_connector
 )
 
 function usage(){
@@ -51,20 +51,23 @@ function usage(){
   exit 1
 }
 
-function download_components {
-  printf "\n# Download connector: "
+function download_connector {
+  printf "\n# Download connector: %s" "${CONNECTOR}"
   echo Downloaded connectors:
 
   # Replace "VERSION" by var $CONN_VERSION in $COMPONENT_LINK
   connector_final_link=${COMPONENT_LINK//VERSION/$CONN_VERSION}
   # Replace "COMPONENT" by var $connector
   connector_final_link=${connector_final_link//COMPONENT/$connector}
-  echo "- ${CONNECTOR}"
-  echo "${connector_final_link}"
+
+  echo "From following link: ${connector_final_link}"
+
   # Download
   wget -N -P "${DOWNLOAD_DIR}" "${connector_final_link}"
   component_path="${DOWNLOAD_DIR}/${CONNECTOR}-${CONN_VERSION}-component.car"
+
   # Deploy
+  echo "Deploy the car: ${component_path}"
   java -jar "${component_path}" maven-deploy --location "${M2_DIR}"
 
 	echo "##############################"
