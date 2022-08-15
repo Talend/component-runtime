@@ -26,7 +26,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2211[TCOMP-2211^]: Upgrade cxf to 3.5.2 
 - link:https://jira.talendforge.org/browse/TCOMP-2212[TCOMP-2212^]: Upgrade bndlib to 5.2.0 
 - link:https://jira.talendforge.org/browse/TCOMP-2217[TCOMP-2217^]: Update rat-plugin to 0.14 link:search.html?query=build[build^,role='dockey']
-
+- link:https://jira.talendforge.org/browse/TCOMP-2223[TCOMP-2223^]: Upgrade log4j to 2.18.0
 
 
 == Version 1.47.1
