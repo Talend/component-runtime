@@ -38,6 +38,7 @@ final String podConfiguration = """
         volumeMounts: [
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
+          { name: efs-jenkins-download, mountPath: /root/webtester/download },
           { name: dockercache, mountPath: /root/.dockercache }
         ]
         resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
@@ -49,6 +50,9 @@ final String podConfiguration = """
       - name: efs-jenkins-component-runtime-m2
         persistentVolumeClaim:
           claimName: efs-jenkins-component-runtime-m2
+      - name: efs-jenkins-download
+        persistentVolumeClaim:
+          claimName: efs-jenkins-download
     imagePullSecrets:
       - name: talend-registry
 """
