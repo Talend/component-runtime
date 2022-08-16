@@ -199,7 +199,6 @@ pipeline {
               runtimeVersion = "${TCOMP_VERSION}"
               println "RUNTIME_VERSION not supplied, local value will be used (${runtimeVersion})\n"
             }
-            runtimeVersion = "1.47.0"// FIXME for test
 
             // FILE_TO_RUN
             try {
@@ -257,13 +256,14 @@ pipeline {
         withCredentials([nexusCredentials]) {
           script {
             sh """
-              ${SCRIPTS_PATH}/server-download-registry.sh ${runtimeVersion}
+              "${SCRIPTS_PATH}/tcomp-build.sh ${${WORKSPACE}}.pom.xml"
 
-              ${SCRIPTS_PATH}/server-start-registry.sh "1.36.0" ${serverPort}
+              "${SCRIPTS_PATH}/server-download-registry.sh ${runtimeVersion}"
+
+              "${SCRIPTS_PATH}/server-start-registry.sh "1.36.0" ${serverPort}"
     
-              ${SCRIPTS_PATH}/server-check.sh ${serverPort}
+              "${SCRIPTS_PATH}/server-check.sh ${serverPort}"
   
-              cat ${TESTED_CONNECTOR_PATH}/${serverLog}
             """
           }
         }
