@@ -18,7 +18,7 @@
 # $1: 'folder_to_build'
 
 
-MAVEN_FAST_CMD="mvn \
+MAVEN_FAST_INSTALL_CMD="mvn clean install \
                 -Dspotless.apply.skip=true \
                 -Dspotbugs.skip=true \
                 -Dcheckstyle.skip=true -Drat.skip=true \
@@ -37,7 +37,7 @@ main() (
   echo "Maven fast build"
   echo "##############################################"
 
-  ${MAVEN_FAST_CMD} -f "${folder_to_build}"
+  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}"
 )
 
 function usage(){
