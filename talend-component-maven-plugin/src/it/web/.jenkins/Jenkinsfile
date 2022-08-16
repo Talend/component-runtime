@@ -80,12 +80,7 @@ String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
 
-// Locale storage of global var
-String workspace = "${env.WORKSPACE}"
-String scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-String tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
-settings_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
-String build_user = "${env.BUILD_USER}"
+
 
 
 /**
@@ -130,6 +125,13 @@ pipeline {
     TALEND_REGISTRY = "artifactory.datapwn.com"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
+    // Locale storage of global var TODO: move it to somewhere where it is understood by the intelliji parser
+    String workspace = "${WORKSPACE}"
+    String scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+    String tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
+    settings_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
+    String build_user = "${BUILD_USER}"
+
     MAVEN_SETTINGS = "${settings_path}"
     DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${workspace}/.jenkins/"
     MAVEN_OPTS = [
@@ -139,6 +141,7 @@ pipeline {
       "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
       "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
+
 
 
   }
