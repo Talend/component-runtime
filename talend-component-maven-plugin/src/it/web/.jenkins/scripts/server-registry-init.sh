@@ -50,7 +50,7 @@ CONNECTOR_VERSION="${2}"
 CONNECTOR_LIST="${3}"
 
 
-if [[ $TCK_VERSION == *"-SNAPSHOT" ]]; then
+if [[ ${TCK_VERSION} == *"-SNAPSHOT" ]]; then
   echo "Use maven central repository: ${MVN_CENTRAL}"
   MVN_SOURCE=${MVN_CENTRAL}
 else
