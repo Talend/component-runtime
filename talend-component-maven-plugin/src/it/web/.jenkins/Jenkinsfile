@@ -246,7 +246,7 @@ pipeline {
         withCredentials([nexusCredentials]) {
           script {
             sh """
-              "${SCRIPTS_PATH}/tcomp-build.sh ${${WORKSPACE}}.pom.xml"
+              "${SCRIPTS_PATH}/tcomp-build.sh ${WORKSPACE}.pom.xml"
               "${SCRIPTS_PATH}/server-registry-init.sh ${runtimeVersion}"
               "${SCRIPTS_PATH}/server-registry-start.sh "1.36.0" ${serverPort}"
               "${SCRIPTS_PATH}/server-check.sh ${serverPort}"
