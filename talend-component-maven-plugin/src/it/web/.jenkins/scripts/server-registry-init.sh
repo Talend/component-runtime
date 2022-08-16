@@ -22,6 +22,8 @@
 JACOCO_VERSION="0.8.1"
 JAVAX_VERSION="1.1.1"
 MVN_CENTRAL="https://repo.maven.apache.org/maven2"
+COMPONENT_SE_REPO="${TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
+COMPONENT_LINK="${COMPONENT_SE_REPO}/azure-dls-gen2/VERSION/NAME-VERSION-component.car"
 
 INSTALL_DIR="/tmp/webtester/install"
 DOWNLOAD_DIR="/tmp/webtester/download"
@@ -40,22 +42,37 @@ command -v unzip || usage "'unzip' command"
 
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'tck_version'"
+[ -z ${1+x} ] && usage "Parameter 'connectors_version'"
+[ -z ${2+x} ] && usage "Parameter 'connector'"
 
 TCK_VERSION=${1}
+CONNECTOR_VERSION="${2}"
+CONNECTOR_LIST="${3}"
+
+
+if [[ $TCK_VERSION == *"-SNAPSHOT" ]]; then
+  echo "Use maven central repository: ${MVN_CENTRAL}"
+  MVN_SOURCE=${MVN_CENTRAL}
+else
+  echo "Use maven local m2: ${M2_DIR}"
+  MVN_SOURCE=${M2_DIR}
+fi
 
 main() (
   echo "##############################################"
-  echo "Start web tester"
+  echo "Server download"
   echo "##############################################"
 
   init
   download_all
+  create_setenv_script
+  generate_registry
 )
 
 function usage(){
   # TODO: check it
   echo "Start TCK Web tester using registry"
-  echo "Usage : $0 <tck_version> <connectors_version> <install_dir> <connectors_list_file> <port>"
+  echo "Usage : $0 <tck_version> <conn_version> <connector_list>"
   echo
   echo "$1 is needed."
   echo
@@ -64,7 +81,6 @@ function usage(){
 
 function init {
 
-  echo "##############################################"
   printf "\n# Init the environment\n"
   echo "##############################################"
   echo "Install dir       : ${INSTALL_DIR}"
@@ -87,7 +103,7 @@ function download_component_lib {
   printf "\n## Download component element: %s\n" "${LIB_NAME}"
   file_name="${LIB_NAME}-${TCK_VERSION}.jar"
   printf "File Name: %s\n" "${LIB_NAME}"
-  file_path="${MVN_CENTRAL}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${file_name}"
+  file_path="${MVN_SOURCE}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${file_name}"
   printf "File path: %s\n" "${file_path}"
 
   wget -N -P "${DOWNLOAD_DIR}" "${file_path}"
@@ -95,19 +111,44 @@ function download_component_lib {
   cp -v "${DOWNLOAD_DIR}/${file_name}" "${LIB_DIR}"
 }
 
+function download_connector {
+
+  echo "##############################################"
+  printf "# Download connector: %s\n" "${CONNECTOR_LIST}\n"
+  echo "##############################################"
+  echo Downloaded connectors:
+
+  # Replace "VERSION" by var $CONNECTOR_VERSION in $COMPONENT_LINK
+  connector_final_link=${COMPONENT_LINK//VERSION/$CONNECTOR_VERSION}
+  # Replace "COMPONENT" by var $connector
+  connector_final_link=${connector_final_link//NAME/$CONNECTOR_LIST}
+
+  echo "From following link: ${connector_final_link}"
+
+  # Download
+  wget -N -P "${DOWNLOAD_DIR}" "${connector_final_link}"
+  component_path="${DOWNLOAD_DIR}/${CONNECTOR_LIST}-${CONNECTOR_VERSION}-component.car"
+
+  # Deploy
+  echo "Deploy the car: ${component_path}"
+  java -jar "${component_path}" maven-deploy --location "${M2_DIR}"
+
+	echo "##############################"
+}
+
 function download_all {
   printf "\n# Download ALL\n"
 
   printf "\n## Download and unzip component-server\n"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip"
+  wget -N -P "${DOWNLOAD_DIR}" "${MVN_SOURCE}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip"
   unzip -d "${INSTALL_DIR}" "${DOWNLOAD_DIR}/component-server-${TCK_VERSION}.zip"
 
   printf "\n## Download and unzip jacoco\n"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/jacoco/jacoco/0.8.1/jacoco-0.8.1.zip"
+  wget -N -P "${DOWNLOAD_DIR}" "${MVN_SOURCE}/org/jacoco/jacoco/0.8.1/jacoco-0.8.1.zip"
   unzip "${DOWNLOAD_DIR}/jacoco-${JACOCO_VERSION}.zip" "lib/*" -d "${DISTRIBUTION_DIR}"
 
   printf "\n## Download javax\n"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/javax/activation/activation/${JAVAX_VERSION}/activation-${JAVAX_VERSION}.jar"
+  wget -N -P "${DOWNLOAD_DIR}" "${MVN_SOURCE}/javax/activation/activation/${JAVAX_VERSION}/activation-${JAVAX_VERSION}.jar"
   echo copy:
   cp -v "${DOWNLOAD_DIR}/activation-${JAVAX_VERSION}.jar" "${LIB_DIR}"
 
@@ -117,7 +158,38 @@ function download_all {
   download_component_lib "component-form-model"
   download_component_lib "component-runtime-beam"
 
+  download_connector
+
   echo "##############################################"
 }
+
+function create_setenv_script {
+  printf "\n# Create the setenv.sh script\n"
+	{
+		echo 	"""
+    export JAVA_HOME=\"${JAVA_HOME}\"
+    export ENDORSED_PROP=\"ignored.endorsed.dir\"
+    export MEECROWAVE_OPTS=\"-Dhttp=${PORT}\"
+    export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"
+    """
+	} > "${SETENV_PATH}"
+	chmod +x "${SETENV_PATH}"
+	echo "##############################"
+}
+
+function generate_registry {
+  printf "\n# Generate components registry\n"
+  # Create the file
+	echo "" > "${REGISTRY_PATH}"
+	# Add connectors TODO: make it more dynamic when needed
+
+  echo "conn_1=org.talend.components\\:${CONNECTOR_LIST}\\:${CONNECTOR_VERSION}" >> "${REGISTRY_PATH}"
+
+	echo "##############################################"
+}
+
 
 main "$@"

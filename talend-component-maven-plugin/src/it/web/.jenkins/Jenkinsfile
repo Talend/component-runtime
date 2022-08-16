@@ -241,29 +241,15 @@ pipeline {
 
       }
     }
-    stage('Download connector') {
-      steps {
-          script {
-            println "======== Download the connector\n"
-            sh """
-              ${SCRIPTS_PATH}/download_connector.sh "1.36.0" "azure-dls-gen2"
-              """
-        }
-      }
-    }
     stage('Prepare Test') {
       steps {
         withCredentials([nexusCredentials]) {
           script {
             sh """
               "${SCRIPTS_PATH}/tcomp-build.sh ${${WORKSPACE}}.pom.xml"
-
-              "${SCRIPTS_PATH}/server-download-registry.sh ${runtimeVersion}"
-
-              "${SCRIPTS_PATH}/server-start-registry.sh "1.36.0" ${serverPort}"
-    
+              "${SCRIPTS_PATH}/server-registry-init.sh ${runtimeVersion}"
+              "${SCRIPTS_PATH}/server-registry-start.sh "1.36.0" ${serverPort}"
               "${SCRIPTS_PATH}/server-check.sh ${serverPort}"
-  
             """
           }
         }
@@ -284,7 +270,7 @@ pipeline {
                              --define file="${fileToRun}.json"
 
               printf "======== Stop server\n"
-              ${SCRIPTS_PATH}/server-stop-registry.sh ${serverPort}
+              ${SCRIPTS_PATH}/server-registry-stop.sh ${serverPort}
 
               printf "======== Generate jacoco report \n"
               ${SCRIPTS_PATH}/jacoco-report.sh ${serverPort}

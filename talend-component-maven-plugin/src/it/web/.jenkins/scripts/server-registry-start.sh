@@ -44,8 +44,6 @@ main() (
   echo "##############################################"
 
   jacoco_instrument
-  create_setenv_script
-  generate_registry
   start_server
 )
 
@@ -57,35 +55,6 @@ function usage(){
   echo "$1 is needed."
   echo
   exit 1
-}
-
-function create_setenv_script {
-  printf "\n# Create the setenv.sh script\n"
-	{
-		echo 	"""
-    export JAVA_HOME=\"${JAVA_HOME}\"
-    export ENDORSED_PROP=\"ignored.endorsed.dir\"
-    export MEECROWAVE_OPTS=\"-Dhttp=${PORT}\"
-    export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"
-    """
-	} > "${SETENV_PATH}"
-	chmod +x "${SETENV_PATH}"
-	echo "##############################"
-}
-
-function generate_registry {
-  printf "\n# Generate components registry\n"
-  # Create the file
-	echo "" > "${REGISTRY_PATH}"
-	# Add connectors TODO: make it more dynamic when needed
-
-  connector="azure-dls-gen2"
-  echo "conn_1=org.talend.components\\:${connector}\\:${CONN_VERSION}" >> "${REGISTRY_PATH}"
-
-	echo "##############################################"
 }
 
 function jacoco_instrument {
