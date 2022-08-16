@@ -199,7 +199,7 @@ pipeline {
               runtimeVersion = "${TCOMP_VERSION}"
               println "RUNTIME_VERSION not supplied, local value will be used (${runtimeVersion})\n"
             }
-            runtimeVersion = runtimeVersion.replace("-SNAPSHOT","")// FIXME for test
+            runtimeVersion = "1.47.0"// FIXME for test
 
             // FILE_TO_RUN
             try {
