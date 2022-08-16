@@ -125,7 +125,7 @@ pipeline {
     TALEND_REGISTRY = "artifactory.datapwn.com"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
-    // Locale storage of global var TODO: move it to somewhere where it is understood by the intelliji parser
+    // Locale storage of global var TODO: move it to somewhere where it is understood by the Intellij parser
     String workspace = "${WORKSPACE}"
     String scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
     String tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"

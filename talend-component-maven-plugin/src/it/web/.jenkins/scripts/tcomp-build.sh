@@ -37,7 +37,7 @@ main() (
   echo "Maven fast build"
   echo "##############################################"
 
-  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}"
+  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}" -pl '!documentation,!intellij-plugin,!reporting'
 )
 
 function usage(){
