@@ -29,14 +29,9 @@ LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
 LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
 SOURCES_DIR=${COVERAGE_DIR}/src
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
-SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
-REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
 
 # check parameters
-[ -z ${1+x} ] && usage "Parameter 'connectors_version'"
-
-CONN_VERSION=${1}
-PORT=${2:-"8080"}
+PORT=${1:-"8080"}
 
 main() (
   echo "##############################################"
@@ -50,7 +45,7 @@ main() (
 function usage(){
   # TODO: check it
   echo "Start TCK Web tester using registry"
-  echo "Usage : $0 <tck_version> <connectors_version> <install_dir> <connectors_list_file> <port>"
+  echo "Usage : $0 <port>"
   echo
   echo "$1 is needed."
   echo

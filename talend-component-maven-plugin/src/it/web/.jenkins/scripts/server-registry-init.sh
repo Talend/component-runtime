@@ -35,6 +35,9 @@ LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
 SOURCES_DIR=${COVERAGE_DIR}/src
 M2_DIR=${DISTRIBUTION_DIR}/m2
 
+SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
+REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
+
 
 # check command possibilities
 command -v wget || usage "'wget' command"
