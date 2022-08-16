@@ -461,6 +461,56 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void updateEntryByName_fromEntries_withTypeConversion() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "10").withInt("fieldInt", 20);
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(2, entries.size());
+
+        final Entry entry = newEntry("field2", "newFieldName", Type.INT, true, 5, "Comment");
+        builder.updateEntryByName("field1", entry, value -> Integer.valueOf(value.toString()));
+        Assertions.assertEquals(2, builder.getCurrentEntries().size());
+        assertTrue(builder.getCurrentEntries()
+                .stream()
+                .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
+        assertEquals(10, builder.getValue("field2"));
+    }
+
+    @Test
+    void updateEntryByName_fromEntries_withTypeConversion_NotCompatible() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "abc");
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(1, entries.size());
+
+        final Entry entryTypeNotCompatible = newEntry("field2", "newFieldName", Type.INT, true, 5, "Comment");
+        assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("field1", entryTypeNotCompatible,
+                value -> Integer.valueOf(value.toString())));
+    }
+
+    @Test
+    void updateEntryByName_fromProvidedSchema_withTypeConversion() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("field1", "field1", Type.STRING, true, 5, "Comment"))
+                .build();
+        final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
+        builder1.with(schema.getEntry("field1"), "10");
+        final List<Entry> entries1 = builder1.getCurrentEntries();
+        Assertions.assertEquals(1, entries1.size());
+        final Entry entry1 = newEntry("field2", "newFieldName", Type.INT, true, 5, "Comment");
+        Record.Builder newBuilder =
+                builder1.updateEntryByName("field1", entry1, value -> Integer.valueOf(value.toString()));
+        Assertions.assertEquals(1, newBuilder.getCurrentEntries().size());
+        assertTrue(newBuilder
+                .getCurrentEntries()
+                .stream()
+                .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
+                        && Type.INT.equals(e.getType())));
+        assertEquals(10, newBuilder.getValue("field2"));
+    }
+
+    @Test
     void withRecordFromEntryWithNullValue() {
         final Entry recordEntry = new EntryImpl.BuilderImpl()
                 .withType(Type.RECORD)
