@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -238,6 +239,14 @@ public final class RecordImpl implements Record {
                     new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()),
                             this.values);
             return builder.updateEntryByName(name, schemaEntry);
+        }
+
+        @Override
+        public Builder updateEntryByName(final String name, final Entry schemaEntry,
+                final Function<Object, Object> valueCastFunction) {
+            Object currentValue = this.values.get(name);
+            this.values.put(name, valueCastFunction.apply(currentValue));
+            return updateEntryByName(name, schemaEntry);
         }
 
         @Override
