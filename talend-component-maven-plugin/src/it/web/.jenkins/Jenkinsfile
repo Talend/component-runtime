@@ -256,7 +256,7 @@ pipeline {
         withCredentials([nexusCredentials]) {
           script {
             sh """
-              ${SCRIPTS_PATH}/server-download-registry.sh ${RUNTIME_VERSION}
+              ${SCRIPTS_PATH}/server-download-registry.sh ${runtimeVersion}
 
               ${SCRIPTS_PATH}/server-start-registry.sh "1.36.0" ${serverPort}
     
