@@ -1,0 +1,327 @@
+//
+//  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+/**
+ * job-dsl plugin page api documentation for this project
+ * https://jenkins-connectors.datapwn.com/plugin/job-dsl/api-viewer/index.html
+ */
+
+/**
+ * Pod configuration
+ */
+final String tsbiImage = 'jdk11-svc-springboot-builder'
+final String tsbiVersion = '2.9.18-2.4-20220104141654'
+final String stageDefaultContainer = tsbiImage
+final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
+final String podConfiguration = """
+  apiVersion: v1
+  kind: Pod
+  spec:
+    containers:
+      - name: '${tsbiImage}'
+        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${tsbiImage}:${tsbiVersion}'
+        command: [ cat ]
+        tty: true
+        volumeMounts: [
+          { name: docker, mountPath: /var/run/docker.sock },
+          { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
+          { name: dockercache, mountPath: /root/.dockercache }
+        ]
+        resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' } }
+    volumes:
+      - name: docker
+        hostPath: { path: /var/run/docker.sock }
+      - name: efs-jenkins-component-runtime-m2
+        persistentVolumeClaim:
+              claimName: efs-jenkins-component-runtime-m2
+      - name: dockercache
+        hostPath: { path: /tmp/jenkins/tdi/docker }
+    imagePullSecrets:
+      - name: talend-registry
+"""
+
+/**
+ * Credentials
+ */
+
+final def nexusCredentials = usernamePassword(
+    credentialsId: 'nexus-artifact-zl-credentials',
+    usernameVariable: 'NEXUS_USER',
+    passwordVariable: 'NEXUS_PASSWORD')
+
+final def tenantId_Rd = string(
+    credentialsId: 'component-runtime-api-tenant-id-rd',
+    variable: 'componentRuntimeApiTenantId_Rd'
+)
+
+/**
+ * Options
+ */
+
+final String serverPort = "8081"
+final String serverLog = "component_server.log"
+final String serverTimeout = "1"
+
+// Default value for parameters
+String runtimeVersion = "default"
+String apiTesterEnv = "component_runtime_ci"
+String fileToRun = "tcomp_approved"
+String tenantInstance = "eu"
+/**
+ * The pipeline
+ */
+pipeline {
+  /**
+   * agent
+   */
+  agent {
+    kubernetes {
+      label podLabel
+      yaml podConfiguration
+      defaultContainer stageDefaultContainer
+    }
+  }
+  /**
+   * parameters
+   */
+  parameters {
+    string(
+      name: 'CYCLE',
+      defaultValue: 'default',
+      description: 'Test Cycle Id filled by Test Orchestrator, it is only important for TTO.'
+    )
+    string(
+      name: 'RUNTIME_VERSION',
+      defaultValue: 'default',
+      description: 'Choose the component-runtime.version to be used from Nexus. Keep default to use the pom version (1.45.0 minimum) or an other ex: 1.45.0-SNAPSHOT'
+    )
+    choice(
+      name: 'PROJECT_NAME' ,
+      choices: ['tcomp_approved', 'tcomp_draft'] ,
+      description: 'Select test project to execute.'
+    )
+  }
+  /**
+   * environment
+   */
+  environment {
+    MAVEN_SETTINGS = "${SETTINGS_PATH}"
+    DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
+    MAVEN_OPTS = [
+      "-Dmaven.artifact.threads=128",
+      "-Dorg.slf4j.simpleLogger.showDateTime=true",
+      "-Dorg.slf4j.simpleLogger.showThreadName=true",
+      "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
+      "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
+    ].join(' ')
+
+    APP_ID = '579232'
+    TALEND_REGISTRY = "artifactory.datapwn.com"
+    TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
+
+    SETTINGS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
+    SCRIPTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+    TESTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/test"
+    CONNECTORS_PATH = "${WORKSPACE}/connectors"
+    TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
+  }
+  /**
+   * options
+   */
+  options {
+    buildDiscarder(logRotator(artifactNumToKeepStr: '30', numToKeepStr: '30'))
+    timeout(time: 180, unit: 'MINUTES')
+    skipStagesAfterUnstable()
+  }
+  /**
+   * stages
+   */
+  stages {
+    stage('Validate parameters') {
+      steps {
+          ///////////////////////////////////////////
+          // Get the user name
+          ///////////////////////////////////////////
+          wrap([$class: 'BuildUser']) {
+            script {
+              try {
+                USER_NAME = "${BUILD_USER}"
+              }
+              catch (groovy.lang.MissingPropertyException ignored) {
+                USER_NAME = "auto"
+              }
+            }
+          }
+          ///////////////////////////////////////////
+          // Validate parameters
+          ///////////////////////////////////////////
+          script {
+            // RUNTIME_VERSION
+            try {
+              runtimeVersion = "${RUNTIME_VERSION}"
+            }
+            catch (groovy.lang.MissingPropertyException ignored) {
+              echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
+            }
+            // FILE_TO_RUN
+            try {
+              fileToRun = "${PROJECT_NAME}"
+            }
+            catch (groovy.lang.MissingPropertyException ignored) {
+              echo "PROJECT_NAME not supplied, default value will be used ($fileToRun)"
+            }
+          }
+          ///////////////////////////////////////////
+          // Print build config
+          ///////////////////////////////////////////
+          script {
+
+            println("Job info:\n" +
+                " - Tenant instance: ${tenantInstance}\n" +
+                " - Runtime version: ${runtimeVersion}\n" +
+                " - Test file executed: ${fileToRun}" + ".json\n" +
+                " - API Tester used environment: ${apiTesterEnv}\n")
+
+            println("Talend Test Orchestrator info:\n" +
+                "PLATFORM: ${params.PLATFORM}\n" +
+                "ENVIRONMENT: ${params.ENVIRONMENT}\n" +
+                "FRAGMENT_URL: ${params.FRAGMENT_URL}\n" +
+                "DEPLOYMENT_UNIT: ${params.DEPLOYMENT_UNIT}\n" +
+                "CYCLE: ${params.CYCLE}\n" +
+                "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
+
+            def runtimeName = "master"
+            if (runtimeVersion != "") {
+              runtimeName = runtimeVersion
+            }
+
+            // updating build displayName
+            currentBuild.displayName = (
+                "#" + currentBuild.number + ": " + fileToRun
+            )
+
+            // updating build description
+            currentBuild.description = (
+                "User: " + "${USER_NAME}" + " - " + "Runtime: " + runtimeName + "\n" +
+                    "Project: " + fileToRun + "\n"
+            )
+          }
+
+      }
+    }
+    stage('Checkout connector') {
+      steps {
+        // Checkout of the connector directory (TODO Will be cleaned when test component will be ready)
+        checkout([
+            $class           : 'GitSCM',
+            branches         : [[name: '*/master']],
+            extensions       : [
+                [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
+                [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]
+            ],
+            userRemoteConfigs: [[credentialsId: 'github-ssh', url: 'git@github.com:Talend/connectors-se.git']]
+        ])
+      }
+    }
+    stage('Prepare Test') {
+      steps {
+
+          script {
+            sh """
+              printf "======== Build the connector\n"
+              chmod +x ${SCRIPTS_PATH}/pom-edit.sh
+              ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
+
+              cd ${TESTED_CONNECTOR_PATH}
+              mvn clean install -U\
+                                -T3C\
+                                -Dspotless.apply.skip=true\
+                                -Dspotbugs.skip=true\
+                                -Dcheckstyle.skip=true\
+                                -Drat.skip=true\
+                                -DskipTests\
+                                -Dmaven.javadoc.skip=true\
+                                -Dinvoker.skip=true\
+                                -Dmaven.artifact.threads=25
+
+              printf "======== TCK component server start\n"
+              chmod +x ${SCRIPTS_PATH}/server-start.sh
+              ${SCRIPTS_PATH}/server-start.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
+    
+              chmod +x ${SCRIPTS_PATH}/server-check.sh
+              ${SCRIPTS_PATH}/server-check.sh ${serverPort}
+  
+              cat ${TESTED_CONNECTOR_PATH}/${serverLog}
+            """
+          }
+
+      }
+    }
+    stage('Execute Test') {
+      steps {
+
+          withCredentials([nexusCredentials, tenantId_Rd]) {
+            sh """
+              printf "======== Execute test\n"
+              cd ${TESTS_PATH}
+              mvn clean test --settings="${MAVEN_SETTINGS}" \
+                             --define instance="${tenantInstance}" \
+                             --define accountId="${componentRuntimeApiTenantId_Rd}" \
+                             --define selectedEnvironment="${apiTesterEnv}" \
+                             --define stopOnFailure=false \
+                             --define file="${fileToRun}.json"
+            """
+          }
+
+      }
+    }
+  }
+  /**
+   * post stages
+   */
+  post {
+    always {
+      sh """
+        printf "======== Generate Html reports\n"
+        mvn surefire-report:report-only -f ${TESTS_PATH}
+        mvn site -DgenerateReports=false -f ${TESTS_PATH}
+      """
+      archiveArtifacts(
+        artifacts: """\
+          **/${serverLog}, 
+          **/src/it/web/test/target/**/*""".stripIndent()
+      )
+      recordIssues(
+        enabledForFailure: true,
+        tools: [
+          taskScanner(
+            id: 'todo-tck-api-test',
+            name: 'api-test Todo(low)/Fixme(high)',
+            includePattern: '**/src/it/web/test/**/*.json',
+            ignoreCase: true,
+            highTags: 'FIX_ME, FIXME',
+            lowTags: 'TO_DO, TODO'
+          ),
+          junitParser(
+            id: 'unit-test',
+            name: 'tcomp API Test',
+            pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
+          )
+        ]
+      )
+    }
+  }
+}

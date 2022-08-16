@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.function.Function;
 
 import org.talend.sdk.component.api.record.Schema.Entry;
 
@@ -348,6 +349,12 @@ public interface Record {
         Builder removeEntry(Schema.Entry schemaEntry);
 
         Builder updateEntryByName(String name, Schema.Entry schemaEntry);
+
+        default Builder updateEntryByName(String name,
+                Schema.Entry schemaEntry,
+                Function<Object, Object> valueCastFunction) {
+            throw new UnsupportedOperationException("#updateEntryByName");
+        }
 
         Builder with(Schema.Entry entry, Object value);
 
