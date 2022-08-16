@@ -79,6 +79,15 @@ String runtimeVersion = "default"
 String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
+
+// Locale storage of global var
+String workspace = "${WORKSPACE}"
+String scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+String tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
+settings_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
+String build_user = "${BUILD_USER}"
+
+
 /**
  * The pipeline
  */
@@ -117,8 +126,12 @@ pipeline {
    * environment
    */
   environment {
-    MAVEN_SETTINGS = "${SETTINGS_PATH}"
-    DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
+    APP_ID = '579232'
+    TALEND_REGISTRY = "artifactory.datapwn.com"
+    TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
+
+    MAVEN_SETTINGS = "${settings_path}"
+    DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${workspace}/.jenkins/"
     MAVEN_OPTS = [
       "-Dmaven.artifact.threads=128",
       "-Dorg.slf4j.simpleLogger.showDateTime=true",
@@ -127,15 +140,7 @@ pipeline {
       "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
 
-    APP_ID = '579232'
-    TALEND_REGISTRY = "artifactory.datapwn.com"
-    TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
-    SETTINGS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
-    SCRIPTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    TESTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/test"
-    CONNECTORS_PATH = "${WORKSPACE}/connectors"
-    TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
   }
   /**
    * options
@@ -157,7 +162,7 @@ pipeline {
           wrap([$class: 'BuildUser']) {
             script {
               try {
-                USER_NAME = "${BUILD_USER}"
+                USER_NAME = "${build_user}"
               }
               catch (groovy.lang.MissingPropertyException ignored) {
                 USER_NAME = "auto"
@@ -170,16 +175,16 @@ pipeline {
           ///////////////////////////////////////////
           script {
 
-            println "Setup all script as executables in ${SCRIPTS_PATH}\n"
+            println "Setup all script as executables in ${scripts_path}\n"
             sh """
-              find ${SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
+              find ${scripts_path} -type f -iname "*.sh" -exec chmod +x {} \\;
             """
 
             // Get actual tck version
 
-            println "Get actual tck version from ${WORKSPACE}/pom.xml: \n"
+            println "Get actual tck version from ${workspace}/pom.xml: \n"
             TCOMP_VERSION = sh (
-              script: "${SCRIPTS_PATH}/pom-get-version.sh ${WORKSPACE}/pom.xml",
+              script: "${scripts_path}/pom-get-version.sh ${workspace}/pom.xml",
               returnStdout: true
             ).trim()
 
@@ -246,10 +251,10 @@ pipeline {
         withCredentials([nexusCredentials]) {
           script {
             sh """
-              "${SCRIPTS_PATH}/tcomp-build.sh ${WORKSPACE}.pom.xml"
-              "${SCRIPTS_PATH}/server-registry-init.sh ${runtimeVersion}"
-              "${SCRIPTS_PATH}/server-registry-start.sh "1.36.0" ${serverPort}"
-              "${SCRIPTS_PATH}/server-check.sh ${serverPort}"
+              "${scripts_path}/tcomp-build.sh ${WORKSPACE}.pom.xml"
+              "${scripts_path}/server-registry-init.sh ${runtimeVersion}"
+              "${scripts_path}/server-registry-start.sh "1.36.0" ${serverPort}"
+              "${scripts_path}/server-check.sh ${serverPort}"
             """
           }
         }
@@ -261,7 +266,7 @@ pipeline {
           withCredentials([nexusCredentials, tenantId_Rd]) {
             sh """
               printf "======== Execute test\n"
-              cd ${TESTS_PATH}
+              cd ${tests_path}
               mvn clean test --settings="${MAVEN_SETTINGS}" \
                              --define instance="${tenantInstance}" \
                              --define accountId="${componentRuntimeApiTenantId_Rd}" \
@@ -270,10 +275,10 @@ pipeline {
                              --define file="${fileToRun}.json"
 
               printf "======== Stop server\n"
-              ${SCRIPTS_PATH}/server-registry-stop.sh ${serverPort}
+              ${scripts_path}/server-registry-stop.sh ${serverPort}
 
               printf "======== Generate jacoco report \n"
-              ${SCRIPTS_PATH}/jacoco-report.sh ${serverPort}
+              ${scripts_path}/jacoco-report.sh ${serverPort}
             """
           }
 
@@ -287,8 +292,8 @@ pipeline {
     always {
       println "======== Generate Html reports\n"
       sh """
-        mvn surefire-report:report-only -f ${TESTS_PATH}
-        mvn site -DgenerateReports=false -f ${TESTS_PATH}
+        mvn surefire-report:report-only -f ${tests_path}
+        mvn site -DgenerateReports=false -f ${tests_path}
       """
       archiveArtifacts(
         artifacts: """\
