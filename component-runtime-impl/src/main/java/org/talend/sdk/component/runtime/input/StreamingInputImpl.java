@@ -16,19 +16,21 @@
 package org.talend.sdk.component.runtime.input;
 
 import static java.lang.Thread.sleep;
+import static org.talend.sdk.component.runtime.input.Streaming.RetryStrategy;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;
+import org.talend.sdk.component.runtime.input.Streaming.StopStrategy;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class StreamingInputImpl extends InputImpl {
 
     private RetryConfiguration retryConfiguration;
@@ -50,6 +52,7 @@ public class StreamingInputImpl extends InputImpl {
                 getClass().getName() + "_" + rootName() + "-" + name() + "_" + hashCode());
         this.retryConfiguration = retryConfiguration;
         this.stopStrategy = stopStrategy;
+        log.debug("[StreamingInputImpl] created with: retyStrategy: {}, stopStrategy: {}",  this.retryConfiguration, this.stopStrategy);
     }
 
     protected StreamingInputImpl() {
@@ -172,121 +175,6 @@ public class StreamingInputImpl extends InputImpl {
                 invalidObjectException.initCause(e);
                 throw invalidObjectException;
             }
-        }
-    }
-
-    public interface RetryStrategy {
-
-        long nextPauseDuration();
-
-        void reset();
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RetryConfiguration implements Serializable {
-
-        private int maxRetries;
-
-        private RetryStrategy strategy;
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class Constant implements Serializable, RetryStrategy {
-
-            private long timeout;
-
-            @Override
-            public long nextPauseDuration() {
-                return timeout;
-            }
-
-            @Override
-            public void reset() {
-                // no-op
-            }
-        }
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class ExponentialBackoff implements Serializable, RetryStrategy {
-
-            private double exponent;
-
-            private double randomizationFactor;
-
-            private long max;
-
-            private long initialBackOff;
-
-            // state
-            private int iteration;
-
-            @Override
-            public long nextPauseDuration() {
-                final double currentIntervalMillis = Math.min(initialBackOff * Math.pow(exponent, iteration), max);
-                final double randomOffset = (Math.random() * 2 - 1) * randomizationFactor * currentIntervalMillis;
-                final long nextBackoffMillis = Math.min(max, Math.round(currentIntervalMillis + randomOffset));
-                iteration += 1;
-                return nextBackoffMillis;
-            }
-
-            @Override
-            public void reset() {
-                iteration = 0;
-            }
-        }
-    }
-
-    public interface StopStrategy {
-
-        boolean isActive();
-
-        boolean shouldStop(long read);
-
-    }
-
-    @Data
-    public static class StopConfiguration implements StopStrategy, Serializable {
-
-        private long maxReadRecords;
-
-        private long maxActiveTime;
-
-        private ZonedDateTime started;
-
-        public StopConfiguration() {
-            maxReadRecords = -1L;
-            maxActiveTime = -1L;
-            started = ZonedDateTime.now();
-        }
-
-        public StopConfiguration(final Long maxRecords, final Long maxTime, final ZonedDateTime start) {
-            maxReadRecords = maxRecords == null ? -1L : maxRecords;
-            maxActiveTime = maxTime == null ? -1L : maxTime;
-            started = start == null ? ZonedDateTime.now() : start;
-        }
-
-        @Override
-        public boolean isActive() {
-            return (maxReadRecords > -1) || (maxActiveTime > -1);
-        }
-
-        private boolean hasEnoughRecords(final long read) {
-            return maxReadRecords != -1 && read >= maxReadRecords;
-        }
-
-        private boolean isTimePassed() {
-            return maxActiveTime != -1
-                    && ZonedDateTime.now().toEpochSecond() - started.toEpochSecond() >= maxActiveTime;
-        }
-
-        @Override
-        public boolean shouldStop(final long readRecords) {
-            return hasEnoughRecords(readRecords) || isTimePassed();
         }
     }
 }

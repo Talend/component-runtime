@@ -20,18 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.input.Producer;
-import org.talend.sdk.component.runtime.input.StreamingInputImpl.RetryConfiguration;
-import org.talend.sdk.component.runtime.input.StreamingInputImpl.StopConfiguration;
-import org.talend.sdk.component.runtime.input.StreamingInputImpl.StopStrategy;
+import org.talend.sdk.component.runtime.input.Streaming.StopConfiguration;
+import org.talend.sdk.component.runtime.input.Streaming.StopStrategy;
 
 class StreamingInputImplTest {
 
@@ -132,12 +131,12 @@ class StreamingInputImplTest {
         assertEquals(-1, recordStrategy.getMaxActiveTime());
         assertTrue(recordStrategy.shouldStop(100));
         // maxActiveTime
-        ZonedDateTime start = ZonedDateTime.now();
-        final StopConfiguration timeStrategy = new StopConfiguration(-1L, 1L, start);
+        Long start = System.currentTimeMillis();
+        final StopConfiguration timeStrategy = new StopConfiguration(-1L, 1000L, start);
         assertTrue(timeStrategy.isActive());
         assertFalse(timeStrategy.shouldStop(1));
         assertEquals(-1, timeStrategy.getMaxReadRecords());
-        assertEquals(1, timeStrategy.getMaxActiveTime());
+        assertEquals(1000, timeStrategy.getMaxActiveTime());
         assertEquals(start, timeStrategy.getStarted());
         try {
             Thread.sleep(1000);
@@ -146,11 +145,11 @@ class StreamingInputImplTest {
         }
         assertTrue(timeStrategy.shouldStop(-1));
         // mixed
-        StopConfiguration bothStrategy = new StopConfiguration(100L, 2L, start);
+        StopConfiguration bothStrategy = new StopConfiguration(100L, 2000L, start);
         assertTrue(bothStrategy.isActive());
         assertFalse(bothStrategy.shouldStop(1));
         assertEquals(100, bothStrategy.getMaxReadRecords());
-        assertEquals(2, bothStrategy.getMaxActiveTime());
+        assertEquals(2000, bothStrategy.getMaxActiveTime());
         assertEquals(start, bothStrategy.getStarted());
         assertFalse(bothStrategy.shouldStop(40));
         try {
@@ -192,7 +191,7 @@ class StreamingInputImplTest {
     @Test
     void respectStopMaxActiveTime() {
         final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
-        final StopStrategy stopStrategy = new StopConfiguration(null, 1L, ZonedDateTime.now());
+        final StopStrategy stopStrategy = new StopConfiguration(null, 1000L, System.currentTimeMillis());
         final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
 
             @Producer
@@ -231,7 +230,7 @@ class StreamingInputImplTest {
     @Test
     void respectStopBothMaxReadRecords() {
         final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
-        final StopStrategy stopStrategy = new StopConfiguration(5L, 5L, null);
+        final StopStrategy stopStrategy = new StopConfiguration(5L, 5000L, null);
         final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
 
             @Producer
@@ -258,7 +257,7 @@ class StreamingInputImplTest {
     @Test
     void respectStopBothMaxActiveTime() {
         final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
-        final StopStrategy stopStrategy = new StopConfiguration(1000L, 1L, ZonedDateTime.now());
+        final StopStrategy stopStrategy = new StopConfiguration(1000L, 1000L, System.currentTimeMillis());
         final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
 
             @Producer
