@@ -34,7 +34,7 @@ LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
 LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
 SOURCES_DIR=${COVERAGE_DIR}/src
 M2_DIR=${DISTRIBUTION_DIR}/m2
-LOCAL_M2_DIR="/root/.m2/"
+LOCAL_M2_DIR="/root/.m2"
 
 SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
 REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
@@ -46,8 +46,8 @@ command -v unzip || usage "'unzip' command"
 
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'tck_version'"
-[ -z ${1+x} ] && usage "Parameter 'connectors_version'"
-[ -z ${2+x} ] && usage "Parameter 'connector'"
+[ -z ${2+x} ] && usage "Parameter 'connectors_version'"
+[ -z ${3+x} ] && usage "Parameter 'connector'"
 
 TCK_VERSION=${1}
 CONNECTOR_VERSION="${2}"
@@ -152,7 +152,7 @@ function download_all {
   unzip "${DOWNLOAD_DIR}/jacoco-${JACOCO_VERSION}.zip" "lib/*" -d "${DISTRIBUTION_DIR}"
 
   printf "\n## Download javax\n"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_SOURCE}/javax/activation/activation/${JAVAX_VERSION}/activation-${JAVAX_VERSION}.jar"
+  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/javax/activation/activation/${JAVAX_VERSION}/activation-${JAVAX_VERSION}.jar"
   echo copy:
   cp -v "${DOWNLOAD_DIR}/activation-${JAVAX_VERSION}.jar" "${LIB_DIR}"
 
