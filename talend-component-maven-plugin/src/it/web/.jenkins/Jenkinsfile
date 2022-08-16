@@ -81,11 +81,11 @@ String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
 
 // Locale storage of global var
-String workspace = "${WORKSPACE}"
+String workspace = "${env.WORKSPACE}"
 String scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
 String tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
 settings_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
-String build_user = "${BUILD_USER}"
+String build_user = "${env.BUILD_USER}"
 
 
 /**
@@ -251,7 +251,7 @@ pipeline {
         withCredentials([nexusCredentials]) {
           script {
             sh """
-              "${scripts_path}/tcomp-build.sh ${WORKSPACE}.pom.xml"
+              "${scripts_path}/tcomp-build.sh ${workspace}/pom.xml"
               "${scripts_path}/server-registry-init.sh ${runtimeVersion}"
               "${scripts_path}/server-registry-start.sh "1.36.0" ${serverPort}"
               "${scripts_path}/server-check.sh ${serverPort}"
