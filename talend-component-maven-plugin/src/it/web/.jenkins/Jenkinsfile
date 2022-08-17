@@ -42,7 +42,7 @@ final String podConfiguration = """
         volumeMounts: [
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
-          { name: efs-jenkins-component-runtime-download, mountPath: ${download_dir },
+          { name: efs-jenkins-component-runtime-download, mountPath: ${download_dir}},
           { name: dockercache, mountPath: /root/.dockercache }
         ]
         resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
