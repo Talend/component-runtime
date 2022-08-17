@@ -254,7 +254,7 @@ pipeline {
         withCredentials([nexusCredentials]) {
           script {
             sh """
-              if [[ ${TCK_VERSION} == *"-SNAPSHOT" ]]; then
+              if [[ ${runtimeVersion} == *"-SNAPSHOT" ]]; then
                 echo "# Build a snapshot version"
                 "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
               fi
