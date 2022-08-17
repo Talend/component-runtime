@@ -54,9 +54,9 @@ function usage(){
 function jacoco_instrument {
   printf "\n# Jacoco instrument\n"
   printf "\n## Backup original files\n"
+  ls -l "${LIB_DIR}"
   cp -v "${LIB_DIR}"/component-*".jar"  "${LIB_BACKUP_DIR}"
-  cp -v "${LIB_DIR}"/"${EXTRA_INSTRUMENTED}"*".jar " "${LIB_BACKUP_DIR}"
-  cp -v ./*"org.talend.sdk.component."* "${SOURCES_DIR}"
+  cp -v "${LIB_DIR}"/"${EXTRA_INSTRUMENTED}"*".jar" "${LIB_BACKUP_DIR}"
 
   printf "\n## Instrument classes in jar files\n"
   java -jar "${JACOCO_CLI_PATH}" \
