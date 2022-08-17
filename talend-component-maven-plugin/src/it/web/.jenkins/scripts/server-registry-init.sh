@@ -24,6 +24,7 @@
 
 # set -xe
 
+EXTRA_INSTRUMENTED="vault-client"
 JACOCO_VERSION="0.8.1"
 JAVAX_VERSION="1.1.1"
 MVN_CENTRAL="https://repo.maven.apache.org/maven2"
@@ -181,6 +182,7 @@ function download_all {
   download_component_lib "component-form-core"
   download_component_lib "component-form-model"
   download_component_lib "component-runtime-beam"
+  download_component_lib "${EXTRA_INSTRUMENTED}"
 
   download_connector
 
