@@ -66,7 +66,7 @@ function jacoco_instrument {
 
   printf "\n## Instrument classes in jar files\n"
   java -jar "${JACOCO_CLI_PATH}" \
-    instrument "${LIB_DIR}/component-"*".jar "\
+    instrument "${LIB_DIR}/component-"*".jar"\
                "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*".jar" \
     --dest "${LIB_INSTRUMENTED_DIR}"
 
