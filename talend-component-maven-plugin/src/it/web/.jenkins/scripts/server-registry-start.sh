@@ -20,7 +20,7 @@
 
 set -xe
 
-EXTRA_INSTRUMENTED="vault-client*"
+EXTRA_INSTRUMENTED="vault-client"
 INSTALL_DIR="/root/webtester/install"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
@@ -55,7 +55,7 @@ function jacoco_instrument {
   printf "\n# Jacoco instrument\n"
   printf "\n## Backup original files\n"
   cp -v "${LIB_DIR}"/component-*".jar"  "${LIB_BACKUP_DIR}"
-  cp -v "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*".jar " "${LIB_BACKUP_DIR}"
+  cp -v "${LIB_DIR}"/"${EXTRA_INSTRUMENTED}"*".jar " "${LIB_BACKUP_DIR}"
   cp -v ./*"org.talend.sdk.component."* "${SOURCES_DIR}"
 
   printf "\n## Instrument classes in jar files\n"
