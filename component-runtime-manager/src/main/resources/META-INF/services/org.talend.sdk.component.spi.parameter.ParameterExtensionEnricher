@@ -1,4 +1,5 @@
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.CharConstraintEnricher
+org.talend.sdk.component.runtime.manager.reflect.parameterenricher.IntegerConstraintEnricher
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConfigurationTypeParameterEnricher
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ValidationParameterEnricher
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher
