@@ -92,6 +92,7 @@ function init {
   echo "Delete the install dir" && rm -rf "${INSTALL_DIR}"
   echo "Create needed directories:"
   mkdir -vp "${INSTALL_DIR}"
+  mkdir -vp "${DOWNLOAD_DIR}"
   mkdir -vp "${DISTRIBUTION_DIR}"
   mkdir -vp "${COVERAGE_DIR}"
   mkdir -vp "${LIB_BACKUP_DIR}"
