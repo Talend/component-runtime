@@ -26,6 +26,10 @@ final String tsbiImage = 'jdk11-svc-springboot-builder'
 final String tsbiVersion = '2.9.18-2.4-20220104141654'
 final String stageDefaultContainer = tsbiImage
 final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
+
+// Local folder location
+final String install_dir="/root/webtester/install"
+final String download_dir="/root/webtester/download" // volume mounted on the podConfiguration
 final String podConfiguration = """
   apiVersion: v1
   kind: Pod
@@ -38,6 +42,7 @@ final String podConfiguration = """
         volumeMounts: [
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
+          { name: efs-jenkins-component-runtime-download, mountPath: ${download_dir },
           { name: dockercache, mountPath: /root/.dockercache }
         ]
         resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
@@ -49,6 +54,9 @@ final String podConfiguration = """
       - name: efs-jenkins-component-runtime-m2
         persistentVolumeClaim:
           claimName: efs-jenkins-component-runtime-m2
+      - name: efs-jenkins-component-runtime-download
+        persistentVolumeClaim:
+          claimName: efs-jenkins-component-runtime-download
     imagePullSecrets:
       - name: talend-registry
 """
@@ -79,9 +87,6 @@ String runtimeVersion = "default"
 String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
-
-
-
 
 /**
  * The pipeline
@@ -141,8 +146,6 @@ pipeline {
       "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
       "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
-
-
 
   }
   /**
@@ -259,8 +262,8 @@ pipeline {
                 "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
               fi
               
-              "${scripts_path}/server-registry-init.sh" "${runtimeVersion}" "1.36.0" "azure-dls-gen2"
-              "${scripts_path}/server-registry-start.sh" "${serverPort}"
+              "${scripts_path}/server-registry-init.sh" "${download_dir}" "${install_dir}" "${runtimeVersion}" "1.36.0" "azure-dls-gen2"
+              "${scripts_path}/server-registry-start.sh" "${install_dir}" "${serverPort}"
               "${scripts_path}/server-check.sh" "${serverPort}"
             """
           }
@@ -282,7 +285,7 @@ pipeline {
                              --define file="${fileToRun}.json"
 
               printf "======== Stop server\n"
-              ${scripts_path}/server-registry-stop.sh ${serverPort}
+              ${scripts_path}/server-registry-stop.sh ${install_dir}
 
               printf "======== Generate jacoco report \n"
               ${scripts_path}/jacoco-report.sh ${serverPort}

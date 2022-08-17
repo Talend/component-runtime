@@ -16,9 +16,11 @@
 #
 
 # Configure the environment to start a local server
-# $1: TCK_VERSION
-# $2: CONNECTOR_VERSION
-# $3: CONNECTOR_LIST
+# $1: INSTALL_DIR
+# $2: DOWNLOAD_DIR
+# $3: TCK_VERSION
+# $4: CONNECTOR_VERSION
+# $5: CONNECTOR_LIST
 
 # set -xe
 
@@ -29,8 +31,6 @@ TALEND_REPO="https://artifacts-zl.talend.com/nexus/service/local/repositories"
 COMPONENT_SE_REPO="${TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
 COMPONENT_LINK="${COMPONENT_SE_REPO}/NAME/VERSION/NAME-VERSION-component.car"
 
-INSTALL_DIR="/root/webtester/install"
-DOWNLOAD_DIR="/root/webtester/download"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
@@ -49,13 +49,17 @@ command -v wget || usage "'wget' command"
 command -v unzip || usage "'unzip' command"
 
 # check parameters
-[ -z ${1+x} ] && usage "Parameter 'tck_version'"
-[ -z ${2+x} ] && usage "Parameter 'connectors_version'"
-[ -z ${3+x} ] && usage "Parameter 'connector'"
+[ -z ${1+x} ] && usage "Parameter 'download_dir'"
+[ -z ${2+x} ] && usage "Parameter 'install_dir'"
+[ -z ${3+x} ] && usage "Parameter 'tck_version'"
+[ -z ${4+x} ] && usage "Parameter 'connectors_version'"
+[ -z ${5+x} ] && usage "Parameter 'connector'"
 
-TCK_VERSION=${1}
-CONNECTOR_VERSION="${2}"
-CONNECTOR_LIST="${3}"
+INSTALL_DIR=${1}
+DOWNLOAD_DIR=${2}
+TCK_VERSION=${3}
+CONNECTOR_VERSION="${4}"
+CONNECTOR_LIST="${5}"
 
 
 if [[ ${TCK_VERSION} != *"-SNAPSHOT" ]]; then
@@ -81,7 +85,7 @@ main() (
 function usage(){
   # TODO: check it
   echo "Start TCK Web tester using registry"
-  echo "Usage : $0 <tck_version> <conn_version> <connector_list>"
+  echo "Usage : $0 <install_dir> <download_dir> <tck_version> <conn_version> <connector_list>"
   echo
   echo "$1 is needed."
   echo

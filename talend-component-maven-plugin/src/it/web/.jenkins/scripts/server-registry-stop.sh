@@ -15,6 +15,8 @@
 #  limitations under the License.
 #
 
+[ -z ${1+x} ] && usage "Parameter 'install_dir'"
+
 INSTALL_DIR="/root/webtester/install"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 
@@ -25,6 +27,16 @@ main() (
 
   stop_server
 )
+
+function usage(){
+  # TODO: check it
+  echo "Stop TCK Web tester using registry"
+  echo "Usage : $0 <install_dir> <port>"
+  echo
+  echo "$1 is needed."
+  echo
+  exit 1
+}
 
 function stop_server {
   printf "\n# Stop server\n"

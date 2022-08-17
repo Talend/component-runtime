@@ -16,12 +16,12 @@
 #
 
 # Start a server in registry mode
-# $1: 'port' default 8080"
+# $1: install_dir
+# $1: port (default "8080")
 
 set -xe
 
 EXTRA_INSTRUMENTED="vault-client"
-INSTALL_DIR="/root/webtester/install"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
@@ -31,7 +31,10 @@ SOURCES_DIR=${COVERAGE_DIR}/src
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 
 # check parameters
-PORT=${1:-"8080"}
+[ -z ${1+x} ] && usage "Parameter 'install_dir'"
+
+INSTALL_DIR=${1}
+PORT=${2:-"8080"}
 
 main() (
   echo "##############################################"
@@ -44,7 +47,7 @@ main() (
 
 function usage(){
   echo "Start TCK Web tester using registry"
-  echo "Usage : $0 <port>"
+  echo "Usage : $0 <install_dir> <port>"
   echo
   echo "$1 is needed."
   echo
