@@ -254,7 +254,11 @@ pipeline {
         withCredentials([nexusCredentials]) {
           script {
             sh """
-              "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
+              if [[ ${TCK_VERSION} == *"-SNAPSHOT" ]]; then
+                echo "# Build a snapshot version"
+                "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
+              fi
+              
               "${scripts_path}/server-registry-init.sh" "${runtimeVersion}"
               "${scripts_path}/server-registry-start.sh" "1.36.0" ${serverPort}"
               "${scripts_path}/server-check.sh" "${serverPort}"
