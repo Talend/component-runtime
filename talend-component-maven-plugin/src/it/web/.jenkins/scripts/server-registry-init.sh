@@ -34,7 +34,7 @@ LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
 LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
 SOURCES_DIR=${COVERAGE_DIR}/src
 M2_DIR=${DISTRIBUTION_DIR}/m2
-LOCAL_M2_DIR="/root/.m2"
+LOCAL_M2_DIR="/root/.m2/repository"
 
 SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
 REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
@@ -58,7 +58,7 @@ if [[ ${TCK_VERSION} != *"-SNAPSHOT" ]]; then
   echo "Use maven central repository: ${MVN_CENTRAL}"
   MVN_SOURCE=${MVN_CENTRAL}
 else
-  echo "Use maven local m2: ${LOCAL_M2_DIR}"
+  echo "Use maven local m2 repository: ${LOCAL_M2_DIR}"
   MVN_SOURCE="${LOCAL_M2_DIR}"
 fi
 
