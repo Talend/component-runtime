@@ -288,7 +288,7 @@ pipeline {
               ${scripts_path}/server-registry-stop.sh ${install_dir}
 
               printf "======== Generate jacoco report \n"
-              ${scripts_path}/jacoco-report.sh ${serverPort}
+              ${scripts_path}/jacoco-report.sh  ${install_dir}
             """
           }
 
@@ -308,7 +308,8 @@ pipeline {
       archiveArtifacts(
         artifacts: """\
           **/${serverLog}, 
-          **/src/it/web/test/target/**/*""".stripIndent()
+          **/src/it/web/test/target/**/*,
+          "${install_dir}/coverage/**/*""".stripIndent()
       )
       recordIssues(
         enabledForFailure: true,

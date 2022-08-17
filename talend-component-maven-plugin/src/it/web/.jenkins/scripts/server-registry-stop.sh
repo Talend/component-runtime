@@ -17,7 +17,7 @@
 
 [ -z ${1+x} ] && usage "Parameter 'install_dir'"
 
-INSTALL_DIR="/root/webtester/install"
+INSTALL_DIR="${1}"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 
 main() (

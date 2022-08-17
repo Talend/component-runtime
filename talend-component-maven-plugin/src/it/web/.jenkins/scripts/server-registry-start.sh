@@ -61,8 +61,7 @@ function jacoco_instrument {
   cp -v "${LIB_DIR}"/"${EXTRA_INSTRUMENTED}"*".jar" "${LIB_BACKUP_DIR}"
 
   printf "\n## Backup original sources files\n"
-  cp -v ./*"org.talend.sdk.component."* "${SOURCES_DIR}"
-  # TODO check if vault (EXTRA_INSTRUMENTED)
+  # TODO cp -v ./*"org.talend.sdk.component."* "${SOURCES_DIR}"
   ls -l "${SOURCES_DIR}"
 
   printf "\n## Instrument classes in jar files\n"

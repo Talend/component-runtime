@@ -17,7 +17,11 @@
 
 # Jacoco report generation
 
-INSTALL_DIR="/root/webtester/install"
+# check parameters
+[ -z ${1+x} ] && usage "Parameter 'install_dir'"
+
+INSTALL_DIR=${1}
+
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 JACOCO_EXEC_PATH="${DISTRIBUTION_DIR}/jacoco.exec"
@@ -40,6 +44,15 @@ main() (
 
   jacoco_report
 )
+
+function usage(){
+  echo "Generate Jacoco report"
+  echo "Usage : $0 <install_dir>"
+  echo
+  echo "$1 is needed."
+  echo
+  exit 1
+}
 
 function jacoco_report {
   printf "\n# Jacoco report\n"

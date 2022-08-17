@@ -55,8 +55,8 @@ command -v unzip || usage "'unzip' command"
 [ -z ${4+x} ] && usage "Parameter 'connectors_version'"
 [ -z ${5+x} ] && usage "Parameter 'connector'"
 
-INSTALL_DIR=${1}
-DOWNLOAD_DIR=${2}
+DOWNLOAD_DIR=${1}
+INSTALL_DIR=${2}
 TCK_VERSION=${3}
 CONNECTOR_VERSION="${4}"
 CONNECTOR_LIST="${5}"
@@ -83,9 +83,8 @@ main() (
 )
 
 function usage(){
-  # TODO: check it
   echo "Start TCK Web tester using registry"
-  echo "Usage : $0 <install_dir> <download_dir> <tck_version> <conn_version> <connector_list>"
+  echo "Usage : $0 <install_dir> <download_dir> <tck_version> <connector_version> <connector_list>"
   echo
   echo "$1 is needed."
   echo
