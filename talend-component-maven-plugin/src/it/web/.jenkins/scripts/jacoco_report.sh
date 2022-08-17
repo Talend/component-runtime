@@ -18,7 +18,7 @@
 # Jacoco report generation
 # For now everything is hardcoded
 
-INSTALL_DIR="/tmp/webtester/install"
+INSTALL_DIR="/root/webtester/install"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 JACOCO_EXEC_PATH="${DISTRIBUTION_DIR}/jacoco.exec"

@@ -16,9 +16,10 @@
 #
 
 # Server check
-# Use curl to check if the server is running on the giving port
+# Check if the server is running on the giving port
 # $1: Server port (default is 8080)
 # $2: Time in second to wait for the server to respond (default is 30s)
+
 
 main() (
 

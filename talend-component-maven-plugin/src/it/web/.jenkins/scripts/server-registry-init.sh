@@ -15,9 +15,12 @@
 #  limitations under the License.
 #
 
-# Enter in a connector path and start a component test server in bash mode
-# This script will fail if the branch already exists.
-# $1: 'tck_version'"
+# Configure the environment to start a local server
+# $1: TCK_VERSION
+# $2: CONNECTOR_VERSION
+# $3: CONNECTOR_LIST
+
+# set -xe
 
 JACOCO_VERSION="0.8.1"
 JAVAX_VERSION="1.1.1"
@@ -148,7 +151,7 @@ function download_connector {
   echo "Deploy the car: ${component_path}"
   java -jar "${component_path}" maven-deploy --location "${M2_DIR}"
 
-	echo "##############################"
+	echo "##############################################"
 }
 
 function download_all {
@@ -195,7 +198,7 @@ function create_setenv_script {
     """
 	} > "${SETENV_PATH}"
 	chmod +x "${SETENV_PATH}"
-	echo "##############################"
+	echo "##############################################"
 }
 
 function generate_registry {

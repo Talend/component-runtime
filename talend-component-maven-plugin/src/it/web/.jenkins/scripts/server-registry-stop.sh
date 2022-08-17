@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-INSTALL_DIR="/tmp/webtester/install"
+INSTALL_DIR="/root/webtester/install"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 
 main() (

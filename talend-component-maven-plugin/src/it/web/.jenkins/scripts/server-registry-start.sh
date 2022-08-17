@@ -15,13 +15,13 @@
 #  limitations under the License.
 #
 
-# $1: 'connectors_version'
-# $2: 'port' default 8080"
+# $1: 'port' default 8080"
 
+set -xe
 
 EXTRA_INSTRUMENTED="vault-client*"
 
-INSTALL_DIR="/tmp/webtester/install"
+INSTALL_DIR="/root/webtester/install"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"

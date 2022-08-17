@@ -260,7 +260,7 @@ pipeline {
               fi
               
               "${scripts_path}/server-registry-init.sh" "${runtimeVersion}" "1.36.0" "azure-dls-gen2"
-              "${scripts_path}/server-registry-start.sh" "1.36.0" ${serverPort}"
+              "${scripts_path}/server-registry-start.sh" "${serverPort}"
               "${scripts_path}/server-check.sh" "${serverPort}"
             """
           }
