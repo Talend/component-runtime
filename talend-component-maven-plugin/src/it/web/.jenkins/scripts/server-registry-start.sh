@@ -27,7 +27,7 @@ DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
 LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
 LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
-SOURCES_DIR=${COVERAGE_DIR}/src
+SOURCES_DIR="${COVERAGE_DIR}/src"
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 
 # check parameters
@@ -57,8 +57,8 @@ function usage(){
 function jacoco_instrument {
   printf "\n# Jacoco instrument\n"
   printf "\n## Backup original jar files\n"
-  cp -v "${LIB_DIR}"/component-*".jar"  "${LIB_BACKUP_DIR}"
-  cp -v "${LIB_DIR}"/"${EXTRA_INSTRUMENTED}"*".jar" "${LIB_BACKUP_DIR}"
+  cp -v "${LIB_DIR}/component-"*.jar "${LIB_BACKUP_DIR}"
+  cp -v "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*.jar "${LIB_BACKUP_DIR}"
 
   printf "\n## Backup original sources files\n"
   cp -v ./*/src/main/java* "${SOURCES_DIR}"
