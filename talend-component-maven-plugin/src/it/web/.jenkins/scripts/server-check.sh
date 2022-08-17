@@ -18,21 +18,22 @@
 # Server check
 # Check if the server is running on the giving port
 # $1: Server port (default is 8080)
+# $1: Server addr (default is "http://localhost")
 # $2: Time in second to wait for the server to respond (default is 30s)
 
+which curl || { echo "curl is not present in tsbi image"; exit 1; }
 
 main() (
 
   serverPort=${1:-"8080"}
-  timeout=${2:-30}
+  serverAddress=${2:-"http://localhost"}
+  timeout=${3:-30}
 
   echo "Waiting server on ${serverPort}"
 
   i=0
 
-  which curl || { echo "curl is not present in tsbi image"; exit 1; }
-
-  while ! curl --output /dev/null --silent --head --fail http://localhost:${serverPort}; do
+  while ! curl --output /dev/null --silent --head --fail "${serverAddress}":"${serverPort}"; do
     sleep 1
     ((i = i + 1))
     printf "."

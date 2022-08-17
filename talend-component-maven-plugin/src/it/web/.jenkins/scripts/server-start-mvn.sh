@@ -46,6 +46,7 @@ main() (
 
   echo "# Execute the command"
   # shellcheck disable=SC2086
+  # shellcheck disable=SC2206
   cmdOption=(-Dtalend.web.batch=true ${portCmd} ${timeoutCmd} ${outputCmd})
   # echo ${cmdOption[*]}
 

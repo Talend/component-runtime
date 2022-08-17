@@ -15,6 +15,7 @@
 #  limitations under the License.
 #
 
+# Quick tcomp build without any test and facultative modules (documentation...)
 # $1: 'folder_to_build'
 
 
@@ -37,7 +38,7 @@ main() (
   echo "Maven fast build"
   echo "##############################################"
 
-  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}" -pl '!documentation,!reporting,!sample-parent'
+  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}" --batch-mode -pl '!documentation,!reporting,!sample-parent'
 )
 
 function usage(){

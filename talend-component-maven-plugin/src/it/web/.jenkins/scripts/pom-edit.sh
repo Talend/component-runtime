@@ -15,7 +15,9 @@
 #  limitations under the License.
 #
 
-set -xe
+# Edit version in pom
+
+# set -xe
 
 setMavenProperty() (
   propertyName="$1"
@@ -36,7 +38,7 @@ main() (
     echo "No version change in the pom, keep the default one"
   else
     echo "Change version in the pom ${element} to ${version} in ${connectorPath}"
-    cd "${connectorPath}"
+    cd "${connectorPath}" || exit
     pwd
     setMavenProperty "${element}" "${version}"
   fi

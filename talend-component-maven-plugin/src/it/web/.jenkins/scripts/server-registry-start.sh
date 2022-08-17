@@ -15,12 +15,12 @@
 #  limitations under the License.
 #
 
+# Start a server in registry mode
 # $1: 'port' default 8080"
 
 set -xe
 
 EXTRA_INSTRUMENTED="vault-client*"
-
 INSTALL_DIR="/root/webtester/install"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
@@ -43,7 +43,6 @@ main() (
 )
 
 function usage(){
-  # TODO: check it
   echo "Start TCK Web tester using registry"
   echo "Usage : $0 <port>"
   echo
@@ -57,7 +56,7 @@ function jacoco_instrument {
   printf "\n## Backup original files\n"
   cp -v "${LIB_DIR}"/component-*".jar"  "${LIB_BACKUP_DIR}"
   cp -v "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*".jar " "${LIB_BACKUP_DIR}"
-  cp -v ./*"org.talend.sdk.component."* "${SOURCES_DIR}" # TODO check it
+  cp -v ./*"org.talend.sdk.component."* "${SOURCES_DIR}"
 
   printf "\n## Instrument classes in jar files\n"
   java -jar "${JACOCO_CLI_PATH}" \

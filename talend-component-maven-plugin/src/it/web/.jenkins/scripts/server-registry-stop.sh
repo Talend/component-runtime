@@ -20,7 +20,7 @@ DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 
 main() (
   echo "##############################################"
-  echo "Start web tester"
+  echo "Stop web tester"
   echo "##############################################"
 
   stop_server

@@ -15,13 +15,15 @@
 #  limitations under the License.
 #
 
-# Change pom versions
+# Get the version from pom
+# $1: 'pom_file_path'
+
 main() (
-  pom_path="${1:?Missing connector path}"
+  pom_file_path="${1:?Missing connector path}"
 
   # shellcheck disable=SC2016
   mvn -q \
-      -f "${pom_path}" \
+      -f "${pom_file_path}" \
       -Dexec.executable=echo \
       -Dexec.args='${project.version}' \
       --non-recursive \
