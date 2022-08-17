@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,54 @@ class ParameterModelServiceTest {
             assertEquals("1", param.getMetadata().get("tcomp::validation::maxLength"),
                     () -> param.getMetadata().toString());
             assertNull(param.getMetadata().get("tcomp::validation::minLength"), () -> param.getMetadata().toString());
+        }
+    }
+
+    @Test
+    void intWithDefaultBoundaries() throws NoSuchMethodException {
+        final List<ParameterMeta> params = service.buildParameterMetas(
+                MethodsHolder.class.getMethod("intOption", int.class, Integer.class), "def", context());
+        assertEquals(2, params.size());
+
+        final List<String> expectedPaths = Arrays.asList("foo1", "foo2");
+        for (int i = 0; i < params.size(); i++) {
+            final String expectedPath = expectedPaths.get(i);
+            final ParameterMeta param = params.get(i);
+
+            assertEquals(expectedPath, param.getPath());
+            assertEquals(ParameterMeta.Type.NUMBER, param.getType());
+            assertEquals(String.valueOf((double) Integer.MIN_VALUE), param.getMetadata().get("tcomp::validation::min"),
+                    () -> param.getMetadata().toString());
+            assertEquals(String.valueOf((double) Integer.MAX_VALUE), param.getMetadata().get("tcomp::validation::max"),
+                    () -> param.getMetadata().toString());
+        }
+    }
+
+    @Test
+    void intWithOverwrittenDefaultBoundaries() throws NoSuchMethodException {
+        final List<ParameterMeta> params = service.buildParameterMetas(
+                MethodsHolder.class.getMethod("intOptionOverwrite", int.class, Integer.class), "def", context());
+        assertEquals(2, params.size());
+
+        {
+            final ParameterMeta param = params.get(0);
+
+            assertEquals("foo1", param.getPath());
+            assertEquals(ParameterMeta.Type.NUMBER, param.getType());
+            assertEquals("42.0", param.getMetadata().get("tcomp::validation::min"),
+                    () -> param.getMetadata().toString());
+            assertEquals(String.valueOf((double) Integer.MAX_VALUE), param.getMetadata().get("tcomp::validation::max"),
+                    () -> param.getMetadata().toString());
+        }
+        {
+            final ParameterMeta param = params.get(1);
+
+            assertEquals("foo2", param.getPath());
+            assertEquals(ParameterMeta.Type.NUMBER, param.getType());
+            assertEquals(String.valueOf((double) Integer.MIN_VALUE), param.getMetadata().get("tcomp::validation::min"),
+                    () -> param.getMetadata().toString());
+            assertEquals("42.0", param.getMetadata().get("tcomp::validation::max"),
+                    () -> param.getMetadata().toString());
         }
     }
 

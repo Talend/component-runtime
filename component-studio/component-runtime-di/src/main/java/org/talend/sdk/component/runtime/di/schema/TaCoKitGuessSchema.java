@@ -95,12 +95,14 @@ public class TaCoKitGuessSchema {
 
     private String action;
 
+    private final Integer version;
+
     private final String type = "schema";
 
     private static final String EMPTY = ""; //$NON-NLS-1$
 
     public TaCoKitGuessSchema(final PrintStream out, final Map<String, String> configuration, final String plugin,
-            final String family, final String componentName, final String action) {
+            final String family, final String componentName, final String action, final String version) {
         this.out = out;
         this.lineLimit = 50;
         this.lineCount = -1;
@@ -114,6 +116,7 @@ public class TaCoKitGuessSchema {
         this.columns = new LinkedHashMap<>();
         this.keysNoTypeYet = new HashSet<>();
         this.javaTypesManager = new JavaTypesManager();
+        this.version = Optional.ofNullable(version).map(Integer::parseInt).orElse(null);
         initClass2JavaTypeMap();
     }
 
@@ -422,8 +425,13 @@ public class TaCoKitGuessSchema {
     }
 
     private boolean guessInputComponentSchemaThroughResult() throws Exception {
+        // migration handler will be triggered and version of component will be passed
+        // It is a Studio part. As fallback idea is to have Integer.MAX_VALUE in case if the version is null.
+        // MAX_VALUE because we think that all appropriate migrations were already executed at the time when user can
+        // invoke guess schema.
+        final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
         final Mapper mapper = componentManager
-                .findMapper(family, componentName, 1, configuration)
+                .findMapper(family, componentName, version, configuration)
                 .orElseThrow(() -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
         if (JobStateAware.class.isInstance(mapper)) {
             JobStateAware.class.cast(mapper).setState(new JobStateAware.State());
