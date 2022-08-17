@@ -22,6 +22,8 @@ import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
+import org.talend.sdk.component.api.configuration.constraint.Max;
+import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
 import lombok.Getter;
@@ -34,6 +36,15 @@ public class MethodsHolder {
 
     public void charOption(@Option("delimiter") final char delimiter,
             @Option("delimiter2") final Character delimiter2) {
+        // no-op
+    }
+
+    public void intOption(@Option("foo1") final int foo1, @Option("foo2") final Integer foo2) {
+        // no-op
+    }
+
+    public void intOptionOverwrite(@Option("foo1") @Min(42) final int foo1,
+            @Option("foo2") @Max(42) final Integer foo2) {
         // no-op
     }
 
