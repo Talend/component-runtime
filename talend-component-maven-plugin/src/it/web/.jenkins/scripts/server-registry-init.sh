@@ -58,6 +58,7 @@ if [[ ${TCK_VERSION} != *"-SNAPSHOT" ]]; then
   echo "Use maven central repository: ${MVN_CENTRAL}"
   MVN_SOURCE=${MVN_CENTRAL}
 else
+  USE_LOCAL_M2=true
   echo "Use maven local m2 repository: ${LOCAL_M2_DIR}"
   MVN_SOURCE="${LOCAL_M2_DIR}"
 fi
@@ -111,7 +112,13 @@ function download_component_lib {
   file_path="${MVN_SOURCE}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${file_name}"
   printf "File path: %s\n" "${file_path}"
 
-  wget -N -P "${DOWNLOAD_DIR}" "${file_path}"
+  # Download
+  if [[ -z ${USE_LOCAL_M2}  ]]; then
+    wget -N -P "${DOWNLOAD_DIR}" "${file_path}"
+  else
+    cp -v "${file_path}" "${DOWNLOAD_DIR}"
+  fi
+
   echo "copy the file in lib folder"
   cp -v "${DOWNLOAD_DIR}/${file_name}" "${LIB_DIR}"
 }
@@ -132,9 +139,10 @@ function download_connector {
 
   # Download
   wget -N -P "${DOWNLOAD_DIR}" "${connector_final_link}"
-  component_path="${DOWNLOAD_DIR}/${CONNECTOR_LIST}-${CONNECTOR_VERSION}-component.car"
+
 
   # Deploy
+  component_path="${DOWNLOAD_DIR}/${CONNECTOR_LIST}-${CONNECTOR_VERSION}-component.car"
   echo "Deploy the car: ${component_path}"
   java -jar "${component_path}" maven-deploy --location "${M2_DIR}"
 
@@ -145,16 +153,19 @@ function download_all {
   printf "\n# Download ALL\n"
 
   printf "\n## Download and unzip component-server\n"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_SOURCE}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip"
+  if [[ -z ${USE_LOCAL_M2}  ]]; then
+    wget -N -P "${DOWNLOAD_DIR}" "${MVN_SOURCE}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip"
+  else
+    cp -v "${MVN_SOURCE}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip" "${DOWNLOAD_DIR}"
+  fi
   unzip -d "${INSTALL_DIR}" "${DOWNLOAD_DIR}/component-server-${TCK_VERSION}.zip"
 
   printf "\n## Download and unzip jacoco\n"
-  wget -N -P "${DOWNLOAD_DIR}" "${MVN_SOURCE}/org/jacoco/jacoco/0.8.1/jacoco-0.8.1.zip"
+  wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/org/jacoco/jacoco/0.8.1/jacoco-0.8.1.zip"
   unzip "${DOWNLOAD_DIR}/jacoco-${JACOCO_VERSION}.zip" "lib/*" -d "${DISTRIBUTION_DIR}"
 
   printf "\n## Download javax\n"
   wget -N -P "${DOWNLOAD_DIR}" "${MVN_CENTRAL}/javax/activation/activation/${JAVAX_VERSION}/activation-${JAVAX_VERSION}.jar"
-  echo copy:
   cp -v "${DOWNLOAD_DIR}/activation-${JAVAX_VERSION}.jar" "${LIB_DIR}"
 
   download_component_lib "component-tools"
