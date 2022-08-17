@@ -18,6 +18,10 @@
 # Quick tcomp build without any test and facultative modules (documentation...)
 # $1: 'folder_to_build'
 
+# check parameters
+[ -z ${1+x} ] && usage "Parameter 'folder_to_build'"
+
+folder_to_build=${1}
 
 MAVEN_FAST_INSTALL_CMD="mvn clean install \
                 -Dspotless.apply.skip=true \
@@ -28,10 +32,6 @@ MAVEN_FAST_INSTALL_CMD="mvn clean install \
                 -Dinvoker.skip=true \
                 -Dmaven.artifact.threads=25"
 
-# check parameters
-[ -z ${1+x} ] && usage "Parameter 'folder_to_build'"
-
-folder_to_build=${1}
 
 main() (
   echo "##############################################"

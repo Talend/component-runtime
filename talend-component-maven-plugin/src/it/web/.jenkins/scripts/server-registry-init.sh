@@ -32,18 +32,6 @@ TALEND_REPO="https://artifacts-zl.talend.com/nexus/service/local/repositories"
 COMPONENT_SE_REPO="${TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
 COMPONENT_LINK="${COMPONENT_SE_REPO}/NAME/VERSION/NAME-VERSION-component.car"
 
-COVERAGE_DIR="${INSTALL_DIR}/coverage"
-DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
-LIB_DIR="${DISTRIBUTION_DIR}/lib"
-LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
-LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
-SOURCES_DIR=${COVERAGE_DIR}/src
-M2_DIR=${DISTRIBUTION_DIR}/m2
-LOCAL_M2_DIR="/root/.m2/repository"
-
-SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
-REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
-
 
 # check command possibilities
 command -v wget || usage "'wget' command"
@@ -61,6 +49,20 @@ INSTALL_DIR=${2}
 TCK_VERSION=${3}
 CONNECTOR_VERSION="${4}"
 CONNECTOR_LIST="${5}"
+
+COVERAGE_DIR="${INSTALL_DIR}/coverage"
+DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
+LIB_DIR="${DISTRIBUTION_DIR}/lib"
+LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
+LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
+SOURCES_DIR=${COVERAGE_DIR}/src
+M2_DIR=${DISTRIBUTION_DIR}/m2
+LOCAL_M2_DIR="/root/.m2/repository"
+
+SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
+REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
+
+
 
 
 if [[ ${TCK_VERSION} != *"-SNAPSHOT" ]]; then

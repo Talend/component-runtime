@@ -19,7 +19,13 @@
 # $1: install_dir
 # $1: port (default "8080")
 
-set -xe
+# set -xe
+
+# check parameters
+[ -z ${1+x} ] && usage "Parameter 'install_dir'"
+
+INSTALL_DIR=${1}
+PORT=${2:-"8080"}
 
 EXTRA_INSTRUMENTED="vault-client"
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
@@ -30,11 +36,6 @@ LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
 SOURCES_DIR="${COVERAGE_DIR}/src"
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 
-# check parameters
-[ -z ${1+x} ] && usage "Parameter 'install_dir'"
-
-INSTALL_DIR=${1}
-PORT=${2:-"8080"}
 
 main() (
   echo "##############################################"
