@@ -88,16 +88,16 @@ public class Streaming {
         final LocalConfiguration configuration = ofNullable(ContainerFinder.Instance.get().find(plugin))
                 .map(it -> it.findService(LocalConfiguration.class))
                 .orElseGet(defaultLocalConfiguration);
-        final Long maxReadRecords = ofNullable(configuration.get("talend.input.streaming.maxRecords"))
-                .map(Long::parseLong)
-                .orElse(ofNullable(System.getProperty(
-                        String.format("%s.talend.input.streaming.maxRecords", plugin), "-1"))
+        final Long maxReadRecords =
+                ofNullable(System.getProperty(String.format("%s.talend.input.streaming.maxRecords", plugin)))
+                        .map(Long::parseLong)
+                        .orElse(ofNullable(configuration.get("talend.input.streaming.maxRecords"))
                                 .map(Long::parseLong)
                                 .orElse(null));
-        Long maxActiveTime = ofNullable(configuration.get("talend.input.streaming.maxDurationMs"))
-                .map(Long::parseLong)
-                .orElse(ofNullable(System.getProperty(
-                        String.format("%s.talend.input.streaming.maxDurationMs", plugin), "-1"))
+        Long maxActiveTime =
+                ofNullable(System.getProperty(String.format("%s.talend.input.streaming.maxDurationMs", plugin)))
+                        .map(Long::parseLong)
+                        .orElse(ofNullable(configuration.get("talend.input.streaming.maxDurationMs"))
                                 .map(Long::parseLong)
                                 .orElse(null));
         log.warn("[loadStopStrategy] {} {}", maxReadRecords, maxActiveTime);

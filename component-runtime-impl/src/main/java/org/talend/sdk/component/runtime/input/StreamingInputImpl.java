@@ -52,7 +52,8 @@ public class StreamingInputImpl extends InputImpl {
                 getClass().getName() + "_" + rootName() + "-" + name() + "_" + hashCode());
         this.retryConfiguration = retryConfiguration;
         this.stopStrategy = stopStrategy;
-        log.debug("[StreamingInputImpl] created with: retyStrategy: {}, stopStrategy: {}",  this.retryConfiguration, this.stopStrategy);
+        log.debug("[StreamingInputImpl] created with: retyStrategy: {}, stopStrategy: {}", this.retryConfiguration,
+                this.stopStrategy);
     }
 
     protected StreamingInputImpl() {
