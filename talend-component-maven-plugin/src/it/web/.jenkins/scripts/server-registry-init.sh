@@ -22,8 +22,9 @@
 JACOCO_VERSION="0.8.1"
 JAVAX_VERSION="1.1.1"
 MVN_CENTRAL="https://repo.maven.apache.org/maven2"
+TALEND_REPO="https://artifacts-zl.talend.com/nexus/service/local/repositories"
 COMPONENT_SE_REPO="${TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
-COMPONENT_LINK="${COMPONENT_SE_REPO}/azure-dls-gen2/VERSION/NAME-VERSION-component.car"
+COMPONENT_LINK="${COMPONENT_SE_REPO}/NAME/VERSION/NAME-VERSION-component.car"
 
 INSTALL_DIR="/root/webtester/install"
 DOWNLOAD_DIR="/root/webtester/download"
@@ -90,6 +91,8 @@ function init {
   echo "##############################################"
   echo "Install dir       : ${INSTALL_DIR}"
   echo "Server version    : ${TCK_VERSION}"
+  echo "Server version    : ${CONNECTOR_VERSION}"
+  echo "Server version    : ${CONNECTOR_LIST}"
   echo "Delete the install dir" && rm -rf "${INSTALL_DIR}"
   echo "Create needed directories:"
   mkdir -vp "${INSTALL_DIR}"
@@ -139,7 +142,6 @@ function download_connector {
 
   # Download
   wget -N -P "${DOWNLOAD_DIR}" "${connector_final_link}"
-
 
   # Deploy
   component_path="${DOWNLOAD_DIR}/${CONNECTOR_LIST}-${CONNECTOR_VERSION}-component.car"

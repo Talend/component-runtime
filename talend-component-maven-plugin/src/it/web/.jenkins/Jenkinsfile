@@ -259,7 +259,7 @@ pipeline {
                 "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
               fi
               
-              "${scripts_path}/server-registry-init.sh" "${runtimeVersion}"
+              "${scripts_path}/server-registry-init.sh" "${runtimeVersion}" "1.36.0" "azure-dls-gen2"
               "${scripts_path}/server-registry-start.sh" "1.36.0" ${serverPort}"
               "${scripts_path}/server-check.sh" "${serverPort}"
             """
