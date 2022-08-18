@@ -75,7 +75,15 @@ main() (
   --projects \!org.talend.sdk.component:remote-engine-customizer-image \
   --projects \!org.talend.sdk.component:singer-parent \
   --projects \!org.talend.sdk.component:singer-java \
-  --projects \!org.talend.sdk.component:component-kitap
+  --projects \!org.talend.sdk.component:component-kitap \
+  --projects \!org.talend.sdk.component:talend-component-maven-plugin \
+  --projects \!org.talend.sdk.component:gradle-talend-component \
+  --projects \!org.talend.sdk.component:component-runtime-testing \
+  --projects \!org.talend.sdk.component:component-runtime-testing-spark \
+  --projects \!org.talend.sdk.component:component-runtime-junit \
+  --projects \!org.talend.sdk.component:component-runtime-http-junit \
+  --projects \!org.talend.sdk.component:component-runtime-junit-base \
+  --projects \!org.talend.sdk.component:component-runtime-beam-junit
 )
 
 function usage(){
