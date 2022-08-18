@@ -325,12 +325,10 @@ pipeline {
         }
       }
 
-      publishers {
-        archiveArtifacts {
-          pattern("**/src/it/web/test/target/**/*")
-          pattern("${install_dir}/coverage/**/*")
-          pattern("${distribution_dir}/logs/**/*")
-        }
+      archiveArtifacts {
+        pattern("**/src/it/web/test/target/**/*")
+        pattern("${install_dir}/coverage/**/*")
+        pattern("${distribution_dir}/logs/**/*")
       }
     }
   }
