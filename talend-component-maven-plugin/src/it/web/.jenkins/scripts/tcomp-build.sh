@@ -40,7 +40,7 @@ main() (
 
 
   ${mvn_fast} clean install --file "${folder_to_build}" \
-                         --batch-mode \
+                         --quiet \
                          --projects  '!documentation' \
                          --projects  '!reporting' \
                          --projects  '!sample-parent'
