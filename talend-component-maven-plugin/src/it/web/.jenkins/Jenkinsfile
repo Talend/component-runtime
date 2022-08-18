@@ -28,8 +28,8 @@ final String stageDefaultContainer = tsbiImage
 final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 // Local folder location
-final String install_dir="/root/webtester/install"
-final String download_dir="/root/webtester/download" // volume mounted on the podConfiguration
+final String install_dir="./webtester/install"
+final String download_dir="./webtester/download" // volume mounted on the podConfiguration
 final String distribution_dir="${install_dir}/component-server-distribution"
 final String podConfiguration = """
   apiVersion: v1
@@ -272,26 +272,25 @@ pipeline {
     }
     stage('Execute Test') {
       steps {
-
-          withCredentials([nexusCredentials, tenantId_Rd]) {
-            sh """
-              printf "======== Execute test\n"
-              cd ${tests_path}
-              mvn clean test --settings="${MAVEN_SETTINGS}" \
-                             --define instance="${tenantInstance}" \
-                             --define accountId="${componentRuntimeApiTenantId_Rd}" \
-                             --define selectedEnvironment="${apiTesterEnv}" \
-                             --define stopOnFailure=false \
-                             --define file="${fileToRun}.json"
-
-              printf "======== Stop server\n"
-              ${scripts_path}/server-registry-stop.sh ${install_dir}
-
-              printf "======== Generate jacoco report \n"
-              ${scripts_path}/jacoco-report.sh  ${install_dir}
-            """
-          }
-
+        withCredentials([nexusCredentials, tenantId_Rd]) {
+          sh """
+             printf "======== Execute test\n"
+             cd ${tests_path}
+             mvn clean test --settings="${MAVEN_SETTINGS}" \
+                            --define instance="${tenantInstance}" \
+                            --define accountId="${componentRuntimeApiTenantId_Rd}" \
+                            --define selectedEnvironment="${apiTesterEnv}" \
+                            --define stopOnFailure=false \
+                            --define file="${fileToRun}.json"
+             printf "======== Stop server\n"
+             ${scripts_path}/server-registry-stop.sh ${install_dir}
+             printf "======== Generate jacoco report \n"
+             ${scripts_path}/jacoco-report.sh  ${install_dir}
+             printf "======== Generate Html reports\n"
+             mvn surefire-report:report-only -f ${tests_path}
+             mvn site -DgenerateReports=false -f ${tests_path}
+             """
+        }
       }
     }
   }
@@ -300,50 +299,41 @@ pipeline {
    */
   post {
     always {
-      script {
-        println "======== Generate Html reports\n"
-        sh """
-          mvn surefire-report:report-only -f ${tests_path}
-          mvn site -DgenerateReports=false -f ${tests_path}
-        """
+      recordIssues (
+        enabledForFailure: true,
+        tools: [
+          taskScanner(
+            id: 'todo-tck-api-test',
+            name: 'api-test Todo(low)/Fixme(high)',
+            includePattern: '**/src/it/web/test/**/*.json',
+            ignoreCase: true,
+            highTags: 'FIX_ME, FIXME',
+            lowTags: 'TO_DO, TODO'
+          ),
+          junitParser(
+            id: 'unit-test',
+            name: 'tcomp API Test',
+            pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
+          )
+        ]
+      )
 
-        recordIssues (
-          enabledForFailure: true,
-          tools: [
-            taskScanner(
-              id: 'todo-tck-api-test',
-              name: 'api-test Todo(low)/Fixme(high)',
-              includePattern: '**/src/it/web/test/**/*.json',
-              ignoreCase: true,
-              highTags: 'FIX_ME, FIXME',
-              lowTags: 'TO_DO, TODO'
-            ),
-            junitParser(
-              id: 'unit-test',
-              name: 'tcomp API Test',
-              pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
-            )
-          ]
-        )
+      // Archive artifacts
+      archiveArtifacts artifacts: "${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
+      //archiveArtifacts artifacts: "**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*"
 
-        // Archive artifacts
-        archiveArtifacts([
-          artifacts: "**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*"
-          ]
-        )
 
-        // Link API Coverage
-        publishHTML([
-          allowMissing: false,
-          alwaysLinkToLastBuild: false,
-          keepAll: false,
-          reportDir: "${install_dir}/coverage",
-          reportFiles: 'index.html',
-          reportName: 'API Coverage',
-          reportTitles: 'index.html'
-          ]
-        )
-      }
+      // Link API Coverage
+      publishHTML([
+        allowMissing: false,
+        alwaysLinkToLastBuild: false,
+        keepAll: false,
+        reportDir: "${install_dir}/coverage",
+        reportFiles: 'index.html',
+        reportName: 'API Coverage',
+        reportTitles: 'index.html'
+        ]
+      )
     }
   }
 }
