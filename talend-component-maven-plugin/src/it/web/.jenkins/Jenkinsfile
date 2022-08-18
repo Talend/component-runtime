@@ -319,8 +319,8 @@ pipeline {
       )
 
       // Archive artifacts
-      archiveArtifacts artifacts: "${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
-      //archiveArtifacts artifacts: "**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*"
+      //archiveArtifacts artifacts: "${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
+      archiveArtifacts artifacts: "${install_dir}/coverage/**/*, **/src/it/web/test/target/**/*, ${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
 
 
       // Link API Coverage
