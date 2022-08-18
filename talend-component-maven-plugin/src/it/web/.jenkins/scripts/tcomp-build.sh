@@ -41,7 +41,7 @@ main() (
   echo "Maven fast build"
   echo "##############################################"
 
-  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}" --batch-mode -pl '!documentation,!reporting,!sample-parent'
+  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}" -pl \!documentation -pl \!reporting -pl \!sample-parent
 )
 
 function usage(){
