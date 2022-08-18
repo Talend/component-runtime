@@ -21,7 +21,7 @@
 # $1: Server addr (default is "http://localhost")
 # $2: Time in second to wait for the server to respond (default is 30s)
 
-set -xe
+# set -xe
 
 which curl || { echo "curl is not present in tsbi image"; exit 1; }
 

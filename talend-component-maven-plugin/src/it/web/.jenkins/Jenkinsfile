@@ -310,8 +310,9 @@ pipeline {
         artifacts: """\
           **/${serverLog}, 
           **/src/it/web/test/target/**/*,
-          "${install_dir}/coverage/**/*,
-          "${distribution_dir}/logs/**/*""".stripIndent()
+          ${install_dir}/coverage/**/*,
+          ${distribution_dir}/logs/**/*
+        """.stripIndent()
       )
       recordIssues(
         enabledForFailure: true,
