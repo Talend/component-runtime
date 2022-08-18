@@ -30,6 +30,7 @@ final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}"
 // Local folder location
 final String install_dir="/root/webtester/install"
 final String download_dir="/root/webtester/download" // volume mounted on the podConfiguration
+final String distribution_dir="${install_dir}/component-server-distribution"
 final String podConfiguration = """
   apiVersion: v1
   kind: Pod
@@ -309,7 +310,8 @@ pipeline {
         artifacts: """\
           **/${serverLog}, 
           **/src/it/web/test/target/**/*,
-          "${install_dir}/coverage/**/*""".stripIndent()
+          "${install_dir}/coverage/**/*,
+          "${distribution_dir}/logs/**/*""".stripIndent()
       )
       recordIssues(
         enabledForFailure: true,
