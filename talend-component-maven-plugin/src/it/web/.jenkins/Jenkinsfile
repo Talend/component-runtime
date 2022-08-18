@@ -326,16 +326,33 @@ pipeline {
           }
         }
         publishers {
-          archiveArtifacts {
-            pattern("**/src/it/web/test/target/**/*")
-            pattern("${install_dir}/coverage/**/*")
-            pattern("${distribution_dir}/logs/**/*")
-            onlyIfSuccessful()
+          // Archive artifacts
+          archiveArtifacts(
+              artifacts("**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*")
+          )
+
+          // Link API Coverage
+          report('API Coverage') {
+            // Sets the path to the HTML report directory relative to the workspace.
+            reportFiles("${install_dir}/coverage")
+            reportName("API Coverage") // Sets a title for the report.
+            reportTitles('index.html') // Sets the title for HTML files.
+
+            allowMissing(false) // If set, allows report to be missing.
+            alwaysLinkToLastBuild(true) // Publishes the link on project level even if build failed.
+            keepAll(true) // If set, archives reports for all successful builds.
           }
         }
-        //archiveArtifacts(
-        //    artifacts("**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*")
-        //)
+
+        //publishHTML(
+        //    target: [
+        //        allowMissing         : false,
+        //        alwaysLinkToLastBuild: false,
+        //        keepAll              : true,
+        //        reportDir            : 'reporting/target/site/jacoco-aggregate',
+        //        reportFiles          : 'index.html',
+        //        reportName           : "Coverage"
+        //    ])
       }
     }
   }
