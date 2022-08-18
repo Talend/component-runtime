@@ -322,8 +322,14 @@ pipeline {
 
       println "====== Archive artifacts"
       archiveArtifacts artifacts: "${install_dir}/coverage/**/*, **/src/it/web/test/target/**/*, ${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
-      println "Artifact 1: ${install_dir}/coverage/**/*"
-      println "Artifact 2: ${distribution_dir}/logs/**/*"
+      println "Artifact 1: **/src/it/web/test/target/**/*"
+      println "Artifact 2: ${install_dir}/coverage/**/*"
+      println "Artifact 3: ${distribution_dir}/logs/**/*"
+
+      sh """
+        ls -l ${install_dir}/coverage/
+        ls -l ${distribution_dir}/logs
+      """
 
 
       println "====== Link API Coverage"
