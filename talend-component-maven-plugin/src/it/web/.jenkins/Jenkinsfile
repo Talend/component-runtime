@@ -328,7 +328,7 @@ pipeline {
         publishers {
           // Archive artifacts
           archiveArtifacts(
-              artifacts("**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*")
+              artifacts: "**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*"
           )
 
           // Link API Coverage
