@@ -310,8 +310,6 @@ pipeline {
       println "======== Watch logs\n"
       sh """
         ls ${distribution_dir}/logs
-        cat ${distribution_dir}/logs/component-server.log
-        cat ${distribution_dir}/logs/meecrowave.out
       """
       archiveArtifacts(
         artifacts: """\

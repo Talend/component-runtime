@@ -37,6 +37,10 @@ SOURCES_DIR="${COVERAGE_DIR}/src"
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 
 
+MEECROWAVE_LOG_PATH="${DISTRIBUTION_DIR}/logs/meecrowave.out"
+TCOMP_LOG_PATH="${DISTRIBUTION_DIR}/logs/component-server.log"
+
+
 main() (
   echo "##############################################"
   echo "Start web tester"
@@ -79,9 +83,17 @@ function jacoco_instrument {
 function start_server {
   printf "# Start server\n"
   # Go in the distribution directory
-  cd "${DISTRIBUTION_DIR}" || exit
+  cd "${DISTRIBUTION_DIR}" || exit 1
   # Start the server
   ./bin/meecrowave.sh start
+
+  if grep -q "Exception in thread" "$MEECROWAVE_LOG_PATH"; then
+      echo ""
+      echo "Error happened on meecrowave start:"
+      cat "$MEECROWAVE_LOG_PATH"
+      exit 1
+    	echo "##############################################"
+  fi
 
   LOCAL_IP=$(hostname -I | sed 's/ *$//g')
 
