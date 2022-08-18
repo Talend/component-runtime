@@ -306,6 +306,13 @@ pipeline {
         mvn surefire-report:report-only -f ${tests_path}
         mvn site -DgenerateReports=false -f ${tests_path}
       """
+
+      println "======== Watch logs\n"
+      sh """
+        ls ${distribution_dir}/logs
+        cat ${distribution_dir}/logs/component-server.log
+        cat ${distribution_dir}/logs/meecrowave.out
+      """
       archiveArtifacts(
         artifacts: """\
           **/${serverLog}, 
