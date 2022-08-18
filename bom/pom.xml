@@ -89,7 +89,7 @@
     <jackson-databind.version>2.13.2.2</jackson-databind.version>
 
     <bouncycastle.version>1.70</bouncycastle.version>
-    <commons-io.version>2.8.0</commons-io.version>
+    <commons-io.version>2.9.0</commons-io.version>
 
     <!-- misc dependencies -->
     <jcommander.version>1.78</jcommander.version>
