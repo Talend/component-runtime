@@ -18,6 +18,8 @@
 # Quick tcomp build without any test and facultative modules (documentation...)
 # $1: 'folder_to_build'
 
+set -xe
+
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'folder_to_build'"
 
