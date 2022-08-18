@@ -306,24 +306,24 @@ pipeline {
         mvn site -DgenerateReports=false -f ${tests_path}
       """
 
-      recordIssues (
-        enabledForFailure: true,
-        tools: [
-          taskScanner(
-            id: 'todo-tck-api-test',
-            name: 'api-test Todo(low)/Fixme(high)',
-            includePattern: '**/src/it/web/test/**/*.json',
-            ignoreCase: true,
-            highTags: 'FIX_ME, FIXME',
-            lowTags: 'TO_DO, TODO'
-          ),
-          junitParser(
-            id: 'unit-test',
-            name: 'tcomp API Test',
-            pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
-          )
-        ]
-      )
+      recordIssues {
+        enabledForFailure(true)
+        tools {
+          taskScanner {
+            id('todo-tck-api-test')
+            name ('api-test Todo(low)/Fixme(high)')
+            includePattern ('**/src/it/web/test/**/*.json')
+            ignoreCase (true)
+            highTags ('FIX_ME, FIXME')
+            lowTags ('TO_DO, TODO')
+          }
+          junitParser {
+            id('unit-test')
+            name('tcomp API Test')
+            pattern('**/src/it/web/test/target/surefire-reports/**/*.xml')
+          }
+        }
+      }
 
       publishers {
         archiveArtifacts {
