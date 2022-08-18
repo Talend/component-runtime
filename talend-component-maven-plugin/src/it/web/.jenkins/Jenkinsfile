@@ -325,9 +325,17 @@ pipeline {
             }
           }
         }
-        archiveArtifacts(
-            artifacts("**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*")
-        )
+        publishers {
+          archiveArtifacts {
+            pattern("**/src/it/web/test/target/**/*")
+            pattern("${install_dir}/coverage/**/*")
+            pattern("${distribution_dir}/logs/**/*")
+            onlyIfSuccessful()
+          }
+        }
+        //archiveArtifacts(
+        //    artifacts("**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*")
+        //)
       }
     }
   }
