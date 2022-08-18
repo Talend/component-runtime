@@ -306,18 +306,7 @@ pipeline {
         mvn site -DgenerateReports=false -f ${tests_path}
       """
 
-      println "======== Watch logs\n"
-      sh """
-        ls ${distribution_dir}/logs
-      """
-      archiveArtifacts(
-        artifacts: """\
-          **/src/it/web/test/target/**/*,
-          ${install_dir}/coverage/**/*,
-          ${distribution_dir}/logs/**/*
-        """.stripIndent()
-      )
-      recordIssues(
+      recordIssues (
         enabledForFailure: true,
         tools: [
           taskScanner(
@@ -335,6 +324,14 @@ pipeline {
           )
         ]
       )
+
+      publishers {
+        archiveArtifacts {
+          pattern("**/src/it/web/test/target/**/*")
+          pattern("${install_dir}/coverage/**/*")
+          pattern("${distribution_dir}/logs/**/*")
+        }
+      }
     }
   }
 }
