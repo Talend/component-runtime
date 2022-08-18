@@ -318,14 +318,13 @@ pipeline {
         ]
       )
 
-      // Archive artifacts
-      archiveArtifacts artifacts: "**/src/it/web/test/target/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
-      archiveArtifacts artifacts: "${install_dir}/coverage/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
-      archiveArtifacts artifacts: "${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
-      //archiveArtifacts artifacts: "${install_dir}/coverage/**/*, **/src/it/web/test/target/**/*, ${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
+      println "====== Archive artifacts"
+      archiveArtifacts artifacts: "${install_dir}/coverage/**/*, **/src/it/web/test/target/**/*, ${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
+      println "Artifact 1: ${install_dir}/coverage/**/*"
+      println "Artifact 2: ${distribution_dir}/logs/**/*"
 
 
-      // Link API Coverage
+      println "====== Link API Coverage"
       publishHTML([
         allowMissing: false,
         alwaysLinkToLastBuild: false,
