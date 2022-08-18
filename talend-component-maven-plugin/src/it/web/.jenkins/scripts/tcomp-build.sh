@@ -41,7 +41,41 @@ main() (
   echo "Maven fast build"
   echo "##############################################"
 
-  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}" -pl \!documentation -pl \!reporting -pl \!sample-parent
+  ${MAVEN_FAST_INSTALL_CMD} \
+  --file "${folder_to_build}" \
+  --projects \!documentation \
+  --projects \!reporting \
+  --projects \!sample-parent \
+  --projects \!sample-parent/sample \
+  --projects \!sample-parent/sample-beam \
+  --projects \!sample-parent/documentation-sample \
+  --projects \!org.talend.sdk.component:activeif-component \
+  --projects \!org.talend.sdk.component:checkbox-component \
+  --projects \!org.talend.sdk.component:code-component \
+  --projects \!org.talend.sdk.component:credentials-component \
+  --projects \!org.talend.sdk.component:datastorevalidation-component \
+  --projects \!org.talend.sdk.component:dropdownlist-component \
+  --projects \!org.talend.sdk.component:integer-component \
+  --projects \!org.talend.sdk.component:minmaxvalidation-component \
+  --projects \!org.talend.sdk.component:multiselect-component \
+  --projects \!org.talend.sdk.component:patternvalidation-component \
+  --projects \!org.talend.sdk.component:requiredvalidation-component \
+  --projects \!org.talend.sdk.component:suggestions-component \
+  --projects \!org.talend.sdk.component:table-component \
+  --projects \!org.talend.sdk.component:textarea-component \
+  --projects \!org.talend.sdk.component:textinput-component \
+  --projects \!org.talend.sdk.component:updatable-component \
+  --projects \!org.talend.sdk.component:urlvalidation-component \
+  --projects \!org.talend.sdk.component:talend-component-kit-intellij-plugin \
+  --projects \!org.talend.sdk.component:remote-engine-customizer \
+  --projects \!org.talend.sdk.component:images \
+  --projects \!org.talend.sdk.component:component-server-image \
+  --projects \!org.talend.sdk.component:component-starter-server-image \
+  --projects \!org.talend.sdk.component:component-server-vault-proxy-image \
+  --projects \!org.talend.sdk.component:remote-engine-customizer-image \
+  --projects \!org.talend.sdk.component:singer-parent \
+  --projects \!org.talend.sdk.component:singer-java \
+  --projects \!org.talend.sdk.component:component-kitap
 )
 
 function usage(){
