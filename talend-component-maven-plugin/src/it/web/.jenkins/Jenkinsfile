@@ -282,6 +282,8 @@ pipeline {
                             --define selectedEnvironment="${apiTesterEnv}" \
                             --define stopOnFailure=false \
                             --define file="${fileToRun}.json"
+             """
+          sh """
              printf "======== Stop server\n"
              ${scripts_path}/server-registry-stop.sh ${install_dir}
              printf "======== Generate jacoco report \n"
