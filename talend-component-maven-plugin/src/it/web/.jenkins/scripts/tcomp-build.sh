@@ -41,9 +41,7 @@ main() (
 
   ${mvn_fast} clean install --file "${folder_to_build}" \
                          --quiet \
-                         --projects  '!documentation' \
-                         --projects  '!reporting' \
-                         --projects  '!sample-parent'
+                         -pl '!documentation,!reporting,!sample-parent'
 )
 
 function usage(){
