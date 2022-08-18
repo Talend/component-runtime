@@ -324,11 +324,12 @@ pipeline {
           }
         }
       }
-
       archiveArtifacts {
-        pattern("**/src/it/web/test/target/**/*")
-        pattern("${install_dir}/coverage/**/*")
-        pattern("${distribution_dir}/logs/**/*")
+        artifacts {
+          pattern("**/src/it/web/test/target/**/*")
+          pattern("${install_dir}/coverage/**/*")
+          pattern("${distribution_dir}/logs/**/*")
+        }
       }
     }
   }
