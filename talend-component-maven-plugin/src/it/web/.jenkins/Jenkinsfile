@@ -325,25 +325,24 @@ pipeline {
             )
           ]
         )
-        publishers {
-          // Archive artifacts
-          archiveArtifacts([
-            artifacts: "**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*"
-            ]
-          )
 
-          // Link API Coverage
-          publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: false,
-            keepAll: false,
-            reportDir: "${install_dir}/coverage",
-            reportFiles: 'index.html',
-            reportName: 'API Coverage',
-            reportTitles: 'index.html'
-            ]
-          )
-        }
+        // Archive artifacts
+        archiveArtifacts([
+          artifacts: "**/src/it/web/test/target/**/*, ${install_dir}/coverage/**/*, ${distribution_dir}/logs/**/*"
+          ]
+        )
+
+        // Link API Coverage
+        publishHTML([
+          allowMissing: false,
+          alwaysLinkToLastBuild: false,
+          keepAll: false,
+          reportDir: "${install_dir}/coverage",
+          reportFiles: 'index.html',
+          reportName: 'API Coverage',
+          reportTitles: 'index.html'
+          ]
+        )
       }
     }
   }
