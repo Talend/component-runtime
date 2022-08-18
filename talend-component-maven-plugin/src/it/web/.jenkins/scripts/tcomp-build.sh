@@ -23,14 +23,13 @@
 
 folder_to_build=${1}
 
-MAVEN_FAST_INSTALL_CMD="mvn clean install \
-                -Dspotless.apply.skip=true \
-                -Dspotbugs.skip=true \
-                -Dcheckstyle.skip=true -Drat.skip=true \
-                -DskipTests \
-                -Dmaven.javadoc.skip=true \
-                -Dinvoker.skip=true \
-                -Dmaven.artifact.threads=25"
+alias mvn_fast="mvn -Dspotless.apply.skip=true \
+                    -Dspotbugs.skip=true \
+                    -Dcheckstyle.skip=true -Drat.skip=true \
+                    -DskipTests \
+                    -Dmaven.javadoc.skip=true \
+                    -Dinvoker.skip=true \
+                    -Dmaven.artifact.threads=25"
 
 
 main() (
@@ -38,7 +37,11 @@ main() (
   echo "Maven fast build"
   echo "##############################################"
 
-  ${MAVEN_FAST_INSTALL_CMD} -f "${folder_to_build}" --batch-mode -pl '!documentation,!reporting,!sample-parent'
+  mvn_fast clean install --file "${folder_to_build}" \
+                         --batch-mode \
+                         --projects  '!documentation' \
+                         --projects  '!reporting' \
+                         --projects  '!sample-parent'
 )
 
 function usage(){
