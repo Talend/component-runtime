@@ -87,10 +87,10 @@ function start_server {
   # Start the server
   ./bin/meecrowave.sh start
 
-  if grep -q "Exception in thread" "$MEECROWAVE_LOG_PATH"; then
+  if grep -q "Exception in thread" "${MEECROWAVE_LOG_PATH}"; then
       echo ""
       echo "Error happened on meecrowave start:"
-      cat "$MEECROWAVE_LOG_PATH"
+      cat "${MEECROWAVE_LOG_PATH}"
       exit 1
     	echo "##############################################"
   fi
