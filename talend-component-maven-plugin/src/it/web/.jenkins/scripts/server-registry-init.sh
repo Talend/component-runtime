@@ -21,6 +21,7 @@
 # $3: TCK_VERSION
 # $4: CONNECTOR_VERSION
 # $5: CONNECTOR_LIST
+# $5: SERVER_PORT (default "8080")
 
 # set -xe
 
@@ -49,6 +50,7 @@ INSTALL_DIR=${2}
 TCK_VERSION=${3}
 CONNECTOR_VERSION="${4}"
 CONNECTOR_LIST="${5}"
+SERVER_PORT=${6:-"8080"}
 
 COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
@@ -197,7 +199,7 @@ function create_setenv_script {
 		echo 	"""
     export JAVA_HOME=\"${JAVA_HOME}\"
     export ENDORSED_PROP=\"ignored.endorsed.dir\"
-    export MEECROWAVE_OPTS=\"-Dhttp=${PORT}\"
+    export MEECROWAVE_OPTS=\"-Dhttp=${SERVER_PORT}\"
     export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"
     export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"
     export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"

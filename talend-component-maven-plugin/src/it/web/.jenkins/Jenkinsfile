@@ -80,8 +80,7 @@ final def tenantId_Rd = string(
  * Options
  */
 
-final String serverPort = "8081"
-final String serverLog = "component_server.log"
+final String serverPort = "8081" //TODO: Find a available port to avoid conflicts
 
 // Default value for parameters
 String runtimeVersion = "default"
@@ -263,7 +262,7 @@ pipeline {
                 "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
               fi
               
-              "${scripts_path}/server-registry-init.sh" "${download_dir}" "${install_dir}" "${runtimeVersion}" "1.36.0" "azure-dls-gen2"
+              "${scripts_path}/server-registry-init.sh" "${download_dir}" "${install_dir}" "${runtimeVersion}" "1.36.0" "azure-dls-gen2" "${serverPort}"
               "${scripts_path}/server-registry-start.sh" "${install_dir}" "${serverPort}"
               "${scripts_path}/server-check.sh" "${serverPort}"
             """
@@ -313,7 +312,6 @@ pipeline {
       """
       archiveArtifacts(
         artifacts: """\
-          **/${serverLog}, 
           **/src/it/web/test/target/**/*,
           ${install_dir}/coverage/**/*,
           ${distribution_dir}/logs/**/*
