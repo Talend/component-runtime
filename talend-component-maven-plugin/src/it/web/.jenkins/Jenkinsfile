@@ -31,9 +31,9 @@ final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}"
 final String install_dir="./webtester/install"
 final String download_dir="./webtester/download" // volume mounted on the podConfiguration
 final String distribution_dir="${install_dir}/component-server-distribution"
-final String artifact1="**/${install_dir}/coverage/**/*"
+final String artifact1="**/${install_dir:2}/coverage/**/*"
 final String artifact2="**/src/it/web/test/target/**/*"
-final String artifact3="**/${distribution_dir}/logs/**/*"
+final String artifact3="**/${distribution_dir:2}/logs/**/*"
 
 final String podConfiguration = """
   apiVersion: v1
@@ -336,11 +336,11 @@ pipeline {
       println "====== Archive artifacts"
       archiveArtifacts artifacts: "${artifact1}, ${artifact2}, ${artifact3}", allowEmptyArchive: false, onlyIfSuccessful: false
       sh """
-        printf "Artifact 1: ${artifact1}"
+        printf "Artifact 1: ${artifact1}\n"
         ls -l "${artifact1}"
-        printf "Artifact 2: ${artifact2}"
+        printf "Artifact 2: ${artifact2}\n"
         ls -l "${artifact2}"
-        printf "Artifact 3: ${artifact3}"
+        printf "Artifact 3: ${artifact3}\n"
         ls -l "${artifact3}"
         """
 
