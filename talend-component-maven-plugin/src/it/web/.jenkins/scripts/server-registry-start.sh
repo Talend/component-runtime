@@ -17,18 +17,18 @@
 
 # Start a server in registry mode
 # $1: install_dir
-# $1: port (default "8080")
+# $2: coverage_dir
+# $3: port (default "8080")
 
 # set -xe
 
-# check parameters
 [ -z ${1+x} ] && usage "Parameter 'install_dir'"
-
+[ -z ${1+x} ] && usage "Parameter 'coverage_dir'"
 INSTALL_DIR=${1}
-PORT=${2:-"8080"}
+COVERAGE_DIR=${2}
+PORT=${3:-"8080"}
 
 EXTRA_INSTRUMENTED="vault-client"
-COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
 LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"

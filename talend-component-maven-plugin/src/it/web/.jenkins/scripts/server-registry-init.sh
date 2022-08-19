@@ -41,18 +41,19 @@ command -v unzip || usage "'unzip' command"
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'download_dir'"
 [ -z ${2+x} ] && usage "Parameter 'install_dir'"
-[ -z ${3+x} ] && usage "Parameter 'tck_version'"
-[ -z ${4+x} ] && usage "Parameter 'connectors_version'"
-[ -z ${5+x} ] && usage "Parameter 'connector'"
+[ -z ${3+x} ] && usage "Parameter 'coverage_dir'"
+[ -z ${4+x} ] && usage "Parameter 'tck_version'"
+[ -z ${5+x} ] && usage "Parameter 'connectors_version'"
+[ -z ${6+x} ] && usage "Parameter 'connector'"
 
 DOWNLOAD_DIR=${1}
 INSTALL_DIR=${2}
-TCK_VERSION=${3}
-CONNECTOR_VERSION="${4}"
-CONNECTOR_LIST="${5}"
-SERVER_PORT=${6:-"8080"}
+COVERAGE_DIR=${3}
+TCK_VERSION=${4}
+CONNECTOR_VERSION="${5}"
+CONNECTOR_LIST="${6}"
+SERVER_PORT=${7:-"8080"}
 
-COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
 LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"

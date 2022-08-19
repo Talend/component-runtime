@@ -15,14 +15,18 @@
 #  limitations under the License.
 #
 
+# set -xe
+
 # Jacoco report generation
+# $1: install_dir
+# $2: coverage_dir
 
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'install_dir'"
-
+[ -z ${1+x} ] && usage "Parameter 'coverage_dir'"
 INSTALL_DIR=${1}
+COVERAGE_DIR=${2}
 
-COVERAGE_DIR="${INSTALL_DIR}/coverage"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 JACOCO_EXEC_PATH="${DISTRIBUTION_DIR}/jacoco.exec"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
@@ -47,7 +51,7 @@ main() (
 
 function usage(){
   echo "Generate Jacoco report"
-  echo "Usage : $0 <install_dir>"
+  echo "Usage : $0 <install_dir> <coverage_dir>"
   echo
   echo "$1 is needed."
   echo

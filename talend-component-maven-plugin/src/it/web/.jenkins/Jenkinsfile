@@ -28,11 +28,12 @@ final String stageDefaultContainer = tsbiImage
 final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 // Local folder location
-final String install_dir="webtester/install"
-final String download_dir="webtester/download" // volume mounted on the podConfiguration
+final String install_dir="webtester"
+final String coverage_dir="coverage"
+final String download_dir="download" // volume mounted on the podConfiguration
 final String distribution_dir="${install_dir}/component-server-distribution"
 final String artifact1="**/src/it/web/test/target/**/*"
-final String artifact2="**/${install_dir}/coverage/**/*"
+final String artifact2="**/${coverage_dir}/**/*"
 final String artifact3="**/${distribution_dir}/logs/**/*"
 
 final String podConfiguration = """
@@ -266,7 +267,7 @@ pipeline {
                 "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
               fi
               
-              "${scripts_path}/server-registry-init.sh" "${download_dir}" "${install_dir}" \
+              "${scripts_path}/server-registry-init.sh" "${download_dir}" "${install_dir}" "${coverage_dir} \
                                                          "${runtimeVersion}" \
                                                          "1.36.0" "azure-dls-gen2" \
                                                          "${serverPort}"
@@ -306,7 +307,7 @@ pipeline {
              ${scripts_path}/server-registry-stop.sh ${install_dir}
 
              printf "======== Generate jacoco report \n"
-             ${scripts_path}/jacoco-report.sh  ${install_dir}
+             ${scripts_path}/jacoco-report.sh ${install_dir} ${coverage_dir}
 
              printf "======== Generate Html reports\n"
              mvn surefire-report:report-only -f ${tests_path}
@@ -333,12 +334,13 @@ pipeline {
         ]
       )
 
-      println "====== Link API Coverage"
+      println "====== Publish API Coverage"
+      publishCoverage adapters: [jacocoAdapter("${coverage_dir}/coverage/report.xml")]
       publishHTML([
           allowMissing: false,
           alwaysLinkToLastBuild: false,
           keepAll: false,
-          reportDir: "${install_dir}/coverage",
+          reportDir: "${coverage_dir}",
           reportFiles: 'index.html',
           reportName: 'API Coverage',
           reportTitles: 'index.html'

@@ -18,7 +18,7 @@
 # Quick tcomp build without any test and facultative modules (documentation...)
 # $1: 'pom_file_path'
 
-set -xe
+# set -xe
 
 # check parameters
 [ -z ${1+x} ] && usage "Parameter 'pom_file_path'"
