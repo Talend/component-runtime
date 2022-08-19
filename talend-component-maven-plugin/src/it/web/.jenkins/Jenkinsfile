@@ -28,12 +28,12 @@ final String stageDefaultContainer = tsbiImage
 final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 // Local folder location
-final String install_dir="./webtester/install"
-final String download_dir="./webtester/download" // volume mounted on the podConfiguration
+final String install_dir="webtester/install"
+final String download_dir="webtester/download" // volume mounted on the podConfiguration
 final String distribution_dir="${install_dir}/component-server-distribution"
-final String artifact1="**/webtester/install/coverage/**/*"
-final String artifact2="**/src/it/web/test/target/**/*"
-final String artifact3="**/webtester/install}/component-server-distribution/logs/**/*"
+final String artifact1="**/src/it/web/test/target/**/*"
+final String artifact2="**/${install_dir}/coverage/**/*"
+final String artifact3="**/${distribution_dir}/logs/**/*"
 
 final String podConfiguration = """
   apiVersion: v1
