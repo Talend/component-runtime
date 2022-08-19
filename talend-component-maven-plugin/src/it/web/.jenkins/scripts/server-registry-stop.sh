@@ -15,6 +15,11 @@
 #  limitations under the License.
 #
 
+# Stop a running server in registry mode
+# $1: install_dir
+
+set -xe
+
 [ -z ${1+x} ] && usage "Parameter 'install_dir'"
 
 INSTALL_DIR="${1}"
@@ -29,9 +34,8 @@ main() (
 )
 
 function usage(){
-  # TODO: check it
   echo "Stop TCK Web tester using registry"
-  echo "Usage : $0 <install_dir> <port>"
+  echo "Usage : $0 <install_dir>"
   echo
   echo "$1 is needed."
   echo
@@ -39,9 +43,9 @@ function usage(){
 }
 
 function stop_server {
-  printf "\n# Stop server\n"
+  printf "# Stop server\n"
   cd "${DISTRIBUTION_DIR}" || exit
-  ./bin/meecrowave.sh stop
+  sudo ./bin/meecrowave.sh stop
 	echo "##############################################"
 }
 
