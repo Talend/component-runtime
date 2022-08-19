@@ -330,9 +330,9 @@ pipeline {
       )
 
       println "====== Archive artifacts"
-      artifact1="**/${install_dir}/coverage/**/*"
-      artifact2="**/src/it/web/test/target/**/*"
-      artifact3="**/${distribution_dir}/logs/**/*"
+      string artifact1="**/${install_dir}/coverage/**/*"
+      string artifact2="**/src/it/web/test/target/**/*"
+      string artifact3="**/${distribution_dir}/logs/**/*"
 
       archiveArtifacts artifacts: "${artifact1}, ${artifact2}, ${artifact3}", allowEmptyArchive: false, onlyIfSuccessful: false
       sh """
