@@ -351,9 +351,11 @@ pipeline {
       sh """
         printf "Artifact 1: ${artifact_test_results}\n"
         # ls -l "${artifact_test_results}"
-        printf "Artifact 2: ${artifact_coverage}\\n"
+        printf "Artifact 2: ${artifact_coverage}\n"
         # ls -l "${artifact_coverage}"
-        printf "Artifact 3: ${artifact_logs}\\n"
+        printf "Artifact 3: ${artifact_logs}\n"
+        # cat "${artifact_logs}/component-server.log"
+        # cat "${artifact_logs}/meecroweave.out"
         # ls -l "${artifact_logs}"
         """
         archiveArtifacts artifacts: "${artifact_test_results}", allowEmptyArchive: false, onlyIfSuccessful: false
