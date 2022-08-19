@@ -138,13 +138,13 @@ pipeline {
     build_user = "${BUILD_USER}"
 
     MAVEN_SETTINGS = "${settings_path}"
-    DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${workspace}/.jenkins/"
+    DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${workspace}/.jenkins/"
     MAVEN_OPTS = [
-      "-Dmaven.artifact.threads=128",
-      "-Dorg.slf4j.simpleLogger.showDateTime=true",
-      "-Dorg.slf4j.simpleLogger.showThreadName=true",
-      "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
-      "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
+      "--define maven.artifact.threads=128",
+      "--define org.slf4j.simpleLogger.showDateTime=true",
+      "--define org.slf4j.simpleLogger.showThreadName=true",
+      "--define org.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
+      "--define talend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
 
   }
@@ -262,7 +262,10 @@ pipeline {
                 "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
               fi
               
-              "${scripts_path}/server-registry-init.sh" "${download_dir}" "${install_dir}" "${runtimeVersion}" "1.36.0" "azure-dls-gen2" "${serverPort}"
+              "${scripts_path}/server-registry-init.sh" "${download_dir}" "${install_dir}" \
+                                                         "${runtimeVersion}" \
+                                                         "1.36.0" "azure-dls-gen2" \
+                                                         "${serverPort}"
               "${scripts_path}/server-registry-start.sh" "${install_dir}" "${serverPort}"
               "${scripts_path}/server-check.sh" "${serverPort}"
             """
@@ -303,9 +306,10 @@ pipeline {
 
              printf "======== Generate Html reports\n"
              mvn surefire-report:report-only -f ${tests_path}
-             mvn site -DgenerateReports=false -f ${tests_path}
+             mvn site --define generateReports=false -f ${tests_path}
              """
       }
+
       recordIssues (
         enabledForFailure: true,
         tools: [
@@ -328,11 +332,11 @@ pipeline {
       println "====== Archive artifacts"
       archiveArtifacts artifacts: "${install_dir}/coverage/**/*, **/src/it/web/test/target/**/*, ${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
       sh """
-        println "Artifact 1: **/src/it/web/test/target/**/*"
+        printf "Artifact 1: **/src/it/web/test/target/**/*"
         ls -l "**/src/it/web/test/target"
-        println "Artifact 2: **/${install_dir}/coverage/**/*"
+        printf "Artifact 2: **/${install_dir}/coverage/**/*"
         ls -l "${install_dir}/coverage"
-        println "Artifact 3: **/${distribution_dir}/logs/**/*
+        printf "Artifact 3: **/${distribution_dir}/logs/**/*
         ls -l "${distribution_dir}/logs"
         """
 
