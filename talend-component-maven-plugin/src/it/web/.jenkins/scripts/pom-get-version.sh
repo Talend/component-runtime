@@ -21,11 +21,10 @@
 main() (
   pom_file_path="${1:?Missing connector path}"
 
-  # shellcheck disable=SC2016
-  mvn -q \
-      -f "${pom_file_path}" \
-      -Dexec.executable=echo \
-      -Dexec.args='${project.version}' \
+  mvn --quiet \
+      --file "${pom_file_path}" \
+      --define exec.executable=echo \
+      --define exec.args='$\{project.version\}' \
       --non-recursive \
       exec:exec
 )
