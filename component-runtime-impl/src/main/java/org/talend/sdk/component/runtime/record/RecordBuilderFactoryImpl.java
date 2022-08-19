@@ -107,6 +107,11 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
                         .getOptionalDateTime(entry.getName())
                         .ifPresent(v -> builder.withDateTime(entriesIndex.get(entry.getName()), v));
                 break;
+            case DECIMAL:
+                record
+                        .getOptionalDecimal(entry.getName())
+                        .ifPresent(v -> builder.withDecimal(entriesIndex.get(entry.getName()), v));
+                break;
             case RECORD:
                 record
                         .getOptionalRecord(entry.getName())

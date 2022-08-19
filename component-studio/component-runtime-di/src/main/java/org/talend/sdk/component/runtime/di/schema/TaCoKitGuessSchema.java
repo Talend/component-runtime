@@ -380,6 +380,11 @@ public class TaCoKitGuessSchema {
             case ARRAY:
                 typeName = javaTypesManager.LIST.getId();
                 break;
+            case DECIMAL:
+                typeName = javaTypesManager.BIGDECIMAL.getId();
+                length = entry.getProp(STUDIO_LENGTH);
+                precision = entry.getProp(STUDIO_PRECISION);
+                break;
             default:
                 typeName = javaTypesManager.STRING.getId();
                 break;

@@ -60,6 +60,7 @@ import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.connection.CloseConnection;
@@ -389,8 +390,14 @@ public class DynamicColumnsTest {
                     record.getArray(Integer.class, "array0"));
             assertEquals(StudioTypes.DATE, record.getSchema().getEntry("date0").getProp(STUDIO_TYPE));
             assertTrue(ZonedDateTime.now().toEpochSecond() >= record.getDateTime("date0").toEpochSecond());
+
             assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("bigDecy").getProp(STUDIO_TYPE));
             assertEquals("12345.67890", record.getString("bigDecy"));
+
+            assertEquals(Schema.Type.DECIMAL, record.getSchema().getEntry("bigDecy2").getType());
+            assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("bigDecy2").getProp(STUDIO_TYPE));
+            assertEquals(new BigDecimal("12345.67890"), record.getDecimal("bigDecy2"));
+
             assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("dynBigDecimal").getProp(STUDIO_TYPE));
             assertEquals("12345.67890", record.getString("dynBigDecimal"));
             assertEquals(StudioTypes.CHARACTER, record.getSchema().getEntry("chary").getProp(STUDIO_TYPE));
@@ -512,6 +519,10 @@ public class DynamicColumnsTest {
                             .withType(Type.STRING)
                             .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
                             .build(), "12345.67890")
+                    .withDecimal(builderFactory.newEntryBuilder()
+                            .withName("bigDecy2")
+                            .withType(Type.DECIMAL)
+                            .build(), new BigDecimal("12345.67890"))
                     .withString(builderFactory.newEntryBuilder()
                             .withName("chary")
                             .withType(Type.STRING)
@@ -541,6 +552,8 @@ public class DynamicColumnsTest {
         public double doubly;
 
         public BigDecimal bigDecy;
+
+        public BigDecimal bigDecy2;
 
         public Character chary;
 

@@ -93,6 +93,14 @@ public abstract class Schemas implements Schema, Schema.Builder {
         }
     };
 
+    public static final Schemas DECIMAL = new Schemas() {
+
+        @Override
+        public Type getType() {
+            return Type.DECIMAL;
+        }
+    };
+
     public static final Schemas EMPTY_RECORD = new Schemas() {
 
         @Override
@@ -119,6 +127,8 @@ public abstract class Schemas implements Schema, Schema.Builder {
             return BOOLEAN;
         case "DATETIME":
             return DATETIME;
+        case "DECIMAL":
+            return DECIMAL;
         case "EMPTY_RECORD":
             return EMPTY_RECORD;
         default:
