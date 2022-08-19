@@ -330,14 +330,18 @@ pipeline {
       )
 
       println "====== Archive artifacts"
-      archiveArtifacts artifacts: "${install_dir}/coverage/**/*, **/src/it/web/test/target/**/*, ${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
+      artifact1="**/${install_dir}/coverage/**/*"
+      artifact2="**/src/it/web/test/target/**/*"
+      artifact3="**/${distribution_dir}/logs/**/*"
+
+      archiveArtifacts artifacts: "${artifact1}, ${artifact2}, ${artifact3}", allowEmptyArchive: false, onlyIfSuccessful: false
       sh """
-        printf "Artifact 1: **/src/it/web/test/target/**/*"
-        ls -l "**/src/it/web/test/target"
-        printf "Artifact 2: **/${install_dir}/coverage/**/*"
-        ls -l "${install_dir}/coverage"
-        printf "Artifact 3: **/${distribution_dir}/logs/**/*
-        ls -l "${distribution_dir}/logs"
+        printf "Artifact 1: ${artifact1}"
+        ls -l "${artifact1}"
+        printf "Artifact 2: ${artifact2}"
+        ls -l "${artifact2}"
+        printf "Artifact 3: ${artifact3}"
+        ls -l "${artifact3}"
         """
 
       println "====== Link API Coverage"
