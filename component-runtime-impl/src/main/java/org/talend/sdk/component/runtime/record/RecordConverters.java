@@ -208,7 +208,7 @@ public class RecordConverters implements Serializable {
         if (Float.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.FLOAT).build();
         }
-        if (BigDecimal.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
+        if (JsonNumber.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
         }
         if (Double.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
@@ -219,6 +219,9 @@ public class RecordConverters implements Serializable {
         }
         if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DATETIME).build();
+        }
+        if (BigDecimal.class.isInstance(next)) {
+            return factory.newSchemaBuilder(Schema.Type.DECIMAL).build();
         }
         if (byte[].class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.BYTES).build();
@@ -351,6 +354,13 @@ public class RecordConverters implements Serializable {
                 }
                 break;
             }
+            case DECIMAL: {
+                final BigDecimal value = record.get(BigDecimal.class, name);
+                if (value != null) {
+                    builder.add(name, value.toString());
+                }
+                break;
+            }
             case RECORD: {
                 final Record value = record.get(Record.class, name);
                 if (value != null) {
@@ -437,6 +447,8 @@ public class RecordConverters implements Serializable {
         if (value == null) {
             return null;
         }
+
+        // here mean get(Object.class, name) return origin store type, like DATETIME return long, is expected?
         if (!expectedType.isInstance(value)) {
             return expectedType.cast(MappingUtils.coerce(expectedType, value, name));
         }
