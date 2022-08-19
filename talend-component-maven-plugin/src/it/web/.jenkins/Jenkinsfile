@@ -132,10 +132,10 @@ pipeline {
 
     // Locale storage of global var TODO: move it to somewhere where it is understood by the Intellij parser
     String workspace = "${WORKSPACE}"
-    String scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    String tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
+    scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+    tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
     settings_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
-    String build_user = "${BUILD_USER}"
+    build_user = "${BUILD_USER}"
 
     MAVEN_SETTINGS = "${settings_path}"
     DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${workspace}/.jenkins/"
