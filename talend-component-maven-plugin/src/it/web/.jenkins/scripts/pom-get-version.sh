@@ -23,8 +23,8 @@ main() (
 
   mvn --quiet \
       --file "${pom_file_path}" \
-      --define exec.executable=echo \
-      --define exec.args='$\{project.version\}' \
+      -Dexec.executable=echo \
+      -Dexec.args='$\{project.version\}' \
       --non-recursive \
       exec:exec
 )
