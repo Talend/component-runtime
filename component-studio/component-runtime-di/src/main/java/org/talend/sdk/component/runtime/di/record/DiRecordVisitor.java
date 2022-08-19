@@ -32,6 +32,7 @@ import routines.system.DynamicMetadata.sourceTypes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -336,6 +337,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     }
 
     @Override
+    public void onDecimal(final Entry entry, final Optional<BigDecimal> decimal) {
+        log.debug("[onDecimal] visiting {}.", entry.getName());
+        decimal.ifPresent(value -> setField(entry, value));
+    }
+
+    @Override
     public void onBytes(final Entry entry, final Optional<byte[]> bytes) {
         log.debug("[onBytes] visiting {}.", entry.getName());
         bytes.ifPresent(value -> setField(entry, value));
@@ -380,6 +387,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     @Override
     public void onDatetimeArray(final Entry entry, final Optional<Collection<ZonedDateTime>> array) {
         log.debug("[onDatetimeArray] visiting {}.", entry.getName());
+        array.ifPresent(value -> setField(entry, value));
+    }
+
+    @Override
+    public void onDecimalArray(final Entry entry, final Optional<Collection<BigDecimal>> array) {
+        log.debug("[onDecimalArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 

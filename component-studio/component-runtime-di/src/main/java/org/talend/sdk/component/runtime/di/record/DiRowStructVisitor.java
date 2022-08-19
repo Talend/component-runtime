@@ -22,6 +22,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
 import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
+import static org.talend.sdk.component.api.record.Schema.Type.DECIMAL;
 import static org.talend.sdk.component.api.record.Schema.Type.DOUBLE;
 import static org.talend.sdk.component.api.record.Schema.Type.FLOAT;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
@@ -112,7 +113,7 @@ public class DiRowStructVisitor {
                     onString(name, raw);
                     break;
                 case StudioTypes.BIGDECIMAL:
-                    onString(name, BigDecimal.class.cast(raw).toString());
+                    onDecimal(name, BigDecimal.class.cast(raw));
                     break;
                 case StudioTypes.BYTE:
                     onInt(name, Byte.class.cast(raw).intValue());
@@ -188,7 +189,7 @@ public class DiRowStructVisitor {
                             onDouble(metaName, value);
                             break;
                         case StudioTypes.BIGDECIMAL:
-                            onString(metaName, BigDecimal.class.cast(value).toString());
+                            onDecimal(metaName, BigDecimal.class.cast(value));
                             break;
                         case StudioTypes.BOOLEAN:
                             onBoolean(metaName, value);
@@ -282,8 +283,11 @@ public class DiRowStructVisitor {
                 case StudioTypes.OBJECT:
                 case StudioTypes.STRING:
                 case StudioTypes.CHARACTER:
-                case StudioTypes.BIGDECIMAL:
                     schema.withEntry(toEntry(name, STRING, originalDbColumnName, isNullable, comment, isKey, length,
+                            precision, defaultValue, null, studioType));
+                    break;
+                case StudioTypes.BIGDECIMAL:
+                    schema.withEntry(toEntry(name, DECIMAL, originalDbColumnName, isNullable, comment, isKey, length,
                             precision, defaultValue, null, studioType));
                     break;
                 case StudioTypes.INTEGER:
@@ -341,7 +345,7 @@ public class DiRowStructVisitor {
                                     metaIsKey, null, null, defaultValue, null, metaStudioType));
                             break;
                         case StudioTypes.BIGDECIMAL:
-                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
+                            schema.withEntry(toEntry(metaName, DECIMAL, metaOriginalName, metaIsNullable, comment,
                                     metaIsKey, metaLength, metaPrecision, defaultValue, null, metaStudioType));
                             break;
                         case StudioTypes.BYTE_ARRAY:
@@ -412,6 +416,10 @@ public class DiRowStructVisitor {
 
     private void onString(final String name, final Object value) {
         recordBuilder.withString(name, String.class.cast(MappingUtils.coerce(String.class, value, name)));
+    }
+
+    private void onDecimal(final String name, final BigDecimal value) {
+        recordBuilder.withDecimal(name, value);
     }
 
     private void onDatetime(final String name, final ZonedDateTime value) {
@@ -493,7 +501,7 @@ public class DiRowStructVisitor {
             return FLOAT;
         }
         if (BigDecimal.class.isInstance(value)) {
-            return STRING;
+            return DECIMAL;
         }
         if (Double.class.isInstance(value)) {
             return DOUBLE;

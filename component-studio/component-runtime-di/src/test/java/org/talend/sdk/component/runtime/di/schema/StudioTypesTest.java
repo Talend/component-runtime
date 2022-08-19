@@ -102,6 +102,7 @@ class StudioTypesTest {
         assertEquals(LONG, StudioTypes.typeFromRecord(Type.LONG));
         assertEquals(OBJECT, StudioTypes.typeFromRecord(Type.RECORD));
         assertEquals(STRING, StudioTypes.typeFromRecord(Type.STRING));
+        assertEquals(BIGDECIMAL, StudioTypes.typeFromRecord(Type.DECIMAL));
         assertThrows(IllegalArgumentException.class, () -> StudioTypes.typeFromRecord(null));
     }
 

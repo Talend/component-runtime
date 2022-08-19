@@ -38,6 +38,9 @@ public final class RecordCollectors {
             case DATETIME:
                 b1.withDateTime(e, toInclude.getDateTime(e.getName()));
                 break;
+            case DECIMAL:
+                b1.withDecimal(e, toInclude.getDecimal(e.getName()));
+                break;
             case BYTES:
                 b1.withBytes(e, toInclude.getBytes(e.getName()));
                 break;

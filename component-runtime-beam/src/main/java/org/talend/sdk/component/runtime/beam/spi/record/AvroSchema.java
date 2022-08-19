@@ -251,6 +251,12 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 return Type.DATETIME;
             }
             return Type.LONG;
+        case STRING:
+            if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
+                    || (Decimal.logicalType().equals(schema.getLogicalType()))) {
+                return Type.DECIMAL;
+            }
+            return Type.STRING;
         default:
             return Type.valueOf(schema.getType().name());
         }
