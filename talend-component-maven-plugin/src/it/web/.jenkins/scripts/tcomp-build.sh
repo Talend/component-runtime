@@ -16,14 +16,14 @@
 #
 
 # Quick tcomp build without any test and facultative modules (documentation...)
-# $1: 'folder_to_build'
+# $1: 'pom_file_path'
 
 set -xe
 
 # check parameters
-[ -z ${1+x} ] && usage "Parameter 'folder_to_build'"
+[ -z ${1+x} ] && usage "Parameter 'pom_file_path'"
 
-folder_to_build=${1}
+pom_file_path=${1}
 
 
 MAVEN_FAST_INSTALL_CMD="mvn clean install \
@@ -42,7 +42,7 @@ main() (
   echo "##############################################"
 
   ${MAVEN_FAST_INSTALL_CMD} \
-  --file "${folder_to_build}" \
+  --file "${pom_file_path}" \
   --projects \!documentation \
   --projects \!reporting \
   --projects \!sample-parent \
