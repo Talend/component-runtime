@@ -45,7 +45,7 @@ function usage(){
 function stop_server {
   printf "# Stop server\n"
   cd "${DISTRIBUTION_DIR}" || exit
-  sudo ./bin/meecrowave.sh stop
+  ./bin/meecrowave.sh stop
 	echo "##############################################"
 }
 
