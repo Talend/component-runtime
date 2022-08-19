@@ -333,6 +333,18 @@ pipeline {
         ]
       )
 
+      println "====== Link API Coverage"
+      publishHTML([
+          allowMissing: false,
+          alwaysLinkToLastBuild: false,
+          keepAll: false,
+          reportDir: "${install_dir}/coverage",
+          reportFiles: 'index.html',
+          reportName: 'API Coverage',
+          reportTitles: 'index.html'
+      ]
+      )
+
       println "====== Archive artifacts"
       sh """
         printf "Artifact 1: ${artifact1}\n"
@@ -346,17 +358,6 @@ pipeline {
         archiveArtifacts artifacts: "${artifact2}", allowEmptyArchive: false, onlyIfSuccessful: false
         archiveArtifacts artifacts: "${artifact3}", allowEmptyArchive: false, onlyIfSuccessful: false
 
-      println "====== Link API Coverage"
-      publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: false,
-        keepAll: false,
-        reportDir: "${install_dir}/coverage",
-        reportFiles: 'index.html',
-        reportName: 'API Coverage',
-        reportTitles: 'index.html'
-        ]
-      )
     }
   }
 }
