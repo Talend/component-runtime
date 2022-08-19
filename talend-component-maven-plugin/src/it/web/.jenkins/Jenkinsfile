@@ -358,6 +358,7 @@ pipeline {
         # cat "${artifact_logs}/meecroweave.out"
         # ls -l "${artifact_logs}"
         """
+
         archiveArtifacts artifacts: "${artifact_test_results}", allowEmptyArchive: false, onlyIfSuccessful: false
         archiveArtifacts artifacts: "${artifact_coverage}", allowEmptyArchive: false, onlyIfSuccessful: false
         // archiveArtifacts artifacts: "${artifact_logs}", allowEmptyArchive: false, onlyIfSuccessful: false
