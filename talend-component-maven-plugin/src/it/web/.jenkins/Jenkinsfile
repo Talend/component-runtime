@@ -302,16 +302,16 @@ pipeline {
 
       script {
         sh """
-             printf "======== Stop server\n"
-             ${scripts_path}/server-registry-stop.sh ${install_dir}
+          printf "======== Stop server\n"
+          ${scripts_path}/server-registry-stop.sh ${install_dir}
 
-             printf "======== Generate jacoco report \n"
-             ${scripts_path}/jacoco-report.sh ${install_dir} ${coverage_dir}
+          printf "======== Generate jacoco report \n"
+          ${scripts_path}/jacoco-report.sh ${install_dir} ${coverage_dir}
 
-             printf "======== Generate Html reports\n"
-             mvn surefire-report:report-only -f ${tests_path}
-             mvn site -DgenerateReports=false -f ${tests_path}
-             """
+          printf "======== Generate Html reports\n"
+          mvn surefire-report:report-only -f ${tests_path}
+          mvn site -DgenerateReports=false -f ${tests_path}
+        """
       }
 
       recordIssues (
@@ -343,8 +343,7 @@ pipeline {
           reportFiles: 'index.html',
           reportName: 'API Coverage',
           reportTitles: 'index.html'
-      ]
-      )
+      ])
 
       println "====== Archive artifacts"
       sh """
