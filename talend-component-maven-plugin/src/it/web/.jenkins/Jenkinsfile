@@ -297,8 +297,10 @@ pipeline {
         sh """
              printf "======== Stop server\n"
              ${scripts_path}/server-registry-stop.sh ${install_dir}
+
              printf "======== Generate jacoco report \n"
              ${scripts_path}/jacoco-report.sh  ${install_dir}
+
              printf "======== Generate Html reports\n"
              mvn surefire-report:report-only -f ${tests_path}
              mvn site -DgenerateReports=false -f ${tests_path}
