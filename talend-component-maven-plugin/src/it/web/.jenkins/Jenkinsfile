@@ -337,14 +337,14 @@ pipeline {
       sh """
         printf "Artifact 1: ${artifact1}\n"
         # ls -l "${artifact1}"
-        archiveArtifacts artifacts: "${artifact1}", allowEmptyArchive: false, onlyIfSuccessful: false
-        printf "Artifact 2: ${artifact2}\n"
+        printf "Artifact 2: ${artifact2}\\n"
         # ls -l "${artifact2}"
-        archiveArtifacts artifacts: "${artifact2}", allowEmptyArchive: false, onlyIfSuccessful: false
-        printf "Artifact 3: ${artifact3}\n"
+        printf "Artifact 3: ${artifact3}\\n"
         # ls -l "${artifact3}"
-        archiveArtifacts artifacts: "${artifact3}", allowEmptyArchive: false, onlyIfSuccessful: false
         """
+        archiveArtifacts artifacts: "${artifact1}", allowEmptyArchive: false, onlyIfSuccessful: false
+        archiveArtifacts artifacts: "${artifact2}", allowEmptyArchive: false, onlyIfSuccessful: false
+        archiveArtifacts artifacts: "${artifact3}", allowEmptyArchive: false, onlyIfSuccessful: false
 
       println "====== Link API Coverage"
       publishHTML([
