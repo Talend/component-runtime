@@ -18,15 +18,15 @@
 # Enter in a connector path and start a component test server in bash mode
 # This script will fail if the branch already exists.
 # $1: Connector path
-# $2: (Optional) Output log file path for background execution
+# $2: Output log file path for background execution
 # $3: (Optional) Server port (default is 8080)
 # $4: (Optional) Timeout value in minute for the server (default 2mn)
 main() (
 
   connectorPath="${1:?Missing connector path}"
   logFile="${2:?Missing log file path}"
-  serverPort="${3}"
-  timeout="${4}"
+  serverPort="${3:-"8081"}"
+  timeout="${4:-"120"}"
 
   echo "# Go into given path: ${connectorPath}"
   cd "${connectorPath}" || exit
