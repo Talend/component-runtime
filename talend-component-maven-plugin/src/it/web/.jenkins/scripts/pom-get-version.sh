@@ -23,9 +23,9 @@ main() (
 
   mvn --quiet \
       --file "${pom_file_path}" \
-      -Dexec.executable=echo \
-      -Dexec.args='$\{project.version\}' \
       --non-recursive \
+      -Dexec.executable=echo \
+      -Dexec.args='${project.version}' \
       exec:exec
 )
 
