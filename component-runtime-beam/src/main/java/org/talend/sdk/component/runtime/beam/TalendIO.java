@@ -60,7 +60,9 @@ import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Experimental(SOURCE_SINK)
 public final class TalendIO {
 
@@ -162,6 +164,7 @@ public final class TalendIO {
             } else {
                 maxDurationMs = maxDuration;
             }
+            log.debug("[InfiniteRead] Created with maxRecords: {}, maxDurationMs: {}.", maxRecords, maxDurationMs);
         }
 
         @Override
