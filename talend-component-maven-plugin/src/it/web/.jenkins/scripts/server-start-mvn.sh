@@ -45,17 +45,14 @@ main() (
   fi
 
   echo "# Execute the command"
-  # shellcheck disable=SC2086
-  # shellcheck disable=SC2206
-  cmdOption=(-Dtalend.web.batch=true ${portCmd} ${timeoutCmd} ${outputCmd})
+  cmdOption=(-Dtalend.web.batch=true "${portCmd}" "${timeoutCmd}" "${outputCmd}")
   # echo ${cmdOption[*]}
 
   # execute command template
   # mvn talend-component:web -Dtalend.web.batch=true -Dtalend.web.batch.timeout=1 -Dtalend.web.port=8081 > output.log 2>&1 &
 
   # execute command
-  # shellcheck disable=SC2086
-  mvn talend-component:web ${cmdOption[*]} >${logFile} 2>&1
+  mvn talend-component:web "${cmdOption[*]}" >"${logFile}" 2>&1
 )
 
 main "$@"
