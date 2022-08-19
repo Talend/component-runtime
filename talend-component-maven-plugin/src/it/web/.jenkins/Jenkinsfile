@@ -352,8 +352,8 @@ pipeline {
         printf "Artifact 2: ${artifact_coverage}\n"
         # ls -l "${artifact_coverage}"
         printf "Artifact 3: ${artifact_logs}\n"
-        cat "/webtester/component-server-distribution/logs/component-server.log"
-        cat "/webtester/component-server-distribution/logs/meecroweave.out"
+        cat "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs/component-server.log"
+        cat "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs/meecroweave.out"
         # ls -l "${artifact_logs}"
         """
 
