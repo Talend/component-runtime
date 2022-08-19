@@ -330,7 +330,7 @@ pipeline {
       )
 
       println "====== Archive artifacts"
-      archiveArtifacts artifacts: "${install_dir}/coverage/**/*", "**/src/it/web/test/target/**/*", "${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
+      archiveArtifacts artifacts: "${install_dir}/coverage/**/*, **/src/it/web/test/target/**/*, ${distribution_dir}/logs/**/*", allowEmptyArchive: false, onlyIfSuccessful: false
       sh """
         printf "Artifact 1: **/src/it/web/test/target/**/*"
         ls -l "**/src/it/web/test/target"
