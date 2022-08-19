@@ -333,7 +333,8 @@ pipeline {
         ]
       )
 
-      println "====== Archive artifacts"sh """
+      println "====== Archive artifacts"
+      sh """
         printf "Artifact 1: ${artifact1}\n"
         ls -l "${artifact1}"
         archiveArtifacts artifacts: "${artifact1}", allowEmptyArchive: false, onlyIfSuccessful: false
@@ -344,8 +345,6 @@ pipeline {
         ls -l "${artifact3}"
         archiveArtifacts artifacts: "${artifact3}", allowEmptyArchive: false, onlyIfSuccessful: false
         """
-
-
 
       println "====== Link API Coverage"
       publishHTML([
