@@ -24,8 +24,8 @@ setMavenProperty() (
   propertyValue="$2"
   mvn 'versions:set-property' \
     --batch-mode \
-    --define "property=${propertyName}" \
-    --define "newVersion=${propertyValue}"
+    -Dproperty="${propertyName}" \
+    -DnewVersion="${propertyValue}"
 )
 
 # Change pom versions
