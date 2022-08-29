@@ -338,7 +338,8 @@ pipeline {
       script {
         println "====== Publish API Coverage"
         // TODO: Make coverage report publishing works
-        // publishCoverage adapters: [jacocoAdapter("${coverage_dir}/coverage/report.xml")]
+        publishCoverage adapters: [jacocoAdapter("**/coverage/report.xml")]
+        println "====== Publish HTML API Coverage"
         publishHTML([
             allowMissing         : false,
             alwaysLinkToLastBuild: false,
