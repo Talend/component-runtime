@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.input;
 
 import static java.lang.Thread.sleep;
+import static org.talend.sdk.component.runtime.input.Streaming.RetryStrategy;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -24,10 +25,12 @@ import java.io.Serializable;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;
+import org.talend.sdk.component.runtime.input.Streaming.StopStrategy;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class StreamingInputImpl extends InputImpl {
 
     private RetryConfiguration retryConfiguration;
@@ -38,12 +41,19 @@ public class StreamingInputImpl extends InputImpl {
 
     private transient Semaphore semaphore;
 
+    private StopStrategy stopStrategy;
+
+    private transient long readRecords = 0L;
+
     public StreamingInputImpl(final String rootName, final String name, final String plugin,
-            final Serializable instance, final RetryConfiguration retryConfiguration) {
+            final Serializable instance, final RetryConfiguration retryConfiguration, final StopStrategy stopStrategy) {
         super(rootName, name, plugin, instance);
         shutdownHook = new Thread(() -> running.compareAndSet(true, false),
                 getClass().getName() + "_" + rootName() + "-" + name() + "_" + hashCode());
         this.retryConfiguration = retryConfiguration;
+        this.stopStrategy = stopStrategy;
+        log.debug("[StreamingInputImpl] Created with retryStrategy: {}, stopStrategy: {}.", this.retryConfiguration,
+                this.stopStrategy);
     }
 
     protected StreamingInputImpl() {
@@ -63,12 +73,16 @@ public class StreamingInputImpl extends InputImpl {
         }
 
         try {
+            if (stopStrategy.isActive() && stopStrategy.shouldStop(readRecords)) {
+                return null;
+            }
             final RetryStrategy strategy = retryConfiguration.getStrategy();
             int retries = retryConfiguration.getMaxRetries();
             while (running.get() && retries > 0) {
                 final Object next = super.readNext();
                 if (next != null) {
                     strategy.reset();
+                    readRecords++;
                     return next;
                 }
 
@@ -136,92 +150,31 @@ public class StreamingInputImpl extends InputImpl {
 
     @Override
     protected Object writeReplace() throws ObjectStreamException {
-        return new StreamSerializationReplacer(plugin(), rootName(), name(), serializeDelegate(), retryConfiguration);
+        return new StreamSerializationReplacer(plugin(), rootName(), name(), serializeDelegate(), retryConfiguration,
+                stopStrategy);
     }
 
     private static class StreamSerializationReplacer extends SerializationReplacer {
 
         private final RetryConfiguration retryConfiguration;
 
+        private final StopStrategy stopStrategy;
+
         StreamSerializationReplacer(final String plugin, final String component, final String name, final byte[] value,
-                final RetryConfiguration retryConfiguration) {
+                final RetryConfiguration retryConfiguration, final StopStrategy stopStrategy) {
             super(plugin, component, name, value);
             this.retryConfiguration = retryConfiguration;
+            this.stopStrategy = stopStrategy;
         }
 
         protected Object readResolve() throws ObjectStreamException {
             try {
-                return new StreamingInputImpl(component, name, plugin, loadDelegate(), retryConfiguration);
+                return new StreamingInputImpl(component, name, plugin, loadDelegate(), retryConfiguration,
+                        stopStrategy);
             } catch (final IOException | ClassNotFoundException e) {
                 final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
                 invalidObjectException.initCause(e);
                 throw invalidObjectException;
-            }
-        }
-    }
-
-    public interface RetryStrategy {
-
-        long nextPauseDuration();
-
-        void reset();
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RetryConfiguration implements Serializable {
-
-        private int maxRetries;
-
-        private RetryStrategy strategy;
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class Constant implements Serializable, RetryStrategy {
-
-            private long timeout;
-
-            @Override
-            public long nextPauseDuration() {
-                return timeout;
-            }
-
-            @Override
-            public void reset() {
-                // no-op
-            }
-        }
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class ExponentialBackoff implements Serializable, RetryStrategy {
-
-            private double exponent;
-
-            private double randomizationFactor;
-
-            private long max;
-
-            private long initialBackOff;
-
-            // state
-            private int iteration;
-
-            @Override
-            public long nextPauseDuration() {
-                final double currentIntervalMillis = Math.min(initialBackOff * Math.pow(exponent, iteration), max);
-                final double randomOffset = (Math.random() * 2 - 1) * randomizationFactor * currentIntervalMillis;
-                final long nextBackoffMillis = Math.min(max, Math.round(currentIntervalMillis + randomOffset));
-                iteration += 1;
-                return nextBackoffMillis;
-            }
-
-            @Override
-            public void reset() {
-                iteration = 0;
             }
         }
     }

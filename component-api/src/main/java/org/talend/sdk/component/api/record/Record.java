@@ -17,6 +17,7 @@ package org.talend.sdk.component.api.record;
 
 import static java.util.Optional.ofNullable;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Comparator;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.function.Function;
 
 import org.talend.sdk.component.api.record.Schema.Entry;
 
@@ -167,6 +169,10 @@ public interface Record {
         return get(ZonedDateTime.class, name);
     }
 
+    default BigDecimal getDecimal(final String name) {
+        return get(BigDecimal.class, name);
+    }
+
     /**
      * See {@link Record#get(Class, String)}.
      * 
@@ -188,6 +194,16 @@ public interface Record {
      */
     default Optional<ZonedDateTime> getOptionalDateTime(final String name) {
         return ofNullable(get(ZonedDateTime.class, name));
+    }
+
+    /**
+     * See {@link Record#get(Class, String)}.
+     *
+     * @param name entry name.
+     * @return the value of the entry in this record.
+     */
+    default Optional<BigDecimal> getOptionalDecimal(final String name) {
+        return ofNullable(get(BigDecimal.class, name));
     }
 
     /**
@@ -334,6 +350,12 @@ public interface Record {
 
         Builder updateEntryByName(String name, Schema.Entry schemaEntry);
 
+        default Builder updateEntryByName(String name,
+                Schema.Entry schemaEntry,
+                Function<Object, Object> valueCastFunction) {
+            throw new UnsupportedOperationException("#updateEntryByName");
+        }
+
         Builder with(Schema.Entry entry, Object value);
 
         Builder withString(String name, String value);
@@ -351,6 +373,14 @@ public interface Record {
         Builder withDateTime(String name, ZonedDateTime value);
 
         Builder withDateTime(Schema.Entry entry, ZonedDateTime value);
+
+        default Builder withDecimal(String name, BigDecimal value) {
+            throw new UnsupportedOperationException("#withDecimal");
+        }
+
+        default Builder withDecimal(Schema.Entry entry, BigDecimal value) {
+            throw new UnsupportedOperationException("#withDecimal");
+        }
 
         Builder withTimestamp(String name, long value);
 

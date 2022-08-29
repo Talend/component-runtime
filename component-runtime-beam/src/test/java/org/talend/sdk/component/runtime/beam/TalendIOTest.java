@@ -33,8 +33,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
@@ -43,9 +45,7 @@ import java.util.stream.StreamSupport;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
-import org.apache.beam.runners.core.construction.UnboundedReadFromBoundedSource;
 import org.apache.beam.sdk.PipelineResult;
-import org.apache.beam.sdk.io.BoundedReadFromUnboundedSource;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Create;
@@ -114,6 +114,13 @@ public class TalendIOTest implements Serializable {
 
     @Test
     public void inputInfinite() { // ensure it stops with direct runner
+        Map<String, String> parms = new HashMap<String, String>() {
+
+            {
+                put("maxRecords", "1");
+                put("maxDurationMs", "1000");
+            }
+        };
         final PCollection<Record> out = pipeline.apply(TalendIO.read(new TheTestMapper() {
 
             @Override
@@ -146,7 +153,7 @@ public class TalendIOTest implements Serializable {
             public boolean equals(final Object obj) { // simplified to avoid mutations in beam validations
                 return getClass().isInstance(obj);
             }
-        }, singletonMap("maxRecords", "1")));
+        }, parms));
         PAssert.that(out.apply(UUID.randomUUID().toString(), ParDo.of(new DoFn<Record, String>() {
 
             @ProcessElement

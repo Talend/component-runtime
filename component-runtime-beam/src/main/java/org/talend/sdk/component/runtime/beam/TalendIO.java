@@ -51,6 +51,8 @@ import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.input.Streaming;
+import org.talend.sdk.component.runtime.input.Streaming.StopConfiguration;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
@@ -58,7 +60,9 @@ import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Experimental(SOURCE_SINK)
 public final class TalendIO {
 
@@ -145,10 +149,22 @@ public final class TalendIO {
 
         private final long maxDurationMs;
 
-        private InfiniteRead(final Mapper delegate, final long maxRecords, final long maxDurationMs) {
+        private InfiniteRead(final Mapper delegate, final long maxRecordCount, final long maxDuration) {
             super(delegate);
-            this.maxRecords = maxRecords;
-            this.maxDurationMs = maxDurationMs;
+            // ensure we consider localConfiguration
+            StopConfiguration fromLocalConf = (StopConfiguration) Streaming.loadStopStrategy(delegate.plugin());
+            // job properties win first!
+            if (maxRecordCount == -1 && fromLocalConf.getMaxReadRecords() != -1) {
+                maxRecords = fromLocalConf.getMaxReadRecords();
+            } else {
+                maxRecords = maxRecordCount;
+            }
+            if (maxDuration == -1 && fromLocalConf.getMaxActiveTime() != -1) {
+                maxDurationMs = fromLocalConf.getMaxActiveTime();
+            } else {
+                maxDurationMs = maxDuration;
+            }
+            log.debug("[InfiniteRead] Created with maxRecords: {}, maxDurationMs: {}.", maxRecords, maxDurationMs);
         }
 
         @Override

@@ -464,6 +464,9 @@ public class RecordJsonGenerator implements JsonGenerator {
         if (ZonedDateTime.class == clazz) {
             return Schema.Type.DATETIME;
         }
+        if (BigDecimal.class == clazz) {
+            return Type.DECIMAL;
+        }
         if (JsonArray.class.isAssignableFrom(clazz)) {
             return Schema.Type.ARRAY;
         }

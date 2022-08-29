@@ -124,7 +124,32 @@ class AbstractWidgetConverterTest {
                                 put("condition::if::negate", "false");
                                 put("condition::if::evaluationStrategy", "DEFAULT");
                             }
-                        }, "{\"or\":[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"===\":[{\"var\":\"foo\"},\"Dummy\"]}]}"));
+                        }, "{\"or\":[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"===\":[{\"var\":\"foo\"},\"Dummy\"]}]}"),
+
+                        // ui scope case
+                        new AbstractMap.SimpleEntry<>(new HashMap<String, String>() {
+
+                            {
+                                put("condition::if::target", "ui.scope");
+                                put("condition::if::value", "studio");
+                                put("condition::if::negate", "false");
+                                put("condition::if::evaluationStrategy", "DEFAULT");
+                            }
+                        }, "{\"==\":[1,-1]}"),
+                        new AbstractMap.SimpleEntry<>(new HashMap<String, String>() {
+
+                            {
+                                put("condition::if::target::0", "foo");
+                                put("condition::if::value::0", "Bar");
+                                put("condition::if::negate::0", "false");
+                                put("condition::if::evaluationStrategy::0", "DEFAULT");
+
+                                put("condition::if::target::1", "ui.scope");
+                                put("condition::if::value::1", "cloud,studio");
+                                put("condition::if::negate::1", "false");
+                                put("condition::if::evaluationStrategy::1", "DEFAULT");
+                            }
+                        }, "{\"and\":[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"==\":[1,1]}]}"));
     }
 
     @ParameterizedTest
