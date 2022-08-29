@@ -18,15 +18,27 @@
 # Get the version from pom
 # $1: 'pom_file_path'
 
-main() (
-  pom_file_path="${1:?Missing connector path}"
+[ -z ${1+x} ] && usage "Parameter 'pom_file_path'"
+POM_FILE_PATH=${1}
 
+main() (
+
+  # shellcheck disable=SC2016
   mvn --quiet \
-      --file "${pom_file_path}" \
+      --file "${POM_FILE_PATH}" \
       --non-recursive \
       -Dexec.executable=echo \
       -Dexec.args='${project.version}' \
       exec:exec
 )
+
+function usage(){
+  echo "Get the version from a pom file"
+  echo "Usage : $0 <pom_file_path>"
+  echo
+  echo "$1 is needed."
+  echo
+  exit 1
+}
 
 main "$@"

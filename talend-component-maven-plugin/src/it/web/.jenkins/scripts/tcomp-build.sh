@@ -25,7 +25,6 @@
 
 pom_file_path=${1}
 
-
 MAVEN_FAST_INSTALL_CMD="mvn clean install \
                 -Dspotless.apply.skip=true \
                 -Dspotbugs.skip=true \
@@ -34,7 +33,6 @@ MAVEN_FAST_INSTALL_CMD="mvn clean install \
                 -Dmaven.javadoc.skip=true \
                 -Dinvoker.skip=true \
                 -Dmaven.artifact.threads=25"
-
 
 main() (
   echo "##############################################"

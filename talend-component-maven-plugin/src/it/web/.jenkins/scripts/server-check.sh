@@ -18,24 +18,24 @@
 # Server check
 # Check if the server is running on the giving port
 # $1: Server port (default is 8080)
-# $1: Server addr (default is "http://localhost")
-# $2: Time in second to wait for the server to respond (default is 30s)
+# $2: Server addr (default is "http://localhost")
+# $3: Time in second to wait for the server to respond (default is 30s)
 
 # set -xe
 
-which curl || { echo "curl is not present in tsbi image"; exit 1; }
+which curl || { usage "curl is not present"; }
 
 main() (
 
-  serverPort=${1:-"8080"}
-  serverAddress=${2:-"http://localhost"}
+  server_port=${1:-"8080"}
+  server_address=${2:-"http://localhost"}
   timeout=${3:-30}
 
-  echo "Waiting server on ${serverPort}"
+  echo "Waiting server on ${server_port}"
 
   i=0
 
-  while ! curl --output /dev/null --silent --head --fail "${serverAddress}":"${serverPort}"; do
+  while ! curl --output /dev/null --silent --head --fail "${server_address}":"${server_port}"; do
     sleep 1
     ((i = i + 1))
     printf "."
@@ -49,5 +49,14 @@ main() (
   printf "\n"
   echo "Server launched"
 )
+
+function usage(){
+  echo "Check if the server is running on the giving port"
+  echo "Usage : $0 <server_port> <server_address> <timeout>"
+  echo
+  echo "$1 is needed."
+  echo
+  exit 1
+}
 
 main "$@"
