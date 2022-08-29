@@ -301,6 +301,7 @@ pipeline {
     always {
 
       script {
+        // TODO: Make coverage report works with sources files
         sh """
           printf "======== Stop server\n"
           # FIXME: The meecrowave stop doesn't work
@@ -336,16 +337,17 @@ pipeline {
 
       script {
         println "====== Publish API Coverage"
-        publishCoverage adapters: [jacocoAdapter("${coverage_dir}/coverage/report.xml")]
-        //publishHTML([
-        //    allowMissing         : false,
-        //    alwaysLinkToLastBuild: false,
-        //    keepAll              : false,
-        //    reportDir            : "${coverage_dir}",
-        //    reportFiles          : 'index.html',
-        //    reportName           : 'API Coverage',
-        //    reportTitles         : ''
-        //])
+        // TODO: Make coverage report publishing works
+        // publishCoverage adapters: [jacocoAdapter("${coverage_dir}/coverage/report.xml")]
+        publishHTML([
+            allowMissing         : false,
+            alwaysLinkToLastBuild: false,
+            keepAll              : true,
+            reportDir            : "${coverage_dir}/html",
+            reportFiles          : 'index.html',
+            reportName           : 'API Coverage',
+            reportTitles         : 'API Coverage'
+        ])
       }
 
       script {
