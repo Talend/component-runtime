@@ -1,5 +1,19 @@
 
 
+== Version 1.49.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2239[TCOMP-2239^]: Fix Record.Builder interface to avoid API break link:search.html?query=schema-record[schema-record^,role='dockey']
+
+
+
+== Version 1.48.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2239[TCOMP-2239^]: Fix Record.Builder interface to avoid API break link:search.html?query=schema-record[schema-record^,role='dockey']
+
 == Version 1.48.0
 
 === Bug
