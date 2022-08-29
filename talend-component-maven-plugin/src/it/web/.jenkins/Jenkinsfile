@@ -30,7 +30,7 @@ final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}"
 // Local folder location
 final String install_dir="webtester"
 final String coverage_dir="coverage"
-final String download_dir="download" // volume mounted on the podConfiguration
+final String download_dir="${WORKSPACE}/download" // volume mounted on the podConfiguration
 final String distribution_dir="${install_dir}/component-server-distribution"
 final String artifact_test_results="**/src/it/web/test/target/**/*"
 final String artifact_coverage="**/${coverage_dir}/**/*"
