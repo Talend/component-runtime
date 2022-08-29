@@ -167,20 +167,6 @@ pipeline {
     stage('Validate parameters') {
       steps {
         ///////////////////////////////////////////
-        // Get the user name
-        ///////////////////////////////////////////
-        wrap([$class: 'BuildUser']) {
-          script {
-            try {
-              USER_NAME = "${build_user}"
-            }
-            catch (groovy.lang.MissingPropertyException ignored) {
-              USER_NAME = "auto"
-            }
-          }
-        }
-
-        ///////////////////////////////////////////
         // Validate parameters
         ///////////////////////////////////////////
         script {
@@ -227,6 +213,7 @@ pipeline {
         // Print build config
         ///////////////////////////////////////////
         script {
+          final String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
 
           println("Job info:\n" +
               " - Tenant instance: ${tenantInstance}\n" +
@@ -244,12 +231,12 @@ pipeline {
 
           // updating build displayName
           currentBuild.displayName = (
-              "#" + currentBuild.number + ": " + fileToRun
+              "#" + currentBuild.number + ": " + "${user_name} - " + runtimeVersion
           )
 
           // updating build description
           currentBuild.description = (
-              "User: " + "${USER_NAME}" + " - " + "Runtime: " + runtimeVersion + "\n" +
+              "User: " + user_name + " - " + "Runtime: " + runtimeVersion + "\n" +
                   "Project: " + fileToRun + "\n"
           )
         }
