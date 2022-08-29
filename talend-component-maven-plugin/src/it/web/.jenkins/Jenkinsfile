@@ -361,7 +361,7 @@ pipeline {
         ls "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs"
         
         cat "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs/component-server.log"
-        cat "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs/meecroweave.out"
+        cat "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs/meecrowave.out"
         """
 
 
