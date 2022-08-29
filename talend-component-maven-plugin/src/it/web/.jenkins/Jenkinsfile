@@ -336,16 +336,16 @@ pipeline {
 
       script {
         println "====== Publish API Coverage"
-        // publishCoverage adapters: [jacocoAdapter("${coverage_dir}/coverage/report.xml")]
-        publishHTML([
-            allowMissing         : false,
-            alwaysLinkToLastBuild: false,
-            keepAll              : false,
-            reportDir            : "${coverage_dir}",
-            reportFiles          : 'index.html',
-            reportName           : 'API Coverage',
-            reportTitles         : 'index.html'
-        ])
+        publishCoverage adapters: [jacocoAdapter("${coverage_dir}/coverage/report.xml")]
+        //publishHTML([
+        //    allowMissing         : false,
+        //    alwaysLinkToLastBuild: false,
+        //    keepAll              : false,
+        //    reportDir            : "${coverage_dir}",
+        //    reportFiles          : 'index.html',
+        //    reportName           : 'API Coverage',
+        //    reportTitles         : ''
+        //])
       }
 
       script {
