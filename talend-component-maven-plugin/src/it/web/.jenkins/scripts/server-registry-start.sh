@@ -64,7 +64,7 @@ function jacoco_instrument {
   cp --verbose "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*.jar "${LIB_BACKUP_DIR}"
 
   printf "\n## Backup original sources files\n"
-  cp --verbose ./*/src/main/java/**/* "${SOURCES_DIR}"
+  cp --verbose ./**/src/main/java/**/*.* "${SOURCES_DIR}"
   ls -l "${SOURCES_DIR}"
 
   printf "\n## Instrument classes in jar files\n"
