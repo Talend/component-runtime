@@ -347,24 +347,20 @@ pipeline {
 
       println "====== Archive artifacts"
 
-      archiveArtifacts artifacts: "${artifact_test_results}", allowEmptyArchive: false, onlyIfSuccessful: false
-      archiveArtifacts artifacts: "${artifact_coverage}", allowEmptyArchive: false, onlyIfSuccessful: false
-      archiveArtifacts artifacts: "${artifact_logs}", allowEmptyArchive: false, onlyIfSuccessful: false
-
       sh """
         printf "Artifact 1: ${artifact_test_results}\n"
-        # ls -l "${artifact_test_results}"
         printf "Artifact 2: ${artifact_coverage}\n"
-        # ls -l "${artifact_coverage}"
         printf "Artifact 3: ${artifact_logs}\n"
-        # ls -l "${artifact_logs}"
+
         ls "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs"
-        
-        cat "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs/component-server.log"
         cat "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs/meecrowave.out"
+        ps -aux | grep meecrowave
         """
 
 
+      archiveArtifacts artifacts: "${artifact_test_results}", allowEmptyArchive: false, onlyIfSuccessful: false
+      archiveArtifacts artifacts: "${artifact_coverage}", allowEmptyArchive: false, onlyIfSuccessful: false
+      //archiveArtifacts artifacts: "${artifact_logs}", allowEmptyArchive: false, onlyIfSuccessful: false
     }
   }
 }
