@@ -36,7 +36,6 @@ final String artifact_test_results="**/src/it/web/test/target/**/*"
 final String artifact_coverage="**/${coverage_dir}/**/*"
 final String artifact_logs="**/${distribution_dir}/logs/**/*"
 
-// TODO efs-jenkins-component-runtime-download seem not to work
 final String podConfiguration = """
   apiVersion: v1
   kind: Pod
@@ -85,8 +84,7 @@ final def tenantId_Rd = string(
 /**
  * Options
  */
-
-final String serverPort = "8081" //TODO: Automatic Find available port to avoid conflicts
+final String serverPort = "8081"
 
 // Default value for parameters
 String runtimeVersion = "default"
@@ -136,12 +134,12 @@ pipeline {
     TALEND_REGISTRY = "artifactory.datapwn.com"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
-    // Locale storage of global var TODO: move it to somewhere where it is understood by the Intellij parser
     String workspace = "${WORKSPACE}"
+    build_user = "${BUILD_USER}"
+
     scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
     tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
-    settings_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
-    build_user = "${BUILD_USER}"
+    String settings_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
 
     MAVEN_SETTINGS = "${settings_path}"
     DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${workspace}/.jenkins/"
