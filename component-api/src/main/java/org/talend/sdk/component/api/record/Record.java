@@ -374,9 +374,13 @@ public interface Record {
 
         Builder withDateTime(Schema.Entry entry, ZonedDateTime value);
 
-        Builder withDecimal(String name, BigDecimal value);
+        default Builder withDecimal(String name, BigDecimal value) {
+            throw new UnsupportedOperationException("#withDecimal");
+        }
 
-        Builder withDecimal(Schema.Entry entry, BigDecimal value);
+        default Builder withDecimal(Schema.Entry entry, BigDecimal value) {
+            throw new UnsupportedOperationException("#withDecimal");
+        }
 
         Builder withTimestamp(String name, long value);
 
