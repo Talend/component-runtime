@@ -36,6 +36,7 @@ final String artifact_test_results="**/src/it/web/test/target/**/*"
 final String artifact_coverage="**/${coverage_dir}/**/*"
 final String artifact_logs="**/${distribution_dir}/logs/**/*"
 
+// TODO efs-jenkins-component-runtime-download seem not to work
 final String podConfiguration = """
   apiVersion: v1
   kind: Pod
@@ -85,7 +86,7 @@ final def tenantId_Rd = string(
  * Options
  */
 
-final String serverPort = "8081" //TODO: Find a available port to avoid conflicts
+final String serverPort = "8081" //TODO: Automatic Find available port to avoid conflicts
 
 // Default value for parameters
 String runtimeVersion = "default"
@@ -301,7 +302,6 @@ pipeline {
     always {
 
       script {
-        // TODO: Make coverage report works with sources files
         sh """
           printf "======== Stop server\n"
           # FIXME: The meecrowave stop doesn't work
@@ -337,7 +337,6 @@ pipeline {
 
       script {
         println "====== Publish API Coverage"
-        // TODO: Make coverage report publishing works
         publishCoverage adapters: [jacocoAdapter("**/coverage/report.xml")]
         println "====== Publish HTML API Coverage"
         publishHTML([
