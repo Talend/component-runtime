@@ -31,7 +31,7 @@ DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 JACOCO_EXEC_PATH="${DISTRIBUTION_DIR}/jacoco.exec"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
 LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
-SOURCES_DIR=${COVERAGE_DIR}/src
+SOURCES_DIR="${COVERAGE_DIR}/src"
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 
 main() (

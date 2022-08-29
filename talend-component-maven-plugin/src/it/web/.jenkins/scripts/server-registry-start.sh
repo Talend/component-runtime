@@ -36,9 +36,7 @@ LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
 SOURCES_DIR="${COVERAGE_DIR}/src"
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 
-
 MEECROWAVE_LOG_PATH="${DISTRIBUTION_DIR}/logs/meecrowave.out"
-TCOMP_LOG_PATH="${DISTRIBUTION_DIR}/logs/component-server.log"
 
 
 main() (
@@ -62,11 +60,11 @@ function usage(){
 function jacoco_instrument {
   printf "\n# Jacoco instrument\n"
   printf "\n## Backup original jar files\n"
-  cp -v "${LIB_DIR}/component-"*.jar "${LIB_BACKUP_DIR}"
-  cp -v "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*.jar "${LIB_BACKUP_DIR}"
+  cp --verbose "${LIB_DIR}/component-"*.jar "${LIB_BACKUP_DIR}"
+  cp --verbose "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*.jar "${LIB_BACKUP_DIR}"
 
   printf "\n## Backup original sources files\n"
-  cp -v ./*/src/main/java* "${SOURCES_DIR}"
+  cp --verbose ./*/src/main/java* "${SOURCES_DIR}"
   ls -l "${SOURCES_DIR}"
 
   printf "\n## Instrument classes in jar files\n"
@@ -76,7 +74,7 @@ function jacoco_instrument {
     --dest "${LIB_INSTRUMENTED_DIR}"
 
   printf "\n## Copy instrumented jar to the lib folder\n"
-  cp -v "${LIB_INSTRUMENTED_DIR}"/*".jar" "${LIB_DIR}"
+  cp --verbose --recursive "${LIB_INSTRUMENTED_DIR}"/*".jar" "${LIB_DIR}"
 	echo "##############################################"
 }
 

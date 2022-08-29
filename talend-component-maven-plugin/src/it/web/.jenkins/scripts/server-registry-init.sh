@@ -58,15 +58,12 @@ DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
 LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
 LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
-SOURCES_DIR=${COVERAGE_DIR}/src
+SOURCES_DIR="${COVERAGE_DIR}/src"
 M2_DIR=${DISTRIBUTION_DIR}/m2
 LOCAL_M2_DIR="/root/.m2/repository"
 
 SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
 REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
-
-
-
 
 if [[ ${TCK_VERSION} != *"-SNAPSHOT" ]]; then
   echo "Use maven central repository: ${MVN_CENTRAL}"
