@@ -213,7 +213,8 @@ pipeline {
         // Print build config
         ///////////////////////////////////////////
         script {
-          final String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+          user_name.replace("null", "ci-runner-connectors")
 
           println("Job info:\n" +
               " - Tenant instance: ${tenantInstance}\n" +
