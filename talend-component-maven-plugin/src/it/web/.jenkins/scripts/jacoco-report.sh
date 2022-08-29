@@ -46,7 +46,6 @@ main() (
   echo  "src: ${SOURCES_DIR}"
   echo "##############################################"
 
-  jacoco_dump
   jacoco_report
 )
 
@@ -57,14 +56,6 @@ function usage(){
   echo "$1 is needed."
   echo
   exit 1
-}
-
-function jacoco_dump {
-  printf "\n# Jacoco dump\n"
-  java -jar "${LIB_DIR}/jacococli.jar" \
-    dump --destfile "${JACOCO_EXEC_PATH}"
-    # not used yet --quiet
-	echo "##############################################"
 }
 
 function jacoco_report {

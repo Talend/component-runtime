@@ -303,6 +303,7 @@ pipeline {
       script {
         sh """
           printf "======== Stop server\n"
+          # FIXME: The meecrowave stop doesn't work
           ${scripts_path}/server-registry-stop.sh ${install_dir}
 
           printf "======== Generate jacoco report \n"
@@ -333,34 +334,32 @@ pipeline {
         ]
       )
 
-      println "====== Publish API Coverage"
-      // publishCoverage adapters: [jacocoAdapter("${coverage_dir}/coverage/report.xml")]
-      publishHTML([
-          allowMissing: false,
-          alwaysLinkToLastBuild: false,
-          keepAll: false,
-          reportDir: "${coverage_dir}",
-          reportFiles: 'index.html',
-          reportName: 'API Coverage',
-          reportTitles: 'index.html'
-      ])
+      script {
+        println "====== Publish API Coverage"
+        // publishCoverage adapters: [jacocoAdapter("${coverage_dir}/coverage/report.xml")]
+        publishHTML([
+            allowMissing         : false,
+            alwaysLinkToLastBuild: false,
+            keepAll              : false,
+            reportDir            : "${coverage_dir}",
+            reportFiles          : 'index.html',
+            reportName           : 'API Coverage',
+            reportTitles         : 'index.html'
+        ])
+      }
 
-      println "====== Archive artifacts"
-
-      sh """
+      script {
+        println "====== Archive artifacts"
+        sh """
         printf "Artifact 1: ${artifact_test_results}\n"
         printf "Artifact 2: ${artifact_coverage}\n"
         printf "Artifact 3: ${artifact_logs}\n"
-
-        ls "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs"
-        cat "/home/jenkins/agent/workspace/catoire_TCOMP-2162_code_coverage/webtester/component-server-distribution/logs/meecrowave.out"
-        ps -aux | grep meecrowave
         """
-
-
-      archiveArtifacts artifacts: "${artifact_test_results}", allowEmptyArchive: false, onlyIfSuccessful: false
-      archiveArtifacts artifacts: "${artifact_coverage}", allowEmptyArchive: false, onlyIfSuccessful: false
-      //archiveArtifacts artifacts: "${artifact_logs}", allowEmptyArchive: false, onlyIfSuccessful: false
+        archiveArtifacts artifacts: "${artifact_test_results}", allowEmptyArchive: false, onlyIfSuccessful: false
+        archiveArtifacts artifacts: "${artifact_coverage}", allowEmptyArchive: false, onlyIfSuccessful: false
+        // FIXME: The meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
+        //archiveArtifacts artifacts: "${artifact_logs}", allowEmptyArchive: false, onlyIfSuccessful: false
+      }
     }
   }
 }
