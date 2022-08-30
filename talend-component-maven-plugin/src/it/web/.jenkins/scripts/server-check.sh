@@ -15,21 +15,23 @@
 #  limitations under the License.
 #
 
-# Server check
-# Check if the server is running on the giving port
-# $1: Server port (default is 8080)
-# $2: Server addr (default is "http://localhost")
-# $3: Time in second to wait for the server to respond (default is 30s)
-
 # set -xe
 
+# Server check
+# Check if the server is running on the giving port
+# Parameters:
+[ -z ${1+x} ] && printf "Parameter 'server_port' use the default value: 8080"
+[ -z ${2+x} ] && printf "Parameter 'server_address' use the default value: http://localhost"
+[ -z ${3+x} ] && printf "Parameter 'timeout' use the default value: 30s"
+
+server_port=${1:-"8080"}
+server_address=${2:-"http://localhost"}
+timeout=${3:-30}
+
+# Check command possibilities
 which curl || { usage "curl is not present"; }
 
 main() (
-
-  server_port=${1:-"8080"}
-  server_address=${2:-"http://localhost"}
-  timeout=${3:-30}
 
   echo "Waiting server on ${server_port}"
 
@@ -52,9 +54,7 @@ main() (
 
 function usage(){
   echo "Check if the server is running on the giving port"
-  echo "Usage : $0 <server_port> <server_address> <timeout>"
-  echo
-  echo "$1 is needed."
+  echo "Usage : $0 [server_port] [server_address] [timeout]"
   echo
   exit 1
 }

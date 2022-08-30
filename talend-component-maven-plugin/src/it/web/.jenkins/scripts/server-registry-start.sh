@@ -15,19 +15,19 @@
 #  limitations under the License.
 #
 
-# Start a server in registry mode
-# $1: install_dir
-# $2: coverage_dir
-# $3: port (default "8080")
-
 # set -xe
 
+# Start a server in registry mode
+# Parameters:
 [ -z ${1+x} ] && usage "Parameter 'install_dir'"
-[ -z ${1+x} ] && usage "Parameter 'coverage_dir'"
+[ -z ${2+x} ] && usage "Parameter 'coverage_dir'"
+[ -z ${3+x} ] && printf "Parameter 'server_port' use the default value: 8080"
+
 INSTALL_DIR=${1}
 COVERAGE_DIR=${2}
 PORT=${3:-"8080"}
 
+# Constants
 EXTRA_INSTRUMENTED="vault-client"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
@@ -35,9 +35,7 @@ LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
 LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
 SOURCES_DIR="${COVERAGE_DIR}/src"
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
-
 MEECROWAVE_LOG_PATH="${DISTRIBUTION_DIR}/logs/meecrowave.out"
-
 
 main() (
   echo "##############################################"
@@ -50,7 +48,7 @@ main() (
 
 function usage(){
   echo "Start TCK Web tester using registry"
-  echo "Usage : $0 <install_dir> <port>"
+  echo "Usage : $0 <install_dir> <coverage_dir> [server_port]"
   echo
   echo "$1 is needed."
   echo
@@ -64,6 +62,7 @@ function jacoco_instrument {
   cp --verbose "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*.jar "${LIB_BACKUP_DIR}"
 
   printf "\n## Backup original sources files\n"
+  # TODO: some sources seem not to be correctly linked eg: org.talend.sdk.component.server.configuration
   cp --verbose --recursive ./*/src/main/java/* "${SOURCES_DIR}"
   ls -l "${SOURCES_DIR}"
 

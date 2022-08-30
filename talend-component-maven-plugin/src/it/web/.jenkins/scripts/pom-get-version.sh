@@ -16,8 +16,7 @@
 #
 
 # Get the version from pom
-# $1: 'pom_file_path'
-
+# Parameters:
 [ -z ${1+x} ] && usage "Parameter 'pom_file_path'"
 POM_FILE_PATH=${1}
 

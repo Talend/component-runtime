@@ -15,16 +15,15 @@
 #  limitations under the License.
 #
 
-# Quick tcomp build without any test and facultative modules (documentation...)
-# $1: 'pom_file_path'
-
 # set -xe
 
-# check parameters
+# Quick tcomp build without any test and facultative modules (documentation...)
+# Parameters
 [ -z ${1+x} ] && usage "Parameter 'pom_file_path'"
 
 pom_file_path=${1}
 
+# Constants
 MAVEN_FAST_INSTALL_CMD="mvn clean install \
                 -Dspotless.apply.skip=true \
                 -Dspotbugs.skip=true \

@@ -15,36 +15,17 @@
 #  limitations under the License.
 #
 
-# Configure the environment to start a local server
-# $1: INSTALL_DIR
-# $2: DOWNLOAD_DIR
-# $3: TCK_VERSION
-# $4: CONNECTOR_VERSION
-# $5: CONNECTOR_LIST
-# $5: SERVER_PORT (default "8080")
-
 # set -xe
 
-EXTRA_INSTRUMENTED="vault-client"
-JACOCO_VERSION="0.8.1"
-JAVAX_VERSION="1.1.1"
-MVN_CENTRAL="https://repo.maven.apache.org/maven2"
-TALEND_REPO="https://artifacts-zl.talend.com/nexus/service/local/repositories"
-COMPONENT_SE_REPO="${TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
-COMPONENT_LINK="${COMPONENT_SE_REPO}/NAME/VERSION/NAME-VERSION-component.car"
-
-
-# check command possibilities
-command -v wget || usage "'wget' command"
-command -v unzip || usage "'unzip' command"
-
-# check parameters
+# Configure the environment to start a local server
+# Parameters:
 [ -z ${1+x} ] && usage "Parameter 'download_dir'"
 [ -z ${2+x} ] && usage "Parameter 'install_dir'"
 [ -z ${3+x} ] && usage "Parameter 'coverage_dir'"
 [ -z ${4+x} ] && usage "Parameter 'tck_version'"
 [ -z ${5+x} ] && usage "Parameter 'connectors_version'"
 [ -z ${6+x} ] && usage "Parameter 'connector'"
+[ -z ${7+x} ] && printf "Parameter 'server_port' use the default value: 8080"
 
 DOWNLOAD_DIR=${1}
 INSTALL_DIR=${2}
@@ -53,6 +34,19 @@ TCK_VERSION=${4}
 CONNECTOR_VERSION="${5}"
 CONNECTOR_LIST="${6}"
 SERVER_PORT=${7:-"8080"}
+
+# Check command possibilities
+command -v wget || usage "'wget' command"
+command -v unzip || usage "'unzip' command"
+
+# Constants
+EXTRA_INSTRUMENTED="vault-client"
+JACOCO_VERSION="0.8.1"
+JAVAX_VERSION="1.1.1"
+MVN_CENTRAL="https://repo.maven.apache.org/maven2"
+TALEND_REPO="https://artifacts-zl.talend.com/nexus/service/local/repositories"
+COMPONENT_SE_REPO="${TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
+COMPONENT_LINK="${COMPONENT_SE_REPO}/NAME/VERSION/NAME-VERSION-component.car"
 
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 LIB_DIR="${DISTRIBUTION_DIR}/lib"
@@ -87,7 +81,7 @@ main() (
 
 function usage(){
   echo "Start TCK Web tester using registry"
-  echo "Usage : $0 <install_dir> <download_dir> <tck_version> <connector_version> <connector_list>"
+  echo "Usage : $0 <download_dir> <install_dir> <coverage_dir> <tck_version> <connector_version> <connector_list> [server_port]"
   echo
   echo "$1 is needed."
   echo
@@ -212,8 +206,7 @@ function generate_registry {
   printf "\n# Generate components registry\n"
   # Create the file
 	echo "" > "${REGISTRY_PATH}"
-	# Add connectors TODO: make it more dynamic when needed
-
+	# Add connectors FIXME: make really compatible with a list
   echo "conn_1=org.talend.components\\:${CONNECTOR_LIST}\\:${CONNECTOR_VERSION}" >> "${REGISTRY_PATH}"
 
 	echo "##############################################"

@@ -15,14 +15,15 @@
 #  limitations under the License.
 #
 
+# set -xe
+
 # Stop a running server in registry mode
-# $1: install_dir
-
-set -xe
-
+# Parameters:
 [ -z ${1+x} ] && usage "Parameter 'install_dir'"
 
 INSTALL_DIR="${1}"
+
+# Constants
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 
 main() (
