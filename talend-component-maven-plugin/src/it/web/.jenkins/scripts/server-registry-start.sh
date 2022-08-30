@@ -62,7 +62,7 @@ function jacoco_instrument {
   cp --verbose "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*.jar "${LIB_BACKUP_DIR}"
 
   printf "\n## Backup original sources files\n"
-  # TODO: some sources seem not to be correctly linked eg: org.talend.sdk.component.server.configuration
+  # TODO: TCOMP-2245 some sources seem not to be correctly linked eg: org.talend.sdk.component.server.configuration
   cp --verbose --recursive ./*/src/main/java/* "${SOURCES_DIR}"
   ls -l "${SOURCES_DIR}"
 

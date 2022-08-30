@@ -290,7 +290,6 @@ pipeline {
       script {
         sh """
           printf "======== Stop server\n"
-          # FIXME: The meecrowave stop doesn't work
           ${scripts_path}/server-registry-stop.sh ${install_dir}
 
           printf "======== Generate jacoco report \n"
@@ -345,7 +344,7 @@ pipeline {
         """
         archiveArtifacts artifacts: "${artifact_test_results}", allowEmptyArchive: false, onlyIfSuccessful: false
         archiveArtifacts artifacts: "${artifact_coverage}", allowEmptyArchive: false, onlyIfSuccessful: false
-        // FIXME: The meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
+        // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
         //archiveArtifacts artifacts: "${artifact_logs}", allowEmptyArchive: false, onlyIfSuccessful: false
       }
     }
