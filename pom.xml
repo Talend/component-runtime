@@ -1271,6 +1271,7 @@
             <exclude>**/talend-component-maven-plugin/src/it/generator/**/*</exclude>
             <exclude>**/src/main/resources/generator/**/*</exclude>
             <exclude>**/src/test/resources/generated/**/*</exclude>
+            <exclude>**/.config/**/*</exclude>
             <exclude>**/antora/**/*</exclude>
             <exclude>**/.antora-cache/**/*</exclude>
             <exclude>**/dependency-reduced-pom.xml</exclude>
