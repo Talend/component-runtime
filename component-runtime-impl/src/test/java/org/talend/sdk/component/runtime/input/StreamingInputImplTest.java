@@ -32,7 +32,8 @@ import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.runtime.input.Streaming.StopConfiguration;
 import org.talend.sdk.component.runtime.input.Streaming.StopStrategy;
 
-class StreamingInputImplTest {
+@lombok.extern.slf4j.Slf4j
+public class StreamingInputImplTest {
 
     private static final int TIME_TOLERANCE = 100;
 
@@ -287,6 +288,34 @@ class StreamingInputImplTest {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            assertNull(input.next());
+        } finally {
+            input.stop();
+        }
+    }
+
+    @Test
+    void respectStopMaxActiveTimeWithBlockingInput() {
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final StopStrategy stopStrategy = new StopConfiguration(-1L, 1000L, System.currentTimeMillis());
+        log.warn("[respectStopMaxActiveTimeWithBlockingInput] {} ", stopStrategy);
+        final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
+
+            @Producer
+            public Object next() {
+                log.warn("[next] sleeping");
+                try {
+                    Thread.sleep(15000);
+                    log.warn("[next] returning object");
+                    return new Object();
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }, retryStrategy, stopStrategy);
+        input.start();
+        try {
+            assertNotNull(input.next());
             assertNull(input.next());
         } finally {
             input.stop();

@@ -16,13 +16,20 @@
 package org.talend.sdk.component.runtime.input;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.talend.sdk.component.runtime.input.Streaming.RetryStrategy;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;
@@ -45,6 +52,8 @@ public class StreamingInputImpl extends InputImpl {
 
     private transient long readRecords = 0L;
 
+    private transient ScheduledExecutorService executor;
+
     public StreamingInputImpl(final String rootName, final String name, final String plugin,
             final Serializable instance, final RetryConfiguration retryConfiguration, final StopStrategy stopStrategy) {
         super(rootName, name, plugin, instance);
@@ -52,8 +61,15 @@ public class StreamingInputImpl extends InputImpl {
                 getClass().getName() + "_" + rootName() + "-" + name() + "_" + hashCode());
         this.retryConfiguration = retryConfiguration;
         this.stopStrategy = stopStrategy;
-        log.debug("[StreamingInputImpl] Created with retryStrategy: {}, stopStrategy: {}.", this.retryConfiguration,
+        log.warn("[StreamingInputImpl] Created with retryStrategy: {}, stopStrategy: {}.", this.retryConfiguration,
                 this.stopStrategy);
+        if (stopStrategy.isActive() && Streaming.StopConfiguration.class.isInstance(stopStrategy)
+                && Streaming.StopConfiguration.class.cast(stopStrategy).getMaxActiveTime() > -1) {
+            executor = Executors.newSingleThreadScheduledExecutor();
+            executor.schedule(() -> checkBlockingQueue(),
+                    Streaming.StopConfiguration.class.cast(stopStrategy).getMaxActiveTime(), TimeUnit.MILLISECONDS);
+            log.warn("[StreamingInputImpl] created executor: {}", executor);
+        }
     }
 
     protected StreamingInputImpl() {
@@ -62,7 +78,22 @@ public class StreamingInputImpl extends InputImpl {
 
     @Override
     protected Object readNext() {
+        log.warn("[readNext] running {}", running.get());
         if (!running.get()) {
+            return null;
+        }
+        log.warn("[readNext] before");
+        if (stopStrategy.isActive() && stopStrategy.shouldStop(readRecords)) {
+            log.warn("[readNext] condition ok! running {}", running.get());
+            if (executor != null) {
+                log.warn("[prepareStop] shutting down");
+                executor.shutdownNow();
+                try {
+                    executor.awaitTermination(5, SECONDS);
+                } catch (final InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
             return null;
         }
         try {
@@ -71,15 +102,26 @@ public class StreamingInputImpl extends InputImpl {
             Thread.currentThread().interrupt();
             return null;
         }
-
         try {
-            if (stopStrategy.isActive() && stopStrategy.shouldStop(readRecords)) {
-                return null;
-            }
             final RetryStrategy strategy = retryConfiguration.getStrategy();
             int retries = retryConfiguration.getMaxRetries();
+            log.warn("[readNext] in retry running {}", running.get());
             while (running.get() && retries > 0) {
-                final Object next = super.readNext();
+                log.warn("[readNext] before super({}).readNext {}", super.getClass().getName(), running.get());
+                // TODO blocking pb is here
+                Object next = null;
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                Future future = executor.submit(() -> super.readNext());
+                try {
+                    next = future.get(7, TimeUnit.SECONDS);
+                } catch (TimeoutException e) {
+                    future.cancel(true);
+                } catch (Exception e) {
+                    // handle other exceptions
+                } finally {
+                    executor.shutdownNow();
+                }
+                log.warn("[readNext] after super.readNext {}", running.get());
                 if (next != null) {
                     strategy.reset();
                     readRecords++;
@@ -87,6 +129,7 @@ public class StreamingInputImpl extends InputImpl {
                 }
 
                 retries--;
+                log.warn("[readNext] in retry running {} retry {}", running.get(), retries);
                 try {
                     final long millis = strategy.nextPauseDuration();
                     if (millis < 0) { // assume it means "give up"
@@ -145,6 +188,14 @@ public class StreamingInputImpl extends InputImpl {
             semaphore.acquire();
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    protected void checkBlockingQueue() {
+        log.warn("[checkBlockingQueue] stop? {}", stopStrategy.shouldStop(readRecords));
+        if (stopStrategy.shouldStop(readRecords)) {
+            running.compareAndSet(true, false);
+            readNext();
         }
     }
 
