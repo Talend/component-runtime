@@ -212,8 +212,6 @@ pipeline {
         // Print build config
         ///////////////////////////////////////////
         script {
-          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-          if ( user_name == null) { user_name = "ci-runner" }
 
           println("Job info:\n" +
               " - Tenant instance: ${tenantInstance}\n" +
@@ -228,8 +226,16 @@ pipeline {
               "DEPLOYMENT_UNIT: ${params.DEPLOYMENT_UNIT}\n" +
               "CYCLE: ${params.CYCLE}\n" +
               "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
+        }
 
-          // updating build displayName
+        ///////////////////////////////////////////
+        // Updating build displayName
+        ///////////////////////////////////////////
+        script {
+
+          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+          if ( user_name == null) { user_name = "ci-runner" }
+
           currentBuild.displayName = (
               "#" + currentBuild.number + ": " + "${user_name} - " + runtimeVersion
           )
