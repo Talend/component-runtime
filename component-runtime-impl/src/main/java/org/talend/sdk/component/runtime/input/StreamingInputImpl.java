@@ -87,9 +87,10 @@ public class StreamingInputImpl extends InputImpl {
                 Object next = null;
                 if (stopStrategy.isActive() && stopStrategy.getMaxActiveTime() > -1) {
                     final ExecutorService executor = Executors.newSingleThreadExecutor();
-                    final Future<Object> reader = executor.submit(() -> super.readNext());
+                    final Future<Object> reader = executor.submit(super::readNext);
                     final long timeout =
-                            stopStrategy.getMaxActiveTime() - (System.currentTimeMillis() - stopStrategy.getStarted());
+                            stopStrategy.getMaxActiveTime()
+                                    - (System.currentTimeMillis() - stopStrategy.getStartedAtTime());
                     log.debug(
                             "[readNext] Applying duration strategy for reading record: will interrupt in {}ms (Duration:{}ms).",
                             timeout, stopStrategy.getMaxActiveTime());

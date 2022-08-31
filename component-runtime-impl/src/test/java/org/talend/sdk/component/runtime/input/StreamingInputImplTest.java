@@ -137,7 +137,7 @@ public class StreamingInputImplTest {
         assertFalse(timeStrategy.shouldStop(1));
         assertEquals(-1, timeStrategy.getMaxReadRecords());
         assertEquals(1000, timeStrategy.getMaxActiveTime());
-        assertEquals(start, timeStrategy.getStarted());
+        assertEquals(start, timeStrategy.getStartedAtTime());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -150,7 +150,7 @@ public class StreamingInputImplTest {
         assertFalse(bothStrategy.shouldStop(1));
         assertEquals(100, bothStrategy.getMaxReadRecords());
         assertEquals(2000, bothStrategy.getMaxActiveTime());
-        assertEquals(start, bothStrategy.getStarted());
+        assertEquals(start, bothStrategy.getStartedAtTime());
         assertFalse(bothStrategy.shouldStop(40));
         try {
             Thread.sleep(100);
