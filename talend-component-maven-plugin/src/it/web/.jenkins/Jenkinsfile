@@ -135,7 +135,6 @@ pipeline {
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
     String workspace = "${WORKSPACE}"
-    build_user = "${BUILD_USER}"
 
     scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
     tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
