@@ -176,6 +176,12 @@ public class Streaming {
 
         boolean shouldStop(long read);
 
+        long getMaxReadRecords();
+
+        long getMaxActiveTime();
+
+        long getStarted();
+
     }
 
     @Data
