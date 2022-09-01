@@ -134,14 +134,14 @@ pipeline {
     TALEND_REGISTRY = "artifactory.datapwn.com"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
-    String workspace = "${WORKSPACE}"
+    String rood_path = "${WORKSPACE}"
 
-    scripts_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    tests_path = "${workspace}/talend-component-maven-plugin/src/it/web/test"
-    String settings_path = "${workspace}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
+    scripts_path = "${rood_path}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+    tests_path = "${rood_path}/talend-component-maven-plugin/src/it/web/test"
+    String settings_path = "${rood_path}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
 
     MAVEN_SETTINGS = "${settings_path}"
-    DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${workspace}/.jenkins/"
+    DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${rood_path}/.jenkins/"
     MAVEN_OPTS = [
       "-Dmaven.artifact.threads=128",
       "-Dorg.slf4j.simpleLogger.showDateTime=true",
