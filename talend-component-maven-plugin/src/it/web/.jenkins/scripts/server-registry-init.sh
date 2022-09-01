@@ -112,11 +112,11 @@ function init {
 
 function download_component_lib {
 
-  LIB_NAME="$1"
-  printf '\n## Download component element: %s\n' "${LIB_NAME}"
-  file_name="${LIB_NAME}-${TCK_VERSION}.jar"
-  printf 'File Name: %s\n' "${LIB_NAME}"
-  file_path="${MVN_SOURCE}/org/talend/sdk/component/${LIB_NAME}/${TCK_VERSION}/${file_name}"
+  lib_name="$1"
+  printf '\n## Download component element: %s\n' "${lib_name}"
+  file_name="${lib_name}-${TCK_VERSION}.jar"
+  printf 'File Name: %s\n' "${lib_name}"
+  file_path="${MVN_SOURCE}/org/talend/sdk/component/${lib_name}/${TCK_VERSION}/${file_name}"
   printf 'File path: %s\n' "${file_path}"
 
   # Download
@@ -198,11 +198,11 @@ function create_setenv_script {
 		printf """
     export JAVA_HOME=\"%s\"
     export ENDORSED_PROP=\"ignored.endorsed.dir\"
-    export MEECROWAVE_OPTS=\"-Dhttp=%s\"
-    export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"--define http=%s\"
+    export MEECROWAVE_OPTS=\"--define talend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"--define _talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"--define talend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"
+    export MEECROWAVE_OPTS=\"--define talend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"
     """ "${JAVA_HOME}" "${SERVER_PORT}"
 	} > "${SETENV_PATH}"
 	chmod +x "${SETENV_PATH}"

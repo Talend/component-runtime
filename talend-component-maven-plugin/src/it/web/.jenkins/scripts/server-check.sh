@@ -31,25 +31,25 @@ function usage(){
 [ -z ${2+x} ] && printf 'Parameter "server_address" use the default value: http://localhost\n'
 [ -z ${3+x} ] && printf 'Parameter "timeout" use the default value: 30s\n'
 
-server_port="${1:-'8080'}"
-server_address="${2:-'http://localhost'}"
-timeout="${3:-30}"
+SERVER_PORT="${1:-'8080'}"
+SERVER_ADDRESS="${2:-'http://localhost'}"
+TIMEOUT="${3:-30}"
 
 # Check command possibilities
 which curl || { usage 'curl is not present'; }
 
 main() (
 
-  printf 'Waiting server on %s\n' "${server_port}"
+  printf 'Waiting server on %s\n' "${SERVER_PORT}"
 
   i=0
 
-  while ! curl --output /dev/null --silent --head --fail "${server_address}":"${server_port}"; do
+  while ! curl --output /dev/null --silent --head --fail "${SERVER_ADDRESS}":"${SERVER_PORT}"; do
     sleep 1
     ((i = i + 1))
     printf '.'
 
-    if test "${i}" -gt "${timeout}"; then
+    if test "${i}" -gt "${TIMEOUT}"; then
       printf 'Timeout, stop waiting\n'
       exit 1
     fi

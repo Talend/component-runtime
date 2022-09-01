@@ -19,7 +19,7 @@
 
 function usage(){
   printf 'Quick tcomp build without any test and facultative modules (documentation...)\n'
-  printf 'Usage : %s <folder_to_build>\n' "${0}"
+  printf 'Usage : %s <pom_file_path>\n' "${0}"
   printf '\n'
   printf "%s\n" "${1}"
   printf '\n'
@@ -29,17 +29,18 @@ function usage(){
 # Parameters
 [ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.\n'
 
-pom_file_path=${1}
+POM_FILE_PATH=${1}
 
 # Constants
 MAVEN_FAST_INSTALL_CMD="mvn clean install \
-                -Dspotless.apply.skip=true \
-                -Dspotbugs.skip=true \
-                -Dcheckstyle.skip=true -Drat.skip=true \
-                -DskipTests \
-                -Dmaven.javadoc.skip=true \
-                -Dinvoker.skip=true \
-                -Dmaven.artifact.threads=25"
+                --define spotless.apply.skip=true \
+                --define spotbugs.skip=true \
+                --define checkstyle.skip=true \
+                --define rat.skip=true \
+                --define skipTests \
+                --define maven.javadoc.skip=true \
+                --define invoker.skip=true \
+                --define maven.artifact.threads=25"
 
 main() (
   printf '##############################################\n'

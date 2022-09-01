@@ -25,36 +25,33 @@
 # $4: (Optional) Timeout value in minute for the server (default 2mn)
 main() (
 
-  connectorPath="${1:?Missing connector path}"
-  logFile="${2:?Missing log file path}"
-  serverPort="${3:-"8081"}"
-  timeout="${4:-"120"}"
+  CONNECTOR_PATH="${1:?Missing connector path}"
+  LOG_FILE="${2:?Missing log file path}"
+  SERVER_PORT="${3:-"8081"}"
+  TIMEOUT="${4:-"120"}"
 
-  printf '# Go into given path: %s\n' "${connectorPath}"
-  cd "${connectorPath}" || exit
+  printf '# Go into given path: %s\n' "${CONNECTOR_PATH}"
+  cd "${CONNECTOR_PATH}" || exit
   pwd
 
   printf '# Create the command\n'
-  if [ -z "${serverPort}" ]; then
-    portCmd=
+  if [ -z "${SERVER_PORT}" ]; then
+    port_cmd=
   else
-    portCmd="-Dtalend.web.port=${serverPort}"
+    port_cmd="--define talend.web.port=${SERVER_PORT}"
   fi
-  if [ -z "${timeout}" ]; then
-    timeoutCmd=
+  if [ -z "${TIMEOUT}" ]; then
+    timeout_cmd=
   else
-    timeoutCmd="-Dtalend.web.batch.timeout=${timeout}"
+    timeout_cmd="--define talend.web.batch.timeout=${TIMEOUT}"
   fi
 
   printf '# Execute the command\n'
-  cmdOption=(-Dtalend.web.batch=true "${portCmd}" "${timeoutCmd}" "${outputCmd}")
+  cmdOption=('--define talend.web.batch=true' "${port_cmd}" "${timeout_cmd}")
   # printf '%s\n' "${cmdOption[*]}"
 
-  # execute command template
-  # mvn talend-component:web -Dtalend.web.batch=true -Dtalend.web.batch.timeout=1 -Dtalend.web.port=8081 > output.log 2>&1 &
-
   # execute command
-  mvn talend-component:web "${cmdOption[*]}" >"${logFile}" 2>&1
+  mvn talend-component:web "${cmdOption[*]}" >"${LOG_FILE}" 2>&1
 )
 
 main "$@"

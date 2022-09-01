@@ -36,8 +36,8 @@ main() (
   mvn --quiet \
       --file "${POM_FILE_PATH}" \
       --non-recursive \
-      -Dexec.executable=printf \
-      -Dexec.args='${project.version}' \
+      --define exec.executable=printf \
+      --define exec.args='${project.version}' \
       exec:exec
 )
 

@@ -28,6 +28,7 @@ function usage(){
 # Parameters:
 [ -z ${1+x} ] && usage "Parameter 'install_dir' is needed."
 [ -z ${2+x} ] && usage "Parameter 'coverage_dir' is needed."
+
 INSTALL_DIR="${1}"
 COVERAGE_DIR="${2}"
 
