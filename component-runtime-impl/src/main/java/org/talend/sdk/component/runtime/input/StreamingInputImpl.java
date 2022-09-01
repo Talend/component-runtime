@@ -16,13 +16,18 @@
 package org.talend.sdk.component.runtime.input;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.talend.sdk.component.runtime.input.Streaming.RetryStrategy;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;
@@ -65,21 +70,43 @@ public class StreamingInputImpl extends InputImpl {
         if (!running.get()) {
             return null;
         }
+        if (stopStrategy.isActive() && stopStrategy.shouldStop(readRecords)) {
+            log.debug("[readNext] stopStrategy condition validated.");
+            return null;
+        }
         try {
             semaphore.acquire();
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return null;
         }
-
         try {
-            if (stopStrategy.isActive() && stopStrategy.shouldStop(readRecords)) {
-                return null;
-            }
             final RetryStrategy strategy = retryConfiguration.getStrategy();
             int retries = retryConfiguration.getMaxRetries();
             while (running.get() && retries > 0) {
-                final Object next = super.readNext();
+                Object next = null;
+                if (stopStrategy.isActive() && stopStrategy.getMaxActiveTime() > -1) {
+                    final ExecutorService executor = Executors.newSingleThreadExecutor();
+                    final Future<Object> reader = executor.submit(super::readNext);
+                    final long timeout =
+                            stopStrategy.getMaxActiveTime()
+                                    - (System.currentTimeMillis() - stopStrategy.getStartedAtTime());
+                    log.debug(
+                            "[readNext] Applying duration strategy for reading record: will interrupt in {}ms (Duration:{}ms).",
+                            timeout, stopStrategy.getMaxActiveTime());
+                    try {
+                        next = reader.get(timeout > 0 ? timeout : 1, MILLISECONDS);
+                    } catch (TimeoutException e) {
+                        log.debug("[readNext] Read record: timeout received.");
+                        reader.cancel(true);
+                    } catch (Exception e) {
+                        // nop
+                    } finally {
+                        executor.shutdownNow();
+                    }
+                } else {
+                    next = super.readNext();
+                }
                 if (next != null) {
                     strategy.reset();
                     readRecords++;
