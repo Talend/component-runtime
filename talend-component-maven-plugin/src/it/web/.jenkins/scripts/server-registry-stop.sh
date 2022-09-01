@@ -17,9 +17,17 @@
 
 # set -xe
 
-# Stop a running server in registry mode
+function usage(){
+  printf 'Stop a running server in registry mode\n'
+  printf 'Usage : %s <install_dir>\n' "${0}"
+  printf '\n'
+  printf '%s\n' "${1}"
+  printf '\n'
+  exit 1
+}
+
 # Parameters:
-[ -z ${1+x} ] && usage "Parameter 'install_dir'"
+[ -z ${1+x} ] && usage 'Parameter "install_dir" is needed.'
 
 INSTALL_DIR="${1}"
 
@@ -27,27 +35,18 @@ INSTALL_DIR="${1}"
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
 
 main() (
-  echo "##############################################"
-  echo "Stop web tester"
-  echo "##############################################"
+  printf '##############################################\n'
+  printf 'Stop web tester\n'
+  printf '##############################################\n'
 
   stop_server
 )
 
-function usage(){
-  echo "Stop TCK Web tester using registry"
-  echo "Usage : $0 <install_dir>"
-  echo
-  echo "$1 is needed."
-  echo
-  exit 1
-}
-
 function stop_server {
-  printf "# Stop server\n"
+  printf '# Stop server\n'
   cd "${DISTRIBUTION_DIR}" || exit
   ./bin/meecrowave.sh stop --force
-	echo "##############################################"
+	printf '##############################################\n'
 }
 
 main "$@"

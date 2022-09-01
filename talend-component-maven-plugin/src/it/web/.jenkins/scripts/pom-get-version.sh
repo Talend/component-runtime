@@ -15,10 +15,20 @@
 #  limitations under the License.
 #
 
-# Get the version from pom
+# -xe
+
+function usage(){
+  printf 'Get the version from a pom file\n'
+  printf 'Usage : %s <pom_file_path>\n' "${0}"
+  printf '\n'
+  printf '%s\n' "${1}"
+  printf '\n'
+  exit 1
+}
+
 # Parameters:
-[ -z ${1+x} ] && usage "Parameter 'pom_file_path'"
-POM_FILE_PATH=${1}
+[ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.'
+POM_FILE_PATH="${1}"
 
 main() (
 
@@ -26,18 +36,9 @@ main() (
   mvn --quiet \
       --file "${POM_FILE_PATH}" \
       --non-recursive \
-      -Dexec.executable=echo \
+      -Dexec.executable=printf \
       -Dexec.args='${project.version}' \
       exec:exec
 )
-
-function usage(){
-  echo "Get the version from a pom file"
-  echo "Usage : $0 <pom_file_path>"
-  echo
-  echo "$1 is needed."
-  echo
-  exit 1
-}
 
 main "$@"

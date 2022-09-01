@@ -17,9 +17,17 @@
 
 # set -xe
 
-# Quick tcomp build without any test and facultative modules (documentation...)
+function usage(){
+  printf 'Quick tcomp build without any test and facultative modules (documentation...)\n'
+  printf 'Usage : %s <folder_to_build>\n' "${0}"
+  printf '\n'
+  printf "%s\n" "${1}"
+  printf '\n'
+  exit 1
+}
+
 # Parameters
-[ -z ${1+x} ] && usage "Parameter 'pom_file_path'"
+[ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.\n'
 
 pom_file_path=${1}
 
@@ -34,9 +42,9 @@ MAVEN_FAST_INSTALL_CMD="mvn clean install \
                 -Dmaven.artifact.threads=25"
 
 main() (
-  echo "##############################################"
-  echo "Maven fast build"
-  echo "##############################################"
+  printf '##############################################\n'
+  printf 'Maven fast build\n'
+  printf '##############################################\n'
 
   ${MAVEN_FAST_INSTALL_CMD} \
   --file "${pom_file_path}" \
@@ -82,14 +90,5 @@ main() (
   --projects \!org.talend.sdk.component:component-runtime-junit-base \
   --projects \!org.talend.sdk.component:component-runtime-beam-junit
 )
-
-function usage(){
-  echo "Build the given folder in fast mode"
-  echo "Usage : $0 <folder_to_build>"
-  echo
-  echo "$1 is needed."
-  echo
-  exit 1
-}
 
 main "$@"

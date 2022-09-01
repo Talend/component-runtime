@@ -30,11 +30,11 @@ main() (
   serverPort="${3:-"8081"}"
   timeout="${4:-"120"}"
 
-  echo "# Go into given path: ${connectorPath}"
+  printf '# Go into given path: %s\n' "${connectorPath}"
   cd "${connectorPath}" || exit
   pwd
 
-  echo "# Create the command"
+  printf '# Create the command\n'
   if [ -z "${serverPort}" ]; then
     portCmd=
   else
@@ -46,9 +46,9 @@ main() (
     timeoutCmd="-Dtalend.web.batch.timeout=${timeout}"
   fi
 
-  echo "# Execute the command"
+  printf '# Execute the command\n'
   cmdOption=(-Dtalend.web.batch=true "${portCmd}" "${timeoutCmd}" "${outputCmd}")
-  # echo ${cmdOption[*]}
+  # printf '%s\n' "${cmdOption[*]}"
 
   # execute command template
   # mvn talend-component:web -Dtalend.web.batch=true -Dtalend.web.batch.timeout=1 -Dtalend.web.port=8081 > output.log 2>&1 &

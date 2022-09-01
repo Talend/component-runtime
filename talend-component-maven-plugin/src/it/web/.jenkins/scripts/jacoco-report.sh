@@ -17,12 +17,19 @@
 
 # set -xe
 
-# Jacoco report generation
+function usage(){
+  printf 'Generate Jacoco report\n'
+  printf 'Usage : %s <install_dir> <coverage_dir>\n' "${0}"
+  printf '\n'
+  printf '%s\n' "${1}"
+  printf '\n'
+  exit 1
+}
 # Parameters:
-[ -z ${1+x} ] && usage "Parameter 'install_dir'"
-[ -z ${2+x} ] && usage "Parameter 'coverage_dir'"
-INSTALL_DIR=${1}
-COVERAGE_DIR=${2}
+[ -z ${1+x} ] && usage "Parameter 'install_dir' is needed."
+[ -z ${2+x} ] && usage "Parameter 'coverage_dir' is needed."
+INSTALL_DIR="${1}"
+COVERAGE_DIR="${2}"
 
 # Constants
 DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
@@ -33,32 +40,23 @@ SOURCES_DIR="${COVERAGE_DIR}/src"
 JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 
 main() (
-  echo "##############################################"
-  echo "Jacoco report creation with:"
-  echo "${JACOCO_CLI_PATH}"
-  echo  "JACOCO_EXEC_PATH: ${JACOCO_EXEC_PATH}"
-  echo  "LIB_BACKUP_DIR: ${LIB_BACKUP_DIR}"
-  echo  "csv: ${COVERAGE_DIR}/report.csv"
-  echo  "xml: ${COVERAGE_DIR}/report.xml"
-  echo  "html: ${COVERAGE_DIR}/html"
-  echo  "src: ${SOURCES_DIR}"
-  echo "##############################################"
+  printf '##############################################\n'
+  printf 'Jacoco report creation with:'
+  printf '%s\n' "${JACOCO_CLI_PATH}"
+  printf 'JACOCO_EXEC_PATH: %s\n' "${JACOCO_EXEC_PATH}"
+  printf 'LIB_BACKUP_DIR: %s\n' "${LIB_BACKUP_DIR}"
+  printf 'csv: %s\n' "${COVERAGE_DIR}/report.csv"
+  printf 'xml: %s\n' "${COVERAGE_DIR}/report.xml"
+  printf 'html: %s\n' "${COVERAGE_DIR}/html"
+  printf 'src: %s\n' "${SOURCES_DIR}"
+  printf '##############################################\n'
 
   jacoco_report
 )
 
-function usage(){
-  echo "Generate Jacoco report"
-  echo "Usage : $0 <install_dir> <coverage_dir>"
-  echo
-  echo "$1 is needed."
-  echo
-  exit 1
-}
-
 function jacoco_report {
-  printf "\n# Jacoco report\n"
-  java -jar "${LIB_DIR}/jacococli.jar" \
+  printf '# Jacoco report\n'
+  java -jar "${JACOCO_CLI_PATH}" \
     report "${JACOCO_EXEC_PATH}" \
     --classfiles "${LIB_BACKUP_DIR}" \
     --csv "${COVERAGE_DIR}/report.csv" \
@@ -67,7 +65,7 @@ function jacoco_report {
     --name "TCK API test coverage" \
     --sourcefiles "${SOURCES_DIR}"
     # not used yet --quiet
-	echo "##############################################"
+	printf '##############################################\n'
 }
 
 main "$@"

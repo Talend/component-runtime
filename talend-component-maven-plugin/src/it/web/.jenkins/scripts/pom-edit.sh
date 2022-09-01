@@ -20,8 +20,8 @@
 # set -xe
 
 setMavenProperty() (
-  propertyName="$1"
-  propertyValue="$2"
+  propertyName="${1}"
+  propertyValue="${2}"
   mvn 'versions:set-property' \
     --batch-mode \
     -Dproperty="${propertyName}" \
@@ -35,9 +35,9 @@ main() (
   connectorPath="${2:?Missing connector path}"
 
   if [ "default" = "${version}" ]; then
-    echo "No version change in the pom, keep the default one"
+    printf 'No version change in the pom, keep the default one\n'
   else
-    echo "Change version in the pom ${element} to ${version} in ${connectorPath}"
+    printf 'Change version in the pom %s to %s in %s\n' "${element}" "${version}" "${connectorPath}"
     cd "${connectorPath}" || exit
     pwd
     setMavenProperty "${element}" "${version}"

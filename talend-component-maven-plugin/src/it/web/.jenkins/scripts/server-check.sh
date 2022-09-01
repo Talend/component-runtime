@@ -17,46 +17,46 @@
 
 # set -xe
 
-# Server check
-# Check if the server is running on the giving port
-# Parameters:
-[ -z ${1+x} ] && printf "Parameter 'server_port' use the default value: 8080"
-[ -z ${2+x} ] && printf "Parameter 'server_address' use the default value: http://localhost"
-[ -z ${3+x} ] && printf "Parameter 'timeout' use the default value: 30s"
+function usage(){
+  printf 'Check if the server is running on the giving port\n'
+  printf 'Usage : %s [server_port] [server_address] [timeout]\n' "${0}"
+  printf '\n'
+  printf '%s\n' "${1}"
+  printf '\n'
+  exit 1
+}
 
-server_port=${1:-"8080"}
-server_address=${2:-"http://localhost"}
-timeout=${3:-30}
+# Parameters:
+[ -z ${1+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
+[ -z ${2+x} ] && printf 'Parameter "server_address" use the default value: http://localhost\n'
+[ -z ${3+x} ] && printf 'Parameter "timeout" use the default value: 30s\n'
+
+server_port="${1:-'8080'}"
+server_address="${2:-'http://localhost'}"
+timeout="${3:-30}"
 
 # Check command possibilities
-which curl || { usage "curl is not present"; }
+which curl || { usage 'curl is not present'; }
 
 main() (
 
-  echo "Waiting server on ${server_port}"
+  printf 'Waiting server on %s\n' "${server_port}"
 
   i=0
 
   while ! curl --output /dev/null --silent --head --fail "${server_address}":"${server_port}"; do
     sleep 1
     ((i = i + 1))
-    printf "."
+    printf '.'
 
     if test "${i}" -gt "${timeout}"; then
-      echo "Timeout, stop waiting"
+      printf 'Timeout, stop waiting\n'
       exit 1
     fi
   done
 
-  printf "\n"
-  echo "Server launched"
+  printf '\n'
+  printf 'Server launched\n'
 )
-
-function usage(){
-  echo "Check if the server is running on the giving port"
-  echo "Usage : $0 [server_port] [server_address] [timeout]"
-  echo
-  exit 1
-}
 
 main "$@"
