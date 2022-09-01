@@ -251,6 +251,7 @@ pipeline {
       steps {
         withCredentials([nexusCredentials]) {
           script {
+            // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
             sh """
               if [[ ${runtimeVersion} == *"-SNAPSHOT" ]]; then
                 echo "# Build a snapshot version"
