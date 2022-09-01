@@ -138,9 +138,8 @@ pipeline {
 
     scripts_path = "${rood_path}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
     tests_path = "${rood_path}/talend-component-maven-plugin/src/it/web/test"
-    String settings_path = "${rood_path}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
 
-    MAVEN_SETTINGS = "${settings_path}"
+    MAVEN_SETTINGS = "${rood_path}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
     DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${rood_path}/.jenkins/"
     MAVEN_OPTS = [
       "-Dmaven.artifact.threads=128",
