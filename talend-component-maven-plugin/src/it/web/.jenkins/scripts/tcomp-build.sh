@@ -29,7 +29,7 @@ function usage(){
 # Parameters
 [ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.\n'
 
-POM_FILE_PATH=${1}
+POM_FILE_PATH="${1}"
 
 # Constants
 MAVEN_FAST_INSTALL_CMD="mvn clean install \
@@ -48,7 +48,7 @@ main() (
   printf '##############################################\n'
 
   ${MAVEN_FAST_INSTALL_CMD} \
-  --file "${pom_file_path}" \
+  --file "${POM_FILE_PATH}" \
   --projects \!documentation \
   --projects \!reporting \
   --projects \!sample-parent \
