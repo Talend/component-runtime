@@ -42,7 +42,7 @@ JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
 
 main() (
   printf '##############################################\n'
-  printf 'Jacoco report creation with:'
+  printf 'Jacoco report creation with:\n'
   printf '%s\n' "${JACOCO_CLI_PATH}"
   printf 'JACOCO_EXEC_PATH: %s\n' "${JACOCO_EXEC_PATH}"
   printf 'LIB_BACKUP_DIR: %s\n' "${LIB_BACKUP_DIR}"
@@ -51,6 +51,12 @@ main() (
   printf 'html: %s\n' "${COVERAGE_DIR}/html"
   printf 'src: %s\n' "${SOURCES_DIR}"
   printf '##############################################\n'
+
+  if [[ ! -f "${JACOCO_EXEC_PATH}" ]]; then
+      printf 'Jacoco execution file not found.\n'
+      printf 'Jacoco report ABORTED\n'
+      exit 1
+  fi
 
   jacoco_report
 )
