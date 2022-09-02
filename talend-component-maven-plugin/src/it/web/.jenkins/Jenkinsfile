@@ -147,11 +147,11 @@ pipeline {
     MAVEN_SETTINGS = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
     DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${ROOT_PATH}/.jenkins/"
     MAVEN_OPTS = [
-      "--define maven.artifact.threads=128",
-      "--define org.slf4j.simpleLogger.showDateTime=true",
-      "--define org.slf4j.simpleLogger.showThreadName=true",
-      "--define org.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
-      "--define talend-image.layersCacheDirectory=/root/.dockercache"
+      "-Dmaven.artifact.threads=128",
+      "-Dorg.slf4j.simpleLogger.showDateTime=true",
+      "-Dorg.slf4j.simpleLogger.showThreadName=true",
+      "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
+      "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
 
   }
@@ -178,13 +178,6 @@ pipeline {
           sh """
             find ${SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
           """
-
-          println "Check available applications:\n"
-          sh """
-            python --version
-          """
-
-          // Get actual tck version
 
           println "Get actual tck version from ${ROOT_PATH}/pom.xml: \n"
           TCOMP_VERSION = sh (
