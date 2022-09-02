@@ -149,7 +149,7 @@ pipeline {
     MAVEN_OPTS = [
       "--define maven.artifact.threads=128",
       "--define org.slf4j.simpleLogger.showDateTime=true",
-      "-Dorg.slf4j.simpleLogger.showThreadName=true",
+      "--define org.slf4j.simpleLogger.showThreadName=true",
       "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
       "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
