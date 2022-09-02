@@ -31,9 +31,9 @@ function usage(){
 [ -z ${2+x} ] && printf 'Parameter "server_address" use the default value: http://localhost\n'
 [ -z ${3+x} ] && printf 'Parameter "timeout" use the default value: 30s\n'
 
-SERVER_PORT="${1:-'8080'}"
-SERVER_ADDRESS="${2:-'http://localhost'}"
-TIMEOUT="${3:-30}"
+SERVER_PORT=${1:-"8080"}
+SERVER_ADDRESS=${2:-"http://localhost"}
+TIMEOUT=${3:-30}
 
 # Check command possibilities
 which curl || { usage 'curl is not present'; }
@@ -41,6 +41,9 @@ which curl || { usage 'curl is not present'; }
 main() (
 
   printf 'Waiting server maximum %ss for %s\n' "${TIMEOUT}" "${SERVER_ADDRESS}:${SERVER_PORT}"
+
+  CURL_OPTIONS="test"
+  printf 'With the following cmd: curl %s\n' "${CURL_OPTIONS}"
 
   i=0
 
