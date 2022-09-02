@@ -52,12 +52,13 @@ main() (
   printf 'src: %s\n' "${SOURCES_DIR}"
   printf '##############################################\n'
 
-  if [[ ! -f "${JACOCO_EXEC_PATH}" ]]; then
-      printf 'Jacoco execution file not found.\n'
-      printf 'Jacoco report ABORTED\n'
+  if [[ -f "${JACOCO_EXEC_PATH}" ]]; then
+    jacoco_report
+  else
+    printf 'Jacoco execution file not found.\n'
+    printf 'Jacoco report ABORTED\n'
   fi
 
-  jacoco_report
 )
 
 function jacoco_report {
