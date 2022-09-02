@@ -35,45 +35,45 @@ function usage(){
 [ -z ${6+x} ] && usage 'Parameter "connector" is needed.'
 [ -z ${7+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
 
-DOWNLOAD_DIR="${1}"
-INSTALL_DIR="${2}"
-COVERAGE_DIR="${3}"
-TCK_VERSION="${4}"
-CONNECTOR_VERSION="${5}"
-CONNECTOR_LIST="${6}"
-SERVER_PORT="${7:-'8080'}"
+_DOWNLOAD_DIR="${1}"
+_INSTALL_DIR="${2}"
+_COVERAGE_DIR="${3}"
+_TCK_VERSION="${4}"
+_CONNECTOR_VERSION="${5}"
+_CONNECTOR_LIST="${6}"
+_SERVER_PORT="${7:-'8080'}"
 
 # Check command possibilities
 which wget || { usage 'wget is not present'; }
 which unzip || { usage 'unzip is not present'; }
 
 # Constants
-EXTRA_INSTRUMENTED='vault-client'
-JACOCO_VERSION='0.8.1'
-JAVAX_VERSION='1.1.1'
-MVN_CENTRAL='https://repo.maven.apache.org/maven2'
-TALEND_REPO='https://artifacts-zl.talend.com/nexus/service/local/repositories'
-COMPONENT_SE_REPO="${TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
-COMPONENT_LINK="${COMPONENT_SE_REPO}/NAME/VERSION/NAME-VERSION-component.car"
+_EXTRA_INSTRUMENTED='vault-client'
+_JACOCO_VERSION='0.8.1'
+_JAVAX_VERSION='1.1.1'
+_MVN_CENTRAL='https://repo.maven.apache.org/maven2'
+_TALEND_REPO='https://artifacts-zl.talend.com/nexus/service/local/repositories'
+_COMPONENT_SE_REPO="${_TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
+_COMPONENT_LINK="${_COMPONENT_SE_REPO}/NAME/VERSION/NAME-VERSION-component.car"
 
-DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
-LIB_DIR="${DISTRIBUTION_DIR}/lib"
-LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
-LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
-SOURCES_DIR="${COVERAGE_DIR}/src"
-M2_DIR="${DISTRIBUTION_DIR}/m2"
-LOCAL_M2_DIR='/root/.m2/repository'
+_DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"
+_LIB_DIR="${_DISTRIBUTION_DIR}/lib"
+_LIB_BACKUP_DIR="${_COVERAGE_DIR}/lib_backup"
+_LIB_INSTRUMENTED_DIR="${_COVERAGE_DIR}/lib_instrumented"
+_SOURCES_DIR="${_COVERAGE_DIR}/src"
+_M2_DIR="${_DISTRIBUTION_DIR}/m2"
+_LOCAL_M2_DIR='/root/.m2/repository'
 
-SETENV_PATH="${DISTRIBUTION_DIR}/bin/setenv.sh"
-REGISTRY_PATH="${DISTRIBUTION_DIR}/conf/components-registry.properties"
+_SETENV_PATH="${_DISTRIBUTION_DIR}/bin/setenv.sh"
+_REGISTRY_PATH="${_DISTRIBUTION_DIR}/conf/components-registry.properties"
 
-if [[ ${TCK_VERSION} != *"-SNAPSHOT" ]]; then
-  printf 'Use maven central repository: %s\n' "${MVN_CENTRAL}"
-  MVN_SOURCE=${MVN_CENTRAL}
+if [[ ${_TCK_VERSION} != *"-SNAPSHOT" ]]; then
+  printf 'Use maven central repository: %s\n' "${_MVN_CENTRAL}"
+  MVN_SOURCE=${_MVN_CENTRAL}
 else
   USE_LOCAL_M2=true
-  printf 'Use maven local m2 repository: %s\n' "${LOCAL_M2_DIR}"
-  MVN_SOURCE="${LOCAL_M2_DIR}"
+  printf 'Use maven local m2 repository: %s\n' "${_LOCAL_M2_DIR}"
+  MVN_SOURCE="${_LOCAL_M2_DIR}"
 fi
 
 main() (
@@ -91,66 +91,66 @@ function init {
 
   printf '# Init the environment\n'
   printf '##############################################\n'
-  printf 'Install dir       : %s\n' "${INSTALL_DIR}"
-  printf 'Server version    : %s\n' "${TCK_VERSION}"
-  printf 'Server version    : %s\n' "${CONNECTOR_VERSION}"
-  printf 'Server version    : %s\n' "${CONNECTOR_LIST}"
+  printf 'Install dir       : %s\n' "${_INSTALL_DIR}"
+  printf 'Server version    : %s\n' "${_TCK_VERSION}"
+  printf 'Server version    : %s\n' "${_CONNECTOR_VERSION}"
+  printf 'Server version    : %s\n' "${_CONNECTOR_LIST}"
 
   printf 'Delete the install dir\n'
-  rm --recursive --force "${INSTALL_DIR}"
+  rm --recursive --force "${_INSTALL_DIR}"
 
   printf 'Create needed directories:\n'
-  mkdir --verbose --parents "${INSTALL_DIR}"
-  mkdir --verbose --parents "${DOWNLOAD_DIR}"
-  mkdir --verbose --parents "${DISTRIBUTION_DIR}"
-  mkdir --verbose --parents "${COVERAGE_DIR}"
-  mkdir --verbose --parents "${LIB_BACKUP_DIR}"
-  mkdir --verbose --parents "${LIB_INSTRUMENTED_DIR}"
-  mkdir --verbose --parents "${SOURCES_DIR}"
-  mkdir --verbose --parents "${M2_DIR}"
+  mkdir --verbose --parents "${_INSTALL_DIR}"
+  mkdir --verbose --parents "${_DOWNLOAD_DIR}"
+  mkdir --verbose --parents "${_DISTRIBUTION_DIR}"
+  mkdir --verbose --parents "${_COVERAGE_DIR}"
+  mkdir --verbose --parents "${_LIB_BACKUP_DIR}"
+  mkdir --verbose --parents "${_LIB_INSTRUMENTED_DIR}"
+  mkdir --verbose --parents "${_SOURCES_DIR}"
+  mkdir --verbose --parents "${_M2_DIR}"
 }
 
 function download_component_lib {
 
   lib_name="$1"
   printf '\n## Download component element: %s\n' "${lib_name}"
-  file_name="${lib_name}-${TCK_VERSION}.jar"
+  file_name="${lib_name}-${_TCK_VERSION}.jar"
   printf 'File Name: %s\n' "${lib_name}"
-  file_path="${MVN_SOURCE}/org/talend/sdk/component/${lib_name}/${TCK_VERSION}/${file_name}"
+  file_path="${MVN_SOURCE}/org/talend/sdk/component/${lib_name}/${_TCK_VERSION}/${file_name}"
   printf 'File path: %s\n' "${file_path}"
 
   # Download
   if [[ -z ${USE_LOCAL_M2}  ]]; then
-    wget --timestamping --directory-prefix "${DOWNLOAD_DIR}" "${file_path}"
+    wget --timestamping --directory-prefix "${_DOWNLOAD_DIR}" "${file_path}"
   else
-    cp -v "${file_path}" "${DOWNLOAD_DIR}"
+    cp -v "${file_path}" "${_DOWNLOAD_DIR}"
   fi
 
   printf 'Copy the file in lib folder\n'
-  cp -v "${DOWNLOAD_DIR}/${file_name}" "${LIB_DIR}"
+  cp -v "${_DOWNLOAD_DIR}/${file_name}" "${_LIB_DIR}"
 }
 
 function download_connector {
 
   printf '##############################################\n'
-  printf '# Download connector: %s\n' "${CONNECTOR_LIST}"
+  printf '# Download connector: %s\n' "${_CONNECTOR_LIST}"
   printf '##############################################\n'
   printf 'Downloaded connectors:\n'
 
   # Replace "VERSION" by var $CONNECTOR_VERSION in $COMPONENT_LINK
-  connector_final_link=${COMPONENT_LINK//VERSION/$CONNECTOR_VERSION}
+  connector_final_link=${_COMPONENT_LINK//VERSION/$_CONNECTOR_VERSION}
   # Replace "COMPONENT" by var $connector
-  connector_final_link=${connector_final_link//NAME/$CONNECTOR_LIST}
+  connector_final_link=${connector_final_link//NAME/$_CONNECTOR_LIST}
 
   printf 'From following link: %s\n' "${connector_final_link}"
 
   # Download
-  wget --timestamping --directory-prefix "${DOWNLOAD_DIR}" "${connector_final_link}"
+  wget --timestamping --directory-prefix "${_DOWNLOAD_DIR}" "${connector_final_link}"
 
   # Deploy
-  component_path="${DOWNLOAD_DIR}/${CONNECTOR_LIST}-${CONNECTOR_VERSION}-component.car"
+  component_path="${_DOWNLOAD_DIR}/${_CONNECTOR_LIST}-${_CONNECTOR_VERSION}-component.car"
   printf 'Deploy the car: %s\n' "${component_path}"
-  java -jar "${component_path}" maven-deploy --location "${M2_DIR}"
+  java -jar "${component_path}" maven-deploy --location "${_M2_DIR}"
 
 }
 
@@ -160,34 +160,34 @@ function download_all {
   printf '\n## Download and unzip component-server\n'
   if [[ -z ${USE_LOCAL_M2}  ]]; then
     wget --timestamping \
-         --directory-prefix "${DOWNLOAD_DIR}" \
-         "${MVN_SOURCE}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip"
+         --directory-prefix "${_DOWNLOAD_DIR}" \
+         "${_MVN_SOURCE}/org/talend/sdk/component/component-server/${_TCK_VERSION}/component-server-${_TCK_VERSION}.zip"
   else
     cp --verbose \
-       "${MVN_SOURCE}/org/talend/sdk/component/component-server/${TCK_VERSION}/component-server-${TCK_VERSION}.zip" \
-       "${DOWNLOAD_DIR}"
+       "${_MVN_SOURCE}/org/talend/sdk/component/component-server/${_TCK_VERSION}/component-server-${_TCK_VERSION}.zip" \
+       "${_DOWNLOAD_DIR}"
   fi
-  unzip -d "${INSTALL_DIR}" "${DOWNLOAD_DIR}/component-server-${TCK_VERSION}.zip"
+  unzip -d "${_INSTALL_DIR}" "${_DOWNLOAD_DIR}/component-server-${_TCK_VERSION}.zip"
 
   printf '\n## Download and unzip jacoco\n'
   wget --timestamping \
-       --directory-prefix "${DOWNLOAD_DIR}" \
-       "${MVN_CENTRAL}/org/jacoco/jacoco/0.8.1/jacoco-0.8.1.zip"
-  unzip "${DOWNLOAD_DIR}/jacoco-${JACOCO_VERSION}.zip" "lib/*" -d "${DISTRIBUTION_DIR}"
+       --directory-prefix "${_DOWNLOAD_DIR}" \
+       "${_MVN_CENTRAL}/org/jacoco/jacoco/0.8.1/jacoco-0.8.1.zip"
+  unzip "${_DOWNLOAD_DIR}/jacoco-${_JACOCO_VERSION}.zip" "lib/*" -d "${_DISTRIBUTION_DIR}"
 
   printf '\n## Download javax\n'
   wget --timestamping \
-       --directory-prefix "${DOWNLOAD_DIR}" \
-       "${MVN_CENTRAL}/javax/activation/activation/${JAVAX_VERSION}/activation-${JAVAX_VERSION}.jar"
+       --directory-prefix "${_DOWNLOAD_DIR}" \
+       "${_MVN_CENTRAL}/javax/activation/activation/${_JAVAX_VERSION}/activation-${_JAVAX_VERSION}.jar"
 
-  cp --verbose "${DOWNLOAD_DIR}/activation-${JAVAX_VERSION}.jar" "${LIB_DIR}"
+  cp --verbose "${_DOWNLOAD_DIR}/activation-${_JAVAX_VERSION}.jar" "${_LIB_DIR}"
 
   download_component_lib 'component-tools'
   download_component_lib 'component-tools-webapp'
   download_component_lib 'component-form-core'
   download_component_lib 'component-form-model'
   download_component_lib 'component-runtime-beam'
-  download_component_lib "${EXTRA_INSTRUMENTED}"
+  download_component_lib "${_}"
 
   download_connector
 }
@@ -198,22 +198,22 @@ function create_setenv_script {
 		echo 	"""
     export JAVA_HOME=\"${JAVA_HOME}\"
     export ENDORSED_PROP=\"ignored.endorsed.dir\"
-    export MEECROWAVE_OPTS=\"-Dhttp=${SERVER_PORT}\"
+    export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT}\"
     export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"
     export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"
     export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"
     export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"
     """
-	} > "${SETENV_PATH}"
-	chmod +x "${SETENV_PATH}"
+	} > "${_SETENV_PATH}"
+	chmod +x "${_SETENV_PATH}"
 }
 
 function generate_registry {
   printf '\n# Generate components registry\n'
   # Create the file
-	printf '\n' > "${REGISTRY_PATH}"
+	printf '\n' > "${_REGISTRY_PATH}"
 	# Add connectors FIXME: TCOMP-2246 make really compatible with a list
-  printf 'conn_1=org.talend.components\\:%s\\:%s' "${CONNECTOR_LIST}" "${CONNECTOR_VERSION}" >> "${REGISTRY_PATH}"
+  printf 'conn_1=org.talend.components\\:%s\\:%s' "${_CONNECTOR_LIST}" "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
 }
 
 

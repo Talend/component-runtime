@@ -29,30 +29,30 @@ function usage(){
 [ -z ${1+x} ] && usage "Parameter 'install_dir' is needed."
 [ -z ${2+x} ] && usage "Parameter 'coverage_dir' is needed."
 
-INSTALL_DIR="${1}"
-COVERAGE_DIR="${2}"
+_INSTALL_DIR="${1}"
+_COVERAGE_DIR="${2}"
 
 # Constants
-DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
-JACOCO_EXEC_PATH="${DISTRIBUTION_DIR}/jacoco.exec"
-LIB_DIR="${DISTRIBUTION_DIR}/lib"
-LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
-SOURCES_DIR="${COVERAGE_DIR}/src"
-JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
+_DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"
+_JACOCO_EXEC_PATH="${_DISTRIBUTION_DIR}/jacoco.exec"
+_LIB_DIR="${_DISTRIBUTION_DIR}/lib"
+_LIB_BACKUP_DIR="${_COVERAGE_DIR}/lib_backup"
+_SOURCES_DIR="${_COVERAGE_DIR}/src"
+_JACOCO_CLI_PATH="${_LIB_DIR}/jacococli.jar"
 
 main() (
   printf '##############################################\n'
   printf 'Jacoco report creation with:\n'
-  printf '%s\n' "${JACOCO_CLI_PATH}"
-  printf 'JACOCO_EXEC_PATH: %s\n' "${JACOCO_EXEC_PATH}"
-  printf 'LIB_BACKUP_DIR: %s\n' "${LIB_BACKUP_DIR}"
-  printf 'csv: %s\n' "${COVERAGE_DIR}/report.csv"
-  printf 'xml: %s\n' "${COVERAGE_DIR}/report.xml"
-  printf 'html: %s\n' "${COVERAGE_DIR}/html"
-  printf 'src: %s\n' "${SOURCES_DIR}"
+  printf '%s\n' "${_JACOCO_CLI_PATH}"
+  printf 'JACOCO_EXEC_PATH: %s\n' "${_JACOCO_EXEC_PATH}"
+  printf 'LIB_BACKUP_DIR: %s\n' "${_LIB_BACKUP_DIR}"
+  printf 'csv: %s\n' "${_COVERAGE_DIR}/report.csv"
+  printf 'xml: %s\n' "${_COVERAGE_DIR}/report.xml"
+  printf 'html: %s\n' "${_COVERAGE_DIR}/html"
+  printf 'src: %s\n' "${_SOURCES_DIR}"
   printf '##############################################\n'
 
-  if [[ -f "${JACOCO_EXEC_PATH}" ]]; then
+  if [[ -f "${_JACOCO_EXEC_PATH}" ]]; then
     jacoco_report
   else
     printf 'Jacoco execution file not found.\n'
@@ -63,14 +63,14 @@ main() (
 
 function jacoco_report {
   printf '# Jacoco report\n'
-  java -jar "${JACOCO_CLI_PATH}" \
-    report "${JACOCO_EXEC_PATH}" \
-    --classfiles "${LIB_BACKUP_DIR}" \
-    --csv "${COVERAGE_DIR}/report.csv" \
-    --xml "${COVERAGE_DIR}/report.xml" \
-    --html "${COVERAGE_DIR}/html" \
+  java -jar "${_JACOCO_CLI_PATH}" \
+    report "${_JACOCO_EXEC_PATH}" \
+    --classfiles "${_LIB_BACKUP_DIR}" \
+    --csv "${_COVERAGE_DIR}/report.csv" \
+    --xml "${_COVERAGE_DIR}/report.xml" \
+    --html "${_COVERAGE_DIR}/html" \
     --name "TCK API test coverage" \
-    --sourcefiles "${SOURCES_DIR}"
+    --sourcefiles "${_SOURCES_DIR}"
     # not used yet --quiet
 	printf '##############################################\n'
 }

@@ -29,9 +29,9 @@ function usage(){
 [ -z ${1+x} ] && usage "Parameter 'new_version' is needed."
 [ -z ${2+x} ] && usage "Parameter 'connector_path' is needed."
 
-ELEMENT='component-runtime.version'
-NEW_VERSION="${1:?Missing version}"
-CONNECTOR_PATH="${2:?Missing connector path}"
+_ELEMENT='component-runtime.version'
+_NEW_VERSION="${1:?Missing version}"
+_CONNECTOR_PATH="${2:?Missing connector path}"
 
 
 setMavenProperty() (
@@ -46,13 +46,13 @@ setMavenProperty() (
 # Change pom versions
 main() (
 
-  if [ "default" = "${NEW_VERSION}" ]; then
+  if [ "default" = "${_NEW_VERSION}" ]; then
     printf 'No version change in the pom, keep the default one\n'
   else
-    printf 'Change version in the pom %s to %s in %s\n' "${ELEMENT}" "${NEW_VERSION}" "${CONNECTOR_PATH}"
-    cd "${CONNECTOR_PATH}" || exit
+    printf 'Change version in the pom %s to %s in %s\n' "${_ELEMENT}" "${_NEW_VERSION}" "${_CONNECTOR_PATH}"
+    cd "${_CONNECTOR_PATH}" || exit
     pwd
-    setMavenProperty "${ELEMENT}" "${NEW_VERSION}"
+    setMavenProperty "${_ELEMENT}" "${_NEW_VERSION}"
   fi
 )
 

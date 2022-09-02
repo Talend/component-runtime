@@ -28,13 +28,13 @@ function usage(){
 
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.'
-POM_FILE_PATH="${1}"
+_POM_FILE_PATH="${1}"
 
 main() (
 
   # shellcheck disable=SC2016
   mvn --quiet \
-      --file "${POM_FILE_PATH}" \
+      --file "${_POM_FILE_PATH}" \
       --non-recursive \
       --define exec.executable=printf \
       --define exec.args='${project.version}' \
