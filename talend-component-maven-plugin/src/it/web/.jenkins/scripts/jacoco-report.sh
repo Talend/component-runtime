@@ -55,7 +55,6 @@ main() (
   if [[ ! -f "${JACOCO_EXEC_PATH}" ]]; then
       printf 'Jacoco execution file not found.\n'
       printf 'Jacoco report ABORTED\n'
-      exit 1
   fi
 
   jacoco_report
