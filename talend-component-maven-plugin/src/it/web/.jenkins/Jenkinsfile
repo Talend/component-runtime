@@ -275,7 +275,6 @@ pipeline {
                                                          "1.36.0" "azure-dls-gen2" \
                                                          "${serverPort}"
               "${scripts_path}/server-registry-start.sh" "${install_dir}" "${coverage_dir}" "${serverPort}"
-              "${scripts_path}/server-check.sh" "${serverPort}"
             """
           }
         }
@@ -284,7 +283,9 @@ pipeline {
     stage('Execute Test') {
       steps {
         withCredentials([nexusCredentials, tenantId_Rd]) {
-          sh """
+          sh """              
+             "${scripts_path}/server-check.sh" "${serverPort}"
+
              printf "======== Execute test\n"
              cd ${tests_path}
              mvn clean test --settings="${MAVEN_SETTINGS}" \
