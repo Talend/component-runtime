@@ -238,7 +238,7 @@ pipeline {
         script {
 
           String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-          if ( user_name == null) { user_name = "ci-runner" }
+          if ( user_name == null) { user_name = "auto" }
 
           currentBuild.displayName = (
               "#" + currentBuild.number + ": " + "${user_name} - " + runtimeVersion

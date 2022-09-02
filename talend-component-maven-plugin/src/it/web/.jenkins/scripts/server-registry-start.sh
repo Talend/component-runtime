@@ -63,8 +63,8 @@ function jacoco_instrument {
 
   printf '\n## Backup original sources files\n'
   # TODO: TCOMP-2245 some sources seem not to be correctly linked eg: org.talend.sdk.component.server.configuration
-  cp --verbose --recursive ./*/src/main/java/* "${SOURCES_DIR}"
-  ls -l "${SOURCES_DIR}"
+  cp --verbose --recursive ./*/src/main/java/* "${_SOURCES_DIR}"
+  ls -l "${_SOURCES_DIR}"
 
   printf '\n## Instrument classes in jar files\n'
   java -jar "${_JACOCO_CLI_PATH}" \
