@@ -69,11 +69,11 @@ _REGISTRY_PATH="${_DISTRIBUTION_DIR}/conf/components-registry.properties"
 
 if [[ ${_TCK_VERSION} != *"-SNAPSHOT" ]]; then
   printf 'Use maven central repository: %s\n' "${_MVN_CENTRAL}"
-  MVN_SOURCE=${_MVN_CENTRAL}
+  _MVN_SOURCE=${_MVN_CENTRAL}
 else
   USE_LOCAL_M2=true
   printf 'Use maven local m2 repository: %s\n' "${_LOCAL_M2_DIR}"
-  MVN_SOURCE="${_LOCAL_M2_DIR}"
+  _MVN_SOURCE="${_LOCAL_M2_DIR}"
 fi
 
 main() (
@@ -116,7 +116,7 @@ function download_component_lib {
   printf '\n## Download component element: %s\n' "${lib_name}"
   file_name="${lib_name}-${_TCK_VERSION}.jar"
   printf 'File Name: %s\n' "${lib_name}"
-  file_path="${MVN_SOURCE}/org/talend/sdk/component/${lib_name}/${_TCK_VERSION}/${file_name}"
+  file_path="${_MVN_SOURCE}/org/talend/sdk/component/${lib_name}/${_TCK_VERSION}/${file_name}"
   printf 'File path: %s\n' "${file_path}"
 
   # Download
