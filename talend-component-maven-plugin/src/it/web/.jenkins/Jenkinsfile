@@ -31,7 +31,7 @@ final String POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}
  * Job configuration
  */
 // Local folder location
-final String serverPort = "8081"
+final String SERVER_PORT = "8081"
 final String INSTALL_DIR="webtester"
 final String COVERAGE_DIR="coverage"
 final String DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration
@@ -142,8 +142,8 @@ pipeline {
 
     final String ROOT_PATH = "${WORKSPACE}"
 
-    scripts_path = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    tests_path = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/test"
+    SCRIPTS_PATH = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+    TESTS_PATH = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/test"
 
     MAVEN_SETTINGS = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
     DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${ROOT_PATH}/.jenkins/"
@@ -175,9 +175,9 @@ pipeline {
         ///////////////////////////////////////////
         script {
 
-          println "Setup all script as executables in ${scripts_path}\n"
+          println "Setup all script as executables in ${SCRIPTS_PATH}\n"
           sh """
-            find ${scripts_path} -type f -iname "*.sh" -exec chmod +x {} \\;
+            find ${SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
           """
 
           println "Check available applications:\n"
@@ -187,9 +187,9 @@ pipeline {
 
           // Get actual tck version
 
-          println "Get actual tck version from ${workspace}/pom.xml: \n"
+          println "Get actual tck version from ${ROOT_PATH}/pom.xml: \n"
           TCOMP_VERSION = sh (
-            script: "${scripts_path}/pom-get-version.sh ${workspace}/pom.xml",
+            script: "${SCRIPTS_PATH}/pom-get-version.sh ${ROOT_PATH}/pom.xml",
             returnStdout: true
           ).trim()
 
@@ -262,18 +262,17 @@ pipeline {
       steps {
         withCredentials([NEXUS_CREDENTIALS]) {
           script {
+            if (runtimeVersion.contains('-SNAPSHOT')) {
+              sh """ "${SCRIPTS_PATH}/tcomp-build.sh" "${ROOT_PATH}/pom.xml" """
+            }
+
             // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
             sh """
-              if [[ ${runtimeVersion} == *"-SNAPSHOT" ]]; then
-                echo "# Build a snapshot version"
-                "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
-              fi
-              
-              "${scripts_path}/server-registry-init.sh" "${DOWNLOAD_DIR}" "${INSTALL_DIR}" "${COVERAGE_DIR}" \
+              "${SCRIPTS_PATH}/server-registry-init.sh" "${DOWNLOAD_DIR}" "${INSTALL_DIR}" "${COVERAGE_DIR}" \
                                                          "${runtimeVersion}" \
                                                          "1.36.0" "azure-dls-gen2" \
-                                                         "${serverPort}"
-              "${scripts_path}/server-registry-start.sh" "${INSTALL_DIR}" "${COVERAGE_DIR}" "${serverPort}"
+                                                         "${SERVER_PORT}"
+              "${SCRIPTS_PATH}/server-registry-start.sh" "${INSTALL_DIR}" "${COVERAGE_DIR}" "${SERVER_PORT}"
             """
           }
         }
@@ -283,10 +282,10 @@ pipeline {
       steps {
         withCredentials([NEXUS_CREDENTIALS, TENANT_ID_RD]) {
           sh """              
-             "${scripts_path}/server-check.sh" "${serverPort}"
+             "${SCRIPTS_PATH}/server-check.sh" "${SERVER_PORT}"
 
              printf "======== Execute test\n"
-             cd ${tests_path}
+             cd ${TESTS_PATH}
              mvn clean test --settings="${MAVEN_SETTINGS}" \
                             -Dinstance="${tenantInstance}" \
                             -DaccountId="${componentRuntimeApiTenantId_Rd}" \
@@ -307,14 +306,14 @@ pipeline {
       script {
         sh """
           printf "======== Stop server\n"
-          ${scripts_path}/server-registry-stop.sh ${INSTALL_DIR}
+          ${SCRIPTS_PATH}/server-registry-stop.sh ${INSTALL_DIR}
 
           printf "======== Generate jacoco report \n"
-          ${scripts_path}/jacoco-report.sh ${INSTALL_DIR} ${COVERAGE_DIR}
+          ${SCRIPTS_PATH}/jacoco-report.sh ${INSTALL_DIR} ${COVERAGE_DIR}
 
           printf "======== Generate Html reports\n"
-          mvn surefire-report:report-only -f ${tests_path}
-          mvn site -DgenerateReports=false -f ${tests_path}
+          mvn surefire-report:report-only -f ${TESTS_PATH}
+          mvn site -DgenerateReports=false -f ${TESTS_PATH}
         """
       }
 
