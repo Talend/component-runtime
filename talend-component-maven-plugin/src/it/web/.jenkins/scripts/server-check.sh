@@ -40,7 +40,7 @@ which curl || { usage 'curl is not present'; }
 
 main() (
 
-  printf 'Waiting server on %s\n' "${SERVER_PORT}"
+  printf 'Waiting server maximum %ss for %s\n' "${TIMEOUT}" "${SERVER_ADDRESS}:${SERVER_PORT}"
 
   i=0
 
