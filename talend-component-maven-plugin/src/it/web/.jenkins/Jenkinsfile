@@ -22,40 +22,41 @@
 /**
  * Pod configuration
  */
-final String tsbiImage = 'jdk11-svc-springboot-builder'
-final String tsbiVersion = '2.9.18-2.4-20220104141654'
-final String stageDefaultContainer = tsbiImage
-final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
+final String TSBI_IMAGE = 'jdk11-svc-springboot-builder'
+final String TSBI_VERSION = '2.9.18-2.4-20220104141654'
+final String STAGE_DEFAULT_CONTAINER = TSBI_IMAGE
+final String POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 /**
  * Job configuration
  */
 // Local folder location
-final String install_dir="webtester"
-final String coverage_dir="coverage"
-final String download_dir="/tmp/download" // volume mounted on the podConfiguration
-final String distribution_dir="${install_dir}/component-server-distribution"
+final String serverPort = "8081"
+final String INSTALL_DIR="webtester"
+final String COVERAGE_DIR="coverage"
+final String DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration
+final String SERVER_DIR="${INSTALL_DIR}/component-server-distribution"
 // Local artifact definition
 final String ARTIFACT_TEST_RESULTS="**/src/it/web/test/target/**/*"
-final String ARTIFACT_COVERAGE="**/${coverage_dir}/**/*"
-final String ARTIFACT_LOGS_COMPONENT_SERVER="**/${distribution_dir}/logs/component-server*"
-final String ARTIFACT_LOGS_MEECROWAVE="**/${distribution_dir}/logs/meecrowave*"
-final String ARTIFACT_SETENV="**/${distribution_dir}/bin/setenv.sh"
-final String ARTIFACT_REGISTRY="**/${distribution_dir}/conf/components-registry.properties"
+final String ARTIFACT_COVERAGE="**/${COVERAGE_DIR}/**/*"
+final String ARTIFACT_LOGS_COMPONENT_SERVER="**/${SERVER_DIR}/logs/component-server*"
+final String ARTIFACT_LOGS_MEECROWAVE="**/${SERVER_DIR}/logs/meecrowave*"
+final String ARTIFACT_SETENV="**/${SERVER_DIR}/bin/setenv.sh"
+final String ARTIFACT_REGISTRY="**/${SERVER_DIR}/conf/components-registry.properties"
 
 final String podConfiguration = """
   apiVersion: v1
   kind: Pod
   spec:
     containers:
-      - name: '${tsbiImage}'
-        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${tsbiImage}:${tsbiVersion}'
+      - name: '${TSBI_IMAGE}'
+        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${TSBI_IMAGE}:${TSBI_VERSION}'
         command: [ cat ]
         tty: true
         volumeMounts: [
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
-          { name: efs-jenkins-component-runtime-download, mountPath: ${download_dir}},
+          { name: efs-jenkins-component-runtime-download, mountPath: ${DOWNLOAD_DIR}},
           { name: dockercache, mountPath: /root/.dockercache }
         ]
         resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
@@ -78,12 +79,12 @@ final String podConfiguration = """
  * Credentials
  */
 
-final def nexusCredentials = usernamePassword(
+final def NEXUS_CREDENTIALS = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
     passwordVariable: 'NEXUS_PASSWORD')
 
-final def tenantId_Rd = string(
+final def TENANT_ID_RD = string(
     credentialsId: 'component-runtime-api-tenant-id-rd',
     variable: 'componentRuntimeApiTenantId_Rd'
 )
@@ -91,8 +92,6 @@ final def tenantId_Rd = string(
 /**
  * Options
  */
-final String serverPort = "8081"
-
 // Default value for parameters
 String runtimeVersion = "default"
 String apiTesterEnv = "component_runtime_ci"
@@ -108,9 +107,9 @@ pipeline {
    */
   agent {
     kubernetes {
-      label podLabel
+      label POD_LABEL
       yaml podConfiguration
-      defaultContainer stageDefaultContainer
+      defaultContainer STAGE_DEFAULT_CONTAINER
     }
   }
   /**
@@ -141,13 +140,13 @@ pipeline {
     TALEND_REGISTRY = "artifactory.datapwn.com"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
-    String rood_path = "${WORKSPACE}"
+    final String ROOT_PATH = "${WORKSPACE}"
 
-    scripts_path = "${rood_path}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    tests_path = "${rood_path}/talend-component-maven-plugin/src/it/web/test"
+    scripts_path = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+    tests_path = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/test"
 
-    MAVEN_SETTINGS = "${rood_path}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
-    DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${rood_path}/.jenkins/"
+    MAVEN_SETTINGS = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
+    DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${ROOT_PATH}/.jenkins/"
     MAVEN_OPTS = [
       "-Dmaven.artifact.threads=128",
       "-Dorg.slf4j.simpleLogger.showDateTime=true",
@@ -261,7 +260,7 @@ pipeline {
     }
     stage('Prepare Test') {
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([NEXUS_CREDENTIALS]) {
           script {
             // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
             sh """
@@ -270,11 +269,11 @@ pipeline {
                 "${scripts_path}/tcomp-build.sh" "${workspace}/pom.xml"
               fi
               
-              "${scripts_path}/server-registry-init.sh" "${download_dir}" "${install_dir}" "${coverage_dir}" \
+              "${scripts_path}/server-registry-init.sh" "${DOWNLOAD_DIR}" "${INSTALL_DIR}" "${COVERAGE_DIR}" \
                                                          "${runtimeVersion}" \
                                                          "1.36.0" "azure-dls-gen2" \
                                                          "${serverPort}"
-              "${scripts_path}/server-registry-start.sh" "${install_dir}" "${coverage_dir}" "${serverPort}"
+              "${scripts_path}/server-registry-start.sh" "${INSTALL_DIR}" "${COVERAGE_DIR}" "${serverPort}"
             """
           }
         }
@@ -282,7 +281,7 @@ pipeline {
     }
     stage('Execute Test') {
       steps {
-        withCredentials([nexusCredentials, tenantId_Rd]) {
+        withCredentials([NEXUS_CREDENTIALS, TENANT_ID_RD]) {
           sh """              
              "${scripts_path}/server-check.sh" "${serverPort}"
 
@@ -308,10 +307,10 @@ pipeline {
       script {
         sh """
           printf "======== Stop server\n"
-          ${scripts_path}/server-registry-stop.sh ${install_dir}
+          ${scripts_path}/server-registry-stop.sh ${INSTALL_DIR}
 
           printf "======== Generate jacoco report \n"
-          ${scripts_path}/jacoco-report.sh ${install_dir} ${coverage_dir}
+          ${scripts_path}/jacoco-report.sh ${INSTALL_DIR} ${COVERAGE_DIR}
 
           printf "======== Generate Html reports\n"
           mvn surefire-report:report-only -f ${tests_path}
@@ -346,7 +345,7 @@ pipeline {
             allowMissing         : false,
             alwaysLinkToLastBuild: false,
             keepAll              : true,
-            reportDir            : "${coverage_dir}/html",
+            reportDir            : "${COVERAGE_DIR}/html",
             reportFiles          : 'index.html',
             reportName           : 'API Coverage',
             reportTitles         : 'API Coverage'
