@@ -34,7 +34,8 @@ final String download_dir="/tmp/download" // volume mounted on the podConfigurat
 final String distribution_dir="${install_dir}/component-server-distribution"
 final String artifact_test_results="**/src/it/web/test/target/**/*"
 final String artifact_coverage="**/${coverage_dir}/**/*"
-final String artifact_logs="**/${distribution_dir}/logs/**/*"
+final String artifact_logs_meecrowave="**/${distribution_dir}/logs/meecrowave*"
+final String artifact_logs_component_server="**/${distribution_dir}/logs/component-server*"
 
 final String podConfiguration = """
   apiVersion: v1
@@ -345,12 +346,14 @@ pipeline {
         sh """
         printf "Artifact 1: ${artifact_test_results}\n"
         printf "Artifact 2: ${artifact_coverage}\n"
-        printf "Artifact 3: ${artifact_logs}\n"
+        printf "Artifact 3: ${artifact_logs_component_server}\n"
+        printf "Artifact 4: ${artifact_logs_meecrowave}\\n"
         """
         archiveArtifacts artifacts: "${artifact_test_results}", allowEmptyArchive: false, onlyIfSuccessful: false
         archiveArtifacts artifacts: "${artifact_coverage}", allowEmptyArchive: false, onlyIfSuccessful: false
+        archiveArtifacts artifacts: "${artifact_logs_component_server}", allowEmptyArchive: false, onlyIfSuccessful: false
+        archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
         // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
-        //archiveArtifacts artifacts: "${artifact_logs}", allowEmptyArchive: false, onlyIfSuccessful: false
       }
     }
   }
