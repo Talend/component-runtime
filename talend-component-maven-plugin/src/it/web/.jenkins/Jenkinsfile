@@ -17,46 +17,48 @@
 /**
  * job-dsl plugin page api documentation for this project
  * https://jenkins-connectors.datapwn.com/plugin/job-dsl/api-viewer/index.html
+ * REM on naming:
+ *   - All constants have been prefix with "_" not to be confound with env variables
  */
 
 /**
  * Pod configuration
  */
-final String TSBI_IMAGE = 'jdk11-svc-springboot-builder'
-final String TSBI_VERSION = '2.9.18-2.4-20220104141654'
-final String STAGE_DEFAULT_CONTAINER = TSBI_IMAGE
-final String POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
+final String _TSBI_IMAGE = 'jdk11-svc-springboot-builder'
+final String _TSBI_VERSION = '2.9.18-2.4-20220104141654'
+final String _STAGE_DEFAULT_CONTAINER = _TSBI_IMAGE
+final String _POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 /**
  * Job configuration
  */
 // Local folder location
-final String SERVER_PORT = "8081"
-final String INSTALL_DIR="webtester"
-final String COVERAGE_DIR="coverage"
-final String DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration
-final String SERVER_DIR="${INSTALL_DIR}/component-server-distribution"
+final String _SERVER_PORT = "8081"
+final String _INSTALL_DIR="webtester"
+final String _COVERAGE_DIR="coverage"
+final String _DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration
+final String _SERVER_DIR="${_INSTALL_DIR}/component-server-distribution"
 // Local artifact definition
-final String ARTIFACT_TEST_RESULTS="**/src/it/web/test/target/**/*"
-final String ARTIFACT_COVERAGE="**/${COVERAGE_DIR}/**/*"
-final String ARTIFACT_LOGS_COMPONENT_SERVER="**/${SERVER_DIR}/logs/component-server*"
-final String ARTIFACT_LOGS_MEECROWAVE="**/${SERVER_DIR}/logs/meecrowave*"
-final String ARTIFACT_SETENV="**/${SERVER_DIR}/bin/setenv.sh"
-final String ARTIFACT_REGISTRY="**/${SERVER_DIR}/conf/components-registry.properties"
+final String _ARTIFACT_TEST_RESULTS="**/src/it/web/test/target/**/*"
+final String _ARTIFACT_COVERAGE="**/${_COVERAGE_DIR}/**/*"
+final String _ARTIFACT_LOGS_COMPONENT_SERVER="**/${_SERVER_DIR}/logs/component-server*"
+final String _ARTIFACT_LOGS_MEECROWAVE="**/${_SERVER_DIR}/logs/meecrowave*"
+final String _ARTIFACT_SETENV="**/${_SERVER_DIR}/bin/setenv.sh"
+final String _ARTIFACT_REGISTRY="**/${_SERVER_DIR}/conf/components-registry.properties"
 
-final String podConfiguration = """
+final String _POD_CONFIGURATION = """
   apiVersion: v1
   kind: Pod
   spec:
     containers:
-      - name: '${TSBI_IMAGE}'
-        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${TSBI_IMAGE}:${TSBI_VERSION}'
+      - name: '${_TSBI_IMAGE}'
+        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
         command: [ cat ]
         tty: true
         volumeMounts: [
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
-          { name: efs-jenkins-component-runtime-download, mountPath: ${DOWNLOAD_DIR}},
+          { name: efs-jenkins-component-runtime-download, mountPath: ${_DOWNLOAD_DIR}},
           { name: dockercache, mountPath: /root/.dockercache }
         ]
         resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
@@ -79,12 +81,12 @@ final String podConfiguration = """
  * Credentials
  */
 
-final def NEXUS_CREDENTIALS = usernamePassword(
+final def _NEXUS_CREDENTIALS = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
     passwordVariable: 'NEXUS_PASSWORD')
 
-final def TENANT_ID_RD = string(
+final def _TENANT_ID_RD = string(
     credentialsId: 'component-runtime-api-tenant-id-rd',
     variable: 'componentRuntimeApiTenantId_Rd'
 )
@@ -107,9 +109,9 @@ pipeline {
    */
   agent {
     kubernetes {
-      label POD_LABEL
-      yaml podConfiguration
-      defaultContainer STAGE_DEFAULT_CONTAINER
+      label _POD_LABEL
+      yaml _POD_CONFIGURATION
+      defaultContainer _STAGE_DEFAULT_CONTAINER
     }
   }
   /**
@@ -140,12 +142,12 @@ pipeline {
     TALEND_REGISTRY = "artifactory.datapwn.com"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
 
-    final String ROOT_PATH = "${WORKSPACE}"
-    final String SCRIPTS_PATH = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    final String TESTS_PATH = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/test"
+    final String _ROOT_PATH = "${WORKSPACE}"
+    final String _SCRIPTS_PATH = "${_ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+    final String _TESTS_PATH = "${_ROOT_PATH}/talend-component-maven-plugin/src/it/web/test"
 
-    MAVEN_SETTINGS = "${ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
-    DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${ROOT_PATH}/.jenkins/"
+    MAVEN_SETTINGS = "${_ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
+    DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${_ROOT_PATH}/.jenkins/"
     MAVEN_OPTS = [
       "-Dmaven.artifact.threads=128",
       "-Dorg.slf4j.simpleLogger.showDateTime=true",
@@ -174,14 +176,14 @@ pipeline {
         ///////////////////////////////////////////
         script {
 
-          println "Setup all script as executables in ${SCRIPTS_PATH}\n"
+          println "Setup all script as executables in ${_SCRIPTS_PATH}\n"
           sh """
-            find ${SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
+            find ${_SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
           """
 
-          println "Get actual tck version from ${ROOT_PATH}/pom.xml: \n"
+          println "Get actual tck version from ${_ROOT_PATH}/pom.xml: \n"
           TCOMP_VERSION = sh (
-            script: "${SCRIPTS_PATH}/pom-get-version.sh ${ROOT_PATH}/pom.xml",
+            script: "${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
             returnStdout: true
           ).trim()
 
@@ -252,19 +254,19 @@ pipeline {
     }
     stage('Prepare Test') {
       steps {
-        withCredentials([NEXUS_CREDENTIALS]) {
+        withCredentials([_NEXUS_CREDENTIALS]) {
           script {
             if (runtimeVersion.contains('-SNAPSHOT')) {
-              sh """ "${SCRIPTS_PATH}/tcomp-build.sh" "${ROOT_PATH}/pom.xml" """
+              sh """ "${_SCRIPTS_PATH}/tcomp-build.sh" "${_ROOT_PATH}/pom.xml" """
             }
 
             // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
             sh """
-              "${SCRIPTS_PATH}/server-registry-init.sh" "${DOWNLOAD_DIR}" "${INSTALL_DIR}" "${COVERAGE_DIR}" \
+              "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" \
                                                          "${runtimeVersion}" \
                                                          "1.36.0" "azure-dls-gen2" \
-                                                         "${SERVER_PORT}"
-              "${SCRIPTS_PATH}/server-registry-start.sh" "${INSTALL_DIR}" "${COVERAGE_DIR}" "${SERVER_PORT}"
+                                                         "${_SERVER_PORT}"
+              "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
             """
           }
         }
@@ -272,12 +274,12 @@ pipeline {
     }
     stage('Execute Test') {
       steps {
-        withCredentials([NEXUS_CREDENTIALS, TENANT_ID_RD]) {
+        withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
           sh """              
-             "${SCRIPTS_PATH}/server-check.sh" "${SERVER_PORT}"
+             "${_SCRIPTS_PATH}/server-check.sh" "${_SERVER_PORT}"
 
              printf "======== Execute test\n"
-             cd ${TESTS_PATH}
+             cd ${_TESTS_PATH}
              mvn clean test --settings="${MAVEN_SETTINGS}" \
                             --define instance="${tenantInstance}" \
                             --define accountId="${componentRuntimeApiTenantId_Rd}" \
@@ -298,14 +300,14 @@ pipeline {
       script {
         sh """
           printf "======== Stop server\n"
-          ${SCRIPTS_PATH}/server-registry-stop.sh ${INSTALL_DIR}
+          ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
 
           printf "======== Generate jacoco report \n"
-          ${SCRIPTS_PATH}/jacoco-report.sh ${INSTALL_DIR} ${COVERAGE_DIR}
+          ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
 
           printf "======== Generate Html reports\n"
-          mvn surefire-report:report-only --file ${TESTS_PATH}
-          mvn site --define generateReports=false --file ${TESTS_PATH}
+          mvn surefire-report:report-only --file ${_TESTS_PATH}
+          mvn site --define generateReports=false --file ${_TESTS_PATH}
         """
       }
 
@@ -336,7 +338,7 @@ pipeline {
             allowMissing         : false,
             alwaysLinkToLastBuild: false,
             keepAll              : true,
-            reportDir            : "${COVERAGE_DIR}/html",
+            reportDir            : "${_COVERAGE_DIR}/html",
             reportFiles          : 'index.html',
             reportName           : 'API Coverage',
             reportTitles         : 'API Coverage'
@@ -346,19 +348,19 @@ pipeline {
       script {
         println "====== Archive artifacts"
 
-        println "Artifact 1: ${ARTIFACT_TEST_RESULTS}\\n"
-        archiveArtifacts artifacts: "${ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 2: ${ARTIFACT_COVERAGE}\\n"
-        archiveArtifacts artifacts: "${ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact 1: ${_ARTIFACT_TEST_RESULTS}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact 2: ${_ARTIFACT_COVERAGE}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
         // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
-        // println "Artifact 3: ${ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
-        // archiveArtifacts artifacts: "${ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
-        // println "Artifact 4: ${ARTIFACT_LOGS_MEECROWAVE}\\n"
+        // println "Artifact 3: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
+        // archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
+        // println "Artifact 4: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
         // archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 5: ${ARTIFACT_SETENV}\\n"
-        archiveArtifacts artifacts: "${ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 6: ${ARTIFACT_REGISTRY}\\n"
-        archiveArtifacts artifacts: "${ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact 5: ${_ARTIFACT_SETENV}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact 6: ${_ARTIFACT_REGISTRY}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
 
       }
     }
