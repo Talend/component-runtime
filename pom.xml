@@ -247,7 +247,7 @@
     <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
     <spotless.version>2.17.3</spotless.version>
     <jib.version>1.4.0</jib.version>
-    <jib-core.version>0.15.0</jib-core.version>
+    <jib-core.version>0.16.0</jib-core.version>
 
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v16.14.0</node.version>
@@ -269,7 +269,7 @@
     <johnzon.version>1.2.16</johnzon.version>
     <commons-io.version>2.9.0</commons-io.version>
     <commons-compress.version>1.21</commons-compress.version>
-    <slf4j.version>1.7.33</slf4j.version>
+    <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.18.0</log4j2.version>
   </properties>
 
