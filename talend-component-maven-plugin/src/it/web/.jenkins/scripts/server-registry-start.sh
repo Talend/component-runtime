@@ -34,7 +34,7 @@ function usage(){
 
 _INSTALL_DIR=${1}
 _COVERAGE_DIR=${2}
-_PORT=${3:-'8080'}
+_PORT=${3:-"8080"}
 
 # Constants
 _EXTRA_INSTRUMENTED='vault-client'

@@ -41,7 +41,7 @@ _COVERAGE_DIR=${3}
 _TCK_VERSION=${4}
 _CONNECTOR_VERSION=${5}
 _CONNECTOR_LIST=${6}
-_SERVER_PORT=${7:-'8080'}
+_SERVER_PORT=${7:-"8080"}
 
 # Check command possibilities
 which wget || { usage 'wget is not present'; }
