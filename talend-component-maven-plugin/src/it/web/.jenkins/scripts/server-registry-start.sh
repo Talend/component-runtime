@@ -32,19 +32,19 @@ function usage(){
 [ -z ${2+x} ] && usage 'Parameter "coverage_dir" is needed.'
 [ -z ${3+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
 
-INSTALL_DIR=${1}
-COVERAGE_DIR=${2}
-PORT=${3:-'8080'}
+_INSTALL_DIR=${1}
+_COVERAGE_DIR=${2}
+_PORT=${3:-'8080'}
 
 # Constants
-EXTRA_INSTRUMENTED='vault-client'
-DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
-LIB_DIR="${DISTRIBUTION_DIR}/lib"
-LIB_BACKUP_DIR="${COVERAGE_DIR}/lib_backup"
-LIB_INSTRUMENTED_DIR="${COVERAGE_DIR}/lib_instrumented"
-SOURCES_DIR="${COVERAGE_DIR}/src"
-JACOCO_CLI_PATH="${LIB_DIR}/jacococli.jar"
-MEECROWAVE_LOG_PATH="${DISTRIBUTION_DIR}/logs/meecrowave.out"
+_EXTRA_INSTRUMENTED='vault-client'
+_DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"
+_LIB_DIR="${_DISTRIBUTION_DIR}/lib"
+_LIB_BACKUP_DIR="${_COVERAGE_DIR}/lib_backup"
+_LIB_INSTRUMENTED_DIR="${_COVERAGE_DIR}/lib_instrumented"
+_SOURCES_DIR="${_COVERAGE_DIR}/src"
+_JACOCO_CLI_PATH="${_LIB_DIR}/jacococli.jar"
+_MEECROWAVE_LOG_PATH="${_DISTRIBUTION_DIR}/logs/meecrowave.out"
 
 main() (
   printf '##############################################\n'
@@ -58,8 +58,8 @@ main() (
 function jacoco_instrument {
   printf '\n# Jacoco instrument\n'
   printf '\n## Backup original jar files\n'
-  cp --verbose "${LIB_DIR}/component-"*.jar "${LIB_BACKUP_DIR}"
-  cp --verbose "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*.jar "${LIB_BACKUP_DIR}"
+  cp --verbose "${_LIB_DIR}/component-"*.jar "${_LIB_BACKUP_DIR}"
+  cp --verbose "${_LIB_DIR}/${_EXTRA_INSTRUMENTED}"*.jar "${_LIB_BACKUP_DIR}"
 
   printf '\n## Backup original sources files\n'
   # TODO: TCOMP-2245 some sources seem not to be correctly linked eg: org.talend.sdk.component.server.configuration
@@ -67,35 +67,35 @@ function jacoco_instrument {
   ls -l "${SOURCES_DIR}"
 
   printf '\n## Instrument classes in jar files\n'
-  java -jar "${JACOCO_CLI_PATH}" \
-    instrument "${LIB_DIR}/component-"*".jar"\
-               "${LIB_DIR}/${EXTRA_INSTRUMENTED}"*".jar" \
-    --dest "${LIB_INSTRUMENTED_DIR}"
+  java -jar "${_JACOCO_CLI_PATH}" \
+    instrument "${_LIB_DIR}/component-"*".jar"\
+               "${_LIB_DIR}/${_EXTRA_INSTRUMENTED}"*".jar" \
+    --dest "${_LIB_INSTRUMENTED_DIR}"
 
   printf '\n## Copy instrumented jar to the lib folder\n'
-  cp --verbose "${LIB_INSTRUMENTED_DIR}"/*".jar" "${LIB_DIR}"
+  cp --verbose "${_LIB_INSTRUMENTED_DIR}"/*".jar" "${_LIB_DIR}"
 	printf '##############################################\n'
 }
 
 function start_server {
   printf '# Start server\n'
   # Go in the distribution directory
-  cd "${DISTRIBUTION_DIR}" || exit 1
+  cd "${_DISTRIBUTION_DIR}" || exit 1
   # Start the server
   ./bin/meecrowave.sh start
 
-  if grep -q 'Exception in thread' "${MEECROWAVE_LOG_PATH}"; then
+  if grep -q 'Exception in thread' "${_MEECROWAVE_LOG_PATH}"; then
       printf '\n'
       printf 'Error happened on meecrowave start:\n'
-      cat "${MEECROWAVE_LOG_PATH}"
+      cat "${_MEECROWAVE_LOG_PATH}"
       exit 1
     	printf '##############################################\n'
   fi
 
-  LOCAL_IP=$(hostname -I | sed 's/ *$//g')
+  _LOCAL_IP=$(hostname -I | sed 's/ *$//g')
 
   printf '\n'
-  printf 'You can now connect on http://%s:%s\n' "${LOCAL_IP}" "${PORT}"
+  printf 'You can now connect on http://%s:%s\n' "${_LOCAL_IP}" "${_PORT}"
   printf '\n'
 	printf '##############################################\n'
 }

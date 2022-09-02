@@ -29,10 +29,10 @@ function usage(){
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "install_dir" is needed.'
 
-INSTALL_DIR="${1}"
+_INSTALL_DIR="${1}"
 
 # Constants
-DISTRIBUTION_DIR="${INSTALL_DIR}/component-server-distribution"
+_DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"
 
 main() (
   printf '##############################################\n'
@@ -44,7 +44,7 @@ main() (
 
 function stop_server {
   printf '# Stop server\n'
-  cd "${DISTRIBUTION_DIR}" || exit
+  cd "${_DISTRIBUTION_DIR}" || exit
   ./bin/meecrowave.sh stop --force
 	printf '##############################################\n'
 }

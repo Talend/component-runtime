@@ -29,10 +29,10 @@ function usage(){
 # Parameters
 [ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.\n'
 
-POM_FILE_PATH="${1}"
+_POM_FILE_PATH="${1}"
 
 # Constants
-MAVEN_FAST_INSTALL_CMD="mvn clean install \
+_MAVEN_FAST_INSTALL_CMD="mvn clean install \
                 --define spotless.apply.skip=true \
                 --define spotbugs.skip=true \
                 --define checkstyle.skip=true \
@@ -47,8 +47,8 @@ main() (
   printf 'Maven fast build\n'
   printf '##############################################\n'
 
-  ${MAVEN_FAST_INSTALL_CMD} \
-  --file "${POM_FILE_PATH}" \
+  ${_MAVEN_FAST_INSTALL_CMD} \
+  --file "${_POM_FILE_PATH}" \
   --projects \!documentation \
   --projects \!reporting \
   --projects \!sample-parent \
