@@ -211,9 +211,9 @@ function create_setenv_script {
 function generate_registry {
   printf '\n# Generate components registry\n'
   # Create the file
-	printf '' > "${REGISTRY_PATH}"
+	echo "" > "${REGISTRY_PATH}"
 	# Add connectors FIXME: TCOMP-2246 make really compatible with a list
-  printf 'conn_1=org.talend.components\\:%s\\:%s' "${CONNECTOR_LIST}" "${CONNECTOR_VERSION}" >> "${REGISTRY_PATH}"
+  echo "conn_1=org.talend.components\\:${CONNECTOR_LIST}\\:${CONNECTOR_VERSION}" >> "${REGISTRY_PATH}"
 }
 
 

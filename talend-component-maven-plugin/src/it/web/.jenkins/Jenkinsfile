@@ -41,6 +41,7 @@ final String ARTIFACT_COVERAGE="**/${coverage_dir}/**/*"
 final String ARTIFACT_LOGS_COMPONENT_SERVER="**/${distribution_dir}/logs/component-server*"
 final String ARTIFACT_LOGS_MEECROWAVE="**/${distribution_dir}/logs/meecrowave*"
 final String ARTIFACT_SETENV="**/${distribution_dir}/bin/setenv.sh"
+final String ARTIFACT_REGISTRY="**/${distribution_dir}/conf/components-registry.properties"
 
 final String podConfiguration = """
   apiVersion: v1
@@ -353,13 +354,15 @@ pipeline {
         archiveArtifacts artifacts: "${ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
         println "Artifact 2: ${ARTIFACT_COVERAGE}\\n"
         archiveArtifacts artifacts: "${ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 3: ${ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
-        archiveArtifacts artifacts: "${ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 4: ${ARTIFACT_LOGS_MEECROWAVE}\\n"
         // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
+        // println "Artifact 3: ${ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
+        // archiveArtifacts artifacts: "${ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
+        // println "Artifact 4: ${ARTIFACT_LOGS_MEECROWAVE}\\n"
         // archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 4: ${ARTIFACT_SETENV}\\n"
+        println "Artifact 5: ${ARTIFACT_SETENV}\\n"
         archiveArtifacts artifacts: "${ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact 6: ${ARTIFACT_REGISTRY}\\n"
+        archiveArtifacts artifacts: "${ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
 
         sh """
           ls "${distribution_dir}/logs/"
