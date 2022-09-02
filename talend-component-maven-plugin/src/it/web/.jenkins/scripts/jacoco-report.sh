@@ -29,8 +29,8 @@ function usage(){
 [ -z ${1+x} ] && usage "Parameter 'install_dir' is needed."
 [ -z ${2+x} ] && usage "Parameter 'coverage_dir' is needed."
 
-_INSTALL_DIR="${1}"
-_COVERAGE_DIR="${2}"
+_INSTALL_DIR=${1}
+_COVERAGE_DIR=${2}
 
 # Constants
 _DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"

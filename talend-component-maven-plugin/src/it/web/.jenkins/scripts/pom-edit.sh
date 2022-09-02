@@ -30,13 +30,13 @@ function usage(){
 [ -z ${2+x} ] && usage "Parameter 'connector_path' is needed."
 
 _ELEMENT='component-runtime.version'
-_NEW_VERSION="${1:?Missing version}"
-_CONNECTOR_PATH="${2:?Missing connector path}"
+_NEW_VERSION=${1:?Missing version}
+_CONNECTOR_PATH=${2:?Missing connector path}
 
 
 setMavenProperty() (
-  PROPERTY_NAME="${1}"
-  PROPERTY_VALUE="${2}"
+  PROPERTY_NAME=${1}
+  PROPERTY_VALUE=${2}
   mvn 'versions:set-property' \
     --batch-mode \
     --define property="${PROPERTY_NAME}" \

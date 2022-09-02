@@ -29,7 +29,7 @@ function usage(){
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "install_dir" is needed.'
 
-_INSTALL_DIR="${1}"
+_INSTALL_DIR=${1}
 
 # Constants
 _DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"

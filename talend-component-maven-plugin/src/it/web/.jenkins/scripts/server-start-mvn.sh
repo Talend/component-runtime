@@ -25,10 +25,10 @@
 # $4: (Optional) Timeout value in minute for the server (default 2mn)
 main() (
 
-  _CONNECTOR_PATH="${1:?Missing connector path}"
-  _LOG_FILE="${2:?Missing log file path}"
-  _SERVER_PORT="${3:-"8081"}"
-  _TIMEOUT="${4:-"120"}"
+  _CONNECTOR_PATH=${1:?Missing connector path}
+  _LOG_FILE=${2:?Missing log file path}
+  _SERVER_PORT=${3:-"8081"}
+  _TIMEOUT=${4:-"120"}
 
   printf '# Go into given path: %s\n' "${_CONNECTOR_PATH}"
   cd "${_CONNECTOR_PATH}" || exit

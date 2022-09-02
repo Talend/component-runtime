@@ -35,13 +35,13 @@ function usage(){
 [ -z ${6+x} ] && usage 'Parameter "connector" is needed.'
 [ -z ${7+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
 
-_DOWNLOAD_DIR="${1}"
-_INSTALL_DIR="${2}"
-_COVERAGE_DIR="${3}"
-_TCK_VERSION="${4}"
-_CONNECTOR_VERSION="${5}"
-_CONNECTOR_LIST="${6}"
-_SERVER_PORT="${7:-'8080'}"
+_DOWNLOAD_DIR=${1}
+_INSTALL_DIR=${2}
+_COVERAGE_DIR=${3}
+_TCK_VERSION=${4}
+_CONNECTOR_VERSION=${5}
+_CONNECTOR_LIST=${6}
+_SERVER_PORT=${7:-'8080'}
 
 # Check command possibilities
 which wget || { usage 'wget is not present'; }
@@ -112,7 +112,7 @@ function init {
 
 function download_component_lib {
 
-  lib_name="${1}"
+  lib_name=${1}
   printf '\n## Download component element: %s\n' "${lib_name}"
   file_name="${lib_name}-${_TCK_VERSION}.jar"
   printf 'File Name: %s\n' "${lib_name}"
@@ -187,7 +187,7 @@ function download_all {
   download_component_lib 'component-form-core'
   download_component_lib 'component-form-model'
   download_component_lib 'component-runtime-beam'
-  download_component_lib "${_}"
+  download_component_lib "${_EXTRA_INSTRUMENTED}"
 
   download_connector
 }

@@ -28,7 +28,7 @@ function usage(){
 
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.'
-_POM_FILE_PATH="${1}"
+_POM_FILE_PATH=${1}
 
 main() (
 
