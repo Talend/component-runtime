@@ -187,7 +187,7 @@ function download_all {
   download_component_lib 'component-form-core'
   download_component_lib 'component-form-model'
   download_component_lib 'component-runtime-beam'
-  download_component_lib "${_EXTRA_INSTRUMENTED}"
+  # download_component_lib "${_EXTRA_INSTRUMENTED}"
 
   download_connector
 }
