@@ -172,9 +172,41 @@ public class Streaming {
 
     public interface StopStrategy {
 
+        /**
+         * Check if the stop strategy is active according specified conditions.
+         * 
+         * @return true if strategy is active, false otherwise.
+         */
         boolean isActive();
 
+        /**
+         * Check the stop strategy conditions.
+         * 
+         * @param read - already read records.
+         * @return true if the lifecycle should be stopped, false otherwise.
+         */
         boolean shouldStop(long read);
+
+        /**
+         * Maximum records to read.
+         * 
+         * @return max number of records to read.
+         */
+        long getMaxReadRecords();
+
+        /**
+         * Maximum duration the lifecycle should run in ms.
+         * 
+         * @return max activity duration.
+         */
+        long getMaxActiveTime();
+
+        /**
+         * The system time in millis when the lifecycle started.
+         * 
+         * @return started time.
+         */
+        long getStartedAtTime();
 
     }
 
@@ -185,18 +217,18 @@ public class Streaming {
 
         private long maxActiveTime;
 
-        private long started;
+        private long startedAtTime;
 
         public StopConfiguration() {
             maxReadRecords = -1L;
             maxActiveTime = -1L;
-            started = System.currentTimeMillis();
+            startedAtTime = System.currentTimeMillis();
         }
 
         public StopConfiguration(final Long maxRecords, final Long maxTime, final Long start) {
             maxReadRecords = maxRecords == null ? -1L : maxRecords;
             maxActiveTime = maxTime == null ? -1L : maxTime;
-            started = start == null ? System.currentTimeMillis() : start;
+            startedAtTime = start == null ? System.currentTimeMillis() : start;
         }
 
         @Override
@@ -209,7 +241,7 @@ public class Streaming {
         }
 
         private boolean isTimePassed() {
-            return maxActiveTime != -1 && System.currentTimeMillis() - started >= maxActiveTime;
+            return maxActiveTime != -1 && System.currentTimeMillis() - startedAtTime >= maxActiveTime;
         }
 
         @Override

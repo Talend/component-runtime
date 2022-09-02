@@ -32,7 +32,7 @@ import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.runtime.input.Streaming.StopConfiguration;
 import org.talend.sdk.component.runtime.input.Streaming.StopStrategy;
 
-class StreamingInputImplTest {
+public class StreamingInputImplTest {
 
     private static final int TIME_TOLERANCE = 100;
 
@@ -137,7 +137,7 @@ class StreamingInputImplTest {
         assertFalse(timeStrategy.shouldStop(1));
         assertEquals(-1, timeStrategy.getMaxReadRecords());
         assertEquals(1000, timeStrategy.getMaxActiveTime());
-        assertEquals(start, timeStrategy.getStarted());
+        assertEquals(start, timeStrategy.getStartedAtTime());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -150,7 +150,7 @@ class StreamingInputImplTest {
         assertFalse(bothStrategy.shouldStop(1));
         assertEquals(100, bothStrategy.getMaxReadRecords());
         assertEquals(2000, bothStrategy.getMaxActiveTime());
-        assertEquals(start, bothStrategy.getStarted());
+        assertEquals(start, bothStrategy.getStartedAtTime());
         assertFalse(bothStrategy.shouldStop(40));
         try {
             Thread.sleep(100);
@@ -287,6 +287,55 @@ class StreamingInputImplTest {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            assertNull(input.next());
+        } finally {
+            input.stop();
+        }
+    }
+
+    @Test
+    void respectStopMaxDurationWithLaggingInput() {
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final StopStrategy stopStrategy = new StopConfiguration(-1L, 1000L, System.currentTimeMillis());
+        final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
+
+            @Producer
+            public Object next() {
+                try {
+                    Thread.sleep(800);
+                    return new Object();
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }, retryStrategy, stopStrategy);
+        input.start();
+        try {
+            assertNotNull(input.next());
+            assertNull(input.next());
+        } finally {
+            input.stop();
+        }
+    }
+
+    @Test
+    void respectStopMaxDurationWithBlockingInput() {
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final StopStrategy stopStrategy = new StopConfiguration(-1L, 500L, System.currentTimeMillis());
+        final Input input = new StreamingInputImpl("a", "b", "c", new Serializable() {
+
+            @Producer
+            public Object next() {
+                try {
+                    Thread.sleep(Long.MAX_VALUE);
+                    return new Object();
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }, retryStrategy, stopStrategy);
+        input.start();
+        try {
             assertNull(input.next());
         } finally {
             input.stop();
