@@ -370,11 +370,6 @@ pipeline {
         println "Artifact 6: ${ARTIFACT_REGISTRY}\\n"
         archiveArtifacts artifacts: "${ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
 
-        sh """
-          ls "${distribution_dir}/logs/"
-          cat "${distribution_dir}/logs/component-server.log"
-          cat "${distribution_dir}/logs/meecrowave.out"
-        """
       }
     }
   }
