@@ -263,7 +263,7 @@ pipeline {
                                                          "1.36.0" "azure-dls-gen2" \
                                                          "${serverPort}"
               "${scripts_path}/server-registry-start.sh" "${install_dir}" "${coverage_dir}" "${serverPort}"
-              "${scripts_path}/server-check.sh" "${serverPort}"
+              # "${scripts_path}/server-check.sh" "${serverPort}"
             """
           }
         }
