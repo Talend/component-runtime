@@ -181,6 +181,11 @@ pipeline {
             find ${scripts_path} -type f -iname "*.sh" -exec chmod +x {} \\;
           """
 
+          println "Check available applications:\n"
+          sh """
+            python --version
+          """
+
           // Get actual tck version
 
           println "Get actual tck version from ${workspace}/pom.xml: \n"
