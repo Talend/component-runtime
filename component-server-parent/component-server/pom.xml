@@ -197,7 +197,6 @@
         <configuration>
           <generateGitPropertiesFile>true</generateGitPropertiesFile>
           <generateGitPropertiesFilename>${project.build.outputDirectory}/TALEND-INF/git.properties</generateGitPropertiesFilename>
-          <verbose>true</verbose>
         </configuration>
         <executions>
           <execution>
