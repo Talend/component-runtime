@@ -363,6 +363,19 @@ pipeline {
         archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
 
       }
+
+      script {
+        println "====== Debug optional step"
+        sh """
+          ls "${distribution_dir}/logs/"
+          printf "--------------------------------------------------------------------------------------------------\\n"
+          printf "--------------------------------------------------------------------------------------------------\\n"
+          cat "${distribution_dir}/logs/component-server.log"
+          printf "--------------------------------------------------------------------------------------------------\\n"
+          printf "--------------------------------------------------------------------------------------------------\\n"
+          cat "${distribution_dir}/logs/meecrowave.out"
+        """
+      }
     }
   }
 }
