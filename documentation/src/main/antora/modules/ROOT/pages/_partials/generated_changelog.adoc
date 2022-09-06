@@ -8,6 +8,14 @@
 
 
 
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2228[TCOMP-2228^]: Upgrade git-commit-id-plugin to 4.9.9 
+- link:https://jira.talendforge.org/browse/TCOMP-2232[TCOMP-2232^]: Upgrade slf4j to 1.7.34 
+- link:https://jira.talendforge.org/browse/TCOMP-2238[TCOMP-2238^]: Upgrade jib-core to 0.16.0 
+
+
+
 == Version 1.48.1
 
 === Bug

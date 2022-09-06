@@ -17,38 +17,62 @@
 /**
  * job-dsl plugin page api documentation for this project
  * https://jenkins-connectors.datapwn.com/plugin/job-dsl/api-viewer/index.html
+ * REM on naming:
+ *   - All constants have been prefix with "_" not to be confound with env variables
  */
 
 /**
  * Pod configuration
  */
-final String tsbiImage = 'jdk11-svc-springboot-builder'
-final String tsbiVersion = '2.9.18-2.4-20220104141654'
-final String stageDefaultContainer = tsbiImage
-final String podLabel = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
-final String podConfiguration = """
+final String _TSBI_IMAGE = 'jdk11-svc-springboot-builder'
+final String _TSBI_VERSION = '2.9.18-2.4-20220104141654'
+final String _STAGE_DEFAULT_CONTAINER = _TSBI_IMAGE
+final String _POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
+
+/**
+ * Job configuration
+ */
+// Local folder location
+final String _SERVER_PORT="8081"
+final String _INSTALL_DIR="webtester"
+final String _COVERAGE_DIR="coverage"
+final String _DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration
+final String _SERVER_DIR="${_INSTALL_DIR}/component-server-distribution"
+// Local artifact definition
+final String _ARTIFACT_TEST_RESULTS="**/src/it/web/test/target/**/*"
+final String _ARTIFACT_COVERAGE="**/${_COVERAGE_DIR}/**/*"
+final String _ARTIFACT_LOGS_COMPONENT_SERVER="**/${_SERVER_DIR}/logs/component-server*"
+final String _ARTIFACT_LOGS_MEECROWAVE="**/${_SERVER_DIR}/logs/meecrowave*"
+final String _ARTIFACT_SETENV="**/${_SERVER_DIR}/bin/setenv.sh"
+final String _ARTIFACT_REGISTRY="**/${_SERVER_DIR}/conf/components-registry.properties"
+
+final String _POD_CONFIGURATION = """
   apiVersion: v1
   kind: Pod
   spec:
     containers:
-      - name: '${tsbiImage}'
-        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${tsbiImage}:${tsbiVersion}'
+      - name: '${_TSBI_IMAGE}'
+        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
         command: [ cat ]
         tty: true
         volumeMounts: [
           { name: docker, mountPath: /var/run/docker.sock },
           { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
+          { name: efs-jenkins-component-runtime-download, mountPath: ${_DOWNLOAD_DIR}},
           { name: dockercache, mountPath: /root/.dockercache }
         ]
-        resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' } }
+        resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
     volumes:
       - name: docker
         hostPath: { path: /var/run/docker.sock }
-      - name: efs-jenkins-component-runtime-m2
-        persistentVolumeClaim:
-              claimName: efs-jenkins-component-runtime-m2
       - name: dockercache
         hostPath: { path: /tmp/jenkins/tdi/docker }
+      - name: efs-jenkins-component-runtime-m2
+        persistentVolumeClaim:
+          claimName: efs-jenkins-component-runtime-m2
+      - name: efs-jenkins-component-runtime-download
+        persistentVolumeClaim:
+          claimName: efs-jenkins-component-runtime-download
     imagePullSecrets:
       - name: talend-registry
 """
@@ -57,12 +81,12 @@ final String podConfiguration = """
  * Credentials
  */
 
-final def nexusCredentials = usernamePassword(
+final def _NEXUS_CREDENTIALS = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
     passwordVariable: 'NEXUS_PASSWORD')
 
-final def tenantId_Rd = string(
+final def _TENANT_ID_RD = string(
     credentialsId: 'component-runtime-api-tenant-id-rd',
     variable: 'componentRuntimeApiTenantId_Rd'
 )
@@ -70,16 +94,12 @@ final def tenantId_Rd = string(
 /**
  * Options
  */
-
-final String serverPort = "8081"
-final String serverLog = "component_server.log"
-final String serverTimeout = "1"
-
 // Default value for parameters
 String runtimeVersion = "default"
 String apiTesterEnv = "component_runtime_ci"
 String fileToRun = "tcomp_approved"
 String tenantInstance = "eu"
+
 /**
  * The pipeline
  */
@@ -89,9 +109,9 @@ pipeline {
    */
   agent {
     kubernetes {
-      label podLabel
-      yaml podConfiguration
-      defaultContainer stageDefaultContainer
+      label _POD_LABEL
+      yaml _POD_CONFIGURATION
+      defaultContainer _STAGE_DEFAULT_CONTAINER
     }
   }
   /**
@@ -118,8 +138,16 @@ pipeline {
    * environment
    */
   environment {
-    MAVEN_SETTINGS = "${SETTINGS_PATH}"
-    DECRYPTER_ARG = "-Dtalend.maven.decrypter.m2.location=${env.WORKSPACE}/.jenkins/"
+    APP_ID = '579232'
+    TALEND_REGISTRY = "artifactory.datapwn.com"
+    TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
+
+    final String _ROOT_PATH = "${WORKSPACE}"
+    final String _SCRIPTS_PATH = "${_ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
+    final String _TESTS_PATH = "${_ROOT_PATH}/talend-component-maven-plugin/src/it/web/test"
+
+    MAVEN_SETTINGS = "${_ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
+    DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${_ROOT_PATH}/.jenkins/"
     MAVEN_OPTS = [
       "-Dmaven.artifact.threads=128",
       "-Dorg.slf4j.simpleLogger.showDateTime=true",
@@ -128,15 +156,6 @@ pipeline {
       "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
 
-    APP_ID = '579232'
-    TALEND_REGISTRY = "artifactory.datapwn.com"
-    TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = "artifactory.datapwn.com/docker-io-remote/"
-
-    SETTINGS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
-    SCRIPTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/.jenkins/scripts"
-    TESTS_PATH = "${WORKSPACE}/talend-component-maven-plugin/src/it/web/test"
-    CONNECTORS_PATH = "${WORKSPACE}/connectors"
-    TESTED_CONNECTOR_PATH = "${CONNECTORS_PATH}/azure/azure-dls-gen2"
   }
   /**
    * options
@@ -152,141 +171,123 @@ pipeline {
   stages {
     stage('Validate parameters') {
       steps {
-          ///////////////////////////////////////////
-          // Get the user name
-          ///////////////////////////////////////////
-          wrap([$class: 'BuildUser']) {
-            script {
-              try {
-                USER_NAME = "${BUILD_USER}"
-              }
-              catch (groovy.lang.MissingPropertyException ignored) {
-                USER_NAME = "auto"
-              }
-            }
+        ///////////////////////////////////////////
+        // Validate parameters
+        ///////////////////////////////////////////
+        script {
+
+          println "Setup all script as executables in ${_SCRIPTS_PATH}\n"
+          sh """
+            find ${_SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
+          """
+
+          println "Get actual tck version from ${_ROOT_PATH}/pom.xml: \n"
+          TCOMP_VERSION = sh (
+            script: "${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
+            returnStdout: true
+          ).trim()
+
+          println "TCOMP_VERSION on the pom file is ${TCOMP_VERSION}\n"
+
+          // RUNTIME_VERSION
+          try {
+            runtimeVersion = "${RUNTIME_VERSION}"
           }
-          ///////////////////////////////////////////
-          // Validate parameters
-          ///////////////////////////////////////////
-          script {
-            // RUNTIME_VERSION
-            try {
-              runtimeVersion = "${RUNTIME_VERSION}"
-            }
-            catch (groovy.lang.MissingPropertyException ignored) {
-              echo "RUNTIME_VERSION not supplied, default value will be used ($runtimeVersion)"
-            }
-            // FILE_TO_RUN
-            try {
-              fileToRun = "${PROJECT_NAME}"
-            }
-            catch (groovy.lang.MissingPropertyException ignored) {
-              echo "PROJECT_NAME not supplied, default value will be used ($fileToRun)"
-            }
-          }
-          ///////////////////////////////////////////
-          // Print build config
-          ///////////////////////////////////////////
-          script {
-
-            println("Job info:\n" +
-                " - Tenant instance: ${tenantInstance}\n" +
-                " - Runtime version: ${runtimeVersion}\n" +
-                " - Test file executed: ${fileToRun}" + ".json\n" +
-                " - API Tester used environment: ${apiTesterEnv}\n")
-
-            println("Talend Test Orchestrator info:\n" +
-                "PLATFORM: ${params.PLATFORM}\n" +
-                "ENVIRONMENT: ${params.ENVIRONMENT}\n" +
-                "FRAGMENT_URL: ${params.FRAGMENT_URL}\n" +
-                "DEPLOYMENT_UNIT: ${params.DEPLOYMENT_UNIT}\n" +
-                "CYCLE: ${params.CYCLE}\n" +
-                "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
-
-            def runtimeName = "master"
-            if (runtimeVersion != "") {
-              runtimeName = runtimeVersion
-            }
-
-            // updating build displayName
-            currentBuild.displayName = (
-                "#" + currentBuild.number + ": " + fileToRun
-            )
-
-            // updating build description
-            currentBuild.description = (
-                "User: " + "${USER_NAME}" + " - " + "Runtime: " + runtimeName + "\n" +
-                    "Project: " + fileToRun + "\n"
-            )
+          catch (groovy.lang.MissingPropertyException ignored) {
+            runtimeVersion = "default"
           }
 
-      }
-    }
-    stage('Checkout connector') {
-      steps {
-        // Checkout of the connector directory (TODO Will be cleaned when test component will be ready)
-        checkout([
-            $class           : 'GitSCM',
-            branches         : [[name: '*/master']],
-            extensions       : [
-                [$class: 'RelativeTargetDirectory', relativeTargetDir: './connectors'],
-                [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]
-            ],
-            userRemoteConfigs: [[credentialsId: '"github-credentials"',
-                                 url: 'https://github.com/Talend/connectors-se.git']]
-        ])
+          println "Requested TCOMP_VERSION is ${runtimeVersion}\n"
+
+          if (runtimeVersion == "default") {
+            runtimeVersion = "${TCOMP_VERSION}"
+            println "RUNTIME_VERSION not supplied, local value will be used (${runtimeVersion})\n"
+          }
+
+          // FILE_TO_RUN
+          try {
+            fileToRun = "${PROJECT_NAME}"
+          }
+          catch (groovy.lang.MissingPropertyException ignored) {
+            println "PROJECT_NAME not supplied, default value will be used (${fileToRun})\n"
+          }
+        }
+        ///////////////////////////////////////////
+        // Print build config
+        ///////////////////////////////////////////
+        script {
+
+          println("Job info:\n" +
+              " - Tenant instance: ${tenantInstance}\n" +
+              " - Runtime version: ${runtimeVersion}\n" +
+              " - Test file executed: ${fileToRun}" + ".json\n" +
+              " - API Tester used environment: ${apiTesterEnv}\n")
+
+          println("Talend Test Orchestrator info:\n" +
+              "PLATFORM: ${params.PLATFORM}\n" +
+              "ENVIRONMENT: ${params.ENVIRONMENT}\n" +
+              "FRAGMENT_URL: ${params.FRAGMENT_URL}\n" +
+              "DEPLOYMENT_UNIT: ${params.DEPLOYMENT_UNIT}\n" +
+              "CYCLE: ${params.CYCLE}\n" +
+              "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
+        }
+
+        ///////////////////////////////////////////
+        // Updating build displayName
+        ///////////////////////////////////////////
+        script {
+
+          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+          if ( user_name == null) { user_name = "auto" }
+
+          currentBuild.displayName = (
+              "#" + currentBuild.number + ": " + "${user_name} - " + runtimeVersion
+          )
+
+          // updating build description
+          currentBuild.description = (
+              "User: " + user_name + " - " + "Runtime: " + runtimeVersion + "\n" +
+                  "Project: " + fileToRun + "\n"
+          )
+        }
       }
     }
     stage('Prepare Test') {
       steps {
-
+        withCredentials([_NEXUS_CREDENTIALS]) {
           script {
+            if (runtimeVersion.contains('-SNAPSHOT')) {
+              sh """ "${_SCRIPTS_PATH}/tcomp-build.sh" "${_ROOT_PATH}/pom.xml" """
+            }
+
+            // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
             sh """
-              printf "======== Build the connector\n"
-              chmod +x ${SCRIPTS_PATH}/pom-edit.sh
-              ${SCRIPTS_PATH}/pom-edit.sh ${runtimeVersion} ${CONNECTORS_PATH}
-
-              cd ${TESTED_CONNECTOR_PATH}
-              mvn clean install -U\
-                                -T3C\
-                                -Dspotless.apply.skip=true\
-                                -Dspotbugs.skip=true\
-                                -Dcheckstyle.skip=true\
-                                -Drat.skip=true\
-                                -DskipTests\
-                                -Dmaven.javadoc.skip=true\
-                                -Dinvoker.skip=true\
-                                -Dmaven.artifact.threads=25
-
-              printf "======== TCK component server start\n"
-              chmod +x ${SCRIPTS_PATH}/server-start.sh
-              ${SCRIPTS_PATH}/server-start.sh ${TESTED_CONNECTOR_PATH} ${serverLog} ${serverPort} ${serverTimeout} &
-    
-              chmod +x ${SCRIPTS_PATH}/server-check.sh
-              ${SCRIPTS_PATH}/server-check.sh ${serverPort}
-  
-              cat ${TESTED_CONNECTOR_PATH}/${serverLog}
+              "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" \
+                                                         "${runtimeVersion}" \
+                                                         "1.36.0" "azure-dls-gen2" \
+                                                         "${_SERVER_PORT}"
+              "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
             """
           }
-
+        }
       }
     }
     stage('Execute Test') {
       steps {
+        withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
+          sh """              
+             ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}
 
-          withCredentials([nexusCredentials, tenantId_Rd]) {
-            sh """
-              printf "======== Execute test\n"
-              cd ${TESTS_PATH}
-              mvn clean test --settings="${MAVEN_SETTINGS}" \
-                             --define instance="${tenantInstance}" \
-                             --define accountId="${componentRuntimeApiTenantId_Rd}" \
-                             --define selectedEnvironment="${apiTesterEnv}" \
-                             --define stopOnFailure=false \
-                             --define file="${fileToRun}.json"
-            """
-          }
-
+             printf "======== Execute test\n"
+             cd ${_TESTS_PATH}
+             mvn clean test --settings="${MAVEN_SETTINGS}" \
+                            --define instance="${tenantInstance}" \
+                            --define accountId="${componentRuntimeApiTenantId_Rd}" \
+                            --define selectedEnvironment="${apiTesterEnv}" \
+                            --define stopOnFailure=false \
+                            --define file="${fileToRun}.json"
+             """
+        }
       }
     }
   }
@@ -295,17 +296,22 @@ pipeline {
    */
   post {
     always {
-      sh """
-        printf "======== Generate Html reports\n"
-        mvn surefire-report:report-only -f ${TESTS_PATH}
-        mvn site -DgenerateReports=false -f ${TESTS_PATH}
-      """
-      archiveArtifacts(
-        artifacts: """\
-          **/${serverLog}, 
-          **/src/it/web/test/target/**/*""".stripIndent()
-      )
-      recordIssues(
+
+      script {
+        sh """
+          printf "======== Stop server\n"
+          ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
+
+          printf "======== Generate jacoco report \n"
+          ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
+
+          printf "======== Generate Html reports\n"
+          mvn surefire-report:report-only --file ${_TESTS_PATH}
+          mvn site --define generateReports=false --file ${_TESTS_PATH}
+        """
+      }
+
+      recordIssues (
         enabledForFailure: true,
         tools: [
           taskScanner(
@@ -323,6 +329,53 @@ pipeline {
           )
         ]
       )
+
+      script {
+        println "====== Publish API Coverage"
+        publishCoverage adapters: [jacocoAdapter("**/coverage/report.xml")]
+        println "====== Publish HTML API Coverage"
+        publishHTML([
+            allowMissing         : false,
+            alwaysLinkToLastBuild: false,
+            keepAll              : true,
+            reportDir            : "${_COVERAGE_DIR}/html",
+            reportFiles          : 'index.html',
+            reportName           : 'API Coverage',
+            reportTitles         : 'API Coverage'
+        ])
+      }
+
+      script {
+        println "====== Archive artifacts"
+
+        println "Artifact 1: ${_ARTIFACT_TEST_RESULTS}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact 2: ${_ARTIFACT_COVERAGE}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
+        // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
+        // println "Artifact 3: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
+        // archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
+        // println "Artifact 4: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
+        // archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact 5: ${_ARTIFACT_SETENV}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact 6: ${_ARTIFACT_REGISTRY}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
+
+      }
+
+      //script {
+      //  println "====== Debug optional step"
+      //  sh """
+      //    ls "${distribution_dir}/logs/"
+      //    printf "--------------------------------------------------------------------------------------------------\\n"
+      //    printf "--------------------------------------------------------------------------------------------------\\n"
+      //    cat "${distribution_dir}/logs/component-server.log"
+      //    printf "--------------------------------------------------------------------------------------------------\\n"
+      //    printf "--------------------------------------------------------------------------------------------------\\n"
+      //    cat "${distribution_dir}/logs/meecrowave.out"
+      //  """
+      //}
     }
   }
 }
