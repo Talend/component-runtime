@@ -15,30 +15,44 @@
 #  limitations under the License.
 #
 
-set -xe
+# set -xe
+
+function usage(){
+  printf 'Edit version in pom\n'
+  printf 'Usage : %s <new_version> <connector_path>\n' "${0}"
+  printf '\n'
+  printf '%s\n' "${1}"
+  printf '\n'
+  exit 1
+}
+# Parameters:
+[ -z ${1+x} ] && usage "Parameter 'new_version' is needed."
+[ -z ${2+x} ] && usage "Parameter 'connector_path' is needed."
+
+_ELEMENT='component-runtime.version'
+_NEW_VERSION=${1:?Missing version}
+_CONNECTOR_PATH=${2:?Missing connector path}
+
 
 setMavenProperty() (
-  propertyName="$1"
-  propertyValue="$2"
+  PROPERTY_NAME=${1}
+  PROPERTY_VALUE=${2}
   mvn 'versions:set-property' \
     --batch-mode \
-    --define "property=${propertyName}" \
-    --define "newVersion=${propertyValue}"
+    --define property="${PROPERTY_NAME}" \
+    --define newVersion="${PROPERTY_VALUE}"
 )
 
 # Change pom versions
 main() (
-  element='component-runtime.version'
-  version="${1:?Missing version}"
-  connectorPath="${2:?Missing connector path}"
 
-  if [ "default" = "${version}" ]; then
-    echo "No version change in the pom, keep the default one"
+  if [ "default" = "${_NEW_VERSION}" ]; then
+    printf 'No version change in the pom, keep the default one\n'
   else
-    echo "Change version in the pom ${element} to ${version} in ${connectorPath}"
-    cd "${connectorPath}"
+    printf 'Change version in the pom %s to %s in %s\n' "${_ELEMENT}" "${_NEW_VERSION}" "${_CONNECTOR_PATH}"
+    cd "${_CONNECTOR_PATH}" || exit
     pwd
-    setMavenProperty "${element}" "${version}"
+    setMavenProperty "${_ELEMENT}" "${_NEW_VERSION}"
   fi
 )
 

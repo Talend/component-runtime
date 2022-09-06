@@ -15,31 +15,51 @@
 #  limitations under the License.
 #
 
-set -xe
+# set -xe
+
+function usage(){
+  printf 'Check if the server is running on the giving port\n'
+  printf 'Usage : %s [server_port] [server_address] [timeout]\n' "${0}"
+  printf '\n'
+  printf '%s\n' "${1}"
+  printf '\n'
+  exit 1
+}
+
+# Parameters:
+[ -z ${1+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
+[ -z ${2+x} ] && printf 'Parameter "server_address" use the default value: http://localhost\n'
+[ -z ${3+x} ] && printf 'Parameter "timeout" use the default value: 30s\n'
+
+_SERVER_PORT=${1:-"8080"}
+_SERVER_ADDRESS=${2:-"http://localhost"}
+_TIMEOUT=${3:-30}
+
+# Check command possibilities
+which curl || { usage 'curl is not present'; }
 
 main() (
 
-  serverPort="${1:?Missing server port}"
-  timeout="${2:-30}"
+  printf 'Waiting server maximum %ss for %s\n' "${_TIMEOUT}" "${_SERVER_ADDRESS}:${_SERVER_PORT}"
 
-  echo "Waiting server on ${serverPort}..."
+  _CURL_OPTIONS="test"
+  printf 'With the following cmd: curl %s\n' "${_CURL_OPTIONS}"
 
   i=0
 
-  which curl || { echo "curl is not present in tsbi image"; exit 1; }
-
-  while ! curl --output /dev/null --silent --head --fail http://localhost:${serverPort}; do
+  while ! curl --output /dev/null --silent --head --fail "${_SERVER_ADDRESS}":"${_SERVER_PORT}"; do
     sleep 1
     ((i = i + 1))
-    echo "."
+    printf '.'
 
-    if test "${i}" -gt "${timeout}"; then
-      echo "Timeout, stop waiting"
+    if test "${i}" -gt "${_TIMEOUT}"; then
+      printf 'Timeout, stop waiting\n'
       exit 1
     fi
   done
 
-  echo "Server launched"
+  printf '\n'
+  printf 'Server launched\n'
 )
 
 main "$@"
