@@ -88,14 +88,15 @@ public class StreamingInputImpl extends InputImpl {
                 if (stopStrategy.isActive() && stopStrategy.getMaxActiveTime() > -1) {
                     final ExecutorService executor = Executors.newSingleThreadExecutor();
                     final Future<Object> reader = executor.submit(super::readNext);
-                    final long timeout =
-                            stopStrategy.getMaxActiveTime()
-                                    - (System.currentTimeMillis() - stopStrategy.getStartedAtTime());
+                    // manage job latency...
+                    final long estimatedTimeout = stopStrategy.getMaxActiveTime()
+                            - (System.currentTimeMillis() - stopStrategy.getStartedAtTime());
+                    final long timeout = estimatedTimeout < -1 ? 10 : estimatedTimeout;
                     log.debug(
-                            "[readNext] Applying duration strategy for reading record: will interrupt in {}ms (Duration:{}ms).",
-                            timeout, stopStrategy.getMaxActiveTime());
+                            "[readNext] Applying duration strategy for reading record: will interrupt in {}ms (estimated:{}ms Duration:{}ms).",
+                            timeout, estimatedTimeout, stopStrategy.getMaxActiveTime());
                     try {
-                        next = reader.get(timeout > 0 ? timeout : 1, MILLISECONDS);
+                        next = reader.get(timeout, MILLISECONDS);
                     } catch (TimeoutException e) {
                         log.debug("[readNext] Read record: timeout received.");
                         reader.cancel(true);
