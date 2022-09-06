@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# -xe
+# set -xe
 
 function usage(){
   printf 'Get the version from a pom file\n'
