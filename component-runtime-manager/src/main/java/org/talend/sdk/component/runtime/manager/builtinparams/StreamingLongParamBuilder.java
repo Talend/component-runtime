@@ -59,7 +59,7 @@ public class StreamingLongParamBuilder {
 
             @Override
             public Class<?> declaringClass() {
-                return StreamingMaxRecordsParamBuilder.class;
+                return StreamingLongParamBuilder.class;
             }
         }, Long.class, ParameterMeta.Type.NUMBER, root.getPath() + "." + name, name,
                 concat(Stream.of(StreamingLongParamBuilder.class.getPackage().getName()),
@@ -68,7 +68,7 @@ public class StreamingLongParamBuilder {
 
                     {
                         put("tcomp::ui::defaultvalue::value", String.valueOf(defaultValue));
-                        put("tcomp::validation::min", "1");
+                        put("tcomp::validation::min", "-1");
                     }
                 }, true);
     }

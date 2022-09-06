@@ -73,7 +73,7 @@ class StreamingParamsTest {
                     .orElseGet(() -> fail("Missing streaming max records param"));
             System.out.println(maxRecords);
             assertEquals("-1", maxRecords.getMetadata().get("tcomp::ui::defaultvalue::value"));
-            assertEquals("1", maxRecords.getMetadata().get("tcomp::validation::min"));
+            assertEquals("-1", maxRecords.getMetadata().get("tcomp::validation::min"));
             assertEquals(Type.NUMBER, maxRecords.getType());
             assertEquals(Long.class, maxRecords.getJavaType());
             // maxDurationMs
@@ -86,7 +86,7 @@ class StreamingParamsTest {
                     .orElseGet(() -> fail("Missing streaming max duration param"));
             System.out.println(maxDurationMs);
             assertEquals("-1", maxDurationMs.getMetadata().get("tcomp::ui::defaultvalue::value"));
-            assertEquals("1", maxDurationMs.getMetadata().get("tcomp::validation::min"));
+            assertEquals("-1", maxDurationMs.getMetadata().get("tcomp::validation::min"));
             assertEquals(Type.NUMBER, maxRecords.getType());
             assertEquals(Long.class, maxRecords.getJavaType());
         } finally { // clean temp files

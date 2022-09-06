@@ -1710,6 +1710,15 @@ public class ComponentManager implements AutoCloseable {
                                                     doInvoke(constructor, parameterFactory.apply(config)), plugin,
                                                     component.getName(), name), Mapper.class))
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
+                                    ofNullable(config)
+                                            .map(it -> it
+                                                    .entrySet()
+                                                    .stream()
+                                                    .filter(e -> e.getKey().startsWith("$")
+                                                            || e.getKey().contains(".$"))
+                                                    .collect(toMap(java.util.Map.Entry::getKey,
+                                                            java.util.Map.Entry::getValue)))
+                                            .orElseGet(Collections::emptyMap),
                                     doInvoke(constructor, parameterFactory.apply(config)));
             final Map<String, String> metadata = metadataService.getMetadata(type);
 
@@ -1836,14 +1845,19 @@ public class ComponentManager implements AutoCloseable {
                         parameterMetas.add(umbrella);
                         return umbrella;
                     });
-            final StreamingMaxRecordsParamBuilder paramBuilder =
-                    new StreamingMaxRecordsParamBuilder(root, type.getSimpleName(),
-                            LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
-            final ParameterMeta maxRecords = paramBuilder.newBulkParameter();
+
+            final StreamingMaxRecordsParamBuilder parmBuilder = new StreamingMaxRecordsParamBuilder(root,
+                    type.getSimpleName(),
+                    org.talend.sdk.component.api.service.configuration.LocalConfiguration.class.cast(services.services
+                            .get(org.talend.sdk.component.api.service.configuration.LocalConfiguration.class)));
+            final ParameterMeta maxRecords = parmBuilder.newBulkParameter();
+            final ParameterMeta maxDuration = new StreamingMaxDurationMsParamBuilder(root, type.getSimpleName(),
+                    LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class))).newBulkParameter();
+            final String layoutOptions = maxRecords.getName() + "|" + maxDuration.getName();
             if (maxRecords != null) {
-                final String layoutType = paramBuilder.getLayoutType();
+                final String layoutType = parmBuilder.getLayoutType();
                 if (layoutType == null) {
-                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxRecords.getName());
+                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", layoutOptions);
                     root
                             .getMetadata()
                             .put("tcomp::ui::gridlayout::Main::value",
@@ -1855,39 +1869,14 @@ public class ComponentManager implements AutoCloseable {
                 } else if (!root.getMetadata().containsKey(layoutType)) {
                     root
                             .getMetadata()
-                            .put(layoutType, layoutType.contains("gridlayout") ? maxRecords.getName() : "true");
+                            .put(layoutType, layoutType.contains("gridlayout") ? layoutOptions : "true");
                 } else if (layoutType.contains("gridlayout")) {
                     final String oldLayout = root.getMetadata().get(layoutType);
-                    root.getMetadata().put(layoutType, maxRecords.getName() + "|" + oldLayout);
+                    root.getMetadata().put(layoutType, layoutOptions + "|" + oldLayout);
                 }
-                root.getNestedParameters().add(maxRecords);
             }
-            final StreamingMaxDurationMsParamBuilder paramDurationBuilder =
-                    new StreamingMaxDurationMsParamBuilder(root, type.getSimpleName(),
-                            LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
-            final ParameterMeta maxDuration = paramDurationBuilder.newBulkParameter();
-            if (maxDuration != null) {
-                final String layoutType = paramBuilder.getLayoutType();
-                if (layoutType == null) {
-                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", maxDuration.getName());
-                    root
-                            .getMetadata()
-                            .put("tcomp::ui::gridlayout::Main::value",
-                                    root
-                                            .getNestedParameters()
-                                            .stream()
-                                            .map(ParameterMeta::getName)
-                                            .collect(joining("|")));
-                } else if (!root.getMetadata().containsKey(layoutType)) {
-                    root
-                            .getMetadata()
-                            .put(layoutType, layoutType.contains("gridlayout") ? maxDuration.getName() : "true");
-                } else if (layoutType.contains("gridlayout")) {
-                    final String oldLayout = root.getMetadata().get(layoutType);
-                    root.getMetadata().put(layoutType, maxDuration.getName() + "|" + oldLayout);
-                }
-                root.getNestedParameters().add(maxDuration);
-            }
+            root.getNestedParameters().add(maxRecords);
+            root.getNestedParameters().add(maxDuration);
         }
 
         private void addProcessorsBuiltInParameters(final Class<?> type, final List<ParameterMeta> parameterMetas) {
