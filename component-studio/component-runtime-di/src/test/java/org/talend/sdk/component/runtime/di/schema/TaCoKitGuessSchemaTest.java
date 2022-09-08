@@ -90,11 +90,9 @@ class TaCoKitGuessSchemaTest {
 
             Assertions.assertTrue(byteArrayOutputStream.size() > 0);
 
-            // no need to consider encoding here?
             final String content = byteArrayOutputStream.toString();
             Assertions.assertTrue(content.contains("\"length\":10"));
             Assertions.assertTrue(content.contains("\"precision\":2"));
-            // null is different with 0
             Assertions.assertTrue(!content.contains("\"length\":0"));
             Assertions.assertTrue(!content.contains("\"precision\":0"));
         }

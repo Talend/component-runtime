@@ -36,10 +36,8 @@ public class Column {
 
     private Boolean nullable;
 
-    // 0 is different with null
     private Integer length = null;
 
-    // 0 is different with null
     private Integer precision = null;
 
     private String defaut;
