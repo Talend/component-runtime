@@ -384,8 +384,8 @@ class ComponentResourceImplTest {
         final Ui payload = getUiForDetails("en", false);
         final JsonSchema jsonSchema = payload.getJsonSchema();
         final Collection<UiSchema> uiSchemas = payload.getUiSchema();
-        assertUiSchemaDescription(uiSchemas.stream(), (s)-> Objects.isNull(s));
-        assertUiSchemaTooltip(uiSchemas.stream(), (ui)-> ui.getTooltip().startsWith("Documentation for"));
+        assertUiSchemaDescription(uiSchemas.stream(), (s) -> Objects.isNull(s));
+        assertUiSchemaTooltip(uiSchemas.stream(), (ui) -> ui.getTooltip().startsWith("Documentation for"));
     }
 
     @Test
@@ -393,8 +393,9 @@ class ComponentResourceImplTest {
         final Ui payload = getUiForDetails("en", true);
         final JsonSchema jsonSchema = payload.getJsonSchema();
         final Collection<UiSchema> uiSchemas = payload.getUiSchema();
-        assertUiSchemaDescription(uiSchemas.stream(), (s)-> !Objects.isNull(s));
-        assertUiSchemaTooltip(uiSchemas.stream(), (ui)-> ui.getTooltip().equals(ui.getDescription())&& ui.getTooltip().startsWith("Documentation for"));
+        assertUiSchemaDescription(uiSchemas.stream(), (s) -> !Objects.isNull(s));
+        assertUiSchemaTooltip(uiSchemas.stream(),
+                (ui) -> ui.getTooltip().equals(ui.getDescription()) && ui.getTooltip().startsWith("Documentation for"));
     }
 
     @Test
@@ -402,11 +403,12 @@ class ComponentResourceImplTest {
         final Ui payload = getUiForDetails("fr", true);
         final JsonSchema jsonSchema = payload.getJsonSchema();
         final Collection<UiSchema> uiSchemas = payload.getUiSchema();
-        assertUiSchemaDescription(uiSchemas.stream(), (s)-> !Objects.isNull(s));
-        assertUiSchemaTooltip(uiSchemas.stream(), (ui)-> ui.getTooltip().equals(ui.getDescription()) && ui.getTooltip().startsWith("Documentation pour"));
+        assertUiSchemaDescription(uiSchemas.stream(), (s) -> !Objects.isNull(s));
+        assertUiSchemaTooltip(uiSchemas.stream(), (ui) -> ui.getTooltip().equals(ui.getDescription())
+                && ui.getTooltip().startsWith("Documentation pour"));
     }
 
-    private Ui getUiForDetails(final String lang, final boolean includeDoc) throws Exception{
+    private Ui getUiForDetails(final String lang, final boolean includeDoc) throws Exception {
         final ComponentDetailList details = base
                 .path("component/details")
                 .queryParam("identifiers", client.getJdbcId())
@@ -418,23 +420,23 @@ class ComponentResourceImplTest {
         UiSpecService<Object> uiSpec = client.getUiSpecService();
         uiSpec.setConfiguration(new PropertyContext.Configuration(includeDoc));
         return uiSpec.convert(detail, "en", null).toCompletableFuture().get();
-       }
+    }
 
     private void assertUiSchemaDescription(final Stream<UiSchema> uiSchema, final Predicate<String> predicate) {
         flattenUiSchema(uiSchema)
                 .forEach(s -> {
-                            log.warn("[assertUiSchemaDescription] {} {}", s.getTitle(), s);
-                            assertTrue(predicate.test(s.getDescription()));
-                        }                );
+                    log.warn("[assertUiSchemaDescription] {} {}", s.getTitle(), s);
+                    assertTrue(predicate.test(s.getDescription()));
+                });
     }
 
     private void assertUiSchemaTooltip(final Stream<UiSchema> uiSchema, final Predicate<UiSchema> predicate) {
-      flattenUiSchema(uiSchema)
-              .filter(s-> !Objects.isNull(s.getTooltip()))
-              .forEach(s -> {
-          log.warn("[assertUiSchemaTooltip]{} {}", s.getTooltip(), s);
-          assertTrue(predicate.test(s));
-      });
+        flattenUiSchema(uiSchema)
+                .filter(s -> !Objects.isNull(s.getTooltip()))
+                .forEach(s -> {
+                    log.warn("[assertUiSchemaTooltip]{} {}", s.getTooltip(), s);
+                    assertTrue(predicate.test(s));
+                });
     }
 
     private Stream<UiSchema> flattenUiSchema(final Stream<UiSchema> uiSchema) {
@@ -442,7 +444,6 @@ class ComponentResourceImplTest {
                 .flatMap(u -> u.getItems() == null ? Stream.of(u)
                         : Stream.concat(Stream.of(u), flattenUiSchema(u.getItems().stream())));
     }
-
 
     private void assertValidation(final String path, final ComponentDetail aggregate,
             final Predicate<PropertyValidation> validator) {

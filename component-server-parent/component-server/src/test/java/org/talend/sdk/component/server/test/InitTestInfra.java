@@ -319,10 +319,10 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                             put("configuration.driver._documentation", "Documentation pour ...");
                             put("configuration.query._documentation", "Documentation pour ...");
                             put("configuration.timeout._documentation", "Documentation pour ...");
-                            put("configuration.connection.host._documentation", "documentation pour hôte");
-                            put("configuration.connection.port._documentation", "documentation pour portàfaux");
-                            put("configuration.connection.username._documentation", "documentation pour utilisateur");
-                            put("configuration.connection.password._documentation", "documentation pour mot de passe");
+                            put("configuration.connection.host._documentation", "Documentation pour hôte");
+                            put("configuration.connection.port._documentation", "Documentation pour portàfaux");
+                            put("configuration.connection.username._documentation", "Documentation pour utilisateur");
+                            put("configuration.connection.password._documentation", "Documentation pour mot de passe");
                         }
                     }.store(out, "i18n for the config types");
                     out.closeEntry();

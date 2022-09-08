@@ -38,7 +38,6 @@ import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
-import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
@@ -150,7 +149,6 @@ class PropertiesServiceTest {
     void buildPropertiesFr() {
         final List<SimplePropertyDefinition> props = getProperties("fr");
         assertEquals(5, props.size());
-        assertEquals("Configuration FR", props.get(0).getDisplayName());
         assertEquals("Server Host Name FR", props.get(1).getDisplayName());
         assertEquals("Enter the server host name FR...", props.get(1).getPlaceholder());
         assertEquals("Password", props.get(2).getDisplayName());
