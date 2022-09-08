@@ -308,6 +308,21 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                         {
                             put("org.talend.test.generated.jdbc_component.JdbcService$I18n.read",
                                     "Liberté, égalité, fraternité");
+                            put("configuration.connection._documentation", "Documentation pour Connection");
+                            put("configuration.connection.configurations._documentation",
+                                    "Documentation pour configurations");
+                            put("configuration.connection.configurations[].description._documentation",
+                                    "Documentation pour configurations");
+                            put("configuration.connection.configurations[].driver._documentation",
+                                    "Documentation pour configurations");
+                            put("configuration.connection.url._documentation", "Documentation pour ...");
+                            put("configuration.driver._documentation", "Documentation pour ...");
+                            put("configuration.query._documentation", "Documentation pour ...");
+                            put("configuration.timeout._documentation", "Documentation pour ...");
+                            put("configuration.connection.host._documentation", "documentation pour hôte");
+                            put("configuration.connection.port._documentation", "documentation pour portàfaux");
+                            put("configuration.connection.username._documentation", "documentation pour utilisateur");
+                            put("configuration.connection.password._documentation", "documentation pour mot de passe");
                         }
                     }.store(out, "i18n for the config types");
                     out.closeEntry();

@@ -38,6 +38,7 @@ import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
@@ -113,8 +114,7 @@ class PropertiesServiceTest {
         assertEquals("true", props.stream().filter(p -> p.getName().equals("val")).findFirst().get().getDefaultValue());
     }
 
-    @Test
-    void buildProperties() {
+    private List<SimplePropertyDefinition> getProperties(final String locale) {
         final String[] i18nPackages = { Config.class.getPackage().getName() };
 
         final ParameterMeta host = new ParameterMeta(null, Config.class, ParameterMeta.Type.STRING,
@@ -127,11 +127,15 @@ class PropertiesServiceTest {
                 "configuration.password", "password", i18nPackages, emptyList(), null, emptyMap(), false);
         final ParameterMeta config = new ParameterMeta(null, Config.class, ParameterMeta.Type.OBJECT, "configuration",
                 "configuration", i18nPackages, asList(host, port, username, password), null, emptyMap(), false);
-
-        final List<SimplePropertyDefinition> props = propertiesService
-                .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.getDefault(), null)
+        return propertiesService
+                .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.forLanguageTag(locale),
+                        null)
                 .collect(toList());
+    }
 
+    @Test
+    void buildPropertiesEn() {
+        final List<SimplePropertyDefinition> props = getProperties("en");
         assertEquals(5, props.size());
         assertEquals("Configuration", props.get(0).getDisplayName());
         assertEquals("Server Host Name", props.get(1).getDisplayName());
@@ -139,6 +143,19 @@ class PropertiesServiceTest {
         assertEquals("Password", props.get(2).getDisplayName());
         assertEquals("Server Port", props.get(3).getDisplayName());
         assertEquals("Enter the server port...", props.get(3).getPlaceholder());
+        assertEquals("User Name", props.get(4).getDisplayName());
+    }
+
+    @Test
+    void buildPropertiesFr() {
+        final List<SimplePropertyDefinition> props = getProperties("fr");
+        assertEquals(5, props.size());
+        assertEquals("Configuration FR", props.get(0).getDisplayName());
+        assertEquals("Server Host Name FR", props.get(1).getDisplayName());
+        assertEquals("Enter the server host name FR...", props.get(1).getPlaceholder());
+        assertEquals("Password", props.get(2).getDisplayName());
+        assertEquals("Server Port FR", props.get(3).getDisplayName());
+        assertEquals("Enter the server port FR...", props.get(3).getPlaceholder());
         assertEquals("User Name", props.get(4).getDisplayName());
     }
 

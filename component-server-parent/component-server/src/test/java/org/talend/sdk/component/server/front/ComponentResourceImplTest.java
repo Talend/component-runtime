@@ -42,11 +42,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
@@ -59,6 +61,11 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
+import org.talend.sdk.component.form.api.UiSpecService;
+import org.talend.sdk.component.form.internal.converter.PropertyContext;
+import org.talend.sdk.component.form.model.Ui;
+import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
+import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
@@ -73,6 +80,9 @@ import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.test.ComponentClient;
 import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @MonoMeecrowaveConfig
 class ComponentResourceImplTest {
 
@@ -368,6 +378,71 @@ class ComponentResourceImplTest {
                 .orElseThrow(() -> new IllegalArgumentException("No url found"))
                 .getDefaultValue());
     }
+
+    @Test
+    void getUiSpecFromDetailsNoDocEn() throws Exception {
+        final Ui payload = getUiForDetails("en", false);
+        final JsonSchema jsonSchema = payload.getJsonSchema();
+        final Collection<UiSchema> uiSchemas = payload.getUiSchema();
+        assertUiSchemaDescription(uiSchemas.stream(), (s)-> Objects.isNull(s));
+        assertUiSchemaTooltip(uiSchemas.stream(), (ui)-> ui.getTooltip().startsWith("Documentation for"));
+    }
+
+    @Test
+    void getUiSpecFromDetailsDocEn() throws Exception {
+        final Ui payload = getUiForDetails("en", true);
+        final JsonSchema jsonSchema = payload.getJsonSchema();
+        final Collection<UiSchema> uiSchemas = payload.getUiSchema();
+        assertUiSchemaDescription(uiSchemas.stream(), (s)-> !Objects.isNull(s));
+        assertUiSchemaTooltip(uiSchemas.stream(), (ui)-> ui.getTooltip().equals(ui.getDescription())&& ui.getTooltip().startsWith("Documentation for"));
+    }
+
+    @Test
+    void getUiSpecFromDetailsDocFr() throws Exception {
+        final Ui payload = getUiForDetails("fr", true);
+        final JsonSchema jsonSchema = payload.getJsonSchema();
+        final Collection<UiSchema> uiSchemas = payload.getUiSchema();
+        assertUiSchemaDescription(uiSchemas.stream(), (s)-> !Objects.isNull(s));
+        assertUiSchemaTooltip(uiSchemas.stream(), (ui)-> ui.getTooltip().equals(ui.getDescription()) && ui.getTooltip().startsWith("Documentation pour"));
+    }
+
+    private Ui getUiForDetails(final String lang, final boolean includeDoc) throws Exception{
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", client.getJdbcId())
+                .queryParam("language", lang)
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
+        assertEquals(1, details.getDetails().size());
+        final ComponentDetail detail = details.getDetails().iterator().next();
+        UiSpecService<Object> uiSpec = client.getUiSpecService();
+        uiSpec.setConfiguration(new PropertyContext.Configuration(includeDoc));
+        return uiSpec.convert(detail, "en", null).toCompletableFuture().get();
+       }
+
+    private void assertUiSchemaDescription(final Stream<UiSchema> uiSchema, final Predicate<String> predicate) {
+        flattenUiSchema(uiSchema)
+                .forEach(s -> {
+                            log.warn("[assertUiSchemaDescription] {} {}", s.getTitle(), s);
+                            assertTrue(predicate.test(s.getDescription()));
+                        }                );
+    }
+
+    private void assertUiSchemaTooltip(final Stream<UiSchema> uiSchema, final Predicate<UiSchema> predicate) {
+      flattenUiSchema(uiSchema)
+              .filter(s-> !Objects.isNull(s.getTooltip()))
+              .forEach(s -> {
+          log.warn("[assertUiSchemaTooltip]{} {}", s.getTooltip(), s);
+          assertTrue(predicate.test(s));
+      });
+    }
+
+    private Stream<UiSchema> flattenUiSchema(final Stream<UiSchema> uiSchema) {
+        return uiSchema
+                .flatMap(u -> u.getItems() == null ? Stream.of(u)
+                        : Stream.concat(Stream.of(u), flattenUiSchema(u.getItems().stream())));
+    }
+
 
     private void assertValidation(final String path, final ComponentDetail aggregate,
             final Predicate<PropertyValidation> validator) {
