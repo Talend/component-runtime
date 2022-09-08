@@ -36,9 +36,11 @@ public class Column {
 
     private Boolean nullable;
 
-    private Integer length = 0;
+    // 0 is different with null
+    private Integer length = null;
 
-    private Integer precision = 0;
+    // 0 is different with null
+    private Integer precision = null;
 
     private String defaut;
 
