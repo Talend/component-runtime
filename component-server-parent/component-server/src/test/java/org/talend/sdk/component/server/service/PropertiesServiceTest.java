@@ -151,10 +151,10 @@ class PropertiesServiceTest {
         assertEquals(5, props.size());
         assertEquals("Server Host Name FR", props.get(1).getDisplayName());
         assertEquals("Enter the server host name FR...", props.get(1).getPlaceholder());
-        assertEquals("Password", props.get(2).getDisplayName());
+        assertEquals("Password FR", props.get(2).getDisplayName());
         assertEquals("Server Port FR", props.get(3).getDisplayName());
         assertEquals("Enter the server port FR...", props.get(3).getPlaceholder());
-        assertEquals("User Name", props.get(4).getDisplayName());
+        assertEquals("User Name FR", props.get(4).getDisplayName());
     }
 
     @Test // the class BaseConfig don't contains attribute
