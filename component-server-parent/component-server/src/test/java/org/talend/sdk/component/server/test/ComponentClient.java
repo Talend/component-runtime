@@ -15,46 +15,19 @@
  */
 package org.talend.sdk.component.server.test;
 
-import static java.util.Collections.emptyList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 
-import org.talend.sdk.component.form.api.Client;
-import org.talend.sdk.component.form.api.UiSpecService;
 import org.talend.sdk.component.server.front.model.ComponentIndices;
-
-import lombok.Getter;
 
 @ApplicationScoped
 public class ComponentClient {
 
     @Inject
     private WebTarget base;
-
-    @Getter
-    private final UiSpecService<Object> uiSpecService = new UiSpecService<>(new Client() {
-
-        @Override // for dynamic_values, just return an empty schema
-        public CompletionStage<Map<String, Object>> action(final String family, final String type,
-                final String action, final String lang, final Map params, final Object context) {
-            final Map<String, Object> result = new HashMap<>();
-            result.put("items", emptyList());
-            return CompletableFuture.completedFuture(result);
-        }
-
-        @Override
-        public void close() {
-            // no-op
-        }
-    });
 
     public ComponentIndices fetchIndex() {
         return base
