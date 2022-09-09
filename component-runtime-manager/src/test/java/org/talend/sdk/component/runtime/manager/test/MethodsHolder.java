@@ -73,7 +73,7 @@ public class MethodsHolder {
         // no-op
     }
 
-    public void visibility(final MyDatastore value){
+    public void visibility(final MyDatastore value) {
         // no-op
     }
 
@@ -129,6 +129,7 @@ public class MethodsHolder {
 
         @Getter
         public static class ComplexConfiguration {
+
             @Option
             @Required
             @Pattern("^https?://.+$")

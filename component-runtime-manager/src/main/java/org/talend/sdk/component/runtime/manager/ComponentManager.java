@@ -1856,10 +1856,11 @@ public class ComponentManager implements AutoCloseable {
             final String layoutType = paramBuilder.getLayoutType();
             if (layoutType == null) {
                 root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", layoutOptions);
-                root.getMetadata().put("tcomp::ui::gridlayout::Main::value", root.getNestedParameters()
-                        .stream()
-                        .map(ParameterMeta::getName)
-                        .collect(joining("|")));
+                root.getMetadata()
+                        .put("tcomp::ui::gridlayout::Main::value", root.getNestedParameters()
+                                .stream()
+                                .map(ParameterMeta::getName)
+                                .collect(joining("|")));
             } else if (!root.getMetadata().containsKey(layoutType)) {
                 root.getMetadata().put(layoutType, layoutType.contains("gridlayout") ? layoutOptions : "true");
             } else if (layoutType.contains("gridlayout")) {
