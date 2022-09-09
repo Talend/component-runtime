@@ -75,6 +75,10 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         this(rootName, name, inputName, plugin, stream, emptyMap(), instance);
     }
 
+    protected PartitionMapperImpl() {
+        internalConfiguration = emptyMap();
+    }
+
     @Override
     public long assess() {
         lazyInit();
