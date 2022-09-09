@@ -51,6 +51,7 @@ import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.input.Streaming;
 import org.talend.sdk.component.runtime.input.Streaming.StopConfiguration;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -152,7 +153,11 @@ public final class TalendIO {
         private InfiniteRead(final Mapper delegate, final long maxRecordCount, final long maxDuration) {
             super(delegate);
             // ensure we consider localConfiguration
-            StopConfiguration fromLocalConf = (StopConfiguration) Streaming.loadStopStrategy(delegate.plugin());
+            final Map<String, String> internalConf = PartitionMapperImpl.class.isInstance(delegate)
+                    ? PartitionMapperImpl.class.cast(delegate).getInternalConfiguration()
+                    : emptyMap();
+            StopConfiguration fromLocalConf =
+                    (StopConfiguration) Streaming.loadStopStrategy(delegate.plugin(), internalConf);
             // job properties win first!
             if (maxRecordCount == -1 && fromLocalConf.getMaxReadRecords() != -1) {
                 maxRecords = fromLocalConf.getMaxReadRecords();

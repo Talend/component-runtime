@@ -60,4 +60,8 @@ public class ComponentClient {
     public String getStandaloneId() {
         return getComponentId("chain", "standalone");
     }
+
+    public String getStreamingId() {
+        return getComponentId("streaming", "infinite");
+    }
 }
