@@ -1846,34 +1846,25 @@ public class ComponentManager implements AutoCloseable {
                         return umbrella;
                     });
 
-            final StreamingMaxRecordsParamBuilder parmBuilder = new StreamingMaxRecordsParamBuilder(root,
+            final StreamingMaxRecordsParamBuilder paramBuilder = new StreamingMaxRecordsParamBuilder(root,
                     type.getSimpleName(),
-                    org.talend.sdk.component.api.service.configuration.LocalConfiguration.class.cast(services.services
-                            .get(org.talend.sdk.component.api.service.configuration.LocalConfiguration.class)));
-            final ParameterMeta maxRecords = parmBuilder.newBulkParameter();
+                    LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
+            final ParameterMeta maxRecords = paramBuilder.newBulkParameter();
             final ParameterMeta maxDuration = new StreamingMaxDurationMsParamBuilder(root, type.getSimpleName(),
                     LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class))).newBulkParameter();
             final String layoutOptions = maxRecords.getName() + "|" + maxDuration.getName();
-            if (maxRecords != null) {
-                final String layoutType = parmBuilder.getLayoutType();
-                if (layoutType == null) {
-                    root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", layoutOptions);
-                    root
-                            .getMetadata()
-                            .put("tcomp::ui::gridlayout::Main::value",
-                                    root
-                                            .getNestedParameters()
-                                            .stream()
-                                            .map(ParameterMeta::getName)
-                                            .collect(joining("|")));
-                } else if (!root.getMetadata().containsKey(layoutType)) {
-                    root
-                            .getMetadata()
-                            .put(layoutType, layoutType.contains("gridlayout") ? layoutOptions : "true");
-                } else if (layoutType.contains("gridlayout")) {
-                    final String oldLayout = root.getMetadata().get(layoutType);
-                    root.getMetadata().put(layoutType, layoutOptions + "|" + oldLayout);
-                }
+            final String layoutType = paramBuilder.getLayoutType();
+            if (layoutType == null) {
+                root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", layoutOptions);
+                root.getMetadata().put("tcomp::ui::gridlayout::Main::value", root.getNestedParameters()
+                        .stream()
+                        .map(ParameterMeta::getName)
+                        .collect(joining("|")));
+            } else if (!root.getMetadata().containsKey(layoutType)) {
+                root.getMetadata().put(layoutType, layoutType.contains("gridlayout") ? layoutOptions : "true");
+            } else if (layoutType.contains("gridlayout")) {
+                final String oldLayout = root.getMetadata().get(layoutType);
+                root.getMetadata().put(layoutType, layoutOptions + "|" + oldLayout);
             }
             root.getNestedParameters().add(maxRecords);
             root.getNestedParameters().add(maxDuration);

@@ -46,7 +46,9 @@ public class StreamingLongParamBuilder {
         this.name = parameterName;
         this.configuration = configuration;
         this.layoutType = findLayoutType();
-        this.defaultValue = getConfigurationValue();
+        this.defaultValue = Long.parseLong(ofNullable(configuration.get(componentClassName + name))
+                .orElseGet(() -> ofNullable(configuration.get(name)).orElse("-1"))
+                .trim());
     }
 
     public ParameterMeta newBulkParameter() {
@@ -75,12 +77,6 @@ public class StreamingLongParamBuilder {
 
     public String getLayoutType() {
         return layoutType;
-    }
-
-    private Long getConfigurationValue() {
-        return Long.parseLong(ofNullable(configuration.get(componentClassName + name))
-                .orElseGet(() -> ofNullable(configuration.get(name)).orElse("-1"))
-                .trim());
     }
 
     private String findLayoutType() {

@@ -59,7 +59,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
     private transient Function<Long, Object[]> splitArgSupplier;
 
-    private Map<String, String> internalConfiguration;
+    private final Map<String, String> internalConfiguration;
 
     public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
             final boolean stream, final Map<String, String> internalConfiguration, final Serializable instance) {
@@ -72,14 +72,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
     public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
             final boolean stream, final Serializable instance) {
-        super(instance, rootName, name, plugin);
-        this.stream = stream;
-        this.inputName = inputName;
-        this.internalConfiguration = emptyMap();
-    }
-
-    protected PartitionMapperImpl() {
-        // no-op
+        this(rootName, name, inputName, plugin, stream, emptyMap(), instance);
     }
 
     @Override
@@ -129,7 +122,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     }
 
     public Map<String, String> getInternalConfiguration() {
-        return ofNullable(internalConfiguration).orElseGet(java.util.Collections::emptyMap);
+        return ofNullable(internalConfiguration).orElse(emptyMap());
     }
 
     private void lazyInit() {
@@ -176,7 +169,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
         private final byte[] value;
 
-        private Map<String, String> internalConfiguration;
+        private final Map<String, String> internalConfiguration;
 
         Object readResolve() throws ObjectStreamException {
             try {
