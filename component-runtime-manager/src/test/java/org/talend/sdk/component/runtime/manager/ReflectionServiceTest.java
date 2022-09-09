@@ -698,6 +698,31 @@ class ReflectionServiceTest {
         assertTrue(tableOwner.table.get(0).nestedList.isEmpty());
     }
 
+    // TCOMP-2260 - Validations on nested attributes are check even if the object is ActiveIf==false
+    // TODO remove upper comment after issue fix.
+    @Test
+    void nestedRequiredActiveIf() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        assertThrows(IllegalArgumentException.class, () -> reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+
+                    {
+                        put("value.aString", "foo");
+                        put("value.complexConfig", "false");
+                    }
+                }));
+        // TODO make correct assertions after fix.
+        // assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
+        // final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
+        // assertEquals("foo", value.getAString());
+        // assertFalse(value.isComplexConfig());
+    }
+
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,
             final Map<Class<?>, Object> services) throws NoSuchMethodException {
         final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);
