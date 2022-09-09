@@ -22,8 +22,11 @@ import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
 import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
+import org.talend.sdk.component.api.configuration.constraint.Pattern;
+import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
 import lombok.Getter;
@@ -70,6 +73,10 @@ public class MethodsHolder {
         // no-op
     }
 
+    public void visibility(final MyDatastore value){
+        // no-op
+    }
+
     @Getter
     public static class Array {
 
@@ -103,5 +110,29 @@ public class MethodsHolder {
 
         @Option
         private String passthrough;
+    }
+
+    @Getter
+    public static class MyDatastore {
+
+        @Option
+        @Required
+        private String aString;
+
+        @Option
+        @Required
+        private boolean complexConfig;
+
+        @Option
+        @ActiveIf(target = "complexConfig", value = "true")
+        private ComplexConfiguration complexConfiguration = new ComplexConfiguration();
+
+        @Getter
+        public static class ComplexConfiguration {
+            @Option
+            @Required
+            @Pattern("^https?://.+$")
+            private String url = "";
+        }
     }
 }
