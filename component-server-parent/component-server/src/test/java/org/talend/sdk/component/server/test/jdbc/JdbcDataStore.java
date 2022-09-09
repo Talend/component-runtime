@@ -23,6 +23,7 @@ import java.util.List;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
+import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
 
@@ -31,15 +32,19 @@ import lombok.Data;
 public class JdbcDataStore implements Serializable {
 
     @Option
+    @Documentation(value = "Documentation for Datastore url.", tooltip = true)
     private String url;
 
     @Option
+    @Documentation(value = "Documentation for Datastore user.", tooltip = true)
     private String username;
 
     @Option
     @Credential
+    @Documentation(value = "Documentation for Datastore password.", tooltip = true)
     private String password;
 
     @Option // to test tables
+    @Documentation(value = "Documentation for Datastore configurations.", tooltip = true)
     private List<JdbcConfig> configurations = asList(new JdbcConfig("d1", "D1"), new JdbcConfig("d2", "D2"));
 }

@@ -23,4 +23,9 @@ import java.lang.annotation.Retention;
 public @interface Documentation {
 
     String value();
+
+    /**
+     * Should the documentation be used as a tooltip in UiSchema.
+     */
+    boolean tooltip() default false;
 }
