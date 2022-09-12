@@ -337,7 +337,7 @@ pipeline {
       )
 
       // Talend Test Orchestrator only work with the basic junit plugin
-      // TODO: implement recordIssues in TTO
+      // TODO: TTO-562 - Implement recordIssues in TTO to stop using junit
       junit(
           checksName: 'tcomp API Test for tto',
           keepLongStdio: true, // Any standard output or error from will be retained in the test results after the build completes.
