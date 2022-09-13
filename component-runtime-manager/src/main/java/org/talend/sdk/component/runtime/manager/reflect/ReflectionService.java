@@ -64,14 +64,12 @@ import javax.json.JsonReaderFactory;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
-import javax.script.Bindings;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
@@ -823,12 +821,6 @@ public class ReflectionService {
 
     public static class JavascriptRegex implements Predicate<CharSequence> {
 
-        private static final ScriptEngine ENGINE;
-
-        static {
-            ENGINE = new ScriptEngineManager().getEngineByName("javascript");
-        }
-
         private final String regex;
 
         private final String indicators;
@@ -851,14 +843,15 @@ public class ReflectionService {
 
         @Override
         public boolean test(final CharSequence string) {
-            final Bindings bindings = ENGINE.createBindings();
-            bindings.put("text", string);
-            bindings.put("regex", regex);
-            bindings.put("indicators", indicators);
+            Context context = Context.enter();
             try {
-                return Boolean.class.cast(ENGINE.eval("new RegExp(regex, indicators).test(text)", bindings));
-            } catch (final ScriptException e) {
+                Scriptable scope = context.initStandardObjects();
+                String script = "new RegExp('" + regex + "', '" + indicators + "').test('" + string + "')";
+                return Context.toBoolean(context.evaluateString(scope, script, null, 1, null));
+            } catch (final Exception e) {
                 return false;
+            } finally {
+                Context.exit();
             }
         }
     }
