@@ -127,7 +127,7 @@ spec:
                             scanExcludesPattern: '',
                             scanIncludesPattern: '',
                             scanName: "master-${currentBuild.number}-${currentBuild.startTimeInMillis}",
-                            uploadExcludesPattern: '',
+                            uploadExcludesPattern: '**/.cache/**/*.jar',
                             uploadIncludesPattern: '**/*.jar',
                             waitForScan: true,
                             vid: "$VERACODE_ID",
