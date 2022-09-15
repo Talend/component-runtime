@@ -94,6 +94,9 @@ final def _TENANT_ID_RD = string(
 /**
  * Options
  */
+String _API_TEST_RESULT_PATTERN = '**/src/it/web/test/target/surefire-reports/**/*.xml'
+String _API_TEST_FILES_PATTERN = '**/src/it/web/test/**/*.json'
+
 // Default value for parameters
 String runtimeVersion = "default"
 String apiTesterEnv = "component_runtime_ci"
@@ -311,23 +314,35 @@ pipeline {
         """
       }
 
+      // recordIssues is a multi result file publisher allowing to have the same publish format on multiples analysis.
       recordIssues (
         enabledForFailure: true,
         tools: [
+          // Scan and publish to do and fix me in api test files
           taskScanner(
             id: 'todo-tck-api-test',
             name: 'api-test Todo(low)/Fixme(high)',
-            includePattern: '**/src/it/web/test/**/*.json',
+            includePattern: _API_TEST_FILES_PATTERN,
             ignoreCase: true,
             highTags: 'FIX_ME, FIXME',
             lowTags: 'TO_DO, TODO'
           ),
+          // Publish api tests as junit
           junitParser(
             id: 'unit-test',
             name: 'tcomp API Test',
-            pattern: '**/src/it/web/test/target/surefire-reports/**/*.xml'
+            pattern: _API_TEST_RESULT_PATTERN
           )
         ]
+      )
+
+      // Talend Test Orchestrator only work with the basic junit plugin
+      // TODO: TTO-562 - Implement recordIssues in TTO to stop using junit
+      junit(
+          checksName: 'tcomp API Test for tto',
+          keepLongStdio: true, // Any standard output or error from will be retained in the test results after the build completes.
+          testResults: _API_TEST_RESULT_PATTERN,
+          skipMarkingBuildUnstable: false  // junitParser already publish job status
       )
 
       script {

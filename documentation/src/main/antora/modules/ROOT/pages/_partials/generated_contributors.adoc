@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":587,
+    "commits":595,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -92,11 +92,18 @@
     "name":"Oleksandr Zhelezniak"
   },
   {
-    "commits":5,
+    "commits":6,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
     "name":"yyin"
+  },
+  {
+    "commits":4,
+    "description":"QA Automation @ Talend Nantes",
+    "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
+    "id":"acatoire",
+    "name":"Axel CATOIRE"
   },
   {
     "commits":4,
@@ -118,13 +125,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/7931535?v=4",
     "id":"amaumont",
     "name":"Axel MAUMONT"
-  },
-  {
-    "commits":3,
-    "description":"QA Automation @ Talend Nantes",
-    "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
-    "id":"acatoire",
-    "name":"Axel CATOIRE"
   },
   {
     "commits":3,
