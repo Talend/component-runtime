@@ -369,6 +369,34 @@ class ComponentResourceImplTest {
                 .getDefaultValue());
     }
 
+    @Test
+    void getStreamingDetails() {
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", client.getStreamingId())
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
+        assertEquals(1, details.getDetails().size());
+        final ComponentDetail detail = details.getDetails().iterator().next();
+        assertEquals(3, detail.getProperties().size());
+        org.talend.sdk.component.server.front.model.SimplePropertyDefinition maxDuration = detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.$maxDurationMs"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No max duration found"));
+        assertEquals("-1", maxDuration.getMetadata().get("ui::defaultvalue::value"));
+        assertEquals(-1, maxDuration.getValidation().getMin());
+        org.talend.sdk.component.server.front.model.SimplePropertyDefinition maxRecords = detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.$maxRecords"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No max records found"));
+        assertEquals("-1", maxRecords.getMetadata().get("ui::defaultvalue::value"));
+        assertEquals(-1, maxRecords.getValidation().getMin());
+    }
+
     private void assertValidation(final String path, final ComponentDetail aggregate,
             final Predicate<PropertyValidation> validator) {
         assertTrue(validator.test(findProperty(path, aggregate).getValidation()), path);
@@ -423,7 +451,7 @@ class ComponentResourceImplTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(10, index.getComponents().size());
+        assertEquals(11, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));

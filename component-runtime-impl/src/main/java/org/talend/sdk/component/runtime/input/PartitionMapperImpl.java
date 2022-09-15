@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.input;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 import java.io.ByteArrayInputStream;
@@ -26,6 +28,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.talend.sdk.component.api.input.Assessor;
@@ -56,15 +59,24 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
     private transient Function<Long, Object[]> splitArgSupplier;
 
+    private final Map<String, String> internalConfiguration;
+
     public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
-            final boolean stream, final Serializable instance) {
+            final boolean stream, final Map<String, String> internalConfiguration, final Serializable instance) {
         super(instance, rootName, name, plugin);
         this.stream = stream;
         this.inputName = inputName;
+        this.internalConfiguration = internalConfiguration;
+        log.debug("[PartitionMapperImpl] {} internalConfig:{}.", name, internalConfiguration);
+    }
+
+    public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
+            final boolean stream, final Serializable instance) {
+        this(rootName, name, inputName, plugin, stream, emptyMap(), instance);
     }
 
     protected PartitionMapperImpl() {
-        // no-op
+        internalConfiguration = emptyMap();
     }
 
     @Override
@@ -82,7 +94,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         return ((Collection<?>) doInvoke(split, splitArgSupplier.apply(desiredSize)))
                 .stream()
                 .map(Serializable.class::cast)
-                .map(mapper -> new PartitionMapperImpl(rootName(), name(), inputName, plugin(), stream, mapper))
+                .map(mapper -> new PartitionMapperImpl(rootName(), name(), inputName, plugin(), stream,
+                        internalConfiguration, mapper))
                 .collect(toList());
     }
 
@@ -97,7 +110,7 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         if (isStream()) {
             return new StreamingInputImpl(rootName(), inputName, plugin(), input,
                     Streaming.loadRetryConfiguration(plugin()),
-                    Streaming.loadStopStrategy(plugin()));
+                    Streaming.loadStopStrategy(plugin(), internalConfiguration));
         }
         return new InputImpl(rootName(), inputName, plugin(), input);
     }
@@ -110,6 +123,10 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     @Override
     public Object getDelegate() {
         return delegate;
+    }
+
+    public Map<String, String> getInternalConfiguration() {
+        return ofNullable(internalConfiguration).orElse(emptyMap());
     }
 
     private void lazyInit() {
@@ -137,7 +154,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new SerializationReplacer(plugin(), rootName(), name(), inputName, stream, serializeDelegate());
+        return new SerializationReplacer(plugin(), rootName(), name(), inputName, stream, serializeDelegate(),
+                internalConfiguration);
     }
 
     @AllArgsConstructor
@@ -155,9 +173,12 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
         private final byte[] value;
 
+        private final Map<String, String> internalConfiguration;
+
         Object readResolve() throws ObjectStreamException {
             try {
-                return new PartitionMapperImpl(component, name, input, plugin, stream, loadDelegate());
+                return new PartitionMapperImpl(component, name, input, plugin, stream, internalConfiguration,
+                        loadDelegate());
             } catch (final IOException | ClassNotFoundException e) {
                 final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
                 invalidObjectException.initCause(e);
