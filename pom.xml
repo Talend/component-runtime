@@ -170,7 +170,7 @@
 
     <!-- do not update without updating test-->
     <ziplock.test.version>7.0.5</ziplock.test.version>
-    <meecrowave.version>1.2.13</meecrowave.version>
+    <meecrowave.version>1.2.14</meecrowave.version>
     <owb.version>2.0.26</owb.version>
     <tomcat.version>9.0.63</tomcat.version>
     <cxf.version>3.5.2</cxf.version>
