@@ -208,6 +208,23 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         return doMap(expectedType, unwrapUnion(fieldSchema), value);
     }
 
+    public <T> void set(final Class<T> expectedType, final String entryName, final T value) {
+        doSet(expectedType, entryName, value);
+    }
+
+    public void setString(final String name, final String value) {
+        doSet(String.class, name, value);
+    }
+
+    private <T> void doSet(final Class<T> expectedType, final String name, final T value) {
+        final org.apache.avro.Schema.Field field = delegate.getSchema().getField(name);
+        if (field == null) {
+            return;
+        }
+
+        delegate.put(field.pos(), value);
+    }
+
     private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchemaRaw, final Object value) {
 
         if (value != null && expectedType == value.getClass() && !(value instanceof Collection)) {
