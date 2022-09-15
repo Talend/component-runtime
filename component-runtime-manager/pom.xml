@@ -108,6 +108,11 @@
       <artifactId>geronimo-activation_1.1_spec</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
+      <version>${rhino.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -197,9 +202,9 @@
 
   <profiles>
     <profile>
-      <id>java15</id>
+      <id>java17</id>
       <activation>
-        <jdk>[15,)</jdk>
+        <jdk>[17,)</jdk>
       </activation>
       <dependencies>
         <dependency>
