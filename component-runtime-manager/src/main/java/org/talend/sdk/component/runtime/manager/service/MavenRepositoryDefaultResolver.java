@@ -57,7 +57,7 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
                 .of(fromSystemProperties(), fromStudioConfiguration(), fromMavenSettings(), fromEnvironmentVariables())
                 .filter(Objects::nonNull)
                 .findFirst()
-                .orElse(fallback());
+                .orElseGet(this::fallback);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
     }
 
     private Path fromStudioConfiguration() {
-        // check if we are in the studio process if so just grab the the studio config
+        // check if we are in the studio process if so just grab the studio config
         final String m2Repo = System.getProperty(STUDIO_MVN_REPOSITORY);
         if (!"global".equals(m2Repo)) {
             return handler.get(Paths.get(System.getProperty("osgi.configuration.area", ""), M2_REPOSITORY).toString());
