@@ -16,9 +16,16 @@
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2147[TCOMP-2147^]: Decrease log level for blacklisted dependencies link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2228[TCOMP-2228^]: Upgrade git-commit-id-plugin to 4.9.10 
 - link:https://jira.talendforge.org/browse/TCOMP-2232[TCOMP-2232^]: Upgrade slf4j to 1.7.34 
 - link:https://jira.talendforge.org/browse/TCOMP-2238[TCOMP-2238^]: Upgrade jib-core to 0.16.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2249[TCOMP-2249^]: Upgrade johnzon to 1.2.19 
+- link:https://jira.talendforge.org/browse/TCOMP-2251[TCOMP-2251^]: Upgrade jackson to 2.13.3 
+- link:https://jira.talendforge.org/browse/TCOMP-2252[TCOMP-2252^]: MavenRepositoryResolver call fallback only it's needed link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2257[TCOMP-2257^]: Upgrade meecrowave to 1.2.14 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2263[TCOMP-2263^]: Upgrade openwebbeans-se to 2.0.27 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2264[TCOMP-2264^]: Upgrade TSBI to 3.0.5-20220907120958 link:search.html?query=tsbi[tsbi^,role='dockey']
 
 
 
