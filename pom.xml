@@ -217,7 +217,7 @@
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
-    <beam.version>2.36.0</beam.version>
+    <beam.version>2.37.0</beam.version>
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.10</joda.time.version>
 
