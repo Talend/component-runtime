@@ -38,12 +38,8 @@ public interface Record {
      */
     Schema getSchema();
 
-    default <T> void set(final Class<T> expectedType, final String entryName, T value) {
-        throw new UnsupportedOperationException("#set is not implemented");
-    }
-
-    default void setString(String name, String value) {
-        throw new UnsupportedOperationException("#setString is not implemented");
+    default Builder toBuilder() {
+        throw new UnsupportedOperationException("#toBuilder is not implemented");
     }
 
     /**

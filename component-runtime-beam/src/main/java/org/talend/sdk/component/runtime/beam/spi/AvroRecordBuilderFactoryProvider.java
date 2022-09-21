@@ -15,11 +15,10 @@
  */
 package org.talend.sdk.component.runtime.beam.spi;
 
-import static java.util.Optional.ofNullable;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
@@ -30,8 +29,9 @@ import org.talend.sdk.component.runtime.manager.service.DefaultServices;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
+import org.talend.sdk.component.runtime.tdp.TdpRecordBuilderFactory;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryProvider {
@@ -39,21 +39,23 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
     @Override
     public RecordBuilderFactory apply(final String containerId) {
         switch (System.getProperty("talend.component.beam.record.factory.impl", "auto")) {
-        case "memory":
-        case "default":
-            return new RecordBuilderFactoryImpl(containerId);
-        case "avro":
-            if (!hasAvroRecordBuilderFactory()) {
-                log.warn(
-                        "AvroRecordBuilderFactoryProvider if forced by System property but seems not available, this may lead to issues.");
-            }
-            return new AvroRecordBuilderFactory(containerId);
-        default:
-            if (hasAvroRecordBuilderFactory()) {
-                return new AvroRecordBuilderFactory(containerId);
-            } else {
+            case "memory":
+            case "default":
                 return new RecordBuilderFactoryImpl(containerId);
-            }
+            case "avro":
+                if (!hasAvroRecordBuilderFactory()) {
+                    log.warn(
+                            "AvroRecordBuilderFactoryProvider if forced by System property but seems not available, this may lead to issues.");
+                }
+                return new AvroRecordBuilderFactory(containerId);
+            case "tdp":
+                return new TdpRecordBuilderFactory();
+            default:
+                if (hasAvroRecordBuilderFactory()) {
+                    return new AvroRecordBuilderFactory(containerId);
+                } else {
+                    return new RecordBuilderFactoryImpl(containerId);
+                }
         }
     }
 
