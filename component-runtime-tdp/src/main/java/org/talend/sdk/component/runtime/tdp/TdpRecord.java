@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.runtime.tdp;
 
 import java.time.ZonedDateTime;
@@ -10,6 +25,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 
 public class TdpRecord implements Record {
+
     private Map<String, Object> values;
 
     private final TdpSchema tdpSchema;
@@ -38,7 +54,7 @@ public class TdpRecord implements Record {
 
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
-        //noinspection unchecked YOLO
+        // noinspection unchecked YOLO
         return (T) values.get(name);
     }
 
@@ -74,6 +90,7 @@ public class TdpRecord implements Record {
      * implementations deal with this, but here one can leverage setters in our TDP implementations...
      */
     public static class Builder implements Record.Builder {
+
         private final TdpRecord tdpRecord;
 
         Builder() {

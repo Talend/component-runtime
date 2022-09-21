@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>component-runtime</artifactId>
-        <groupId>org.talend.sdk.component</groupId>
-        <version>1.49.0.TDP-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>component-runtime-tdp</artifactId>
+  <parent>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime</artifactId>
+    <version>1.49.0.TDP-SNAPSHOT</version>
+  </parent>
 
-    <properties>
-        <assertj.version>3.23.1</assertj.version>
-    </properties>
+  <artifactId>component-runtime-tdp</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>component-api</artifactId>
-        </dependency>
+  <properties>
+    <assertj.version>3.23.1</assertj.version>
+  </properties>
 
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>
