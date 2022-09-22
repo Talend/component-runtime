@@ -10,7 +10,9 @@
 
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-2226[TCOMP-2226^]: Implement a default UI for streaming sources for user configuration of a StopStrategy link:search.html?query=component-form[component-form^,role='dockey'] link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2234[TCOMP-2234^]: Override blocking read process in streaming connectors link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2258[TCOMP-2258^]: @Documentation to tooltips in uiSchema link:search.html?query=component-form[component-form^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
