@@ -24,6 +24,9 @@ import java.util.Map;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 
+import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
+import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
+
 public class TdpRecord implements Record {
 
     private Map<String, Object> values;
@@ -164,7 +167,7 @@ public class TdpRecord implements Record {
 
         @Override
         public List<Schema.Entry> getCurrentEntries() {
-            return null;
+            return tdpRecord.getSchema().getEntries();
         }
 
         @Override
@@ -315,17 +318,49 @@ public class TdpRecord implements Record {
 
         @Override
         public Record.Builder withRecord(final Schema.Entry entry, final Record value) {
-            throw new UnsupportedOperationException("#withRecord is not supported");
+            assertType(entry.getType(), RECORD);
+
+            if (entry.getElementSchema() == null) {
+                throw new IllegalArgumentException("No schema for the nested record");
+            }
+
+            return append(entry, value);
         }
 
         @Override
         public Record.Builder withRecord(final String name, final Record value) {
-            throw new UnsupportedOperationException("#withRecord is not supported");
+
+            final Schema.Entry recordEntry = TdpEntry.builder()
+                    .withType(RECORD)
+                    .withName(name)
+                    .withElementSchema(value.getSchema())
+                    .withNullable(true)
+                    .build();
+
+            return append(recordEntry, value);
         }
 
         @Override
         public <T> Record.Builder withArray(final Schema.Entry entry, final Collection<T> values) {
-            throw new UnsupportedOperationException("#withArray is not supported");
+            assertType(entry.getType(), ARRAY);
+
+            if (entry.getElementSchema() == null) {
+                throw new IllegalArgumentException("No schema for the collection items");
+            }
+
+            return append(entry, values);
+        }
+
+        private <T> Record.Builder append(final Schema.Entry entry, final T value) {
+            tdpRecord.values.put(entry.getName(), value);
+            tdpRecord.tdpSchema.addEntry(entry);
+            return this;
+        }
+
+        private void assertType(final Schema.Type actual, final Schema.Type expected) {
+            if (actual != expected) {
+                throw new IllegalArgumentException("Expected entry type: " + expected + ", got: " + actual);
+            }
         }
     }
 }

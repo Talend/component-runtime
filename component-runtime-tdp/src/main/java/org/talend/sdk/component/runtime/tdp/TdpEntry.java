@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.runtime.tdp;
 
-import javax.json.JsonValue;
 import java.util.Map;
 import java.util.Objects;
 import org.talend.sdk.component.api.record.Schema;
@@ -35,6 +34,8 @@ public class TdpEntry implements Schema.Entry {
     private boolean isNullable;
 
     private boolean isMetadata;
+
+    private Schema elementSchema;
 
     private Map<String, String> props;
 
@@ -81,7 +82,7 @@ public class TdpEntry implements Schema.Entry {
 
     @Override
     public Schema getElementSchema() {
-        throw new UnsupportedOperationException("#getElementSchema is not supported");
+        return elementSchema;
     }
 
     @Override
@@ -97,11 +98,6 @@ public class TdpEntry implements Schema.Entry {
     @Override
     public String getProp(final String property) {
         return props.get(property);
-    }
-
-    @Override
-    public JsonValue getJsonProp(final String name) {
-        throw new UnsupportedOperationException("#getJsonProp is not supported");
     }
 
     /**
@@ -161,6 +157,11 @@ public class TdpEntry implements Schema.Entry {
 
     private TdpEntry setComment(final String comment) {
         this.comment = comment;
+        return this;
+    }
+
+    private TdpEntry setElementSchema(final Schema elementSchema) {
+        this.elementSchema = elementSchema;
         return this;
     }
 
@@ -242,7 +243,8 @@ public class TdpEntry implements Schema.Entry {
 
         @Override
         public Schema.Entry.Builder withElementSchema(final Schema schema) {
-            throw new UnsupportedOperationException("#withElementSchema is not supported");
+            tdpEntry.setElementSchema(schema);
+            return this;
         }
 
         @Override

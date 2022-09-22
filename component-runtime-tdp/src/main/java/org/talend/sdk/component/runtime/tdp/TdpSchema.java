@@ -34,6 +34,8 @@ public class TdpSchema implements Schema {
 
     private Map<String, String> props = new HashMap<>();
 
+    private Schema elementSchema;
+
     private TdpSchema() {
     }
 
@@ -44,7 +46,7 @@ public class TdpSchema implements Schema {
 
     @Override
     public Schema getElementSchema() {
-        throw new UnsupportedOperationException("#getElementSchema is not supported");
+        return elementSchema;
     }
 
     @Override
@@ -109,6 +111,11 @@ public class TdpSchema implements Schema {
 
     public TdpSchema addEntry(Entry entry) {
         this.entries.put(entry.getName(), entry);
+        return this;
+    }
+
+    public TdpSchema setElementSchema(final Schema elementSchema) {
+        this.elementSchema = elementSchema;
         return this;
     }
 
@@ -192,7 +199,8 @@ public class TdpSchema implements Schema {
 
         @Override
         public Schema.Builder withElementSchema(final Schema schema) {
-            throw new UnsupportedOperationException("#withElementSchema is not supported");
+            tdpSchema.setElementSchema(schema);
+            return this;
         }
 
         @Override
