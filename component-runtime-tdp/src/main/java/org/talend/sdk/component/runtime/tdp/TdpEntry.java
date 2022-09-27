@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.tdp;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.talend.sdk.component.api.record.Schema;
@@ -37,7 +38,7 @@ public class TdpEntry implements Schema.Entry {
 
     private Schema elementSchema;
 
-    private Map<String, String> props;
+    private Map<String, String> props = new HashMap<>();
 
     private String comment;
 
