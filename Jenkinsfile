@@ -13,7 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Job parameters
+def EXTRA_BUILD_ARGS = "" // TODO NOT NEEDED?
+
+// Env information
 final def slackChannel = 'components-ci'
+final Boolean isMasterBranch = env.BRANCH_NAME == "master"
+final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+
 // Credentials
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
@@ -23,9 +30,7 @@ final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datap
 final def sonarCredentials = usernamePassword(credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
-// Env information
-final def isMasterBranch = env.BRANCH_NAME == "master"
-final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+
 // Pod image
 final String _TSBI_VERSION = "3.0.5-20220907120958"
 final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:${_TSBI_VERSION}"
@@ -68,8 +73,6 @@ final String _POD_CONFIGURATION = """
       - name: talend-registry
 """
 
-def EXTRA_BUILD_ARGS = ""
-
 pipeline {
   agent {
     kubernetes {
@@ -103,10 +106,14 @@ pipeline {
     choice(name: 'Action',
       choices: ['STANDARD', 'RELEASE'],
       description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
-    booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17')
-    booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
-    string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
-    string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
+    booleanParam(name: 'BUILD_W_JDK17', defaultValue: false,
+      description: 'Test build with Java 17')
+    booleanParam(name: 'FORCE_SONAR', defaultValue: false,
+      description: 'Force Sonar analysis')
+    string(name: 'EXTRA_BUILD_ARGS', defaultValue: "",
+      description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
+    string(name: 'POST_LOGIN_SCRIPT', defaultValue: "",
+      description: 'Execute a shell command after login. Useful for maintenance.')
   }
 
   stages {
@@ -329,6 +336,35 @@ pipeline {
     }
   }
   post {
+    always {
+      container(tsbiImage) {
+        recordIssues(
+          enabledForFailure: true,
+          tools: [
+            junitParser(
+              id: 'unit-test',
+              name: 'Unit Test',
+              pattern: '**/target/surefire-reports/*.xml'
+            ),
+            taskScanner(
+              id: 'disabled',
+              name: '@Disabled',
+              includePattern: '**/src/**/*.java',
+              ignoreCase: true,
+              normalTags: '@Disabled'
+            ),
+            taskScanner(
+              id: 'todo',
+              name: 'Todo(low)/Fixme(high)',
+              includePattern: '**/src/**/*.java',
+              ignoreCase: true,
+              highTags: 'FIX_ME, FIXME',
+              lowTags: 'TO_DO, TODO'
+            )
+          ]
+        )
+      }
+    }
     success {
       script {
         //Only post results to Slack for Master and Maintenance branches
@@ -360,37 +396,6 @@ pipeline {
               channel: "${slackChannel}"
             )
           }
-        }
-      }
-    }
-    always {
-      container(tsbiImage) {
-        always {
-          recordIssues(
-            enabledForFailure: true,
-            tools: [
-              junitParser(
-                id: 'unit-test',
-                name: 'Unit Test',
-                pattern: '**/target/surefire-reports/*.xml'
-              ),
-              taskScanner(
-                id: 'disabled',
-                name: '@Disabled',
-                includePattern: '**/src/**/*.java',
-                ignoreCase: true,
-                normalTags: '@Disabled'
-              ),
-              taskScanner(
-                id: 'todo',
-                name: 'Todo(low)/Fixme(high)',
-                includePattern: '**/src/**/*.java',
-                ignoreCase: true,
-                highTags: 'FIX_ME, FIXME',
-                lowTags: 'TO_DO, TODO'
-              )
-            ]
-          )
         }
       }
     }
