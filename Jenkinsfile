@@ -150,20 +150,21 @@ pipeline {
             EXTRA_BUILD_ARGS = ""
           }
         }
-
-        ///////////////////////////////////////////
-        // Updating build displayName
-        ///////////////////////////////////////////
         script {
-
+          ///////////////////////////////////////////
+          // Updating build displayName / description
+          ///////////////////////////////////////////
           String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-          if ( user_name == null) { user_name = "auto" }
+          if (user_name == null) {
+            user_name = "auto"
+          }
 
+          // update build name
           currentBuild.displayName = (
             "#${currentBuild.number}:${user_name}"
           )
 
-          // updating build description
+          // update build description
           currentBuild.description = (
             "User: ${user_name} - Sonar: ${params.FORCE_SONAR}\n" +
               "Is Master: ${isMasterBranch} / Is Std: ${isStdBranch}"
@@ -173,7 +174,8 @@ pipeline {
     }
     stage('Post login') {
       steps {
-        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials,
+                         jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
           script {
             try {
               sh "${params.POST_LOGIN_SCRIPT}"
@@ -275,14 +277,27 @@ pipeline {
         withCredentials([ossrhCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             sh """
-                mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
-                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
+                mvn ossindex:audit-aggregate \
+                 -pl '!bom' \
+                 -Dossindex.fail=false \
+                 -Dossindex.reportFile=target/audit.txt \
+                 -s .jenkins/settings.xml
+                mvn versions:dependency-updates-report \
+                 versions:plugin-updates-report \
+                 versions:property-updates-report\
+                 -pl '!bom'
               """
           }
         }
         withCredentials([sonarCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
+            sh """
+            mvn -Dsonar.host.url=https://sonar-eks.datapwn.com \
+                -Dsonar.login='${SONAR_USER}' \
+                -Dsonar.password='${SONAR_PASS}' \
+                -Dsonar.branch.name=${env.BRANCH_NAME} \
+                sonar:sonar
+            """
           }
         }
 
