@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 // Job parameters
-def EXTRA_BUILD_ARGS = "" // TODO NOT NEEDED?
+String EXTRA_BUILD_ARGS = ""
 
 // Env information
-final def slackChannel = 'components-ci'
+final String slackChannel = 'components-ci'
 final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 
@@ -32,18 +32,19 @@ final def keyImportCredentials = usernamePassword(credentialsId: 'component-runt
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
 
 // Pod image
+final String _TSBI_IMAGE = 'jdk11-svc-builder'
+final String _TSBI_JDK17 = 'jdk17-svc-builder'
 final String _TSBI_VERSION = "3.0.5-20220907120958"
-final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:${_TSBI_VERSION}"
-final String jdk17Image = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:${_TSBI_VERSION}"
-final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+final String _STAGE_DEFAULT_CONTAINER = _TSBI_IMAGE
+final String _POD_LABEL = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
 final String _POD_CONFIGURATION = """
   apiVersion: v1
   kind: Pod
   spec:
     containers:
-      - name: 'main'
-        image: '${tsbiImage}'
+      - name: '${_TSBI_IMAGE}'
+        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
         command: [ cat ]
         tty: true
         volumeMounts: [
@@ -53,7 +54,7 @@ final String _POD_CONFIGURATION = """
         ]
         resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
       - name: 'jdk17'
-        image: '${jdk17Image}'
+        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_JDK17}:${_TSBI_VERSION}'
         command: [ cat ]
         tty: true
         volumeMounts: [
@@ -77,8 +78,9 @@ final String _POD_CONFIGURATION = """
 pipeline {
   agent {
     kubernetes {
-      label podLabel
+      label _POD_LABEL
       yaml _POD_CONFIGURATION
+      defaultContainer _STAGE_DEFAULT_CONTAINER
     }
   }
 
@@ -120,48 +122,45 @@ pipeline {
   stages {
     stage('Preliminary steps') {
       steps {
-        container('main') {
-          script {
-            withCredentials([gitCredentials]) {
-              sh """
+        script {
+          withCredentials([gitCredentials]) {
+            sh """
                 bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
               """
-            }
-            withCredentials([dockerCredentials]) {
-              sh """
+          }
+          withCredentials([dockerCredentials]) {
+            sh """
                 bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
               """
-            }
-            withCredentials([keyImportCredentials]) {
-              sh """
+          }
+          withCredentials([keyImportCredentials]) {
+            sh """
                 bash .jenkins/scripts/setup_gpg.sh
               """
-            }
+          }
 
-            def pom = readMavenPom file: 'pom.xml'
-            env.PROJECT_VERSION = pom.version
-            try {
-              EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
-            } catch (ignored) {
-              EXTRA_BUILD_ARGS = ""
-            }
+          def pom = readMavenPom file: 'pom.xml'
+          env.PROJECT_VERSION = pom.version
+          try {
+            EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
+          } catch (ignored) {
+            EXTRA_BUILD_ARGS = ""
           }
         }
+
       }
     }
     stage('Post login') {
       steps {
-        container('main') {
-          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
-            script {
-              try {
-                sh "${params.POST_LOGIN_SCRIPT}"
-                sh """
+        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+          script {
+            try {
+              sh "${params.POST_LOGIN_SCRIPT}"
+              sh """
                   bash .jenkins/scripts/npm_fix.sh
                 """
-              } catch (ignored) {
-                //
-              }
+            } catch (ignored) {
+              //
             }
           }
         }
@@ -182,10 +181,8 @@ pipeline {
     stage('Standard maven build') {
       when { expression { params.Action != 'RELEASE' } }
       steps {
-        container('main') {
-          withCredentials([ossrhCredentials]) {
-            sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
-          }
+        withCredentials([ossrhCredentials]) {
+          sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
         }
       }
       post {
@@ -210,11 +207,10 @@ pipeline {
         }
       }
       steps {
-        container('main') {
-          withCredentials([ossrhCredentials, gpgCredentials]) {
-            sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
-          }
+        withCredentials([ossrhCredentials, gpgCredentials]) {
+          sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
         }
+
       }
     }
     stage('Docker images') {
@@ -225,14 +221,13 @@ pipeline {
         }
       }
       steps {
-        container('main') {
-          script {
-            configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-              sh """
+        script {
+          configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+            sh """
                 bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}
               """
-            }
           }
+
         }
       }
     }
@@ -244,11 +239,10 @@ pipeline {
         }
       }
       steps {
-        container('main') {
-          withCredentials([ossrhCredentials, gitCredentials]) {
-            sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -"
-          }
+        withCredentials([ossrhCredentials, gitCredentials]) {
+          sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -"
         }
+
       }
     }
     stage('Master Post Build Tasks') {
@@ -257,21 +251,20 @@ pipeline {
         branch 'master'
       }
       steps {
-        container('main') {
-          withCredentials([ossrhCredentials]) {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              sh """
+        withCredentials([ossrhCredentials]) {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh """
                 mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
                 mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
               """
-            }
-          }
-          withCredentials([sonarCredentials]) {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
-            }
           }
         }
+        withCredentials([sonarCredentials]) {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
+          }
+        }
+
       }
       post {
         always {
@@ -322,17 +315,16 @@ pipeline {
         }
       }
       steps {
-        container('main') {
-          script {
-            withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
-              configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                sh """
+        script {
+          withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+            configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+              sh """
                   bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
                 """
-              }
             }
           }
         }
+
       }
     }
   }
@@ -341,33 +333,31 @@ pipeline {
    */
   post {
     always {
-      container('main') {
-        recordIssues(
-          enabledForFailure: true,
-          tools: [
-            junitParser(
-              id: 'unit-test',
-              name: 'Unit Test',
-              pattern: '**/target/surefire-reports/*.xml'
-            ),
-            taskScanner(
-              id: 'disabled',
-              name: '@Disabled',
-              includePattern: '**/src/**/*.java',
-              ignoreCase: true,
-              normalTags: '@Disabled'
-            ),
-            taskScanner(
-              id: 'todo',
-              name: 'Todo(low)/Fixme(high)',
-              includePattern: '**/src/**/*.java',
-              ignoreCase: true,
-              highTags: 'FIX_ME, FIXME',
-              lowTags: 'TO_DO, TODO'
-            )
-          ]
-        )
-      }
+      recordIssues(
+        enabledForFailure: true,
+        tools: [
+          junitParser(
+            id: 'unit-test',
+            name: 'Unit Test',
+            pattern: '**/target/surefire-reports/*.xml'
+          ),
+          taskScanner(
+            id: 'disabled',
+            name: '@Disabled',
+            includePattern: '**/src/**/*.java',
+            ignoreCase: true,
+            normalTags: '@Disabled'
+          ),
+          taskScanner(
+            id: 'todo',
+            name: 'Todo(low)/Fixme(high)',
+            includePattern: '**/src/**/*.java',
+            ignoreCase: true,
+            highTags: 'FIX_ME, FIXME',
+            lowTags: 'TO_DO, TODO'
+          )
+        ]
+      )
     }
     success {
       script {
