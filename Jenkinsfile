@@ -147,12 +147,22 @@ spec:
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                         script {
                             try {
+                                //Clean possible M2 corruptions - TDI-48532
+                                echo 'Clean possible M2 corruptions'
+                                sh """
+                                    grep --recursive --word-regexp --files-with-matches --regexp '\u0000' ~/.m2/repository | xargs -I % rm %
+                                """
+
+                                //Execute content of Post Login Script parameter
                                 sh "${params.POST_LOGIN_SCRIPT}"
+
+                                //Fix npm behavior
                                 sh """
                                    bash .jenkins/scripts/npm_fix.sh
                                    """
-                            } catch (ignored) {
-                                //
+                            }
+                            catch (ignored) {
+                                // The job must not fail if the script fails
                             }
                         }
                     }
