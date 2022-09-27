@@ -4,5 +4,3 @@
 include::index-cloud-integration.adoc[]
 
 include::documentation-rest.adoc[leveloffset=+1]
-
-include::vault-proxy.adoc[leveloffset=+1]

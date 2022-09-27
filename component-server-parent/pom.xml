@@ -31,7 +31,6 @@
     <module>component-server-model</module>
     <module>component-server-api</module>
     <module>component-server</module>
-    <module>component-server-vault-proxy</module>
     <module>extensions</module>
   </modules>
 </project>

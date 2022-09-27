@@ -30,7 +30,6 @@
   <modules>
     <module>component-server-image</module>
     <module>component-starter-server-image</module>
-    <module>component-server-vault-proxy-image</module>
     <module>remote-engine-customizer-image</module>
   </modules>
 
