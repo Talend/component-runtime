@@ -338,31 +338,33 @@ pipeline {
   post {
     always {
       container(tsbiImage) {
-        recordIssues(
-          enabledForFailure: true,
-          tools: [
-            junitParser(
-              id: 'unit-test',
-              name: 'Unit Test',
-              pattern: '**/target/surefire-reports/*.xml'
-            ),
-            taskScanner(
-              id: 'disabled',
-              name: '@Disabled',
-              includePattern: '**/src/**/*.java',
-              ignoreCase: true,
-              normalTags: '@Disabled'
-            ),
-            taskScanner(
-              id: 'todo',
-              name: 'Todo(low)/Fixme(high)',
-              includePattern: '**/src/**/*.java',
-              ignoreCase: true,
-              highTags: 'FIX_ME, FIXME',
-              lowTags: 'TO_DO, TODO'
-            )
-          ]
-        )
+        script {
+          recordIssues(
+            enabledForFailure: true,
+            tools: [
+              junitParser(
+                id: 'unit-test',
+                name: 'Unit Test',
+                pattern: '**/target/surefire-reports/*.xml'
+              ),
+              taskScanner(
+                id: 'disabled',
+                name: '@Disabled',
+                includePattern: '**/src/**/*.java',
+                ignoreCase: true,
+                normalTags: '@Disabled'
+              ),
+              taskScanner(
+                id: 'todo',
+                name: 'Todo(low)/Fixme(high)',
+                includePattern: '**/src/**/*.java',
+                ignoreCase: true,
+                highTags: 'FIX_ME, FIXME',
+                lowTags: 'TO_DO, TODO'
+              )
+            ]
+          )
+        }
       }
     }
     success {
