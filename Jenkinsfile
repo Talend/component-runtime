@@ -36,31 +36,32 @@ final String _TSBI_VERSION = "3.0.5-20220907120958"
 final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:${_TSBI_VERSION}"
 final String jdk17Image = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:${_TSBI_VERSION}"
 final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+
 final String _POD_CONFIGURATION = """
   apiVersion: v1
   kind: Pod
   spec:
     containers:
-      - name: main
+      - name: 'main'
         image: '${tsbiImage}'
-          command: [cat]
-          tty: true
-          volumeMounts: [
-            { name: docker, mountPath: /var/run/docker.sock }, 
-            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-            { name: dockercache, mountPath: /root/.dockercache}
-          ]
-          resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-        - name: jdk17
-          image: '${jdk17Image}'
-          command: [cat]
-          tty: true
-          volumeMounts: [
-            { name: docker, mountPath: /var/run/docker.sock }, 
-            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-            { name: dockercache, mountPath: /root/.dockercache}
-          ]
-          resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
+        command: [ cat ]
+        tty: true
+        volumeMounts: [
+          { name: docker, mountPath: /var/run/docker.sock }, 
+          { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+          { name: dockercache, mountPath: /root/.dockercache}
+        ]
+        resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+      - name: 'jdk17'
+        image: '${jdk17Image}'
+        command: [ cat ]
+        tty: true
+        volumeMounts: [
+          { name: docker, mountPath: /var/run/docker.sock }, 
+          { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+          { name: dockercache, mountPath: /root/.dockercache}
+        ]
+        resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
     volumes:
       - name: docker
         hostPath: {path: /var/run/docker.sock}
@@ -335,36 +336,37 @@ pipeline {
       }
     }
   }
+  /**
+   * post stages
+   */
   post {
     always {
-      container(tsbiImage) {
-        script {
-          recordIssues(
-            enabledForFailure: true,
-            tools: [
-              junitParser(
-                id: 'unit-test',
-                name: 'Unit Test',
-                pattern: '**/target/surefire-reports/*.xml'
-              ),
-              taskScanner(
-                id: 'disabled',
-                name: '@Disabled',
-                includePattern: '**/src/**/*.java',
-                ignoreCase: true,
-                normalTags: '@Disabled'
-              ),
-              taskScanner(
-                id: 'todo',
-                name: 'Todo(low)/Fixme(high)',
-                includePattern: '**/src/**/*.java',
-                ignoreCase: true,
-                highTags: 'FIX_ME, FIXME',
-                lowTags: 'TO_DO, TODO'
-              )
-            ]
-          )
-        }
+      container('main') {
+        recordIssues(
+          enabledForFailure: true,
+          tools: [
+            junitParser(
+              id: 'unit-test',
+              name: 'Unit Test',
+              pattern: '**/target/surefire-reports/*.xml'
+            ),
+            taskScanner(
+              id: 'disabled',
+              name: '@Disabled',
+              includePattern: '**/src/**/*.java',
+              ignoreCase: true,
+              normalTags: '@Disabled'
+            ),
+            taskScanner(
+              id: 'todo',
+              name: 'Todo(low)/Fixme(high)',
+              includePattern: '**/src/**/*.java',
+              ignoreCase: true,
+              highTags: 'FIX_ME, FIXME',
+              lowTags: 'TO_DO, TODO'
+            )
+          ]
+        )
       }
     }
     success {
