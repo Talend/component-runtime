@@ -123,6 +123,9 @@ pipeline {
     stage('Preliminary steps') {
       steps {
         script {
+          ///////////////////////////////////////////
+          // Job configuration
+          ///////////////////////////////////////////
           withCredentials([gitCredentials]) {
             sh """
                 bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
@@ -148,6 +151,24 @@ pipeline {
           }
         }
 
+        ///////////////////////////////////////////
+        // Updating build displayName
+        ///////////////////////////////////////////
+        script {
+
+          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+          if ( user_name == null) { user_name = "auto" }
+
+          currentBuild.displayName = (
+            "#" + currentBuild.number + ": " + "${user_name}"
+          )
+
+          // updating build description
+          currentBuild.description = (
+            "User: " + user_name + "\n" +
+              "Is Master: " + isMasterBranch + "/ Is Std: " + isStdBranch + "\n"
+          )
+        }
       }
     }
     stage('Post login') {
