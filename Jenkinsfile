@@ -160,13 +160,13 @@ pipeline {
           if ( user_name == null) { user_name = "auto" }
 
           currentBuild.displayName = (
-            "#" + currentBuild.number + ": " + "${user_name}"
+            "#${currentBuild.number}:${user_name}"
           )
 
           // updating build description
           currentBuild.description = (
-            "User: " + user_name + "\n" +
-              "Is Master: " + isMasterBranch + "/ Is Std: " + isStdBranch + "\n"
+            "User: ${user_name} - Sonar: ${params.FORCE_SONAR}\n" +
+              "Is Master: ${isMasterBranch} / Is Std: ${isStdBranch}"
           )
         }
       }
