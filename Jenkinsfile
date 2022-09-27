@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 final def slackChannel = 'components-ci'
+// Credentials
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
@@ -22,11 +23,50 @@ final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datap
 final def sonarCredentials = usernamePassword(credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
+// Env information
 final def isMasterBranch = env.BRANCH_NAME == "master"
 final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:3.0.5-20220907120958"
-final def jdk17Image = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.5-20220907120958"
-final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+// Pod image
+final String _TSBI_VERSION = "3.0.5-20220907120958"
+final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:${_TSBI_VERSION}"
+final String jdk17Image = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:${_TSBI_VERSION}"
+final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+final String _POD_CONFIGURATION = """
+  apiVersion: v1
+  kind: Pod
+  spec:
+    containers:
+      - name: main
+        image: '${tsbiImage}'
+          command: [cat]
+          tty: true
+          volumeMounts: [
+            { name: docker, mountPath: /var/run/docker.sock }, 
+            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+            { name: dockercache, mountPath: /root/.dockercache}
+          ]
+          resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+        - name: jdk17
+          image: '${jdk17Image}'
+          command: [cat]
+          tty: true
+          volumeMounts: [
+            { name: docker, mountPath: /var/run/docker.sock }, 
+            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+            { name: dockercache, mountPath: /root/.dockercache}
+          ]
+          resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
+    volumes:
+      - name: docker
+        hostPath: {path: /var/run/docker.sock}
+      - name: efs-jenkins-component-runtime-m2
+        persistentVolumeClaim: 
+        claimName: efs-jenkins-component-runtime-m2
+      - name: dockercache
+        hostPath: {path: /tmp/jenkins/component-runtime/docker}
+    imagePullSecrets:
+      - name: talend-registry
+"""
 
 def EXTRA_BUILD_ARGS = ""
 
@@ -34,47 +74,7 @@ pipeline {
   agent {
     kubernetes {
       label podLabel
-      yaml """
-apiVersion: v1
-kind: Pod
-spec:
-    containers:
-        -
-            name: main
-            image: '${tsbiImage}'
-            command: [cat]
-            tty: true
-            volumeMounts: [
-                { name: docker, mountPath: /var/run/docker.sock }, 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-        -
-            name: jdk17
-            image: '${jdk17Image}'
-            command: [cat]
-            tty: true
-            volumeMounts: [
-                { name: docker, mountPath: /var/run/docker.sock }, 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
-    volumes:
-        -
-            name: docker
-            hostPath: {path: /var/run/docker.sock}
-        -
-            name: efs-jenkins-component-runtime-m2
-            persistentVolumeClaim: 
-                claimName: efs-jenkins-component-runtime-m2
-        -
-            name: dockercache
-            hostPath: {path: /tmp/jenkins/component-runtime/docker}
-    imagePullSecrets:
-        - name: talend-registry
-"""
+      yaml _POD_CONFIGURATION
     }
   }
 
