@@ -16,7 +16,7 @@
 final def slackChannel = 'components-ci'
 final def veracodeCredentials = usernamePassword(credentialsId: 'veracode-api-credentials', usernameVariable: 'VERACODE_ID', passwordVariable: 'VERACODE_KEY')
 final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:3.0.8-20220928070500"
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final def podLabel = "component-runtime-scan-${UUID.randomUUID().toString()}".take(53)
 pipeline {
     agent {
