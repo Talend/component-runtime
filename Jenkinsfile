@@ -24,8 +24,7 @@ final def keyImportCredentials = usernamePassword(credentialsId: 'component-runt
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
 final def isMasterBranch = env.BRANCH_NAME == "master"
 final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:3.0.5-20220907120958"
-final def jdk17Image= "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.5-20220907120958"
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
 def EXTRA_BUILD_ARGS = ""
@@ -50,17 +49,6 @@ spec:
                 { name: dockercache, mountPath: /root/.dockercache}
             ]
             resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-        -
-            name: jdk17
-            image: '${jdk17Image}'
-            command: [cat]
-            tty: true
-            volumeMounts: [
-                { name: docker, mountPath: /var/run/docker.sock }, 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
     volumes:
         -
             name: docker
@@ -103,7 +91,6 @@ spec:
         choice(name: 'Action',
                 choices: ['STANDARD', 'RELEASE'],
                 description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
-        booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17')
         booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
         string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
         string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
@@ -154,18 +141,6 @@ spec:
                             } catch (ignored) {
                                 //
                             }
-                        }
-                    }
-                }
-            }
-        }
-        stage('Java 17 build') {
-            when { expression { params.Action != 'RELEASE' && params.BUILD_W_JDK17 } }
-            steps {
-                container('jdk17') {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        script {
-                            sh "mvn clean package $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                         }
                     }
                 }
