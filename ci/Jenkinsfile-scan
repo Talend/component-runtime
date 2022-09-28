@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 final def slackChannel = 'components-ci'
 final def veracodeCredentials = usernamePassword(credentialsId: 'veracode-api-credentials', usernameVariable: 'VERACODE_ID', passwordVariable: 'VERACODE_KEY')
 final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.9.0-2.3-20210907155713"
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final def podLabel = "component-runtime-scan-${UUID.randomUUID().toString()}".take(53)
 pipeline {
     agent {
@@ -57,7 +57,7 @@ spec:
 
     environment {
         MAVEN_OPTS = '-Dmaven.artifact.threads=128 -Dorg.slf4j.simpleLogger.showThreadName=true -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss'
-        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
+        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -pl '!talend-component-kit-intellij-plugin' -pl '!reporting'"
         TALEND_REGISTRY = 'registry.datapwn.com'
         VERACODE_APP_NAME = 'Components'
         VERACODE_SANDBOX = 'component-runtime'
@@ -75,6 +75,28 @@ spec:
     }
 
     stages {
+        stage('Post login') {
+            steps {
+                container('main') {
+                    checkout([$class : 'GitSCM',
+                              branches: [[name: 'master']],
+                              extensions : [
+                                      [$class: 'CheckoutOption', timeout: 30],
+                                      [$class: 'CloneOption', depth: 30, noTags: true, shallow: true, timeout: 30]],
+                              userRemoteConfigs : [[url: 'https://github.com/Talend/component-runtime.git', credentialsId: 'github-credentials']]])
+
+                    script {
+                        try {
+                            sh """
+                                   bash .jenkins/scripts/npm_fix.sh
+                               """
+                        } catch (error) {
+                            //
+                        }
+                    }
+                }
+            }
+        }
         stage("SourceClear analysis") {
             steps {
                 container('main') {
@@ -105,7 +127,7 @@ spec:
                             scanExcludesPattern: '',
                             scanIncludesPattern: '',
                             scanName: "master-${currentBuild.number}-${currentBuild.startTimeInMillis}",
-                            uploadExcludesPattern: '',
+                            uploadExcludesPattern: '**/.cache/**/*.jar',
                             uploadIncludesPattern: '**/*.jar',
                             waitForScan: true,
                             vid: "$VERACODE_ID",

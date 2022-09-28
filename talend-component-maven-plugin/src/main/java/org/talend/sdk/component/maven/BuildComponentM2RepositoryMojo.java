@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,67 @@
  */
 package org.talend.sdk.component.maven;
 
-import static java.util.stream.Collectors.toList;
+import static java.nio.file.Files.copy;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.newBufferedWriter;
+import static java.nio.file.Files.newInputStream;
+import static java.nio.file.Files.setLastModifiedTime;
+import static java.nio.file.Files.walkFileTree;
+import static java.nio.file.attribute.FileTime.from;
+import static java.time.Instant.ofEpochMilli;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.io.FileUtils.deleteDirectory;
+import static org.apache.commons.io.output.NullOutputStream.NULL_OUTPUT_STREAM;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PACKAGE;
-import static org.apache.maven.plugins.annotations.ResolutionScope.TEST;
+import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE;
 import static org.talend.sdk.component.maven.api.Audience.Type.TALEND_INTERNAL;
+import static org.talend.sdk.component.maven.api.Constants.CAR_EXTENSION;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.ziplock.Files;
-import org.apache.ziplock.IO;
 import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.talend.sdk.component.maven.api.Audience;
+import org.talend.sdk.component.maven.api.Constants;
 
+/**
+ * Finds all the cars:
+ * <ul>
+ * <li>defined as talend-component-maven-plugin's dependencies</li>
+ * <li>with scope compile</li>
+ * <li>with classifier {@link Constants#CAR_EXTENSION}</li>
+ * </ul>
+ * Then copies all the jars inside (app jars and dependencies) in a pseudo maven local repository.
+ * This repository can then be included in a Docker image to be mounted in a component-server so that
+ * the component-server loads all the components.
+ */
 @Audience(TALEND_INTERNAL)
-@Mojo(name = "prepare-repository", defaultPhase = PACKAGE, threadSafe = true, requiresDependencyResolution = TEST)
-public class BuildComponentM2RepositoryMojo extends CarConsumer {
+@Mojo(name = "prepare-repository", defaultPhase = PACKAGE, threadSafe = true, requiresDependencyResolution = COMPILE)
+public class BuildComponentM2RepositoryMojo extends ComponentDependenciesBase {
 
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
@@ -69,9 +91,13 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
     @Parameter(property = "talend-m2.registryBase")
     private File componentRegistryBase;
 
+    private Path componentRegistryBasePath; // Can't get a Path directly from a @Parameter...
+
     @Parameter(property = "talend-m2.root",
             defaultValue = "${maven.multiModuleProjectDirectory}/target/talend-component-kit/maven")
     protected File m2Root;
+
+    protected Path m2RootPath; // Can't get a Path directly from a @Parameter...
 
     @Parameter(property = "talend-m2.clean", defaultValue = "true")
     private boolean cleanBeforeGeneration;
@@ -84,33 +110,37 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
 
     @Override
     public void doExecute() throws MojoExecutionException {
-        final Set<Artifact> componentArtifacts = getComponentsCar(getComponentArtifacts());
+        final Set<Artifact> cars = getCars();
 
-        doGenerate(componentArtifacts);
-    }
+        m2RootPath = Paths.get(m2Root.getAbsolutePath());
+        componentRegistryBasePath = componentRegistryBase == null
+                ? null
+                : Paths.get(componentRegistryBase.getAbsolutePath());
 
-    private void doGenerate(final Set<Artifact> componentArtifacts) {
-        if (cleanBeforeGeneration && m2Root.exists()) {
-            Files.remove(m2Root);
+        try {
+            if (cleanBeforeGeneration && exists(m2RootPath)) {
+                deleteDirectory(m2RootPath.toFile()); // java.nio.Files.delete fails if dir is not empty
+            }
+            createDirectories(m2RootPath);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
         }
-        m2Root.mkdirs();
-        final List<String> coordinates = componentArtifacts
-                .stream()
-                .map(car -> copyComponentDependencies(car,
-                        (entry, read) -> copyFile(entry, read,
-                                entry.getName().substring("MAVEN-INF/repository/".length()))))
-                .filter(Objects::nonNull)
-                .distinct()
-                .sorted()
-                .collect(toList());
 
-        if (getLog().isDebugEnabled()) {
-            coordinates.forEach(it -> getLog().debug("Including component " + it));
+        cars.forEach(this::copyComponentDependencies);
+
+        if (cars.isEmpty()) {
+            throw new IllegalStateException(
+                    "No components found, check the component cars are included in your dependencies with scope compile");
         } else {
-            getLog().info("Included components " + String.join(", ", coordinates));
+            final String coordinates = cars
+                    .stream()
+                    .map(this::computeCoordinates)
+                    .collect(joining(","));
+
+            getLog().info("Included components " + coordinates);
         }
 
-        writeRegistry(getNewComponentRegistry(coordinates));
+        writeRegistry(getNewComponentRegistry(cars));
         if (createDigestRegistry) {
             writeDigest(getDigests());
         }
@@ -123,72 +153,62 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
         getLog().info("Created component repository at " + m2Root);
     }
 
-    private void writeProperties(final Properties content, final File location) {
-        try (final Writer output = new FileWriter(location)) {
+    protected Set<Artifact> getCars() {
+        final String talendComponentPluginId = "talend-component-maven-plugin";
+        final Plugin talendComponentPlugin = project.getBuild()
+                .getPlugins()
+                .stream()
+                .filter(plugin -> plugin.getArtifactId().equals(talendComponentPluginId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "The plugin " + talendComponentPluginId + " was not found in your pom"));
+
+        return talendComponentPlugin
+                .getDependencies()
+                .stream()
+                .filter(car -> CAR_EXTENSION.equals(car.getType()))
+                .filter(car -> COMPILE.id().equals(car.getScope()))
+                .map(car -> new DefaultArtifact(
+                        car.getGroupId(),
+                        car.getArtifactId(),
+                        car.getClassifier(),
+                        CAR_EXTENSION,
+                        car.getVersion()))
+                .map(this::resolveArtifactOnRemoteRepositories) // No resolve, no file
+                .collect(toSet());
+    }
+
+    protected Properties getNewComponentRegistry(final Set<Artifact> cars) {
+        final Properties components = new Properties();
+        if (componentRegistryBasePath != null && exists(componentRegistryBasePath)) {
+            try (final InputStream source = newInputStream(componentRegistryBasePath)) {
+                components.load(source);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        cars.forEach(car -> components.put(car.getArtifactId(), computeCoordinates(car)));
+
+        return components;
+    }
+
+    private void writeProperties(final Properties content, final Path location) {
+        try (final Writer output = newBufferedWriter(location)) {
             content.store(output, "Generated by Talend Component Kit " + getClass().getSimpleName());
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    protected void writeDigest(final Properties digestRegistry) {
-        writeProperties(digestRegistry, getDigestRegistry());
-    }
-
-    protected void writeRegistry(final Properties components) {
-        writeProperties(components, getRegistry());
-    }
-
-    protected void writeConnectorsVersion() {
-        try (final Writer output = new FileWriter(getConnectorsVersionFile())) {
-            output.write(version);
-            output.flush();
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    protected File copyFile(final ZipEntry entry, final InputStream read, final String depPath) {
-        final File file = new File(m2Root, depPath);
-        Files.mkdir(file.getParentFile());
-        try {
-            IO.copy(read, file);
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
-        }
-        final long lastModified = entry.getTime();
-        if (lastModified > 0) {
-            file.setLastModified(lastModified);
-        }
-        if (getLog().isDebugEnabled()) {
-            getLog().debug("Adding " + depPath);
-        }
-        return file;
-    }
-
-    protected Properties getNewComponentRegistry(final List<String> coordinates) {
-        final Properties components = new Properties();
-        if (componentRegistryBase != null && componentRegistryBase.exists()) {
-            try (final InputStream source = new FileInputStream(componentRegistryBase)) {
-                components.load(source);
-            } catch (final IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-        coordinates.stream().filter(it -> it.contains(":")).forEach(it -> components.put(it.split(":")[1], it.trim()));
-        return components;
-    }
-
     protected Properties getDigests() {
         final Properties index = new Properties();
-        final Path root = m2Root.toPath();
         try {
-            java.nio.file.Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+            walkFileTree(m2RootPath, new SimpleFileVisitor<Path>() {
 
                 @Override
                 public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
                     if (!file.getFileName().toString().startsWith(".")) {
-                        index.setProperty(root.relativize(file).toString(), hash(file));
+                        index.setProperty(m2RootPath.relativize(file).toString(), hash(file));
                     }
                     return super.visitFile(file, attrs);
                 }
@@ -199,25 +219,27 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
         return index;
     }
 
-    protected String hash(final Path file) {
-        try (final DigestOutputStream out = new DigestOutputStream(new OutputStream() {
+    protected void writeDigest(final Properties digestRegistry) {
+        writeProperties(digestRegistry, getDigestRegistry());
+    }
 
-            @Override
-            public void write(final byte[] b) {
-                // no-op
-            }
+    protected void writeRegistry(final Properties components) {
+        writeProperties(components, getRegistry());
+    }
 
-            @Override
-            public void write(final byte[] b, final int off, final int len) {
-                // no-op
-            }
+    private void writeConnectorsVersion() {
+        try (final Writer output = newBufferedWriter(getConnectorsVersionFile())) {
+            output.write(version);
+            output.flush();
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
-            @Override
-            public void write(final int b) {
-                // no-op
-            }
-        }, MessageDigest.getInstance("SHA-512"))) {
-            java.nio.file.Files.copy(file, out);
+    private String hash(final Path file) {
+        try (final DigestOutputStream out =
+                new DigestOutputStream(NULL_OUTPUT_STREAM, MessageDigest.getInstance(digestAlgorithm))) {
+            copy(file, out);
             out.flush();
             return hex(out.getMessageDigest().digest());
         } catch (final NoSuchAlgorithmException | IOException e) {
@@ -233,45 +255,66 @@ public class BuildComponentM2RepositoryMojo extends CarConsumer {
         return out.toString();
     }
 
-    protected String copyComponentDependencies(final Artifact car,
-            final BiConsumer<ZipEntry, InputStream> onDependency) {
-        String gav = null;
-        try (final ZipInputStream read =
-                new ZipInputStream(new BufferedInputStream(new FileInputStream(car.getFile())))) {
-            ZipEntry entry;
-            while ((entry = read.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
+    /**
+     * Copies a dependency from a car in {@link BuildComponentM2RepositoryMojo#m2Root}.
+     */
+    private void copyDependency(final ZipEntry zipEntry, final ZipInputStream zipStream) {
+        final String relativeDependencyPath = zipEntry
+                .getName()
+                .substring("MAVEN-INF/repository/".length());
+
+        final Path m2DependencyPath = m2RootPath.resolve(relativeDependencyPath);
+
+        try {
+            createDirectories(m2DependencyPath.getParent());
+            copy(zipStream, m2DependencyPath, StandardCopyOption.REPLACE_EXISTING);
+
+            final long lastModified = zipEntry.getTime();
+            if (lastModified > 0) {
+                setLastModifiedTime(m2DependencyPath, from(ofEpochMilli(lastModified)));
+            }
+            if (getLog().isDebugEnabled()) {
+                getLog().debug("Adding " + m2DependencyPath);
+            }
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Takes a car and copies all of its dependencies in {@link BuildComponentM2RepositoryMojo#m2Root}.
+     */
+    protected void copyComponentDependencies(final Artifact car) {
+        try (final FileInputStream fileStream = new FileInputStream(car.getFile());
+                final BufferedInputStream bufferedStream = new BufferedInputStream(fileStream);
+                final ZipInputStream zipStream = new ZipInputStream(bufferedStream)) {
+
+            ZipEntry zipEntry;
+            while ((zipEntry = zipStream.getNextEntry()) != null) {
+                if (zipEntry.isDirectory()) {
                     continue;
                 }
 
-                final String path = entry.getName();
-                if ("TALEND-INF/metadata.properties".equals(path)) {
-                    final Properties properties = new Properties();
-                    properties.load(read);
-                    gav = properties.getProperty("component_coordinates").replace("\\:", "");
-                    continue;
-                }
-                if (!path.startsWith("MAVEN-INF/repository/")) {
+                if (!zipEntry.getName().startsWith("MAVEN-INF/repository/")) {
                     continue;
                 }
 
-                onDependency.accept(entry, read);
+                copyDependency(zipEntry, zipStream);
             }
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
-        return gav;
     }
 
-    protected File getConnectorsVersionFile() {
-        return new File(m2Root, connectorsVersionFile);
+    private Path getConnectorsVersionFile() {
+        return m2RootPath.resolve(connectorsVersionFile);
     }
 
-    protected File getRegistry() {
-        return new File(m2Root, "component-registry.properties");
+    protected Path getRegistry() {
+        return m2RootPath.resolve("component-registry.properties");
     }
 
-    protected File getDigestRegistry() {
-        return new File(m2Root, "component-registry-digest.properties");
+    protected Path getDigestRegistry() {
+        return m2RootPath.resolve("component-registry-digest.properties");
     }
 }

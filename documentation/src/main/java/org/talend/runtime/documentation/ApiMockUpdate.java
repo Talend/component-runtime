@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public class ApiMockUpdate {
                 randomHttpPort();
                 setScanningExcludes(
                         "classworlds,container,freemarker,zipkin,backport,commons,component-form,component-runtime-junit,"
-                                + "component-tools,crawler,doxia,exec,jsch,jcl,org.osgi,talend-component,component-server-vault-proxy");
+                                + "component-tools,crawler,doxia,exec,jsch,jcl,org.osgi,talend-component");
                 setScanningPackageExcludes(
                         "org.talend.sdk.component.proxy,org.talend.sdk.component.runtime.server.vault,org.talend.sdk.component.server.vault.proxy");
             }

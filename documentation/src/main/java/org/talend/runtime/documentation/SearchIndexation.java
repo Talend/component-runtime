@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,8 @@ public class SearchIndexation {
         final JsonBuilderFactory factory = Json.createBuilderFactory(emptyMap());
 
         final File siteMapFile = new File(args[0]);
+        final String latest = args[1];
+        log.info("[main] sitemap: {}; latest: {}.", siteMapFile.toString(), latest);
         final String urlMarker = "/component-runtime/";
         final SiteMap siteMap = SiteMap.class
                 .cast(new SiteMapParser(false /* we index a local file with remote urls */)
@@ -108,6 +110,9 @@ public class SearchIndexation {
             final File relativeHtml = new File(siteMapFile.getParentFile(), path);
             try {
                 final Document document = Jsoup.parse(String.join("\n", Files.readAllLines(relativeHtml.toPath())));
+                if (!document.select("div > div.sect1.relatedlinks").isEmpty()) {
+                    document.select("div > div.sect1.relatedlinks").first().html("");
+                }
                 final JsonObjectBuilder builder = factory.createObjectBuilder();
                 builder
                         .add("lang", "en")
@@ -178,13 +183,14 @@ public class SearchIndexation {
             })
                     .flatMap(Collection::stream)
                     .sorted(comparing(o -> o.getString("title")))
-                    .collect(groupingBy(o -> o.getString("version")));
+                    .collect(groupingBy(
+                            o -> (o.getString("version").equals(latest) ? "latest" : o.getString("version"))));
             byVersion.forEach((version, records) -> {
                 final File file = new File(siteMapFile.getParentFile(), "main/" + version + "/search-index.json");
                 try (final OutputStream output = new WriteIfDifferentStream(file)) {
                     jsonb.toJson(records, output);
                 } catch (final IOException e) {
-                    throw new IllegalStateException(e);
+                    log.warn("Could not generate version: {} due to {}.", version, e.getMessage());
                 }
                 log.info("Created {}", file);
             });
@@ -205,9 +211,9 @@ public class SearchIndexation {
         return document
                 .select("meta")
                 .stream()
-                .filter(it -> it.hasAttr("name") && it.hasAttr("value") && metaName.equals(it.attr("name")))
+                .filter(it -> it.hasAttr("name") && it.hasAttr("content") && metaName.equals(it.attr("name")))
                 .findFirst()
-                .map(it -> it.attr("value"));
+                .map(it -> it.attr("content"));
     }
 
     private static Optional<JsonArrayBuilder> select(final Document document, final JsonBuilderFactory factory,
@@ -219,6 +225,9 @@ public class SearchIndexation {
         return of(select
                 .stream()
                 .map(Element::text)
+                .filter(s -> !s.matches("In this article|Related articles"))
+                .filter(s -> !s.isEmpty())
+                .distinct()
                 .map(Json::createValue)
                 .collect(factory::createArrayBuilder, JsonArrayBuilder::add, JsonArrayBuilder::addAll));
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+
+import org.talend.sdk.component.api.context.RuntimeContext;
+import routines.system.Dynamic;
 
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -48,6 +60,7 @@ import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.connection.CloseConnection;
@@ -59,6 +72,7 @@ import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.OutputsHandler;
+import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -76,7 +90,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import routines.system.Dynamic;
 
 @Slf4j
 public class DynamicColumnsTest {
@@ -100,6 +113,8 @@ public class DynamicColumnsTest {
         final Collection<Object> sourceData = new ArrayList<>();
         final Collection<Object> processorData = new ArrayList<>();
 
+        globalMap.put("key", "value");
+
         callConnectionComponent(manager);
 
         doDi(manager, sourceData, processorData, manager.findProcessor("DynamicColumnsTest", "outputDi", 1, emptyMap()),
@@ -111,8 +126,11 @@ public class DynamicColumnsTest {
     }
 
     private void callCloseComponent(final ComponentManager manager) {
+        String plugin = "test-classes";
+        RuntimeContextInjector.injectService(manager, plugin, globalMap);
+
         manager
-                .findPlugin("test-classes")
+                .findPlugin(plugin)
                 .get()
                 .get(ContainerComponentRegistry.class)
                 .getServices()
@@ -137,9 +155,13 @@ public class DynamicColumnsTest {
         runtimeParams.put("conn.para1", "v1");
         runtimeParams.put("conn.para2", "100");
 
+        String plugin = "test-classes";
+
+        RuntimeContextInjector.injectService(manager, plugin, globalMap);
+
         // TODO how to get the plugin id in client?
         manager
-                .findPlugin("test-classes")
+                .findPlugin(plugin)
                 .get()
                 .get(ContainerComponentRegistry.class)
                 .getServices()
@@ -148,7 +170,7 @@ public class DynamicColumnsTest {
                 .filter(actionMeta -> "create_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object connnection = actionMeta.getInvoker().apply(runtimeParams);
-                    assertEquals("v1100", connnection);
+                    assertEquals("v1100value", connnection);
 
                     globalMap.put("conn_tS3Connection_1", connnection);
                 });
@@ -158,6 +180,8 @@ public class DynamicColumnsTest {
             final Collection<Object> processorData, final Optional<Processor> proc, final Optional<Mapper> mapper) {
         try {
             final Processor processor = proc.orElseThrow(() -> new IllegalStateException("scanning failed"));
+
+            RuntimeContextInjector.injectLifecycle(processor, globalMap);
 
             try {
                 Field field = processor.getClass().getSuperclass().getDeclaredField("delegate");
@@ -200,6 +224,8 @@ public class DynamicColumnsTest {
 
             final Mapper tempMapperMapper = mapper.orElseThrow(() -> new IllegalStateException("scanning failed"));
             JobStateAware.init(tempMapperMapper, globalMap);
+
+            RuntimeContextInjector.injectLifecycle(tempMapperMapper, globalMap);
 
             doRun(manager, sourceData, processorData, processorProcessor, inputsHandlerProcessor,
                     outputHandlerProcessor, inputsProcessor, outputsProcessor, tempMapperMapper);
@@ -313,6 +339,9 @@ public class DynamicColumnsTest {
     @org.talend.sdk.component.api.processor.Processor(name = "outputDi", family = "DynamicColumnsTest")
     public static class OutputComponentDi implements Serializable {
 
+        @RuntimeContext
+        private transient Map<String, Object> context;
+
         int counter;
 
         @Connection
@@ -323,15 +352,24 @@ public class DynamicColumnsTest {
             // can get connection, if not null, can use it directly instead of creating again
             assertNotNull(conn);
 
+            assertEquals("value", context.get("key"));
+
             assertNotNull(record);
             assertNotNull(record.getString("id"));
+            assertEquals(StudioTypes.STRING, record.getSchema().getEntry("id").getProp(STUDIO_TYPE));
             assertNotNull(record.getString("name"));
+            assertEquals(StudioTypes.STRING, record.getSchema().getEntry("name").getProp(STUDIO_TYPE));
             assertTrue(record.getString("name").startsWith("record"));
             assertEquals("value" + counter, record.getString("string0"));
+            assertEquals(StudioTypes.SHORT, record.getSchema().getEntry("shorty").getProp(STUDIO_TYPE));
             assertEquals(Short.MAX_VALUE, record.getInt("shorty"));
+            assertEquals(StudioTypes.INTEGER, record.getSchema().getEntry("inty").getProp(STUDIO_TYPE));
             assertEquals(Integer.MAX_VALUE, record.getInt("inty"));
+            assertEquals(StudioTypes.LONG, record.getSchema().getEntry("longy").getProp(STUDIO_TYPE));
             assertEquals(Long.MAX_VALUE, record.getLong("longy"));
+            assertEquals(StudioTypes.FLOAT, record.getSchema().getEntry("floaty").getProp(STUDIO_TYPE));
             assertEquals(Float.MAX_VALUE, record.getFloat("floaty"));
+            assertEquals(StudioTypes.DOUBLE, record.getSchema().getEntry("doubly").getProp(STUDIO_TYPE));
             assertEquals(Double.MAX_VALUE, record.getDouble("doubly"));
             assertEquals((counter % 2 == 0), record.getBoolean("bool0"));
             assertEquals(counter, record.getInt("int0"));
@@ -350,7 +388,20 @@ public class DynamicColumnsTest {
             assertEquals(String.format("zorglub-is-still-alive-%05d", counter), new String(record.getBytes("bytes0")));
             assertEquals(IntStream.range(0, counter + 1).boxed().collect(toList()),
                     record.getArray(Integer.class, "array0"));
+            assertEquals(StudioTypes.DATE, record.getSchema().getEntry("date0").getProp(STUDIO_TYPE));
             assertTrue(ZonedDateTime.now().toEpochSecond() >= record.getDateTime("date0").toEpochSecond());
+
+            assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("bigDecy").getProp(STUDIO_TYPE));
+            assertEquals("12345.67890", record.getString("bigDecy"));
+
+            assertEquals(Schema.Type.DECIMAL, record.getSchema().getEntry("bigDecy2").getType());
+            assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("bigDecy2").getProp(STUDIO_TYPE));
+            assertEquals(new BigDecimal("12345.67890"), record.getDecimal("bigDecy2"));
+
+            assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("dynBigDecimal").getProp(STUDIO_TYPE));
+            assertEquals("12345.67890", record.getString("dynBigDecimal"));
+            assertEquals(StudioTypes.CHARACTER, record.getSchema().getEntry("chary").getProp(STUDIO_TYPE));
+            assertEquals(String.valueOf(Character.MAX_VALUE), record.getString("chary"));
 
             counter++;
         }
@@ -377,10 +428,13 @@ public class DynamicColumnsTest {
     @Service
     public static class MyService implements Serializable {
 
+        @RuntimeContext
+        private transient Map<String, Object> context;
+
         @CreateConnection
         public Object createConn(@Option("conn") final TestDataStore dataStore) throws ComponentException {
             // create connection
-            return dataStore.para1 + dataStore.para2;
+            return dataStore.para1 + dataStore.para2 + context.get("key");
         }
 
         @CloseConnection
@@ -388,7 +442,7 @@ public class DynamicColumnsTest {
             return new CloseConnectionObject() {
 
                 public boolean close() throws ComponentException {
-                    return "v1100".equals(this.getConnection());
+                    return "v1100value".equals(this.getConnection()) && "value".equals(context.get("key"));
                 }
 
             };
@@ -397,6 +451,9 @@ public class DynamicColumnsTest {
 
     @Emitter(name = "inputDi", family = "DynamicColumnsTest")
     public static class InputComponentDi implements Serializable {
+
+        @RuntimeContext
+        private transient Map<String, Object> context;
 
         private final PrimitiveIterator.OfInt stream;
 
@@ -412,12 +469,19 @@ public class DynamicColumnsTest {
             if (!stream.hasNext()) {
                 return null;
             }
+
+            assertEquals("value", context.get("key"));
+
             final Integer i = stream.next();
             final Record record = builderFactory
                     .newRecordBuilder()
                     .withString("id", String.valueOf(i))
                     .withString("name", "record" + i)
-                    .withInt("shorty", Short.MAX_VALUE)
+                    .withInt(builderFactory.newEntryBuilder()
+                            .withName("shorty")
+                            .withType(Type.INT)
+                            .withProp(STUDIO_TYPE, StudioTypes.SHORT)
+                            .build(), Short.MAX_VALUE)
                     .withInt("inty", Integer.MAX_VALUE)
                     .withLong("longy", Long.MAX_VALUE)
                     .withFloat("floaty", Float.MAX_VALUE)
@@ -445,6 +509,25 @@ public class DynamicColumnsTest {
                             .withElementSchema(builderFactory.newSchemaBuilder(Type.INT).build())
                             .build(), IntStream.range(0, i + 1).boxed().collect(toList()))
                     .withDateTime("date0", ZonedDateTime.now())
+                    .withString(builderFactory.newEntryBuilder()
+                            .withName("dynBigDecimal")
+                            .withType(Type.STRING)
+                            .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
+                            .build(), "12345.67890")
+                    .withString(builderFactory.newEntryBuilder()
+                            .withName("bigDecy")
+                            .withType(Type.STRING)
+                            .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
+                            .build(), "12345.67890")
+                    .withDecimal(builderFactory.newEntryBuilder()
+                            .withName("bigDecy2")
+                            .withType(Type.DECIMAL)
+                            .build(), new BigDecimal("12345.67890"))
+                    .withString(builderFactory.newEntryBuilder()
+                            .withName("chary")
+                            .withType(Type.STRING)
+                            .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
+                            .build(), String.valueOf(Character.MAX_VALUE))
                     .build();
             return record;
         }
@@ -467,6 +550,12 @@ public class DynamicColumnsTest {
         public float floaty;
 
         public double doubly;
+
+        public BigDecimal bigDecy;
+
+        public BigDecimal bigDecy2;
+
+        public Character chary;
 
         public Dynamic dynamic;
 

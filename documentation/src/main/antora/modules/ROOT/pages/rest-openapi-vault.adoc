@@ -1,7 +1,0 @@
-= OpenAPI definition
-:page-partial:
-:page-talend_swaggerui: true
-:description: Component Kit Vault Server OpenAPI Documentation
-:keywords: Swagger, REST, API
-
-include::{partialsdir}/generated_rest-resources-vault.adoc[leveloffset=+2]

@@ -17,7 +17,7 @@ IMPORTANT: In distributed environments, class constructor are called on cluster 
 ....
                  /-------------------------\
                  |    Create and submit    |
-                 |   task to cluster (1)   |
+                 |   task to cluster <1>   |
                  \-------------------------/
                              |
                              V
@@ -25,7 +25,7 @@ IMPORTANT: In distributed environments, class constructor are called on cluster 
                 |     Cluster manager       |
                 |---------------------------|
                 |     Partition plan        |
-                |     computation (2)       |
+                |     computation <2>       |
                 |                           |
                 +---------------------------+
                              ^
@@ -37,7 +37,7 @@ IMPORTANT: In distributed environments, class constructor are called on cluster 
                     +------------------+
                     |   Worker node    |
                     |----------------- |
-                    |Flow Execution (3)|
+                    |Flow Execution <3>|
                     +------------------+
 ....
 ////
@@ -54,14 +54,14 @@ IMPORTANT: All the methods managed by the framework must be public. Private meth
 ////
 [ditaa, generated-driver-processing-workflow, png]
 ....
-Partition plan computation (2)
+Partition plan computation <2>
     +----------------+
     | Create Mappers |
     +----------------+
             |
             V
 +--------------------------+
-|Compute partition plan (2)|
+|Compute partition plan <2>|
 +--------------------------+
             |
             V
@@ -76,7 +76,7 @@ image:driver-processing-workflow.png[Driver processing workflow,window="_blank",
 ////
 [ditaa, generated-worker-processing-workflow, png]
 ....
-Flow Execution (3)
+Flow Execution <3>
 +------------------+
 |  @PostConstruct  |
 |     methods      |

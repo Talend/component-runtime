@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "asciidoctor.js": "1.5.6-preview.4"
+    "asciidoctor": "2.2.6"
   }
 }

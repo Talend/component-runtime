@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_INPUT;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_PROCESSOR;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_STANDALONE;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,7 +55,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.ziplock.IO;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -177,6 +179,46 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void migrateFromStudio() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 1)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("going", "nowhere");
+                        put("configuration.dataSet.connection.authMethod", "base64://QWN0aXZlRGlyZWN0b3J5");
+                        put("configuration.dataSet.blobPath",
+                                "base64://KFN0cmluZylnbG9iYWxNYXAuZ2V0KCJTWVNURU1aVCIpKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyJfIitTdHJpbmdIYW5kbGluZy5DSEFOR0UoY29udGV4dC5jdHhEYXRlRGVidXRUcmFpdGVtZW50LCAiW15cXGRdIiwgIiIpKyIvIg==");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(4, migrated.size());
+        assertEquals(
+                "(String)globalMap.get(\"SYSTEMZT\")+\"/\"+context.ctxNomTableSource+\"/\"+context.ctxNomTableSource+\"_\"+StringHandling.CHANGE(context.ctxDateDebutTraitement, \"[^\\\\d]\", \"\")+\"/\"",
+                migrated.get("configuration.dataSet.blobPath"));
+        assertEquals("ActiveDirectory", migrated.get("configuration.dataSet.connection.authMethod"));
+        assertEquals("nowhere", migrated.get("going"));
+        assertEquals("true", migrated.get("migrated"));
+    }
+
+    @Test
+    void migrateFromStudioWs() {
+        final Map<String, String> migrated = ws
+                .read(Map.class, "post", String.format("/component/migrate/%s/2", client.getJdbcId()),
+                        "{\"going\":\"nowhere\",\"configuration.dataSet.connection.authMethod\":\"base64://QWN0aXZlRGlyZWN0b3J5\",\"configuration.dataSet.blobPath\":\"base64://KFN0cmluZylnbG9iYWxNYXAuZ2V0KCJTWVNURU1aVCIpKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyJfIitTdHJpbmdIYW5kbGluZy5DSEFOR0UoY29udGV4dC5jdHhEYXRlRGVidXRUcmFpdGVtZW50LCAiW15cXGRdIiwgIiIpKyIvIg==\"}");
+        assertEquals(4, migrated.size());
+        assertEquals(
+                "(String)globalMap.get(\"SYSTEMZT\")+\"/\"+context.ctxNomTableSource+\"/\"+context.ctxNomTableSource+\"_\"+StringHandling.CHANGE(context.ctxDateDebutTraitement, \"[^\\\\d]\", \"\")+\"/\"",
+                migrated.get("configuration.dataSet.blobPath"));
+        assertEquals("ActiveDirectory", migrated.get("configuration.dataSet.connection.authMethod"));
+        assertEquals("nowhere", migrated.get("going"));
+        assertEquals("true", migrated.get("migrated"));
+    }
+
+    @Test
     void migrateWithEncrypted() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
@@ -189,15 +231,16 @@ class ComponentResourceImplTest {
                     {
                         put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
                         put("configuration.username", "username0");
-                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.connection.password",
+                                "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
                     }
                 }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
                 });
         assertEquals(4, migrated.size());
         assertEquals("true", migrated.get("migrated"));
-        assertEquals("test", migrated.get("configuration.url"));
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", migrated.get("configuration.url"));
         assertEquals("username0", migrated.get("configuration.username"));
-        assertEquals("test", migrated.get("configuration.password"));
+        assertEquals("test", migrated.get("configuration.connection.password"));
     }
 
     @RepeatedTest(2) // this also checks the cache and queries usage
@@ -326,6 +369,34 @@ class ComponentResourceImplTest {
                 .getDefaultValue());
     }
 
+    @Test
+    void getStreamingDetails() {
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", client.getStreamingId())
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
+        assertEquals(1, details.getDetails().size());
+        final ComponentDetail detail = details.getDetails().iterator().next();
+        assertEquals(3, detail.getProperties().size());
+        org.talend.sdk.component.server.front.model.SimplePropertyDefinition maxDuration = detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.$maxDurationMs"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No max duration found"));
+        assertEquals("-1", maxDuration.getMetadata().get("ui::defaultvalue::value"));
+        assertEquals(-1, maxDuration.getValidation().getMin());
+        org.talend.sdk.component.server.front.model.SimplePropertyDefinition maxRecords = detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.$maxRecords"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No max records found"));
+        assertEquals("-1", maxRecords.getMetadata().get("ui::defaultvalue::value"));
+        assertEquals(-1, maxRecords.getValidation().getMin());
+    }
+
     private void assertValidation(final String path, final ComponentDetail aggregate,
             final Predicate<PropertyValidation> validator) {
         assertTrue(validator.test(findProperty(path, aggregate).getValidation()), path);
@@ -341,13 +412,14 @@ class ComponentResourceImplTest {
     }
 
     private void assertComponent(final String plugin, final String family, final String name, final String displayName,
-            final Iterator<ComponentIndex> component, final int version) {
+            final Iterator<ComponentIndex> component, final String type, final int version) {
         assertTrue(component.hasNext());
         final ComponentIndex data = component.next();
         assertEquals(family, data.getId().getFamily());
         assertEquals(name, data.getId().getName());
         assertEquals(plugin, data.getId().getPlugin());
         assertEquals(displayName, data.getDisplayName());
+        assertEquals(type, data.getType());
         assertEquals(version, data.getVersion());
         assertEquals(1, data.getLinks().size());
         final Link link = data.getLinks().iterator().next();
@@ -379,22 +451,24 @@ class ComponentResourceImplTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(10, index.getComponents().size());
+        assertEquals(11, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
 
         final Iterator<ComponentIndex> component = list.iterator();
-        assertComponent("the-test-component", "chain", "count", "count", component, 1);
-        assertComponent("the-test-component", "chain", "file", "file", component, 1);
-        assertComponent("the-test-component", "chain", "list", "The List Component", component, 1);
-        assertComponent("the-test-component", "chain", "standalone", "standalone", component, 1);
-        assertComponent("another-test-component", "comp", "proc", "proc", component, 1);
+        assertComponent("the-test-component", "chain", "count", "count", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("the-test-component", "chain", "file", "file", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("the-test-component", "chain", "list", "The List Component", component, COMPONENT_TYPE_INPUT,
+                1);
+        assertComponent("the-test-component", "chain", "standalone", "standalone", component, COMPONENT_TYPE_STANDALONE,
+                1);
+        assertComponent("another-test-component", "comp", "proc", "proc", component, COMPONENT_TYPE_PROCESSOR, 1);
         assertComponent("collection-of-object", "config", "configurationWithArrayOfObject",
-                "configurationWithArrayOfObject", component, 1);
-        assertComponent("component-with-user-jars", "custom", "noop", "noop", component, 1);
-        assertComponent("file-component", "file", "output", "output", component, 1);
-        assertComponent("jdbc-component", "jdbc", "input", "input", component, 2);
+                "configurationWithArrayOfObject", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("component-with-user-jars", "custom", "noop", "noop", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("file-component", "file", "output", "output", component, COMPONENT_TYPE_PROCESSOR, 1);
+        assertComponent("jdbc-component", "jdbc", "input", "input", component, COMPONENT_TYPE_INPUT, 2);
         assertTrue(list.stream().anyMatch(c -> c.getId().getPluginLocation().startsWith("org.talend.test2:")));
     }
 }

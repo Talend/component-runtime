@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.record;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -92,6 +93,14 @@ public abstract class Schemas implements Schema, Schema.Builder {
         }
     };
 
+    public static final Schemas DECIMAL = new Schemas() {
+
+        @Override
+        public Type getType() {
+            return Type.DECIMAL;
+        }
+    };
+
     public static final Schemas EMPTY_RECORD = new Schemas() {
 
         @Override
@@ -118,6 +127,8 @@ public abstract class Schemas implements Schema, Schema.Builder {
             return BOOLEAN;
         case "DATETIME":
             return DATETIME;
+        case "DECIMAL":
+            return DECIMAL;
         case "EMPTY_RECORD":
             return EMPTY_RECORD;
         default:
@@ -167,6 +178,28 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
+    @JsonbTransient
+    public List<Entry> getEntriesOrdered() {
+        throw new UnsupportedOperationException("#getEntriesOrdered()");
+    }
+
+    @Override
+    @JsonbTransient
+    public Builder moveBefore(final String before, final String name) {
+        throw new UnsupportedOperationException("#moveBefore()");
+    }
+
+    @Override
+    public Builder moveAfter(final String after, final String name) {
+        throw new UnsupportedOperationException("#moveAfter()");
+    }
+
+    @Override
+    public Builder swap(final String name, final String with) {
+        throw new UnsupportedOperationException("#swap()");
+    }
+
+    @Override
     public Builder withProps(final Map<String, String> props) {
         throw new UnsupportedOperationException("#withProps()");
     }
@@ -182,7 +215,47 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
+    public Builder toBuilder() {
+        return null;
+    }
+
+    @Override
     public String getProp(final String property) {
         throw new UnsupportedOperationException("#getProp()");
+    }
+
+    @Override
+    public Type getType() {
+        return null;
+    }
+
+    @Override
+    public Builder withEntryAfter(final String before, final Entry entry) {
+        throw new UnsupportedOperationException("#withEntryAfter()");
+    }
+
+    @Override
+    public Builder withEntryBefore(final String after, final Entry entry) {
+        throw new UnsupportedOperationException("#withEntryBefore()");
+    }
+
+    @Override
+    public Builder remove(final String name) {
+        throw new UnsupportedOperationException("#remove()");
+    }
+
+    @Override
+    public Builder remove(final Entry entry) {
+        throw new UnsupportedOperationException("#remove()");
+    }
+
+    @Override
+    public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
+        throw new UnsupportedOperationException("#getEntriesOrdered()");
+    }
+
+    @Override
+    public EntriesOrder naturalOrder() {
+        throw new UnsupportedOperationException("#naturalOrder()");
     }
 }

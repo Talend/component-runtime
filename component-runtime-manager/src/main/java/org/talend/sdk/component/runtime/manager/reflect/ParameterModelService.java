@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,15 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -44,6 +47,8 @@ import java.util.stream.StreamSupport;
 
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Max;
+import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.Configuration;
@@ -227,9 +232,20 @@ public class ParameterModelService {
     }
 
     private Stream<Annotation> getAnnotations(final Type type, final Annotation[] annotations) {
+        // we have a few constraints that are defined by implicit annotations. those constraints can be overwritten by
+        // explicit annotations.
+        // to avoid ambiguous exception we should filter out constraints that are provided by implicit annotation
+        final Set<Class<? extends Annotation>> overwrittableAnnotations =
+                new HashSet<>(Arrays.asList(Min.class, Max.class));
+        final Set<? extends Class<? extends Annotation>> skipImplicit = Stream.of(annotations)
+                .map(Annotation::annotationType)
+                .filter(overwrittableAnnotations::contains)
+                .collect(toSet());
         return Stream
                 .concat(getReflectionAnnotations(type, annotations),
-                        implicitAnnotationsMapping.getOrDefault(type, emptyList()).stream());
+                        implicitAnnotationsMapping.getOrDefault(type, emptyList())
+                                .stream()
+                                .filter(it -> !skipImplicit.contains(it.annotationType())));
     }
 
     private Stream<Annotation> getReflectionAnnotations(final Type genericType, final Annotation[] annotations) {

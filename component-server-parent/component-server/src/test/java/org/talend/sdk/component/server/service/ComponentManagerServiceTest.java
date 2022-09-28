@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,16 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
-import static org.apache.webbeans.util.Asserts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -59,6 +62,11 @@ class ComponentManagerServiceTest {
 
     @Inject
     private ComponentActionDao componentActionDao;
+
+    public static final String PLUGINS_HASH = "3a507eb7e52c9acd14c247d62bffecdee6493fc08f9cf69f65b941a64fcbf179";
+
+    public static final List<String> PLUGINS_LIST = Arrays.asList("another-test-component", "collection-of-object",
+            "component-with-user-jars", "file-component", "jdbc-component", "the-test-component");
 
     @Test
     void deployExistingPlugin() {
@@ -108,6 +116,8 @@ class ComponentManagerServiceTest {
         componentIds.forEach(id -> assertNull(componentDao.findById(id)));
         familiesIds.forEach(id -> assertNull(componentFamilyDao.findById(id)));
 
+        assertNotEquals(PLUGINS_HASH, componentManagerService.getConnectors().getPluginsHash());
+        assertNotEquals(PLUGINS_LIST, componentManagerService.getConnectors().getPluginsList());
         // deploy
         componentManagerService.deploy(gav);
         pluginID = getPluginId(gav);
@@ -116,6 +126,8 @@ class ComponentManagerServiceTest {
         assertTrue(plugin.isPresent());
         componentIds.forEach(id -> assertNotNull(componentDao.findById(id)));
         familiesIds.forEach(id -> assertNotNull(componentFamilyDao.findById(id)));
+        assertEquals(PLUGINS_HASH, componentManagerService.getConnectors().getPluginsHash());
+        assertEquals(PLUGINS_LIST, componentManagerService.getConnectors().getPluginsList());
     }
 
     @Test
@@ -135,6 +147,8 @@ class ComponentManagerServiceTest {
         assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
         Thread.sleep(6000);
         assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
+        assertEquals(PLUGINS_HASH, componentManagerService.getConnectors().getPluginsHash());
+        assertEquals(PLUGINS_LIST, componentManagerService.getConnectors().getPluginsList());
     }
 
     @Test
@@ -142,6 +156,8 @@ class ComponentManagerServiceTest {
     void checkPluginsReloaded() throws Exception {
         assertEquals("1.2.3", componentManagerService.getConnectors().getVersion());
         assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
+        assertEquals(PLUGINS_HASH, componentManagerService.getConnectors().getPluginsHash());
+        assertEquals(PLUGINS_LIST, componentManagerService.getConnectors().getPluginsList());
         writeVersion("1.26.0-SNAPSHOT");
         Thread.sleep(6000);
         assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());

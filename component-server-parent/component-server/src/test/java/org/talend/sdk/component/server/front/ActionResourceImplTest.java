@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.Entity;
@@ -175,6 +174,26 @@ class ActionResourceImplTest {
         }).get("value"));
     }
 
+    @Test
+    void checkSchemaSerialization() {
+        final String schema = base
+                .path("action/execute")
+                .queryParam("type", "schema")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "jdbc_discover_schema")
+                .queryParam("lang", "it")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE), String.class);
+        final String expected =
+                "{\n  \"entries\":[\n    {\n      \"elementSchema\":{\n        \"entries\":[\n        ],\n" +
+                        "        \"metadata\":[\n        ],\n        \"props\":{\n\n        },\n        \"type\":\"STRING\"\n"
+                        +
+                        "      },\n      \"metadata\":false,\n      \"name\":\"array\",\n      \"nullable\":false,\n" +
+                        "      \"props\":{\n\n      },\n      \"type\":\"ARRAY\"\n    }\n  ],\n  \"metadata\":[\n" +
+                        "  ],\n  \"props\":{\n    \"talend.fields.order\":\"array\"\n  },\n  \"type\":\"RECORD\"\n}";
+        assertEquals(expected, schema);
+    }
+
     @Disabled
     @ParameterizedTest
     @ValueSource(strings = { "en", "fr" })
@@ -252,7 +271,7 @@ class ActionResourceImplTest {
                 }, APPLICATION_JSON_TYPE));
         assertEquals(200, response.getStatus());
         final Map<String, String> result = response.readEntity(Map.class);
-        assertEquals("test", result.get("url"));
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", result.get("url"));
         assertEquals("username0", result.get("username"));
         assertEquals("test", result.get("password"));
     }

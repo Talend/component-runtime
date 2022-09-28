@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -67,8 +68,10 @@ import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Request;
+import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.reflect.ReflectionService.Messages;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalCacheService;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
@@ -79,8 +82,12 @@ import org.talend.sdk.component.runtime.manager.util.MemoizingSupplier;
 import org.talend.sdk.component.runtime.manager.xbean.converter.ZonedDateTimeConverter;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 class ReflectionServiceTest {
+
+    private static final Messages MESSAGES = new InternationalizationServiceFactory(Locale::getDefault)
+            .create(Messages.class, ReflectionServiceTest.class.getClassLoader());
 
     private final PropertyEditorRegistry registry = new PropertyEditorRegistry() {
 
@@ -373,6 +380,41 @@ class ReflectionServiceTest {
     }
 
     @Test
+    void validationIntegerConstraints() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeIntegerConfig.class);
+        // check implicit integer constraint (null value is acceptable value when we have constraint)
+        final Object[] result1 = factory.apply(emptyMap());
+        assertEquals(1, result1.length);
+        assertEquals(new SomeIntegerConfig(), result1[0]);
+
+        // primitive
+        // check implicit integer constraint (shouldn't exceed max value by default)
+        final IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.primitiveField", String.valueOf(Long.MAX_VALUE))));
+        assertEquals("- " + MESSAGES.max("root.primitiveField", Integer.MAX_VALUE, Long.MAX_VALUE),
+                exception1.getMessage());
+
+        // check implicit integer constraint (shouldn't exceed min value by default)
+        final IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.primitiveField", String.valueOf(Long.MIN_VALUE))));
+        assertEquals("- " + MESSAGES.min("root.primitiveField", Integer.MIN_VALUE, Long.MIN_VALUE),
+                exception2.getMessage());
+
+        // object
+        // check implicit integer constraint (shouldn't exceed max value by default)
+        final IllegalArgumentException exception3 = assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.objectField", String.valueOf(Long.MAX_VALUE))));
+        assertEquals("- " + MESSAGES.max("root.objectField", Integer.MAX_VALUE, Long.MAX_VALUE),
+                exception3.getMessage());
+
+        // check implicit integer constraint (shouldn't exceed min value by default)
+        final IllegalArgumentException exception4 = assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.objectField", String.valueOf(Long.MIN_VALUE))));
+        assertEquals("- " + MESSAGES.min("root.objectField", Integer.MIN_VALUE, Long.MIN_VALUE),
+                exception4.getMessage());
+    }
+
+    @Test
     void copiable() throws NoSuchMethodException {
         final Map<Class<?>, Object> precomputed = new HashMap<>();
         precomputed
@@ -656,6 +698,31 @@ class ReflectionServiceTest {
         assertTrue(tableOwner.table.get(0).nestedList.isEmpty());
     }
 
+    // TCOMP-2260 - Validations on nested attributes are check even if the object is ActiveIf==false
+    // TODO remove upper comment after issue fix.
+    @Test
+    void nestedRequiredActiveIf() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        assertThrows(IllegalArgumentException.class, () -> reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+
+                    {
+                        put("value.aString", "foo");
+                        put("value.complexConfig", "false");
+                    }
+                }));
+        // TODO make correct assertions after fix.
+        // assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
+        // final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
+        // assertEquals("foo", value.getAString());
+        // assertFalse(value.isComplexConfig());
+    }
+
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,
             final Map<Class<?>, Object> services) throws NoSuchMethodException {
         final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);
@@ -801,6 +868,21 @@ class ReflectionServiceTest {
         private List<SomeConfig5> list;
     }
 
+    @EqualsAndHashCode
+    public static class SomeIntegerConfig {
+
+        @Option
+        private int primitiveField;
+
+        @Option
+        private Integer objectField;
+
+        void isSet(final Integer rs, final int i) {
+            assertEquals(objectField, rs);
+            assertEquals(primitiveField, i);
+        }
+    }
+
     public static class FakeComponent {
 
         public FakeComponent(@Option("configuration") final NestedRenamedOption config) {
@@ -857,6 +939,10 @@ class ReflectionServiceTest {
 
         public FakeComponent(@Option("root") final JsonObject root) {
             // no-op
+        }
+
+        public FakeComponent(@Option("root") final SomeIntegerConfig root) {
+            // mo-op
         }
     }
 

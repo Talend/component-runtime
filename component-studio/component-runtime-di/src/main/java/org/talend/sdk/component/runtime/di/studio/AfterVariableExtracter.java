@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,15 @@
  */
 package org.talend.sdk.component.runtime.di.studio;
 
-import static org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper.toRuntimeException;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.component.AfterVariables.AfterVariableContainer;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Lifecycle;
-import org.talend.sdk.component.runtime.serialization.ContainerFinder.Instance;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -53,12 +43,11 @@ public class AfterVariableExtracter {
         if (lifecycle instanceof Delegated) {
             final Object delegate = ((Delegated) lifecycle).getDelegate();
 
-            ClassLoader classloader = Optional
-                    .ofNullable(Instance.get().find(lifecycle.plugin()).classloader())
-                    .orElseGet(() -> Thread.currentThread().getContextClassLoader());
-            return findMethods(delegate, AfterVariableContainer.class, classloader)
+            final ClassLoader classloader = ReflectionUtils.getClassLoader(lifecycle);
+
+            return ReflectionUtils.findMethods(delegate, AfterVariableContainer.class, classloader)
                     .findFirst()
-                    .map(m -> callInLoader(classloader, () -> (Map<String, Object>) m.invoke(delegate)))
+                    .map(m -> ReflectionUtils.callInLoader(classloader, () -> (Map<String, Object>) m.invoke(delegate)))
                     .orElse(Collections.emptyMap());
         } else {
             log.warn("Not supported implementation of lifecycle");
@@ -67,29 +56,4 @@ public class AfterVariableExtracter {
         return Collections.emptyMap();
     }
 
-    private static Stream<Method> findMethods(final Object delegate, final Class<? extends Annotation> marker,
-            final ClassLoader loader) {
-        return callInLoader(loader,
-                () -> Stream.of(delegate.getClass().getMethods()).filter(m -> m.isAnnotationPresent(marker)).peek(m -> {
-                    if (!m.isAccessible()) {
-                        m.setAccessible(true);
-                    }
-                }));
-    }
-
-    @SneakyThrows
-    public static <T> T callInLoader(final ClassLoader loader, final Callable<T> supplier) {
-        final Thread thread = Thread.currentThread();
-        final ClassLoader oldLoader = thread.getContextClassLoader();
-        thread.setContextClassLoader(loader);
-        try {
-            return supplier.call();
-        } catch (final IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        } catch (final InvocationTargetException e) {
-            throw toRuntimeException(e);
-        } finally {
-            thread.setContextClassLoader(oldLoader);
-        }
-    }
 }

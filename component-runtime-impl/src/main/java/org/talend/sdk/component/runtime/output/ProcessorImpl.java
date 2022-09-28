@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,13 +124,6 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                     .stream()
                     .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters()).map(param -> {
                         if (isGroupBuffer(param.getParameterizedType())) {
-                            /*
-                             * unlikely + worse case you type it the same so not a big deal to let it go
-                             * if (expectedRecordType != null) {
-                             * throw new IllegalArgumentException(
-                             * "You can't use bulk groups on multiple @AfterGroup methods");
-                             * }
-                             */
                             expectedRecordType = Class.class
                                     .cast(ParameterizedType.class
                                             .cast(param.getParameterizedType())
@@ -185,55 +178,60 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     }
 
     private Jsonb jsonb() {
-        if (jsonb == null) {
-            synchronized (this) {
-                if (jsonb == null) {
-                    jsonb = ContainerFinder.Instance.get().find(plugin()).findService(Jsonb.class);
-                }
-                if (jsonb == null) { // for tests mainly
-                    jsonb = JsonbBuilder.create(new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64));
-                }
+        if (jsonb != null) {
+            return jsonb;
+        }
+        synchronized (this) {
+            if (jsonb == null) {
+                jsonb = ContainerFinder.Instance.get().find(plugin()).findService(Jsonb.class);
+            }
+            if (jsonb == null) { // for tests mainly
+                jsonb = JsonbBuilder.create(new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64));
             }
         }
         return jsonb;
     }
 
     private RecordBuilderFactory recordBuilderFactory() {
-        if (recordBuilderFactory == null) {
-            synchronized (this) {
-                if (recordBuilderFactory == null) {
-                    recordBuilderFactory =
-                            ContainerFinder.Instance.get().find(plugin()).findService(RecordBuilderFactory.class);
-                }
-                if (recordBuilderFactory == null) {
-                    recordBuilderFactory = new RecordBuilderFactoryImpl("$volatile");
-                }
+        if (recordBuilderFactory != null) {
+            return recordBuilderFactory;
+        }
+        synchronized (this) {
+            if (recordBuilderFactory == null) {
+                recordBuilderFactory =
+                        ContainerFinder.Instance.get().find(plugin()).findService(RecordBuilderFactory.class);
+            }
+            if (recordBuilderFactory == null) {
+                recordBuilderFactory = new RecordBuilderFactoryImpl("$volatile");
             }
         }
+
         return recordBuilderFactory;
     }
 
     private JsonBuilderFactory jsonBuilderFactory() {
-        if (jsonBuilderFactory == null) {
-            synchronized (this) {
-                if (jsonBuilderFactory == null) {
-                    jsonBuilderFactory =
-                            ContainerFinder.Instance.get().find(plugin()).findService(JsonBuilderFactory.class);
-                }
-                if (jsonBuilderFactory == null) {
-                    jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
-                }
+        if (jsonBuilderFactory != null) {
+            return jsonBuilderFactory;
+        }
+        synchronized (this) {
+            if (jsonBuilderFactory == null) {
+                jsonBuilderFactory =
+                        ContainerFinder.Instance.get().find(plugin()).findService(JsonBuilderFactory.class);
+            }
+            if (jsonBuilderFactory == null) {
+                jsonBuilderFactory = Json.createBuilderFactory(emptyMap());
             }
         }
         return jsonBuilderFactory;
     }
 
     private JsonProvider jsonProvider() {
-        if (jsonProvider == null) {
-            synchronized (this) {
-                if (jsonProvider == null) {
-                    jsonProvider = ContainerFinder.Instance.get().find(plugin()).findService(JsonProvider.class);
-                }
+        if (jsonProvider != null) {
+            return jsonProvider;
+        }
+        synchronized (this) {
+            if (jsonProvider == null) {
+                jsonProvider = ContainerFinder.Instance.get().find(plugin()).findService(JsonProvider.class);
             }
         }
         return jsonProvider;

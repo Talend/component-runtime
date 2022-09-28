@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.50.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>images</artifactId>
@@ -30,25 +30,23 @@
   <modules>
     <module>component-server-image</module>
     <module>component-starter-server-image</module>
-    <module>component-server-vault-proxy-image</module>
     <module>remote-engine-customizer-image</module>
   </modules>
 
   <properties>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
-    <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
+    <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
     <!-- -->
-    <boundPort>8080</boundPort>
-    <talend.server.image.registry />
+    <talend.server.image.registry/>
     <baseImageDir>/opt/talend</baseImageDir>
     <!-- ensure to use an image lib with glic -->
     <baseImage>tacokit/java8:8u212</baseImage>
     <!-- TSBI -->
     <docker.registryHost>artifactory.datapwn.com</docker.registryHost>
     <docker.tsbiPath>/tlnd-docker-prod/talend/common/tsbi</docker.tsbiPath>
-    <docker.tsbiVersionRelease>2.9.0</docker.tsbiVersionRelease>
-    <docker.tsbiVersionDate>20210907155713</docker.tsbiVersionDate>
+    <docker.tsbiVersionRelease>3.0.8</docker.tsbiVersionRelease>
+    <docker.tsbiVersionDate>20220928070500</docker.tsbiVersionDate>
     <docker.tsbiVersion>${docker.tsbiVersionRelease}-${docker.tsbiVersionDate}</docker.tsbiVersion>
     <disable.dockerBuild>false</disable.dockerBuild>
     <disable.tsbiLayerspector>false</disable.tsbiLayerspector>
@@ -77,10 +75,10 @@
         <executions>
           <execution>
             <id>parse-version</id>
-            <phase>initialize</phase>
             <goals>
               <goal>parse-version</goal>
             </goals>
+            <phase>initialize</phase>
           </execution>
         </executions>
       </plugin>
@@ -98,33 +96,41 @@
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <version>${exec-maven-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>layerspector-local</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <executable>docker</executable>
               <arguments>
                 <argument>run</argument>
                 <argument>--rm</argument>
-                <argument>-v</argument><argument>${PWD}:/product</argument>
-                <argument>-v</argument><argument>${HOME}/.m2/settings.xml:/root/.m2/settings.xml</argument>
-                <argument>-v</argument><argument>${HOME}/.m2/repository:/root/.m2/repository</argument>
-                <argument>-v</argument><argument>/tmp/layerspector/logs:/opt/talend/logs</argument>
+                <argument>-v</argument>
+                <argument>${PWD}:/product</argument>
+                <argument>-v</argument>
+                <argument>${HOME}/.m2/settings.xml:/root/.m2/settings.xml</argument>
+                <argument>-v</argument>
+                <argument>${HOME}/.m2/repository:/root/.m2/repository</argument>
+                <argument>-v</argument>
+                <argument>/tmp/layerspector/logs:/opt/talend/logs</argument>
                 <argument>${docker.registryHost}${docker.tsbiPath}/tools/layerspector:${docker.tsbiVersionRelease}-java-${docker.tsbiVersionDate}</argument>
-                <argument>-t</argument><argument>maven</argument>
-                <argument>-f</argument><argument>java</argument>
-                <argument>-p</argument><argument>${tsbi.product}</argument>
-                <argument>-s</argument><argument>${tsbi.service}</argument>
+                <argument>-t</argument>
+                <argument>maven</argument>
+                <argument>-f</argument>
+                <argument>java</argument>
+                <argument>-p</argument>
+                <argument>${tsbi.product}</argument>
+                <argument>-s</argument>
+                <argument>${tsbi.service}</argument>
                 <argument>--single-project</argument>
               </arguments>
               <skip>${disable.tsbiLayerspector}</skip>
             </configuration>
+            <executions>
+              <execution>
+                <id>layerspector-local</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
@@ -138,15 +144,6 @@
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <version>${exec-maven-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>layerspector-ci</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <executable>/opt/talend/scripts/prepare_layers.sh</executable>
               <arguments>
@@ -162,6 +159,15 @@
               </arguments>
               <skip>${disable.tsbiLayerspector}</skip>
             </configuration>
+            <executions>
+              <execution>
+                <id>layerspector-ci</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,14 +42,13 @@ class BeamActionSerializationTest {
                 .queryParam("lang", "it")
                 .request(APPLICATION_JSON_TYPE)
                 .post(Entity.entity(emptyMap(), APPLICATION_JSON_TYPE), String.class);
-        assertEquals("{\n" + "  \"entries\":[\n" + "    {\n" + "      \"elementSchema\":{\n" + "        \"entries\":[\n"
-                + "        ],\n" + "        \"metadata\":[\n        ],\n" + "        \"props\":{\n" + "\n"
-                + "        },\n" + "        \"type\":\"STRING\"\n" + "      },\n" + "      \"metadata\":false,\n"
-                + "      \"name\":\"array\",\n" + "      \"nullable\":false,\n" + "      \"props\":{\n" + "\n"
-                + "      },\n" + "      \"type\":\"ARRAY\"\n" + "    }\n" + "  ],\n" + "  \"metadata\":[\n  ],\n"
-                + "  \"props\":{\n" + "\n" + "  },\n" + "  \"type\":\"RECORD\"\n" + "}",
-                schema
-                        .replace("        \"declaringClass\":\"org.talend.sdk.component.runtime.record.Schemas\",\n",
-                                ""));
+        final String attended = "{\n" + "  \"entries\":[\n" + "    {\n" + "      \"elementSchema\":{\n"
+                + "        \"entries\":[\n" + "        ],\n" + "        \"metadata\":[\n" + "        ],\n"
+                + "        \"props\":{\n" + "\n" + "        },\n" + "        \"type\":\"STRING\"\n" + "      },\n"
+                + "      \"metadata\":false,\n" + "      \"name\":\"array\",\n" + "      \"nullable\":false,\n"
+                + "      \"props\":{\n" + "\n" + "      },\n" + "      \"type\":\"ARRAY\"\n" + "    }\n" + "  ],\n"
+                + "  \"metadata\":[\n" + "  ],\n" + "  \"props\":{\n" + "    \"talend.fields.order\":\"array\"\n"
+                + "  },\n" + "  \"type\":\"RECORD\"\n" + "}";
+        assertEquals(attended, schema);
     }
 }

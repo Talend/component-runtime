@@ -1,4 +1,4 @@
-#  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,16 +15,15 @@ site:
   title: Talend Component Kit Developer Guide
   start_page: main::index
   url: http://localhost:8080
+urls:
+  latest_version_segment: latest
+  redirect_facility: static
 content:
   sources:
   - url: ../../../..
     branches:
       - master
     start_path: documentation/src/main/antora
-  - url: ../../../..
-    branches:
-      - master
-    start_path: documentation/src/main/blog
 ui:
   bundle:
     url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/master/raw/build/ui-bundle.zip?job=bundle-stable

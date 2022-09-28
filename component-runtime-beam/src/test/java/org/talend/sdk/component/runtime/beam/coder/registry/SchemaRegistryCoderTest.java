@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ class SchemaRegistryCoderTest {
 
         final org.apache.avro.Schema unwrapped = Unwrappable.class.cast(schema).unwrap(org.apache.avro.Schema.class);
         final String name = SchemaIdGenerator.generateRecordName(unwrapped.getFields());
-        assertEquals("org.talend.sdk.component.schema.generated.Record_1_n_5166783486129187498", name);
+        assertEquals("org.talend.sdk.component.schema.generated.Record_1_n_3269179092139509689", name);
     }
 
     @Test

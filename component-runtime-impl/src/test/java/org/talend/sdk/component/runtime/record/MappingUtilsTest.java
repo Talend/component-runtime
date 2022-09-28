@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ class MappingUtilsTest {
         // null
         assertNull(MappingUtils.coerce(Object.class, null, name));
         // Date Time
-        assertNull(MappingUtils.coerce(ZonedDateTime.class, -1l, name));
         assertEquals(ZonedDateTime.ofInstant(Instant.ofEpochMilli(1000l), UTC),
                 MappingUtils.coerce(ZonedDateTime.class, 1000l, name));
         assertEquals(new Date(1000l), MappingUtils.coerce(Date.class, 1000l, name));

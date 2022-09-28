@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,11 @@ import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
+import org.talend.sdk.component.api.configuration.constraint.Max;
+import org.talend.sdk.component.api.configuration.constraint.Min;
+import org.talend.sdk.component.api.configuration.constraint.Pattern;
+import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 
 import lombok.Getter;
@@ -34,6 +39,15 @@ public class MethodsHolder {
 
     public void charOption(@Option("delimiter") final char delimiter,
             @Option("delimiter2") final Character delimiter2) {
+        // no-op
+    }
+
+    public void intOption(@Option("foo1") final int foo1, @Option("foo2") final Integer foo2) {
+        // no-op
+    }
+
+    public void intOptionOverwrite(@Option("foo1") @Min(42) final int foo1,
+            @Option("foo2") @Max(42) final Integer foo2) {
         // no-op
     }
 
@@ -56,6 +70,10 @@ public class MethodsHolder {
     }
 
     public void array(final Array value) {
+        // no-op
+    }
+
+    public void visibility(final MyDatastore value) {
         // no-op
     }
 
@@ -92,5 +110,30 @@ public class MethodsHolder {
 
         @Option
         private String passthrough;
+    }
+
+    @Getter
+    public static class MyDatastore {
+
+        @Option
+        @Required
+        private String aString;
+
+        @Option
+        @Required
+        private boolean complexConfig;
+
+        @Option
+        @ActiveIf(target = "complexConfig", value = "true")
+        private ComplexConfiguration complexConfiguration = new ComplexConfiguration();
+
+        @Getter
+        public static class ComplexConfiguration {
+
+            @Option
+            @Required
+            @Pattern("^https?://.+$")
+            private String url = "";
+        }
     }
 }

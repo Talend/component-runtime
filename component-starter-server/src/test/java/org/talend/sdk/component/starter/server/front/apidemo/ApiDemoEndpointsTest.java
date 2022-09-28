@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,19 @@ import lombok.extern.slf4j.Slf4j;
 @MonoMeecrowaveConfig
 @Client.Active
 class ApiDemoEndpointsTest {
+
+    @Test
+    void realEnvironment(final WebTarget target) throws Exception {
+        final JsonObject result = target
+                .path("environment")
+                .request(APPLICATION_JSON_TYPE)
+                .get(JsonObject.class);
+        log.warn("[environment] {}", result);
+        assertNotNull(result.get("version"));
+        assertNotNull(result.get("release"));
+        assertNotNull(result.get("branch"));
+        assertNotNull(result.get("commit"));
+    }
 
     @Test
     void environment(final WebTarget target) throws Exception {

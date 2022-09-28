@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,22 +33,27 @@ import lombok.NoArgsConstructor;
 @DataSet("jdbc")
 @AllArgsConstructor
 @NoArgsConstructor
+@Documentation("Jdbc dataset test doc.")
 @Version(value = -1/* to not break tests */, migrationHandler = JdbcDataSet.Migration.class)
 public class JdbcDataSet implements Serializable {
 
     @Option
+    @Documentation(value = "Documentation for Connection.", tooltip = true)
     private JdbcDataStore connection;
 
     @Option
     @Min(1) // not empty
+    @Documentation(value = "Documentation for Driver.", tooltip = true)
     private String driver;
 
     @Option
     @Min(1) // not empty
+    @Documentation(value = "Documentation for Query.", tooltip = true)
     private String query;
 
     @Option
     @Min(1) // not 0 == infinite
+    @Documentation(value = "Documentation for Timeout.", tooltip = true)
     private int timeout;
 
     public static class Migration implements MigrationHandler {

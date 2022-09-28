@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>container</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.50.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>container-core</artifactId>
@@ -35,13 +35,11 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -63,14 +61,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>${dependency-plugin.version}</version>
         <executions>
           <execution>
             <id>copy-test-container-dependencies</id>
-            <phase>generate-test-resources</phase>
             <goals>
               <goal>copy</goal>
             </goals>
+            <phase>generate-test-resources</phase>
             <configuration>
               <!-- tests jars for modules -->
               <artifactItems>
@@ -80,9 +77,7 @@
                   <version>4.1</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/codehaus/woodstox/stax2-api/4.1
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-container-dependencies/org/codehaus/woodstox/stax2-api/4.1</outputDirectory>
                   <destFileName>stax2-api-4.1.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
@@ -91,9 +86,7 @@
                   <version>5.1.0</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/com/fasterxml/woodstox/woodstox-core/5.1.0
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-container-dependencies/com/fasterxml/woodstox/woodstox-core/5.1.0</outputDirectory>
                   <destFileName>woodstox-core-5.1.0.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
@@ -102,9 +95,7 @@
                   <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/ziplock/${ziplock.test.version}
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-container-dependencies/org/apache/tomee/ziplock/${ziplock.test.version}</outputDirectory>
                   <destFileName>ziplock-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
@@ -113,9 +104,7 @@
                   <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-container-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}</outputDirectory>
                   <destFileName>openejb-itests-beans-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
@@ -124,9 +113,7 @@
                   <version>${xbean.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/org/apache/xbean/xbean-finder/${xbean.test.version}
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-container-dependencies/org/apache/xbean/xbean-finder/${xbean.test.version}</outputDirectory>
                   <destFileName>xbean-finder-${xbean.test.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
@@ -135,9 +122,7 @@
                   <version>2.12.0</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-container-dependencies/xerces/xercesImpl/${xerces.version}
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-container-dependencies/xerces/xercesImpl/${xerces.version}</outputDirectory>
                   <destFileName>xercesImpl-${xerces.version}.jar</destFileName>
                 </artifactItem>
               </artifactItems>

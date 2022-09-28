@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,16 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         return Optional.ofNullable(this.entries).map(List::stream).orElse(Stream.empty());
     }
 
+    @Override
+    public Builder toBuilder() {
+        throw new UnsupportedOperationException("#toBuilder()");
+    }
+
+    @Override
+    public EntriesOrder naturalOrder() {
+        throw new UnsupportedOperationException("#naturalOrder()");
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -148,5 +158,11 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         public String getProp(final String property) {
             return null;
         }
+
+        @Override
+        public Builder toBuilder() {
+            throw new UnsupportedOperationException("#toBuilder()");
+        }
     }
+
 }

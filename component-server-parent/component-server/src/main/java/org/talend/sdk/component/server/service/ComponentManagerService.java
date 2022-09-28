@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ public class ComponentManagerService {
         // deploy plugins
         deployPlugins();
         // check if we find a connectors version information file on top of the m2
-        connectors = new Connectors(readConnectorsVersion());
+        synchronizeConnectors();
         // auto-reload plugins executor service
         if (configuration.getPluginsReloadActive()) {
             final boolean useTimestamp = "timestamp".equals(configuration.getPluginsReloadMethod());
@@ -208,6 +208,11 @@ public class ComponentManagerService {
         }
     }
 
+    private void synchronizeConnectors() {
+        connectors = new Connectors(readConnectorsVersion(), manager().getContainer().getPluginsHash(),
+                manager().getContainer().getPluginsList());
+    }
+
     private CompletionStage<Void> checkPlugins() {
         boolean reload;
         if ("timestamp".equals(configuration.getPluginsReloadMethod())) {
@@ -234,7 +239,7 @@ public class ComponentManagerService {
         deployPlugins();
         log.info("Plugins deployed.");
         // reset connectors' version
-        connectors = new Connectors(readConnectorsVersion());
+        synchronizeConnectors();
 
         return null;
     }
@@ -316,6 +321,7 @@ public class ComponentManagerService {
         final String plugin =
                 instance.addWithLocationPlugin(pluginGAV, m2.resolve(pluginPath).toAbsolutePath().toString());
         lastUpdated = new Date();
+        synchronizeConnectors();
         if (started) {
             deployedComponentEvent.fire(new DeployedComponent());
         }
@@ -335,6 +341,7 @@ public class ComponentManagerService {
 
         instance.removePlugin(pluginID);
         lastUpdated = new Date();
+        synchronizeConnectors();
     }
 
     public Date findLastUpdated() {

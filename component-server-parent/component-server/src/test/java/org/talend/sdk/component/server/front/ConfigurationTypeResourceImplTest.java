@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
@@ -140,14 +142,43 @@ class ConfigurationTypeResourceImplTest {
                         put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
                         put("configuration.username", "username0");
                         put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.connection.password",
+                                "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
                     }
                 }, APPLICATION_JSON_TYPE))
                 .readEntity(Map.class);
         assertEquals("true", config.get("configuration.migrated"));
-        assertEquals("4", config.get("configuration.size"));
-        assertEquals("test", config.get("configuration.url"));
+        assertEquals("5", config.get("configuration.size"));
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", config.get("configuration.url"));
         assertEquals("username0", config.get("configuration.username"));
-        assertEquals("test", config.get("configuration.password"));
+        assertEquals("test", config.get("configuration.connection.password"));
+    }
+
+    @Test
+    void migrateOver8196DefaultByteBuffer() {
+        final String fakeString = IntStream.range(0, 8196 * 2).mapToObj(String::valueOf).collect(Collectors.joining());
+        final String fakeUrl = "https://somefakeurl.ua";
+
+        final JsonBuilderFactory factory = JsonProvider.provider().createBuilderFactory(emptyMap());
+        final JsonObject json = factory
+                .createObjectBuilder()
+                .add("configuration.url", fakeUrl)
+                .add("configuration.username", "username0")
+                .add("configuration.password", "fake")
+                .add("configuration.connection.password", "test")
+                .add("configuration.fake", fakeString)
+                .build();
+
+        final Map<String, String> config = ws.read(Map.class, "post",
+                "/configurationtype/migrate/amRiYy1jb21wb25lbnQjamRiYyNkYXRhc2V0I2pkYmM/-2",
+                json.toString());
+
+        assertEquals("true", config.get("configuration.migrated"));
+        assertEquals("6", config.get("configuration.size"));
+        assertEquals(fakeUrl, config.get("configuration.url"));
+        assertEquals("username0", config.get("configuration.username"));
+        assertEquals("test", config.get("configuration.connection.password"));
+        assertEquals(fakeString, config.get("configuration.fake"));
     }
 
     private void assertIndex(final ConfigTypeNodes index) {

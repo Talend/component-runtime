@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,17 +19,15 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.50.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-impl</artifactId>
   <packaging>bundle</packaging>
 
   <name>Component Runtime :: Impl</name>
-  <description>
-    Module responsible to understand the API model and make it runnable.
-    This MUST be considered as an internal of the stack.
-  </description>
+  <description>Module responsible to understand the API model and make it runnable.
+    This MUST be considered as an internal of the stack.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.impl</talend.build.name>
@@ -43,13 +41,23 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
-      <version>${johnzon.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j2.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.jqno.equalsverifier</groupId>
+      <artifactId>equalsverifier</artifactId>
+      <version>3.7.2</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

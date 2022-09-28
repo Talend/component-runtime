@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,6 +106,11 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
                 record
                         .getOptionalDateTime(entry.getName())
                         .ifPresent(v -> builder.withDateTime(entriesIndex.get(entry.getName()), v));
+                break;
+            case DECIMAL:
+                record
+                        .getOptionalDecimal(entry.getName())
+                        .ifPresent(v -> builder.withDecimal(entriesIndex.get(entry.getName()), v));
                 break;
             case RECORD:
                 record

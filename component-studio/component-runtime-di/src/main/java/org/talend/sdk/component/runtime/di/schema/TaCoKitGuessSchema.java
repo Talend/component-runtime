@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -92,12 +95,14 @@ public class TaCoKitGuessSchema {
 
     private String action;
 
+    private final Integer version;
+
     private final String type = "schema";
 
     private static final String EMPTY = ""; //$NON-NLS-1$
 
     public TaCoKitGuessSchema(final PrintStream out, final Map<String, String> configuration, final String plugin,
-            final String family, final String componentName, final String action) {
+            final String family, final String componentName, final String action, final String version) {
         this.out = out;
         this.lineLimit = 50;
         this.lineCount = -1;
@@ -111,6 +116,7 @@ public class TaCoKitGuessSchema {
         this.columns = new LinkedHashMap<>();
         this.keysNoTypeYet = new HashSet<>();
         this.javaTypesManager = new JavaTypesManager();
+        this.version = Optional.ofNullable(version).map(Integer::parseInt).orElse(null);
         initClass2JavaTypeMap();
     }
 
@@ -346,8 +352,8 @@ public class TaCoKitGuessSchema {
                 break;
             case DOUBLE:
                 typeName = javaTypesManager.DOUBLE.getId();
-                length = entry.getProp("length");
-                precision = entry.getProp("precision");
+                length = entry.getProp(STUDIO_LENGTH);
+                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case INT:
                 typeName = javaTypesManager.INTEGER.getId();
@@ -357,8 +363,8 @@ public class TaCoKitGuessSchema {
                 break;
             case FLOAT:
                 typeName = javaTypesManager.FLOAT.getId();
-                length = entry.getProp("length");
-                precision = entry.getProp("precision");
+                length = entry.getProp(STUDIO_LENGTH);
+                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case BYTES:
                 typeName = javaTypesManager.BYTE_ARRAY.getId();
@@ -366,13 +372,18 @@ public class TaCoKitGuessSchema {
             case DATETIME:
                 typeName = javaTypesManager.DATE.getId();
                 isDateTime = true;
-                pattern = entry.getProp("pattern");
+                pattern = entry.getProp(STUDIO_PATTERN);
                 break;
             case RECORD:
                 typeName = javaTypesManager.OBJECT.getId();
                 break;
             case ARRAY:
                 typeName = javaTypesManager.LIST.getId();
+                break;
+            case DECIMAL:
+                typeName = javaTypesManager.BIGDECIMAL.getId();
+                length = entry.getProp(STUDIO_LENGTH);
+                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             default:
                 typeName = javaTypesManager.STRING.getId();
@@ -414,8 +425,13 @@ public class TaCoKitGuessSchema {
     }
 
     private boolean guessInputComponentSchemaThroughResult() throws Exception {
+        // migration handler will be triggered and version of component will be passed
+        // It is a Studio part. As fallback idea is to have Integer.MAX_VALUE in case if the version is null.
+        // MAX_VALUE because we think that all appropriate migrations were already executed at the time when user can
+        // invoke guess schema.
+        final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
         final Mapper mapper = componentManager
-                .findMapper(family, componentName, 1, configuration)
+                .findMapper(family, componentName, version, configuration)
                 .orElseThrow(() -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
         if (JobStateAware.class.isInstance(mapper)) {
             JobStateAware.class.cast(mapper).setState(new JobStateAware.State());
@@ -466,6 +482,10 @@ public class TaCoKitGuessSchema {
     public boolean guessSchemaThroughResult(final Object rowObject) throws Exception {
         if (rowObject instanceof java.util.Map) {
             return guessSchemaThroughResult((java.util.Map) rowObject);
+        } else if (rowObject instanceof Schema) {
+            return fromSchema(Schema.class.cast(rowObject));
+        } else if (rowObject instanceof Record) {
+            return fromSchema(Record.class.cast(rowObject).getSchema());
         } else if (rowObject instanceof java.util.Collection) {
             throw new Exception("Can't guess schema from a Collection");
         } else {

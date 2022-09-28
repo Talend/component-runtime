@@ -1,7 +1,7 @@
 = Iterating on component development with Talend Studio
 :page-partial:
 :description: How to install and configure components developed with Talend Component Kit in Talend Open Studio
-:keywords: component server, deploy, install
+:keywords: component server, deploy, install, studio, studio-integration, car, car-bundler, version, component-server, debug
 
 Integrate components you developed using Talend Component Kit to link:https://sourceforge.net/projects/talend-studio/[Talend Studio] in a few steps. Also learn how to enable the developer and debugging modes to iterate on your component development.
 
@@ -131,5 +131,5 @@ ifeval::["{backend}" == "html5"]
 - xref:best-practices.adoc[Best practices]
 - xref:build-tools-maven.adoc[Building components with Maven]
 - xref:build-tools-gradle.adoc[Building components with Gradle]
-- xref:creating-dataset-datastore.adoc[Learn how to use datasets and datastores with TAlend Studio]
+- xref:creating-dataset-datastore.adoc[Learn how to use datasets and datastores with Talend Studio]
 endif::[]

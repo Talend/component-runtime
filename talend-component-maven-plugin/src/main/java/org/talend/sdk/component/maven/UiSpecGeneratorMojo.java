@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class UiSpecGeneratorMojo extends BuildComponentM2RepositoryMojo {
         super.doExecute();
         final Map<String, String> setup = new HashMap<>();
         setup.put("talend.component.server.maven.repository", m2Root.getAbsolutePath());
-        setup.put("talend.component.server.component.registry", getRegistry().getAbsolutePath());
+        setup.put("talend.component.server.component.registry", getRegistry().toAbsolutePath().toString());
         setup.put("talend.component.server.component.extend.dependencies", "false");
         new StaticUiSpecGenerator(setup, languages, uiSpecZip.toPath()).run();
         helper.attachArtifact(project, "zip", "uispec", uiSpecZip);

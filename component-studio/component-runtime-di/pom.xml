@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,15 +19,13 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-studio</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.50.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-di</artifactId>
 
   <name>Component Runtime :: Studio :: DI</name>
-  <description>
-    Helper module for javajet, it should move to tdi-studio-se at the end.
-  </description>
+  <description>Helper module for javajet, it should move to tdi-studio-se at the end.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.di</talend.build.name>
@@ -37,7 +35,6 @@
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-core</artifactId>
-      <version>${beam.version}</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -68,7 +65,8 @@
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency><!-- for now the multiple inputs/outputs is handled this way -->
+    <dependency>
+      <!-- for now the multiple inputs/outputs is handled this way -->
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-design-extension</artifactId>
       <version>${project.version}</version>
@@ -103,7 +101,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

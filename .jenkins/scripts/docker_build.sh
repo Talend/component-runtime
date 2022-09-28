@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -21,17 +21,18 @@ set -xe
 # $1: docker tag version
 main() {
   local tag="${1?Missing tag}"
+  local latest="${2:-false}"
 
   echo ">> Building and pushing component-server:${tag}"
   cd images/component-server-image
   mvn verify dockerfile:build -P ci-tsbi
-  docker tag "talend/common/tacokit/component-server:${tag}" "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}"
-  docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}"
-  echo ">> Building and pushing component-server-vault-proxy:${tag}"
-  cd ../component-server-vault-proxy-image
-  mvn verify dockerfile:build -P ci-tsbi
-  docker tag "talend/common/tacokit/component-server-vault-proxy:${tag}" "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}"
-  docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}"
+  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server"
+  docker tag "talend/common/tacokit/component-server:${tag}" "${registry_srv}:${tag}"
+  docker push "${registry_srv}:${tag}"
+  if [[ ${latest} == 'true' ]]; then
+    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
+    docker push "${registry_srv}:latest"
+  fi
   #TODO starter and remote-engine-customizer
   cd ../..
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ class TypeConversionTest {
     @Test
     void jsonValueToTalendType() {
         JavaTypesManager javaTypesManager = new JavaTypesManager();
-        final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(null, null, null, null, null, null);
+        final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(null, null, null, null, null, null, null);
         assertEquals(javaTypesManager.LONG.getId(), guessSchema.getTalendType(jsonProvider.createValue(1)));
         assertEquals(javaTypesManager.LONG.getId(), guessSchema.getTalendType(jsonProvider.createValue(1L)));
         assertEquals(javaTypesManager.DOUBLE.getId(), guessSchema.getTalendType(jsonProvider.createValue(1.1d)));

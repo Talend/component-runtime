@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.38.0-SNAPSHOT</version>
+  <version>1.50.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -34,74 +34,75 @@
 
   <developers>
     <developer>
-      <name>Romain Manni-Bucau</name>
       <id>rmannibucau</id>
+      <name>Romain Manni-Bucau</name>
       <email>rmannibucau@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <name>Anas Khabali</name>
       <id>akhabali</id>
+      <name>Anas Khabali</name>
       <email>akhabali@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <name>Dmytro Chmyga</name>
       <id>dchmyga</id>
+      <name>Dmytro Chmyga</name>
       <email>dchmyga@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+2</timezone>
     </developer>
     <developer>
-      <name>Ivan Honchar</name>
       <id>igonchar</id>
+      <name>Ivan Honchar</name>
       <email>igonchar@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+2</timezone>
     </developer>
     <developer>
-      <name>Emmanuel GALLOIS</name>
       <id>undx</id>
+      <name>Emmanuel GALLOIS</name>
       <email>egallois@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <name>Christophe Le Saec</name>
       <id>clesaec</id>
+      <name>Christophe Le Saec</name>
       <email>clesaec@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
       <roles>
         <role>Contributor</role>
       </roles>
-      <organization>Talend</organization>
-      <organizationUrl>https://www.talend.com/</organizationUrl>
       <timezone>+1</timezone>
     </developer>
   </developers>
 
   <modules>
+    <module>bom</module>
     <module>component-api</module>
     <module>container</module>
     <module>component-spi</module>
@@ -132,18 +133,18 @@
   <scm>
     <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
     <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
-    <url>https://github.com/talend/component-runtime</url>
     <tag>HEAD</tag>
+    <url>https://github.com/talend/component-runtime</url>
   </scm>
   <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <properties>
@@ -160,20 +161,22 @@
     <talend.build.name>${talend.build.name.base}.${project.artifactId}</talend.build.name>
 
     <xbean.version>4.20</xbean.version>
-    <xbean.test.version>4.9</xbean.test.version> <!-- do not update without updating test-->
+    <!-- do not update without updating test-->
+    <xbean.test.version>4.9</xbean.test.version>
     <xerces.version>2.12.0</xerces.version>
-    <slf4j.version>1.7.32</slf4j.version>
+
     <junit.version>4.13.2</junit.version>
     <ziplock.version>8.0.4</ziplock.version>
-    <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
-    <johnzon.version>1.2.10</johnzon.version>
-    <meecrowave.version>1.2.12</meecrowave.version>
-    <owb.version>2.0.23</owb.version>
-    <tomcat.version>9.0.50</tomcat.version>
-    <cxf.version>3.4.4</cxf.version>
-    <log4j2.version>2.14.1</log4j2.version>
+
+    <!-- do not update without updating test-->
+    <ziplock.test.version>7.0.5</ziplock.test.version>
+    <meecrowave.version>1.2.14</meecrowave.version>
+    <owb.version>2.0.27</owb.version>
+    <tomcat.version>9.0.63</tomcat.version>
+    <cxf.version>3.5.2</cxf.version>
+
     <logback.version>1.2.5</logback.version>
-    <log4j.version>1.2.17</log4j.version>
+    <reload4j.version>1.2.19</reload4j.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
     <geronimo-atinject.version>1.1</geronimo-atinject.version>
     <geronimo-annotation.version>1.2</geronimo-annotation.version>
@@ -181,15 +184,12 @@
     <geronimo-jsonb.version>1.2</geronimo-jsonb.version>
     <geronimo-json.version>1.3</geronimo-json.version>
     <batik.version>1.14</batik.version>
-    <commons-codec.version>1.15</commons-codec.version>
-    <commons-compress.version>1.21</commons-compress.version>
     <commons-logging.version>1.2</commons-logging.version>
-    <commons-lang3.version>3.11</commons-lang3.version>
     <commons-cli.version>1.4</commons-cli.version>
     <commons-text.version>1.8</commons-text.version>
     <geronimo-jaxrs.version>1.1</geronimo-jaxrs.version>
-    <asciidoctorj.version>2.4.1</asciidoctorj.version>
-    <asciidoctorj-pdf.version>1.5.3</asciidoctorj-pdf.version>
+    <asciidoctorj.version>2.5.2</asciidoctorj.version>
+    <asciidoctorj-pdf.version>1.6.0</asciidoctorj-pdf.version>
     <microprofile-config-api.version>1.3</microprofile-config-api.version>
     <microprofile-openapi-api.version>1.1.1</microprofile-openapi-api.version>
     <microprofile-opentracing.version>1.2.1</microprofile-opentracing.version>
@@ -200,120 +200,95 @@
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-opentracing.version>1.0.2</geronimo-opentracing.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
-    <junit5.version>5.8.0-M1</junit5.version>
+    <junit5.version>5.9.0</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <jackson.version>2.12.1</jackson.version>
-    <jackson-databind.version>${jackson.version}</jackson-databind.version>
+    <jackson.version>2.13.3</jackson.version>
+    <jackson-databind.version>2.13.3</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
-    <jsoup.version>1.14.2</jsoup.version>
+    <jsoup.version>1.14.3</jsoup.version>
 
-    <talend-icon.version>3.8.0</talend-icon.version> <!-- deprecated after -->
+    <!-- deprecated after -->
+    <talend-icon.version>3.8.0</talend-icon.version>
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <gradle.version>6.0-rc-1</gradle.version>
-    <mvn.version>3.8.1</mvn.version>
+    <mvn.version>3.8.6</mvn.version>
+    <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
-    <beam.version>2.32.0</beam.version>
+    <beam.version>2.37.0</beam.version>
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.10</joda.time.version>
 
-    <spark.version>3.0.1</spark.version>
+    <spark.version>3.2.0</spark.version>
     <spark-scala.version>2.12</spark-scala.version>
 
+    <gradle.version>6.9.1</gradle.version>
     <groovy.version>3.0.9</groovy.version>
-    <gmavenplus.version>1.12.1</gmavenplus.version>
-    <dependency-plugin.version>3.1.1</dependency-plugin.version>
-    <assembly-plugin.version>3.1.1</assembly-plugin.version>
-    <javadoc-plugin.version>3.2.0</javadoc-plugin.version>
-    <deploy-plugin.version>2.8.2</deploy-plugin.version>
+    <gmavenplus.version>1.13.0</gmavenplus.version>
+    <dependency-plugin.version>3.3.0</dependency-plugin.version>
+    <assembly-plugin.version>3.3.0</assembly-plugin.version>
+    <javadoc-plugin.version>3.3.2</javadoc-plugin.version>
+    <deploy-plugin.version>3.0.0-M2</deploy-plugin.version>
     <clean-plugin.version>3.1.0</clean-plugin.version>
     <download-plugin.version>1.4.2</download-plugin.version>
-    <shade-plugin.version>3.2.3</shade-plugin.version>
+    <shade-plugin.version>3.3.0</shade-plugin.version>
     <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-    <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-    <git-commit-id-plugin.version>3.0.0</git-commit-id-plugin.version>
+    <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+    <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+    <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>5.10.0.202012080955-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <jacoco.version>0.8.5</jacoco.version>
-    <gpg-plugin.version>1.6</gpg-plugin.version>
-    <spotless.version>1.23.0</spotless.version>
+    <jacoco.version>0.8.7</jacoco.version>
+    <gpg-plugin.version>3.0.1</gpg-plugin.version>
+    <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
+    <spotless.version>2.17.3</spotless.version>
     <jib.version>1.4.0</jib.version>
-    <jib-core.version>0.15.0</jib-core.version>
-    <bouncycastle.version>1.68</bouncycastle.version>
-    <commons-io.version>2.8.0</commons-io.version>
+    <jib-core.version>0.16.0</jib-core.version>
 
-    <jruby.version>9.2.13.0</jruby.version>
-    <node.version>v12.13.0</node.version>
-    <npm.version>6.12.0</npm.version>
-    <frontend.version>1.8.0</frontend.version>
+    <jruby.version>9.2.19.0</jruby.version>
+    <node.version>v16.14.0</node.version>
+    <npm.version>8.5.1</npm.version>
+    <frontend.version>1.12.1</frontend.version>
 
     <!-- misc dependencies -->
-    <jcommander.version>1.78</jcommander.version>
+    <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
+    <bndlib.version>5.1.0</bndlib.version>
+
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
-    <java11.jaxb.version>2.3.0</java11.jaxb.version>
+    <jaxb.version>2.3.1</jaxb.version>
+    <java11.jaxb.version>2.3.5</java11.jaxb.version>
     <!-- minimal code coverage ratio -->
     <coverage.min>0.75</coverage.min>
     <coverage.fail>false</coverage.fail>
+
+    <johnzon.version>1.2.19</johnzon.version>
+    <commons-io.version>2.9.0</commons-io.version>
+    <commons-compress.version>1.21</commons-compress.version>
+    <slf4j.version>1.7.34</slf4j.version>
+    <log4j2.version>2.18.0</log4j2.version>
+    <rhino.version>1.7.14</rhino.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>component-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-core</artifactId>
         <version>${jib-core.version}</version>
       </dependency>
-      <dependency><!-- upgrade for jib (to not get CVE) -->
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>4.5.13</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons-io.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpg-jdk15on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson-databind.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>30.1-jre</version>
-      </dependency>
+
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-annotation_1.3_spec</artifactId>
@@ -382,24 +357,24 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-compress</artifactId>
-        <version>${commons-compress.version}</version>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson-databind.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>${commons-logging.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${commons-lang3.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
@@ -419,6 +394,43 @@
             <artifactId>maven-shared-utils</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-model</artifactId>
+        <version>${mvn.version}</version>
+      </dependency>
+      <!-- incompatible:  need to wait for a new shrinkwrap version
+           <dependency>
+             <groupId>org.apache.maven</groupId>
+             <artifactId>maven-model-builder</artifactId>
+             <version>${mvn.version}</version>
+            </dependency>
+            -->
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-settings</artifactId>
+        <version>${mvn.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-settings-builder</artifactId>
+        <version>${mvn.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-repository-metadata</artifactId>
+        <version>${mvn.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-resolver-provider</artifactId>
+        <version>${mvn.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-artifact</artifactId>
+        <version>${mvn.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven.shared</groupId>
@@ -452,16 +464,6 @@
         <version>${tomcat.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-jaxrs</artifactId>
-        <version>${johnzon.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.johnzon</groupId>
-        <artifactId>johnzon-jsonb</artifactId>
-        <version>${johnzon.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.eclipse.microprofile.openapi</groupId>
         <artifactId>microprofile-openapi-api</artifactId>
         <version>${microprofile-openapi-api.version}</version>
@@ -486,6 +488,11 @@
       <dependency>
         <groupId>org.apache.openwebbeans</groupId>
         <artifactId>openwebbeans-se</artifactId>
+        <version>${owb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
         <version>${owb.version}</version>
       </dependency>
       <dependency>
@@ -702,31 +709,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-jul</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.tomee</groupId>
         <artifactId>ziplock</artifactId>
         <version>${ziplock.version}</version>
@@ -741,11 +723,13 @@
           </exclusion>
         </exclusions>
       </dependency>
+
       <dependency>
-        <groupId>com.beust</groupId>
-        <artifactId>jcommander</artifactId>
-        <version>${jcommander.version}</version>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>biz.aQute.bndlib</artifactId>
+        <version>${bndlib.version}</version>
       </dependency>
+
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -772,36 +756,46 @@
 
   <repositories>
     <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
     </repository>
     <repository>
-      <id>gradle-libs-releases-local</id>
-      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
       <releases>
         <enabled>true</enabled>
       </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>gradle-libs-releases-local</id>
+      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>TalendOpenSourceSnapshot</id>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
-      <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
       <releases>
         <enabled>true</enabled>
       </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>TalendOpenSourceRelease</id>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -822,12 +816,12 @@
             <dependency>
               <groupId>javax.xml.bind</groupId>
               <artifactId>jaxb-api</artifactId>
-              <version>${java11.jaxb.version}</version>
+              <version>${jaxb.version}</version>
             </dependency>
             <dependency>
               <groupId>com.sun.xml.bind</groupId>
               <artifactId>jaxb-impl</artifactId>
-              <version>${java11.jaxb.version}</version>
+              <version>${jaxb.version}</version>
               <exclusions>
                 <exclusion>
                   <groupId>javax.xml.bind</groupId>
@@ -866,7 +860,7 @@
             <windowtitle>${project.name}</windowtitle>
             <header>${project.name} - ${project.version}</header>
             <doctitle>${project.name} - ${project.version}</doctitle>
-            <bottom>${project.version} - Copyright &amp;copy; 2018 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <bottom>${project.version} - Copyright &amp;copy; 2022 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
           </configuration>
         </plugin>
@@ -1043,6 +1037,86 @@
             </dependency>
           </dependencies>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+            <forceJavacCompilerUse>true</forceJavacCompilerUse>
+            <compilerId>javac</compilerId>
+            <fork>true</fork>
+            <compilerArgs>
+              <arg>-parameters</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven-resources-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${clean-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.2.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.0.0-M1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.0.0-M2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.11.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>3.0.0-M5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${surefire-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${dependency-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${assembly-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-invoker-plugin</artifactId>
+          <version>3.2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${shade-plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -1053,36 +1127,30 @@
         <executions>
           <execution>
             <id>tidy-pom</id>
-            <phase>initialize</phase>
             <goals>
               <goal>pom</goal>
             </goals>
+            <phase>initialize</phase>
           </execution>
         </executions>
       </plugin>
-
-      <plugin><!--  mvn ossindex:audit -->
+      <plugin>
+        <!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
         <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>audit-dependencies</id>
-            <phase />
-            <goals>
-              <goal>audit</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <scope>compile,runtime</scope>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>${clean-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>audit-dependencies</id>
+            <goals>
+              <goal>audit</goal>
+            </goals>
+            <phase/>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>com.github.rmannibucau</groupId>
@@ -1107,20 +1175,11 @@
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
         <version>${spotless.version}</version>
-        <executions>
-          <execution>
-            <id>apply</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>apply</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <java>
             <licenseHeader>
               <content><![CDATA[/**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1136,23 +1195,36 @@
  */]]></content>
             </licenseHeader>
             <eclipse>
-              <file>${rootlocation}/formatter.xml</file>
+              <file>talend_java_eclipse_formatter.xml</file>
             </eclipse>
           </java>
+          <pom>
+            <sortPom>
+              <expandEmptyElements>false</expandEmptyElements>
+            </sortPom>
+          </pom>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.talend.tools</groupId>
+            <artifactId>java-formatter</artifactId>
+            <version>0.2.2</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>apply</id>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+            <phase>process-classes</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.13</version>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
+        <version>0.14</version>
         <configuration>
           <consoleOutput>true</consoleOutput>
           <reportFile>${project.build.directory}/${project.build.finalName}.rat</reportFile>
@@ -1198,6 +1270,7 @@
             <exclude>**/talend-component-maven-plugin/src/it/generator/**/*</exclude>
             <exclude>**/src/main/resources/generator/**/*</exclude>
             <exclude>**/src/test/resources/generated/**/*</exclude>
+            <exclude>**/.config/**/*</exclude>
             <exclude>**/antora/**/*</exclude>
             <exclude>**/.antora-cache/**/*</exclude>
             <exclude>**/dependency-reduced-pom.xml</exclude>
@@ -1208,33 +1281,26 @@
             <exclude>**/src/test/resources/DitaDocumentationGeneratorTest/**</exclude>
           </excludes>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-          <forceJavacCompilerUse>true</forceJavacCompilerUse>
-          <compilerId>javac</compilerId>
-          <fork>true</fork>
-          <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
-        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire-plugin.version}</version>
         <configuration>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
           </systemPropertyVariables>
-          <!-- <forkCount>1</forkCount> --> <!-- never use 0, it affects too much test behavior to be accurate -->
+          <!-- <forkCount>1</forkCount> -->
+          <!-- never use 0, it affects too much test behavior to be accurate -->
           <trimStackTrace>false</trimStackTrace>
-          <argLine>${argLine}</argLine>
+          <argLine>${argLine} ${extraJvmFlags}</argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -1244,111 +1310,118 @@
         <configuration>
           <forkCount>1</forkCount>
           <trimStackTrace>false</trimStackTrace>
-          <argLine>${argLine}</argLine>
+          <argLine>${argLine} ${extraJvmFlags}</argLine>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>4.2.0</version>
+        <version>${maven-bundle-plugin.version}</version>
         <extensions>true</extensions>
+        <dependencies>
+          <dependency>
+            <groupId>biz.aQute.bnd</groupId>
+            <artifactId>biz.aQute.bndlib</artifactId>
+            <version>${bndlib.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>verify-style</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
+        <version>3.1.2</version>
         <configuration>
           <logViolationsToConsole>true</logViolationsToConsole>
           <excludes>**/HelpMojo*,**/maven/legacy/model/**</excludes>
           <checkstyleRules>
             <module name="Checker">
               <module name="FileLength">
-                <property name="max" value="3500" />
-                <property name="fileExtensions" value="java" />
+                <property name="max" value="3500"/>
+                <property name="fileExtensions" value="java"/>
               </module>
-              <module name="FileTabCharacter" />
+              <module name="FileTabCharacter"/>
+              <module name="LineLength">
+                <property name="max" value="180"/>
+                <property name="ignorePattern" value="@version|@see"/>
+              </module>
               <module name="TreeWalker">
-                <module name="SuppressionCommentFilter" />
-                <module name="FinalParameters" />
+                <module name="SuppressionCommentFilter"/>
+                <module name="FinalParameters"/>
                 <module name="ConstantName">
-                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$" />
+                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$"/>
                 </module>
-                <module name="LocalVariableName" />
+                <module name="LocalVariableName"/>
                 <module name="MethodName">
-                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$" />
+                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$"/>
                 </module>
-                <module name="PackageName" />
-                <module name="LocalFinalVariableName" />
-                <module name="ParameterName" />
-                <module name="StaticVariableName" />
+                <module name="PackageName"/>
+                <module name="LocalFinalVariableName"/>
+                <module name="ParameterName"/>
+                <module name="StaticVariableName"/>
                 <module name="TypeName">
-                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$" />
+                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$"/>
                 </module>
                 <module name="AvoidStarImport">
-                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context" />
+                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context"/>
                 </module>
-                <module name="IllegalImport" />
-                <module name="RedundantImport" />
-                <module name="UnusedImports" />
-                <module name="LineLength">
-                  <property name="max" value="180" />
-                  <property name="ignorePattern" value="@version|@see" />
-                </module>
+                <module name="IllegalImport"/>
+                <module name="RedundantImport"/>
+                <module name="UnusedImports"/>
                 <module name="MethodLength">
-                  <property name="max" value="250" />
+                  <property name="max" value="250"/>
                 </module>
                 <module name="ParameterNumber">
-                  <property name="max" value="10" />
+                  <property name="max" value="10"/>
                 </module>
                 <module name="EmptyBlock">
-                  <property name="option" value="text" />
+                  <property name="option" value="text"/>
                 </module>
-                <module name="NeedBraces" />
+                <module name="NeedBraces"/>
                 <module name="LeftCurly">
-                  <property name="option" value="EOL" />
+                  <property name="option" value="EOL"/>
                 </module>
                 <module name="RightCurly">
-                  <property name="option" value="SAME" />
+                  <property name="option" value="SAME"/>
                 </module>
-                <module name="EmptyStatement" />
-                <module name="EqualsHashCode" />
-                <module name="DefaultComesLast" />
-                <module name="MissingSwitchDefault" />
-                <module name="FallThrough" />
-                <module name="MultipleVariableDeclarations" />
+                <module name="EmptyStatement"/>
+                <module name="EqualsHashCode"/>
+                <module name="DefaultComesLast"/>
+                <module name="MissingSwitchDefault"/>
+                <module name="FallThrough"/>
+                <module name="MultipleVariableDeclarations"/>
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck">
-                  <property name="severity" value="ignore" />
+                  <property name="severity" value="ignore"/>
                 </module>
                 <!-- using lombok this constraint is not accurate
                 <module name="HideUtilityClassConstructor" />
                 -->
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck">
-                  <property name="packageAllowed" value="false" />
-                  <property name="protectedAllowed" value="true" />
-                  <property name="publicMemberPattern" value="^serialVersionUID" />
-                  <property name="severity" value="warning" />
+                  <property name="packageAllowed" value="false"/>
+                  <property name="protectedAllowed" value="true"/>
+                  <property name="publicMemberPattern" value="^serialVersionUID"/>
+                  <property name="severity" value="warning"/>
                 </module>
-                <module name="UpperEll" />
+                <module name="UpperEll"/>
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok" />
-                  <property name="ordered" value="true" />
-                  <property name="separated" value="true" />
-                  <property name="option" value="top" />
-                  <property name="sortStaticImportsAlphabetically" value="true" />
+                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok"/>
+                  <property name="ordered" value="true"/>
+                  <property name="separated" value="true"/>
+                  <property name="option" value="top"/>
+                  <property name="sortStaticImportsAlphabetically" value="true"/>
                 </module>
               </module>
             </module>
           </checkstyleRules>
         </configuration>
+        <executions>
+          <execution>
+            <id>verify-style</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>process-classes</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
@@ -1366,10 +1439,10 @@
           </execution>
           <execution>
             <id>post-unit-test</id>
-            <phase>test</phase>
             <goals>
               <goal>report</goal>
             </goals>
+            <phase>test</phase>
             <configuration>
               <dataFile>${project.build.directory}/jacoco.exec</dataFile>
               <outputDirectory>${project.build.directory}/jacoco-ut</outputDirectory>
@@ -1377,10 +1450,10 @@
           </execution>
           <execution>
             <id>prepare-agent-it</id>
-            <phase>pre-integration-test</phase>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
+            <phase>pre-integration-test</phase>
             <configuration>
               <propertyName>invoker.mavenOpts</propertyName>
               <append>true</append>
@@ -1388,10 +1461,10 @@
           </execution>
           <execution>
             <id>post-integration-test</id>
-            <phase>post-integration-test</phase>
             <goals>
               <goal>report</goal>
             </goals>
+            <phase>post-integration-test</phase>
             <configuration>
               <dataFile>${project.build.directory}/jacoco-it.exec</dataFile>
               <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
@@ -1453,18 +1526,18 @@
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <version>${git-commit-id-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>get-the-git-infos-in-m2-properties</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
         </configuration>
+        <executions>
+          <execution>
+            <id>get-the-git-infos-in-m2-properties</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>process-classes</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1489,8 +1562,22 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M3</version>
+        <version>3.0.0</version>
         <executions>
+          <execution>
+            <id>enforce-maven-3</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>${mvn-minimal.version}</version>
+                </requireMavenVersion>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
           <execution>
             <id>enforce-banned-joda-time-dependency</id>
             <goals>
@@ -1514,8 +1601,8 @@
             </goals>
             <configuration>
               <rules>
-                <banDistributionManagement />
-                <banDuplicatePomDependencyVersions />
+                <banDistributionManagement/>
+                <banDuplicatePomDependencyVersions/>
               </rules>
               <fail>true</fail>
             </configuration>
@@ -1527,23 +1614,30 @@
             </goals>
             <configuration>
               <rules>
-                <dependencyConvergence />
+                <dependencyConvergence/>
               </rules>
               <fail>false</fail>
+            </configuration>
+          </execution>
+          <execution>
+            <id>ban-log4j-dependency</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>log4j:log4j</exclude>
+                  </excludes>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
             </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
-    <!--
-    <extensions>
-      <extension>
-        <groupId>com.github.rmannibucau</groupId>
-        <artifactId>maven-log-configurer-extension</artifactId>
-        <version>1.0.0</version>
-      </extension>
-    </extensions>
-    -->
   </build>
 
   <profiles>
@@ -1563,12 +1657,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
             <version>${gpg-plugin.version}</version>
-            <configuration>
-<!--              <gpgArguments>-->
-<!--                <arg>&#45;&#45;pinentry-mode</arg>-->
-<!--                <arg>loopback</arg>-->
-<!--              </gpgArguments>-->
-            </configuration>
           </plugin>
         </plugins>
       </build>
@@ -1580,7 +1668,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
+            <version>${nexus-staging-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
@@ -1621,10 +1709,10 @@
             <executions>
               <execution>
                 <id>sign-artifacts</id>
-                <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <phase>verify</phase>
               </execution>
             </executions>
           </plugin>
@@ -1638,13 +1726,44 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
+            <version>${nexus-staging-plugin.version}</version>
             <configuration>
               <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
             </configuration>
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>java8</id>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+      <properties>
+        <extraJvmFlags/>
+      </properties>
+    </profile>
+    <profile>
+      <id>java9</id>
+      <activation>
+        <jdk>[1.9,)</jdk>
+      </activation>
+      <properties>
+        <extraJvmFlags>--add-modules=ALL-SYSTEM
+          --add-opens java.base/java.io=ALL-UNNAMED
+          --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+          --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+          --add-opens java.base/java.lang=ALL-UNNAMED
+          --add-opens java.base/java.net=ALL-UNNAMED
+          --add-opens java.base/java.nio=ALL-UNNAMED
+          --add-opens java.base/java.util=ALL-UNNAMED
+          --add-opens java.base/java.util.concurrent=ALL-UNNAMED
+          --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+          --add-opens java.base/sun.nio.cs=ALL-UNNAMED
+          --add-opens java.base/sun.security.action=ALL-UNNAMED
+          --add-opens java.base/sun.security.x509=ALL-UNNAMED
+          --add-opens java.base/sun.util.calendar=ALL-UNNAMED</extraJvmFlags>
+      </properties>
     </profile>
   </profiles>
 </project>

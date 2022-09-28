@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static lombok.AccessLevel.PRIVATE;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import lombok.NoArgsConstructor;
@@ -31,9 +32,28 @@ public class Defaults {
     private static final Handler HANDLER;
 
     static {
+        try {
+            /**
+             * Disable Access Warnings:
+             */
+            Class unsafeClazz = Class.forName("sun.misc.Unsafe");
+            Field field = unsafeClazz.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Object unsafe = field.get(null);
+            Method putObjectVolatile =
+                    unsafeClazz.getDeclaredMethod("putObjectVolatile", Object.class, long.class, Object.class);
+            Method staticFieldOffset = unsafeClazz.getDeclaredMethod("staticFieldOffset", Field.class);
+            Class loggerClass = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field loggerField = loggerClass.getDeclaredField("logger");
+            Long offset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
+            putObjectVolatile.invoke(unsafe, loggerClass, offset, null);
+        } catch (Exception e) {
+            System.err.println("Disabling unsafe warnings failed: " + e.getMessage());
+        }
         final String version = System.getProperty("java.version", "1.8");
-        final Constructor<MethodHandles.Lookup> constructor = findLookupConstructor();
-        if (version.startsWith("1.8.") || version.startsWith("8.")) { // j8
+        final Boolean isJava8 = version.startsWith("1.8.") || version.startsWith("8.");
+        final Constructor<MethodHandles.Lookup> constructor = findLookupConstructor(isJava8);
+        if (isJava8) { // j8
             HANDLER = (clazz, method, proxy, args) -> constructor
                     .newInstance(clazz, MethodHandles.Lookup.PRIVATE)
                     .unreflectSpecial(method, clazz)
@@ -41,9 +61,8 @@ public class Defaults {
                     .invokeWithArguments(args);
         } else { // j > 8 - can need some --add-opens, we will add a module-info later to be clean when dropping j8
             final Method privateLookup = findPrivateLookup();
-            final int mode = MethodHandles.Lookup.PRIVATE | (MethodHandles.Lookup.PACKAGE << 1 /* module */);
             HANDLER = (clazz, method, proxy, args) -> MethodHandles.Lookup.class
-                    .cast(privateLookup.invoke(null, clazz, constructor.newInstance(clazz, mode)))
+                    .cast(privateLookup.invoke(null, clazz, constructor.newInstance(clazz)))
                     .unreflectSpecial(method, clazz)
                     .bindTo(proxy)
                     .invokeWithArguments(args);
@@ -72,11 +91,16 @@ public class Defaults {
         }
     }
 
-    private static Constructor<MethodHandles.Lookup> findLookupConstructor() {
+    private static Constructor<MethodHandles.Lookup> findLookupConstructor(final Boolean isJava8) {
         try {
-            final Constructor<MethodHandles.Lookup> constructor =
-                    MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+            Constructor<MethodHandles.Lookup> constructor;
+            if (isJava8) {
+                constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+            } else {
+                constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
+            }
             if (!constructor.isAccessible()) {
+                // this needs the `--add-opens java.base/java.lang.invoke=ALL-UNNAMED` jvm flag when java9+.
                 constructor.setAccessible(true);
             }
             return constructor;

@@ -1,7 +1,7 @@
 = Testing a REST API
 :page-partial:
 :description: Learn how to test a component that consumes a REST API through this tutorial
-:keywords: tutorial, example, REST, zendesk, test
+:keywords: tutorial, example, REST API, zendesk, test, testing
 
 [[tutorial-test-rest-api]]
 

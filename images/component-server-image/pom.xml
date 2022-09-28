@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.50.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-image</artifactId>
@@ -54,13 +54,13 @@
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-core</artifactId>
-      <version>${beam.version}</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.errorprone</groupId>
           <artifactId>error_prone_annotations</artifactId>
         </exclusion>
-        <exclusion> <!-- too much CVE for now and no version with a fix -->
+        <exclusion>
+          <!-- too much CVE for now and no version with a fix -->
           <groupId>org.codehaus.jackson</groupId>
           <artifactId>jackson-mapper-asl</artifactId>
         </exclusion>
@@ -126,6 +126,12 @@
       <artifactId>geronimo-opentracing</artifactId>
       <version>${geronimo-opentracing.version}</version>
     </dependency>
+    <!-- ecs logging layout -->
+    <dependency>
+      <groupId>org.talend.daikon</groupId>
+      <artifactId>logging-event-layout</artifactId>
+      <version>6.3.0</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -144,14 +150,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven-resources-plugin.version}</version>
         <executions>
           <execution>
             <id>copy-resources</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/conf</outputDirectory>
               <resources>
@@ -167,14 +172,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>${dependency-plugin.version}</version>
         <executions>
           <execution>
             <id>unpack-sigar</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <artifactItems>
                 <artifactItem>
@@ -259,32 +263,22 @@
                   <com.talend.docker.cmd>docker run -d -p ${boundPort}:${boundPort} tacokit/component-server:${image.currentVersion}</com.talend.docker.cmd>
                   <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc), ex:
                     -Dtalend.component.server.component.registry=/path/to/component-registry.propertes
-                    -Dtalend.component.server.maven.repository=/path/to/m2&gt;
-                  </com.talend.docker.params>
-                  <com.talend.docker.healthcheck>curl --fail http://localhost:${boundPort}/api/v1/environment
-                  </com.talend.docker.healthcheck>
+                    -Dtalend.component.server.maven.repository=/path/to/m2&gt;</com.talend.docker.params>
+                  <com.talend.docker.healthcheck>curl --fail http://localhost:${boundPort}/api/v1/environment</com.talend.docker.healthcheck>
                 </labels>
               </container>
             </configuration>
           </execution>
         </executions>
       </plugin>
-      <plugin><!--
+      <plugin>
+        <!--
         mvn clean verify dockerfile:build -P dev-tsbi
         docker tag talend/common/tacokit/component-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release}
         docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release}
         -->
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default</id>
-            <phase>none</phase>
-            <goals>
-              <goal>build</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <repository>${image.target}</repository>
           <tag>${image.tag}</tag>
@@ -295,12 +289,20 @@
             <DOCKER_REGISTRY_HOST>${docker.registryHost}</DOCKER_REGISTRY_HOST>
             <TSBI_IMAGE_PATH>${docker.tsbiPath}</TSBI_IMAGE_PATH>
             <TSBI_VERSION>${docker.tsbiVersion}</TSBI_VERSION>
-            <BOUND_PORT>${boundPort}</BOUND_PORT>
             <GIT_BRANCH>${git.branch}</GIT_BRANCH>
             <GIT_COMMIT>${git.commit.id}</GIT_COMMIT>
           </buildArgs>
           <skip>${disable.dockerBuild}</skip>
         </configuration>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>build</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>

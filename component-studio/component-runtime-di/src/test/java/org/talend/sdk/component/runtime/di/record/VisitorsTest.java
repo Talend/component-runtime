@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,13 +83,43 @@ public class VisitorsTest {
 
     protected static final List<Record> RECORDS = Arrays.asList(RECORD, RECORD);
 
+    protected static final List<BigDecimal> BIG_DECIMALS = Arrays.asList(BIGDEC, BIGDEC, BIGDEC, BIGDEC);
+
     @Getter
     @ToString
     public static class RowStruct implements routines.system.IPersistableRow {
 
         public String id;
 
+        public Boolean idIsNullable() {
+            return false;
+        }
+
+        public Boolean idIsKey() {
+            return true;
+        }
+
         public String name;
+
+        public Boolean nameIsNullable() {
+            return false;
+        }
+
+        public Boolean nameIsKey() {
+            return true;
+        }
+
+        public String nameDefault() {
+            return "John";
+        }
+
+        public String nameComment() {
+            return "A small comment on name field...";
+        }
+
+        public String nameOriginalDbColumnName() {
+            return "namy";
+        }
 
         public short shortP;
 
@@ -105,6 +135,14 @@ public class VisitorsTest {
 
         public float floatP;
 
+        public Integer floatPLength() {
+            return 10;
+        }
+
+        public Integer floatPPrecision() {
+            return 2;
+        }
+
         public Float floatC;
 
         public double doubleP;
@@ -112,6 +150,14 @@ public class VisitorsTest {
         public Double doubleC;
 
         public Date date0;
+
+        public Boolean date0IsKey() {
+            return false;
+        }
+
+        public String date0Pattern() {
+            return "YYYY-mm-dd HH:MM:ss";
+        }
 
         public Date date1;
 
@@ -125,6 +171,24 @@ public class VisitorsTest {
 
         public BigDecimal bigDecimal0;
 
+        public BigDecimal bigDecimal1;
+
+        public Integer bigDecimal0Length() {
+            return 30;
+        }
+
+        public Integer bigDecimal0Precision() {
+            return 10;
+        }
+
+        public Integer bigDecimal1Length() {
+            return 30;
+        }
+
+        public Integer bigDecimal1Precision() {
+            return 10;
+        }
+
         public boolean bool0;
 
         public Boolean bool1;
@@ -135,7 +199,33 @@ public class VisitorsTest {
 
         public Dynamic dynamic;
 
+        public Boolean dynamicIsNullable() {
+            return false;
+        }
+
+        public Boolean dynamicIsKey() {
+            return true;
+        }
+
+        public String dynamicComment() {
+            return "dYnAmIc";
+        }
+
+        public Integer dynamicLength() {
+            return 30;
+        }
+
+        public Integer dynamicPrecision() {
+            return 10;
+        }
+
+        public String dynamicPattern() {
+            return "YYYY-mm-ddTHH:MM";
+        }
+
         public String h;
+
+        public Character char0;
 
         public boolean hAshcOdEdIrtY;
 

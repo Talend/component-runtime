@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.50.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-api</artifactId>
@@ -50,7 +50,6 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
-      <version>${johnzon.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -61,6 +60,15 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${javadoc-plugin.version}</version>
+        <configuration>
+          <splitindex>true</splitindex>
+          <linksource>true</linksource>
+          <windowtitle>${project.name}</windowtitle>
+          <header>${project.name} - ${project.version}</header>
+          <doctitle>${project.name} - ${project.version}</doctitle>
+          <bottom>${project.version} - Copyright &amp;copy; 2022 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+          <use>true</use>
+        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -69,15 +77,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <splitindex>true</splitindex>
-          <linksource>true</linksource>
-          <windowtitle>${project.name}</windowtitle>
-          <header>${project.name} - ${project.version}</header>
-          <doctitle>${project.name} - ${project.version}</doctitle>
-          <bottom>${project.version} - Copyright &amp;copy; 2019 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
-          <use>true</use>
-        </configuration>
       </plugin>
     </plugins>
   </build>

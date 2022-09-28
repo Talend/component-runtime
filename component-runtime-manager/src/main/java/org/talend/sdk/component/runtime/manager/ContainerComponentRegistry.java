@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,4 +30,8 @@ public class ContainerComponentRegistry {
     private final Map<String, ComponentFamilyMeta> components = new ConcurrentHashMap<>();
 
     private final Collection<ServiceMeta> services = new ArrayList<>();
+
+    public ComponentFamilyMeta findComponentFamily(final String pluginId) {
+        return this.components.get(pluginId);
+    }
 }

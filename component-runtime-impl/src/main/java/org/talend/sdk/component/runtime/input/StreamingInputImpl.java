@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,26 @@
 package org.talend.sdk.component.runtime.input;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.talend.sdk.component.runtime.input.Streaming.RetryStrategy;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;
+import org.talend.sdk.component.runtime.input.Streaming.StopStrategy;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class StreamingInputImpl extends InputImpl {
 
     private RetryConfiguration retryConfiguration;
@@ -38,12 +46,19 @@ public class StreamingInputImpl extends InputImpl {
 
     private transient Semaphore semaphore;
 
+    private StopStrategy stopStrategy;
+
+    private transient long readRecords = 0L;
+
     public StreamingInputImpl(final String rootName, final String name, final String plugin,
-            final Serializable instance, final RetryConfiguration retryConfiguration) {
+            final Serializable instance, final RetryConfiguration retryConfiguration, final StopStrategy stopStrategy) {
         super(rootName, name, plugin, instance);
         shutdownHook = new Thread(() -> running.compareAndSet(true, false),
                 getClass().getName() + "_" + rootName() + "-" + name() + "_" + hashCode());
         this.retryConfiguration = retryConfiguration;
+        this.stopStrategy = stopStrategy;
+        log.debug("[StreamingInputImpl] Created with retryStrategy: {}, stopStrategy: {}.", this.retryConfiguration,
+                this.stopStrategy);
     }
 
     protected StreamingInputImpl() {
@@ -55,20 +70,55 @@ public class StreamingInputImpl extends InputImpl {
         if (!running.get()) {
             return null;
         }
+        if (stopStrategy.isActive() && stopStrategy.shouldStop(readRecords)) {
+            log.debug("[readNext] stopStrategy condition validated.");
+            return null;
+        }
         try {
             semaphore.acquire();
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return null;
         }
-
         try {
             final RetryStrategy strategy = retryConfiguration.getStrategy();
             int retries = retryConfiguration.getMaxRetries();
             while (running.get() && retries > 0) {
-                final Object next = super.readNext();
+                Object next = null;
+                if (stopStrategy.isActive() && stopStrategy.getMaxActiveTime() > -1) {
+                    // Some connectors do not block input and return null (rabbitmq for instance). Thus, the future
+                    // timeout is never reached and retryStrategy is run then. So, need to check timeout in the loop.
+                    if (stopStrategy.shouldStop(readRecords)) {
+                        log.debug("[readNext] shouldStop now! Duration {}ms",
+                                System.currentTimeMillis() - stopStrategy.getStartedAtTime());
+                        return null;
+                    }
+                    final ExecutorService executor = Executors.newSingleThreadExecutor();
+                    final Future<Object> reader = executor.submit(super::readNext);
+                    // manage job latency...
+                    final long estimatedTimeout = stopStrategy.getMaxActiveTime()
+                            - (System.currentTimeMillis() - stopStrategy.getStartedAtTime());
+                    final long timeout = estimatedTimeout < -1 ? 10 : estimatedTimeout;
+                    log.debug(
+                            "[readNext] Applying duration strategy for reading record: will interrupt in {}ms (estimated:{}ms Duration:{}ms).",
+                            timeout, estimatedTimeout, stopStrategy.getMaxActiveTime());
+                    try {
+                        next = reader.get(timeout, MILLISECONDS);
+                    } catch (TimeoutException e) {
+                        log.debug("[readNext] Read record: timeout received.");
+                        reader.cancel(true);
+                        return next;
+                    } catch (Exception e) {
+                        // nop
+                    } finally {
+                        executor.shutdownNow();
+                    }
+                } else {
+                    next = super.readNext();
+                }
                 if (next != null) {
                     strategy.reset();
+                    readRecords++;
                     return next;
                 }
 
@@ -136,92 +186,31 @@ public class StreamingInputImpl extends InputImpl {
 
     @Override
     protected Object writeReplace() throws ObjectStreamException {
-        return new StreamSerializationReplacer(plugin(), rootName(), name(), serializeDelegate(), retryConfiguration);
+        return new StreamSerializationReplacer(plugin(), rootName(), name(), serializeDelegate(), retryConfiguration,
+                stopStrategy);
     }
 
     private static class StreamSerializationReplacer extends SerializationReplacer {
 
         private final RetryConfiguration retryConfiguration;
 
+        private final StopStrategy stopStrategy;
+
         StreamSerializationReplacer(final String plugin, final String component, final String name, final byte[] value,
-                final RetryConfiguration retryConfiguration) {
+                final RetryConfiguration retryConfiguration, final StopStrategy stopStrategy) {
             super(plugin, component, name, value);
             this.retryConfiguration = retryConfiguration;
+            this.stopStrategy = stopStrategy;
         }
 
         protected Object readResolve() throws ObjectStreamException {
             try {
-                return new StreamingInputImpl(component, name, plugin, loadDelegate(), retryConfiguration);
+                return new StreamingInputImpl(component, name, plugin, loadDelegate(), retryConfiguration,
+                        stopStrategy);
             } catch (final IOException | ClassNotFoundException e) {
                 final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
                 invalidObjectException.initCause(e);
                 throw invalidObjectException;
-            }
-        }
-    }
-
-    public interface RetryStrategy {
-
-        long nextPauseDuration();
-
-        void reset();
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RetryConfiguration implements Serializable {
-
-        private int maxRetries;
-
-        private RetryStrategy strategy;
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class Constant implements Serializable, RetryStrategy {
-
-            private long timeout;
-
-            @Override
-            public long nextPauseDuration() {
-                return timeout;
-            }
-
-            @Override
-            public void reset() {
-                // no-op
-            }
-        }
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class ExponentialBackoff implements Serializable, RetryStrategy {
-
-            private double exponent;
-
-            private double randomizationFactor;
-
-            private long max;
-
-            private long initialBackOff;
-
-            // state
-            private int iteration;
-
-            @Override
-            public long nextPauseDuration() {
-                final double currentIntervalMillis = Math.min(initialBackOff * Math.pow(exponent, iteration), max);
-                final double randomOffset = (Math.random() * 2 - 1) * randomizationFactor * currentIntervalMillis;
-                final long nextBackoffMillis = Math.min(max, Math.round(currentIntervalMillis + randomOffset));
-                iteration += 1;
-                return nextBackoffMillis;
-            }
-
-            @Override
-            public void reset() {
-                iteration = 0;
             }
         }
     }

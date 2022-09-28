@@ -4,7 +4,7 @@
 :page-documentationindex-label: Javadocs
 :page-documentationindex-icon: file-alt
 :page-documentationindex-description: Access the detailed API reference documentation
-:keywords: API, Talend Component Kit Javadoc
+:keywords: API, Talend Component Kit Javadoc, javadoc
 :description: The list of API references related to Talend Component Kit.
 
 Refer to the following links to access the detailed API reference documentation:

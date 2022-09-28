@@ -1,7 +1,7 @@
 #! /bin/bash
 
 #
-#  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ git checkout -b component-runtime-$release component-runtime-$release
 # push docker images
 echo "Building and pushing docker images $release"
 cd images
-    for i in component-server-image component-server-vault-proxy-image component-starter-server-image; do
+    for i in component-server-image component-starter-server-image; do
         cd $i
         mvn -DskipTests -Dinvoker.skip=true -T1C -Prelease \
             clean install \

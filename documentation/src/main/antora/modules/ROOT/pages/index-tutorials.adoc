@@ -5,7 +5,7 @@
 :page-documentationindex-icon: book-open
 :page-documentationindex-description: Follow guided and practical examples to know more about the framework
 :description: Guided implementation examples to get your hands on Talend Component Kit
-:keywords: tutorial, example, implement, test, dev
+:keywords: tutorial, example, implement, test, dev, testing
 
 The following tutorials are designed to help you understand the main principles of component development using Talend Component Kit.
 

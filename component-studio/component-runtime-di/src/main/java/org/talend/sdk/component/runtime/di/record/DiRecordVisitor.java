@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,14 @@ package org.talend.sdk.component.runtime.di.record;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
 
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
@@ -26,11 +32,11 @@ import routines.system.DynamicMetadata.sourceTypes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +57,7 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
+import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.record.MappingUtils;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
@@ -92,7 +99,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null));
+                                    RecordService.class, null, null));
 
     DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;
@@ -118,9 +125,9 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             log
                     .debug("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
                             metadata);
-            dynamicColumnLength = Integer.valueOf(metadata.getOrDefault("length", "-1"));
-            dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault("precision", "-1"));
-            dynamicColumnPattern = metadata.getOrDefault("pattern", "yyyy-MM-dd");
+            dynamicColumnLength = Integer.valueOf(metadata.getOrDefault(STUDIO_LENGTH, "-1"));
+            dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault(STUDIO_PRECISION, "-1"));
+            dynamicColumnPattern = metadata.getOrDefault(STUDIO_PATTERN, "yyyy-MM-dd");
         } catch (final NoSuchMethodException | IllegalAccessException | InstantiationException
                 | InvocationTargetException e) {
             throw new IllegalStateException(e);
@@ -211,45 +218,41 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         metadata.setDbName(entry.getOriginalFieldName());
         metadata.setNullable(entry.isNullable());
         metadata.setDescription(entry.getComment());
-        metadata.setKey(false);
         metadata.setSourceType(sourceTypes.unknown);
-        metadata.setLength(dynamicColumnLength);
-        metadata.setPrecision(dynamicColumnPrecision);
-        switch (entry.getType()) {
-        case RECORD:
-            metadata.setType("id_Object");
+
+        final Boolean isKey = ofNullable(entry.getProp(STUDIO_KEY))
+                .filter(l -> !l.isEmpty())
+                .map(Boolean::valueOf)
+                .orElse(false);
+        final Integer length = ofNullable(entry.getProp(STUDIO_LENGTH))
+                .filter(l -> !l.isEmpty())
+                .map(Integer::valueOf)
+                .orElse(dynamicColumnLength);
+        final Integer precision = ofNullable(entry.getProp(STUDIO_PRECISION))
+                .filter(l -> !l.isEmpty())
+                .map(Integer::valueOf)
+                .orElse(dynamicColumnPrecision);
+        final String pattern = ofNullable(entry.getProp(STUDIO_PATTERN))
+                .filter(l -> !l.isEmpty())
+                .orElse(dynamicColumnPattern);
+        final String studioType = entry.getProps()
+                .getOrDefault(STUDIO_TYPE, StudioTypes.typeFromRecord(entry.getType()));
+        metadata.setKey(isKey);
+        metadata.setType(studioType);
+
+        switch (studioType) {
+        case StudioTypes.BIGDECIMAL:
+        case StudioTypes.FLOAT:
+        case StudioTypes.DOUBLE:
+            metadata.setLength(length);
+            metadata.setPrecision(precision);
             break;
-        case ARRAY:
-            metadata.setType("id_List");
-            break;
-        case STRING:
-            metadata.setType("id_String");
-            break;
-        case BYTES:
-            metadata.setType("id_byte[]");
-            break;
-        case INT:
-            metadata.setType("id_Integer");
-            break;
-        case LONG:
-            metadata.setType("id_Long");
-            break;
-        case FLOAT:
-            metadata.setType("id_Float");
-            break;
-        case DOUBLE:
-            metadata.setType("id_Double");
-            break;
-        case BOOLEAN:
-            metadata.setType("id_Boolean");
-            break;
-        case DATETIME:
-            metadata.setType("id_Date");
+        case StudioTypes.DATE:
             metadata.setLogicalType("timestamp-millis");
-            metadata.setFormat(dynamicColumnPattern);
+            metadata.setFormat(pattern);
             break;
         default:
-            throw new IllegalStateException("Unexpected value: " + entry.getType());
+            // nop
         }
         return metadata;
     }
@@ -271,8 +274,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             } else {
                 metadata = dynamic.getColumnMetadata(index);
             }
-            if ("id_Date".equals(metadata.getType())) {
-                dynamic.setColumnValue(index, MappingUtils.coerce(Date.class, value, name));
+
+            final Class<?> clazz = StudioTypes.classFromType(metadata.getType());
+            if (clazz != null) {
+                dynamic.setColumnValue(index, MappingUtils.coerce(clazz, value, name));
             } else {
                 dynamic.setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
             }
@@ -332,6 +337,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     }
 
     @Override
+    public void onDecimal(final Entry entry, final Optional<BigDecimal> decimal) {
+        log.debug("[onDecimal] visiting {}.", entry.getName());
+        decimal.ifPresent(value -> setField(entry, value));
+    }
+
+    @Override
     public void onBytes(final Entry entry, final Optional<byte[]> bytes) {
         log.debug("[onBytes] visiting {}.", entry.getName());
         bytes.ifPresent(value -> setField(entry, value));
@@ -376,6 +387,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     @Override
     public void onDatetimeArray(final Entry entry, final Optional<Collection<ZonedDateTime>> array) {
         log.debug("[onDatetimeArray] visiting {}.", entry.getName());
+        array.ifPresent(value -> setField(entry, value));
+    }
+
+    @Override
+    public void onDecimalArray(final Entry entry, final Optional<Collection<BigDecimal>> array) {
+        log.debug("[onDecimalArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 

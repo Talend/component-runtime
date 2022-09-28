@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,13 +52,13 @@ import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.front.security.SecurityUtils;
 import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
 import org.talend.sdk.component.server.service.LocaleMapper;
 import org.talend.sdk.component.server.service.PropertiesService;
 import org.talend.sdk.component.server.service.httpurlconnection.IgnoreNetAuthenticator;
 import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
 import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
-import org.talend.sdk.components.vault.client.VaultClient;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -88,7 +88,7 @@ public class ActionResourceImpl implements ActionResource {
     private HttpHeaders headers;
 
     @Inject
-    private VaultClient vault;
+    private SecurityUtils secUtils;
 
     @Override
     public CompletionStage<Response> execute(final String family, final String type, final String action,
@@ -153,7 +153,8 @@ public class ActionResourceImpl implements ActionResource {
                     log.debug("[doExecuteLocalAction] context not applicable: {}", e.getMessage());
                     tenant = null;
                 }
-                final Map<String, String> deciphered = vault.decrypt(runtimeParams, tenant);
+                final Map<String, String> deciphered = secUtils.decrypt(actionMeta.getParameters()
+                        .get(), runtimeParams, tenant);
                 final Object result = actionMeta.getInvoker().apply(deciphered);
                 return Response.ok(result).type(APPLICATION_JSON_TYPE).build();
             } catch (final RuntimeException re) {

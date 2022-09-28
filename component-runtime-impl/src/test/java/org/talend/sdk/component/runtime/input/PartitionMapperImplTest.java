@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
@@ -58,10 +60,14 @@ public class PartitionMapperImplTest {
 
     @Test
     void createStreaming() {
+        final Map<String, String> internalConfiguration = new HashMap<>();
+        internalConfiguration.put("$maxRecords", "1000");
         final PartitionMapperImpl mapper =
-                new PartitionMapperImpl("Root", "Test", null, "Plugin", true, new SampleMapper());
+                new PartitionMapperImpl("Root", "Test", null, "Plugin", true, internalConfiguration,
+                        new SampleMapper());
         final Input input = mapper.create();
         assertTrue(StreamingInputImpl.class.isInstance(input));
+        assertEquals("1000", mapper.getInternalConfiguration().get("$maxRecords"));
     }
 
     @Test

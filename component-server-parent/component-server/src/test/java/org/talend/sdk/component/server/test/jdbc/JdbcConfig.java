@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.test.jdbc;
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,8 +30,10 @@ import lombok.NoArgsConstructor;
 public class JdbcConfig implements Serializable {
 
     @Option
+    @Documentation(value = "Documentation for driver (jdbcconfig) doc.", tooltip = true)
     private String driver;
 
     @Option
+    @Documentation(value = "Documentation for description (jdbcconfig) doc.", tooltip = true)
     private String description;
 }

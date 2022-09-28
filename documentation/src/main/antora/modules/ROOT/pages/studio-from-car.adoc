@@ -1,7 +1,7 @@
 = Installing components using a CAR file
 :page-partial:
 :description: How to build a component archive that you can easily share and how to install the shared .car file in Talend Studio.
-:keywords: deploy, install, car, .car, component archive
+:keywords: deploy, install, car, .car, car-bundler, component archive, studio-integration
 
 Components built using Talend Component Kit can be shared as component archives (.car). These CAR files are executable files allowing to easily deploy the components it contains to any compatible version of link:https://sourceforge.net/projects/talend-studio/[Talend Studio].
 

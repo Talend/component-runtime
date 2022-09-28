@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.50.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-manager</artifactId>
@@ -78,13 +78,11 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-core</artifactId>
-      <version>${johnzon.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>${slf4j.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -99,14 +97,21 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency><!-- for java >= 9 support -->
+    <!-- for java >= 9 support -->
+    <dependency>
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
     </dependency>
-    <dependency><!-- for java >= 9 support -->
+    <!-- for java >= 9 support -->
+    <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-activation_1.1_spec</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
+      <version>${rhino.version}</version>
     </dependency>
   </dependencies>
 
@@ -115,14 +120,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>${dependency-plugin.version}</version>
         <executions>
           <execution>
             <id>copy-test-container-dependencies</id>
-            <phase>generate-test-resources</phase>
             <goals>
               <goal>copy</goal>
             </goals>
+            <phase>generate-test-resources</phase>
             <configuration>
               <!-- tests jars for modules -->
               <artifactItems>
@@ -132,9 +136,7 @@
                   <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-dependencies/org/apache/tomee/openejb-itests-beans/${ziplock.test.version}</outputDirectory>
                   <destFileName>openejb-itests-beans-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
@@ -143,9 +145,7 @@
                   <version>${ziplock.test.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>
-                    ${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/${ziplock.test.version}
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/${ziplock.test.version}</outputDirectory>
                   <destFileName>arquillian-tomee-codi-tests-${ziplock.test.version}.jar</destFileName>
                 </artifactItem>
               </artifactItems>
@@ -153,10 +153,10 @@
           </execution>
           <execution>
             <id>create-TALEND-INF/dependencies.txt</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>list</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
               <includeScope>runtime</includeScope>
               <outputFile>${project.build.outputDirectory}/TALEND-INF/manager.dependencies</outputFile>
@@ -171,13 +171,15 @@
         <executions>
           <execution>
             <id>cleanup-TALEND-INF/dependencies.txt</id>
-            <phase>compile</phase> <!-- cleanup asap -->
+            <!-- cleanup asap -->
             <goals>
               <goal>run</goal>
             </goals>
+            <phase>compile</phase>
             <configuration>
-              <target> <!-- TCOMP-1983 -->
-                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/manager.dependencies" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true" />
+              <target>
+                <!-- TCOMP-1983 -->
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/manager.dependencies" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace=""/>
               </target>
             </configuration>
           </execution>
@@ -191,9 +193,11 @@
             <USER_PATH>/home/user</USER_PATH>
             <talend_localconfig_user_home>/home/user</talend_localconfig_user_home>
             <TALEND_LOCALCONFIG_TEST_0>true</TALEND_LOCALCONFIG_TEST_0>
+            <M2_HOME>${project.build.testOutputDirectory}/</M2_HOME>
           </environmentVariables>
         </configuration>
       </plugin>
     </plugins>
   </build>
+
 </project>

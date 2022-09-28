@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the 'License');
  *  you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ function readEndpoint(spec, existingEndpoints) {
         return Object.keys(json.paths)
                 .flatMap(path => Object.keys(json.paths[path])
                     .map(verb => {
-                        const operationId = json.paths[path][verb].operationId || (`${verb}_${path.replace('/', '_').replace('{', '').replace('}', '')}`);
+                        const operationId = (`${verb}_${path}`);
                         const existing = existingEndpoints.filter(it => it.operationId == operationId);
                         const checked = existing.length == 1 ? existing[0].checked : true;
                         return {

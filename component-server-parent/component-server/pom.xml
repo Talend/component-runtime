@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.38.0-SNAPSHOT</version>
+    <version>1.50.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server</artifactId>
@@ -57,7 +57,8 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency><!-- extends runtime manager with design time data -->
+    <!-- extends runtime manager with design time data -->
+    <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-design-extension</artifactId>
       <version>${project.version}</version>
@@ -77,11 +78,10 @@
       <artifactId>commons-cli</artifactId>
       <version>${commons-cli.version}</version>
     </dependency>
-
-    <dependency><!-- override until we upgrade meecrowave -->
+    <!-- override until we upgrade meecrowave -->
+    <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
-      <version>${johnzon.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.meecrowave</groupId>
@@ -92,7 +92,8 @@
       <groupId>org.eclipse.microprofile.config</groupId>
       <artifactId>microprofile-config-api</artifactId>
     </dependency>
-    <dependency><!-- just to generate the openapi.json -->
+    <!-- just to generate the openapi.json -->
+    <dependency>
       <groupId>org.eclipse.microprofile.openapi</groupId>
       <artifactId>microprofile-openapi-api</artifactId>
       <version>${microprofile-openapi-api.version}</version>
@@ -138,8 +139,9 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-extension-api</artifactId>
       <version>${project.version}</version>
+      <!-- all the stack must be provided -->
       <exclusions>
-        <exclusion><!-- all the stack must be provided -->
+        <exclusion>
           <groupId>*</groupId>
           <artifactId>*</artifactId>
         </exclusion>
@@ -171,7 +173,6 @@
       <scope>test</scope>
     </dependency>
 
-
     <!-- just here to ensure the reactor is well structured, but shouldnt be in the classpath! -->
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
@@ -185,6 +186,12 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-form-core</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -193,19 +200,19 @@
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <version>${git-commit-id-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>generate-the-git-infos</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <generateGitPropertiesFile>true</generateGitPropertiesFile>
           <generateGitPropertiesFilename>${project.build.outputDirectory}/TALEND-INF/git.properties</generateGitPropertiesFilename>
         </configuration>
+        <executions>
+          <execution>
+            <id>generate-the-git-infos</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.geronimo</groupId>
@@ -244,10 +251,10 @@
         <executions>
           <execution>
             <id>attach-artifacts</id>
-            <phase>package</phase>
             <goals>
               <goal>attach-artifact</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <artifacts>
                 <artifact>
@@ -263,24 +270,24 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>${dependency-plugin.version}</version>
         <executions>
           <execution>
             <id>create-TALEND-INF/dependencies.txt</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>list</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <outputFile>${project.build.outputDirectory}/TALEND-INF/server/dependencies.txt</outputFile>
             </configuration>
           </execution>
           <execution>
             <id>import-redoc</id>
-            <phase>prepare-package</phase>
-            <goals> <!-- otherwise .map are too fat for what we do of it -->
+            <goals>
+              <!-- otherwise .map are too fat for what we do of it -->
               <goal>unpack</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <artifactItems>
                 <artifactItem>
@@ -296,10 +303,10 @@
           </execution>
           <execution>
             <id>copy-beam-sample</id>
-            <phase>generate-test-resources</phase>
             <goals>
               <goal>copy</goal>
             </goals>
+            <phase>generate-test-resources</phase>
             <configuration>
               <stripVersion>true</stripVersion>
               <artifactItems>
@@ -320,7 +327,6 @@
                 <artifact>
                   <groupId>org.apache.beam</groupId>
                   <artifactId>beam-sdks-java-core</artifactId>
-                  <version>${beam.version}</version>
                   <type>jar</type>
                   <outputDirectory>${sample.beam.location}/deps</outputDirectory>
                 </artifact>
@@ -338,6 +344,13 @@
                   <type>jar</type>
                   <outputDirectory>${sample.beam.location}/deps</outputDirectory>
                 </artifact>
+                <artifact>
+                  <groupId>org.codehaus.jackson</groupId>
+                  <artifactId>jackson-mapper-asl</artifactId>
+                  <version>${avro-jackson.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${sample.beam.location}/deps</outputDirectory>
+                </artifact>
               </artifactItems>
             </configuration>
           </execution>
@@ -349,13 +362,15 @@
         <executions>
           <execution>
             <id>cleanup-TALEND-INF/dependencies.txt</id>
-            <phase>prepare-package</phase> <!-- cleanup asap -->
+            <!-- cleanup asap -->
             <goals>
               <goal>run</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
-              <target> <!-- TCOMP-1983 -->
-                <replaceregexp file="${project.build.outputDirectory}/TALEND-INF/server/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" byline="true" />
+              <target>
+                <!-- TCOMP-1983 -->
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/server/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace=""/>
               </target>
             </configuration>
           </execution>
@@ -365,24 +380,10 @@
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
         <version>${meecrowave.version}</version>
-        <executions>
-          <execution>
-            <id>bundle</id>
-            <phase>package</phase>
-            <goals>
-              <goal>bundle</goal>
-            </goals>
-            <configuration>
-              <attach>true</attach>
-            </configuration>
-          </execution>
-        </executions>
         <configuration>
           <cdiConversation>false</cdiConversation>
           <watcherBouncing>-1</watcherBouncing>
-          <scanningExcludes>
-            apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket
-          </scanningExcludes>
+          <scanningExcludes>apiguardian,brave,kafka,lz4,talend-icon,zipkin,container-core,component-runtime,beam,paranamer,joda-time,avro,objenesis,xz,snappy,component-spi,component-api,tomcat-websocket</scanningExcludes>
           <!--<webapp>${project.basedir}/src/dev/webapp</webapp>-->
           <!--
           <systemProperties>
@@ -392,6 +393,18 @@
           </systemProperties>
           -->
         </configuration>
+        <executions>
+          <execution>
+            <id>bundle</id>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <attach>true</attach>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -399,10 +412,10 @@
         <executions>
           <execution>
             <id>default-test</id>
-            <phase>test</phase>
             <goals>
               <goal>test</goal>
             </goals>
+            <phase>test</phase>
             <configuration>
               <excludes>
                 <exclude>**/beam/*Test.java</exclude>
@@ -420,10 +433,10 @@
           </execution>
           <execution>
             <id>beam-sample-test</id>
-            <phase>test</phase>
             <goals>
               <goal>test</goal>
             </goals>
+            <phase>test</phase>
             <configuration>
               <includes>
                 <include>**/beam/*Test.java</include>
@@ -442,12 +455,11 @@
                 <classpathDependencyExclude>org.talend.sdk.component:sample-beam</classpathDependencyExclude>
               </classpathDependencyExcludes>
               <additionalClasspathElements>
-                <additionalClasspathElement>
-                  ${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-core.jar,
+                <additionalClasspathElement>${sample.beam.location}${file.separator}deps${file.separator}beam-sdks-java-core.jar,
                   ${sample.beam.location}${file.separator}deps${file.separator}component-runtime-beam.jar,
                   ${sample.beam.location}${file.separator}deps${file.separator}jackson-core-asl.jar,
-                  ${sample.beam.location}${file.separator}deps${file.separator}avro.jar
-                </additionalClasspathElement>
+                  ${sample.beam.location}${file.separator}deps${file.separator}jackson-mapper-asl.jar,
+                  ${sample.beam.location}${file.separator}deps${file.separator}avro.jar</additionalClasspathElement>
               </additionalClasspathElements>
             </configuration>
           </execution>

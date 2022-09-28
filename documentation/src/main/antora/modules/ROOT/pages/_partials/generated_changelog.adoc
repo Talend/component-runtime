@@ -1,11 +1,462 @@
 
 
+== Version 1.49.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2239[TCOMP-2239^]: Fix Record.Builder interface to avoid API break link:search.html?query=schema-record[schema-record^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2226[TCOMP-2226^]: Implement a default UI for streaming sources for user configuration of a StopStrategy link:search.html?query=component-form[component-form^,role='dockey'] link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2234[TCOMP-2234^]: Override blocking read process in streaming connectors link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2258[TCOMP-2258^]: @Documentation to tooltips in uiSchema link:search.html?query=component-form[component-form^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2147[TCOMP-2147^]: Decrease log level for blacklisted dependencies link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2228[TCOMP-2228^]: Upgrade git-commit-id-plugin to 4.9.10 
+- link:https://jira.talendforge.org/browse/TCOMP-2232[TCOMP-2232^]: Upgrade slf4j to 1.7.34 
+- link:https://jira.talendforge.org/browse/TCOMP-2238[TCOMP-2238^]: Upgrade jib-core to 0.16.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2249[TCOMP-2249^]: Upgrade johnzon to 1.2.19 
+- link:https://jira.talendforge.org/browse/TCOMP-2251[TCOMP-2251^]: Upgrade jackson to 2.13.3 
+- link:https://jira.talendforge.org/browse/TCOMP-2252[TCOMP-2252^]: MavenRepositoryResolver call fallback only it's needed link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2257[TCOMP-2257^]: Upgrade meecrowave to 1.2.14 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2263[TCOMP-2263^]: Upgrade openwebbeans-se to 2.0.27 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2264[TCOMP-2264^]: Upgrade TSBI to 3.0.5-20220907120958 link:search.html?query=tsbi[tsbi^,role='dockey']
+
+
+
+== Version 1.48.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2239[TCOMP-2239^]: Fix Record.Builder interface to avoid API break link:search.html?query=schema-record[schema-record^,role='dockey']
+
+== Version 1.48.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2182[TCOMP-2182^]: Guess Schema in Studio always uses version of component 1 link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2190[TCOMP-2190^]: Handle partial messages for large payloads in websocket communications link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2107[TCOMP-2107^]: Implement a stop strategy for streaming input connectors link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2177[TCOMP-2177^]: Suppress illegal reflective access operation has occurred warnings link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2163[TCOMP-2163^]: [QA] Component Runtime API test Framework link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2187[TCOMP-2187^]: Introduce IntegerConstraintEnricher link:search.html?query=component-form[component-form^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2204[TCOMP-2204^]: Upgrade netty to 4.1.79.Final 
+- link:https://jira.talendforge.org/browse/TCOMP-2205[TCOMP-2205^]: Upgrade crawler-commons to 1.3 
+- link:https://jira.talendforge.org/browse/TCOMP-2206[TCOMP-2206^]: Upgrade guava to 31.1-jre 
+- link:https://jira.talendforge.org/browse/TCOMP-2207[TCOMP-2207^]: Upgrade maven to 3.8.6 
+- link:https://jira.talendforge.org/browse/TCOMP-2208[TCOMP-2208^]: Upgrade maven-shade-plugin to 3.3.0 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2209[TCOMP-2209^]: Upgrade junit5 to 5.9.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2210[TCOMP-2210^]: Upgrade tomcat to 9.0.63 
+- link:https://jira.talendforge.org/browse/TCOMP-2211[TCOMP-2211^]: Upgrade cxf to 3.5.2 
+- link:https://jira.talendforge.org/browse/TCOMP-2212[TCOMP-2212^]: Upgrade bndlib to 5.2.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2217[TCOMP-2217^]: Update rat-plugin to 0.14 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2219[TCOMP-2219^]: Add API to convert data in Record link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2223[TCOMP-2223^]: Upgrade log4j to 2.18.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2227[TCOMP-2227^]: Upgrade commons-io to 2.9.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2229[TCOMP-2229^]: Upgrade jcommander to 1.81 
+- link:https://jira.talendforge.org/browse/TCOMP-2230[TCOMP-2230^]: Allow specific context UI 
+- link:https://jira.talendforge.org/browse/TCOMP-2233[TCOMP-2233^]: support decimal type 
+
+
+
+== Version 1.47.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2190[TCOMP-2190^]: Handle partial messages for large payloads in websocket communications link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2177[TCOMP-2177^]: Suppress illegal reflective access operation has occurred warnings link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
+== Version 1.47.0
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2177[TCOMP-2177^]: Suppress illegal reflective access operation has occurred warnings link:search.html?query=component-manager[component-manager^,role='dockey']
+
+== Version 1.46.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2176[TCOMP-2176^]: Record : Infinite loop link:search.html?query=schema-record[schema-record^,role='dockey']
+
+== Version 1.46.0
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2146[TCOMP-2146^]: Car bundler improvements link:search.html?query=car-bundler[car-bundler^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2151[TCOMP-2151^]: Add documentation translation to metadata link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2132[TCOMP-2132^]: Optimisation for preparation link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2143[TCOMP-2143^]: [JDBC TCK]: Support MODULE_LIST field for studio in tck connector ui for driver jars choose link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2152[TCOMP-2152^]: Upgrade jackson to 2.13.2 link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=bom[bom^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2153[TCOMP-2153^]: Bump netty to 4.1.77.Final due to CVE CVE-2022-24823 link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2154[TCOMP-2154^]: Upgrade maven-settings to 3.8.5 due to CVE-2021-26291 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2155[TCOMP-2155^]: Upgrade jdom2 to 2.0.6.1 due to CVE-2021-33813 link:search.html?query=beam[beam^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2164[TCOMP-2164^]: Ensure that decryption is done only on credential fields link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=vault-client[vault-client^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2171[TCOMP-2171^]: Add  component type to ComponentIndex link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.45.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2152[TCOMP-2152^]: Upgrade jackson to 2.13.2 link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=bom[bom^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+
+
+
+== Version 1.45.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2146[TCOMP-2146^]: Car bundler improvements link:search.html?query=car-bundler[car-bundler^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+
+== Version 1.45.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2111[TCOMP-2111^]: [Runtime convergence] : Join connector fails in cloud environment with hybrid tck/beam connectors link:search.html?query=api[api^,role='dockey'] link:search.html?query=beam[beam^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2123[TCOMP-2123^]: Bug on order columns for Avro Impl link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2127[TCOMP-2127^]: Fix avro records where array contains nullable array link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2131[TCOMP-2131^]: starter-toolkit fails when generating a connector from openapi description link:search.html?query=starter[starter^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2133[TCOMP-2133^]: component-registry uses detailed version not baseVersion in snapshot case link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2134[TCOMP-2134^]: Activate intellij plugin by default link:search.html?query=intellij[intellij^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2138[TCOMP-2138^]: starter-toolkit github repository creation process fails link:search.html?query=starter[starter^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2135[TCOMP-2135^]: Component web tester in non interactive mode link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=testing[testing^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2126[TCOMP-2126^]: give default implementation to Record.Builder to not break api link:search.html?query=api[api^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2130[TCOMP-2130^]: Add git informations in starter-toolkit's environment link:search.html?query=starter[starter^,role='dockey']
+
+
+
+== Version 1.44.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2127[TCOMP-2127^]: Fix avro records where array contains nullable array link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2130[TCOMP-2130^]: Add git informations in starter-toolkit's environment link:search.html?query=starter[starter^,role='dockey']
+
+
+
+== Version 1.44.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2126[TCOMP-2126^]: give default implementation to Record.Builder to not break api link:search.html?query=api[api^,role='dockey']
+
+== Version 1.44.1
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2085[TCOMP-2085^]: Add extras manipulations on Record BuilderImpl link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
+== Version 1.44.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2102[TCOMP-2102^]: Wrong maven resolution with car when using snapshot in prepare-repository goal link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2119[TCOMP-2119^]: Avro Record : array containing Null. link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2112[TCOMP-2112^]: [JDBC] discover schema API is failing on production. link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2103[TCOMP-2103^]: Link affected jira components to issue in changelog as keywords for search link:search.html?query=documentation[documentation^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2098[TCOMP-2098^]: Improve m2 discovery process link:search.html?query=documentation[documentation^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2104[TCOMP-2104^]: Header link should be linked to latest path link:search.html?query=documentation[documentation^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2108[TCOMP-2108^]: Upgrade maven plugins 
+- link:https://jira.talendforge.org/browse/TCOMP-2109[TCOMP-2109^]: Upgrade git-commit-id-plugin to 4.0.5 
+- link:https://jira.talendforge.org/browse/TCOMP-2110[TCOMP-2110^]: Replace log4j by reload4j link:search.html?query=stitch[stitch^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2114[TCOMP-2114^]: Upgrade TSBI to 2.9.27-20220331162145 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2115[TCOMP-2115^]: Upgrade jackson to 2.12.6 due to CVE-2020-36518 link:search.html?query=bom[bom^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2116[TCOMP-2116^]: Upgrade log4j2 to 2.17.2 
+- link:https://jira.talendforge.org/browse/TCOMP-2117[TCOMP-2117^]: Upgrade slf4j to 1.7.33 
+- link:https://jira.talendforge.org/browse/TCOMP-2118[TCOMP-2118^]: Upgrade tomcat to 9.0.62 (mitigation for CVE-2022-22965) link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+
+== Version 1.43.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TDI-47693[TDI-47693^] : fix misaligned openwebbeans-spi dependency link:search.html?query=studio[studio^,role='dockey']
+
+== Version 1.43.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2003[TCOMP-2003^]: Maven dependency classifier considered as version in dependencies.txt by Studio
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2096[TCOMP-2096^]: Support BigDecimal type in DI integration
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2087[TCOMP-2087^]: Upgrade Tomcat to 9.0.59 due to CVE-2022-23181
+- link:https://jira.talendforge.org/browse/TCOMP-2088[TCOMP-2088^]: Upgrade OpenWebBeans to 2.0.26
+- link:https://jira.talendforge.org/browse/TCOMP-2089[TCOMP-2089^]: Upgrade meecrowave to 1.2.13
+- link:https://jira.talendforge.org/browse/TCOMP-2090[TCOMP-2090^]: Upgrade johnzon to 1.2.16
+- link:https://jira.talendforge.org/browse/TCOMP-2091[TCOMP-2091^]: Upgrade Beam to 2.36.0
+- link:https://jira.talendforge.org/browse/TCOMP-2092[TCOMP-2092^]: MvnCoordinateToFileConverter fakes classifiers' support
+- link:https://jira.talendforge.org/browse/TCOMP-2093[TCOMP-2093^]: Improve component-runtime documentation site
+- link:https://jira.talendforge.org/browse/TCOMP-2097[TCOMP-2097^]: Upgrade cxf to 3.5.1
+
+== Version 1.42.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1803[TCOMP-1803^]: RecordBuilder.withRecord(final String name, final Record value) doesn't accept null value
+- link:https://jira.talendforge.org/browse/TCOMP-2079[TCOMP-2079^]: Intellij plugin fails on plugin startup
+- link:https://jira.talendforge.org/browse/TCOMP-2080[TCOMP-2080^]: AvroRecord refuses Union[null, RecordSchema]
+- link:https://jira.talendforge.org/browse/TCOMP-2082[TCOMP-2082^]: ComponentManager's findDefaultM2 method takes comment as granted
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2058[TCOMP-2058^]: Add dependencies on config
+- link:https://jira.talendforge.org/browse/TCOMP-2074[TCOMP-2074^]: Change JSON log format to conform to ECS
+- link:https://jira.talendforge.org/browse/TCOMP-2083[TCOMP-2083^]: Give component-runtime version on ComponentManager startup
+- link:https://jira.talendforge.org/browse/TCOMP-2084[TCOMP-2084^]: Allow use of i18n in connectors' metadata for custom labels
+
+
+
+== Version 1.41.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2079[TCOMP-2079^]: Intellij plugin fails on plugin startup
+- link:https://jira.talendforge.org/browse/TCOMP-2080[TCOMP-2080^]: AvroRecord refuses Union[null, RecordSchema]
+- link:https://jira.talendforge.org/browse/TCOMP-2082[TCOMP-2082^]: ComponentManager's findDefaultM2 method takes comment as granted
+
+== Version 1.41.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2063[TCOMP-2063^]: Avro Record Constructor
+- link:https://jira.talendforge.org/browse/TCOMP-2064[TCOMP-2064^]: NPE with lookup missconfiguration in Join processor
+- link:https://jira.talendforge.org/browse/TCOMP-2067[TCOMP-2067^]: Bug on order columns
+- link:https://jira.talendforge.org/browse/TCOMP-2071[TCOMP-2071^]: Define default methods on Schema / Entry / Record interfaces
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2045[TCOMP-2045^]: Pass and read meta information about columns.
+- link:https://jira.talendforge.org/browse/TCOMP-2072[TCOMP-2072^]: Ligthen parameters for component-server docker image
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2057[TCOMP-2057^]: AvroSchema : optimize getType by using type fields
+- link:https://jira.talendforge.org/browse/TCOMP-2060[TCOMP-2060^]: Upgrade log4j2 to 2.17.0 due to CVE-2021-45105
+- link:https://jira.talendforge.org/browse/TCOMP-2061[TCOMP-2061^]: Upgrade netty to 4.1.72.Final due to CVE-2021-43797
+- link:https://jira.talendforge.org/browse/TCOMP-2065[TCOMP-2065^]: Internationalized Services as Serializable
+- link:https://jira.talendforge.org/browse/TCOMP-2068[TCOMP-2068^]: Upgrade log4j2 to 2.17.1 due to CVE-2021-44832
+- link:https://jira.talendforge.org/browse/TCOMP-2069[TCOMP-2069^]: Create a latest tag for component-runtime images
+- link:https://jira.talendforge.org/browse/TCOMP-2070[TCOMP-2070^]: Upgrade TSBI to 2.9.18-20220104141654
+- link:https://jira.talendforge.org/browse/TCOMP-2073[TCOMP-2073^]: Upgrade maven-core to 3.8.4 due to CVE
+
+== Version 1.40.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
+- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2018[TCOMP-2018^]: Optimize Avro Record
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
+
+
+
+== Version 1.39.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
+
+
+
+== Version 1.39.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2049[TCOMP-2049^]: Incompatible class change on Entry
+
+
+
+== Version 1.39.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
+
+== Version 1.39.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2019[TCOMP-2019^]: Sanitized columns name collision support
+- link:https://jira.talendforge.org/browse/TCOMP-2021[TCOMP-2021^]: Missing logic when handling null date values in Record
+- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2004[TCOMP-2004^]: [Runtime convergence] New tck/API to retrieve dataset full content
+- link:https://jira.talendforge.org/browse/TCOMP-2008[TCOMP-2008^]: Add ability to insert a schema entry on Record BuilderImpl
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1924[TCOMP-1924^]: Support Java 17 runtime
+- link:https://jira.talendforge.org/browse/TCOMP-2023[TCOMP-2023^]: Upgrade gradle to 6.9.1
+- link:https://jira.talendforge.org/browse/TCOMP-2024[TCOMP-2024^]: Upgrade maven-bundle-plugin to 4.2.1
+- link:https://jira.talendforge.org/browse/TCOMP-2025[TCOMP-2025^]: Upgrade documentation to latest
+- link:https://jira.talendforge.org/browse/TCOMP-2027[TCOMP-2027^]: Upgrage junit to 5.8.1
+- link:https://jira.talendforge.org/browse/TCOMP-2028[TCOMP-2028^]: Provide nashorn scripting engine when using java15+
+- link:https://jira.talendforge.org/browse/TCOMP-2029[TCOMP-2029^]: Upgrade jaxb to 2.3.5
+- link:https://jira.talendforge.org/browse/TCOMP-2030[TCOMP-2030^]: Upgrade Tomcat to 9.0.54 due to CVE-2021-42340
+- link:https://jira.talendforge.org/browse/TCOMP-2031[TCOMP-2031^]: Upgrade Beam to 2.33.0
+- link:https://jira.talendforge.org/browse/TCOMP-2032[TCOMP-2032^]: Upgrade Spark to 3.2.0
+- link:https://jira.talendforge.org/browse/TCOMP-2035[TCOMP-2035^]: Check build w/ Java 17 on CI
+- link:https://jira.talendforge.org/browse/TCOMP-2036[TCOMP-2036^]: Upgrade cxf to 3.4.5
+- link:https://jira.talendforge.org/browse/TCOMP-2037[TCOMP-2037^]: Upgrade johnzon to 1.2.15
+- link:https://jira.talendforge.org/browse/TCOMP-2038[TCOMP-2038^]: Upgrade bouncycastle to 1.69
+- link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
+- link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
+- link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
+== Version 1.38.6
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2045[TCOMP-2045^]: Pass and read meta information about columns. link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2096[TCOMP-2096^]: Support BigDecimal type in DI integration link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2070[TCOMP-2070^]: Upgrade TSBI to 2.9.18-20220104141654 link:search.html?query=build[build^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2105[TCOMP-2105^]: Upgrade Tomcat to 9.0.60 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+
+== Version 1.38.5
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2030[TCOMP-2030^]: Upgrade Tomcat to 9.0.54 due to CVE-2021-42340
+
+== Version 1.38.4
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2053[TCOMP-2053^]: Migration failing when using custom java code in configuration
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2054[TCOMP-2054^]: Upgrade log4j2 to 2.16.0 due to CVE-2021-44228
+
+
+
+== Version 1.38.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2048[TCOMP-2048^]: RowstructVisitor should respect case in member not java convention
+
+
+
+== Version 1.38.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2047[TCOMP-2047^]: RecordBuilder in RowstructVisitor keeps values
+
+== Version 1.38.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2046[TCOMP-2046^]: Rowstruct visitor recreates schema at each incoming row
+
 == Version 1.38.0
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-1963[TCOMP-1963^]: Missing IMetaDataColumn fields in guess schema
 - link:https://jira.talendforge.org/browse/TCOMP-1987[TCOMP-1987^]: Avro record : Array of Array of records issue
+- link:https://jira.talendforge.org/browse/TCOMP-1988[TCOMP-1988^]: Unable to run component-runtime connectors in Studio with JDK 17
+- link:https://jira.talendforge.org/browse/TCOMP-2005[TCOMP-2005^]: Non defined columns appear in schema
 - link:https://jira.talendforge.org/browse/TCOMP-2006[TCOMP-2006^]: Support empty values for Numbers case
+- link:https://jira.talendforge.org/browse/TCOMP-2010[TCOMP-2010^]: Error on Documentation build on "less" usage
+- link:https://jira.talendforge.org/browse/TCOMP-2020[TCOMP-2020^]: talend-component-kit-intellij-plugin module build fails using Bintray (decomissioned)
 
 
 
@@ -15,11 +466,19 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-1997[TCOMP-1997^]: Enable plugins reloading according criteria
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2000[TCOMP-2000^]: Upgrade netty to 4.1.68.Final
 - link:https://jira.talendforge.org/browse/TCOMP-2001[TCOMP-2001^]: Upgrade Beam to 2.32.0
 - link:https://jira.talendforge.org/browse/TCOMP-2007[TCOMP-2007^]: connectors as a json object in Environment
+- link:https://jira.talendforge.org/browse/TCOMP-2009[TCOMP-2009^]: Upgrade dockerfile-maven-plugin to 1.4.13
+- link:https://jira.talendforge.org/browse/TCOMP-2016[TCOMP-2016^]: UiSchema can't hold advanced titleMap for more advanded datalist widgets
 
 
 
@@ -700,6 +1159,12 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.15
 
 === Bug
@@ -732,12 +1197,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 

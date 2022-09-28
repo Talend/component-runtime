@@ -1,7 +1,7 @@
 = Singer Java
 :page-partial:
 :description: Write a custom singer tap/target in Java
-:keywords: singer, tap, target, stitch
+:keywords: singer, kitap, tap, target, stitch
 
 == singer-java
 

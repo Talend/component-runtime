@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,9 @@ final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datap
 final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
+final def isMasterBranch = env.BRANCH_NAME == "master"
 final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.9.0-2.3-20210907155713"
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
 def EXTRA_BUILD_ARGS = ""
@@ -47,7 +48,7 @@ spec:
                 { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
                 { name: dockercache, mountPath: /root/.dockercache}
             ]
-            resources: {requests: {memory: 8G, cpu: '6.0'}, limits: {memory: 12G, cpu: '6.5'}}
+            resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
     volumes:
         -
             name: docker
@@ -67,9 +68,9 @@ spec:
 
     environment {
         MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
-        BUILD_ARGS="-Dgpg.skip=true"
+        BUILD_ARGS="-Dgpg.skip=true -Denforcer.skip=true"
         SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2"
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
@@ -115,11 +116,12 @@ spec:
                                bash .jenkins/scripts/setup_gpg.sh
                                """
                         }
+
                         def pom = readMavenPom file: 'pom.xml'
                         env.PROJECT_VERSION = pom.version
                         try {
                             EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
-                        } catch (error) {
+                        } catch (ignored) {
                             EXTRA_BUILD_ARGS = ""
                         }
                     }
@@ -133,7 +135,10 @@ spec:
                         script {
                             try {
                                 sh "${params.POST_LOGIN_SCRIPT}"
-                            } catch (error) {
+                                sh """
+                                   bash .jenkins/scripts/npm_fix.sh
+                                   """
+                            } catch (ignored) {
                                 //
                             }
                         }
@@ -202,7 +207,7 @@ spec:
             when {
                 allOf {
                     expression { params.Action != 'RELEASE' }
-                    expression { isStdBranch }
+                    expression { isMasterBranch }
                 }
             }
             steps {
@@ -223,8 +228,8 @@ spec:
                     withCredentials([ossrhCredentials]) {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                             sh """
-                                mvn ossindex:audit-aggregate -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
-                                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report
+                                mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
+                                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
                                """
                         }
                     }
@@ -300,10 +305,62 @@ spec:
     }
     post {
         success {
-            slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+            script {
+                //Only post results to Slack for Master and Maintenance branches
+                if (isStdBranch) {
+                    slackSend(
+                        color: '#00FF00',
+                        message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
+                        channel: "${slackChannel}"
+                    )
+                }
+            }
         }
         failure {
-            slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
+            script {
+                //Only post results to Slack for Master and Maintenance branches
+                if (isStdBranch) {
+                    //if previous build was a success, ping channel in the Slack message
+                    if ("SUCCESS".equals(currentBuild.previousBuild.result)) {
+                        slackSend(
+                            color: '#FF0000',
+                            message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
+                            channel: "${slackChannel}"
+                        )
+                    } else {
+                        //else send notification without pinging channel
+                        slackSend(
+                            color: '#FF0000',
+                            message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
+                            channel: "${slackChannel}"
+                        )
+                    }
+                }
+            }
+        }
+        always {
+            container(tsbiImage) {
+                recordIssues(
+                    enabledForFailure: true,
+                    tools: [
+                        taskScanner(
+                            id: 'disabled',
+                            name: '@Disabled',
+                            includePattern: '**/src/**/*.java',
+                            ignoreCase: true,
+                            normalTags: '@Disabled'
+                        ),
+                        taskScanner(
+                            id: 'todo',
+                            name: 'Todo(low)/Fixme(high)',
+                            includePattern: '**/src/**/*.java',
+                            ignoreCase: true,
+                            highTags: 'FIX_ME, FIXME',
+                            lowTags: 'TO_DO, TODO'
+                        )
+                    ]
+                )
+            }
         }
     }
 }
