@@ -86,7 +86,7 @@ public class ApiMockUpdate {
                 randomHttpPort();
                 setScanningExcludes(
                         "classworlds,container,freemarker,zipkin,backport,commons,component-form,component-runtime-junit,"
-                                + "component-tools,crawler,doxia,exec,jsch,jcl,org.osgi,talend-component,component-server-vault-proxy");
+                                + "component-tools,crawler,doxia,exec,jsch,jcl,org.osgi,talend-component");
                 setScanningPackageExcludes(
                         "org.talend.sdk.component.proxy,org.talend.sdk.component.runtime.server.vault,org.talend.sdk.component.server.vault.proxy");
             }

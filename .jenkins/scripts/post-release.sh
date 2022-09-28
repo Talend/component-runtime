@@ -47,7 +47,7 @@ git checkout -b component-runtime-$release component-runtime-$release
 # push docker images
 echo "Building and pushing docker images $release"
 cd images
-    for i in component-server-image component-server-vault-proxy-image component-starter-server-image; do
+    for i in component-server-image component-starter-server-image; do
         cd $i
         mvn -DskipTests -Dinvoker.skip=true -T1C -Prelease \
             clean install \

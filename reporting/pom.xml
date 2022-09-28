@@ -119,11 +119,6 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-server-vault-proxy</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-extension-api</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -180,11 +175,6 @@
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-image</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-server-vault-proxy-image</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
