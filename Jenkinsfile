@@ -371,7 +371,6 @@ pipeline {
     always {
       recordIssues(
         enabledForFailure: true,
-        referenceJobName: 'component-runtime/job/build/job/master/',
         tools: [
           junitParser(
             id: 'unit-test',
