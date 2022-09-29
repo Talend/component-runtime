@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -134,6 +135,22 @@ public class TdpSchema implements Schema {
     public TdpSchema putMetadata(Entry entry) {
         this.metadata.put(entry.getName(), entry);
         return this;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        final TdpSchema schema = (TdpSchema) o;
+        return type == schema.type && entries.equals(schema.entries) && metadata.equals(schema.metadata)
+                && props.equals(schema.props) && Objects.equals(elementSchema, schema.elementSchema);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, entries, metadata, props, elementSchema);
     }
 
     /**

@@ -113,13 +113,13 @@
       <scope>test</scope>
     </dependency>
     <!-- forbidden to avoid a cycle
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-runtime-junit</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    -->
+        <dependency>
+          <groupId>org.talend.sdk.component</groupId>
+          <artifactId>component-runtime-junit</artifactId>
+          <version>${project.version}</version>
+          <scope>test</scope>
+        </dependency>
+        -->
 
     <!-- for IT -->
     <dependency>
@@ -150,37 +150,6 @@
       </testResource>
     </testResources>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-invoker-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>integration-test</id>
-            <goals>
-              <goal>install</goal>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <streamLogs>true</streamLogs>
-              <projectsDirectory>src/it</projectsDirectory>
-              <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-              <settingsFile>src/it/settings.xml</settingsFile>
-              <profiles>it-repo</profiles>
-              <!-- to debug the packaging
-              <mavenOpts>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000</mavenOpts>
-              -->
-              <showErrors>true</showErrors>
-              <pomIncludes>
-                <pomInclude>*/pom.xml</pomInclude>
-              </pomIncludes>
-              <goals>
-                <goal>clean</goal>
-                <goal>install</goal>
-              </goals>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
