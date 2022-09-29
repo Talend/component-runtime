@@ -75,12 +75,6 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-server-vault-proxy</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
       <artifactId>talend-component-maven-plugin</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
@@ -358,17 +352,6 @@
             <groupId>org.talend.sdk.component</groupId>
             <artifactId>component-api</artifactId>
             <version>${project.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.talend.sdk.component</groupId>
-            <artifactId>component-server-vault-proxy</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j-impl</artifactId>
-              </exclusion>
-            </exclusions>
           </dependency>
           <dependency>
             <groupId>org.talend.sdk.component</groupId>

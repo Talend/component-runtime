@@ -10,4 +10,3 @@
 Learn about the Component Server with the following articles:
 
 * xref:documentation-rest.adoc[Component server and HTTP API]
-* xref:vault-proxy.adoc[Component Server Vault Proxy]
