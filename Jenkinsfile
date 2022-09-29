@@ -343,6 +343,11 @@ spec:
                 recordIssues(
                     enabledForFailure: true,
                     tools: [
+                        junitParser(
+                          id: 'unit-test',
+                          name: 'Unit Test',
+                          pattern: '**/target/surefire-reports/*.xml'
+                        ),
                         taskScanner(
                             id: 'disabled',
                             name: '@Disabled',
