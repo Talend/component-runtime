@@ -77,7 +77,6 @@ main() (
   --projects \!org.talend.sdk.component:images \
   --projects \!org.talend.sdk.component:component-server-image \
   --projects \!org.talend.sdk.component:component-starter-server-image \
-  --projects \!org.talend.sdk.component:component-server-vault-proxy-image \
   --projects \!org.talend.sdk.component:remote-engine-customizer-image \
   --projects \!org.talend.sdk.component:singer-parent \
   --projects \!org.talend.sdk.component:singer-java \

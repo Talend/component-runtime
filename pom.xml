@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.49.0-SNAPSHOT</version>
+  <version>1.50.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -217,7 +217,7 @@
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
-    <beam.version>2.36.0</beam.version>
+    <beam.version>2.37.0</beam.version>
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.10</joda.time.version>
 
@@ -271,6 +271,7 @@
     <commons-compress.version>1.21</commons-compress.version>
     <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.18.0</log4j2.version>
+    <rhino.version>1.7.14</rhino.version>
   </properties>
 
   <dependencyManagement>

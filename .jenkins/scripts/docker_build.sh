@@ -33,16 +33,6 @@ main() {
     docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
     docker push "${registry_srv}:latest"
   fi
-  echo ">> Building and pushing component-server-vault-proxy:${tag}"
-  cd ../component-server-vault-proxy-image
-  mvn verify dockerfile:build -P ci-tsbi
-  local registry_srv_proxy="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy"
-  docker tag "talend/common/tacokit/component-server-vault-proxy:${tag}" "${registry_srv_proxy}:${tag}"
-  docker push "${registry_srv_proxy}:${tag}"
-  if [[ ${latest} == 'true' ]]; then
-    docker tag  "${registry_srv_proxy}:${tag}" "${registry_srv_proxy}:latest"
-    docker push "${registry_srv_proxy}:latest"
-  fi
   #TODO starter and remote-engine-customizer
   cd ../..
 }

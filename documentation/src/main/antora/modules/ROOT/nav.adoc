@@ -66,7 +66,6 @@
 * xref:index-cloud-integration.adoc[Integrating into Talend Cloud]
 ** xref:index-cloud-integration.adoc[Cloud integration overview]
 ** xref:documentation-rest.adoc[Component server and HTTP API]
-** xref:vault-proxy.adoc[Component Server Vault Proxy]
 * xref:index-knowledge-base.adoc[Knowledge base]
 ** xref:index-knowledge-base.adoc[Knowledge base articles]
 ** xref:changelog.adoc[Changelog]

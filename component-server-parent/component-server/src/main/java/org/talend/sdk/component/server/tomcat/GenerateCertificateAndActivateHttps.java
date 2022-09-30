@@ -36,7 +36,6 @@ import org.eclipse.microprofile.config.ConfigProvider;
 
 import lombok.extern.slf4j.Slf4j;
 
-// mainly for compatibility with vault-proxy, when the vault-proxy is dropped we can drop it
 @Slf4j
 public class GenerateCertificateAndActivateHttps implements Meecrowave.ConfigurationCustomizer {
 
