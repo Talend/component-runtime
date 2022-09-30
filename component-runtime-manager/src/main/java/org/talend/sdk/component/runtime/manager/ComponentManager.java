@@ -1692,7 +1692,9 @@ public class ComponentManager implements AutoCloseable {
                                         new BaseParameterEnricher.Context(LocalConfiguration.class
                                                 .cast(services.getServices().get(LocalConfiguration.class))));
                         if (infinite) {
-                            addInfiniteMapperBuiltInParameters(type, params);
+                            if (partitionMapper.stoppable()) {
+                                addInfiniteMapperBuiltInParameters(type, params);
+                            }
                         }
                         return params;
                     }));

@@ -64,4 +64,8 @@ public class ComponentClient {
     public String getStreamingId() {
         return getComponentId("streaming", "infinite");
     }
+
+    public String getStreamingStoppableId() {
+        return getComponentId("streaming", "infiniteStoppable");
+    }
 }

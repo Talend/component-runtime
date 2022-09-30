@@ -93,6 +93,16 @@ class ModelVisitorTest {
     }
 
     @Test
+    void mapperInfiniteStoppable() {
+        visit(InfiniteMapperStoppable.class);
+    }
+
+    @Test
+    void mapperStoppable() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperStoppable.class));
+    }
+
+    @Test
     void mapperNoSplit() {
         assertThrows(IllegalArgumentException.class, () -> visit(MapperNoSplit.class));
     }
@@ -339,6 +349,45 @@ class ModelVisitorTest {
 
         @PartitionMapper(family = "comp", name = "Mapper", infinite = true)
         public static class Mapper {
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public ValidIn emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class InfiniteMapperStoppable {
+
+        @PartitionMapper(family = "comp", name = "Mapper", infinite = true, stoppable = true)
+        public static class Mapper {
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public ValidIn emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class MapperStoppable {
+
+        @PartitionMapper(family = "comp", name = "Mapper", infinite = false, stoppable = true)
+        public static class Mapper {
+
+            @Assessor
+            public long get() {
+                return 1;
+            }
 
             @Split
             public Collection<Mapper> ins() {
