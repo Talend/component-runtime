@@ -70,6 +70,7 @@ import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
@@ -421,6 +422,12 @@ public class ReflectionService {
         final Object potentialJsonValue = config.get(name);
         if (JsonObject.class == clazz && String.class.isInstance(potentialJsonValue)) {
             return createJsonValue(potentialJsonValue, precomputed, Json::createReader).asJsonObject();
+        }
+        if (propertyEditorRegistry.findConverter(clazz) != null && Schema.class.isAssignableFrom(clazz) ) {
+            final Object configValue = config.get(name);
+            if (String.class.isInstance(configValue)) {
+                return propertyEditorRegistry.getValue(clazz, String.class.cast(configValue));
+            }
         }
         if (propertyEditorRegistry.findConverter(clazz) != null && config.size() == 1) {
             final Object configValue = config.values().iterator().next();

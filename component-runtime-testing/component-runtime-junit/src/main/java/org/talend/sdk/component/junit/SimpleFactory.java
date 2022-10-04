@@ -60,7 +60,7 @@ public class SimpleFactory {
     private static class SimpleParameterModelService extends ParameterModelService {
 
         public SimpleParameterModelService() {
-            super(new EnrichedPropertyEditorRegistry());
+            super(new EnrichedPropertyEditorRegistry(null));
         }
 
         private ParameterMeta build(final String name, final String prefix, final Type genericType,

@@ -433,7 +433,20 @@ public class ComponentManager implements AutoCloseable {
 
         logInfoLevelMapping = findLogInfoLevel();
 
-        propertyEditorRegistry = createPropertyEditorRegistry();
+        final Iterator<RecordBuilderFactoryProvider> recordBuilderFactoryIterator =
+                ServiceLoader.load(RecordBuilderFactoryProvider.class, tccl).iterator();
+        if (recordBuilderFactoryIterator.hasNext()) {
+            final RecordBuilderFactoryProvider factory = recordBuilderFactoryIterator.next();
+            recordBuilderFactoryProvider = factory::apply;
+            if (recordBuilderFactoryIterator.hasNext()) {
+                throw new IllegalArgumentException(
+                        "Ambiguous recordBuilderFactory: " + factory + "/" + recordBuilderFactoryIterator.next());
+            }
+        } else {
+            recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
+        }
+
+        propertyEditorRegistry = createPropertyEditorRegistry(recordBuilderFactoryProvider.apply(null));
         localConfigurations = createRawLocalConfigurations();
         parameterModelService = new ParameterModelService(propertyEditorRegistry);
         reflections = new ReflectionService(parameterModelService, propertyEditorRegistry);
@@ -487,19 +500,6 @@ public class ComponentManager implements AutoCloseable {
                 .collect(toList());
         this.transformers = extensions.stream().flatMap(e -> e.getTransformers().stream()).collect(toList());
 
-        final Iterator<RecordBuilderFactoryProvider> recordBuilderFactoryIterator =
-                ServiceLoader.load(RecordBuilderFactoryProvider.class, tccl).iterator();
-        if (recordBuilderFactoryIterator.hasNext()) {
-            final RecordBuilderFactoryProvider factory = recordBuilderFactoryIterator.next();
-            recordBuilderFactoryProvider = factory::apply;
-            if (recordBuilderFactoryIterator.hasNext()) {
-                throw new IllegalArgumentException(
-                        "Ambiguous recordBuilderFactory: " + factory + "/" + recordBuilderFactoryIterator.next());
-            }
-        } else {
-            recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
-        }
-
         this.defaultServiceProvider = new DefaultServiceProvider(reflections, jsonpProvider, jsonpGeneratorFactory,
                 jsonpReaderFactory, jsonpBuilderFactory, jsonpParserFactory, jsonpWriterFactory, jsonbConfig,
                 jsonbProvider, proxyGenerator, javaProxyEnricherFactory, localConfigurations,
@@ -530,8 +530,8 @@ public class ComponentManager implements AutoCloseable {
         return container.resolve(artifact);
     }
 
-    private EnrichedPropertyEditorRegistry createPropertyEditorRegistry() {
-        return new EnrichedPropertyEditorRegistry();
+    private EnrichedPropertyEditorRegistry createPropertyEditorRegistry(final RecordBuilderFactory recordBuilderFactory) {
+        return new EnrichedPropertyEditorRegistry(recordBuilderFactory);
     }
 
     private Level findLogInfoLevel() {

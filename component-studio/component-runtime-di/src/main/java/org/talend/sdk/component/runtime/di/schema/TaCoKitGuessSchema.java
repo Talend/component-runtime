@@ -99,6 +99,8 @@ public class TaCoKitGuessSchema {
 
     private final String type = "schema";
 
+    private final String processorSchemaType = "processor_schema";
+
     private static final String EMPTY = ""; //$NON-NLS-1$
 
     public TaCoKitGuessSchema(final PrintStream out, final Map<String, String> configuration, final String plugin,
@@ -181,6 +183,102 @@ public class TaCoKitGuessSchema {
             return;
         }
         throw new Exception("There is no available schema found.");
+    }
+
+    /**
+     * action method signature should match following parameters:
+     *
+     *
+     * myProcessorGuessSchema(Schema incomingSchema, ProcessorConfiguration conf, String branch)
+     * myProcessorGuessSchema(Record incomingRecord, ProcessorConfiguration conf, String branch)
+     * myProcessorGuessSchema(Schema incomingSchema, ProcessorConfiguration conf)
+     * myProcessorGuessSchema(Record incomingRecord, ProcessorConfiguration conf)
+     * myProcessorGuessSchema(ProcessorConfiguration conf, String branch)
+     * myProcessorGuessSchema(ProcessorConfiguration conf, String branch)
+     * myProcessorGuessSchema(ProcessorConfiguration conf)
+     *
+     * @param incomingSchema
+     * @param outgoingBranch
+     * @throws Exception
+     */
+    public void guessProcessorComponentSchema(final Schema incomingSchema, final String outgoingBranch) throws Exception {
+        try {
+            final Collection<ServiceMeta> services = componentManager
+                    .findPlugin(plugin)
+                    .orElseThrow(() -> new IllegalArgumentException("No component " + plugin))
+                    .get(ContainerComponentRegistry.class)
+                    .getServices();
+            final ServiceMeta.ActionMeta actionRef = services
+                    .stream()
+                    .flatMap(s -> s.getActions().stream())
+                    .filter(a -> a.getFamily().equals(family) && a.getType().equals(processorSchemaType))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + processorSchemaType));
+
+            final Object schemaResult = actionRef.getInvoker().apply(buildProcessorActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
+            log.warn("[guessProcessorComponentSchema] {}", schemaResult);
+            if (schemaResult instanceof Schema && fromSchema(Schema.class.cast(schemaResult))) {
+                return;
+            }
+        } catch (Exception e) {
+            log.error("Can't guess processor schema through action.", e);
+        }
+
+        log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema");
+        throw new Exception("There is no available schema found.");
+    }
+
+    private Map<String, String> buildProcessorActionConfig(final ServiceMeta.ActionMeta action,
+                                                           final Map<String, String> configuration,
+                                                           final Schema schema,
+                                                           final String branch) {
+        final String schemaPath = action.getParameters()
+                .get()
+                .stream()
+                .filter(p -> Schema.class.isAssignableFrom((Class) p.getJavaType()))
+                .map(p -> p.getPath())
+                .findFirst()
+                .orElse("");
+        final String branchPath = action.getParameters()
+                .get()
+                .stream()
+                .filter(p -> String.class.isAssignableFrom((Class) p.getJavaType()))
+                .map(p -> p.getPath())
+                .findFirst()
+                .orElse("");
+
+        final Map<String, String> mapped = new HashMap<>();
+        if (!schemaPath.isEmpty()) {
+            try (final Jsonb jsonb = JsonbBuilder.create()) {
+                mapped.put(schemaPath, jsonb.toJson(schema));
+            } catch (final Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        if (!branchPath.isEmpty()) {
+            mapped.put(branchPath, branch);
+        }
+        if (configuration == null || configuration.isEmpty()) {
+            return mapped;
+        }
+        final String prefix = action
+                .getParameters()
+                .get()
+                .stream()
+                .filter(s-> ! s.getPath().equals(schemaPath) && ! s.getPath().equals(branchPath))
+                .map(ParameterMeta::getPath)
+                .findFirst()
+                .orElse(null);
+        if (prefix == null) {
+            return mapped;
+        }
+        mapped.putAll(configuration
+                    .entrySet()
+                    .stream()
+                    .filter(e -> isChildParameter(e.getKey(), prefix) || prefix.equals(e.getKey()))
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        log.warn("[buildProcessorActionConfig] mapped {}", mapped);
+        return mapped;
     }
 
     private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,

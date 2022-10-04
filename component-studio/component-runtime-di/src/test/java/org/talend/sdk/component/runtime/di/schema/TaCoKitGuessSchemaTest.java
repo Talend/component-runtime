@@ -20,12 +20,16 @@ import java.io.File;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import javax.json.bind.Jsonb;
 
 import org.apache.beam.sdk.options.Description;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -36,13 +40,20 @@ import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class TaCoKitGuessSchemaTest {
 
     private static final String EXPECTED_ERROR_MESSAGE = "Should not be invoked";
@@ -123,6 +134,39 @@ class TaCoKitGuessSchemaTest {
         }
     }
 
+    @Test
+    void guessProcessorSchema() throws Exception {
+        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             PrintStream out = new PrintStream(byteArrayOutputStream)) {
+            RecordBuilderFactory factory = ComponentManager.instance().getRecordBuilderFactoryProvider().apply("default");
+            Schema.Entry f1 = factory.newEntryBuilder().withName("f1").withType(Schema.Type.STRING).build();
+            Schema.Entry f2 = factory.newEntryBuilder().withName("f2").withType(Schema.Type.LONG).build();
+            Schema.Entry f3 = factory.newEntryBuilder().withName("f3").withType(Schema.Type.BOOLEAN).build();
+            Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+                    .withEntry(f1)
+                    .withEntry(f2)
+                    .withEntry(f3)
+                    .build();
+            Jsonb jsonb = ComponentManager.instance().getJsonbProvider().create().build();
+            Map<String, String> config = new HashMap<>();
+//            config.put("incomingSchema.schema", jsonb.toJson(schema));
+//            config.put("conf.param1", "parameter one");
+//            config.put("conf.param2", "parameter two");
+//            config.put("out.out", "main");
+            //   config.put("incomingSchema", jsonb.toJson(schema));
+            //config.put("branch", "main");
+            config.put("configuration.param1", "parameter one");
+            config.put("configuration.param2", "parameter two");
+            final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
+                    out, config, "test-classes", "TaCoKitGuessSchema",
+                    "outputDi", null, "1");
+            guessSchema.guessProcessorComponentSchema(schema, "out");
+            guessSchema.close();
+            log.warn("[guessProcessorSchema] {}", out);
+            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
+        }
+    }
+
     @Data
     @DataStore("TestDataStore")
     public static class TestDataStore implements Serializable {
@@ -158,4 +202,51 @@ class TaCoKitGuessSchemaTest {
             }
         }
     }
+
+    @Data
+    @Processor(family = "TaCoKitGuessSchema", name = "outputDi")
+    public static class StudioProcessor implements Serializable {
+
+        @Option
+        private ProcessorConfiguration configuration;
+
+        @ElementListener
+        public Object next(Record in, Record out) {
+            return null;
+        }
+    }
+
+    @Data
+    public static class ProcessorConfiguration implements Serializable {
+        @Option
+        private String param1;
+        @Option
+        private String param2;
+        @Option
+        private String param3;
+    }
+
+    @Service
+    public static class StudioProcessorService implements Serializable {
+        @DiscoverProcessorSchema
+        public Schema discoverProcessorSchema(
+                final Schema incomingSchema,
+                @Option("configuration") final ProcessorConfiguration conf,
+                final String branch) {
+
+            log.warn("[discoverProcessorSchema] configuration:{} branch: {};", conf, branch);
+            incomingSchema.getAllEntries().forEach(s -> log.warn("[discoverProcessorSchema] {}", s));
+
+            RecordBuilderFactory factory = ComponentManager.instance().getRecordBuilderFactoryProvider().apply("default");
+            Schema.Entry f1 = factory.newEntryBuilder().withName("f1").withType(Schema.Type.STRING).build();
+            Schema.Entry f2 = factory.newEntryBuilder().withName("f2").withType(Schema.Type.STRING).build();
+            Schema.Entry f3 = factory.newEntryBuilder().withName("f3").withType(Schema.Type.STRING).build();
+            return factory.newSchemaBuilder(Schema.Type.RECORD)
+                    .withEntry(f1)
+                    .withEntry(f2)
+                    .withEntry(f3)
+                    .build();
+        }
+    }
+
 }
