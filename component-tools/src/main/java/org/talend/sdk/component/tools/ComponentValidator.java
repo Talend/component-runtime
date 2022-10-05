@@ -60,7 +60,7 @@ public class ComponentValidator extends BaseTask {
     private final Log log;
 
     private final ParameterModelService parameterModelService =
-            new ParameterModelService(new EnrichedPropertyEditorRegistry(null));
+            new ParameterModelService(new EnrichedPropertyEditorRegistry());
 
     private final SvgValidator validator = new SvgValidator();
 

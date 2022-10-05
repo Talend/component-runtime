@@ -423,7 +423,7 @@ public class ReflectionService {
         if (JsonObject.class == clazz && String.class.isInstance(potentialJsonValue)) {
             return createJsonValue(potentialJsonValue, precomputed, Json::createReader).asJsonObject();
         }
-        if (propertyEditorRegistry.findConverter(clazz) != null && Schema.class.isAssignableFrom(clazz) ) {
+        if (propertyEditorRegistry.findConverter(clazz) != null && Schema.class.isAssignableFrom(clazz)) {
             final Object configValue = config.get(name);
             if (String.class.isInstance(configValue)) {
                 return propertyEditorRegistry.getValue(clazz, String.class.cast(configValue));

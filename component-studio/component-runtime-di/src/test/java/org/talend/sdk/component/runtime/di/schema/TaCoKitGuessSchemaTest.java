@@ -15,16 +15,21 @@
  */
 package org.talend.sdk.component.runtime.di.schema;
 
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import javax.json.bind.Jsonb;
 
 import org.apache.beam.sdk.options.Description;
 import org.junit.jupiter.api.Assertions;
@@ -44,6 +49,7 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema;
@@ -58,12 +64,15 @@ class TaCoKitGuessSchemaTest {
 
     private static final String EXPECTED_ERROR_MESSAGE = "Should not be invoked";
 
+    private static RecordBuilderFactory factory;
+
     @BeforeAll
     static void forceManagerInit() {
         final ComponentManager manager = ComponentManager.instance();
         if (!manager.find(Stream::of).findAny().isPresent()) {
             manager.addPlugin(new File("target/test-classes").getAbsolutePath());
         }
+        factory = manager.getRecordBuilderFactoryProvider().apply("default");
     }
 
     @Description("What are we testing here? " +
@@ -130,31 +139,34 @@ class TaCoKitGuessSchemaTest {
             };
             final IllegalStateException exception =
                     Assertions.assertThrows(IllegalStateException.class, guessSchema::guessInputComponentSchema);
-            Assertions.assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
+            assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
         }
     }
 
     @Test
     void guessProcessorSchema() throws Exception {
         try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             PrintStream out = new PrintStream(byteArrayOutputStream)) {
-            RecordBuilderFactory factory = ComponentManager.instance().getRecordBuilderFactoryProvider().apply("default");
-            Schema.Entry f1 = factory.newEntryBuilder().withName("f1").withType(Schema.Type.STRING).build();
-            Schema.Entry f2 = factory.newEntryBuilder().withName("f2").withType(Schema.Type.LONG).build();
-            Schema.Entry f3 = factory.newEntryBuilder().withName("f3").withType(Schema.Type.BOOLEAN).build();
-            Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+                PrintStream out = new PrintStream(byteArrayOutputStream)) {
+            final Entry f1 = factory.newEntryBuilder()
+                    .withName("f1")
+                    .withType(Schema.Type.STRING)
+                    .build();
+            final Entry f2 = factory.newEntryBuilder()
+                    .withName("f2")
+                    .withType(Schema.Type.LONG)
+                    .withDefaultValue(11l)
+                    .build();
+            final Entry f3 = factory.newEntryBuilder()
+                    .withName("f3")
+                    .withType(Schema.Type.BOOLEAN)
+                    .build();
+            final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+                    .withProp("aprop", "a property!")
                     .withEntry(f1)
                     .withEntry(f2)
                     .withEntry(f3)
                     .build();
-            Jsonb jsonb = ComponentManager.instance().getJsonbProvider().create().build();
             Map<String, String> config = new HashMap<>();
-//            config.put("incomingSchema.schema", jsonb.toJson(schema));
-//            config.put("conf.param1", "parameter one");
-//            config.put("conf.param2", "parameter two");
-//            config.put("out.out", "main");
-            //   config.put("incomingSchema", jsonb.toJson(schema));
-            //config.put("branch", "main");
             config.put("configuration.param1", "parameter one");
             config.put("configuration.param2", "parameter two");
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
@@ -162,7 +174,14 @@ class TaCoKitGuessSchemaTest {
                     "outputDi", null, "1");
             guessSchema.guessProcessorComponentSchema(schema, "out");
             guessSchema.close();
-            log.warn("[guessProcessorSchema] {}", out);
+            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
+            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
+                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
+                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
+                    .collect(joining("\n"));
+            final String expected =
+                    "[{\"label\":\"f1\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f1\",\"precision\":0,\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f2\",\"precision\":0,\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f3\",\"precision\":0,\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"out\",\"precision\":0,\"talendType\":\"id_String\"}]";
+            assertEquals(expected, lines);
             Assertions.assertTrue(byteArrayOutputStream.size() > 0);
         }
     }
@@ -218,33 +237,45 @@ class TaCoKitGuessSchemaTest {
 
     @Data
     public static class ProcessorConfiguration implements Serializable {
+
         @Option
         private String param1;
+
         @Option
         private String param2;
+
         @Option
         private String param3;
     }
 
     @Service
     public static class StudioProcessorService implements Serializable {
+
         @DiscoverProcessorSchema
-        public Schema discoverProcessorSchema(
-                final Schema incomingSchema,
-                @Option("configuration") final ProcessorConfiguration conf,
-                final String branch) {
+        public Schema discoverProcessorSchema(final Schema incomingSchema,
+                @Option("configuration") final ProcessorConfiguration conf, final String branch) {
+            assertEquals("out", branch);
+            assertEquals("parameter one", conf.param1);
+            assertEquals("parameter two", conf.param2);
+            assertNull(conf.param3);
+            assertNotNull(incomingSchema);
+            assertEquals(Schema.Type.RECORD, incomingSchema.getType());
+            assertEquals("a property!", incomingSchema.getProp("aprop"));
+            assertNotNull(incomingSchema.getEntry("f1"));
+            assertEquals(Schema.Type.STRING, incomingSchema.getEntry("f1").getType());
+            assertNotNull(incomingSchema.getEntry("f2"));
+            assertEquals(Schema.Type.LONG, incomingSchema.getEntry("f2").getType());
+            assertEquals(11L, (Long) incomingSchema.getEntry("f2").getDefaultValue());
+            assertNotNull(incomingSchema.getEntry("f3"));
+            assertEquals(Schema.Type.BOOLEAN, incomingSchema.getEntry("f3").getType());
 
-            log.warn("[discoverProcessorSchema] configuration:{} branch: {};", conf, branch);
-            incomingSchema.getAllEntries().forEach(s -> log.warn("[discoverProcessorSchema] {}", s));
-
-            RecordBuilderFactory factory = ComponentManager.instance().getRecordBuilderFactoryProvider().apply("default");
-            Schema.Entry f1 = factory.newEntryBuilder().withName("f1").withType(Schema.Type.STRING).build();
-            Schema.Entry f2 = factory.newEntryBuilder().withName("f2").withType(Schema.Type.STRING).build();
-            Schema.Entry f3 = factory.newEntryBuilder().withName("f3").withType(Schema.Type.STRING).build();
-            return factory.newSchemaBuilder(Schema.Type.RECORD)
-                    .withEntry(f1)
-                    .withEntry(f2)
-                    .withEntry(f3)
+            return factory.newSchemaBuilder(incomingSchema)
+                    .withEntry(factory.newEntryBuilder()
+                            .withName(branch)
+                            .withType(Schema.Type.STRING)
+                            .withComment("branch name")
+                            .withProp("branch", branch)
+                            .build())
                     .build();
         }
     }

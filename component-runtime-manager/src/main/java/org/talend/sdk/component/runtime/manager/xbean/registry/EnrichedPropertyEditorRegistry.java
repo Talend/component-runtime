@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,7 +56,6 @@ import org.apache.xbean.propertyeditor.SortedSetEditor;
 import org.apache.xbean.propertyeditor.StringEditor;
 import org.apache.xbean.propertyeditor.URIEditor;
 import org.apache.xbean.propertyeditor.URLEditor;
-import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalDateConverter;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalDateTimeConverter;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalTimeConverter;
@@ -67,7 +66,7 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
 
     private final ThreadLocal<Map<Type, Optional<Converter>>> converterCache = new ThreadLocal<>();
 
-    public EnrichedPropertyEditorRegistry(final RecordBuilderFactory factory) {
+    public EnrichedPropertyEditorRegistry() {
         final DoubleEditor doubleEditor = new DoubleEditor();
         // the front always sends us doubles so
         // if we don't map double to the native number we get number format exceptions
@@ -122,7 +121,7 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
         super.register(new LocalTimeConverter());
 
         // schema and record
-        super.register(new SchemaConverter(factory));
+        super.register(new SchemaConverter());
         // extensions
         ServiceLoader.load(Converter.class).forEach(this::register);
     }
@@ -152,7 +151,7 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
 
     private Converter doFindConverter(final Type type) {
         return Stream
-                .<Supplier<Converter>>of(() -> findInternalConverter(type), () -> findStructuralConverter(type))
+                .<Supplier<Converter>> of(() -> findInternalConverter(type), () -> findStructuralConverter(type))
                 .map(Supplier::get)
                 .filter(Objects::nonNull)
                 .findFirst()

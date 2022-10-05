@@ -82,6 +82,52 @@ This class marks an action doing a connection test
 ----
 
 
+= Processor Schema
+
+Mark an action as returning a processed schema with an entry schema in input.
+
+- Type: `processor_schema`
+- API: `@org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema`
+- Returned type: `org.talend.sdk.component.api.record.Schema`
+- Sample:
+
+[source,js]
+----
+{
+  "entries":[
+    {
+      "comment":"The column 1",
+      "metadata":false,
+      "name":"column1",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 1",
+      "type":"STRING"
+    },
+    {
+      "comment":"The int column",
+      "metadata":false,
+      "name":"column2",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 2",
+      "type":"INT"
+    }
+  ],
+  "metadata":[
+  ],
+  "props":{
+    "talend.fields.order":"column1,column2"
+  },
+  "type":"RECORD"
+}
+----
+
+
 = Schema
 
 Mark an action as returning a discovered schema. Its parameter MUST be a dataset. Dataset is configuration type annotated with @DataSet. If component has multiple datasets, then dataset used as action parameter should have the same identifier as this @DiscoverSchema. 

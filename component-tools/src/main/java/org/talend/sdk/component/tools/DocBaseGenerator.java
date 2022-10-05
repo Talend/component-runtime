@@ -87,7 +87,7 @@ public abstract class DocBaseGenerator extends BaseTask {
     private final ParameterModelService parameterModelService = new ParameterModelService(
             asList(new DocumentationParameterEnricher(), new ConditionParameterEnricher(),
                     new ConfigurationTypeParameterEnricher(), new UiParameterEnricher()),
-            new EnrichedPropertyEditorRegistry(null)) {
+            new EnrichedPropertyEditorRegistry()) {
     };
 
     DocBaseGenerator(final File[] classes, final Locale locale, final Object log, final File output) {

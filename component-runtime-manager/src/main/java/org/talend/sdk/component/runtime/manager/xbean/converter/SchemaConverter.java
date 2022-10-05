@@ -1,24 +1,29 @@
-/*
+/**
  * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.runtime.manager.xbean.converter;
 
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,22 +42,37 @@ import javax.json.spi.JsonProvider;
 import org.apache.xbean.propertyeditor.AbstractConverter;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 public class SchemaConverter extends AbstractConverter {
 
-    public SchemaConverter(final RecordBuilderFactory recordBuilderFactory) {
-        super(Schema.class);
-        // jsonb = JsonbProvider.provider().create().build();
-        factory = recordBuilderFactory;
-    }
-
     JsonbProvider jsonbProvider;
+
     private Jsonb jsonb;
+
     private JsonObject json;
+
     private RecordBuilderFactory factory;
 
+    Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
+
+    public SchemaConverter() {
+        super(Schema.class);
+        final Iterator<RecordBuilderFactoryProvider> spiIterator =
+                ServiceLoader.load(RecordBuilderFactoryProvider.class, Thread.currentThread().getContextClassLoader())
+                        .iterator();
+        if (spiIterator.hasNext()) {
+            final RecordBuilderFactoryProvider spi = spiIterator.next();
+            recordBuilderFactoryProvider = spi::apply;
+        } else {
+            recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
+        }
+        factory = recordBuilderFactoryProvider.apply("null");
+    }
+
     @Override
-    public Object toObjectImpl(String s) {
+    public Object toObjectImpl(final String s) {
         if (!s.isEmpty()) {
             json = JsonProvider.provider().createReader(new StringReader(s)).readObject();
             Schema schema = toSchema(json);
@@ -60,7 +80,6 @@ public class SchemaConverter extends AbstractConverter {
         }
         return null;
     }
-
 
     public Schema toSchema(final JsonObject json) {
         if (json == null || json.isNull("type")) {
@@ -88,7 +107,7 @@ public class SchemaConverter extends AbstractConverter {
     }
 
     private void treatElementSchema(final JsonObject json,
-                                    final Consumer<Schema> setter) {
+            final Consumer<Schema> setter) {
         final JsonValue elementSchema = json.get("elementSchema");
         if (elementSchema instanceof JsonObject) {
             final Schema schema = this.toSchema((JsonObject) elementSchema);
@@ -100,8 +119,8 @@ public class SchemaConverter extends AbstractConverter {
     }
 
     private void addEntries(final Schema.Builder schemaBuilder,
-                            final boolean metadata,
-                            final JsonArray entries) {
+            final boolean metadata,
+            final JsonArray entries) {
         if (entries == null || entries.isEmpty()) {
             return;
         }
@@ -146,7 +165,7 @@ public class SchemaConverter extends AbstractConverter {
     }
 
     private void addProps(final BiConsumer<String, String> setter,
-                          final JsonObject object) {
+            final JsonObject object) {
         if (object == null || object.get("props") == null) {
             return;
         }
@@ -159,7 +178,7 @@ public class SchemaConverter extends AbstractConverter {
     }
 
     private void setDefaultValue(final Schema.Entry.Builder entry,
-                                 final JsonValue value) {
+            final JsonValue value) {
         final JsonValue.ValueType valueType = value.getValueType();
         if (valueType == JsonValue.ValueType.NUMBER) {
             entry.withDefaultValue(((JsonNumber) value).numberValue());
@@ -175,7 +194,6 @@ public class SchemaConverter extends AbstractConverter {
         // doesn't treat JsonArray nor JsonObject for default value.
 
     }
-
 
     public JsonObject toJson(final Schema schema) {
         if (schema == null) {
@@ -204,8 +222,8 @@ public class SchemaConverter extends AbstractConverter {
     }
 
     private void addEntries(final JsonObjectBuilder objectBuilder,
-                            final String name,
-                            final Stream<Schema.Entry> entries) {
+            final String name,
+            final Stream<Schema.Entry> entries) {
         if (entries == null) {
             return;
         }
@@ -252,7 +270,7 @@ public class SchemaConverter extends AbstractConverter {
     }
 
     private void addProps(final JsonObjectBuilder builder,
-                          final Map<String, String> properties) {
+            final Map<String, String> properties) {
         if (properties == null || properties.isEmpty()) {
             return;
         }
@@ -294,6 +312,5 @@ public class SchemaConverter extends AbstractConverter {
 
         return null;
     }
-
 
 }

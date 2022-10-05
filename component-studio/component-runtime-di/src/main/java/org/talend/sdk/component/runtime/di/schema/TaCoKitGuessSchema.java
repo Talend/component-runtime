@@ -201,7 +201,8 @@ public class TaCoKitGuessSchema {
      * @param outgoingBranch
      * @throws Exception
      */
-    public void guessProcessorComponentSchema(final Schema incomingSchema, final String outgoingBranch) throws Exception {
+    public void guessProcessorComponentSchema(final Schema incomingSchema, final String outgoingBranch)
+            throws Exception {
         try {
             final Collection<ServiceMeta> services = componentManager
                     .findPlugin(plugin)
@@ -215,7 +216,8 @@ public class TaCoKitGuessSchema {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + processorSchemaType));
 
-            final Object schemaResult = actionRef.getInvoker().apply(buildProcessorActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
+            final Object schemaResult = actionRef.getInvoker()
+                    .apply(buildProcessorActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
             log.warn("[guessProcessorComponentSchema] {}", schemaResult);
             if (schemaResult instanceof Schema && fromSchema(Schema.class.cast(schemaResult))) {
                 return;
@@ -228,10 +230,8 @@ public class TaCoKitGuessSchema {
         throw new Exception("There is no available schema found.");
     }
 
-    private Map<String, String> buildProcessorActionConfig(final ServiceMeta.ActionMeta action,
-                                                           final Map<String, String> configuration,
-                                                           final Schema schema,
-                                                           final String branch) {
+        private Map<String, String> buildProcessorActionConfig(final ServiceMeta.ActionMeta action,
+            final Map<String, String> configuration, final Schema schema, final String branch) {
         final String schemaPath = action.getParameters()
                 .get()
                 .stream()
@@ -265,7 +265,7 @@ public class TaCoKitGuessSchema {
                 .getParameters()
                 .get()
                 .stream()
-                .filter(s-> ! s.getPath().equals(schemaPath) && ! s.getPath().equals(branchPath))
+                .filter(s -> !s.getPath().equals(schemaPath) && !s.getPath().equals(branchPath))
                 .map(ParameterMeta::getPath)
                 .findFirst()
                 .orElse(null);
@@ -273,11 +273,10 @@ public class TaCoKitGuessSchema {
             return mapped;
         }
         mapped.putAll(configuration
-                    .entrySet()
-                    .stream()
-                    .filter(e -> isChildParameter(e.getKey(), prefix) || prefix.equals(e.getKey()))
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        log.warn("[buildProcessorActionConfig] mapped {}", mapped);
+                .entrySet()
+                .stream()
+                .filter(e -> isChildParameter(e.getKey(), prefix) || prefix.equals(e.getKey()))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
         return mapped;
     }
 
