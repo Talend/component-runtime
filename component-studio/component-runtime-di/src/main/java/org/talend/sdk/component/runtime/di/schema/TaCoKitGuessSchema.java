@@ -230,7 +230,7 @@ public class TaCoKitGuessSchema {
         throw new Exception("There is no available schema found.");
     }
 
-        private Map<String, String> buildProcessorActionConfig(final ServiceMeta.ActionMeta action,
+    private Map<String, String> buildProcessorActionConfig(final ServiceMeta.ActionMeta action,
             final Map<String, String> configuration, final Schema schema, final String branch) {
         final String schemaPath = action.getParameters()
                 .get()
