@@ -84,7 +84,7 @@ This class marks an action doing a connection test
 
 = Processor Schema
 
-Mark an action as returning a processed schema with an entry schema in input.
+Mark a method as returning a Schema resulting from an input one and action of a processor for an outgoing branch.
 
 - Type: `processor_schema`
 - API: `@org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema`

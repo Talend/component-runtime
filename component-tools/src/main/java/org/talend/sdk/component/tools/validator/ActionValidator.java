@@ -159,8 +159,8 @@ public class ActionValidator implements Validator {
      * Checks method signature for @DiscoverProcessorSchema annotation.
      * Valid signatures are:
      * <ul>
-     * <li>public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf, final String
-     * branch)</li>
+     * <li>public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf, final
+     * String branch)</li>
      * <li>public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf)</li>
      * <li>public Schema guessMethodName(final @Option("configuration") procConf, final String branch)</li>
      * <li>public Schema guessMethodName(final @Option("configuration") procConf)</li>

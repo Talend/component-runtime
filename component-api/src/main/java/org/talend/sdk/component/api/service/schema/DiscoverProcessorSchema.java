@@ -27,13 +27,13 @@ import org.talend.sdk.component.api.service.ActionType;
 
 /**
  * Mark a method as returning a {@link org.talend.sdk.component.api.record.Schema} resulting from an input one
- * and action of a processor.
+ * and action of a processor for an outgoing branch.
  */
 @Partial("See Schema description.")
 @ActionType(value = "processor_schema", expectedReturnedType = org.talend.sdk.component.api.record.Schema.class)
 @Target(METHOD)
 @Retention(RUNTIME)
-@Documentation("Mark an action as returning a processed schema with an entry schema in input.")
+@Documentation("Mark a method as returning a Schema resulting from an input one and action of a processor for an outgoing branch.")
 public @interface DiscoverProcessorSchema {
 
     /**
