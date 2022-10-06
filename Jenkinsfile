@@ -157,15 +157,21 @@ spec:
             }
             post {
                 always {
-                    publishHTML(
-                            target: [
-                                    allowMissing         : false,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'reporting/target/site/jacoco-aggregate',
-                                    reportFiles          : 'index.html',
-                                    reportName           : "Coverage"
-                            ])
+                    script {
+                        println "====== Publish API Coverage"
+                        publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
+                        publishCoverage adapters: [jacocoAdapter('**/jacoco-ut/*.xml')]
+                        println "====== Publish HTML API Coverage"
+                        publishHTML([
+                          allowMissing         : false,
+                          alwaysLinkToLastBuild: false,
+                          keepAll              : true,
+                          reportDir            : 'reporting/target/site/jacoco-aggregate',
+                          reportFiles          : 'index.html',
+                          reportName           : 'Coverage',
+                          reportTitles         : 'Coverage'
+                        ])
+                    }
                 }
             }
         }
