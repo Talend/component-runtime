@@ -314,8 +314,10 @@ spec:
             }
         }
         stage('Debug') {
-            when { expression { return params.DEBUG_BEFORE_EXITING} }
-            script { input message: 'Finish the job?', ok: 'Yes'}
+            steps {
+                when { expression { return params.DEBUG_BEFORE_EXITING } }
+                script { input message: 'Finish the job?', ok: 'Yes' }
+            }
         }
     }
     post {
