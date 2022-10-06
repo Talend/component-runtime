@@ -35,8 +35,6 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
-import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
 import org.apache.xbean.propertyeditor.AbstractConverter;
@@ -47,18 +45,19 @@ import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 public class SchemaConverter extends AbstractConverter {
 
-    JsonbProvider jsonbProvider;
+    public static final String ELEMENT_SCHEMA = "elementSchema";
 
-    private Jsonb jsonb;
+    public static final String PROPS = "props";
 
-    private JsonObject json;
+    public static final String TYPE = "type";
 
-    private RecordBuilderFactory factory;
+    public static final String ENTRIES = "entries";
 
-    Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
+    private final RecordBuilderFactory factory;
 
     public SchemaConverter() {
         super(Schema.class);
+        final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
         final Iterator<RecordBuilderFactoryProvider> spiIterator =
                 ServiceLoader.load(RecordBuilderFactoryProvider.class, Thread.currentThread().getContextClassLoader())
                         .iterator();
@@ -74,24 +73,23 @@ public class SchemaConverter extends AbstractConverter {
     @Override
     public Object toObjectImpl(final String s) {
         if (!s.isEmpty()) {
-            json = JsonProvider.provider().createReader(new StringReader(s)).readObject();
-            Schema schema = toSchema(json);
-            return schema;
+            final JsonObject json = JsonProvider.provider().createReader(new StringReader(s)).readObject();
+            return toSchema(json);
         }
         return null;
     }
 
-    public Schema toSchema(final JsonObject json) {
-        if (json == null || json.isNull("type")) {
+    private Schema toSchema(final JsonObject json) {
+        if (json == null || json.isNull(TYPE)) {
             return null;
         }
-        final String type = json.getString("type");
+        final String type = json.getString(TYPE);
         final Schema.Type schemaType = Enum.valueOf(Schema.Type.class, type);
         final Schema.Builder builder = factory.newSchemaBuilder(schemaType);
 
         if (schemaType == Schema.Type.RECORD) {
-            this.addEntries(builder, false, json.getJsonArray("entries"));
-            this.addEntries(builder, true, json.getJsonArray("metadatas"));
+            this.addEntries(builder, json.getJsonArray(ENTRIES));
+            this.addEntries(builder, json.getJsonArray("metadatas"));
         } else if (schemaType == Schema.Type.ARRAY) {
             this.treatElementSchema(json, builder::withElementSchema);
         }
@@ -108,7 +106,7 @@ public class SchemaConverter extends AbstractConverter {
 
     private void treatElementSchema(final JsonObject json,
             final Consumer<Schema> setter) {
-        final JsonValue elementSchema = json.get("elementSchema");
+        final JsonValue elementSchema = json.get(ELEMENT_SCHEMA);
         if (elementSchema instanceof JsonObject) {
             final Schema schema = this.toSchema((JsonObject) elementSchema);
             setter.accept(schema);
@@ -118,9 +116,7 @@ public class SchemaConverter extends AbstractConverter {
         }
     }
 
-    private void addEntries(final Schema.Builder schemaBuilder,
-            final boolean metadata,
-            final JsonArray entries) {
+    private void addEntries(final Schema.Builder schemaBuilder, final JsonArray entries) {
         if (entries == null || entries.isEmpty()) {
             return;
         }
@@ -133,10 +129,8 @@ public class SchemaConverter extends AbstractConverter {
     }
 
     private Schema.Entry jsonToEntry(final JsonObject jsonEntry) {
-
         final Schema.Entry.Builder builder = this.factory.newEntryBuilder();
-
-        final String entryType = jsonEntry.getString("type");
+        final String entryType = jsonEntry.getString(TYPE);
         final Schema.Type schemaType = Enum.valueOf(Schema.Type.class, entryType);
         builder.withType(schemaType);
         builder.withName(jsonEntry.getString("name"));
@@ -166,10 +160,10 @@ public class SchemaConverter extends AbstractConverter {
 
     private void addProps(final BiConsumer<String, String> setter,
             final JsonObject object) {
-        if (object == null || object.get("props") == null) {
+        if (object == null || object.get(PROPS) == null) {
             return;
         }
-        JsonObject props = object.getJsonObject("props");
+        JsonObject props = object.getJsonObject(PROPS);
         if (props.isEmpty()) {
             return;
         }
@@ -186,13 +180,10 @@ public class SchemaConverter extends AbstractConverter {
             entry.withDefaultValue(Boolean.FALSE);
         } else if (valueType == JsonValue.ValueType.TRUE) {
             entry.withDefaultValue(Boolean.TRUE);
-        } else if (valueType == JsonValue.ValueType.TRUE) {
-            entry.withDefaultValue(Boolean.TRUE);
         } else if (valueType == JsonValue.ValueType.STRING) {
             entry.withDefaultValue(((JsonString) value).getString());
         }
         // doesn't treat JsonArray nor JsonObject for default value.
-
     }
 
     public JsonObject toJson(final Schema schema) {
@@ -200,13 +191,13 @@ public class SchemaConverter extends AbstractConverter {
             return null;
         }
         final JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("type", schema.getType().name());
+        builder.add(TYPE, schema.getType().name());
         if (schema.getType() == Schema.Type.RECORD) {
-            this.addEntries(builder, "entries", schema.getAllEntries());
+            this.addEntries(builder, ENTRIES, schema.getAllEntries());
         } else if (schema.getType() == Schema.Type.ARRAY) {
             final JsonObject elementSchema = this.toJson(schema.getElementSchema());
             if (elementSchema != null) {
-                builder.add("elementSchema", elementSchema);
+                builder.add(ELEMENT_SCHEMA, elementSchema);
             }
         }
         this.addProps(builder, schema.getProps());
@@ -236,7 +227,7 @@ public class SchemaConverter extends AbstractConverter {
     private JsonObjectBuilder entryToJson(final Schema.Entry entry) {
         final JsonObjectBuilder entryBuilder = Json.createObjectBuilder();
         entryBuilder.add("name", entry.getName());
-        entryBuilder.add("type", entry.getType().name());
+        entryBuilder.add(TYPE, entry.getType().name());
         entryBuilder.add("nullable", entry.isNullable());
         if (entry.getComment() != null) {
             entryBuilder.add("comment", entry.getComment());
@@ -260,9 +251,9 @@ public class SchemaConverter extends AbstractConverter {
             if (innerSchema.getType() == Schema.Type.ARRAY
                     || innerSchema.getType() == Schema.Type.RECORD) {
                 final JsonObject elementSchema = this.toJson(innerSchema);
-                entryBuilder.add("elementSchema", elementSchema);
+                entryBuilder.add(ELEMENT_SCHEMA, elementSchema);
             } else {
-                entryBuilder.add("elementSchema", innerSchema.getType().name());
+                entryBuilder.add(ELEMENT_SCHEMA, innerSchema.getType().name());
             }
         }
         this.addProps(entryBuilder, entry.getProps());
@@ -278,7 +269,7 @@ public class SchemaConverter extends AbstractConverter {
         properties.entrySet()
                 .forEach(
                         (Map.Entry<String, String> e) -> jsonProps.add(e.getKey(), e.getValue()));
-        builder.add("props", jsonProps);
+        builder.add(PROPS, jsonProps);
     }
 
     private JsonValue toValue(final Object object) {

@@ -68,6 +68,9 @@ import lombok.extern.slf4j.Slf4j;
 public class TaCoKitGuessSchema {
 
     public static final String STRING_ESCAPE = "\"";
+    public static final String NO_COMPONENT = "No component ";
+    public static final String TCOMP_CONFIGURATIONTYPE_TYPE = "tcomp::configurationtype::type";
+    public static final String DATASET = "dataset";
 
     private ComponentManager componentManager;
 
@@ -97,9 +100,9 @@ public class TaCoKitGuessSchema {
 
     private final Integer version;
 
-    private final String type = "schema";
+    private static final String SCHEMA_TYPE = "schema";
 
-    private final String processorSchemaType = "processor_schema";
+    private static final String PROCESSOR_SCHEMA_TYPE = "processor_schema";
 
     private static final String EMPTY = ""; //$NON-NLS-1$
 
@@ -185,36 +188,20 @@ public class TaCoKitGuessSchema {
         throw new Exception("There is no available schema found.");
     }
 
-    /**
-     * action method signature should match following parameters:
-     *
-     *
-     * myProcessorGuessSchema(Schema incomingSchema, ProcessorConfiguration conf, String branch)
-     * myProcessorGuessSchema(Record incomingRecord, ProcessorConfiguration conf, String branch)
-     * myProcessorGuessSchema(Schema incomingSchema, ProcessorConfiguration conf)
-     * myProcessorGuessSchema(Record incomingRecord, ProcessorConfiguration conf)
-     * myProcessorGuessSchema(ProcessorConfiguration conf, String branch)
-     * myProcessorGuessSchema(ProcessorConfiguration conf, String branch)
-     * myProcessorGuessSchema(ProcessorConfiguration conf)
-     *
-     * @param incomingSchema
-     * @param outgoingBranch
-     * @throws Exception
-     */
     public void guessProcessorComponentSchema(final Schema incomingSchema, final String outgoingBranch)
             throws Exception {
         try {
             final Collection<ServiceMeta> services = componentManager
                     .findPlugin(plugin)
-                    .orElseThrow(() -> new IllegalArgumentException("No component " + plugin))
+                    .orElseThrow(() -> new IllegalArgumentException(NO_COMPONENT + plugin))
                     .get(ContainerComponentRegistry.class)
                     .getServices();
             final ServiceMeta.ActionMeta actionRef = services
                     .stream()
                     .flatMap(s -> s.getActions().stream())
-                    .filter(a -> a.getFamily().equals(family) && a.getType().equals(processorSchemaType))
+                    .filter(a -> a.getFamily().equals(family) && a.getType().equals(PROCESSOR_SCHEMA_TYPE))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + processorSchemaType));
+                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + PROCESSOR_SCHEMA_TYPE));
 
             final Object schemaResult = actionRef.getInvoker()
                     .apply(buildProcessorActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
@@ -243,7 +230,7 @@ public class TaCoKitGuessSchema {
                 .get()
                 .stream()
                 .filter(p -> String.class.isAssignableFrom((Class) p.getJavaType()))
-                .map(p -> p.getPath())
+                .map(ParameterMeta::getPath)
                 .findFirst()
                 .orElse("");
 
@@ -290,8 +277,8 @@ public class TaCoKitGuessSchema {
                 .getParameters()
                 .get()
                 .stream()
-                .filter(param -> param.getMetadata().containsKey("tcomp::configurationtype::type")
-                        && "dataset".equals(param.getMetadata().get("tcomp::configurationtype::type")))
+                .filter(param -> param.getMetadata().containsKey(TCOMP_CONFIGURATIONTYPE_TYPE)
+                        && DATASET.equals(param.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
                 .findFirst()
                 .map(ParameterMeta::getPath)
                 .orElse(null);
@@ -323,14 +310,14 @@ public class TaCoKitGuessSchema {
         final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).collect(toList());
         return ofNullable(metas
                 .stream()
-                .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type"))
+                .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE))
                         && action.getAction().equals(p.getMetadata().get("tcomp::configurationtype::name")))
                 .findFirst()
                 .orElseGet(() -> {
                     // find and use single dataset
                     final Iterator<ParameterMeta> iterator = metas
                             .stream()
-                            .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type")))
+                            .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
                             .iterator();
                     if (iterator.hasNext()) {
                         final ParameterMeta value = iterator.next();
@@ -352,7 +339,7 @@ public class TaCoKitGuessSchema {
                 .filter(e -> e.getKey().equals(componentName))
                 .map(Map.Entry::getValue)
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No component " + componentName));
+                .orElseThrow(() -> new IllegalStateException(NO_COMPONENT + componentName));
     }
 
     private ComponentFamilyMeta findFamily() {
@@ -378,7 +365,7 @@ public class TaCoKitGuessSchema {
         final ComponentFamilyMeta familyMeta = findFamily();
         final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(familyMeta);
         return toStream(componentMeta.getParameterMetas().get())
-                .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type")))
+                .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
                 .findFirst()
                 .map(p -> p.getMetadata().get("tcomp::configurationtype::name"));
     }
@@ -386,7 +373,7 @@ public class TaCoKitGuessSchema {
     public boolean guessSchemaThroughAction() {
         final Collection<ServiceMeta> services = componentManager
                 .findPlugin(plugin)
-                .orElseThrow(() -> new IllegalArgumentException("No component " + plugin))
+                .orElseThrow(() -> new IllegalArgumentException(NO_COMPONENT + plugin))
                 .get(ContainerComponentRegistry.class)
                 .getServices();
 
@@ -397,7 +384,7 @@ public class TaCoKitGuessSchema {
                     .flatMap(datasetName -> services
                             .stream()
                             .flatMap(s -> s.getActions().stream())
-                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(type))
+                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_TYPE))
                             .filter(a -> a.getAction().equals(datasetName))
                             .findFirst())
                     .orElse(null);
@@ -409,9 +396,9 @@ public class TaCoKitGuessSchema {
                     .stream()
                     .flatMap(s -> s.getActions().stream())
                     .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action)
-                            && a.getType().equals(type))
+                            && a.getType().equals(SCHEMA_TYPE))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + type + "#" + action));
+                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + SCHEMA_TYPE + "#" + action));
         }
         final Object schemaResult = actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration));
 
