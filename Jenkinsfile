@@ -91,9 +91,14 @@ spec:
         choice(name: 'Action',
                 choices: ['STANDARD', 'RELEASE'],
                 description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
-        booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
-        string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
-        string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
+        booleanParam(name: 'FORCE_SONAR', defaultValue: false,
+          description: 'Force Sonar analysis')
+        string(name: 'EXTRA_BUILD_ARGS', defaultValue: "",
+          description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
+        string(name: 'POST_LOGIN_SCRIPT', defaultValue: "",
+          description: 'Execute a shell command after login. Useful for maintenance.')
+        booleanParam(name: 'DEBUG_BEFORE_EXITING', defaultValue: false,
+          description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes')
     }
 
     stages {
@@ -307,6 +312,10 @@ spec:
                     }
                 }
             }
+        }
+        stage('Debug') {
+            when { expression { return params.DEBUG_BEFORE_EXITING} }
+            script { input message: 'Finish the job?', ok: 'Yes'}
         }
     }
     post {
