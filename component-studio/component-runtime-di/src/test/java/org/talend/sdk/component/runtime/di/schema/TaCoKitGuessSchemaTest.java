@@ -57,9 +57,7 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 class TaCoKitGuessSchemaTest {
 
     private static final String EXPECTED_ERROR_MESSAGE = "Should not be invoked";

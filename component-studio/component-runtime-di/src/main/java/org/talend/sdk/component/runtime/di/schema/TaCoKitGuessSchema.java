@@ -68,8 +68,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TaCoKitGuessSchema {
 
     public static final String STRING_ESCAPE = "\"";
+
     public static final String NO_COMPONENT = "No component ";
+
     public static final String TCOMP_CONFIGURATIONTYPE_TYPE = "tcomp::configurationtype::type";
+
     public static final String DATASET = "dataset";
 
     private ComponentManager componentManager;
@@ -201,7 +204,8 @@ public class TaCoKitGuessSchema {
                     .flatMap(s -> s.getActions().stream())
                     .filter(a -> a.getFamily().equals(family) && a.getType().equals(PROCESSOR_SCHEMA_TYPE))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + PROCESSOR_SCHEMA_TYPE));
+                    .orElseThrow(
+                            () -> new IllegalArgumentException("No action " + family + "#" + PROCESSOR_SCHEMA_TYPE));
 
             final Object schemaResult = actionRef.getInvoker()
                     .apply(buildProcessorActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
@@ -398,7 +402,8 @@ public class TaCoKitGuessSchema {
                     .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action)
                             && a.getType().equals(SCHEMA_TYPE))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + SCHEMA_TYPE + "#" + action));
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "No action " + family + "#" + SCHEMA_TYPE + "#" + action));
         }
         final Object schemaResult = actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration));
 
