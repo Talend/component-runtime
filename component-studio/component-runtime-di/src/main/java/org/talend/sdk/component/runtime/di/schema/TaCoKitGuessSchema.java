@@ -199,14 +199,24 @@ public class TaCoKitGuessSchema {
                     .orElseThrow(() -> new IllegalArgumentException(NO_COMPONENT + plugin))
                     .get(ContainerComponentRegistry.class)
                     .getServices();
-            final ServiceMeta.ActionMeta actionRef = services
+            ServiceMeta.ActionMeta actionRef = services
                     .stream()
                     .flatMap(s -> s.getActions().stream())
-                    .filter(a -> a.getFamily().equals(family) && a.getType().equals(PROCESSOR_SCHEMA_TYPE))
+                    .filter(a -> a.getFamily().equals(family) &&
+                            a.getType().equals(PROCESSOR_SCHEMA_TYPE) &&
+                            componentName.equals(a.getAction()))
                     .findFirst()
-                    .orElseThrow(
-                            () -> new IllegalArgumentException("No action " + family + "#" + PROCESSOR_SCHEMA_TYPE));
-
+                    .orElse(null);
+            // did not find action named like componentName, trying to find one matching action...
+            if (actionRef == null) {
+                actionRef = services
+                        .stream()
+                        .flatMap(s -> s.getActions().stream())
+                        .filter(a -> a.getFamily().equals(family) && a.getType().equals(PROCESSOR_SCHEMA_TYPE))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "No action " + family + "#" + PROCESSOR_SCHEMA_TYPE));
+            }
             final Object schemaResult = actionRef.getInvoker()
                     .apply(buildProcessorActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
             log.warn("[guessProcessorComponentSchema] {}", schemaResult);
