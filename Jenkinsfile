@@ -27,6 +27,7 @@ final String slackChannel = 'components-ci'
 final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
+final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
 final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
@@ -148,7 +149,7 @@ spec:
                         currentBuild.description = ("""
                            User: $user_name - $params.Action Build
                            Sonar: $params.FORCE_SONAR - Post login script: $hasPostLoginScript
-                           Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
+                           Extra Builds args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
                         )
                     }
                 }
