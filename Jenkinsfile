@@ -26,6 +26,7 @@ final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gp
 final String slackChannel = 'components-ci'
 final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
@@ -131,6 +132,24 @@ spec:
                         } catch (ignored) {
                             EXTRA_BUILD_ARGS = ""
                         }
+                    }
+                    ///////////////////////////////////////////
+                    // Updating build displayName and description
+                    ///////////////////////////////////////////
+                    script {
+                        String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+                        if ( user_name == null) { user_name = "auto" }
+
+                        currentBuild.displayName = (
+                          "#$currentBuild.number-$params.Action: $user_name"
+                        )
+
+                        // updating build description
+                        currentBuild.description = ("""
+                           User: $user_name - $params.Action
+                           Sonar: $params.FORCE_SONAR - Post login script: $hasPostLoginScript
+                           Debug: $params.DEBUG_BEFORE_EXITING"""
+                        )
                     }
                 }
             }
