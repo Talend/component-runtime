@@ -148,7 +148,7 @@ spec:
                         currentBuild.description = ("""
                            User: $user_name - $params.Action
                            Sonar: $params.FORCE_SONAR - Post login script: $hasPostLoginScript
-                           Debug: $params.DEBUG_BEFORE_EXITING"""
+                           Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
                         )
                     }
                 }
