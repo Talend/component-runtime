@@ -31,8 +31,6 @@ final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
 final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
-def EXTRA_BUILD_ARGS = ""
-
 pipeline {
     agent {
         kubernetes {
