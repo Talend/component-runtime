@@ -146,7 +146,7 @@ spec:
 
                         // updating build description
                         currentBuild.description = ("""
-                           User: $user_name - $params.Action
+                           User: $user_name - $params.Action Build
                            Sonar: $params.FORCE_SONAR - Post login script: $hasPostLoginScript
                            Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
                         )

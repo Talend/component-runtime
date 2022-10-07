@@ -234,9 +234,8 @@ pipeline {
               "CYCLE: ${params.CYCLE}\n" +
               "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
         }
-
         ///////////////////////////////////////////
-        // Updating build displayName
+        // Updating build displayName and description
         ///////////////////////////////////////////
         script {
 
@@ -244,15 +243,16 @@ pipeline {
           if ( user_name == null) { user_name = "auto" }
 
           currentBuild.displayName = (
-              "#" + currentBuild.number + ": " + "${user_name} - " + runtimeVersion
+            "#$currentBuild.number: $user_name - $runtimeVersion"
           )
 
           // updating build description
-          currentBuild.description = (
-              "User: " + user_name + " - " + "Runtime: " + runtimeVersion + "\n" +
-                  "Project: " + fileToRun + "\n"
+          currentBuild.description = ("""
+            User: $user_name - Runtime:  $runtimeVersion
+            Project: $fileToRun""".stripIndent()
           )
         }
+
       }
     }
     stage('Prepare Test') {
