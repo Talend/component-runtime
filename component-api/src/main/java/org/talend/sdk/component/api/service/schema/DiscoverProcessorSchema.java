@@ -33,7 +33,7 @@ import org.talend.sdk.component.api.service.ActionType;
 @ActionType(value = "processor_schema", expectedReturnedType = org.talend.sdk.component.api.record.Schema.class)
 @Target(METHOD)
 @Retention(RUNTIME)
-@Documentation("Mark a method as returning a Schema resulting from an input one and action of a processor for an outgoing branch.")
+@Documentation("Mark a method as returning a Schema resulting from an input one and action of a processor for an outgoing branch. `value' name should match the connector's name.")
 public @interface DiscoverProcessorSchema {
 
     /**

@@ -249,7 +249,7 @@ class TaCoKitGuessSchemaTest {
     @Service
     public static class StudioProcessorService implements Serializable {
 
-        @DiscoverProcessorSchema
+        @DiscoverProcessorSchema("outputDi")
         public Schema discoverProcessorSchema(final Schema incomingSchema,
                 @Option("configuration") final ProcessorConfiguration conf, final String branch) {
             assertEquals("out", branch);
