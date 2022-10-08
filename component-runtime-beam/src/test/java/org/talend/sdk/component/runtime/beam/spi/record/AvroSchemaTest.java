@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -159,6 +160,36 @@ class AvroSchemaTest {
                 .endRecord();
         assertEquals(DECIMAL, new AvroSchema(avro).getEntries().iterator().next().getType());
         assertEquals(Decimal.logicalType(), avro.getField("decimal").schema().getLogicalType());
+    }
+
+    @Test
+    void checkUUIDConversion() {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply("test");
+        final org.apache.avro.Schema avro = AvroSchema.class
+                .cast(new AvroSchemaBuilder()
+                        .withType(RECORD)
+                        .withEntry(factory.newEntryBuilder()
+                                .withType(STRING)
+                                .withName("uuidCol")
+                                .withProp(LogicalType.LOGICAL_TYPE_PROP, "uuid")
+                                .build())
+                        .build())
+                .getDelegate();
+        assertEquals(STRING, new AvroSchema(avro).getEntries().iterator().next().getType());
+        assertEquals(LogicalTypes.uuid(), avro.getField("uuidCol").schema().getLogicalType());
+    }
+
+    @Test
+    void checkUUIDConversionFromExternalAvro() {
+        final org.apache.avro.Schema avro = SchemaBuilder
+                .record("test")
+                .fields()
+                .name("uuidCol")
+                .type(LogicalTypes.uuid().addToSchema(Schema.create(Schema.Type.STRING)))
+                .noDefault()
+                .endRecord();
+        assertEquals(STRING, new AvroSchema(avro).getEntries().iterator().next().getType());
+        assertEquals(LogicalTypes.uuid(), avro.getField("uuidCol").schema().getLogicalType());
     }
 
     @Test

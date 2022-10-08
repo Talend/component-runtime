@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
@@ -63,6 +64,10 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private static final AvroSchema STRING_SCHEMA =
             new AvroSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING));
 
+    private static final AvroSchema UUID_SCHEMA =
+            new AvroSchema(
+                    LogicalTypes.uuid().addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)));
+
     private static final AvroSchema DOUBLE_SCHEMA =
             new AvroSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.DOUBLE));
 
@@ -92,6 +97,11 @@ public class AvroSchemaBuilder implements Schema.Builder {
 
     private static final AvroSchema STRING_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
             .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING))));
+
+    private static final AvroSchema UUID_SCHEMA_NULLABLE =
+            new AvroSchema(org.apache.avro.Schema
+                    .createUnion(asList(NULL_SCHEMA, LogicalTypes.uuid()
+                            .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)))));
 
     private static final AvroSchema DOUBLE_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
             .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.DOUBLE))));
@@ -184,7 +194,12 @@ public class AvroSchemaBuilder implements Schema.Builder {
             unwrappable = !entry.isNullable() ? LONG_SCHEMA : LONG_SCHEMA_NULLABLE;
             break;
         case STRING:
-            unwrappable = !entry.isNullable() ? STRING_SCHEMA : STRING_SCHEMA_NULLABLE;
+            String logicalType = entry.getProp(LogicalType.LOGICAL_TYPE_PROP);
+            if (logicalType != null && logicalType.equals(LogicalTypes.uuid().getName())) {
+                unwrappable = !entry.isNullable() ? UUID_SCHEMA : UUID_SCHEMA_NULLABLE;
+            } else {
+                unwrappable = !entry.isNullable() ? STRING_SCHEMA : STRING_SCHEMA_NULLABLE;
+            }
             break;
         case DATETIME:
             unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
@@ -342,6 +357,10 @@ public class AvroSchemaBuilder implements Schema.Builder {
         case LONG:
             return LONG_SCHEMA;
         case STRING:
+            String logicalType = this.props.get(LogicalType.LOGICAL_TYPE_PROP);
+            if (logicalType != null && logicalType.equals(LogicalTypes.uuid().getName())) {
+                return UUID_SCHEMA;
+            }
             return STRING_SCHEMA;
         case DOUBLE:
             return DOUBLE_SCHEMA;

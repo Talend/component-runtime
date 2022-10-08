@@ -25,6 +25,7 @@ import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_P
 
 import java.util.List;
 
+import org.apache.avro.LogicalType;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
@@ -65,6 +66,10 @@ public class AvroSchemaConverter {
     private org.apache.avro.Schema doToSchema(final Schema.Entry entry) {
         final Schema.Builder builder = new AvroSchemaBuilder().withType(entry.getType());
         switch (entry.getType()) {
+        case STRING:
+            ofNullable(entry.getProp(LogicalType.LOGICAL_TYPE_PROP))
+                    .ifPresent(value -> builder.withProp(LogicalType.LOGICAL_TYPE_PROP, value));
+            break;
         case ARRAY:
             ofNullable(entry.getElementSchema()).ifPresent(builder::withElementSchema);
             break;
