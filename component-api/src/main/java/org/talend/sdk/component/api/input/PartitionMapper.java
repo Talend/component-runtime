@@ -45,4 +45,18 @@ public @interface PartitionMapper {
      * @return true if the underlying input can be used as a stream and not in batch context.
      */
     boolean infinite() default false;
+
+    /**
+     * Allow to provide an UI to customize a set of conditions to stop the infinite loop.
+     * Only valid when {@code infinite()} returns true. So affects only streaming PartitionMappers.
+     *
+     * Caution:
+     * Some records may be lost according the connector's Emitter implementation.
+     * For instance, suppose that the connector maintains a queue with a size of 10 records, and we have in the stop
+     * strategy a max records set to 5. If the first 10 records are considered as acknowledged, then the 5 first records
+     * will be read but the 5 next will be considered lost.
+     *
+     * @return true if the underlying input can customize a stop strategy.
+     */
+    boolean stoppable() default false;
 }

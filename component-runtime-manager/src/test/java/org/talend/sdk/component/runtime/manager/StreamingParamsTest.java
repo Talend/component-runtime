@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.manager;
 import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -56,13 +57,33 @@ class StreamingParamsTest {
                     .findFirst()
                     .orElse(null);
             assertNotNull(infinite);
-            final ParameterMeta parent = infinite
+            assertThrows(IllegalArgumentException.class, () -> infinite
+                    .getParameterMetas()
+                    .get()
+                    .stream()
+                    .filter(m -> m.getName().equals(m.getPath()))
+                    .findFirst()
+                    .orElseThrow(IllegalArgumentException::new));
+            //
+            PartitionMapperMeta infiniteStoppable = container
+                    .get(ContainerComponentRegistry.class)
+                    .getComponents()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> "streamingCustomized".equals(e.getKey()))
+                    .map(java.util.Map.Entry::getValue)
+                    .flatMap(c -> c.getPartitionMappers().values().stream())
+                    .findFirst()
+                    .orElse(null);
+            assertNotNull(infinite);
+            final ParameterMeta parent = infiniteStoppable
                     .getParameterMetas()
                     .get()
                     .stream()
                     .filter(m -> m.getName().equals(m.getPath()))
                     .findFirst()
                     .orElseGet(() -> fail("No parent config found"));
+
             // maxRecords
             final ParameterMeta maxRecords = parent
                     .getNestedParameters()

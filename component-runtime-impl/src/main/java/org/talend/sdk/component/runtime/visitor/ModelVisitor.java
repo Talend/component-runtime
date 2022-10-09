@@ -102,7 +102,10 @@ public class ModelVisitor {
                     type + " partition mapper must have exactly one @Assessor (if not infinite), "
                             + "one @Split and one @Emitter methods");
         }
-
+        final boolean stoppable = type.getAnnotation(PartitionMapper.class).stoppable();
+        if (!infinite && stoppable) {
+            throw new IllegalArgumentException(type + " partition mapper when not infinite cannot set stoppable");
+        }
         //
         // now validate the 2 methods of the mapper
         //

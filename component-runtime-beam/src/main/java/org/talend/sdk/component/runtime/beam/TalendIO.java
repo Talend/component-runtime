@@ -74,19 +74,30 @@ public final class TalendIO {
     public static Base<PBegin, PCollection<Record>, Mapper> read(final Mapper mapper,
             final Map<String, String> mapperConfiguration) {
         if (mapper.isStream()) {
-            if (mapperConfiguration != null) {
-                final String maxRecords = mapperConfiguration.get("maxRecords");
-                final String maxDurationMs = mapperConfiguration.get("maxDurationMs");
+            String maxRecords = null;
+            String maxDurationMs = null;
+            boolean hasInternalConfParams = false;
+            if (PartitionMapperImpl.class.isInstance(mapper)) {
+                Map<String, String> conf = PartitionMapperImpl.class.cast(mapper).getInternalConfiguration();
+                hasInternalConfParams = conf.keySet()
+                        .stream()
+                        .filter(k -> k.equals("$maxRecords") || k.equals("$maxDurationMs"))
+                        .count() > 0;
+                maxRecords = conf.get("$maxRecords");
+                maxDurationMs = conf.get("$maxDurationMs");
+            }
+            if (mapperConfiguration != null && !hasInternalConfParams) {
                 if (mapperConfiguration
                         .keySet()
                         .stream()
                         .anyMatch(it -> Stream.of("maxRecords", "maxDurationMs").noneMatch(k -> k.equals(it)))) {
                     throw new IllegalArgumentException("Unsupported configuration: " + mapperConfiguration);
                 }
-                return new InfiniteRead(mapper, maxRecords == null ? -1 : Long.parseLong(maxRecords.trim()),
-                        maxDurationMs == null ? -1 : Long.parseLong(maxDurationMs.trim()));
+                maxRecords = mapperConfiguration.get("maxRecords");
+                maxDurationMs = mapperConfiguration.get("maxDurationMs");
             }
-            return new InfiniteRead(mapper, -1, -1);
+            return new InfiniteRead(mapper, maxRecords == null ? -1 : Long.parseLong(maxRecords.trim()),
+                    maxDurationMs == null ? -1 : Long.parseLong(maxDurationMs.trim()));
         }
         if (!mapperConfiguration.isEmpty()) {
             throw new IllegalArgumentException("Unsupported configuration: " + mapperConfiguration);
