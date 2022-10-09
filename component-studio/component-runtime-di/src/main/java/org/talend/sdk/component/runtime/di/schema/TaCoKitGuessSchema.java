@@ -339,8 +339,10 @@ public class TaCoKitGuessSchema {
             Schema.Type entryType = entry.getType();
             String dbName = entry.getOriginalFieldName();
             String pattern = null;
-            String length = null;
-            String precision = null;
+
+            final String length = entry.getProp(STUDIO_LENGTH);
+            final String precision = entry.getProp(STUDIO_PRECISION);
+
             boolean isDateTime = false;
             if (entryType == null) {
                 entryType = Schema.Type.STRING;
@@ -352,8 +354,6 @@ public class TaCoKitGuessSchema {
                 break;
             case DOUBLE:
                 typeName = javaTypesManager.DOUBLE.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case INT:
                 typeName = javaTypesManager.INTEGER.getId();
@@ -363,8 +363,6 @@ public class TaCoKitGuessSchema {
                 break;
             case FLOAT:
                 typeName = javaTypesManager.FLOAT.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case BYTES:
                 typeName = javaTypesManager.BYTE_ARRAY.getId();
@@ -382,8 +380,6 @@ public class TaCoKitGuessSchema {
                 break;
             case DECIMAL:
                 typeName = javaTypesManager.BIGDECIMAL.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             default:
                 typeName = javaTypesManager.STRING.getId();
@@ -396,14 +392,22 @@ public class TaCoKitGuessSchema {
             column.setTalendType(typeName);
             column.setNullable(entry.isNullable());
             column.setComment(entry.getComment());
-            if (length != null && precision != null) {
+
+            if (length != null) {
                 try {
                     column.setLength(Integer.valueOf(length));
+                } catch (NumberFormatException e) {
+                    // let default values if props are trash...
+                }
+            }
+            if (precision != null) {
+                try {
                     column.setPrecision(Integer.valueOf(precision));
                 } catch (NumberFormatException e) {
                     // let default values if props are trash...
                 }
             }
+
             if (isDateTime) {
                 if (pattern != null) {
                     column.setPattern(STRING_ESCAPE + pattern + STRING_ESCAPE);
