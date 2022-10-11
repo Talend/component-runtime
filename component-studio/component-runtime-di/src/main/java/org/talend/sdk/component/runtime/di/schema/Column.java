@@ -36,9 +36,9 @@ public class Column {
 
     private Boolean nullable;
 
-    private Integer length = 0;
+    private Integer length = null;
 
-    private Integer precision = 0;
+    private Integer precision = null;
 
     private String defaut;
 
