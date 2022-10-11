@@ -333,7 +333,7 @@ spec:
             }
             script {
                 println "====== Publish Coverage"
-                publishCoverage adapters: [jacocoAdapter('**/jacoco-aggregate.xml')]
+                publishCoverage adapters: [jacocoAdapter('**/jacoco-aggregate/*.xml')]
                 publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
                 publishCoverage adapters: [jacocoAdapter('**/jacoco-ut/*.xml')]
                 println "====== Publish HTML API Coverage"
