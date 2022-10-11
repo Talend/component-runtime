@@ -91,8 +91,8 @@ spec:
 
     parameters {
         choice(name: 'Action',
-                choices: ['STANDARD', 'RELEASE'],
-                description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
+           choices: ['STANDARD', 'RELEASE'],
+           description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
         booleanParam(name: 'FORCE_SONAR', defaultValue: false,
           description: 'Force Sonar analysis')
         string(name: 'EXTRA_BUILD_ARGS', defaultValue: "",
@@ -177,25 +177,6 @@ spec:
                 container('main') {
                     withCredentials([ossrhCredentials]) {
                         sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
-                    }
-                }
-            }
-            post {
-                always {
-                    script {
-                        println "====== Publish API Coverage"
-                        publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
-                        publishCoverage adapters: [jacocoAdapter('**/jacoco-ut/*.xml')]
-                        println "====== Publish HTML API Coverage"
-                        publishHTML([
-                          allowMissing         : false,
-                          alwaysLinkToLastBuild: false,
-                          keepAll              : true,
-                          reportDir            : 'reporting/target/site/jacoco-aggregate',
-                          reportFiles          : 'index.html',
-                          reportName           : 'Coverage',
-                          reportTitles         : 'Coverage'
-                        ])
                     }
                 }
             }
@@ -349,6 +330,20 @@ spec:
                         channel: "${slackChannel}"
                     )
                 }
+            }
+            script {
+                println "====== Publish Coverage"
+                publishCoverage adapters: [jacocoAdapter('**/jacoco.xml')]
+                println "====== Publish HTML API Coverage"
+                publishHTML([
+                  allowMissing         : false,
+                  alwaysLinkToLastBuild: false,
+                  keepAll              : true,
+                  reportDir            : 'reporting/target/site/jacoco-aggregate',
+                  reportFiles          : 'index.html',
+                  reportName           : 'Coverage',
+                  reportTitles         : 'Coverage'
+                ])
             }
         }
         failure {
