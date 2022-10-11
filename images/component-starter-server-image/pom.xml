@@ -27,10 +27,15 @@
   <name>Component Runtime :: Images :: Starter</name>
 
   <properties>
+    <additionalDockerFiles>${project.build.outputDirectory}/docker/additional</additionalDockerFiles>
+    <image.currentVersion>${project.version}_${maven.build.timestamp}</image.currentVersion>
+    <image.tag>${project.version}</image.tag>
+    <image.target>talend/common/tacokit/component-starter-server</image.target>
     <imageWorkDir>${baseImageDir}/component-starter</imageWorkDir>
-    <talend.image.version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</talend.image.version>
     <talend.server.image.name>${talend.server.image.registry}tacokit/component-starter-server:${talend.image.version}</talend.server.image.name>
     <talend.build.name>${talend.build.name.base}.starter.image</talend.build.name>
+    <tsbi.product>component-starter</tsbi.product>
+    <tsbi.service>component-starter-server</tsbi.service>
   </properties>
 
   <dependencies>
@@ -99,6 +104,39 @@
             </labels>
           </container>
         </configuration>
+      </plugin>
+      <plugin>
+        <!--
+        mvn clean verify dockerfile:build -P dev-tsbi
+        docker tag talend/common/tacokit/component-start-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-start-server:${release}
+        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-start-server:${release}
+        -->
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+        <configuration>
+          <repository>${image.target}</repository>
+          <tag>${image.tag}</tag>
+          <dockerfile>Dockerfile</dockerfile>
+          <buildArgs>
+            <PROJECT_VERSION>${project.version}</PROJECT_VERSION>
+            <TIMESTAMP>${maven.build.timestamp}</TIMESTAMP>
+            <DOCKER_REGISTRY_HOST>${docker.registryHost}</DOCKER_REGISTRY_HOST>
+            <TSBI_IMAGE_PATH>${docker.tsbiPath}</TSBI_IMAGE_PATH>
+            <TSBI_VERSION>${docker.tsbiVersion}</TSBI_VERSION>
+            <GIT_BRANCH>${git.branch}</GIT_BRANCH>
+            <GIT_COMMIT>${git.commit.id}</GIT_COMMIT>
+          </buildArgs>
+          <skip>${disable.dockerBuild}</skip>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>build</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
