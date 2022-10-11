@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -37,6 +38,7 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
@@ -87,6 +89,12 @@ class TaCoKitGuessSchemaTest {
             guessSchema.close();
 
             Assertions.assertTrue(byteArrayOutputStream.size() > 0);
+
+            final String content = byteArrayOutputStream.toString();
+            Assertions.assertTrue(content.contains("\"length\":10"));
+            Assertions.assertTrue(content.contains("\"precision\":2"));
+            Assertions.assertTrue(!content.contains("\"length\":0"));
+            Assertions.assertTrue(!content.contains("\"precision\":0"));
         }
     }
 
@@ -139,10 +147,40 @@ class TaCoKitGuessSchemaTest {
 
         private RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test-classes");
 
+        // TODO : in future, will always use action result instead of mock job result, so will remove this
         @Producer
         public Record next() {
+            final Schema.Entry entry1 = factory.newEntryBuilder()
+                    .withName("c1")
+                    .withRawName("the c1")
+                    .withType(Schema.Type.STRING)
+                    .withNullable(true)
+                    .withProp("talend.studio.key", "true")
+                    .withProp("talend.studio.length", "10")
+                    .build();
+
+            final Schema.Entry entry2 = factory.newEntryBuilder()
+                    .withName("c2")
+                    .withRawName("the c2")
+                    .withType(Schema.Type.DECIMAL)
+                    .withNullable(true)
+                    .withProp("talend.studio.key", "false")
+                    .withProp("talend.studio.length", "10")
+                    .withProp("talend.studio.precision", "2")
+                    .build();
+
+            final Schema.Entry entry3 = factory.newEntryBuilder()
+                    .withName("c3")
+                    .withRawName("the c3")
+                    .withType(Schema.Type.BOOLEAN)
+                    .withNullable(true)
+                    .withProp("talend.studio.key", "false")
+                    .build();
+
             return factory.newRecordBuilder()
-                    .withString("test", "test")
+                    .with(entry1, "testvalue")
+                    .with(entry2, new BigDecimal("123.123"))
+                    .with(entry3, true)
                     .build();
         }
     }
