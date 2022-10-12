@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,14 +57,12 @@ public class SchemaConverter extends AbstractConverter {
     public SchemaConverter() {
         super(Schema.class);
         try {
-            final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
+            final RecordBuilderFactoryProvider recordBuilderFactoryProvider;
             final Iterator<RecordBuilderFactoryProvider> spiIterator =
-                    ServiceLoader
-                            .load(RecordBuilderFactoryProvider.class, Thread.currentThread().getContextClassLoader())
-                            .iterator();
+                    ServiceLoader.load(RecordBuilderFactoryProvider.class).iterator();
             if (spiIterator.hasNext()) {
                 final RecordBuilderFactoryProvider spi = spiIterator.next();
-                recordBuilderFactoryProvider = spi::apply;
+                recordBuilderFactoryProvider = spi;
             } else {
                 recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
             }
@@ -134,14 +131,12 @@ public class SchemaConverter extends AbstractConverter {
     }
 
     private Schema.Entry jsonToEntry(final JsonObject jsonEntry) {
-        final Schema.Entry.Builder builder = this.factory.newEntryBuilder();
-        final String entryType = jsonEntry.getString(TYPE);
-        final Schema.Type schemaType = Enum.valueOf(Schema.Type.class, entryType);
-        builder.withType(schemaType);
-        builder.withName(jsonEntry.getString("name"));
-        builder.withNullable(jsonEntry.getBoolean("nullable", true));
-        builder.withMetadata(jsonEntry.getBoolean("metadata", false));
-
+        final Schema.Entry.Builder builder = factory.newEntryBuilder();
+        final Schema.Type schemaType = Enum.valueOf(Schema.Type.class, jsonEntry.getString(TYPE));
+        builder.withType(schemaType)
+                .withName(jsonEntry.getString("name"))
+                .withNullable(jsonEntry.getBoolean("nullable", true))
+                .withMetadata(jsonEntry.getBoolean("metadata", false));
         final JsonString comment = jsonEntry.getJsonString("comment");
         if (comment != null) {
             builder.withComment(comment.getString());
