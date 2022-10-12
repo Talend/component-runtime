@@ -22,6 +22,7 @@ final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datap
 final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
+
 // Job config
 final String slackChannel = 'components-ci'
 final Boolean isMasterBranch = env.BRANCH_NAME == "master"
@@ -30,6 +31,12 @@ final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
 final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+
+// Files and folder definition
+final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
+
+// Artifacts paths
+final String _ARTIFACT_COVERAGE = '**/jacoco-aggregate/**/*.*'
 
 pipeline {
     agent {
@@ -397,6 +404,11 @@ spec:
                         )
                     ]
                 )
+                script {
+                    println '====== Archive artifacts'
+                    println "Artifact 1: ${_ARTIFACT_COVERAGE}"
+                    archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: true, onlyIfSuccessful: false
+                }
             }
         }
     }
