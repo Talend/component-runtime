@@ -57,17 +57,22 @@ public class SchemaConverter extends AbstractConverter {
 
     public SchemaConverter() {
         super(Schema.class);
-        final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
-        final Iterator<RecordBuilderFactoryProvider> spiIterator =
-                ServiceLoader.load(RecordBuilderFactoryProvider.class, Thread.currentThread().getContextClassLoader())
-                        .iterator();
-        if (spiIterator.hasNext()) {
-            final RecordBuilderFactoryProvider spi = spiIterator.next();
-            recordBuilderFactoryProvider = spi::apply;
-        } else {
-            recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
+        try {
+            final Function<String, RecordBuilderFactory> recordBuilderFactoryProvider;
+            final Iterator<RecordBuilderFactoryProvider> spiIterator =
+                    ServiceLoader
+                            .load(RecordBuilderFactoryProvider.class, Thread.currentThread().getContextClassLoader())
+                            .iterator();
+            if (spiIterator.hasNext()) {
+                final RecordBuilderFactoryProvider spi = spiIterator.next();
+                recordBuilderFactoryProvider = spi::apply;
+            } else {
+                recordBuilderFactoryProvider = RecordBuilderFactoryImpl::new;
+            }
+            factory = recordBuilderFactoryProvider.apply("null");
+        } catch (RuntimeException e) {
+            throw new IllegalStateException(e);
         }
-        factory = recordBuilderFactoryProvider.apply("null");
     }
 
     @Override

@@ -141,6 +141,22 @@ class TaCoKitGuessSchemaTest {
         }
     }
 
+    final Entry f1 = factory.newEntryBuilder()
+            .withName("f1")
+            .withType(Schema.Type.STRING)
+            .build();
+
+    final Entry f2 = factory.newEntryBuilder()
+            .withName("f2")
+            .withType(Schema.Type.LONG)
+            .withDefaultValue(11l)
+            .build();
+
+    final Entry f3 = factory.newEntryBuilder()
+            .withName("f3")
+            .withType(Schema.Type.BOOLEAN)
+            .build();
+
     @Test
     void guessProcessorSchema() throws Exception {
         try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -170,7 +186,279 @@ class TaCoKitGuessSchemaTest {
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
                     out, config, "test-classes", "TaCoKitGuessSchema",
                     "outputDi", null, "1");
-            guessSchema.guessProcessorComponentSchema(schema, "out");
+            guessSchema.guessOutputComponentSchema(schema, "out");
+            guessSchema.close();
+            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
+            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
+                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
+                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
+                    .collect(joining("\n"));
+            final String expected =
+                    "[{\"label\":\"f1\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f1\",\"precision\":0,\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f2\",\"precision\":0,\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f3\",\"precision\":0,\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"out\",\"precision\":0,\"talendType\":\"id_String\"}]";
+            assertEquals(expected, lines);
+            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
+        }
+    }
+
+    @Test
+    void guessProcessorSchemaRecordBuilderFactoryImpl() throws Exception {
+        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                PrintStream out = new PrintStream(byteArrayOutputStream)) {
+
+            final RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test");
+
+            Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+                    .withProp("aprop", "a property!")
+                    .withEntry(f1)
+                    .withEntry(f2)
+                    .withEntry(f3)
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("id")
+                            .withType(Schema.Type.INT)
+                            .withNullable(false)
+                            .withRawName("id")
+                            .withComment("hjk;ljkkj")
+                            .withProp("talend.studio.type", "id_Integer")
+                            .withProp("talend.studio.key", "true")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "10")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("name")
+                            .withType(Schema.Type.STRING)
+                            .withNullable(true)
+                            .withRawName("name")
+                            .withComment("hljkjhlk")
+                            .withDefaultValue("toto")
+                            .withProp("talend.studio.type", "id_String")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "20")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("flag")
+                            .withType(Schema.Type.STRING)
+                            .withNullable(true)
+                            .withRawName("flag")
+                            .withProp("talend.studio.type", "id_Character")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "4")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("female")
+                            .withType(Schema.Type.BOOLEAN)
+                            .withNullable(true)
+                            .withRawName("female")
+                            .withProp("talend.studio.type", "id_Boolean")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "1")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("num1")
+                            .withType(Schema.Type.BYTES)
+                            .withNullable(true)
+                            .withRawName("num1")
+                            .withComment("hhhh")
+                            .withProp("talend.studio.type", "id_Byte")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "3")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("num2")
+                            .withType(Schema.Type.INT)
+                            .withNullable(true)
+                            .withRawName("num2")
+                            .withProp("talend.studio.type", "id_Short")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "5")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("age")
+                            .withType(Schema.Type.LONG)
+                            .withNullable(true)
+                            .withRawName("age")
+                            .withProp("talend.studio.type", "id_Long")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "19")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("bonus")
+                            .withType(Schema.Type.FLOAT)
+                            .withNullable(true)
+                            .withRawName("bonus")
+                            .withProp("talend.studio.type", "id_Float")
+                            .withProp("talend.studio.precision", "2")
+                            .withProp("talend.studio.length", "12")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("salary")
+                            .withType(Schema.Type.DOUBLE)
+                            .withNullable(true)
+                            .withRawName("salary")
+                            .withProp("talend.studio.type", "id_Double")
+                            .withProp("talend.studio.precision", "2")
+                            .withProp("talend.studio.length", "22")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("play")
+                            .withType(Schema.Type.STRING)
+                            .withNullable(true)
+                            .withRawName("play")
+                            .withProp("talend.studio.type", "id_String")
+                            .withProp("talend.studio.precision", "2")
+                            .withProp("talend.studio.length", "10")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("startdate")
+                            .withType(Schema.Type.DATETIME)
+                            .withNullable(true)
+                            .withRawName("startdate")
+                            .withProp("talend.studio.type", "id_Date")
+                            .withProp("talend.studio.pattern", "yyyy-MM-dd")
+                            .build())
+                    .build();
+
+            Map<String, String> config = new HashMap<>();
+            config.put("configuration.param1", "parameter one");
+            config.put("configuration.param2", "parameter two");
+            final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
+                    out, config, "test-classes", "TaCoKitGuessSchema",
+                    "outputDi", null, "1");
+            guessSchema.guessOutputComponentSchema(schema, "out");
+            guessSchema.close();
+            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
+            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
+                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
+                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
+                    .collect(joining("\n"));
+            final String expected =
+                    "[{\"label\":\"f1\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f1\",\"precision\":0,\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f2\",\"precision\":0,\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"f3\",\"precision\":0,\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"length\":0,\"nullable\":false,\"originalDbColumnName\":\"out\",\"precision\":0,\"talendType\":\"id_String\"}]";
+            assertEquals(expected, lines);
+            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
+        }
+    }
+
+    @Test
+    void guessProcessorSchemaAvroRecordBuilderFactory() throws Exception {
+        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                PrintStream out = new PrintStream(byteArrayOutputStream)) {
+            Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+                    .withProp("aprop", "a property!")
+                    .withEntry(f1)
+                    .withEntry(f2)
+                    .withEntry(f3)
+
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("id")
+                            .withType(Schema.Type.INT)
+                            .withNullable(false)
+                            .withRawName("id")
+                            .withComment("hjk;ljkkj")
+                            .withProp("talend.studio.type", "id_Integer")
+                            .withProp("talend.studio.key", "true")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "10")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("name")
+                            .withType(Schema.Type.STRING)
+                            .withNullable(true)
+                            .withRawName("name")
+                            .withComment("hljkjhlk")
+                            .withDefaultValue("toto")
+                            .withProp("talend.studio.type", "id_String")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "20")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("flag")
+                            .withType(Schema.Type.STRING)
+                            .withNullable(true)
+                            .withRawName("flag")
+                            .withProp("talend.studio.type", "id_Character")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "4")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("female")
+                            .withType(Schema.Type.BOOLEAN)
+                            .withNullable(true)
+                            .withRawName("female")
+                            .withProp("talend.studio.type", "id_Boolean")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "1")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("num1")
+                            .withType(Schema.Type.BYTES)
+                            .withNullable(true)
+                            .withRawName("num1")
+                            .withComment("hhhh")
+                            .withProp("talend.studio.type", "id_Byte")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "3")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("num2")
+                            .withType(Schema.Type.INT)
+                            .withNullable(true)
+                            .withRawName("num2")
+                            .withProp("talend.studio.type", "id_Short")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "5")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("age")
+                            .withType(Schema.Type.LONG)
+                            .withNullable(true)
+                            .withRawName("age")
+                            .withProp("talend.studio.type", "id_Long")
+                            .withProp("talend.studio.precision", "0")
+                            .withProp("talend.studio.length", "19")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("bonus")
+                            .withType(Schema.Type.FLOAT)
+                            .withNullable(true)
+                            .withRawName("bonus")
+                            .withProp("talend.studio.type", "id_Float")
+                            .withProp("talend.studio.precision", "2")
+                            .withProp("talend.studio.length", "12")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("salary")
+                            .withType(Schema.Type.DOUBLE)
+                            .withNullable(true)
+                            .withRawName("salary")
+                            .withProp("talend.studio.type", "id_Double")
+                            .withProp("talend.studio.precision", "2")
+                            .withProp("talend.studio.length", "22")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("play")
+                            .withType(Schema.Type.STRING)
+                            .withNullable(true)
+                            .withRawName("play")
+                            .withProp("talend.studio.type", "id_String")
+                            .withProp("talend.studio.precision", "2")
+                            .withProp("talend.studio.length", "10")
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("startdate")
+                            .withType(Schema.Type.DATETIME)
+                            .withNullable(true)
+                            .withRawName("startdate")
+                            .withProp("talend.studio.type", "id_Date")
+                            .withProp("talend.studio.pattern", "yyyy-MM-dd")
+                            .build())
+                    .build();
+
+            Map<String, String> config = new HashMap<>();
+            config.put("configuration.param1", "parameter one");
+            config.put("configuration.param2", "parameter two");
+            final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
+                    out, config, "test-classes", "TaCoKitGuessSchema",
+                    "outputDi", null, "1");
+            guessSchema.guessOutputComponentSchema(schema, "out");
             guessSchema.close();
             final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
             final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))

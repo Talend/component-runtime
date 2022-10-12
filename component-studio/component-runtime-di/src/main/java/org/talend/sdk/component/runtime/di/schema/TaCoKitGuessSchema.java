@@ -19,9 +19,11 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
 import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
 import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
 import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
+import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -191,7 +193,7 @@ public class TaCoKitGuessSchema {
         throw new Exception("There is no available schema found.");
     }
 
-    public void guessProcessorComponentSchema(final Schema incomingSchema, final String outgoingBranch)
+    public void guessOutputComponentSchema(final Schema incomingSchema, final String outgoingBranch)
             throws Exception {
         try {
             final Collection<ServiceMeta> services = componentManager
@@ -219,7 +221,6 @@ public class TaCoKitGuessSchema {
             }
             final Object schemaResult = actionRef.getInvoker()
                     .apply(buildProcessorActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
-            log.warn("[guessProcessorComponentSchema] {}", schemaResult);
             if (schemaResult instanceof Schema && fromSchema(Schema.class.cast(schemaResult))) {
                 return;
             }
@@ -227,7 +228,7 @@ public class TaCoKitGuessSchema {
             log.error("Can't guess processor schema through action.", e);
         }
 
-        log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema");
+        log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema.");
         throw new Exception("There is no available schema found.");
     }
 
@@ -432,14 +433,15 @@ public class TaCoKitGuessSchema {
             log.info("No column found by guess schema action");
             return false;
         }
-
         for (Schema.Entry entry : entries) {
             String name = entry.getName();
             Schema.Type entryType = entry.getType();
             String dbName = entry.getOriginalFieldName();
-            String pattern = null;
-            String length = null;
-            String precision = null;
+            String pattern = entry.getProps().getOrDefault(STUDIO_PATTERN, null);
+            String length = entry.getProps().getOrDefault(STUDIO_LENGTH, null);
+            String precision = entry.getProps().getOrDefault(STUDIO_PRECISION, null);
+            String isKey = entry.getProps().getOrDefault(STUDIO_KEY, null);
+            String talendType = entry.getProps().getOrDefault(STUDIO_TYPE, "");
             boolean isDateTime = false;
             if (entryType == null) {
                 entryType = Schema.Type.STRING;
@@ -451,19 +453,19 @@ public class TaCoKitGuessSchema {
                 break;
             case DOUBLE:
                 typeName = javaTypesManager.DOUBLE.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case INT:
-                typeName = javaTypesManager.INTEGER.getId();
+                if (talendType.equals(javaTypesManager.SHORT.getId())) {
+                    typeName = javaTypesManager.SHORT.getId();
+                } else {
+                    typeName = javaTypesManager.INTEGER.getId();
+                }
                 break;
             case LONG:
                 typeName = javaTypesManager.LONG.getId();
                 break;
             case FLOAT:
                 typeName = javaTypesManager.FLOAT.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case BYTES:
                 typeName = javaTypesManager.BYTE_ARRAY.getId();
@@ -471,7 +473,6 @@ public class TaCoKitGuessSchema {
             case DATETIME:
                 typeName = javaTypesManager.DATE.getId();
                 isDateTime = true;
-                pattern = entry.getProp(STUDIO_PATTERN);
                 break;
             case RECORD:
                 typeName = javaTypesManager.OBJECT.getId();
@@ -481,11 +482,15 @@ public class TaCoKitGuessSchema {
                 break;
             case DECIMAL:
                 typeName = javaTypesManager.BIGDECIMAL.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             default:
-                typeName = javaTypesManager.STRING.getId();
+                if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
+                    typeName = javaTypesManager.CHARACTER.getId();
+                } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
+                    typeName = javaTypesManager.BYTE.getId();
+                } else {
+                    typeName = javaTypesManager.STRING.getId();
+                }
                 break;
             }
 
@@ -495,9 +500,15 @@ public class TaCoKitGuessSchema {
             column.setTalendType(typeName);
             column.setNullable(entry.isNullable());
             column.setComment(entry.getComment());
-            if (length != null && precision != null) {
+            if (length != null) {
                 try {
                     column.setLength(Integer.valueOf(length));
+                } catch (NumberFormatException e) {
+                    // let default values if props are trash...
+                }
+            }
+            if (precision != null) {
+                try {
                     column.setPrecision(Integer.valueOf(precision));
                 } catch (NumberFormatException e) {
                     // let default values if props are trash...
@@ -510,6 +521,9 @@ public class TaCoKitGuessSchema {
                     // studio default pattern
                     column.setPattern(STRING_ESCAPE + "dd-MM-yyyy" + STRING_ESCAPE);
                 }
+            }
+            if (isKey != null) {
+                column.setKey(Boolean.parseBoolean(isKey));
             }
             if (entry.getDefaultValue() != null) {
                 try {
