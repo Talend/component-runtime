@@ -31,10 +31,10 @@
     <image.currentVersion>${project.version}_${maven.build.timestamp}</image.currentVersion>
     <image.tag>${project.version}</image.tag>
     <image.target>talend/common/tacokit/component-starter-server</image.target>
-    <imageWorkDir>${baseImageDir}/component-starter</imageWorkDir>
+    <imageWorkDir>${baseImageDir}/component-kit</imageWorkDir>
     <talend.server.image.name>${talend.server.image.registry}tacokit/component-starter-server:${talend.image.version}</talend.server.image.name>
     <talend.build.name>${talend.build.name.base}.starter.image</talend.build.name>
-    <tsbi.product>component-starter</tsbi.product>
+    <tsbi.product>component-kit</tsbi.product>
     <tsbi.service>component-starter-server</tsbi.service>
   </properties>
 
