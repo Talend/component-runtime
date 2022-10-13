@@ -49,63 +49,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.google.cloud.tools</groupId>
-        <artifactId>jib-maven-plugin</artifactId>
-        <version>${jib.version}</version>
-        <!--
-        mvn clean install jib:build@build [-Dtalend.server.image.registry=...] -> will be pushed
-        mvn clean install jib:dockerBuild@build -> local docker image
-        -->
-        <configuration>
-          <from>
-            <image>${baseImage}</image>
-          </from>
-          <to>
-            <image>${talend.server.image.name}</image>
-          </to>
-          <container>
-            <extraClasspath>${imageWorkDir}/custom/*</extraClasspath>
-            <useCurrentTimestamp>true</useCurrentTimestamp>
-            <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
-            <appRoot>${imageWorkDir}</appRoot>
-            <workingDirectory>${imageWorkDir}</workingDirectory>
-            <environment>
-              <MEECROWAVE_HOME>${imageWorkDir}</MEECROWAVE_HOME>
-              <MEECROWAVE_BASE>${imageWorkDir}</MEECROWAVE_BASE>
-              <MEECROWAVE_PID>${imageWorkDir}/conf/starter.pid</MEECROWAVE_PID>
-              <LANG>en_US.UTF-8</LANG>
-            </environment>
-            <jvmFlags>
-              <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
-              <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
-              <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
-              <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
-              <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
-            </jvmFlags>
-            <ports>
-              <port>${boundPort}</port>
-            </ports>
-            <labels>
-              <com.talend.maintainer>Talend &lt;support@talend.com&gt;</com.talend.maintainer>
-              <com.talend.build-date>${maven.build.timestamp}</com.talend.build-date>
-              <com.talend.git.repositories>${project.scm.url}</com.talend.git.repositories>
-              <com.talend.git.branches>${git.branch}</com.talend.git.branches>
-              <com.talend.git.commits>${git.commit.id}</com.talend.git.commits>
-              <com.talend.name>Talend Component Kit Starter Server</com.talend.name>
-              <com.talend.application>component-starter-server</com.talend.application>
-              <com.talend.service>component-starter-server</com.talend.service>
-              <com.talend.description>Talend Component Kit Starter Server</com.talend.description>
-              <com.talend.url>https://www.talend.com</com.talend.url>
-              <com.talend.vendor>Talend</com.talend.vendor>
-              <com.talend.version>${talend.image.version}</com.talend.version>
-              <com.talend.docker.cmd>docker run -d -p ${boundPort}:${boundPort} tacokit/component-starter-server:${talend.image.version}_${maven.build.timestamp}</com.talend.docker.cmd>
-              <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc)&gt;</com.talend.docker.params>
-              <com.talend.docker.healthcheck>curl --fail http://localhost:${boundPort}/api/environment</com.talend.docker.healthcheck>
-            </labels>
-          </container>
-        </configuration>
-      </plugin>
-      <plugin>
         <!--
         mvn clean verify dockerfile:build -P dev-tsbi
         docker tag talend/common/tacokit/component-start-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-start-server:${release}

@@ -38,13 +38,7 @@ LABEL com.talend.git.commits="${GIT_COMMIT}"
 ENV MEECROWAVE_HOME       ${TALEND_APP_HOME}
 ENV MEECROWAVE_BASE       ${TALEND_APP_HOME}
 ENV MEECROWAVE_PID        ${TALEND_APP_HOME}/conf/server.pid
-ENV LD_LIBRARY_PATH       ${TALEND_APP_HOME}/sigar
-ENV TRACING_SAMPLING_RATE 1
 ENV TALEND_JDK_SERIAL_FILTER ${TALEND_JDK_SERIAL_FILTER:-oracle.sql.**;!*}
-ENV TALEND_COMPONENT_SERVER_COMPONENT_REGISTRY ${TALEND_HOME}/connectors/component-registry.properties
-ENV TALEND_COMPONENT_SERVER_USER_EXTENSIONS_LOCATION ${TALEND_HOME}/extensions
-ENV TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY ${TALEND_HOME}/connectors
-ENV TALEND_VAULT_CACHE_VAULT_DECRYPT_ENDPOINT v1/tenants-keyrings/decrypt/{x-talend-tenant-id}
 ENV CLASSPATH ${TALEND_HOME}/component-starter/custom/*:${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes
 ENV JAVA_OPTS " -Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER} -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dhttp=${BOUND_PORT} -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dmeecrowave-properties=${TALEND_APP_HOME}/conf/meecrowave.properties -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -Dtalend.component.exit-on-destroy=true -Dtalend.component.manager.services.cache.eviction.defaultEvictionTimeout=30000 -Dtalend.component.manager.services.cache.eviction.defaultMaxSize=5000 -Dtalend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun=-1 "
 
