@@ -98,7 +98,7 @@
               <com.talend.url>https://www.talend.com</com.talend.url>
               <com.talend.vendor>Talend</com.talend.vendor>
               <com.talend.version>${talend.image.version}</com.talend.version>
-              <com.talend.docker.cmd>docker run -d -p ${boundPort}:${boundPort} tacokit/component-server:${talend.image.version}_${maven.build.timestamp}</com.talend.docker.cmd>
+              <com.talend.docker.cmd>docker run -d -p ${boundPort}:${boundPort} tacokit/component-starter-server:${talend.image.version}_${maven.build.timestamp}</com.talend.docker.cmd>
               <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc)&gt;</com.talend.docker.params>
               <com.talend.docker.healthcheck>curl --fail http://localhost:${boundPort}/api/environment</com.talend.docker.healthcheck>
             </labels>
