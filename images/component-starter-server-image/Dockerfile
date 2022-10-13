@@ -35,8 +35,6 @@ LABEL com.talend.git.repositories="https://github.com/talend/component-runtime"
 LABEL com.talend.git.branches="${GIT_BRANCH}"
 LABEL com.talend.git.commits="${GIT_COMMIT}"
 
-COPY --chown=talend:talend target/classes/docker/additional/opt/talend/component-starter/ ${TALEND_APP_HOME}/
-
 ENV MEECROWAVE_HOME       ${TALEND_APP_HOME}
 ENV MEECROWAVE_BASE       ${TALEND_APP_HOME}
 ENV MEECROWAVE_PID        ${TALEND_APP_HOME}/conf/server.pid
