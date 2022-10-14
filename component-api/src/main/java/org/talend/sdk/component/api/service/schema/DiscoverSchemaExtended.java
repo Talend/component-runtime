@@ -30,11 +30,14 @@ import org.talend.sdk.component.api.service.ActionType;
  * and action of a processor for an outgoing branch.
  */
 @Partial("See Schema description.")
-@ActionType(value = "processor_schema", expectedReturnedType = org.talend.sdk.component.api.record.Schema.class)
+@ActionType(value = "schema_extended", expectedReturnedType = org.talend.sdk.component.api.record.Schema.class)
 @Target(METHOD)
 @Retention(RUNTIME)
-@Documentation("Mark a method as returning a Schema resulting from an input one and action of a processor for an outgoing branch. `value' name should match the connector's name.")
-public @interface DiscoverProcessorSchema {
+@Documentation("Mark a method as returning a Schema resulting from a connector configuration and some other parameters."
+        +
+        "Parameters can be an incoming schema and/or an outgoing branch." +
+        "`value' name should match the connector's name.")
+public @interface DiscoverSchemaExtended {
 
     /**
      * @return the component family this action belongs to.

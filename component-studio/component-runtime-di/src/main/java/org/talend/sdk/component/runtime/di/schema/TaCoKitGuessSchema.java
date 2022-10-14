@@ -107,7 +107,7 @@ public class TaCoKitGuessSchema {
 
     private static final String SCHEMA_TYPE = "schema";
 
-    private static final String PROCESSOR_SCHEMA_TYPE = "processor_schema";
+    private static final String SCHEMA_EXTENDED_TYPE = "schema_extended";
 
     private static final String EMPTY = ""; //$NON-NLS-1$
 
@@ -193,7 +193,7 @@ public class TaCoKitGuessSchema {
         throw new Exception("There is no available schema found.");
     }
 
-    public void guessOutputComponentSchema(final Schema incomingSchema, final String outgoingBranch)
+    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch)
             throws Exception {
         try {
             final Collection<ServiceMeta> services = componentManager
@@ -205,7 +205,7 @@ public class TaCoKitGuessSchema {
                     .stream()
                     .flatMap(s -> s.getActions().stream())
                     .filter(a -> a.getFamily().equals(family) &&
-                            a.getType().equals(PROCESSOR_SCHEMA_TYPE) &&
+                            a.getType().equals(SCHEMA_EXTENDED_TYPE) &&
                             componentName.equals(a.getAction()))
                     .findFirst()
                     .orElse(null);
@@ -214,13 +214,13 @@ public class TaCoKitGuessSchema {
                 actionRef = services
                         .stream()
                         .flatMap(s -> s.getActions().stream())
-                        .filter(a -> a.getFamily().equals(family) && a.getType().equals(PROCESSOR_SCHEMA_TYPE))
+                        .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
                         .findFirst()
                         .orElseThrow(() -> new IllegalArgumentException(
-                                "No action " + family + "#" + PROCESSOR_SCHEMA_TYPE));
+                                "No action " + family + "#" + SCHEMA_EXTENDED_TYPE));
             }
             final Object schemaResult = actionRef.getInvoker()
-                    .apply(buildProcessorActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
+                    .apply(buildActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
             if (schemaResult instanceof Schema && fromSchema(Schema.class.cast(schemaResult))) {
                 return;
             }
@@ -232,7 +232,7 @@ public class TaCoKitGuessSchema {
         throw new Exception("There is no available schema found.");
     }
 
-    private Map<String, String> buildProcessorActionConfig(final ServiceMeta.ActionMeta action,
+    private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
             final Map<String, String> configuration, final Schema schema, final String branch) {
         final String schemaPath = action.getParameters()
                 .get()

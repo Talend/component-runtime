@@ -221,7 +221,7 @@ class ActionResourceImplTest {
 
         final JsonObject guessed = base
                 .path("action/execute")
-                .queryParam("type", "processor_schema")
+                .queryParam("type", "schema_extended")
                 .queryParam("family", "jdbc")
                 .queryParam("action", "jdbc_processor_schema")
                 .queryParam("lang", "it")

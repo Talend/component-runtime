@@ -82,12 +82,12 @@ This class marks an action doing a connection test
 ----
 
 
-= Processor Schema
+= Schema
 
-Mark a method as returning a Schema resulting from an input one and action of a processor for an outgoing branch. `value' name should match the connector's name.
+Mark an action as returning a discovered schema. Its parameter MUST be a dataset. Dataset is configuration type annotated with @DataSet. If component has multiple datasets, then dataset used as action parameter should have the same identifier as this @DiscoverSchema. 
 
-- Type: `processor_schema`
-- API: `@org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema`
+- Type: `schema`
+- API: `@org.talend.sdk.component.api.service.schema.DiscoverSchema`
 - Returned type: `org.talend.sdk.component.api.record.Schema`
 - Sample:
 
@@ -128,12 +128,12 @@ Mark a method as returning a Schema resulting from an input one and action of a 
 ----
 
 
-= Schema
+= Schema Extended
 
-Mark an action as returning a discovered schema. Its parameter MUST be a dataset. Dataset is configuration type annotated with @DataSet. If component has multiple datasets, then dataset used as action parameter should have the same identifier as this @DiscoverSchema. 
+Mark a method as returning a Schema resulting from a connector configuration and some other parameters.Parameters can be an incoming schema and/or an outgoing branch.`value' name should match the connector's name.
 
-- Type: `schema`
-- API: `@org.talend.sdk.component.api.service.schema.DiscoverSchema`
+- Type: `schema_extended`
+- API: `@org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended`
 - Returned type: `org.talend.sdk.component.api.record.Schema`
 - Sample:
 

@@ -42,8 +42,8 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
-import org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
@@ -92,8 +92,8 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should have its first parameter being a dataset (marked with @DataSet)")
                 .sorted();
 
-        // parameters for @DiscoverProcessorSchema
-        final Stream<String> discoverProcessor = findDiscoverProcessorSchemaErrors(finder);
+        // parameters for @DiscoverSchemaExtended
+        final Stream<String> discoverProcessor = findDiscoverSchemaExtendedErrors(finder);
 
         // returned type for @Update, for now limit it on objects and not primitives
         final Stream<String> updatesErrors = this.findUpdatesErrors(finder);
@@ -156,7 +156,7 @@ public class ActionValidator implements Validator {
     }
 
     /**
-     * Checks method signature for @DiscoverProcessorSchema annotation.
+     * Checks method signature for @DiscoverSchemaExtended annotation.
      * Valid signatures are:
      * <ul>
      * <li>public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf, final
@@ -167,33 +167,33 @@ public class ActionValidator implements Validator {
      * </ul>
      *
      * @param finder
-     * @return Errors on @DiscoverProcessorSchema method
+     * @return Errors on @DiscoverSchemaExtended method
      */
-    private Stream<String> findDiscoverProcessorSchemaErrors(final AnnotationFinder finder) {
+    private Stream<String> findDiscoverSchemaExtendedErrors(final AnnotationFinder finder) {
 
         final Stream<String> optionParameter = finder
-                .findAnnotatedMethods(DiscoverProcessorSchema.class)
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
                 .stream()
                 .filter(m -> !hasOption(m))
                 .map(m -> m + " should have a parameter being an option (marked with @Option)")
                 .sorted();
 
         final Stream<String> incomingSchema = finder
-                .findAnnotatedMethods(DiscoverProcessorSchema.class)
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
                 .stream()
                 .filter(m -> !hasSchemaCorrectNaming(m))
                 .map(m -> m + " should have its Schema `incomingSchema' parameter named `incomingSchema'")
                 .sorted();
 
         final Stream<String> branch = finder
-                .findAnnotatedMethods(DiscoverProcessorSchema.class)
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
                 .stream()
                 .filter(m -> !hasBranchCorrectNaming(m))
                 .map(m -> m + " should have its String `branch' parameter named `branch'")
                 .sorted();
 
         final Stream<String> returnType = finder
-                .findAnnotatedMethods(DiscoverProcessorSchema.class)
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
                 .stream()
                 .filter(m -> !hasCorrectReturnType(m))
                 .map(m -> m + " should return a Schema assignable")

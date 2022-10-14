@@ -32,7 +32,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
@@ -94,7 +94,7 @@ public class JdbcService {
                 .build();
     }
 
-    @DiscoverProcessorSchema("jdbc_processor_schema")
+    @DiscoverSchemaExtended("jdbc_processor_schema")
     public Schema guessProcessorSchema(final Schema incoming, final JdbcConfig config, final String branch) {
         final RecordBuilderFactory factory = new RecordBuilderFactoryImpl("jdbc");
         return factory.newSchemaBuilder(incoming)

@@ -53,7 +53,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
@@ -193,7 +193,7 @@ class TaCoKitGuessSchemaTest {
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
                     out, config, "test-classes", "TaCoKitGuessSchema",
                     "outputDi", null, "1");
-            guessSchema.guessOutputComponentSchema(schema, "out");
+            guessSchema.guessComponentSchema(schema, "out");
             guessSchema.close();
             final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
             final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
@@ -337,7 +337,7 @@ class TaCoKitGuessSchemaTest {
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
                     out, config, "test-classes", "TaCoKitGuessSchema",
                     "outputDi", null, "1");
-            guessSchema.guessOutputComponentSchema(schema, "out");
+            guessSchema.guessComponentSchema(schema, "out");
             guessSchema.close();
             final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
             final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
@@ -446,7 +446,7 @@ class TaCoKitGuessSchemaTest {
     @Service
     public static class StudioProcessorService implements Serializable {
 
-        @DiscoverProcessorSchema("outputDi")
+        @DiscoverSchemaExtended("outputDi")
         public Schema discoverProcessorSchema(final Schema incomingSchema,
                 @Option("configuration") final ProcessorConfiguration conf, final String branch) {
             assertEquals("out", branch);

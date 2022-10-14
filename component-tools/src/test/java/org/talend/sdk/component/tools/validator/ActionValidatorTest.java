@@ -41,7 +41,7 @@ import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult;
 import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.DatasetDescription;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
-import org.talend.sdk.component.api.service.schema.DiscoverProcessorSchema;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 
@@ -184,7 +184,7 @@ class ActionValidatorTest {
 
     static class ActionDiscoverProcessorSchemaOk {
 
-        @DiscoverProcessorSchema("test")
+        @DiscoverSchemaExtended("test")
         public Schema guessProcessorSchemaOk(final Schema incomingSchema, @Option FakeDataSet configuration,
                 final String branch) {
             return null;
@@ -193,13 +193,13 @@ class ActionValidatorTest {
 
     static class ActionDiscoverProcessorSchemaKo {
 
-        @DiscoverProcessorSchema("test")
+        @DiscoverSchemaExtended("test")
         public Schema guessProcessorSchemaKo1(final Schema schema, final @Option FakeDataSet configuration,
                 final String outgoing) {
             return null;
         }
 
-        @DiscoverProcessorSchema("record")
+        @DiscoverSchemaExtended("record")
         public Record guessProcessorSchemaKo2(FakeDataSet configuration, final String outgoing) {
             return null;
         }
