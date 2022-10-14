@@ -24,9 +24,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.cloud.tools.jib.api.DockerClient;
 import com.google.cloud.tools.jib.api.DockerDaemonImage;
 import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
-import com.google.cloud.tools.jib.docker.DockerClient;
+import com.google.cloud.tools.jib.docker.CliDockerClient;
 
 import org.talend.sdk.component.remoteengine.customizer.lang.IO;
 import org.talend.sdk.component.remoteengine.customizer.lang.PathFactory;
@@ -62,8 +63,8 @@ public class DockerConfiguration {
     }
 
     public DockerClient toClient() {
-        return new DockerClient(
-                ofNullable(path).map(PathFactory::get).filter(Files::exists).orElse(DockerClient.DEFAULT_DOCKER_CLIENT),
+        return new CliDockerClient(
+                ofNullable(path).map(PathFactory::get).filter(Files::exists).orElse(CliDockerClient.DEFAULT_DOCKER_CLIENT),
                 environment().orElseGet(Collections::emptyMap));
     }
 }
