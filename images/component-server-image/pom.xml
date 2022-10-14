@@ -221,7 +221,6 @@
               </to>
               <container>
                 <extraClasspath>${imageWorkDir}/custom/*</extraClasspath>
-                <useCurrentTimestamp>true</useCurrentTimestamp>
                 <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
                 <appRoot>${imageWorkDir}</appRoot>
                 <workingDirectory>${imageWorkDir}</workingDirectory>
