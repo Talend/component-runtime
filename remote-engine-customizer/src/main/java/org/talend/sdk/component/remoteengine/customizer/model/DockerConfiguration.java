@@ -24,16 +24,16 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.cloud.tools.jib.api.DockerClient;
-import com.google.cloud.tools.jib.api.DockerDaemonImage;
-import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
-import com.google.cloud.tools.jib.docker.CliDockerClient;
-
 import org.talend.sdk.component.remoteengine.customizer.lang.IO;
 import org.talend.sdk.component.remoteengine.customizer.lang.PathFactory;
 import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Options;
+
+import com.google.cloud.tools.jib.api.DockerClient;
+import com.google.cloud.tools.jib.api.DockerDaemonImage;
+import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
+import com.google.cloud.tools.jib.docker.CliDockerClient;
 
 @Options
 public class DockerConfiguration {
@@ -64,7 +64,9 @@ public class DockerConfiguration {
 
     public DockerClient toClient() {
         return new CliDockerClient(
-                ofNullable(path).map(PathFactory::get).filter(Files::exists).orElse(CliDockerClient.DEFAULT_DOCKER_CLIENT),
+                ofNullable(path).map(PathFactory::get)
+                        .filter(Files::exists)
+                        .orElse(CliDockerClient.DEFAULT_DOCKER_CLIENT),
                 environment().orElseGet(Collections::emptyMap));
     }
 }
