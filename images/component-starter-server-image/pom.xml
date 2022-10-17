@@ -50,7 +50,7 @@
     <plugins>
       <plugin>
         <!--
-        mvn clean verify dockerfile:build -P dev-tsbi
+        mvn clean verify dockerfile:build -P dev-tsbi -Ddockerfile.build.pullNewerImage=false
         docker tag talend/common/tacokit/component-start-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-start-server:${release}
         docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-start-server:${release}
         -->

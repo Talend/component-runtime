@@ -47,8 +47,6 @@ main() {
   fi
   
   echo ">> Building and pushing remote-engine-customizer:${tag}"
-  # non-blocking
-  set +e
   cd ../..
   cd images/remote-engine-customizer-image
   mvn package jib:dockerBuild -Dimage.currentVersion=${tag}

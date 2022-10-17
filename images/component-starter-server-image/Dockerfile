@@ -15,7 +15,7 @@ ARG TSBI_IMAGE_PATH
 ARG TSBI_VERSION
 FROM ${DOCKER_REGISTRY_HOST}${TSBI_IMAGE_PATH}/java17-svc-base:${TSBI_VERSION}
 
-ENV BOUND_PORT ${BOUND_PORT:-80}
+ENV BOUND_PORT ${BOUND_PORT:-8080}
 EXPOSE $BOUND_PORT
 
 ARG PROJECT_VERSION
@@ -35,11 +35,13 @@ LABEL com.talend.git.repositories="https://github.com/talend/component-runtime"
 LABEL com.talend.git.branches="${GIT_BRANCH}"
 LABEL com.talend.git.commits="${GIT_COMMIT}"
 
+COPY --chown=talend:talend target/classes/* ${TALEND_APP_HOME}/conf/
+
 ENV MEECROWAVE_HOME       ${TALEND_APP_HOME}
 ENV MEECROWAVE_BASE       ${TALEND_APP_HOME}
 ENV MEECROWAVE_PID        ${TALEND_APP_HOME}/conf/server.pid
 ENV TALEND_JDK_SERIAL_FILTER ${TALEND_JDK_SERIAL_FILTER:-oracle.sql.**;!*}
-ENV CLASSPATH ${TALEND_HOME}/component-starter/custom/*:${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes
-ENV JAVA_OPTS " -Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER} -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dhttp=${BOUND_PORT} -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dmeecrowave-properties=${TALEND_APP_HOME}/conf/meecrowave.properties -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2.xml -Dgeronimo.metrics.sigar.refreshInterval=0 -Dtalend.component.exit-on-destroy=true -Dtalend.component.manager.services.cache.eviction.defaultEvictionTimeout=30000 -Dtalend.component.manager.services.cache.eviction.defaultMaxSize=5000 -Dtalend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun=-1 "
+ENV CLASSPATH ${TALEND_HOME}/app/lib/*:${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes
+ENV JAVA_OPTS " -Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER} -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${TALEND_APP_HOME}/temp -Dhttp=${BOUND_PORT} -Dmeecrowave.home=${TALEND_APP_HOME} -Dmeecrowave.base=${TALEND_APP_HOME} -Dmeecrowave-properties=${TALEND_APP_HOME}/conf/meecrowave.properties -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2.xml --add-opens java.base/java.util=ALL-UNNAMED"
 
 CMD ["java", "org.apache.meecrowave.runner.Cli"]
