@@ -18,6 +18,10 @@ package org.talend.sdk.component.server.front;
 import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.talend.sdk.component.api.record.Schema.Type.LONG;
+import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
+import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.json.JsonObject;
+import javax.json.bind.spi.JsonbProvider;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -38,7 +44,10 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.server.front.model.ActionItem;
 import org.talend.sdk.component.server.front.model.ActionList;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
@@ -54,7 +63,7 @@ class ActionResourceImplTest {
     void actionIndex() {
         { // default
             final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-            assertEquals(11, index.getItems().size());
+            assertEquals(12, index.getItems().size());
             assertEquals("jdbc", index.getItems().iterator().next().getComponent());
         }
         { // change the family
@@ -63,7 +72,7 @@ class ActionResourceImplTest {
                     .queryParam("family", "jdbc")
                     .request(APPLICATION_JSON_TYPE)
                     .get(ActionList.class);
-            assertEquals(4, index.getItems().size());
+            assertEquals(5, index.getItems().size());
             assertEquals("jdbc", index.getItems().iterator().next().getComponent());
         }
     }
@@ -71,7 +80,7 @@ class ActionResourceImplTest {
     @RepeatedTest(2)
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(11, index.getItems().size());
+        assertEquals(12, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
@@ -192,6 +201,44 @@ class ActionResourceImplTest {
                         "      \"props\":{\n\n      },\n      \"type\":\"ARRAY\"\n    }\n  ],\n  \"metadata\":[\n" +
                         "  ],\n  \"props\":{\n    \"talend.fields.order\":\"array\"\n  },\n  \"type\":\"RECORD\"\n}";
         assertEquals(expected, schema);
+    }
+
+    @Test
+    void checkDiscoverProcessorSchema() {
+        final RecordBuilderFactory factory = new RecordBuilderFactoryImpl("jdbc");
+        final Schema incoming = factory.newSchemaBuilder(RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withName("field1")
+                        .withType(STRING)
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("field2")
+                        .withType(LONG)
+                        .withNullable(false)
+                        .withComment("field2 comment")
+                        .build())
+                .build();
+
+        final JsonObject guessed = base
+                .path("action/execute")
+                .queryParam("type", "schema_extended")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "jdbc_processor_schema")
+                .queryParam("lang", "it")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.driver", "jdbc://localhost/mydb");
+                        put("configuration.description", "local database");
+                        put("branch", "V1");
+                        put("incoming", JsonbProvider.provider().create().build().toJson(incoming));
+                    }
+                }, APPLICATION_JSON_TYPE), JsonObject.class);
+        assertNotNull(guessed);
+        final String expected =
+                "{\"entries\":[{\"metadata\":false,\"name\":\"field1\",\"nullable\":false,\"props\":{},\"type\":\"STRING\"},{\"comment\":\"field2 comment\",\"metadata\":false,\"name\":\"field2\",\"nullable\":false,\"props\":{},\"type\":\"LONG\"},{\"metadata\":false,\"name\":\"V1\",\"nullable\":false,\"props\":{},\"type\":\"STRING\"},{\"metadata\":false,\"name\":\"driver\",\"nullable\":false,\"props\":{},\"type\":\"STRING\"}],\"metadata\":[],\"props\":{\"talend.fields.order\":\"field1,field2,V1,driver\"},\"type\":\"RECORD\"}";
+        assertEquals(expected, guessed.toString());
     }
 
     @Disabled
