@@ -64,7 +64,9 @@ public class DockerConfiguration {
 
     public DockerClient toClient() {
         return new CliDockerClient(
-                ofNullable(path).map(PathFactory::get).filter(Files::exists).orElse(CliDockerClient.DEFAULT_DOCKER_CLIENT),
+                ofNullable(path).map(PathFactory::get)
+                        .filter(Files::exists)
+                        .orElse(CliDockerClient.DEFAULT_DOCKER_CLIENT),
                 environment().orElseGet(Collections::emptyMap));
     }
 }

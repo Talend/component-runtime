@@ -28,7 +28,7 @@
 
   <properties>
     <imageWorkDir>${baseImageDir}/remote-engine/customizer</imageWorkDir>
-    <image.currentVersion>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}_${maven.build.timestamp}</image.currentVersion>
+    <image.currentVersion>${project.version}</image.currentVersion>
     <talend.server.image.name>${talend.server.image.registry}tacokit/remote-engine-customizer:${image.currentVersion}</talend.server.image.name>
     <talend.build.name>${talend.build.name.base}.remoteengine.customizer</talend.build.name>
     <baseImage>tacokit/openjdk-with-docker:8</baseImage>
@@ -62,7 +62,7 @@
           </to>
           <container>
             <extraClasspath>${imageWorkDir}/custom/*</extraClasspath>
-            <useCurrentTimestamp>true</useCurrentTimestamp>
+            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
             <mainClass>org.talend.sdk.component.remoteengine.customizer.Cli</mainClass>
             <appRoot>${imageWorkDir}</appRoot>
             <workingDirectory>${imageWorkDir}</workingDirectory>
