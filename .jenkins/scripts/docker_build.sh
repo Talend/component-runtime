@@ -46,8 +46,19 @@ main() {
     docker push "${registry_srv}:latest"
   fi
   
-  #TODO starter and remote-engine-customizer
+  echo ">> Building and pushing remote-engine-customizer:${tag}"
+  # non-blocking
+  set +e
   cd ../..
+  cd images/remote-engine-customizer-image
+  mvn package jib:dockerBuild -Dimage.currentVersion=${tag}
+  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/remote-engine-customizer"
+  docker tag "tacokit/remote-engine-customizer:${tag}" "${registry_srv}:${tag}"
+  docker push "${registry_srv}:${tag}"
+  if [[ ${latest} == 'true' ]]; then
+    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
+    docker push "${registry_srv}:latest"
+  fi
 }
 
 main "$@"
