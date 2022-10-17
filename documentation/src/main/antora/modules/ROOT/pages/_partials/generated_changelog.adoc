@@ -11,8 +11,11 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1998[TCOMP-1998^]: Remove component-server-vault-proxy from cloud environments link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=helm-charts[helm-charts^,role='dockey'] link:search.html?query=vault-client[vault-client^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2268[TCOMP-2268^]: Upgrade jib to 0.22.0 link:search.html?query=remote-engine-customizer[remote-engine-customizer^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2273[TCOMP-2273^]: Upgrade TSBI to 3.0.8-20220928070500 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2274[TCOMP-2274^]: Move component-starter-server to TSBI link:search.html?query=starter[starter^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2275[TCOMP-2275^]: Use java 17 TSBI image for CI build link:search.html?query=build[build^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2286[TCOMP-2286^]: Upgrade jackson to 2.13.4 
 
 
 
