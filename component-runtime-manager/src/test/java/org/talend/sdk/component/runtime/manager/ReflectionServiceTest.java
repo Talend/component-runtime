@@ -23,6 +23,7 @@ import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -698,15 +699,13 @@ class ReflectionServiceTest {
         assertTrue(tableOwner.table.get(0).nestedList.isEmpty());
     }
 
-    // TCOMP-2260 - Validations on nested attributes are check even if the object is ActiveIf==false
-    // TODO remove upper comment after issue fix.
     @Test
     void nestedRequiredActiveIf() throws NoSuchMethodException {
         final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
         final List<ParameterMeta> metas = service
                 .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
                         "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
-        assertThrows(IllegalArgumentException.class, () -> reflectionService
+        final Object[] params = reflectionService
                 .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
                         emptyMap(), metas)
                 .apply(new HashMap<String, String>() {
@@ -715,12 +714,13 @@ class ReflectionServiceTest {
                         put("value.aString", "foo");
                         put("value.complexConfig", "false");
                     }
-                }));
-        // TODO make correct assertions after fix.
-        // assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
-        // final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
-        // assertEquals("foo", value.getAString());
-        // assertFalse(value.isComplexConfig());
+                });
+
+        
+        assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
+        final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
+        assertEquals("foo", value.getAString());
+        assertFalse(value.isComplexConfig());
     }
 
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,

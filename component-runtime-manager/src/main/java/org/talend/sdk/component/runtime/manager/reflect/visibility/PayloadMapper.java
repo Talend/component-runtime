@@ -42,6 +42,8 @@ public class PayloadMapper {
     // we don't need the runtime one here
     private final JsonProvider jsonp = JsonProvider.provider();
 
+    private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
+
     private final JsonBuilderFactory factory = jsonp.createBuilderFactory(emptyMap());
 
     private final OnParameter parameterVisitor;
@@ -118,6 +120,9 @@ public class PayloadMapper {
     private void onObject(final Collection<ParameterMeta> definitions, final ParameterMeta meta,
             final Map<String, String> config, final JsonObjectBuilder json, final String name,
             final String currentPath) {
+        if (!VISIBILITY_SERVICE.build(meta).isVisible(json.build())) {
+            return;
+        }
         final JsonObject unflatten = unflatten(currentPath, definitions, config);
         if (!unflatten.isEmpty()) {
             json.add(name, unflatten);
