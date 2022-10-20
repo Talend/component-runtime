@@ -16,6 +16,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2274[TCOMP-2274^]: Move component-starter-server to TSBI link:search.html?query=starter[starter^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2275[TCOMP-2275^]: Use java 17 TSBI image for CI build link:search.html?query=build[build^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2286[TCOMP-2286^]: Upgrade jackson to 2.13.4 
+- link:https://jira.talendforge.org/browse/TCOMP-2287[TCOMP-2287^]: Upgrade commons-text to 1.10.0 link:search.html?query=documentation[documentation^,role='dockey']
 
 
 
