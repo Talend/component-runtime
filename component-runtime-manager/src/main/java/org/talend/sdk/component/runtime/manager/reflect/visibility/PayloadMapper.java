@@ -23,7 +23,6 @@ import static javax.json.stream.JsonCollectors.toJsonArray;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.json.JsonArray;
@@ -36,7 +35,6 @@ import javax.json.spi.JsonProvider;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.RequiredArgsConstructor;
-import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 
 @RequiredArgsConstructor
 public class PayloadMapper {
@@ -57,7 +55,7 @@ public class PayloadMapper {
                 payload == null ? emptyMap() : payload);
     }
 
-    public void setGlobalPayload(JsonObject payload){
+    public void setGlobalPayload(final JsonObject payload){
         globalPayload = payload;
     }
 
