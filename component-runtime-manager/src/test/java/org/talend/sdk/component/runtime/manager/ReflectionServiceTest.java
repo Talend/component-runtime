@@ -723,6 +723,52 @@ class ReflectionServiceTest {
         assertFalse(value.isComplexConfig());
     }
 
+    @Test
+    void nestedRequiredActiveIfWithTrue() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Object[] params = reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+
+                    {
+                        put("value.aString", "foo");
+                        put("value.complexConfig", "true");
+                        put("value.complexConfiguration.url", "https://talend.com");
+                    }
+                });
+
+
+        assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
+        final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
+        assertEquals("foo", value.getAString());
+        assertTrue(value.isComplexConfig());
+        assertEquals("https://talend.com", value.getComplexConfiguration().getUrl());
+    }
+    @Test
+    void nestedRequiredActiveIfWithWrongPattern() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        assertThrows(IllegalArgumentException.class,
+                () -> reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+
+                    {
+                        put("value.aString", "foo");
+                        put("value.complexConfig", "true");
+                        put("value.complexConfiguration.url", "");
+                    }
+                }));
+
+    }
+
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,
             final Map<Class<?>, Object> services) throws NoSuchMethodException {
         final Constructor<FakeComponent> constructor = FakeComponent.class.getConstructor(param);

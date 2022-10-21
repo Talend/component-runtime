@@ -23,6 +23,7 @@ import static javax.json.stream.JsonCollectors.toJsonArray;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.json.JsonArray;
@@ -35,6 +36,7 @@ import javax.json.spi.JsonProvider;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.RequiredArgsConstructor;
+import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 
 @RequiredArgsConstructor
 public class PayloadMapper {
@@ -48,9 +50,15 @@ public class PayloadMapper {
 
     private final OnParameter parameterVisitor;
 
+    private JsonObject globalPayload = null;
+
     public JsonObject visitAndMap(final Collection<ParameterMeta> parameters, final Map<String, String> payload) {
         return unflatten("", ofNullable(parameters).orElseGet(Collections::emptyList),
                 payload == null ? emptyMap() : payload);
+    }
+
+    public void setGlobalPayload(JsonObject payload){
+        globalPayload = payload;
     }
 
     private JsonObject unflatten(final String contextualPrefix, final Collection<ParameterMeta> definitions,
@@ -120,7 +128,7 @@ public class PayloadMapper {
     private void onObject(final Collection<ParameterMeta> definitions, final ParameterMeta meta,
             final Map<String, String> config, final JsonObjectBuilder json, final String name,
             final String currentPath) {
-        if (!VISIBILITY_SERVICE.build(meta).isVisible(json.build())) {
+        if (!isVisible(meta)) {
             return;
         }
         final JsonObject unflatten = unflatten(currentPath, definitions, config);
@@ -130,6 +138,10 @@ public class PayloadMapper {
         } else {
             parameterVisitor.onParameter(meta, JsonValue.NULL);
         }
+    }
+
+    private boolean isVisible(final ParameterMeta meta) {
+        return globalPayload == null ? true : VISIBILITY_SERVICE.build(meta).isVisible(globalPayload);
     }
 
     private void onArray(final Collection<ParameterMeta> definitions, final ParameterMeta definition,
@@ -202,5 +214,7 @@ public class PayloadMapper {
     public interface OnParameter {
 
         void onParameter(ParameterMeta meta, JsonValue value);
+
+ //       boolean isVisible(final ParameterMeta meta);
     }
 }
