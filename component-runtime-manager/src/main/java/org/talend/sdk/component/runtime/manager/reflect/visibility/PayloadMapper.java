@@ -213,6 +213,5 @@ public class PayloadMapper {
 
         void onParameter(ParameterMeta meta, JsonValue value);
 
- //       boolean isVisible(final ParameterMeta meta);
     }
 }
