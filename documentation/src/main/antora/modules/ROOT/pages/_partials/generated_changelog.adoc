@@ -2,8 +2,15 @@
 
 == Version 1.50.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2289[TCOMP-2289^]: Payload validator fails on regexp matching link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-2186[TCOMP-2186^]: Guess schema service for processors link:search.html?query=api[api^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2276[TCOMP-2276^]: Make Streaming stop strategy configurable link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
 
 
@@ -11,6 +18,8 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-1998[TCOMP-1998^]: Remove component-server-vault-proxy from cloud environments link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=component-server-vault-proxy[component-server-vault-proxy^,role='dockey'] link:search.html?query=helm-charts[helm-charts^,role='dockey'] link:search.html?query=vault-client[vault-client^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2256[TCOMP-2256^]: Replace nashorn javascript engine by rhino link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2259[TCOMP-2259^]: Support db column name/length/precision with guess schema for all types link:search.html?query=studio[studio^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2268[TCOMP-2268^]: Upgrade jib to 0.22.0 link:search.html?query=remote-engine-customizer[remote-engine-customizer^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2273[TCOMP-2273^]: Upgrade TSBI to 3.0.8-20220928070500 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2274[TCOMP-2274^]: Move component-starter-server to TSBI link:search.html?query=starter[starter^,role='dockey']
