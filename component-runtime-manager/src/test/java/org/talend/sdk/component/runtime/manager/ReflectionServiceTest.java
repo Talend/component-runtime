@@ -364,6 +364,34 @@ class ReflectionServiceTest {
     }
 
     @Test
+    void validationUrlRegexOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig6.class);
+        assertEquals("pulsar://localhost:12345",
+                SomeConfig6.class
+                        .cast(factory.apply(singletonMap("root.pulsar", "pulsar://localhost:12345"))[0]).pulsar);
+        assertEquals("pulsar+ssl://localhost:12345",
+                SomeConfig6.class
+                        .cast(factory.apply(singletonMap("root.pulsar", "pulsar+ssl://localhost:12345"))[0]).pulsar);
+        assertEquals("http://localhost:12345",
+                SomeConfig6.class.cast(factory.apply(singletonMap("root.url", "http://localhost:12345"))[0]).url);
+        assertEquals("https://localhost:12345",
+                SomeConfig6.class.cast(factory.apply(singletonMap("root.url", "https://localhost:12345"))[0]).url);
+    }
+
+    @Test
+    void validationUrlRegexKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig6.class);
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.pulsar", "pulsar:localhost:12345")));
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.pulsar", "pulsar+ssl:localhost:12345")));
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.url", "https://localhost:12345 ")));
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.url", "mailto://me@talend.com")));
+    }
+
+    @Test
     void validationNestedListOk() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig4.class);
         assertEquals("somevalue",
@@ -832,6 +860,17 @@ class ReflectionServiceTest {
         private String regex;
     }
 
+    public static class SomeConfig6 {
+
+        @Option
+        @Pattern("^https?://.+\\S$")
+        private String url;
+
+        @Option
+        @Pattern("^pulsar(\\+ssl)?://.*")
+        private String pulsar;
+    }
+
     public static class RequiredVisibilityPrimitive {
 
         @Option
@@ -922,6 +961,10 @@ class ReflectionServiceTest {
         }
 
         public FakeComponent(@Option("root") final SomeConfig5 config5) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final SomeConfig6 config6) {
             // no-op
         }
 

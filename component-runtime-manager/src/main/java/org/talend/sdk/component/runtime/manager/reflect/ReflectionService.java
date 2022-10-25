@@ -849,12 +849,15 @@ public class ReflectionService {
         }
 
         @Override
-        public boolean test(final CharSequence string) {
-            Context context = Context.enter();
+        public boolean test(final CharSequence text) {
+            final String script = "new RegExp(regex, indicators).test(text)";
+            final Context context = Context.enter();
             try {
-                Scriptable scope = context.initStandardObjects();
-                String script = "new RegExp('" + regex + "', '" + indicators + "').test('" + string + "')";
-                return Context.toBoolean(context.evaluateString(scope, script, null, 1, null));
+                final Scriptable scope = context.initStandardObjects();
+                scope.put("text", scope, text);
+                scope.put("regex", scope, regex);
+                scope.put("indicators", scope, indicators);
+                return Context.toBoolean(context.evaluateString(scope, script, "test", 0, null));
             } catch (final Exception e) {
                 return false;
             } finally {
