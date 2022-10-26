@@ -748,6 +748,7 @@ class ReflectionServiceTest {
         assertTrue(value.isComplexConfig());
         assertEquals("https://talend.com", value.getComplexConfiguration().getUrl());
     }
+
     @Test
     void nestedRequiredActiveIfWithWrongPattern() throws NoSuchMethodException {
         final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
@@ -759,7 +760,6 @@ class ReflectionServiceTest {
                 .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
                         emptyMap(), metas)
                 .apply(new HashMap<String, String>() {
-
                     {
                         put("value.aString", "foo");
                         put("value.complexConfig", "true");
@@ -767,6 +767,66 @@ class ReflectionServiceTest {
                     }
                 }));
 
+    }
+
+    @Test
+    void nestedRequiredActiveIf_Rest() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Object[] params = reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+                    {
+                        put("value.apiDesc.loadAPI", "false");
+                    }
+                });
+
+
+        assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
+    }
+
+    @Test
+    void nestedRequiredActiveIfTrue_Rest() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Object[] params = reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+                    {
+                        put("value.apiDesc.loadAPI", "true");
+                        put("value.complexConfiguration.url", "https://talend.com");
+                    }
+                });
+
+
+        assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
+        final MethodsHolder.RestDatastore value = MethodsHolder.RestDatastore.class.cast(params[0]);
+        assertTrue(value.getApiDesc().isLoadAPI());
+        assertEquals("https://talend.com", value.getComplexConfiguration().getUrl());
+    }
+
+    @Test
+    void nestedRequiredActiveIfWrong_Rest() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        assertThrows(IllegalArgumentException.class,
+                () -> reflectionService
+                        .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                                emptyMap(), metas)
+                        .apply(new HashMap<String, String>() {
+                            {
+                                put("value.apiDesc.loadAPI", "true");
+                                put("value.complexConfiguration.url", " ");
+                            }
+                        }));
     }
 
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,

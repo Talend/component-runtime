@@ -77,6 +77,10 @@ public class MethodsHolder {
         // no-op
     }
 
+    public void visibility(final RestDatastore value) {
+        // no-op
+    }
+
     @Getter
     public static class Array {
 
@@ -126,6 +130,35 @@ public class MethodsHolder {
         @Option
         @ActiveIf(target = "complexConfig", value = "true")
         private ComplexConfiguration complexConfiguration = new ComplexConfiguration();
+
+        @Getter
+        public static class ComplexConfiguration {
+
+            @Option
+            @Required
+            @Pattern("^https?://.+$")
+            private String url = "";
+        }
+    }
+
+    @Getter
+    public static class RestDatastore {
+
+        @Option
+        @Required
+        private APIDesc apiDesc = new APIDesc();
+
+
+        @Option
+        @ActiveIf(target = "apiDesc/loadAPI", value = "true")
+        private ComplexConfiguration complexConfiguration = new ComplexConfiguration();
+
+        @Getter
+        public static class APIDesc {
+            @Option
+            @Required
+            private boolean loadAPI;
+        }
 
         @Getter
         public static class ComplexConfiguration {
