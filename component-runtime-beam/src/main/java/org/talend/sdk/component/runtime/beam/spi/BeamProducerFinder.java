@@ -122,19 +122,26 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         }
 
         /**
-         * <p>Runs a pipeline to read data from an input connector implemented using Beam APIs.</p>
+         * <p>
+         * Runs a pipeline to read data from an input connector implemented using Beam APIs.
+         * </p>
          * <p>
          * Explicit care must be taken to use the appropriate class loader before running
          * the pipeline, as the underlying {@link org.apache.beam.sdk.options.PipelineOptions.DirectRunner}
          * must dynamically find some service implementations using the {@link java.util.ServiceLoader} API.
          * </p>
-         * <p>Not specifying the appropriate classloader can lead to weird exceptions like:</p>
+         * <p>
+         * Not specifying the appropriate classloader can lead to weird exceptions like:
+         * </p>
+         * 
          * <pre>
          * No translator known for org.apache.beam.repackaged.direct_java.runners.core.construction.SplittableParDo$PrimitiveBoundedRead
          * </pre>
          *
-         * <p><i>Note: the input connector code is in fact correctly called in its dedicated classloader thanks the
-         * various TCK framework wrappers that are in place.</i></p>
+         * <p>
+         * <i>Note: the input connector code is in fact correctly called in its dedicated classloader thanks the
+         * various TCK framework wrappers that are in place.</i>
+         * </p>
          */
         private PipelineResult runDataReadingPipeline() {
             final ClassLoader beamAwareClassLoader = Pipeline.class.getClassLoader();
