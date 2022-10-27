@@ -744,7 +744,6 @@ class ReflectionServiceTest {
                     }
                 });
 
-        
         assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
         final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
         assertEquals("foo", value.getAString());
@@ -769,7 +768,6 @@ class ReflectionServiceTest {
                     }
                 });
 
-
         assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
         final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
         assertEquals("foo", value.getAString());
@@ -785,15 +783,16 @@ class ReflectionServiceTest {
                         "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         assertThrows(IllegalArgumentException.class,
                 () -> reflectionService
-                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
-                        emptyMap(), metas)
-                .apply(new HashMap<String, String>() {
-                    {
-                        put("value.aString", "foo");
-                        put("value.complexConfig", "true");
-                        put("value.complexConfiguration.url", "");
-                    }
-                }));
+                        .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                                emptyMap(), metas)
+                        .apply(new HashMap<String, String>() {
+
+                            {
+                                put("value.aString", "foo");
+                                put("value.complexConfig", "true");
+                                put("value.complexConfiguration.url", "");
+                            }
+                        }));
 
     }
 
@@ -807,11 +806,11 @@ class ReflectionServiceTest {
                 .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
                         emptyMap(), metas)
                 .apply(new HashMap<String, String>() {
+
                     {
                         put("value.apiDesc.loadAPI", "false");
                     }
                 });
-
 
         assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
     }
@@ -826,12 +825,12 @@ class ReflectionServiceTest {
                 .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
                         emptyMap(), metas)
                 .apply(new HashMap<String, String>() {
+
                     {
                         put("value.apiDesc.loadAPI", "true");
                         put("value.complexConfiguration.url", "https://talend.com");
                     }
                 });
-
 
         assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
         final MethodsHolder.RestDatastore value = MethodsHolder.RestDatastore.class.cast(params[0]);
@@ -847,9 +846,11 @@ class ReflectionServiceTest {
                         "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
         assertThrows(IllegalArgumentException.class,
                 () -> reflectionService
-                        .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        .parameterFactory(
+                                MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
                                 emptyMap(), metas)
                         .apply(new HashMap<String, String>() {
+
                             {
                                 put("value.apiDesc.loadAPI", "true");
                                 put("value.complexConfiguration.url", " ");

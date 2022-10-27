@@ -148,13 +148,13 @@ public class MethodsHolder {
         @Required
         private APIDesc apiDesc = new APIDesc();
 
-
         @Option
         @ActiveIf(target = "apiDesc/loadAPI", value = "true")
         private ComplexConfiguration complexConfiguration = new ComplexConfiguration();
 
         @Getter
         public static class APIDesc {
+
             @Option
             @Required
             private boolean loadAPI;

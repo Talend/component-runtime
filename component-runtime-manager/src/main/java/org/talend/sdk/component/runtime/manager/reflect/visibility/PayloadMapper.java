@@ -55,7 +55,7 @@ public class PayloadMapper {
                 payload == null ? emptyMap() : payload);
     }
 
-    public void setGlobalPayload(final JsonObject payload){
+    public void setGlobalPayload(final JsonObject payload) {
         globalPayload = payload;
     }
 
