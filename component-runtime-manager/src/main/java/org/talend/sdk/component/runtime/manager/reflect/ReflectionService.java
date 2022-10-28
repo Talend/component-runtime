@@ -212,7 +212,9 @@ public class ReflectionService {
             if (!visitor.skip) {
                 visitor.globalPayload = new PayloadMapper((a, b) -> {
                 }).visitAndMap(metas, notNullConfig);
-                new PayloadMapper(visitor).visitAndMap(metas, notNullConfig);
+                final PayloadMapper payloadMapper = new PayloadMapper(visitor);
+                payloadMapper.setGlobalPayload(visitor.globalPayload);
+                payloadMapper.visitAndMap(metas, notNullConfig);
                 visitor.throwIfFailed();
             }
             return factories.stream().map(f -> f.apply(notNullConfig)).toArray(Object[]::new);
@@ -899,7 +901,7 @@ public class ReflectionService {
 
         private final Collection<String> errors = new ArrayList<>();
 
-        private JsonObject globalPayload;
+        JsonObject globalPayload;
 
         @Override
         public void onParameter(final ParameterMeta meta, final JsonValue value) {
