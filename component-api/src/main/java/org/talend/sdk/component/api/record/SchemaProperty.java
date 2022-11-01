@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.api.record;
 
-public interface EntryProperty {
+public interface SchemaProperty {
 
     String ORIGIN_TYPE = "field.origin.type";
 

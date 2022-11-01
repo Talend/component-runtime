@@ -48,14 +48,13 @@ import org.apache.avro.io.JsonEncoder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.talend.sdk.component.api.record.EntryProperty;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
-import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
@@ -347,36 +346,36 @@ class AvroRecordBuilderTest {
                         .withName("ID")
                         .withRawName("THE ID")
                         .withType(Schema.Type.INT)
-                        .withProp(EntryProperty.IS_KEY, "true")
-                        .withProp(EntryProperty.ORIGIN_TYPE, "VARCHAR2")
-                        .withProp(EntryProperty.SIZE, "10")
+                        .withProp(SchemaProperty.IS_KEY, "true")
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "10")
                         .build())
                 .withEntry(factory.newEntryBuilder()
                         .withName("NAME")
                         .withType(Schema.Type.STRING)
-                        .withProp(EntryProperty.ORIGIN_TYPE, "VARCHAR2")
-                        .withProp(EntryProperty.SIZE, "64")
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "64")
                         .build())
                 .withEntry(factory.newEntryBuilder()
                         .withName("PHONE")
                         .withType(Schema.Type.STRING)
-                        .withProp(EntryProperty.ORIGIN_TYPE, "VARCHAR2")
-                        .withProp(EntryProperty.SIZE, "64")
-                        .withProp(EntryProperty.IS_UNIQUE, "true")
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "64")
+                        .withProp(SchemaProperty.IS_UNIQUE, "true")
                         .build())
                 .withEntry(factory.newEntryBuilder()
                         .withName("CREDIT")
                         .withType(Schema.Type.DECIMAL)
-                        .withProp(EntryProperty.ORIGIN_TYPE, "DECIMAL")
-                        .withProp(EntryProperty.SIZE, "10")
-                        .withProp(EntryProperty.SCALE, "2")
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "DECIMAL")
+                        .withProp(SchemaProperty.SIZE, "10")
+                        .withProp(SchemaProperty.SCALE, "2")
                         .build())
                 .withEntry(factory.newEntryBuilder()
                         .withName("ADDRESS_ID")
                         .withType(Schema.Type.INT)
-                        .withProp(EntryProperty.ORIGIN_TYPE, "INT")
-                        .withProp(EntryProperty.SIZE, "10")
-                        .withProp(EntryProperty.IS_FOREIGN_KEY, "true")
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "INT")
+                        .withProp(SchemaProperty.SIZE, "10")
+                        .withProp(SchemaProperty.IS_FOREIGN_KEY, "true")
                         .build())
                 .build();
         final Record.Builder builder = factory.newRecordBuilder(schema);
@@ -391,30 +390,30 @@ class AvroRecordBuilderTest {
         assertEquals(schema, rSchema);
 
         assertEquals("THE ID", rSchema.getEntry("ID").getOriginalFieldName());
-        assertEquals("true", rSchema.getEntry("ID").getProp(EntryProperty.IS_KEY));
-        assertEquals("VARCHAR2", rSchema.getEntry("ID").getProp(EntryProperty.ORIGIN_TYPE));
-        assertEquals("10", rSchema.getEntry("ID").getProp(EntryProperty.SIZE));
-        assertNull(rSchema.getEntry("ID").getProp(EntryProperty.SCALE));
+        assertEquals("true", rSchema.getEntry("ID").getProp(SchemaProperty.IS_KEY));
+        assertEquals("VARCHAR2", rSchema.getEntry("ID").getProp(SchemaProperty.ORIGIN_TYPE));
+        assertEquals("10", rSchema.getEntry("ID").getProp(SchemaProperty.SIZE));
+        assertNull(rSchema.getEntry("ID").getProp(SchemaProperty.SCALE));
 
-        assertEquals("true", rSchema.getEntry("PHONE").getProp(EntryProperty.IS_UNIQUE));
+        assertEquals("true", rSchema.getEntry("PHONE").getProp(SchemaProperty.IS_UNIQUE));
 
-        assertEquals("2", rSchema.getEntry("CREDIT").getProp(EntryProperty.SCALE));
+        assertEquals("2", rSchema.getEntry("CREDIT").getProp(SchemaProperty.SCALE));
 
-        assertEquals("true", rSchema.getEntry("ADDRESS_ID").getProp(EntryProperty.IS_FOREIGN_KEY));
+        assertEquals("true", rSchema.getEntry("ADDRESS_ID").getProp(SchemaProperty.IS_FOREIGN_KEY));
 
         IndexedRecord avroRecord = AvroRecord.class.cast(record).unwrap(IndexedRecord.class);
         org.apache.avro.Schema avroSchema = avroRecord.getSchema();
         assertEquals("THE ID", avroSchema.getField("ID").getProp(KeysForAvroProperty.LABEL));
-        assertEquals("true", avroSchema.getField("ID").getProp(EntryProperty.IS_KEY));
-        assertNull(avroSchema.getField("ID").getProp(EntryProperty.SCALE));
+        assertEquals("true", avroSchema.getField("ID").getProp(SchemaProperty.IS_KEY));
+        assertNull(avroSchema.getField("ID").getProp(SchemaProperty.SCALE));
 
         // the same with entry name, so not store it, just use name
         assertNull(avroSchema.getField("NAME").getProp(KeysForAvroProperty.LABEL));
 
         Schema wrapBack = new AvroRecord(avroRecord).getSchema();
         assertEquals("THE ID", wrapBack.getEntry("ID").getProp(KeysForAvroProperty.LABEL));
-        assertEquals("true", wrapBack.getEntry("ID").getProp(EntryProperty.IS_KEY));
-        assertNull(wrapBack.getEntry("ID").getProp(EntryProperty.SCALE));
+        assertEquals("true", wrapBack.getEntry("ID").getProp(SchemaProperty.IS_KEY));
+        assertNull(wrapBack.getEntry("ID").getProp(SchemaProperty.SCALE));
 
     }
 
