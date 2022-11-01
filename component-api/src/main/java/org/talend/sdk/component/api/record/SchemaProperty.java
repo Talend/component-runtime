@@ -23,6 +23,10 @@ public interface SchemaProperty {
 
     String SCALE = "field.scale";
 
+    String PATTERN = "field.pattern";
+
+    String STUDIO_TYPE = "field.studio.type";
+
     String IS_KEY = "field.key";
 
     String IS_FOREIGN_KEY = "field.foreign.key";

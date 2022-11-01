@@ -111,7 +111,7 @@ NOTE: Available since 1.43.x release
 As Talend Component Kit link:{deploymentRoot}/apidocs/{page-component-version}/api/org/talend/sdk/component/api/record/Schema.Type.html[Schema^]'s types aren't matching all Studio types, we wrap those types in wider
 types (like `Character` or `char` wrapped into `String`, `Short` to `Integer`, and so on...).
 
-Anyway, the original type coming from Studio's `IPersistableRow` is stored in record's schema properties under the property name `talend.studio.type`.
+Anyway, the original type coming from Studio's `IPersistableRow` is stored in record's schema properties under the property name `field.studio.type`.
 
 Studio managed types are: `id_BigDecimal`, `id_Boolean`, `id_Byte`, `id_byte[]`, `id_Character`, `id_Date`, `id_Double`, `id_Document`, `id_Dynamic`, `id_Float`, `id_Integer`, `id_List`, `id_Long`, `id_Object`, `id_Short`, `id_String`.
 
@@ -126,7 +126,7 @@ Here is a simple processor before writing to backend destination:
 @ElementListener
 public void process(final Record input) {
     final String value = input.getString("myBigDecimal");
-    final Boolean isBigDec = "id_BigDecimal".equals(input.getSchema().getEntry("myBigDecimal").getProp("talend.studio.type"));
+    final Boolean isBigDec = "id_BigDecimal".equals(input.getSchema().getEntry("myBigDecimal").getProp("field.studio.type"));
     queueWriter.write(isBigDec ? new BigDecimal(value) : value);
 }
 ----

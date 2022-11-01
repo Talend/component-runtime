@@ -30,11 +30,11 @@ import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
+import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
+import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import routines.system.Dynamic;
 
@@ -445,16 +445,16 @@ public class DiRowStructVisitor {
         // CHECKSTYLE:ON
         final Map<String, String> props = new HashMap();
         if (isKey != null) {
-            props.put(STUDIO_KEY, String.valueOf(isKey));
+            props.put(IS_KEY, String.valueOf(isKey));
         }
         if (length != null) {
-            props.put(STUDIO_LENGTH, String.valueOf(length));
+            props.put(SIZE, String.valueOf(length));
         }
         if (precision != null) {
-            props.put(STUDIO_PRECISION, String.valueOf(precision));
+            props.put(SCALE, String.valueOf(precision));
         }
         if (pattern != null) {
-            props.put(STUDIO_PATTERN, pattern);
+            props.put(PATTERN, pattern);
         }
         props.put(STUDIO_TYPE, studioType);
 
@@ -483,7 +483,7 @@ public class DiRowStructVisitor {
                 .withNullable(true)
                 .withType(ARRAY)
                 .withElementSchema(factory.newSchemaBuilder(elementType).build())
-                .withProp(STUDIO_KEY, StudioTypes.LIST)
+                .withProp(STUDIO_TYPE, StudioTypes.LIST)
                 .build();
     }
 
