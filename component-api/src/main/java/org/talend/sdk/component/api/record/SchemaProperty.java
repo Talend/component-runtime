@@ -25,7 +25,7 @@ public interface SchemaProperty {
 
     String PATTERN = "field.pattern";
 
-    String STUDIO_TYPE = "field.studio.type";
+    String STUDIO_TYPE = "talend.studio.type";
 
     String IS_KEY = "field.key";
 
