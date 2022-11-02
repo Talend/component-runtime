@@ -8,11 +8,23 @@
 
 
 
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2236[TCOMP-2236^]: Streaming stop strategy in livy jobs link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
 == Version 1.50.1
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2241[TCOMP-2241^]: [Runtime convergence] : Join connector fails - No translator known link:search.html?query=api[api^,role='dockey'] link:search.html?query=beam[beam^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2236[TCOMP-2236^]: Streaming stop strategy in livy jobs link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=component-manager[component-manager^,role='dockey']
 
 == Version 1.50.0
 
