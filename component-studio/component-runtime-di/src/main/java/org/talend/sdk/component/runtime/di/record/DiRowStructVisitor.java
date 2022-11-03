@@ -435,6 +435,8 @@ public class DiRowStructVisitor {
     }
 
     private void onObject(final String name, final Object value) {
+        //in studio di, the object value is suitable to json string always? this code for construct the input tck record to tck processor, maybe is ok
+        //will adjust it if meet real requirement, then not toJson, only call "with(name, value)" api;
         recordBuilder.withString(name, jsonb.toJson(value));
     }
 

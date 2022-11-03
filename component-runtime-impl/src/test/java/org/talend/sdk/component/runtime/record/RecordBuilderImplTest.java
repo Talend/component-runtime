@@ -252,6 +252,23 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void object() {
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("object")
+                        .withNullable(true)
+                        .withType(Type.STRING)
+                        .withProp("talend.studio.type", "id_Object")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        Object value = new Object();
+        final Record record = builder.with(schema.getEntry("object"), value).build();
+        assertTrue(value == record.get(Object.class, "object"));
+    }
+
+    @Test
     void array() {
         final Schema schemaArray = new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build();
         final Schema.Entry entry = new SchemaImpl.EntryImpl.BuilderImpl()

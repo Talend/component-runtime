@@ -157,7 +157,7 @@ public interface Schema {
 
         RECORD(new Class<?>[] { Record.class }),
         ARRAY(new Class<?>[] { Collection.class }),
-        STRING(new Class<?>[] { String.class }),
+        STRING(new Class<?>[] { String.class, Object.class }),
         BYTES(new Class<?>[] { byte[].class, Byte[].class }),
         INT(new Class<?>[] { Integer.class }),
         LONG(new Class<?>[] { Long.class }),
