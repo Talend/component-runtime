@@ -63,6 +63,13 @@ class MvnDependenciesTxtArtifactConverterTest {
         assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.5", "jar", "compile", null);
     }
 
+    @Test
+    void shortArtifactJira() {
+        final Artifact[] artifacts = converter.withContent("org.apache.tomee:ziplock:7.0.5-TCOMP-2285").build();
+        assertEquals(1, artifacts.length);
+        assertArtifact(artifacts[0], "org.apache.tomee", "ziplock", "7.0.5-TCOMP-2285", "jar", "compile", null);
+    }
+
     private void assertArtifact(final Artifact art, final String group, final String artifact, final String version,
             final String type, final String scope, final String classifier) {
         assertEquals(group, art.getGroup());

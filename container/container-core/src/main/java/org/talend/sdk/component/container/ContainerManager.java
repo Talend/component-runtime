@@ -51,6 +51,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -98,6 +100,8 @@ public class ContainerManager implements Lifecycle {
     private final String[] jvmMarkers;
 
     private final boolean hasNestedRepository;
+
+    private final Pattern versionWithJiraIssue = Pattern.compile("-[A-Z]{2,}-\\d+$");
 
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
             final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
@@ -267,6 +271,10 @@ public class ContainerManager implements Lifecycle {
             }
             if (autoId.isEmpty()) {
                 throw new IllegalArgumentException("Invalid name for plugin: " + module);
+            }
+            final Matcher jiraTicket = versionWithJiraIssue.matcher(autoId);
+            if (jiraTicket.find()) {
+                autoId = autoId.substring(0, jiraTicket.start());
             }
             // strip the version
             int end = autoId.length() - 1;

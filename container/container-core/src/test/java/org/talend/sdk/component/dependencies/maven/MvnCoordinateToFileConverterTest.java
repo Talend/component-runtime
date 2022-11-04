@@ -31,6 +31,10 @@ class MvnCoordinateToFileConverterTest {
 
     public static final String VERSION = "1.42.0";
 
+    public static final String VERSION_JIRA = "1.42.0-TCOMP-2285";
+
+    public static final String VERSION_JIRA_SNAPSHOT = "1.42.0-TCOMP-2285-SNAPSHOT";
+
     public static final String CLASSIFIER = "osx-aarch_64";
 
     public static final String SCOPE = "compile";
@@ -136,4 +140,37 @@ class MvnCoordinateToFileConverterTest {
         Assertions.assertEquals(VERSION, artifact.getVersion());
         Assertions.assertEquals(SCOPE, artifact.getScope());
     }
+
+    @Test
+    void coordinateGATCVSWithJira() {
+        final MvnCoordinateToFileConverter converter = new MvnCoordinateToFileConverter();
+        final Artifact artifact = converter
+                .toArtifact(GROUP_ID + ":" + ARTIFACT_ID + ":" + TYPE + ":" + CLASSIFIER + ":" + VERSION_JIRA + ":"
+                        + SCOPE);
+
+        Assertions.assertNotNull(artifact);
+        Assertions.assertEquals(GROUP_ID, artifact.getGroup());
+        Assertions.assertEquals(ARTIFACT_ID, artifact.getArtifact());
+        Assertions.assertEquals(CLASSIFIER, artifact.getClassifier());
+        Assertions.assertEquals(TYPE, artifact.getType());
+        Assertions.assertEquals(VERSION_JIRA, artifact.getVersion());
+        Assertions.assertEquals(SCOPE, artifact.getScope());
+    }
+
+    @Test
+    void coordinateGATCVSWithJiraSnapshot() {
+        final MvnCoordinateToFileConverter converter = new MvnCoordinateToFileConverter();
+        final Artifact artifact = converter
+                .toArtifact(GROUP_ID + ":" + ARTIFACT_ID + ":" + TYPE + ":" + CLASSIFIER + ":" + VERSION_JIRA_SNAPSHOT
+                        + ":" + SCOPE);
+
+        Assertions.assertNotNull(artifact);
+        Assertions.assertEquals(GROUP_ID, artifact.getGroup());
+        Assertions.assertEquals(ARTIFACT_ID, artifact.getArtifact());
+        Assertions.assertEquals(CLASSIFIER, artifact.getClassifier());
+        Assertions.assertEquals(TYPE, artifact.getType());
+        Assertions.assertEquals(VERSION_JIRA_SNAPSHOT, artifact.getVersion());
+        Assertions.assertEquals(SCOPE, artifact.getScope());
+    }
+
 }

@@ -24,8 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -86,6 +89,25 @@ class ContainerManagerTest {
                         assertEquals("ziplock"/* no version, no .jar */, container.getId());
                     }
                 });
+    }
+
+    @Test
+    void autoContainerIdWithJiraIssue(final TempJars jars) {
+        final List<String> plugins = Arrays.asList("data-processing-runtime-streamsjob-2.21.0-PR-999-SNAPSHOT.jar",
+                "ziplock-7.3-TCOMP-2285-SNAPSHOT.jar", "rest-1.38.0-TDI-46666-SNAPSHOT.jar",
+                "rest-1.38.0-TD-46666.jar", "ziplock-7.00.3.jar", "ziplock-7.3.jar");
+        final List<String> pluginIds =
+                Arrays.asList("data-processing-runtime-streamsjob", "ziplock", "rest", "rest", "ziplock", "ziplock");
+        final List<String> results = plugins.stream().map(jar -> {
+            try (final ContainerManager manager = createDefaultManager()) {
+                final File module = createZiplockJar(jars);
+                final File j = new File(module.getParentFile(), jar);
+                assertTrue(module.renameTo(j));
+                final Container container = manager.builder(j.getAbsolutePath()).create();
+                return container.getId();
+            }
+        }).collect(Collectors.toList());
+        assertEquals(pluginIds, results);
     }
 
     @Test
