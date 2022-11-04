@@ -58,7 +58,8 @@ public class OptionParameterValidator implements Validator {
                 .flatMap(m -> Stream.concat(
                         Arrays.stream(m.getParameters())
                                 .filter(p -> !p.isAnnotationPresent(Option.class))
-                                .map(p -> "Parameter '" + p.getName() + "' should be either annotated with @Option or removed"),
+                                .map(p -> "Parameter '" + p.getName()
+                                        + "' should be either annotated with @Option or removed"),
                         Arrays.stream(m.getParameters())
                                 .filter(p -> p.isAnnotationPresent(Option.class))
                                 .filter(p -> !ALLOWED_OPTION_PARAMETERS.contains(p.getAnnotation(Option.class).value()))
