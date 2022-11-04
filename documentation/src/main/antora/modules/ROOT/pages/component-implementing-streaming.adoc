@@ -26,6 +26,27 @@ This default configuration implements a constant pause duration of 500 ms betwee
 
 image::starter/starter_enabling_streaming.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/starter/starter_enabling_streaming.png",80%]
 
+== Enabling limitations (stoppers) for Streaming components
+
+You can add configuration that help you to stop the data reading in your input component when it reaches required limitations: max duration and max records. To do it you need to set true in PartitionMapper#stoppable. An important condition is that PartitionMapper#infinite should also be true.
+You can also pass those limits inside @PostConstruct method with @Option annotation. Available options: Option.MAX_DURATION_PARAMETER, Option.MAX_RECORDS_PARAMETER.
+By default in the setting those values are set to -1. It means "infinity" behavior.
+
+[source,java,indent=0]
+----
+@Version
+@PartitionMapper(name = "Input", infinite = true, stoppable = true)
+public class YourPartitionMapper {
+
+    @PostConstruct
+    public void init(@Option(Option.MAX_DURATION_PARAMETER) long maxDurationMs, @Option(Option.MAX_RECORDS_PARAMETER) long maxRecords ) {
+    	// connector's specific logic here
+    }
+    // other component's code
+}
+----
+
+
 == Configuring streaming from the project
 
 If streaming was not enabled at all during the project generation or if you need to implement a more specific configuration, you can change the default settings according to your needs:

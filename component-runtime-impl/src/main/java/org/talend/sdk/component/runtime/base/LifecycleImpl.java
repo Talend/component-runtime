@@ -46,7 +46,11 @@ public class LifecycleImpl extends Named implements Lifecycle {
 
     @Override
     public void start() {
-        invoke(PostConstruct.class);
+        findMethods(PostConstruct.class).forEach(it -> doInvoke(it, evaluateParameters(PostConstruct.class, it)));
+    }
+
+    protected Object[] evaluateParameters(final Class<? extends Annotation> marker, final Method method) {
+        return new Object[0];
     }
 
     @Override

@@ -117,7 +117,7 @@ public class ModelVisitor {
             });
         }
         Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Split.class)).forEach(m -> {
-            // for now we could inject it by default but to ensure we can inject more later
+            // for now, we could inject it by default but to ensure we can inject more later
             // we must do that validation
             if (Stream
                     .of(m.getParameters())

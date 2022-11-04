@@ -131,6 +131,7 @@ public class Validators {
         }
         if (configuration.isValidateOptionNames()) {
             activeValidators.add(new OptionNameValidator());
+            activeValidators.add(new OptionParameterValidator());
         }
 
         if (configuration.isValidateLocalConfiguration()) {
