@@ -111,7 +111,12 @@ public class RecordServiceImpl implements RecordService, Serializable {
                 visitor.onBoolean(entry, record.getOptionalBoolean(entry.getName()));
                 break;
             case STRING:
-                visitor.onString(entry, record.getOptionalString(entry.getName()));
+                String insideType = entry.getProp("talend.studio.type");// TODO use new key in component-api
+                if ("id_Object".equals(insideType)) {
+                    visitor.onObject(entry, Optional.ofNullable(record.get(Object.class, entry.getName())));
+                } else {
+                    visitor.onString(entry, record.getOptionalString(entry.getName()));
+                }
                 break;
             case DATETIME:
                 visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));

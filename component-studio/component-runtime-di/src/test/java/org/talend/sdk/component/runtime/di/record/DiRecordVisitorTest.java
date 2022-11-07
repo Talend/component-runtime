@@ -106,6 +106,11 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .build(), String.valueOf(Character.MAX_VALUE))
 
                 .withRecord("object0", RECORD)
+                .with(factory.newEntryBuilder()
+                        .withName("object1")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
+                        .build(), OBJECT)
                 .withRecord("RECORD", RECORD)
                 .withArray(factory
                         .newEntryBuilder()
@@ -206,6 +211,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertArrayEquals(BYTES0, rowStruct.bytes0);
         assertArrayEquals(BYTES1, rowStruct.bytes1);
         assertEquals(RECORD, rowStruct.object0);
+        assertEquals(OBJECT, rowStruct.object1);
         // asserts rowStruct::dynamic
         assertNotNull(rowStruct.dynamic);
         assertNotNull(rowStruct.dynamic.metadatas);
