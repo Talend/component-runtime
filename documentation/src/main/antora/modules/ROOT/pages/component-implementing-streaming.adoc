@@ -37,6 +37,15 @@ By default in the setting those values are set to -1. It means "infinity" behavi
 @Version
 @PartitionMapper(name = "Input", infinite = true, stoppable = true)
 public class YourPartitionMapper {
+	// partition mapper code
+
+    @Emitter
+    public YourEmitter createWorker() {
+        return new YourEmitter(configuration);
+    }
+}
+
+public class YourEmitter {
 
     @PostConstruct
     public void init(@Option(Option.MAX_DURATION_PARAMETER) long maxDurationMs, @Option(Option.MAX_RECORDS_PARAMETER) long maxRecords ) {
