@@ -269,9 +269,6 @@ public class ContainerManager implements Lifecycle {
             if (autoId.endsWith("-SNAPSHOT")) {
                 autoId = autoId.substring(0, autoId.length() - "-SNAPSHOT".length());
             }
-            if (autoId.isEmpty()) {
-                throw new IllegalArgumentException("Invalid name for plugin: " + module);
-            }
             final Matcher jiraTicket = versionWithJiraIssue.matcher(autoId);
             if (jiraTicket.find()) {
                 autoId = autoId.substring(0, jiraTicket.start());
@@ -308,6 +305,9 @@ public class ContainerManager implements Lifecycle {
                 }
             }
             autoId = autoId.substring(0, end + 1);
+        }
+        if (autoId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid name for plugin: " + module);
         }
         return autoId;
     }
