@@ -51,6 +51,12 @@
       <artifactId>gradle-core</artifactId>
       <version>${gradle.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava-jdk5</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
