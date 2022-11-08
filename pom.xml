@@ -206,7 +206,7 @@
     <jackson-databind.version>2.13.4.2</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
-    <jsoup.version>1.14.3</jsoup.version>
+    <jsoup.version>1.15.3</jsoup.version>
 
     <!-- deprecated after -->
     <talend-icon.version>3.8.0</talend-icon.version>
