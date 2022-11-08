@@ -17,8 +17,11 @@ package org.talend.sdk.component.tools.validator;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,11 +38,13 @@ import org.talend.sdk.component.api.input.PartitionMapper;
  */
 public class OptionParameterValidator implements Validator {
 
-    private static final Set<String> ALLOWED_OPTION_PARAMETERS = new HashSet<>();
+    private static final Map<String, Set<Class<?>>> ALLOWED_OPTION_PARAMETERS = new HashMap<>();
 
     static {
-        ALLOWED_OPTION_PARAMETERS.add(Option.MAX_DURATION_PARAMETER);
-        ALLOWED_OPTION_PARAMETERS.add(Option.MAX_RECORDS_PARAMETER);
+        ALLOWED_OPTION_PARAMETERS.put(Option.MAX_DURATION_PARAMETER,
+                new HashSet<>(Arrays.asList(int.class, Integer.class, long.class, Long.class)));
+        ALLOWED_OPTION_PARAMETERS.put(Option.MAX_RECORDS_PARAMETER,
+                new HashSet<>(Arrays.asList(int.class, Integer.class, long.class, Long.class)));
     }
 
     @Override
@@ -56,20 +61,45 @@ public class OptionParameterValidator implements Validator {
                 .filter(m -> emitterClassesOfPartition.contains(m.getDeclaringClass())
                         || m.getDeclaringClass().isAnnotationPresent(Emitter.class))
                 .flatMap(m -> Stream.concat(
+                        // check that the parameter has Option annotation
                         Arrays.stream(m.getParameters())
                                 .filter(p -> !p.isAnnotationPresent(Option.class))
                                 .map(p -> "Parameter '" + p.getName()
                                         + "' should be either annotated with @Option or removed"),
-                        Arrays.stream(m.getParameters())
-                                .filter(p -> p.isAnnotationPresent(Option.class))
-                                .filter(p -> !ALLOWED_OPTION_PARAMETERS.contains(p.getAnnotation(Option.class).value()))
-                                .map(p -> "Option value on the parameter '" + p.getName() + "' is not acceptable. "
-                                        + "Acceptable values: " + acceptableOptionValues())))
+                        Stream.concat(
+                                // check option value name
+                                Arrays.stream(m.getParameters())
+                                        .filter(p -> p.isAnnotationPresent(Option.class))
+                                        .filter(p -> !ALLOWED_OPTION_PARAMETERS
+                                                .containsKey(p.getAnnotation(Option.class).value()))
+                                        .map(p -> "Option value on the parameter '" + p.getName()
+                                                + "' is not acceptable. "
+                                                + "Acceptable values: " + acceptableOptionValues()),
+                                // check option parameters' type
+                                Arrays.stream(m.getParameters())
+                                        .filter(p -> p.isAnnotationPresent(Option.class))
+                                        .filter(p -> ALLOWED_OPTION_PARAMETERS
+                                                .containsKey(p.getAnnotation(Option.class).value()))
+                                        .filter(p -> !ALLOWED_OPTION_PARAMETERS
+                                                .get(p.getAnnotation(Option.class).value())
+                                                .contains(p.getType()))
+                                        .map(p -> "The '" + p.getName() + "' parameter's type is not acceptable. "
+                                                + "Acceptable types: "
+                                                + acceptableTypeValues(p.getAnnotation(Option.class).value())))))
                 .sorted();
     }
 
     private static String acceptableOptionValues() {
-        return ALLOWED_OPTION_PARAMETERS.stream()
+        return ALLOWED_OPTION_PARAMETERS.keySet()
+                .stream()
+                .sorted()
+                .collect(Collectors.joining(",", "[", "]"));
+    }
+
+    private static String acceptableTypeValues(final String optionValue) {
+        return ALLOWED_OPTION_PARAMETERS.getOrDefault(optionValue, Collections.emptySet())
+                .stream()
+                .map(Class::getSimpleName)
                 .sorted()
                 .collect(Collectors.joining(",", "[", "]"));
     }

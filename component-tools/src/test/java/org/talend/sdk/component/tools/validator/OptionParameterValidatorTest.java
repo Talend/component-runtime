@@ -167,4 +167,29 @@ class OptionParameterValidatorTest {
         assertEquals(1, strings.size());
         assertEquals("Parameter 'maxDuration' should be either annotated with @Option or removed", strings.get(0));
     }
+
+    @Test
+    void nokWrongParameterType() {
+        @Emitter
+        class MaxRecordAndMaxDurationEmitter {
+
+            @PostConstruct
+            void start(@Option(Option.MAX_DURATION_PARAMETER) String maxDuration, @Option(Option.MAX_RECORDS_PARAMETER) Object maxRecords) {
+            }
+        }
+
+        final AnnotationFinder mockFinder = Mockito.mock(AnnotationFinder.class);
+        Mockito.when(mockFinder.findAnnotatedMethods(PostConstruct.class))
+                .thenReturn(Arrays.asList(MaxRecordAndMaxDurationEmitter.class.getDeclaredMethods()));
+        Mockito.when(mockFinder.findAnnotatedMethods(Emitter.class))
+                .thenReturn(Collections.emptyList());
+
+        final OptionParameterValidator validator = new OptionParameterValidator();
+        final Stream<String> result = validator.validate(mockFinder, Mockito.anyList());
+        final List<String> strings = result.collect(Collectors.toList());
+
+        assertEquals(2, strings.size());
+        assertEquals("The 'maxDuration' parameter's type is not acceptable. Acceptable types: [Integer,Long,int,long]", strings.get(0));
+        assertEquals("The 'maxRecords' parameter's type is not acceptable. Acceptable types: [Integer,Long,int,long]", strings.get(1));
+    }
 }
