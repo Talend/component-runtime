@@ -42,13 +42,21 @@ public class PayloadMapper {
     // we don't need the runtime one here
     private final JsonProvider jsonp = JsonProvider.provider();
 
+    private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
+
     private final JsonBuilderFactory factory = jsonp.createBuilderFactory(emptyMap());
 
     private final OnParameter parameterVisitor;
 
+    private JsonObject globalPayload = null;
+
     public JsonObject visitAndMap(final Collection<ParameterMeta> parameters, final Map<String, String> payload) {
         return unflatten("", ofNullable(parameters).orElseGet(Collections::emptyList),
                 payload == null ? emptyMap() : payload);
+    }
+
+    public void setGlobalPayload(final JsonObject payload) {
+        globalPayload = payload;
     }
 
     private JsonObject unflatten(final String contextualPrefix, final Collection<ParameterMeta> definitions,
@@ -118,6 +126,9 @@ public class PayloadMapper {
     private void onObject(final Collection<ParameterMeta> definitions, final ParameterMeta meta,
             final Map<String, String> config, final JsonObjectBuilder json, final String name,
             final String currentPath) {
+        if (!isVisible(meta)) {
+            return;
+        }
         final JsonObject unflatten = unflatten(currentPath, definitions, config);
         if (!unflatten.isEmpty()) {
             json.add(name, unflatten);
@@ -125,6 +136,10 @@ public class PayloadMapper {
         } else {
             parameterVisitor.onParameter(meta, JsonValue.NULL);
         }
+    }
+
+    private boolean isVisible(final ParameterMeta meta) {
+        return globalPayload == null ? true : VISIBILITY_SERVICE.build(meta).isVisible(globalPayload);
     }
 
     private void onArray(final Collection<ParameterMeta> definitions, final ParameterMeta definition,
@@ -197,5 +212,6 @@ public class PayloadMapper {
     public interface OnParameter {
 
         void onParameter(ParameterMeta meta, JsonValue value);
+
     }
 }

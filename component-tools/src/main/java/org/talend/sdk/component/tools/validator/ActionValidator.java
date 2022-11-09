@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,16 +31,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
@@ -88,6 +92,9 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should have its first parameter being a dataset (marked with @DataSet)")
                 .sorted();
 
+        // parameters for @DiscoverSchemaExtended
+        final Stream<String> discoverProcessor = findDiscoverSchemaExtendedErrors(finder);
+
         // returned type for @Update, for now limit it on objects and not primitives
         final Stream<String> updatesErrors = this.findUpdatesErrors(finder);
 
@@ -122,6 +129,7 @@ public class ActionValidator implements Validator {
                         health, //
                         datasetDiscover, //
                         discover, //
+                        discoverProcessor, //
                         updatesErrors, //
                         enumProposable, //
                         proposableWithoutDynamic) //
@@ -145,6 +153,55 @@ public class ActionValidator implements Validator {
                                             && !Modifier.isAbstract(m.getDeclaringClass().getModifiers()))
                                     .map(m -> m + " is not declared into a service class"));
         }).sorted();
+    }
+
+    /**
+     * Checks method signature for @DiscoverSchemaExtended annotation.
+     * Valid signatures are:
+     * <ul>
+     * <li>public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf, final
+     * String branch)</li>
+     * <li>public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf)</li>
+     * <li>public Schema guessMethodName(final @Option("configuration") procConf, final String branch)</li>
+     * <li>public Schema guessMethodName(final @Option("configuration") procConf)</li>
+     * </ul>
+     *
+     * @param finder
+     * @return Errors on @DiscoverSchemaExtended method
+     */
+    private Stream<String> findDiscoverSchemaExtendedErrors(final AnnotationFinder finder) {
+
+        final Stream<String> optionParameter = finder
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
+                .stream()
+                .filter(m -> !hasOption(m))
+                .map(m -> m + " should have a parameter being an option (marked with @Option)")
+                .sorted();
+
+        final Stream<String> incomingSchema = finder
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
+                .stream()
+                .filter(m -> !hasSchemaCorrectNaming(m))
+                .map(m -> m + " should have its Schema `incomingSchema' parameter named `incomingSchema'")
+                .sorted();
+
+        final Stream<String> branch = finder
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
+                .stream()
+                .filter(m -> !hasBranchCorrectNaming(m))
+                .map(m -> m + " should have its String `branch' parameter named `branch'")
+                .sorted();
+
+        final Stream<String> returnType = finder
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
+                .stream()
+                .filter(m -> !hasCorrectReturnType(m))
+                .map(m -> m + " should return a Schema assignable")
+                .sorted();
+
+        return Stream.of(returnType, optionParameter, incomingSchema, branch)
+                .reduce(Stream::concat)
+                .orElseGet(Stream::empty);
     }
 
     private Stream<String> findUpdatesErrors(final AnnotationFinder finder) {
@@ -204,5 +261,29 @@ public class ActionValidator implements Validator {
 
     private boolean isPrimitiveLike(final Class<?> type) {
         return type.isPrimitive() || type == String.class;
+    }
+
+    private boolean hasOption(final Method method) {
+        return Arrays.stream(method.getParameters())
+                .filter(p -> p.isAnnotationPresent(Option.class))
+                .count() == 1;
+    }
+
+    private boolean hasSchemaCorrectNaming(final Method method) {
+        return Arrays.stream(method.getParameters())
+                .filter(p -> Schema.class.isAssignableFrom(p.getType()))
+                .filter(p -> "incomingSchema".equals(p.getName()))
+                .count() == 1;
+    }
+
+    private boolean hasBranchCorrectNaming(final Method method) {
+        return Arrays.stream(method.getParameters())
+                .filter(p -> String.class.isAssignableFrom(p.getType()))
+                .filter(p -> "branch".equals(p.getName()))
+                .count() == 1;
+    }
+
+    private boolean hasCorrectReturnType(final Method method) {
+        return Schema.class.isAssignableFrom(method.getReturnType());
     }
 }

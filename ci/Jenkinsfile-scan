@@ -16,7 +16,7 @@
 final def slackChannel = 'components-ci'
 final def veracodeCredentials = usernamePassword(credentialsId: 'veracode-api-credentials', usernameVariable: 'VERACODE_ID', passwordVariable: 'VERACODE_KEY')
 final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:2.9.27-20220331162145"
+final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final def podLabel = "component-runtime-scan-${UUID.randomUUID().toString()}".take(53)
 pipeline {
     agent {
@@ -57,7 +57,7 @@ spec:
 
     environment {
         MAVEN_OPTS = '-Dmaven.artifact.threads=128 -Dorg.slf4j.simpleLogger.showThreadName=true -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss'
-        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
+        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -pl '!talend-component-kit-intellij-plugin' -pl '!reporting'"
         TALEND_REGISTRY = 'registry.datapwn.com'
         VERACODE_APP_NAME = 'Components'
         VERACODE_SANDBOX = 'component-runtime'
@@ -127,7 +127,7 @@ spec:
                             scanExcludesPattern: '',
                             scanIncludesPattern: '',
                             scanName: "master-${currentBuild.number}-${currentBuild.startTimeInMillis}",
-                            uploadExcludesPattern: '',
+                            uploadExcludesPattern: '**/.cache/**/*.jar,**/deps/**/*.jar',
                             uploadIncludesPattern: '**/*.jar',
                             waitForScan: true,
                             vid: "$VERACODE_ID",

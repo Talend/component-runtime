@@ -65,4 +65,34 @@ class MvnDependencyListLocalRepositoryResolverTest {
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }
     }
+
+    @Test
+    void nestedDependencyWithJira(@TempDir final File temporaryFolder) throws IOException {
+        final File file = new File(temporaryFolder, UUID.randomUUID().toString() + ".jar");
+        file.getParentFile().mkdirs();
+        try (final JarOutputStream enclosing = new JarOutputStream(new FileOutputStream(file))) {
+            enclosing.putNextEntry(
+                    new ZipEntry("MAVEN-INF/repository/foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar"));
+            try (final JarOutputStream nested = new JarOutputStream(enclosing)) {
+                nested.putNextEntry(new ZipEntry("TALEND-INF/dependencies.txt"));
+                nested
+                        .write(new DependenciesTxtBuilder()
+                                .withDependency("org.apache.tomee:ziplock:jar:7.0.5:runtime")
+                                .withDependency("org.apache.tomee:javaee-api:jar:7.0-1:compile")
+                                .build()
+                                .getBytes(StandardCharsets.UTF_8));
+            }
+        }
+
+        try (final URLClassLoader tempLoader =
+                new URLClassLoader(new URL[] { file.toURI().toURL() }, getSystemClassLoader())) {
+            final List<String> toResolve =
+                    new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
+                            .resolve(tempLoader, "foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar")
+                            .map(Artifact::toPath)
+                            .collect(toList());
+            assertEquals(asList("org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar",
+                    "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
+        }
+    }
 }

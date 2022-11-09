@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.48.0-SNAPSHOT</version>
+  <version>1.51.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -170,10 +170,10 @@
 
     <!-- do not update without updating test-->
     <ziplock.test.version>7.0.5</ziplock.test.version>
-    <meecrowave.version>1.2.13</meecrowave.version>
-    <owb.version>2.0.26</owb.version>
-    <tomcat.version>9.0.62</tomcat.version>
-    <cxf.version>3.5.1</cxf.version>
+    <meecrowave.version>1.2.14</meecrowave.version>
+    <owb.version>2.0.27</owb.version>
+    <tomcat.version>9.0.68</tomcat.version>
+    <cxf.version>3.5.2</cxf.version>
 
     <logback.version>1.2.5</logback.version>
     <reload4j.version>1.2.19</reload4j.version>
@@ -183,10 +183,10 @@
     <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.2</geronimo-jsonb.version>
     <geronimo-json.version>1.3</geronimo-json.version>
-    <batik.version>1.14</batik.version>
+    <batik.version>1.16</batik.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
-    <commons-text.version>1.8</commons-text.version>
+    <commons-text.version>1.10.0</commons-text.version>
     <geronimo-jaxrs.version>1.1</geronimo-jaxrs.version>
     <asciidoctorj.version>2.5.2</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.6.0</asciidoctorj-pdf.version>
@@ -200,20 +200,20 @@
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-opentracing.version>1.0.2</geronimo-opentracing.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
-    <junit5.version>5.8.1</junit5.version>
+    <junit5.version>5.9.0</junit5.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <jackson.version>2.13.2</jackson.version>
-    <jackson-databind.version>2.13.2.2</jackson-databind.version>
+    <jackson.version>2.13.4</jackson.version>
+    <jackson-databind.version>2.13.4.2</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
-    <jsoup.version>1.14.3</jsoup.version>
+    <jsoup.version>1.15.3</jsoup.version>
 
     <!-- deprecated after -->
     <talend-icon.version>3.8.0</talend-icon.version>
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <mvn.version>3.8.5</mvn.version>
+    <mvn.version>3.8.6</mvn.version>
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
@@ -233,11 +233,11 @@
     <deploy-plugin.version>3.0.0-M2</deploy-plugin.version>
     <clean-plugin.version>3.1.0</clean-plugin.version>
     <download-plugin.version>1.4.2</download-plugin.version>
-    <shade-plugin.version>3.2.4</shade-plugin.version>
+    <shade-plugin.version>3.3.0</shade-plugin.version>
     <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
     <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
     <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-    <git-commit-id-plugin.version>4.0.5</git-commit-id-plugin.version>
+    <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>5.10.0.202012080955-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
@@ -246,8 +246,8 @@
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
     <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
     <spotless.version>2.17.3</spotless.version>
-    <jib.version>1.4.0</jib.version>
-    <jib-core.version>0.15.0</jib-core.version>
+    <jib.version>3.3.0</jib.version>
+    <jib-core.version>0.22.0</jib-core.version>
 
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v16.14.0</node.version>
@@ -266,11 +266,12 @@
     <coverage.min>0.75</coverage.min>
     <coverage.fail>false</coverage.fail>
 
-    <johnzon.version>1.2.16</johnzon.version>
-    <commons-io.version>2.8.0</commons-io.version>
+    <johnzon.version>1.2.19</johnzon.version>
+    <commons-io.version>2.9.0</commons-io.version>
     <commons-compress.version>1.21</commons-compress.version>
-    <slf4j.version>1.7.33</slf4j.version>
-    <log4j2.version>2.17.2</log4j2.version>
+    <slf4j.version>1.7.34</slf4j.version>
+    <log4j2.version>2.18.0</log4j2.version>
+    <rhino.version>1.7.14</rhino.version>
   </properties>
 
   <dependencyManagement>
@@ -1223,7 +1224,7 @@
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.13</version>
+        <version>0.14</version>
         <configuration>
           <consoleOutput>true</consoleOutput>
           <reportFile>${project.build.directory}/${project.build.finalName}.rat</reportFile>
@@ -1269,6 +1270,7 @@
             <exclude>**/talend-component-maven-plugin/src/it/generator/**/*</exclude>
             <exclude>**/src/main/resources/generator/**/*</exclude>
             <exclude>**/src/test/resources/generated/**/*</exclude>
+            <exclude>**/.config/**/*</exclude>
             <exclude>**/antora/**/*</exclude>
             <exclude>**/.antora-cache/**/*</exclude>
             <exclude>**/dependency-reduced-pom.xml</exclude>

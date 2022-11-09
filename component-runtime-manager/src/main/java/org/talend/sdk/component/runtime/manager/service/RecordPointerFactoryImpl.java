@@ -160,6 +160,8 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
                 return record.getBytes(entry.getName());
             case DATETIME:
                 return record.getDateTime(entry.getName());
+            case DECIMAL:
+                return record.getDecimal(entry.getName());
             case RECORD:
                 return record.getRecord(entry.getName());
             case ARRAY:

@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,10 +26,12 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
@@ -37,6 +41,7 @@ import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult;
 import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.DatasetDescription;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 
@@ -52,7 +57,19 @@ class ActionValidatorTest {
         final String error = errorsStreamKO.collect(Collectors.joining(" / "));
         final String expected =
                 "public java.lang.String org.talend.sdk.component.tools.validator.ActionValidatorTest$ActionDatasetDiscoveryKo.discoverBadReturnType() should have a datastore as first parameter (marked with @DataStore)";
-        Assertions.assertEquals(expected, error);
+        assertEquals(expected, error);
+    }
+
+    @Test
+    void validateDiscoverProcessorSchema() {
+        final ActionValidator validator = new ActionValidator(new FakeHelper());
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaOk.class));
+        final Stream<String> noerrors =
+                validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaOk.class));
+        assertEquals(0, noerrors.count());
+        finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaKo.class));
+        final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaKo.class));
+        assertEquals(6, errors.count());
     }
 
     @Test
@@ -69,7 +86,7 @@ class ActionValidatorTest {
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionClassKO.class));
         final Stream<String> errorsStreamKO = validator.validate(finderKO, Arrays.asList(ActionClassKO.class));
         final List<String> errorsKO = errorsStreamKO.collect(Collectors.toList());
-        Assertions.assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
+        assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
 
         Assertions
                 .assertAll(() -> assertContains(errorsKO,
@@ -162,6 +179,29 @@ class ActionValidatorTest {
         @DiscoverDataset
         public String discoverBadReturnType() {
             return "Should return " + DiscoverDatasetResult.class;
+        }
+    }
+
+    static class ActionDiscoverProcessorSchemaOk {
+
+        @DiscoverSchemaExtended("test")
+        public Schema guessProcessorSchemaOk(final Schema incomingSchema, @Option FakeDataSet configuration,
+                final String branch) {
+            return null;
+        }
+    }
+
+    static class ActionDiscoverProcessorSchemaKo {
+
+        @DiscoverSchemaExtended("test")
+        public Schema guessProcessorSchemaKo1(final Schema schema, final @Option FakeDataSet configuration,
+                final String outgoing) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("record")
+        public Record guessProcessorSchemaKo2(FakeDataSet configuration, final String outgoing) {
+            return null;
         }
     }
 }

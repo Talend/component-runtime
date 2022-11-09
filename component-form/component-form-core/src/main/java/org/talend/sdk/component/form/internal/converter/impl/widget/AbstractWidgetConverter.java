@@ -169,6 +169,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         if (ctx.getConfiguration().isIncludeDocumentationMetadata()) {
             schema.setDescription(ctx.getProperty().getMetadata().get("documentation::value"));
         }
+        if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("documentation::tooltip", "false"))) {
+            schema.setTooltip(ctx.getProperty().getMetadata().get("documentation::value"));
+        }
         if (actions != null) {
             final List<UiSchema.Trigger> triggers = Stream
                     .concat(Stream
@@ -299,6 +302,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     final String negateKey = "condition::if::negate" + keySuffix;
                     final String strategyKey = "condition::if::evaluationStrategy" + keySuffix;
                     final String paramRef = e.getValue();
+
                     final String path = pathResolver.resolveProperty(ctx.getProperty().getPath(), paramRef);
                     final SimplePropertyDefinition definition =
                             properties.stream().filter(p -> p.getPath().equals(path)).findFirst().orElse(null);
@@ -307,6 +311,19 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             !Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault(negateKey, "false"));
                     final String strategy =
                             ctx.getProperty().getMetadata().getOrDefault(strategyKey, "default").toLowerCase(ROOT);
+
+                    if ("ui.scope".equals(paramRef)) {
+                        boolean cloud = ctx.getProperty().getMetadata().getOrDefault(valueKey, "").contains("cloud");
+                        if ((shouldBe && !cloud) || (!shouldBe && cloud)) {
+                            return new UiSchema.ConditionBuilder().withOperator("==")
+                                    .withValue(1)
+                                    .withValue(-1)
+                                    .build();
+                        } else {
+                            return new UiSchema.ConditionBuilder().withOperator("==").withValue(1).withValue(1).build();
+                        }
+                    }
+
                     final List<Map<String, Collection<Object>>> values = Stream
                             .of(ctx.getProperty().getMetadata().getOrDefault(valueKey, "true").split(","))
                             .map(converter)

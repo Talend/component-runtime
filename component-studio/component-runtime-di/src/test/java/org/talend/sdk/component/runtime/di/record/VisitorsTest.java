@@ -171,11 +171,21 @@ public class VisitorsTest {
 
         public BigDecimal bigDecimal0;
 
+        public BigDecimal bigDecimal1;
+
         public Integer bigDecimal0Length() {
             return 30;
         }
 
         public Integer bigDecimal0Precision() {
+            return 10;
+        }
+
+        public Integer bigDecimal1Length() {
+            return 30;
+        }
+
+        public Integer bigDecimal1Precision() {
             return 10;
         }
 

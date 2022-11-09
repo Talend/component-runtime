@@ -102,6 +102,22 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private static final AvroSchema BOOLEAN_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
             .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN))));
 
+    private static final AvroSchema DECIMAL_SCHEMA_NULLABLE =
+            new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
+            }
+                    .setProp(
+                            Decimal.logicalType()
+                                    .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)),
+                            Schema.Type.DECIMAL.name(), "true"))));
+
+    private static final AvroSchema DECIMAL_SCHEMA = new AvroSchema(
+            new AvroPropertyMapper() {
+            }
+                    .setProp(
+                            Decimal.logicalType()
+                                    .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)),
+                            Schema.Type.DECIMAL.name(), "true"));
+
     private OrderedMap<Schema.Entry> fields;
 
     private Schema.Type type;
@@ -172,6 +188,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
             break;
         case DATETIME:
             unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
+            break;
+        case DECIMAL:
+            unwrappable = !entry.isNullable() ? DECIMAL_SCHEMA : DECIMAL_SCHEMA_NULLABLE;
             break;
         default:
             unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
@@ -332,6 +351,8 @@ public class AvroSchemaBuilder implements Schema.Builder {
             return BOOLEAN_SCHEMA;
         case DATETIME:
             return DATETIME_SCHEMA;
+        case DECIMAL:
+            return DECIMAL_SCHEMA;
         case RECORD:
             if (fields == null) {
                 return new AvroSchema(AvroSchemas.getEmptySchema());

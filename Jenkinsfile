@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-final def slackChannel = 'components-ci'
+// Credentials
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
@@ -22,59 +22,59 @@ final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datap
 final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
-final def isMasterBranch = env.BRANCH_NAME == "master"
-final def isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
-final def tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-builder:2.9.27-20220331162145"
-final def jdk17Image= "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:2.9.27-20220331162145"
-final def podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 
-def EXTRA_BUILD_ARGS = ""
+// Job config
+final String slackChannel = 'components-ci'
+final Boolean isMasterBranch = env.BRANCH_NAME == "master"
+final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
+final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
+final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
+final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+
+// Files and folder definition
+final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
+
+// Artifacts paths
+final String _ARTIFACT_COVERAGE = '**/jacoco-aggregate/**/*.*'
+
+// Pod definition
+final String podDefinition = """\
+    apiVersion: v1
+    kind: Pod
+    spec:
+      imagePullSecrets:
+        - name: talend-registry
+      containers:
+        - name: main
+          image: '${tsbiImage}'
+          command: [ cat ]
+          tty: true
+          volumeMounts: [
+            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}
+          ]
+          resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+        - name: docker-daemon
+          image: artifactory.datapwn.com/docker-io-remote/docker:19.03.1-dind
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          securityContext:
+            privileged: true
+      volumes:
+        - name: efs-jenkins-component-runtime-m2
+          persistentVolumeClaim:
+            claimName: efs-jenkins-component-runtime-m2
+""".stripIndent()
 
 pipeline {
     agent {
         kubernetes {
             label podLabel
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-    containers:
-        -
-            name: main
-            image: '${tsbiImage}'
-            command: [cat]
-            tty: true
-            volumeMounts: [
-                { name: docker, mountPath: /var/run/docker.sock }, 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-        -
-            name: jdk17
-            image: '${jdk17Image}'
-            command: [cat]
-            tty: true
-            volumeMounts: [
-                { name: docker, mountPath: /var/run/docker.sock }, 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
-    volumes:
-        -
-            name: docker
-            hostPath: {path: /var/run/docker.sock}
-        -
-            name: efs-jenkins-component-runtime-m2
-            persistentVolumeClaim: 
-                claimName: efs-jenkins-component-runtime-m2
-        -
-            name: dockercache
-            hostPath: {path: /tmp/jenkins/component-runtime/docker}
-    imagePullSecrets:
-        - name: talend-registry
-"""
+            yaml podDefinition
         }
     }
 
@@ -100,13 +100,26 @@ spec:
     }
 
     parameters {
-        choice(name: 'Action',
-                choices: ['STANDARD', 'RELEASE'],
-                description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
-        booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17')
-        booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
-        string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
-        string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
+        choice(
+          name: 'Action',
+          choices: ['STANDARD', 'RELEASE'],
+          description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
+        booleanParam(
+          name: 'FORCE_SONAR',
+          defaultValue: false,
+          description: 'Force Sonar analysis')
+        string(
+          name: 'EXTRA_BUILD_ARGS',
+          defaultValue: '',
+          description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
+        string(
+          name: 'POST_LOGIN_SCRIPT',
+          defaultValue: '',
+          description: 'Execute a shell command after login. Useful for maintenance.')
+        booleanParam(
+          name: 'DEBUG_BEFORE_EXITING',
+          defaultValue: false,
+          description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
     }
 
     stages {
@@ -138,6 +151,24 @@ spec:
                             EXTRA_BUILD_ARGS = ""
                         }
                     }
+                    ///////////////////////////////////////////
+                    // Updating build displayName and description
+                    ///////////////////////////////////////////
+                    script {
+                        String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+                        if ( user_name == null) { user_name = "auto" }
+
+                        currentBuild.displayName = (
+                          "#$currentBuild.number-$params.Action: $user_name"
+                        )
+
+                        // updating build description
+                        currentBuild.description = ("""
+                           User: $user_name - $params.Action Build
+                           Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
+                           Extra args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
+                        )
+                    }
                 }
             }
         }
@@ -159,18 +190,6 @@ spec:
                 }
             }
         }
-        stage('Java 17 build') {
-            when { expression { params.Action != 'RELEASE' && params.BUILD_W_JDK17 } }
-            steps {
-                container('jdk17') {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        script {
-                            sh "mvn clean package $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
-                        }
-                    }
-                }
-            }
-        }
         stage('Standard maven build') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
@@ -178,19 +197,6 @@ spec:
                     withCredentials([ossrhCredentials]) {
                         sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
-                }
-            }
-            post {
-                always {
-                    publishHTML(
-                            target: [
-                                    allowMissing         : false,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'reporting/target/site/jacoco-aggregate',
-                                    reportFiles          : 'index.html',
-                                    reportName           : "Coverage"
-                            ])
                 }
             }
         }
@@ -327,6 +333,10 @@ spec:
                 }
             }
         }
+        stage('Debug') {
+            when { expression { return params.DEBUG_BEFORE_EXITING } }
+            steps { script { input message: 'Finish the job?', ok: 'Yes' } }
+        }
     }
     post {
         success {
@@ -339,6 +349,22 @@ spec:
                         channel: "${slackChannel}"
                     )
                 }
+            }
+            script {
+                println "====== Publish Coverage"
+                publishCoverage adapters: [jacocoAdapter('**/jacoco-aggregate/*.xml')]
+                publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
+                publishCoverage adapters: [jacocoAdapter('**/jacoco-ut/*.xml')]
+                println "====== Publish HTML API Coverage"
+                publishHTML([
+                  allowMissing         : false,
+                  alwaysLinkToLastBuild: false,
+                  keepAll              : true,
+                  reportDir            : 'reporting/target/site/jacoco-aggregate',
+                  reportFiles          : 'index.html',
+                  reportName           : 'Coverage',
+                  reportTitles         : 'Coverage'
+                ])
             }
         }
         failure {
@@ -368,6 +394,11 @@ spec:
                 recordIssues(
                     enabledForFailure: true,
                     tools: [
+                        junitParser(
+                          id: 'unit-test',
+                          name: 'Unit Test',
+                          pattern: '**/target/surefire-reports/*.xml'
+                        ),
                         taskScanner(
                             id: 'disabled',
                             name: '@Disabled',
@@ -385,6 +416,11 @@ spec:
                         )
                     ]
                 )
+                script {
+                    println '====== Archive artifacts'
+                    println "Artifact 1: ${_ARTIFACT_COVERAGE}"
+                    archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: true, onlyIfSuccessful: false
+                }
             }
         }
     }

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.48.0-SNAPSHOT</version>
+    <version>1.51.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-image</artifactId>
@@ -221,7 +221,6 @@
               </to>
               <container>
                 <extraClasspath>${imageWorkDir}/custom/*</extraClasspath>
-                <useCurrentTimestamp>true</useCurrentTimestamp>
                 <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
                 <appRoot>${imageWorkDir}</appRoot>
                 <workingDirectory>${imageWorkDir}</workingDirectory>

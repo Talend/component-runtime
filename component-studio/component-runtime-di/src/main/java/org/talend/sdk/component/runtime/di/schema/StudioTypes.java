@@ -113,6 +113,7 @@ public class StudioTypes {
             put(Type.BOOLEAN, BOOLEAN);
             put(Type.BYTES, BYTE_ARRAY);
             put(Type.DATETIME, DATE);
+            put(Type.DECIMAL, BIGDECIMAL);
             put(Type.DOUBLE, DOUBLE);
             put(Type.FLOAT, FLOAT);
             put(Type.INT, INTEGER);

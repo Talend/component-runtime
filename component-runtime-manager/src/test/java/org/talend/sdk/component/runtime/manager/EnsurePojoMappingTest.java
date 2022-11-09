@@ -17,8 +17,6 @@ package org.talend.sdk.component.runtime.manager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import routines.system.IPersistableRow;
-
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
@@ -26,6 +24,8 @@ import javax.json.bind.annotation.JsonbPropertyOrder;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
+
+import routines.system.IPersistableRow;
 
 class EnsurePojoMappingTest {
 
@@ -35,8 +35,8 @@ class EnsurePojoMappingTest {
         model.firstName = "Gary";
         model.lName = "Moore";
         model.Age = "dead";
-        try (final Jsonb jsonb = JsonbBuilder
-                .create(new JsonbConfig().setProperty("johnzon.accessModeDelegate", new TalendAccessMode()))) {
+        JsonbConfig jsonbConfig = new JsonbConfig().setProperty("johnzon.accessMode", new TalendAccessMode());
+        try (final Jsonb jsonb = JsonbBuilder.newBuilder().withConfig(jsonbConfig).build()) {
             assertEquals("{\"firstName\":\"Gary\",\"lName\":\"Moore\",\"Age\":\"dead\"}", jsonb.toJson(model));
         }
     }
