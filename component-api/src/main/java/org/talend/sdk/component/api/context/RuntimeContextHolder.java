@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.api.context;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class RuntimeContextHolder {
+public class RuntimeContextHolder implements Serializable {
 
     private final String connectorId;
 
