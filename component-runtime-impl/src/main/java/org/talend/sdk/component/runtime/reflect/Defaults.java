@@ -32,26 +32,30 @@ public class Defaults {
     private static final Handler HANDLER;
 
     static {
-        try {
-            /**
-             * Disable Access Warnings:
-             */
-            Class unsafeClazz = Class.forName("sun.misc.Unsafe");
-            Field field = unsafeClazz.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            Object unsafe = field.get(null);
-            Method putObjectVolatile =
-                    unsafeClazz.getDeclaredMethod("putObjectVolatile", Object.class, long.class, Object.class);
-            Method staticFieldOffset = unsafeClazz.getDeclaredMethod("staticFieldOffset", Field.class);
-            Class loggerClass = Class.forName("jdk.internal.module.IllegalAccessLogger");
-            Field loggerField = loggerClass.getDeclaredField("logger");
-            Long offset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
-            putObjectVolatile.invoke(unsafe, loggerClass, offset, null);
-        } catch (Exception e) {
-            System.err.println("Disabling unsafe warnings failed: " + e.getMessage());
+        final String[] versionElements = System.getProperty("java.version").split("\\.");
+        final int unsureVersion = Integer.parseInt(versionElements[0]);
+        final int javaVersion = unsureVersion == 1 ? Integer.parseInt(versionElements[1]) : unsureVersion;
+        final Boolean isJava8 = javaVersion == 8 ? true : false;
+        if (javaVersion > 8 && javaVersion < 17) {
+            try {
+                /**
+                 * Disable Access Warnings: only available below jdk17 (JEP403)
+                 */
+                Class unsafeClazz = Class.forName("sun.misc.Unsafe");
+                Field field = unsafeClazz.getDeclaredField("theUnsafe");
+                field.setAccessible(true);
+                Object unsafe = field.get(null);
+                Method putObjectVolatile =
+                        unsafeClazz.getDeclaredMethod("putObjectVolatile", Object.class, long.class, Object.class);
+                Method staticFieldOffset = unsafeClazz.getDeclaredMethod("staticFieldOffset", Field.class);
+                Class loggerClass = Class.forName("jdk.internal.module.IllegalAccessLogger");
+                Field loggerField = loggerClass.getDeclaredField("logger");
+                Long offset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
+                putObjectVolatile.invoke(unsafe, loggerClass, offset, null);
+            } catch (Exception e) {
+                System.err.println("Disabling unsafe warnings failed: " + e.getMessage());
+            }
         }
-        final String version = System.getProperty("java.version", "1.8");
-        final Boolean isJava8 = version.startsWith("1.8.") || version.startsWith("8.");
         final Constructor<MethodHandles.Lookup> constructor = findLookupConstructor(isJava8);
         if (isJava8) { // j8
             HANDLER = (clazz, method, proxy, args) -> constructor

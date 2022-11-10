@@ -44,6 +44,11 @@
       <artifactId>component-server</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
+      <version>1.2.2</version>
+    </dependency>
 
     <!-- beam support -->
     <dependency>

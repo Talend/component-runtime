@@ -42,34 +42,39 @@ public final class Unsafes {
 
     static {
         Class<?> unsafeClass;
-        try {
-            /**
-             * Disable Access Warnings:
-             * 
-             * <pre>
-             * {@code
-             * WARNING: An illegal reflective access operation has occurred
-             * WARNING: Illegal reflective access by org.talend.sdk.component.runtime.manager.asm.Unsafes \
-             * (file:/xxxx/component-runtime-manager-x.xx.x.jar) to method java.lang.ClassLoader.defineClass(java.lang.String,byte[],int,int)
-             * WARNING: Please consider reporting this to the maintainers of org.talend.sdk.component.runtime.manager.asm.Unsafes
-             * WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
-             * WARNING: All illegal access operations will be denied in a future release
+        final String[] versionElements = System.getProperty("java.version").split("\\.");
+        final int unsureVersion = Integer.parseInt(versionElements[0]);
+        final int javaVersion = unsureVersion == 1 ? Integer.parseInt(versionElements[1]) : unsureVersion;
+        if (javaVersion > 8 && javaVersion < 17) {
+            try {
+                /**
+                 * Disable Access Warnings:
+                 *
+                 * <pre>
+                 * {@code
+                 * WARNING: An illegal reflective access operation has occurred
+                 * WARNING: Illegal reflective access by org.talend.sdk.component.runtime.manager.asm.Unsafes \
+                 * (file:/xxxx/component-runtime-manager-x.xx.x.jar) to method java.lang.ClassLoader.defineClass(java.lang.String,byte[],int,int)
+                 * WARNING: Please consider reporting this to the maintainers of org.talend.sdk.component.runtime.manager.asm.Unsafes
+                 * WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+                 * WARNING: All illegal access operations will be denied in a future release
+                }
+                 * </pre>
+                 */
+                Class unsafeClazz = Class.forName("sun.misc.Unsafe");
+                Field field = unsafeClazz.getDeclaredField("theUnsafe");
+                field.setAccessible(true);
+                Object unsafe = field.get(null);
+                Method putObjectVolatile =
+                        unsafeClazz.getDeclaredMethod("putObjectVolatile", Object.class, long.class, Object.class);
+                Method staticFieldOffset = unsafeClazz.getDeclaredMethod("staticFieldOffset", Field.class);
+                Class loggerClass = Class.forName("jdk.internal.module.IllegalAccessLogger");
+                Field loggerField = loggerClass.getDeclaredField("logger");
+                Long offset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
+                putObjectVolatile.invoke(unsafe, loggerClass, offset, null);
+            } catch (Exception e) {
+                System.err.println("Disabling unsafe warnings failed: " + e.getMessage());
             }
-             * </pre>
-             */
-            Class unsafeClazz = Class.forName("sun.misc.Unsafe");
-            Field field = unsafeClazz.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            Object unsafe = field.get(null);
-            Method putObjectVolatile =
-                    unsafeClazz.getDeclaredMethod("putObjectVolatile", Object.class, long.class, Object.class);
-            Method staticFieldOffset = unsafeClazz.getDeclaredMethod("staticFieldOffset", Field.class);
-            Class loggerClass = Class.forName("jdk.internal.module.IllegalAccessLogger");
-            Field loggerField = loggerClass.getDeclaredField("logger");
-            Long offset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
-            putObjectVolatile.invoke(unsafe, loggerClass, offset, null);
-        } catch (Exception e) {
-            System.err.println("Disabling unsafe warnings failed: " + e.getMessage());
         }
         try {
             unsafeClass = AccessController
