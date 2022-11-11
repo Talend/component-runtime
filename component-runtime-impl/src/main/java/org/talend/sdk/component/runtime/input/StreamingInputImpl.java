@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -30,6 +33,9 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.PostConstruct;
+
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;
 import org.talend.sdk.component.runtime.input.Streaming.StopStrategy;
 
@@ -96,12 +102,15 @@ public class StreamingInputImpl extends InputImpl {
                     final ExecutorService executor = Executors.newSingleThreadExecutor();
                     final Future<Object> reader = executor.submit(super::readNext);
                     // manage job latency...
-                    final long estimatedTimeout = stopStrategy.getMaxActiveTime()
+                    // timeout + hardcoded grace period
+                    final long maxActiveTimeWithGracePeriod =
+                            stopStrategy.getMaxActiveTime() + Streaming.MAX_DURATION_TIME_MS_GRACE_PERIOD;
+                    final long estimatedTimeout = maxActiveTimeWithGracePeriod
                             - (System.currentTimeMillis() - stopStrategy.getStartedAtTime());
                     final long timeout = estimatedTimeout < -1 ? 10 : estimatedTimeout;
                     log.debug(
-                            "[readNext] Applying duration strategy for reading record: will interrupt in {}ms (estimated:{}ms Duration:{}ms).",
-                            timeout, estimatedTimeout, stopStrategy.getMaxActiveTime());
+                            "[readNext] Applying duration strategy for reading record: will interrupt in {}ms (estimated:{} ms Duration:{}ms).",
+                            timeout, estimatedTimeout, maxActiveTimeWithGracePeriod);
                     try {
                         next = reader.get(timeout, MILLISECONDS);
                     } catch (TimeoutException e) {
@@ -153,6 +162,44 @@ public class StreamingInputImpl extends InputImpl {
     protected void init() {
         super.init();
         semaphore = new Semaphore(1);
+    }
+
+    @Override
+    protected Object[] evaluateParameters(final Class<? extends Annotation> marker, final Method method) {
+        if (marker != PostConstruct.class) {
+            return super.evaluateParameters(marker, method);
+        }
+
+        final Object[] args = new Object[method.getParameters().length];
+        for (int i = 0; i < method.getParameters().length; i++) {
+            final Parameter parameter = method.getParameters()[i];
+
+            final Option annotation = parameter.getAnnotation(Option.class);
+            if (annotation == null) {
+                args[i] = null;
+            } else if (Option.MAX_DURATION_PARAMETER.equals(annotation.value())) {
+                if (parameter.getType() == Integer.class || parameter.getType() == int.class) {
+                    args[i] = (int) stopStrategy.getMaxActiveTime();
+                } else if (parameter.getType() == Long.class || parameter.getType() == long.class) {
+                    args[i] = stopStrategy.getMaxActiveTime();
+                } else {
+                    log.warn("The parameter {} is marked as timeout but type is not long.", parameter.getName());
+                    args[i] = null;
+                }
+            } else if (Option.MAX_RECORDS_PARAMETER.equals(annotation.value())) {
+                if (parameter.getType() == Integer.class || parameter.getType() == int.class) {
+                    args[i] = (int) stopStrategy.getMaxReadRecords();
+                } else if (parameter.getType() == Long.class || parameter.getType() == long.class) {
+                    args[i] = stopStrategy.getMaxReadRecords();
+                } else {
+                    log.warn("The parameter {} is marked as max records limitation but type is not long.",
+                            parameter.getName());
+                    args[i] = null;
+                }
+
+            }
+        }
+        return args;
     }
 
     @Override

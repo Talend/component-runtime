@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.runtime.input.Streaming.RetryConfiguration;
 
@@ -27,7 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.runtime.input.Streaming.StopConfiguration;
 import org.talend.sdk.component.runtime.input.Streaming.StopStrategy;
@@ -302,7 +306,7 @@ public class StreamingInputImplTest {
             @Producer
             public Object next() {
                 try {
-                    Thread.sleep(800);
+                    Thread.sleep(800 + Streaming.MAX_DURATION_TIME_MS_GRACE_PERIOD);
                     return new Object();
                 } catch (InterruptedException e) {
                     throw new IllegalStateException(e);
@@ -340,6 +344,62 @@ public class StreamingInputImplTest {
         } finally {
             input.stop();
         }
+    }
+
+    @Test
+    void passMaxDurationAndMaxRecordsOptionsInsidePostConstruct() {
+        class CustomEmitter implements Serializable {
+
+            int maxDuration;
+
+            int maxRecords;
+
+            @PostConstruct
+            public void start(@Option(Option.MAX_DURATION_PARAMETER) int maxDuration,
+                    @Option(Option.MAX_RECORDS_PARAMETER) int maxRecords) {
+                this.maxDuration = maxDuration;
+                this.maxRecords = maxRecords;
+            }
+        }
+
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final long maxTime = 500L;
+        final long maxRecords = 42L;
+        final StopStrategy stopStrategy = new StopConfiguration(maxRecords, maxTime, System.currentTimeMillis());
+        final CustomEmitter delegate = new CustomEmitter();
+        final Input input = new StreamingInputImpl("a", "b", "c", delegate, retryStrategy, stopStrategy);
+
+        assertEquals(0, delegate.maxDuration);
+        assertEquals(0, delegate.maxRecords);
+        input.start();
+        assertEquals(maxTime, delegate.maxDuration);
+        assertEquals(maxRecords, delegate.maxRecords);
+    }
+
+    @Test
+    void passMaxRecordsOptionsInsidePostConstructIncorrectArgument() {
+        class CustomEmitter implements Serializable {
+
+            int maxDuration;
+
+            int maxRecords;
+
+            @PostConstruct
+            public void start(int maxDuration,
+                    @Option(Option.MAX_RECORDS_PARAMETER) int maxRecords) {
+                this.maxDuration = maxDuration;
+                this.maxRecords = maxRecords;
+            }
+        }
+
+        final RetryConfiguration retryStrategy = new RetryConfiguration(1, new RetryConfiguration.Constant(500));
+        final long maxTime = 500L;
+        final long maxRecords = 42L;
+        final StopStrategy stopStrategy = new StopConfiguration(maxRecords, maxTime, System.currentTimeMillis());
+        final CustomEmitter delegate = new CustomEmitter();
+        final Input input = new StreamingInputImpl("a", "b", "c", delegate, retryStrategy, stopStrategy);
+
+        assertThrows(IllegalArgumentException.class, input::start);
     }
 
 }
