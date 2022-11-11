@@ -19,11 +19,11 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
+import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
+import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -437,10 +437,10 @@ public class TaCoKitGuessSchema {
             String name = entry.getName();
             Schema.Type entryType = entry.getType();
             String dbName = entry.getOriginalFieldName();
-            String pattern = entry.getProps().getOrDefault(STUDIO_PATTERN, null);
-            String length = entry.getProps().getOrDefault(STUDIO_LENGTH, null);
-            String precision = entry.getProps().getOrDefault(STUDIO_PRECISION, null);
-            String isKey = entry.getProps().getOrDefault(STUDIO_KEY, null);
+            String pattern = entry.getProps().getOrDefault(PATTERN, null);
+            String length = entry.getProps().getOrDefault(SIZE, null);
+            String precision = entry.getProps().getOrDefault(SCALE, null);
+            String isKey = entry.getProps().getOrDefault(IS_KEY, null);
             String talendType = entry.getProps().getOrDefault(STUDIO_TYPE, "");
             boolean isDateTime = false;
             if (entryType == null) {

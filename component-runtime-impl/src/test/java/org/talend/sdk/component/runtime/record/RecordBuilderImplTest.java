@@ -37,6 +37,7 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
@@ -327,6 +328,69 @@ class RecordBuilderImplTest {
         assertEquals("semantic-test1", rSchema.getEntries().get(0).getProp("dqType"));
         assertEquals(1, rSchema.getEntries().get(1).getProps().size());
         assertEquals("semantic-test2", rSchema.getEntries().get(1).getProp("dqType"));
+    }
+
+    @Test
+    void withEntryProp() {
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("ID")
+                        .withRawName("THE ID")
+                        .withType(Type.INT)
+                        .withProp(SchemaProperty.IS_KEY, "true")
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "10")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("NAME")
+                        .withType(Type.STRING)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "64")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("PHONE")
+                        .withType(Type.STRING)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "64")
+                        .withProp(SchemaProperty.IS_UNIQUE, "true")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("CREDIT")
+                        .withType(Type.DECIMAL)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "DECIMAL")
+                        .withProp(SchemaProperty.SIZE, "10")
+                        .withProp(SchemaProperty.SCALE, "2")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("ADDRESS_ID")
+                        .withType(Type.INT)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "INT")
+                        .withProp(SchemaProperty.SIZE, "10")
+                        .withProp(SchemaProperty.IS_FOREIGN_KEY, "true")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder
+                .withInt("ID", 1)
+                .withString("NAME", "Wang Wei")
+                .withString("PHONE", "18611111111")
+                .withDecimal("CREDIT", new BigDecimal("123456789.00"))
+                .withInt("ADDRESS_ID", 10101)
+                .build();
+        final Schema rSchema = record.getSchema();
+        assertEquals(schema, rSchema);
+        assertEquals("THE ID", rSchema.getEntry("ID").getOriginalFieldName());
+        assertEquals("true", rSchema.getEntry("ID").getProp(SchemaProperty.IS_KEY));
+        assertEquals("VARCHAR2", rSchema.getEntry("ID").getProp(SchemaProperty.ORIGIN_TYPE));
+        assertEquals("10", rSchema.getEntry("ID").getProp(SchemaProperty.SIZE));
+        assertNull(rSchema.getEntry("ID").getProp(SchemaProperty.SCALE));
+
+        assertEquals("true", rSchema.getEntry("PHONE").getProp(SchemaProperty.IS_UNIQUE));
+
+        assertEquals("2", rSchema.getEntry("CREDIT").getProp(SchemaProperty.SCALE));
+
+        assertEquals("true", rSchema.getEntry("ADDRESS_ID").getProp(SchemaProperty.IS_FOREIGN_KEY));
     }
 
     @Test

@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.di.schema;
+package org.talend.sdk.component.api.record;
 
-// TODO extract to studio API
-public class StudioRecordProperties {
+public interface SchemaProperty {
 
-    public static final String STUDIO_KEY = "talend.studio.key";
+    String ORIGIN_TYPE = "field.origin.type";
 
-    public static final String STUDIO_LENGTH = "talend.studio.length";
+    String SIZE = "field.size";
 
-    public static final String STUDIO_PATTERN = "talend.studio.pattern";
+    String SCALE = "field.scale";
 
-    public static final String STUDIO_PRECISION = "talend.studio.precision";
+    String PATTERN = "field.pattern";
 
-    public static final String STUDIO_TYPE = "talend.studio.type";
+    String STUDIO_TYPE = "talend.studio.type";
+
+    String IS_KEY = "field.key";
+
+    String IS_FOREIGN_KEY = "field.foreign.key";
+
+    String IS_UNIQUE = "field.unique";
 
 }
