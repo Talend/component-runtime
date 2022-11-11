@@ -174,7 +174,8 @@ class OptionParameterValidatorTest {
         class MaxRecordAndMaxDurationEmitter {
 
             @PostConstruct
-            void start(@Option(Option.MAX_DURATION_PARAMETER) String maxDuration, @Option(Option.MAX_RECORDS_PARAMETER) Object maxRecords) {
+            void start(@Option(Option.MAX_DURATION_PARAMETER) String maxDuration,
+                    @Option(Option.MAX_RECORDS_PARAMETER) Object maxRecords) {
             }
         }
 
@@ -189,7 +190,9 @@ class OptionParameterValidatorTest {
         final List<String> strings = result.collect(Collectors.toList());
 
         assertEquals(2, strings.size());
-        assertEquals("The 'maxDuration' parameter's type is not acceptable. Acceptable types: [Integer,Long,int,long]", strings.get(0));
-        assertEquals("The 'maxRecords' parameter's type is not acceptable. Acceptable types: [Integer,Long,int,long]", strings.get(1));
+        assertEquals("The 'maxDuration' parameter's type is not acceptable. Acceptable types: [Integer,Long,int,long]",
+                strings.get(0));
+        assertEquals("The 'maxRecords' parameter's type is not acceptable. Acceptable types: [Integer,Long,int,long]",
+                strings.get(1));
     }
 }

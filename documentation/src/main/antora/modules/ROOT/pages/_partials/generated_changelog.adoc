@@ -8,13 +8,19 @@
 
 
 
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2291[TCOMP-2291^]: Provide to streaming connectors the stop strategy applied link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2236[TCOMP-2236^]: Streaming stop strategy in livy jobs link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2294[TCOMP-2294^]: Upgrade batik to 1.16 link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2295[TCOMP-2295^]: Upgrade tomcat to 9.0.68 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2296[TCOMP-2296^]: Upgrade jsoup to 1.15.3 link:search.html?query=documentation[documentation^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2298[TCOMP-2298^]: Upgrade netty to 4.1.84.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2298[TCOMP-2298^]: Upgrade netty to 4.1.85.Final link:search.html?query=testing[testing^,role='dockey']
 
 
 
@@ -457,6 +463,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
 
 
 
