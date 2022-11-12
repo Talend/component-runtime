@@ -70,6 +70,7 @@ import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.UnsetPropertiesRecipe;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
@@ -211,7 +212,9 @@ public class ReflectionService {
             if (!visitor.skip) {
                 visitor.globalPayload = new PayloadMapper((a, b) -> {
                 }).visitAndMap(metas, notNullConfig);
-                new PayloadMapper(visitor).visitAndMap(metas, notNullConfig);
+                final PayloadMapper payloadMapper = new PayloadMapper(visitor);
+                payloadMapper.setGlobalPayload(visitor.globalPayload);
+                payloadMapper.visitAndMap(metas, notNullConfig);
                 visitor.throwIfFailed();
             }
             return factories.stream().map(f -> f.apply(notNullConfig)).toArray(Object[]::new);
@@ -421,6 +424,12 @@ public class ReflectionService {
         final Object potentialJsonValue = config.get(name);
         if (JsonObject.class == clazz && String.class.isInstance(potentialJsonValue)) {
             return createJsonValue(potentialJsonValue, precomputed, Json::createReader).asJsonObject();
+        }
+        if (propertyEditorRegistry.findConverter(clazz) != null && Schema.class.isAssignableFrom(clazz)) {
+            final Object configValue = config.get(name);
+            if (String.class.isInstance(configValue)) {
+                return propertyEditorRegistry.getValue(clazz, String.class.cast(configValue));
+            }
         }
         if (propertyEditorRegistry.findConverter(clazz) != null && config.size() == 1) {
             final Object configValue = config.values().iterator().next();
@@ -842,12 +851,15 @@ public class ReflectionService {
         }
 
         @Override
-        public boolean test(final CharSequence string) {
-            Context context = Context.enter();
+        public boolean test(final CharSequence text) {
+            final String script = "new RegExp(regex, indicators).test(text)";
+            final Context context = Context.enter();
             try {
-                Scriptable scope = context.initStandardObjects();
-                String script = "new RegExp('" + regex + "', '" + indicators + "').test('" + string + "')";
-                return Context.toBoolean(context.evaluateString(scope, script, null, 1, null));
+                final Scriptable scope = context.initStandardObjects();
+                scope.put("text", scope, text);
+                scope.put("regex", scope, regex);
+                scope.put("indicators", scope, indicators);
+                return Context.toBoolean(context.evaluateString(scope, script, "test", 0, null));
             } catch (final Exception e) {
                 return false;
             } finally {
@@ -889,7 +901,7 @@ public class ReflectionService {
 
         private final Collection<String> errors = new ArrayList<>();
 
-        private JsonObject globalPayload;
+        JsonObject globalPayload;
 
         @Override
         public void onParameter(final ParameterMeta meta, final JsonValue value) {

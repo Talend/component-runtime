@@ -23,6 +23,7 @@ import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -364,6 +365,34 @@ class ReflectionServiceTest {
     }
 
     @Test
+    void validationUrlRegexOk() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig6.class);
+        assertEquals("pulsar://localhost:12345",
+                SomeConfig6.class
+                        .cast(factory.apply(singletonMap("root.pulsar", "pulsar://localhost:12345"))[0]).pulsar);
+        assertEquals("pulsar+ssl://localhost:12345",
+                SomeConfig6.class
+                        .cast(factory.apply(singletonMap("root.pulsar", "pulsar+ssl://localhost:12345"))[0]).pulsar);
+        assertEquals("http://localhost:12345",
+                SomeConfig6.class.cast(factory.apply(singletonMap("root.url", "http://localhost:12345"))[0]).url);
+        assertEquals("https://localhost:12345",
+                SomeConfig6.class.cast(factory.apply(singletonMap("root.url", "https://localhost:12345"))[0]).url);
+    }
+
+    @Test
+    void validationUrlRegexKo() throws NoSuchMethodException {
+        final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig6.class);
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.pulsar", "pulsar:localhost:12345")));
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.pulsar", "pulsar+ssl:localhost:12345")));
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.url", "https://localhost:12345 ")));
+        assertThrows(IllegalArgumentException.class,
+                () -> factory.apply(singletonMap("root.url", "mailto://me@talend.com")));
+    }
+
+    @Test
     void validationNestedListOk() throws NoSuchMethodException {
         final Function<Map<String, String>, Object[]> factory = getComponentFactory(SomeConfig4.class);
         assertEquals("somevalue",
@@ -698,15 +727,13 @@ class ReflectionServiceTest {
         assertTrue(tableOwner.table.get(0).nestedList.isEmpty());
     }
 
-    // TCOMP-2260 - Validations on nested attributes are check even if the object is ActiveIf==false
-    // TODO remove upper comment after issue fix.
     @Test
     void nestedRequiredActiveIf() throws NoSuchMethodException {
         final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
         final List<ParameterMeta> metas = service
                 .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
                         "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
-        assertThrows(IllegalArgumentException.class, () -> reflectionService
+        final Object[] params = reflectionService
                 .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
                         emptyMap(), metas)
                 .apply(new HashMap<String, String>() {
@@ -715,12 +742,120 @@ class ReflectionServiceTest {
                         put("value.aString", "foo");
                         put("value.complexConfig", "false");
                     }
-                }));
-        // TODO make correct assertions after fix.
-        // assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
-        // final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
-        // assertEquals("foo", value.getAString());
-        // assertFalse(value.isComplexConfig());
+                });
+
+        assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
+        final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
+        assertEquals("foo", value.getAString());
+        assertFalse(value.isComplexConfig());
+    }
+
+    @Test
+    void nestedRequiredActiveIfWithTrue() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Object[] params = reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+
+                    {
+                        put("value.aString", "foo");
+                        put("value.complexConfig", "true");
+                        put("value.complexConfiguration.url", "https://talend.com");
+                    }
+                });
+
+        assertTrue(MethodsHolder.MyDatastore.class.isInstance(params[0]));
+        final MethodsHolder.MyDatastore value = MethodsHolder.MyDatastore.class.cast(params[0]);
+        assertEquals("foo", value.getAString());
+        assertTrue(value.isComplexConfig());
+        assertEquals("https://talend.com", value.getComplexConfiguration().getUrl());
+    }
+
+    @Test
+    void nestedRequiredActiveIfWithWrongPattern() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        assertThrows(IllegalArgumentException.class,
+                () -> reflectionService
+                        .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.MyDatastore.class),
+                                emptyMap(), metas)
+                        .apply(new HashMap<String, String>() {
+
+                            {
+                                put("value.aString", "foo");
+                                put("value.complexConfig", "true");
+                                put("value.complexConfiguration.url", "");
+                            }
+                        }));
+
+    }
+
+    @Test
+    void nestedRequiredActiveIf_Rest() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Object[] params = reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+
+                    {
+                        put("value.apiDesc.loadAPI", "false");
+                    }
+                });
+
+        assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
+    }
+
+    @Test
+    void nestedRequiredActiveIfTrue_Rest() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Object[] params = reflectionService
+                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        emptyMap(), metas)
+                .apply(new HashMap<String, String>() {
+
+                    {
+                        put("value.apiDesc.loadAPI", "true");
+                        put("value.complexConfiguration.url", "https://talend.com");
+                    }
+                });
+
+        assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
+        final MethodsHolder.RestDatastore value = MethodsHolder.RestDatastore.class.cast(params[0]);
+        assertTrue(value.getApiDesc().isLoadAPI());
+        assertEquals("https://talend.com", value.getComplexConfiguration().getUrl());
+    }
+
+    @Test
+    void nestedRequiredActiveIfWrong_Rest() throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        assertThrows(IllegalArgumentException.class,
+                () -> reflectionService
+                        .parameterFactory(
+                                MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
+                                emptyMap(), metas)
+                        .apply(new HashMap<String, String>() {
+
+                            {
+                                put("value.apiDesc.loadAPI", "true");
+                                put("value.complexConfiguration.url", " ");
+                            }
+                        }));
     }
 
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,
@@ -832,6 +967,17 @@ class ReflectionServiceTest {
         private String regex;
     }
 
+    public static class SomeConfig6 {
+
+        @Option
+        @Pattern("^https?://.+\\S$")
+        private String url;
+
+        @Option
+        @Pattern("^pulsar(\\+ssl)?://.*")
+        private String pulsar;
+    }
+
     public static class RequiredVisibilityPrimitive {
 
         @Option
@@ -922,6 +1068,10 @@ class ReflectionServiceTest {
         }
 
         public FakeComponent(@Option("root") final SomeConfig5 config5) {
+            // no-op
+        }
+
+        public FakeComponent(@Option("root") final SomeConfig6 config6) {
             // no-op
         }
 

@@ -25,7 +25,8 @@ class ArtifactTest {
 
     static Iterable<Artifact> samples() {
         return asList(new Artifact("g", "a", "jar", null, "1", "compile"),
-                new Artifact("g", "a", "jar", "c", "1", "compile"));
+                new Artifact("g", "a", "jar", "c", "1", "compile"),
+                new Artifact("g", "a", "jar", "c", "1-TCOMP-2285", "compile"));
     }
 
     @ParameterizedTest(name = "{0}")

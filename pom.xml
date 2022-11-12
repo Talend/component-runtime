@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.50.0-SNAPSHOT</version>
+  <version>1.51.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -172,7 +172,7 @@
     <ziplock.test.version>7.0.5</ziplock.test.version>
     <meecrowave.version>1.2.14</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.63</tomcat.version>
+    <tomcat.version>9.0.68</tomcat.version>
     <cxf.version>3.5.2</cxf.version>
 
     <logback.version>1.2.5</logback.version>
@@ -183,10 +183,10 @@
     <geronimo-interceptor.version>1.1</geronimo-interceptor.version>
     <geronimo-jsonb.version>1.2</geronimo-jsonb.version>
     <geronimo-json.version>1.3</geronimo-json.version>
-    <batik.version>1.14</batik.version>
+    <batik.version>1.16</batik.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-cli.version>1.4</commons-cli.version>
-    <commons-text.version>1.8</commons-text.version>
+    <commons-text.version>1.10.0</commons-text.version>
     <geronimo-jaxrs.version>1.1</geronimo-jaxrs.version>
     <asciidoctorj.version>2.5.2</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.6.0</asciidoctorj-pdf.version>
@@ -200,13 +200,14 @@
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-opentracing.version>1.0.2</geronimo-opentracing.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
-    <junit5.version>5.9.0</junit5.version>
+    <junit5.version>5.9.1</junit5.version>
+    <mockito4.version>4.8.1</mockito4.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <jackson.version>2.13.3</jackson.version>
-    <jackson-databind.version>2.13.3</jackson-databind.version>
+    <jackson.version>2.13.4</jackson.version>
+    <jackson-databind.version>2.13.4.2</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
-    <jsoup.version>1.14.3</jsoup.version>
+    <jsoup.version>1.15.3</jsoup.version>
 
     <!-- deprecated after -->
     <talend-icon.version>3.8.0</talend-icon.version>
@@ -217,7 +218,7 @@
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
-    <beam.version>2.37.0</beam.version>
+    <beam.version>2.36.0</beam.version>
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.10</joda.time.version>
 
@@ -246,8 +247,8 @@
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
     <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
     <spotless.version>2.17.3</spotless.version>
-    <jib.version>1.4.0</jib.version>
-    <jib-core.version>0.16.0</jib-core.version>
+    <jib.version>3.3.0</jib.version>
+    <jib-core.version>0.22.0</jib-core.version>
 
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v16.14.0</node.version>
@@ -730,6 +731,12 @@
         <version>${bndlib.version}</version>
       </dependency>
 
+      <!-- Test dependencies -->
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito4.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>

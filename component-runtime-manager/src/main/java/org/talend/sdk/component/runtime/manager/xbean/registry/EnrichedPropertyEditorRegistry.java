@@ -59,6 +59,7 @@ import org.apache.xbean.propertyeditor.URLEditor;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalDateConverter;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalDateTimeConverter;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalTimeConverter;
+import org.talend.sdk.component.runtime.manager.xbean.converter.SchemaConverter;
 import org.talend.sdk.component.runtime.manager.xbean.converter.ZonedDateTimeConverter;
 
 public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
@@ -119,6 +120,8 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
         super.register(new LocalDateConverter());
         super.register(new LocalTimeConverter());
 
+        // schema and record
+        super.register(new SchemaConverter());
         // extensions
         ServiceLoader.load(Converter.class).forEach(this::register);
     }

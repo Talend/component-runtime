@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":603,
+    "commits":636,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -50,6 +50,13 @@
     "name":"ypiel"
   },
   {
+    "commits":26,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
+    "id":"yyin-talend",
+    "name":"yyin"
+  },
+  {
     "commits":23,
     "description":"R&D",
     "gravatar":"https://avatars.githubusercontent.com/u/7741480?v=4",
@@ -57,11 +64,18 @@
     "name":"Chao MENG"
   },
   {
-    "commits":9,
+    "commits":11,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",
     "name":"wang wei"
+  },
+  {
+    "commits":10,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
+    "id":"ozhelezniak-talend",
+    "name":"Oleksandr Zhelezniak"
   },
   {
     "commits":9,
@@ -72,24 +86,10 @@
   },
   {
     "commits":9,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
-    "id":"yyin-talend",
-    "name":"yyin"
-  },
-  {
-    "commits":9,
     "description":"Frontend Architect.\r\nThis is my Talend account. You can check out @jsomsanith for my personal account",
     "gravatar":"https://avatars.githubusercontent.com/u/10761073?v=4",
     "id":"jsomsanith-tlnd",
     "name":"Jimmy Somsanith"
-  },
-  {
-    "commits":9,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
-    "id":"ozhelezniak-talend",
-    "name":"Oleksandr Zhelezniak"
   },
   {
     "commits":8,
@@ -99,11 +99,18 @@
     "name":"Colm O hEigeartaigh"
   },
   {
-    "commits":5,
+    "commits":8,
     "description":"QA Automation @ Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
     "name":"Axel CATOIRE"
+  },
+  {
+    "commits":6,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
+    "id":"fdesiles",
+    "name":"Fabien Désiles"
   },
   {
     "commits":4,
@@ -141,13 +148,6 @@
     "name":"chmyga"
   },
   {
-    "commits":3,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
-    "id":"fdesiles",
-    "name":"Fabien Désiles"
-  },
-  {
     "commits":2,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/31616269?v=4",
@@ -160,6 +160,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
     "id":"quilicicf",
     "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
+  },
+  {
+    "commits":2,
+    "description":"\n\nBlog: timeline.antoinenicolas.com",
+    "gravatar":"https://avatars.githubusercontent.com/u/39268?v=4",
+    "id":"anicolas",
+    "name":"Antoine Nicolas"
   },
   {
     "commits":2,
@@ -230,6 +237,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/24808585?v=4",
     "id":"skermabon",
     "name":"Stéphane Kermabon"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/in/29110?v=4",
+    "id":"dependabot[bot]",
+    "name":"dependabot[bot]"
   },
   {
     "commits":1,
