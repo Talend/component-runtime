@@ -22,7 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -91,8 +93,6 @@ public class ValidationServiceTest {
 
     private ConfigTypeNode node2;//ComponentDetail
 
-    private Map<String, String> conditions;
-
     public CompletionStage<Collection<ValidationError>> validate(final ConfigTypeNode config,
             final JsonObject properties) {
         return getValidator(config, properties)
@@ -141,7 +141,7 @@ public class ValidationServiceTest {
         String[] path = simplePropertyDefinition.getMetadata().get("condition::if::target").split("\\.");
         AtomicBoolean isNotActive = new AtomicBoolean(false);
         AtomicReference<JsonObject> object = new AtomicReference<>(properties);
-        Arrays.stream(path).forEach( onePath -> {
+        Arrays.stream(path).forEach(onePath -> {
             if (object.get().get(onePath) != null) {
                 if(object.get().get(onePath).getValueType().equals(JsonValue.ValueType.OBJECT)) {
                     object.set(object.get().get(onePath).asJsonObject());
@@ -163,37 +163,6 @@ public class ValidationServiceTest {
     @BeforeEach
     void setup() throws Exception {
         node = getConfigTypeNode("config.json", "U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl");
-    }
-
-    @Test
-    void conditionBool() throws Exception {
-        //1. find out all property whose metadata contains "condition::if::target", and put its path & value into a map;
-        final Collection<ValidationError> errors =
-                validate(node2, Json.createObjectBuilder().build()).toCompletableFuture().get();
-        assertEquals(0, errors.size());
-//        final Ui payload = service.convert(node2, "en", null).toCompletableFuture().get();
-//        final UiSchema schema = payload
-//                .getUiSchema()
-//                .iterator()
-//                .next()
-//                .getItems()
-//                .iterator()
-//                .next();
-//
-//        final Map<String, Collection<Object>> condition = schema
-//                .getItems()
-//                .stream()
-//                .filter( m -> m.getCondition() != null)
-//                .iterator()
-//                .next().getCondition();
-//                //.get(key -> );
-
-//        final Collection<Object> and = condition.get("===");
-//        Map.class.cast(and.iterator().next()).keySet().iterator().next();
-       // assertEquals(asList(singletonMap("var", "conf.str"), "value"), firstCond.get("==="));
-
-        //2, getValidator, check each RequiredValidatoion: if its pointer tontains any key in the map, then remove this RequiredValidatoion
-
     }
 
     @Test
