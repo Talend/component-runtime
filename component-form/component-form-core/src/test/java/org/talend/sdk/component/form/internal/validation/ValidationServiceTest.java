@@ -15,20 +15,26 @@
  */
 package org.talend.sdk.component.form.internal.validation;
 
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.json.Json;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.spi.JsonProvider;
 
 import org.apache.johnzon.jsonschema.JsonSchemaValidator;
 import org.apache.johnzon.jsonschema.ValidationResult.ValidationError;
@@ -41,6 +47,7 @@ import org.talend.sdk.component.form.internal.lang.CompletionStages;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
 /**
  * This class mimics ValidationServiceImpl in projects using component-form for validating configurations
@@ -49,13 +56,46 @@ public class ValidationServiceTest {
 
     private Jsonb jsonb = JsonbBuilder.create();
 
+    private final JsonProvider jsonp = JsonProvider.provider();
+
+    private final JsonBuilderFactory jsonFactory = jsonp.createBuilderFactory(emptyMap());
+
+
+    final JsonObject conf = jsonFactory
+            .createObjectBuilder()
+            .add("dataStoreOk",
+                    jsonFactory
+                            .createObjectBuilder()
+                            .add("username", "test")
+                            .add("password", "test")
+                            .add("jdbcUrl", jsonFactory.createObjectBuilder().add("setRawUrl", true).build())
+                            .build())
+            .add("dataStore",
+                    jsonFactory
+                            .createObjectBuilder()
+                            .add("username", "test")
+                            .add("password", "test")
+                            .add("jdbcUrl",
+                                    jsonFactory
+                                            .createObjectBuilder()
+                                            .add("setRawUrl", false)
+                                            .add("rawUrl", JsonValue.NULL)
+                                            .build())
+                            .build())
+
+            .build();
+
     private final JsonSchemaValidatorFactoryExt factory = new JsonSchemaValidatorFactoryExt();
 
     private ConfigTypeNode node;
 
+    private ConfigTypeNode node2;//ComponentDetail
+
+    private Map<String, String> conditions;
+
     public CompletionStage<Collection<ValidationError>> validate(final ConfigTypeNode config,
             final JsonObject properties) {
-        return getValidator(config)
+        return getValidator(config, properties)
                 .thenApply(validator -> validator.apply(properties))
                 .thenApply(vr -> vr
                         .getErrors()
@@ -64,9 +104,12 @@ public class ValidationServiceTest {
                         .collect(toList()));
     }
 
-    public CompletionStage<JsonSchemaValidator> getValidator(final ConfigTypeNode config) {
+    public CompletionStage<JsonSchemaValidator> getValidator(final ConfigTypeNode config , final JsonObject jsonObject) {
         final JsonSchema jsonSchema = new JsonSchema();
         final JsonSchemaConverter converter = new JsonSchemaConverter(jsonb, jsonSchema, config.getProperties());
+
+        findActiveIf(config, jsonObject);
+
         return CompletableFuture
                 .allOf(config
                         .getProperties()
@@ -82,10 +125,39 @@ public class ValidationServiceTest {
                 .thenApply(factory::newInstance);
     }
 
+    private void findActiveIf(final ConfigTypeNode config, JsonObject properties) {
+            //TCOMP-2260: find out all activeIf's target , and its value in jsonObject; if it is not active, clear its validation
+            config
+                    .getProperties()
+                    .stream()
+                    .filter(p -> p.getMetadata().get("condition::if::target") != null)
+                    .forEach(simplePropertyDefinition -> {
+                        if (isNotActive(simplePropertyDefinition, properties))
+                            simplePropertyDefinition.setValidation(null);
+                    });
+    }
+
+    private boolean isNotActive(SimplePropertyDefinition simplePropertyDefinition, JsonObject properties) {
+        String[] path = simplePropertyDefinition.getMetadata().get("condition::if::target").split("\\.");
+        AtomicBoolean isNotActive = new AtomicBoolean(false);
+        AtomicReference<JsonObject> object = new AtomicReference<>(properties);
+        Arrays.stream(path).forEach( onePath -> {
+            if (object.get().get(onePath) != null) {
+                if(object.get().get(onePath).getValueType().equals(JsonValue.ValueType.OBJECT)) {
+                    object.set(object.get().get(onePath).asJsonObject());
+                } else {
+                    isNotActive.set(object.get().getBoolean(onePath));//getValueType().equals(JsonValue.ValueType.TRUE));
+                }
+            }
+        });
+        return !isNotActive.get();
+    }
+
     private ConfigTypeNode getConfigTypeNode(final String source, final String node) throws IOException {
         try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(source)) {
             return jsonb.fromJson(stream, ConfigTypeNodes.class).getNodes().get(node);
         }
+
     }
 
     @BeforeEach
@@ -94,9 +166,48 @@ public class ValidationServiceTest {
     }
 
     @Test
+    void conditionBool() throws Exception {
+        //1. find out all property whose metadata contains "condition::if::target", and put its path & value into a map;
+        final Collection<ValidationError> errors =
+                validate(node2, Json.createObjectBuilder().build()).toCompletableFuture().get();
+        assertEquals(0, errors.size());
+//        final Ui payload = service.convert(node2, "en", null).toCompletableFuture().get();
+//        final UiSchema schema = payload
+//                .getUiSchema()
+//                .iterator()
+//                .next()
+//                .getItems()
+//                .iterator()
+//                .next();
+//
+//        final Map<String, Collection<Object>> condition = schema
+//                .getItems()
+//                .stream()
+//                .filter( m -> m.getCondition() != null)
+//                .iterator()
+//                .next().getCondition();
+//                //.get(key -> );
+
+//        final Collection<Object> and = condition.get("===");
+//        Map.class.cast(and.iterator().next()).keySet().iterator().next();
+       // assertEquals(asList(singletonMap("var", "conf.str"), "value"), firstCond.get("==="));
+
+        //2, getValidator, check each RequiredValidatoion: if its pointer tontains any key in the map, then remove this RequiredValidatoion
+
+    }
+
+    @Test
     void testValidationOk() throws Exception {
         final Collection<ValidationError> errors =
                 validate(node, Json.createObjectBuilder().build()).toCompletableFuture().get();
+        assertEquals(0, errors.size());
+    }
+
+    @Test
+    void testTCOMP2260() throws Exception {
+        node2 = getConfigTypeNode("config-activeIf.json", "U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl");
+        final Collection<ValidationError> errors =
+                validate(node2, conf).toCompletableFuture().get();
         assertEquals(0, errors.size());
     }
 

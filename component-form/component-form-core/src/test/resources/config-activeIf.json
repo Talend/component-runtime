@@ -1,0 +1,119 @@
+{
+  "nodes": {
+    "U2VydmljZU5vdw": {
+      "displayName": "Service Now",
+      "edges": [
+        "U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo"
+      ],
+      "id": "U2VydmljZU5vdw",
+      "name": "ServiceNow",
+      "properties": [],
+      "version": 0
+    },
+    "U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl": {
+
+      "configurationType": "dataset",
+      "displayName": "Table",
+      "edges": [],
+      "id": "U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl",
+      "name": "table",
+      "parentId": "U2VydmljZU5vdyNkYXRhc3RvcmUjYmFzaWNBdXRo",
+      "properties": [
+
+        {
+          "displayName": "dataStore",
+          "metadata": {
+            "action::healthcheck": "basicAuth",
+            "configurationtype::type": "datastore",
+            "configurationtype::name": "basicAuth",
+            "ui::gridlayout::Main::value": "url|username,password"
+          },
+          "name": "dataStore",
+          "path": "dataStore",
+          "placeholder": "dataStore",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Password",
+          "metadata": {
+            "ui::credential": "true"
+          },
+          "name": "password",
+          "path": "dataStore.password",
+          "placeholder": "password",
+          "type": "STRING"
+        },
+        {
+          "displayName": "API URL",
+          "metadata": {
+            "action::validation": "urlValidation",
+            "action::validation::parameters": "."
+          },
+          "name": "url",
+          "path": "dataStore.url",
+          "placeholder": "ServiceNow instance url...",
+          "type": "STRING"
+        },
+        {
+          "displayName": "Username",
+          "metadata": {},
+          "name": "username",
+          "path": "dataStore.username",
+          "placeholder": "username",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "displayName": "JDBC URL",
+          "metadata": {
+            "ui::gridlayout::Advanced::value": "defineProtocol,protocol",
+            "action::update::after": "setRawUrl",
+            "action::update::parameters": "..",
+            "ui::gridlayout::Main::value": "setRawUrl|rawUrl|host|port|database|parameters",
+            "action::update": "ACTION_DEFAULT_VALUES",
+            "documentation::value": "Exploded jdbc url"
+          },
+          "name": "jdbcUrl",
+          "path": "dataStore.jdbcUrl",
+          "placeholder": "jdbc:sub-protocol://host:port/dbName?prop1=value1&prop2=value2",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "Raw Jdbc URL",
+          "metadata": {
+            "condition::if::target": "dataStore.jdbcUrl.setRawUrl",
+            "documentation::value": "jdbc connection raw url",
+            "condition::if::evaluationStrategy": "DEFAULT",
+            "condition::if::value": "true",
+            "condition::if::negate": "false"
+          },
+          "name": "rawUrl",
+          "path": "dataStore.jdbcUrl.rawUrl",
+          "placeholder": "jdbc:sub-protocol://host:port/dbName?prop1=value1&prop2=value2",
+          "type": "STRING",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "defaultValue": "false",
+          "displayName": "Raw URL",
+          "metadata": {
+            "ui::defaultvalue::value": "false",
+            "documentation::value": "Let user define complete jdbc url or not"
+          },
+          "name": "setRawUrl",
+          "path": "dataStore.jdbcUrl.setRawUrl",
+          "placeholder": "setRawUrl",
+          "type": "BOOLEAN",
+          "validation": {
+            "required": true
+          }
+        }
+      ],
+      "version": -1
+    }
+  }
+}
