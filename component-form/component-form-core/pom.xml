@@ -63,6 +63,11 @@
       <artifactId>johnzon-jsonschema</artifactId>
       <version>${johnzon.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
+      <version>${rhino.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
