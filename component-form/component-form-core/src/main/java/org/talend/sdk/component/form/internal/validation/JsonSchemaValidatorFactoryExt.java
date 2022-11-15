@@ -16,8 +16,13 @@
 package org.talend.sdk.component.form.internal.validation;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.johnzon.jsonschema.regex.JavaRegex;
+import org.apache.johnzon.jsonschema.spi.builtin.PatternValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.EnumValidationWithDefaultValue;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MaximumValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MinimumValidation;
@@ -26,22 +31,39 @@ import org.talend.sdk.component.form.internal.validation.spi.ext.TypeValidation;
 
 public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema.JsonSchemaValidatorFactory {
 
+    private final AtomicReference<Function<String, Predicate<CharSequence>>> reFactory =
+            new AtomicReference<>(this::newRegexFactory);
+
+    public JsonSchemaValidatorFactoryExt() {
+        appendExtensions(new PatternValidation(reFactory.get()));
+    }
+
     @Override
     public List<org.apache.johnzon.jsonschema.spi.ValidationExtension> createDefaultValidations() {
-        List validatons = super.createDefaultValidations()
+        List validations = super.createDefaultValidations()
                 .stream()
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.TypeValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.EnumValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MinimumValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MaximumValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.RequiredValidation.class.isInstance(v))
+                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.PatternValidation.class.isInstance(v))
                 .collect(Collectors.toList());
-        validatons.add(new TypeValidation());
-        validatons.add(new EnumValidationWithDefaultValue());
-        validatons.add(new MinimumValidation());
-        validatons.add(new MaximumValidation());
-        validatons.add(new RequiredValidation());
+        validations.add(new TypeValidation());
+        validations.add(new EnumValidationWithDefaultValue());
+        validations.add(new MinimumValidation());
+        validations.add(new MaximumValidation());
+        validations.add(new RequiredValidation());
 
-        return validatons;
+        return validations;
     }
+
+    private Predicate<CharSequence> newRegexFactory(final String regex) {
+        try {
+            return new JavascriptRegex(regex);
+        } catch (final RuntimeException re) {
+            return new JavaRegex(regex);
+        }
+    }
+
 }
