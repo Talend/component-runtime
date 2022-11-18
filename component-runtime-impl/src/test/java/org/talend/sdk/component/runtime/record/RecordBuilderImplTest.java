@@ -78,7 +78,9 @@ class RecordBuilderImplTest {
                 .withNullable(true) //
                 .withType(Type.STRING) //
                 .build();//
-        assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
+
+        //now tck STRING accept any object as TCOMP-2292
+        //assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
 
         builder.with(entry, "value");
         Assertions.assertEquals("value", builder.getValue("name"));
