@@ -26,18 +26,54 @@ This default configuration implements a constant pause duration of 500 ms betwee
 
 image::starter/starter_enabling_streaming.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/starter/starter_enabling_streaming.png",80%]
 
-== Enabling limitations (stoppers) for Streaming components
+== Enabling limitations (stop conditions) for Streaming components
+Without any configuration, streaming components have an infinite lifecycle and will never stop.
+Sometimes, you may need to stop component after a certain amount of records read or time elapsed.
 
-You can add configuration that help you to stop the data reading in your input component when it reaches required limitations: max duration and max records. To do it you need to set true in PartitionMapper#stoppable. An important condition is that PartitionMapper#infinite should also be true.
-You can also pass those limits inside @PostConstruct method with @Option annotation. Available options: Option.MAX_DURATION_PARAMETER, Option.MAX_RECORDS_PARAMETER.
-By default in the setting those values are set to -1. It means "infinity" behavior.
+You can add configuration that helps you to stop the data reading in your input component when it reaches required limitations. To enable it you need to set `true` in `PartitionMapper#stoppable`. An important condition is that `PartitionMapper#infinite` should also be `true`.
+
+Here's a sample code:
+
+[source,java,indent=0]
+----
+@PartitionMapper(name = "Input",
+                 infinite = true, <1>
+                 stoppable = true) <2>
+public class YourPartitionMapper {
+  ...
+}
+----
+
+<1> Define your component as a streaming component.
+<2> Define that your component may be stopped under conditions.
+
+
+There are two reading stop conditions (can be combined):
+
+- `maxDurationMs` : stop after _n_ milliseconds elapsed.
+- `maxRecords` : stop after _n_ records read.
+
+See next subsections for configuring those values.
+
+
+WARNING: If you choose to use a `stoppable` streaming component, you will have certainly to adapt your code according the backend technology and how to read values. For instance, if in your component you read 100 values at once and the `maxRecords` value is 50, you may lose 50 values (if the 100 values were acknowledged).
+
+In that case, to build a correct strategy in your component, you can access to stop condition values.
+To access these informations use the `@PostConstruct` method with `@Option` annotation in your Emitter class.
+
+Available options:
+
+- `Option.MAX_DURATION_PARAMETER` : reflects the `maxDurationMs` parameter.
+- `Option.MAX_RECORDS_PARAMETER` : reflects the `maxRecords` parameter.
+
+Here a code sample:
 
 [source,java,indent=0]
 ----
 @Version
 @PartitionMapper(name = "Input", infinite = true, stoppable = true)
 public class YourPartitionMapper {
-	// partition mapper code
+    // partition mapper code
 
     @Emitter
     public YourEmitter createWorker() {
@@ -54,6 +90,34 @@ public class YourEmitter {
     // other component's code
 }
 ----
+
+=== Configuring streaming stop strategy during job design time
+
+If your streaming connector (`infinite=true`) is defined with the `stoppable=true`, you will have a design time UI for specifying stop strategy:
+
+- Cloud
+
+image:streaming-limits-ui-cloud.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/streaming-limits-ui-cloud.png",80%]
+
+- Studio
+
+image:streaming-limits-ui-studio.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/streaming-limits-ui-studio.png",80%]
+
+
+By default, in the setting those values are set to *-1*. It means _infinity_ behavior.
+
+
+=== Other ways for configuring streaming stop strategy
+
+At runtime, you can set system properties to apply the strategy. You need to prefix properties with the component's family.
+
+- `<family>.talend.input.streaming.maxRecords`
+- `<family>.talend.input.streaming.maxDurationMs`
+
+You can also use the xref:services-built-in.adoc#_localconfiguration[LocalConfiguration] (see next section) with the following properties:
+
+- `talend.input.streaming.maxRecords`
+- `talend.input.streaming.maxDurationMs`
 
 
 == Configuring streaming from the project
