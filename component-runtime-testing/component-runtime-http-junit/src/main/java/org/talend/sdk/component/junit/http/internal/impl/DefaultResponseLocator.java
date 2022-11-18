@@ -16,6 +16,7 @@
 package org.talend.sdk.component.junit.http.internal.impl;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -150,11 +152,15 @@ public class DefaultResponseLocator implements ResponseLocator, AutoCloseable {
 
     protected boolean doesHeadersMatch(final Request request, final RequestModel model,
             final Predicate<String> headerFilter) {
+        final Map<String, String> notcased = request.headers()
+                .entrySet()
+                .stream()
+                .collect(toMap(e -> e.getKey().toLowerCase(), Entry::getValue));
         return model.headers == null || model.headers
                 .entrySet()
                 .stream()
                 .filter(h -> !headerFilter.test(h.getKey()))
-                .allMatch(h -> h.getValue().equals(request.headers().get(h.getKey())));
+                .allMatch(h -> h.getValue().equals(notcased.get(h.getKey().toLowerCase())));
     }
 
     @Override
