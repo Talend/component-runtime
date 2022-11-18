@@ -20,11 +20,11 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
+import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
+import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
@@ -125,9 +125,9 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             log
                     .debug("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
                             metadata);
-            dynamicColumnLength = Integer.valueOf(metadata.getOrDefault(STUDIO_LENGTH, "-1"));
-            dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault(STUDIO_PRECISION, "-1"));
-            dynamicColumnPattern = metadata.getOrDefault(STUDIO_PATTERN, "yyyy-MM-dd");
+            dynamicColumnLength = Integer.valueOf(metadata.getOrDefault(SIZE, "-1"));
+            dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault(SCALE, "-1"));
+            dynamicColumnPattern = metadata.getOrDefault(PATTERN, "yyyy-MM-dd");
         } catch (final NoSuchMethodException | IllegalAccessException | InstantiationException
                 | InvocationTargetException e) {
             throw new IllegalStateException(e);
@@ -220,19 +220,19 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         metadata.setDescription(entry.getComment());
         metadata.setSourceType(sourceTypes.unknown);
 
-        final Boolean isKey = ofNullable(entry.getProp(STUDIO_KEY))
+        final Boolean isKey = ofNullable(entry.getProp(IS_KEY))
                 .filter(l -> !l.isEmpty())
                 .map(Boolean::valueOf)
                 .orElse(false);
-        final Integer length = ofNullable(entry.getProp(STUDIO_LENGTH))
+        final Integer length = ofNullable(entry.getProp(SIZE))
                 .filter(l -> !l.isEmpty())
                 .map(Integer::valueOf)
                 .orElse(dynamicColumnLength);
-        final Integer precision = ofNullable(entry.getProp(STUDIO_PRECISION))
+        final Integer precision = ofNullable(entry.getProp(SCALE))
                 .filter(l -> !l.isEmpty())
                 .map(Integer::valueOf)
                 .orElse(dynamicColumnPrecision);
-        final String pattern = ofNullable(entry.getProp(STUDIO_PATTERN))
+        final String pattern = ofNullable(entry.getProp(PATTERN))
                 .filter(l -> !l.isEmpty())
                 .orElse(dynamicColumnPattern);
         final String studioType = entry.getProps()
@@ -240,19 +240,22 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         metadata.setKey(isKey);
         metadata.setType(studioType);
 
-        switch (studioType) {
-        case StudioTypes.BIGDECIMAL:
-        case StudioTypes.FLOAT:
-        case StudioTypes.DOUBLE:
+        if (length != null) {
             metadata.setLength(length);
+        }
+
+        if (precision != null) {
             metadata.setPrecision(precision);
-            break;
+        }
+
+        switch (studioType) {
         case StudioTypes.DATE:
             metadata.setLogicalType("timestamp-millis");
             metadata.setFormat(pattern);
             break;
         default:
             // nop
+            break;
         }
         return metadata;
     }

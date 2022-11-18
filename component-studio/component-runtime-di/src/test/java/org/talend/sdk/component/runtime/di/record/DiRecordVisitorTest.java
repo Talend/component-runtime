@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

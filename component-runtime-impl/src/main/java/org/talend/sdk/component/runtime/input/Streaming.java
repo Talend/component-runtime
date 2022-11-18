@@ -34,6 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Streaming {
 
+    public static final int MAX_DURATION_TIME_MS_GRACE_PERIOD = 3_000;
+
     private static Supplier<LocalConfiguration> defaultLocalConfiguration = () -> new LocalConfiguration() {
 
         @Override

@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":628,
+    "commits":642,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -64,11 +64,18 @@
     "name":"Chao MENG"
   },
   {
-    "commits":10,
+    "commits":12,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",
     "name":"wang wei"
+  },
+  {
+    "commits":10,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
+    "id":"ozhelezniak-talend",
+    "name":"Oleksandr Zhelezniak"
   },
   {
     "commits":9,
@@ -83,13 +90,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/10761073?v=4",
     "id":"jsomsanith-tlnd",
     "name":"Jimmy Somsanith"
-  },
-  {
-    "commits":9,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
-    "id":"ozhelezniak-talend",
-    "name":"Oleksandr Zhelezniak"
   },
   {
     "commits":8,
@@ -237,6 +237,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/24808585?v=4",
     "id":"skermabon",
     "name":"Stéphane Kermabon"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/in/29110?v=4",
+    "id":"dependabot[bot]",
+    "name":"dependabot[bot]"
   },
   {
     "commits":1,

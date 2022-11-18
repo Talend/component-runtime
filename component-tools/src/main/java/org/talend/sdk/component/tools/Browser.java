@@ -18,7 +18,6 @@ package org.talend.sdk.component.tools;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.awt.Desktop;
-import java.io.IOException;
 import java.net.URI;
 
 import lombok.NoArgsConstructor;
@@ -33,10 +32,9 @@ class Browser {
         }
         try {
             Desktop.getDesktop().browse(URI.create(url));
-        } catch (final IOException e) {
-            log
-                    .error("Desktop is not supported on this JVM, go to " + url + " in your browser (" + e.getMessage()
-                            + ")");
+        } catch (final Exception e) {
+            log.error(
+                    "Desktop is not supported on this JVM, go to " + url + " in your browser (" + e.getMessage() + ")");
         }
     }
 }

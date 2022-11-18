@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.api.component;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -25,42 +23,44 @@ import java.lang.annotation.Target;
 
 import org.talend.sdk.component.api.meta.Documentation;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
- * Use to group {@link AfterVariable} annotations.
- * Can be helpful either if you can't use {@link AfterVariable} as repeatable annotations or just to group annotations.
- *
+ * Use to group {@link ReturnVariable} annotations.
+ * Can be helpful either if you can't use {@link ReturnVariable} as repeatable annotations or just to group annotations.
+ * <p>
  * Note. This functionality is for the Studio only.
  */
-@Documentation("Declare the group of after variable `@AfterVariable`, "
-        + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`."
+@Documentation("Declare the group of return variable `@ReturnVariable`, "
+        + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`, `@DriverRunner`."
         + "The functionality is for the Studio only.")
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Deprecated
-public @interface AfterVariables {
+public @interface ReturnVariables {
 
-    AfterVariable[] value();
+    ReturnVariable[] value();
 
     /**
-     * Declare after variable for the component.
-     *
+     * Declare return variable for the component.
+     * <p>
      * Put annotation on {@link org.talend.sdk.component.api.input.Emitter},
      * {@link org.talend.sdk.component.api.input.PartitionMapper},
-     * {@link org.talend.sdk.component.api.processor.Processor} to declare after variables
-     *
+     * {@link org.talend.sdk.component.api.standalone.DriverRunner},
+     * {@link org.talend.sdk.component.api.processor.Processor} to declare return variables
+     * <p>
      * Note. This functionality is for the Studio only.
      */
-    @Documentation("Declare the after variable, "
-            + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`."
+    @Documentation("Declare the return variable, "
+            + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`, `@DriverRunner`."
             + "The functionality is for the Studio only.")
-    @Repeatable(AfterVariables.class)
+    @Repeatable(ReturnVariables.class)
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
-    @Deprecated
-    @interface AfterVariable {
+    @interface ReturnVariable {
 
         /**
-         * @return studio name for variable (like: NB_LINE)
+         * @return studio name for variable (like: QUERY)
          */
         String value();
 
@@ -73,19 +73,17 @@ public @interface AfterVariables {
          * @return type of variable
          */
         Class<?> type() default String.class;
-    }
 
-    /**
-     * Mark method that returns container with after variables.
-     *
-     * Note. This functionality is for the Studio only.
-     */
-    @Documentation("Mark method that returns container with after variables map, "
-            + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter`."
-            + "The functionality is for the Studio only.")
-    @Target(ElementType.METHOD)
-    @Retention(RUNTIME)
-    @Deprecated
-    @interface AfterVariableContainer {
+        AVAILABILITY availability() default AVAILABILITY.AFTER;
+
+        @RequiredArgsConstructor
+        enum AVAILABILITY {
+
+            AFTER("AFTER"),
+            FLOW("FLOW");
+
+            @Getter
+            private final String key;
+        }
     }
 }

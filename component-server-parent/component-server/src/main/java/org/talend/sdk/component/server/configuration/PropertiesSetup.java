@@ -27,6 +27,20 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
 
     @Override
     public void accept(final Configuration configuration) {
+        checkOrSetProperty("jdk.serialFilter", System.getenv("TALEND_JDK_SERIAL_FILTER"));
+        checkOrSetProperty("java.io.tmpdir", System.getenv("JAVA_IO_TMPDIR"));
+        checkOrSetProperty("java.security.egd", "file:/dev/./urandom");
+        checkOrSetProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+        checkOrSetProperty("log4j.configurationFile", System.getenv("LOG4J_CONFIGURATIONFILE"));
+        checkOrSetProperty("http", System.getenv("BOUND_PORT"));
+        checkOrSetProperty("meecrowave-properties", System.getenv("MEECROWAVE-PROPERTIES"));
+        checkOrSetProperty("meecrowave.home", System.getenv("MEECROWAVE_HOME"));
+        checkOrSetProperty("meecrowave.base", System.getenv("MEECROWAVE_BASE"));
+        checkOrSetProperty("geronimo.metrics.sigar.refreshInterval", "0");
+        checkOrSetProperty("talend.component.exit-on-destroy", "true");
+        checkOrSetProperty("talend.component.manager.services.cache.eviction.defaultEvictionTimeout", "30000");
+        checkOrSetProperty("talend.component.manager.services.cache.eviction.defaultMaxSize", "5000");
+        checkOrSetProperty("talend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun", "-1");
         // By default we want to skip vault calls zipkin logs, we can still override it...
         System.setProperty("geronimo.opentracing.client.filter.request.skip", "true");
         System.setProperty("geronimo.opentracing.filter.skippedTracing.urls", ".*/login$,.*/decrypt/.*");
@@ -62,5 +76,11 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
                 .stream()
                 .filter(k -> System.getProperty(k) == null)
                 .forEach(k -> System.setProperty(k, configuration.getProperties().getProperty(k)));
+    }
+
+    private void checkOrSetProperty(final String key, final String defaultValue) {
+        if (System.getProperty(key) == null && defaultValue != null) {
+            System.setProperty(key, defaultValue);
+        }
     }
 }
