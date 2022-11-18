@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":642,
+    "commits":645,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -114,6 +114,13 @@
   },
   {
     "commits":4,
+    "description":"\n\nBlog: timeline.antoinenicolas.com",
+    "gravatar":"https://avatars.githubusercontent.com/u/39268?v=4",
+    "id":"anicolas",
+    "name":"Antoine Nicolas"
+  },
+  {
+    "commits":4,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/59560172?v=4",
     "id":"pgautier83",
@@ -160,13 +167,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
     "id":"quilicicf",
     "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
-  },
-  {
-    "commits":2,
-    "description":"\n\nBlog: timeline.antoinenicolas.com",
-    "gravatar":"https://avatars.githubusercontent.com/u/39268?v=4",
-    "id":"anicolas",
-    "name":"Antoine Nicolas"
   },
   {
     "commits":2,
