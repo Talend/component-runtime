@@ -79,7 +79,7 @@ public class DiRowStructVisitor {
 
     private Set<String> allowedFields;
 
-    public void visit(final Object data) {
+    private void visit(final Object data) {
         log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
@@ -435,10 +435,12 @@ public class DiRowStructVisitor {
     }
 
     private void onObject(final String name, final Object value) {
-        // in studio di, the object value is suitable to json string always? this code for construct the input tck
-        // record to tck processor, maybe is ok
-        // will adjust it if not meet real requirement
-        recordBuilder.withString(name, jsonb.toJson(value));
+        if (Record.class.isInstance(value)) {// keep old action here
+            recordBuilder.withString(name, jsonb.toJson(value));
+            return;
+        }
+
+        recordBuilder.with(rowStructSchema.getEntry(name), value);
     }
 
     // CHECKSTYLE:OFF

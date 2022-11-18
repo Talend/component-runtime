@@ -89,7 +89,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "dynBytesBuffer", StudioTypes.BYTE_ARRAY, ByteBuffer.allocate(100).wrap(BYTES0));
         createMetadata(dynamic, "dynBytesWString", StudioTypes.BYTE_ARRAY, String.valueOf(BYTES0));
         createMetadata(dynamic, "dynBigDecimal", StudioTypes.BIGDECIMAL, BIGDEC);
-        createMetadata(dynamic, "dynObject", StudioTypes.OBJECT, new Rcd());
+        Rcd dynObject = new Rcd();
+        createMetadata(dynamic, "dynObject", StudioTypes.OBJECT, dynObject);
         createMetadata(dynamic, "STRINGS", StudioTypes.LIST, STRINGS);
         createMetadata(dynamic, "LONGS", StudioTypes.LIST, LONGS);
         createMetadata(dynamic, "FLOATS", StudioTypes.LIST, FLOATS);
@@ -166,12 +167,12 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertArrayEquals(String.valueOf(BYTES0).getBytes(), record.getBytes("dynBytesWString"));
         assertEquals(BIGDEC.toString(), record.getString("dynBigDecimal"));
         assertEquals(BIGDEC, new BigDecimal(record.getString("dynBigDecimal")));
-        assertEquals(RECORD.toString(), record.getString("object0"));
+        assertEquals(rowStruct.object0, record.get(Object.class, "object0"));
         assertTrue(record.getBoolean("hAshcOdEdIrtY"));
         assertEquals(NAME, record.getString("h"));
         assertEquals(StudioTypes.CHARACTER, schema.getEntry("char0").getProp(STUDIO_TYPE));
         assertEquals(String.valueOf(Character.MAX_VALUE), record.getString("char0"));
-        assertEquals(RECORD.toString(), record.getString("dynObject"));
+        assertEquals(dynObject, record.get(Object.class, "dynObject"));
         assertEquals(INTEGERS, record.getArray(Integer.class, "array0"));
         assertEquals(STRINGS, record.getArray(String.class, "STRINGS"));
         assertEquals(LONGS, record.getArray(Long.class, "LONGS"));

@@ -36,6 +36,7 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
@@ -111,7 +112,7 @@ public class RecordServiceImpl implements RecordService, Serializable {
                 visitor.onBoolean(entry, record.getOptionalBoolean(entry.getName()));
                 break;
             case STRING:
-                String insideType = entry.getProp("talend.studio.type");// TODO use new key in component-api
+                String insideType = entry.getProp(SchemaProperty.STUDIO_TYPE);
                 if ("id_Object".equals(insideType)) {
                     visitor.onObject(entry, Optional.ofNullable(record.get(Object.class, entry.getName())));
                 } else {

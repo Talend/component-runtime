@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.SchemaProperty;
@@ -45,6 +46,8 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
+
+import javax.json.bind.annotation.JsonbTransient;
 
 class RecordBuilderImplTest {
 
@@ -252,21 +255,48 @@ class RecordBuilderImplTest {
         assertEquals("123456789.123456789", record.getString("decimal"));
     }
 
+    @AllArgsConstructor
+    static class NonSerObject {
+
+        // jsonb.tojson will miss this info as JsonbTransient
+        @JsonbTransient
+        private String content;
+
+        private boolean allowAccessSecretInfo;
+
+        private String secretInfo;
+
+        public String getContent() {
+            return content;
+        }
+
+        // jsonb.tojson default depend on get method, this not work
+        public String getSecretInfo() {
+            if (allowAccessSecretInfo) {
+                return secretInfo;
+            }
+            throw new RuntimeException("this is a secret info, don't allow access");
+        }
+
+    }
+
     @Test
     void object() {
+        // jsonb can't process it and also not java Serializable
+        NonSerObject value = new NonSerObject("the content", false, "secret info");
+
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("object")
+                        .withName("value")
                         .withNullable(true)
                         .withType(Type.STRING)
-                        .withProp("talend.studio.type", "id_Object")
+                        .withProp(SchemaProperty.STUDIO_TYPE, "id_Object")
                         .build())
                 .build();
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
-        Object value = new Object();
-        final Record record = builder.with(schema.getEntry("object"), value).build();
-        assertTrue(value == record.get(Object.class, "object"));
+        final Record record = builder.with(schema.getEntry("value"), value).build();
+        assertTrue(value == record.get(Object.class, "value"));
     }
 
     @Test
