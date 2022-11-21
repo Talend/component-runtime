@@ -529,6 +529,33 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void updateEntryByName_preservesOrder() {
+        // Given
+        final Record.Builder builder = new RecordImpl.BuilderImpl()
+                .withString("firstColumn", "hello")
+                .withInt("secondColumn", 20)
+                .withString("thirdColumn", "foo");
+
+        // When
+        final Entry renamedEntry = newEntry("firstColumn_renamed", Type.STRING);
+        builder.updateEntryByName("firstColumn", renamedEntry);
+
+        // Then order is preserved in the builder
+        Assertions.assertEquals(3, builder.getCurrentEntries().size());
+        final List<String> builderEntriesName =
+                builder.getCurrentEntries().stream().map(Entry::getName).collect(Collectors.toList());
+        assertEquals(Arrays.asList("firstColumn_renamed", "secondColumn", "thirdColumn"), builderEntriesName);
+
+        // Then order is also preserved in the built Record
+        final Record outputRecord = builder.build();
+        final Schema outputRecordSchema = outputRecord.getSchema();
+        final List<String> outputEntriesName =
+                outputRecordSchema.getEntriesOrdered().stream().map(Schema.Entry::getName).collect(Collectors.toList());
+
+        assertEquals(Arrays.asList("firstColumn_renamed", "secondColumn", "thirdColumn"), outputEntriesName);
+    }
+
+    @Test
     void withRecordFromEntryWithNullValue() {
         final Entry recordEntry = new EntryImpl.BuilderImpl()
                 .withType(Type.RECORD)

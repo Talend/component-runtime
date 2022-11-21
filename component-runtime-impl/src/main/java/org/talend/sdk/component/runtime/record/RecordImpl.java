@@ -233,6 +233,10 @@ public final class RecordImpl implements Record {
                 }
                 this.entries.replace(name, schemaEntry);
 
+                if (this.orderState != null) {
+                    this.orderState.orderedEntries.replace(name, schemaEntry);
+                }
+
                 this.values.remove(name);
                 this.values.put(schemaEntry.getName(), value);
                 return this;
