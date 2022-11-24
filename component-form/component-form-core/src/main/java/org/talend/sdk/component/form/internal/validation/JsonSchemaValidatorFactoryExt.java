@@ -26,7 +26,6 @@ import org.apache.johnzon.jsonschema.spi.builtin.PatternValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.EnumValidationWithDefaultValue;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MaximumValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MinimumValidation;
-import org.talend.sdk.component.form.internal.validation.spi.ext.RequiredValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.TypeValidation;
 
 public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema.JsonSchemaValidatorFactory {
