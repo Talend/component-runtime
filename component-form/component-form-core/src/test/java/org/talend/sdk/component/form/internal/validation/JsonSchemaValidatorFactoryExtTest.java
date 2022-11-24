@@ -84,7 +84,8 @@ class JsonSchemaValidatorFactoryExtTest {
                             .createObjectBuilder()
                             .add("username", "test")
                             .add("password", "test")
-                            .add("jdbcUrl", jsonFactory.createObjectBuilder().add("setRawUrl", false).build())
+                            .add("jdbcUrl", jsonFactory.createObjectBuilder().add("setRawUrl", true)
+                                                    .add("rawUrl", "talend").build())
                             .build())
             .add("dataStoreKo",
                     jsonFactory
