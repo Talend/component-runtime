@@ -18,6 +18,7 @@ package org.talend.sdk.component.api.record;
 import static java.util.Optional.ofNullable;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Comparator;
@@ -168,6 +169,17 @@ public interface Record {
     default ZonedDateTime getDateTime(final String name) {
         return get(ZonedDateTime.class, name);
     }
+
+    /**
+     * See {@link Record#get(Class, String)}.
+     *
+     * @param name entry name.
+     * @return the value of the entry in this record.
+     */
+    default Timestamp getTimestamp(final String name) {
+        return get(Timestamp.class, name);
+    }
+
 
     default BigDecimal getDecimal(final String name) {
         return get(BigDecimal.class, name);
@@ -385,6 +397,10 @@ public interface Record {
         Builder withTimestamp(String name, long value);
 
         Builder withTimestamp(Schema.Entry entry, long value);
+
+        Builder withTimestamp(String name, Timestamp value);
+
+        Builder withTimestamp(Schema.Entry entry, Timestamp value);
 
         Builder withInt(String name, int value);
 
