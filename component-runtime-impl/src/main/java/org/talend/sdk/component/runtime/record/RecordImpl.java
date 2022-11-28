@@ -32,6 +32,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
@@ -408,12 +409,12 @@ public final class RecordImpl implements Record {
             return append(entry, value);
         }
 
-        public Builder withTimestamp(String name, Timestamp value){
+        public Builder withTimestamp(final String name, final Timestamp value){
             final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, false);
             return withTimestamp(entry, value);
         }
 
-        public Builder withTimestamp(Schema.Entry entry, Timestamp value){
+        public Builder withTimestamp(final Schema.Entry entry, final Timestamp value){
             assertType(entry.getType(), DATETIME);
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value);
