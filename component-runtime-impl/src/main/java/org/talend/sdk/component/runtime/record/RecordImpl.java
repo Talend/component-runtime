@@ -32,7 +32,6 @@ import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
