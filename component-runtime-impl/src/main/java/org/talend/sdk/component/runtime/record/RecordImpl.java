@@ -381,7 +381,7 @@ public final class RecordImpl implements Record {
                 throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
             }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
-            return append(entry, value);
+            return append(entry, value == null ? null : value.toInstant().toEpochMilli());
         }
 
         @Override

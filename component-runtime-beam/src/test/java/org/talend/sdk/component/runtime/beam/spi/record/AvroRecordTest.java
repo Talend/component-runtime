@@ -367,9 +367,11 @@ class AvroRecordTest {
         final Date date = new Date(new java.text.SimpleDateFormat("yyyy-MM-dd").parse("2018-12-6").getTime());
         final Date datetime = new Date();
         final Date time = new Date(1000 * 60 * 60 * 15 + 1000 * 60 * 20 + 39000); // 15:20:39
+        final java.sql.Timestamp timestamp = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345");
         builder.withDateTime("t_date", date);
         builder.withDateTime("t_datetime", datetime);
         builder.withDateTime("t_time", time);
+        builder.withTimestamp("t_timestamp", timestamp);
         final Record rec = builder.build();
         final Pipeline pipeline = Pipeline.create();
         final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //

@@ -92,7 +92,7 @@ class RecordBuilderImplTest {
                 .build();//
         final ZonedDateTime now = ZonedDateTime.now();
         builder.with(entryTime, now);
-        Assertions.assertEquals(now, builder.getValue("time"));
+        Assertions.assertEquals(now.toInstant().toEpochMilli(), builder.getValue("time"));
 
         final Long next = now.toInstant().toEpochMilli() + 1000L;
         builder.with(entryTime, next);
@@ -251,16 +251,16 @@ class RecordBuilderImplTest {
                         .build())
                 .build();
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
-        final Record record = builder.withDateTime("time", ZonedDateTime.parse("2021-04-19T13:37:07.752345Z")).build();
+        final Record record = builder.withDateTime("time", ZonedDateTime.parse("2021-04-19T13:37:07.752Z")).build();
         assertNotNull(record.getDateTime("time"));
-        assertEquals(ZonedDateTime.parse("2021-04-19T13:37:07.752345Z"), record.getDateTime("time"));
+        assertEquals(ZonedDateTime.parse("2021-04-19T13:37:07.752Z[UTC]"), record.getDateTime("time"));
 
-        java.sql.Timestamp time = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345");
+        java.sql.Timestamp time = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752");
         final RecordImpl.BuilderImpl builder3 = new RecordImpl.BuilderImpl(schema);
         final Record record3 = builder3.withDateTime("time", ZonedDateTime.ofInstant(time.toInstant(), ZoneId.systemDefault())).build();
 
         assertNotNull(record3.getDateTime("time"));
-        assertEquals(ZonedDateTime.ofInstant(time.toInstant(), ZoneId.systemDefault()), record3.getDateTime("time"));
+        assertEquals(ZonedDateTime.ofInstant(time.toInstant(), ZoneId.of("UTC")), record3.getDateTime("time"));
 
     }
 
