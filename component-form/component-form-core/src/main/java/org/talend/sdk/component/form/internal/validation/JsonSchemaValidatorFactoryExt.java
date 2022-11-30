@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
 
 import org.apache.johnzon.jsonschema.regex.JavaRegex;
 import org.apache.johnzon.jsonschema.spi.builtin.PatternValidation;
+import org.talend.sdk.component.form.internal.validation.spi.ext.EnumValidationWithDefaultValue;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MaximumValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.MinimumValidation;
+import org.talend.sdk.component.form.internal.validation.spi.ext.RequiredValidation;
 import org.talend.sdk.component.form.internal.validation.spi.ext.TypeValidation;
 
 public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema.JsonSchemaValidatorFactory {
@@ -41,18 +43,17 @@ public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema
         List validations = super.createDefaultValidations()
                 .stream()
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.TypeValidation.class.isInstance(v))
-      //          .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.EnumValidation.class.isInstance(v))
+                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.EnumValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MinimumValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MaximumValidation.class.isInstance(v))
-        //        .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.RequiredValidation.class.isInstance(v))
+                .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.RequiredValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.PatternValidation.class.isInstance(v))
-                .collect(Collectors.toList())
-                ;
+                .collect(Collectors.toList());
         validations.add(new TypeValidation());
-    //    validations.add(new EnumValidationWithDefaultValue());
+        validations.add(new EnumValidationWithDefaultValue());
         validations.add(new MinimumValidation());
         validations.add(new MaximumValidation());
-  //      validations.add(new RequiredValidation());
+        validations.add(new RequiredValidation());
 
         return validations;
     }
