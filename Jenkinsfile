@@ -269,6 +269,7 @@ pipeline {
                             // TODO Disabling Sonar cache due to "ClassNotFoundException: com.google.common.collect.LinkedListMultimap" issue
                             //  (https://community.sonarsource.com/t/sonarscanner-for-maven-broken-with-sonarqube-9-5/67061/8), try to remove
                             //  these lines on next SonarQube upgrade (9.7.1+)
+                            //  https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
                             sh "_JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar"
                         }
                     }
