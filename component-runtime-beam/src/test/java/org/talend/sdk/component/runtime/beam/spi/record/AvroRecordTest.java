@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -333,13 +334,20 @@ class AvroRecordTest {
                 .endUnion()
                 .noDefault()
                 //
+                .name("f4")
+                .prop("logicalType", "date")
+                .prop("talend.component.DATETIME", "true")
+                .type().array().items().longType().noDefault()
+                //
                 .endRecord();
         final ZonedDateTime zdt = ZonedDateTime.of(2020, 01, 24, 15, 0, 1, 0, ZoneId.of("UTC"));
         final Date date = new Date();
         final GenericData.Record avro = new GenericData.Record(datetime);
+        final Instant instant = Instant.parse("2021-04-19T13:37:07.752345Z");
         avro.put(0, zdt.toInstant().toEpochMilli());
         avro.put(1, date.getTime());
         avro.put(2, null);
+        avro.put(3, new long[]{instant.getEpochSecond(), instant.getNano()});
         final Record record = new AvroRecord(avro);
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SchemaRegistryCoder.of().encode(record, buffer);
@@ -347,6 +355,7 @@ class AvroRecordTest {
         assertEquals(zdt, decoded.getDateTime("f1"));
         assertEquals(date.getTime(), decoded.getDateTime("f2").toInstant().toEpochMilli());
         assertNull(decoded.getDateTime("f3"));
+        assertEquals(instant, decoded.getInstant("f4"));
         // schema props
         final Schema s = decoded.getSchema();
         assertEquals(2, s.getProps().size());
@@ -367,11 +376,10 @@ class AvroRecordTest {
         final Date date = new Date(new java.text.SimpleDateFormat("yyyy-MM-dd").parse("2018-12-6").getTime());
         final Date datetime = new Date();
         final Date time = new Date(1000 * 60 * 60 * 15 + 1000 * 60 * 20 + 39000); // 15:20:39
-        final java.sql.Timestamp timestamp = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345");
+        final Instant timestamp = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345").toInstant();
         builder.withDateTime("t_date", date);
         builder.withDateTime("t_datetime", datetime);
         builder.withDateTime("t_time", time);
-        builder.withTimestamp("t_timestamp", timestamp);
         final Record rec = builder.build();
         final Pipeline pipeline = Pipeline.create();
         final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //

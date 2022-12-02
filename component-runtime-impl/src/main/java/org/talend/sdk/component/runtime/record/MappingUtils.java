@@ -28,6 +28,8 @@ import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static java.time.ZoneOffset.UTC;
+
 @Slf4j
 public class MappingUtils {
 
@@ -59,6 +61,9 @@ public class MappingUtils {
             if (Date.class == expectedType) {
                 return new Date(Number.class.cast(value).longValue());
             }
+            if (Instant.class == expectedType) {
+                return Instant.ofEpochMilli(Number.class.cast(value).longValue());
+            }
         }
 
         // we store decimal by string for AvroRecord case
@@ -80,6 +85,20 @@ public class MappingUtils {
             if (String.class == expectedType) {
                 return String.valueOf(value);
             }
+            //TCOMP-2293 support Instant
+            if (Instant.class.isInstance(value) && ZonedDateTime.class == expectedType) {
+                return ZonedDateTime.ofInstant((Instant) value, ZoneId.of("UTC"));
+            }
+            if (value instanceof long[]) {
+                final Instant instant = Instant.ofEpochSecond(((long[])value)[0], ((long[])value)[1]);
+                if (ZonedDateTime.class == expectedType) {
+                    return ZonedDateTime.ofInstant(instant, UTC);
+                }
+                if (Instant.class == expectedType) {
+                    return instant;
+                }
+            }
+
             // TODO: maybe add a Date.class / ZonedDateTime.class mapping case. Should check that...
             // mainly for CSV incoming data where everything is mapped to String
             if (String.class.isInstance(value)) {

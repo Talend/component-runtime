@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -217,7 +218,7 @@ public class RecordConverters implements Serializable {
         if (Boolean.class.isInstance(next) || JsonValue.TRUE.equals(next) || JsonValue.FALSE.equals(next)) {
             return factory.newSchemaBuilder(Schema.Type.BOOLEAN).build();
         }
-        if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next)) {
+        if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next) || Instant.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DATETIME).build();
         }
         if (BigDecimal.class.isInstance(next)) {
