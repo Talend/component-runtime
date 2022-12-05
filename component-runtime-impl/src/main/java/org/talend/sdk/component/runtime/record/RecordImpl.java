@@ -170,15 +170,15 @@ public final class RecordImpl implements Record {
 
             if (entry.getType() == Schema.Type.DATETIME) {
                 if (value == null) {
-                    return this;
+                    withDateTime(entry, (ZonedDateTime) value);
                 } else if (value instanceof Long) {
-                    this.withTimestamp(entry, (Long) value);
+                    withTimestamp(entry, (Long) value);
                 } else if (value instanceof Date) {
-                    this.withDateTime(entry, (Date) value);
+                    withDateTime(entry, (Date) value);
                 } else if (value instanceof ZonedDateTime) {
-                    this.withDateTime(entry, (ZonedDateTime) value);
+                    withDateTime(entry, (ZonedDateTime) value);
                 } else if (value instanceof Temporal) {
-                    this.withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
+                    withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
                 }
                 return this;
             } else {
@@ -363,9 +363,6 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final Schema.Entry entry, final Date value) {
-            if (value == null && !entry.isNullable()) {
-                throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
-            }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value == null ? null : value.getTime());
         }
@@ -376,9 +373,6 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final Schema.Entry entry, final ZonedDateTime value) {
-            if (value == null && !entry.isNullable()) {
-                throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
-            }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value == null ? null : value.toInstant().toEpochMilli());
         }

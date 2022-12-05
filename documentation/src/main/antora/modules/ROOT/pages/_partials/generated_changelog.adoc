@@ -6,6 +6,7 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2311[TCOMP-2311^]: DiscoverSchemaExtended validation is too strict link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2313[TCOMP-2313^]: Entries order is not preserved when updating entry name link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2321[TCOMP-2321^]: Record.Builder.with() does not allow null value for datetime link:search.html?query=schema-record[schema-record^,role='dockey']
 
 
 
@@ -58,6 +59,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2295[TCOMP-2295^]: Upgrade tomcat to 9.0.68 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2296[TCOMP-2296^]: Upgrade jsoup to 1.15.3 link:search.html?query=documentation[documentation^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2298[TCOMP-2298^]: Upgrade netty to 4.1.85.Final link:search.html?query=testing[testing^,role='dockey']
+
+
 
 
 

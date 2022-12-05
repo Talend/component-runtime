@@ -236,6 +236,15 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void nullDateTime() {
+        Entry entry = new EntryImpl.BuilderImpl().withName("date").withNullable(true).withType(Type.DATETIME).build();
+        final Record record = new RecordImpl.BuilderImpl().with(entry, null).build();
+        // ensure that entry was not skipped
+        assertEquals(1, record.getSchema().getEntries().size());
+        assertNull(record.getDateTime("date"));
+    }
+
+    @Test
     void decimal() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
