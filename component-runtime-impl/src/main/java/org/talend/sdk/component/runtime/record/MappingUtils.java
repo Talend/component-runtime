@@ -27,9 +27,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
-
-import static java.time.ZoneOffset.UTC;
-
 @Slf4j
 public class MappingUtils {
 
@@ -87,7 +84,7 @@ public class MappingUtils {
             }
             //TCOMP-2293 support Instant
             if (Instant.class.isInstance(value) && ZonedDateTime.class == expectedType) {
-                return ZonedDateTime.ofInstant((Instant) value, ZoneId.of("UTC"));
+                return ZonedDateTime.ofInstant((Instant)value, UTC);
             }
             if (value instanceof long[]) {
                 final Instant instant = Instant.ofEpochSecond(((long[])value)[0], ((long[])value)[1]);
