@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.json.Json;
@@ -54,6 +56,7 @@ import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
+import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.test.ComponentClient;
 
 import lombok.AllArgsConstructor;
@@ -121,6 +124,8 @@ public class ValidationServiceTest {
 
 
     public CompletionStage<Result> validate(final ConfigTypeNode config, final JsonObject properties) throws Exception {
+        findActiveIf(config, properties);
+
         return getValidator(config)
                 .thenApply(validator -> validator.apply(properties))
                 .thenApply(vr -> new Result(vr
@@ -155,6 +160,46 @@ public class ValidationServiceTest {
                 .thenApply(factory::newInstance);
     }
 
+    private void findActiveIf(final ConfigTypeNode config, JsonObject properties) {
+        //TCOMP-2260: find out all activeIf's target , and its value in jsonObject; if it is not active, clear its validation
+        config
+                .getProperties()
+                .stream()
+                .filter(p -> p.getMetadata().get("condition::if::target") != null)
+                .forEach(simplePropertyDefinition -> {
+                    if (isNotActive(simplePropertyDefinition, properties))
+                        simplePropertyDefinition.setValidation(null);
+                });
+    }
+
+    //should own the same first parent.
+    // 1) A.B.C depends on A.B.D, A.B -> A.C :support
+    // 2) A.B.C depends on A.D.E : TO  check
+    private boolean isNotActive(final SimplePropertyDefinition simplePropertyDefinition, final JsonObject properties) {
+        String[] targetPath = simplePropertyDefinition.getMetadata().get("condition::if::target").split("\\.");
+        String[] selfPath = simplePropertyDefinition.getPath().split("\\.");
+        String targetValue = simplePropertyDefinition.getMetadata().get("condition::if::value");
+
+        AtomicBoolean isNotActive = new AtomicBoolean(false);
+        AtomicReference<JsonObject> object = new AtomicReference<>(properties);
+        Arrays.stream(selfPath).forEach( onePath -> {
+            Arrays.stream(targetPath).forEach( targetP -> {
+                if (object.get().get(onePath) != null) {
+                    if(object.get().get(onePath).getValueType().equals(JsonValue.ValueType.OBJECT)) {
+                        object.set(object.get().get(onePath).asJsonObject());
+                    } else {
+                        if (object.get().get(targetP) != null) {
+                            String str = object.get().get(targetP).toString();
+                            isNotActive.set(str.contains(targetValue));
+                        }
+                    }
+                }
+            });
+        });
+
+        return !isNotActive.get();
+    }
+
     @BeforeEach
     void setup() throws Exception {
         details = base
@@ -173,13 +218,14 @@ public class ValidationServiceTest {
     private void checkAsserts(JsonObject payload, List<ValidationError> expected) throws Exception {
         Result errors = validate(connection, payload).toCompletableFuture().get();
 
-        System.out.println("===");
+        System.err.println(" ====== "+ expected.size());
         long ecnt = errors.getErrors().stream()
                 .peek(e -> log.warn("[checkAsserts] {}", e))
                 .filter(e -> !expected.contains(e))
                 .peek(e -> log.error("[checkAsserts]Validation uncaught: {}", e))
                 //   .map(e-> fail(e))
                 .count();
+//        System.out.println("Actual errors: "+ errors.getErrors().size() + ", uncaught errors: " + ecnt);
         expected.stream().forEach(e -> assertTrue(errors.getErrors().contains(e)));
     }
 
@@ -210,7 +256,7 @@ public class ValidationServiceTest {
             payload = factory.createObjectBuilder()
                     .add("configuration", factory.createObjectBuilder()
                             .add("connectn", "").build()).build();
-            checkAsserts(payload, Arrays.asList(conn, valueEval));
+            checkAsserts(payload, Arrays.asList(conn));
             /**
              * min/max
              **/
@@ -219,14 +265,14 @@ public class ValidationServiceTest {
                             .add("connection", JsonValue.NULL)
                             .add("limit", 1))
                     .build();
-            checkAsserts(payload, Arrays.asList(min, valueEval, conn));
+            checkAsserts(payload, Arrays.asList(min, conn));
 
             payload = factory.createObjectBuilder()
                     .add("configuration", factory.createObjectBuilder()
                             .add("connection", JsonValue.NULL)
                             .add("limit", 1000))
                     .build();
-            checkAsserts(payload, Arrays.asList(max, valueEval, conn));
+            checkAsserts(payload, Arrays.asList(max, conn));
             /*
              * url0 pattern
              */
@@ -235,7 +281,7 @@ public class ValidationServiceTest {
                             .add("connection", factory.createObjectBuilder()
                                     .add("url0", "mailto://toto@titi.org").build())
                             .build()).build();
-            checkAsserts(payload, Arrays.asList(url0, valueEval, username, password, url1Required, activedIfs));
+            checkAsserts(payload, Arrays.asList(url0, username, url1Required, activedIfs));
             /*
              * url1
              */
@@ -244,13 +290,14 @@ public class ValidationServiceTest {
                             .add("connection", factory.createObjectBuilder()
                                     .add("url1", "mailto://toto@titi.org").build())
                             .build()).build();
-            checkAsserts(payload, Arrays.asList(valueEval, username, url1Patten, password, activedIfs));
+            checkAsserts(payload, Arrays.asList(username, url1Patten, activedIfs));
+
             payload = factory.createObjectBuilder()
                     .add("configuration", factory.createObjectBuilder()
                             .add("connection", factory.createObjectBuilder()
                                     .add("url101", "mailto://toto@titi.org").build())
                             .build()).build();
-            checkAsserts(payload, Arrays.asList(valueEval, username, url1Required, password, activedIfs));
+            checkAsserts(payload, Arrays.asList(username, url1Required, activedIfs));
 
             /*
              * uniques
@@ -264,19 +311,7 @@ public class ValidationServiceTest {
                                     .build())
                             .add("limit", 100))
                     .build();
-            checkAsserts(payload, Arrays.asList(valueEval, username, url1Required, password, activedIfs));
-
-            /*
-             * password : @ActiveIf(target = "username", evaluationStrategy = ActiveIf.EvaluationStrategy.CONTAINS, value = "undx")
-             */
-
-            /*
-             *   valueEval     @ActiveIf(target = "checkbox1", value = "true")
-             *
-             *  TODO Fails
-             *
-             */
-
+            checkAsserts(payload, Arrays.asList(username, url1Required, activedIfs));
 
             /*
              * uniqVals
@@ -295,7 +330,7 @@ public class ValidationServiceTest {
                             .add("limit", 100))
                     .build();
 
-            checkAsserts(payload, Arrays.asList(uniqVals, valueEval, username, password, activedIfs, url1Required));
+            checkAsserts(payload, Arrays.asList(uniqVals, username, activedIfs, url1Required));
 
             payload = factory.createObjectBuilder()
                     .add("configuration", factory.createObjectBuilder()
@@ -311,8 +346,92 @@ public class ValidationServiceTest {
                             .add("limit", 100))
                     .build();
 
-            checkAsserts(payload, Arrays.asList(valueEval, username, password, activedIfs, url1Required));
+            checkAsserts(payload, Arrays.asList(username, activedIfs, url1Required));
         }
+
+    @Test
+    void testValidation_activeIf () throws Exception {
+        final JsonBuilderFactory factory = Json.createBuilderFactory(emptyMap());
+        //
+        ValidationError url1Required = new ValidationError("/configuration/connection", "url1 is required and is not present");
+        ValidationError valueEval = new ValidationError("/configuration/connection/valueEval", "Invalid value, got null, expected: [\"VALUE_1\",\"VALUE_2\",\"VALUE_3\"]");
+        ValidationError password = new ValidationError("/configuration/connection", "password is required and is not present");
+        ValidationError activedIfs = new ValidationError("/configuration/connection", "activedIfs is required and is not present");
+
+        JsonObject payload;
+
+        /*
+         * password : @ActiveIf(target = "username", evaluationStrategy = ActiveIf.EvaluationStrategy.CONTAINS, value = "undx")
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "undx")
+                                .add("password", JsonValue.NULL).build())
+                        .build()).build();
+        checkAsserts(payload, Arrays.asList(url1Required, activedIfs, password));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
+                                .add("password", JsonValue.NULL).build())
+                        .build()).build();
+        checkAsserts(payload, Arrays.asList(url1Required, activedIfs));
+
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "undx")
+                                .add("password", "abc").build())
+                        .build()).build();
+        checkAsserts(payload, Arrays.asList(url1Required, activedIfs));
+    }
+
+    @Test
+    void testValidation_activeIf_2 () throws Exception {
+        final JsonBuilderFactory factory = Json.createBuilderFactory(emptyMap());
+        //
+        ValidationError url1Required = new ValidationError("/configuration/connection", "url1 is required and is not present");
+        ValidationError valueEval = new ValidationError("/configuration/connection/valueEval", "Invalid value, got null, expected: [\"VALUE_1\",\"VALUE_2\",\"VALUE_3\"]");
+        ValidationError password = new ValidationError("/configuration/connection", "password is required and is not present");
+        ValidationError activedIfs = new ValidationError("/configuration/connection", "activedIfs is required and is not present");
+
+        JsonObject payload;
+
+
+        /*
+         *   valueEval     @ActiveIf(target = "checkbox1", value = "true")
+         *
+         *  TODO Fails
+         *
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("valueEval", JsonValue.NULL).build())
+                        .build()).build();
+        checkAsserts(payload, Arrays.asList(url1Required, activedIfs, valueEval));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("checkbox1", JsonValue.FALSE)
+                                .add("valueEval", JsonValue.NULL).build())
+                        .build()).build();
+        checkAsserts(payload, Arrays.asList(url1Required, activedIfs));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("valueEval", "VALUE_2").build())
+                       .build()).build();
+        checkAsserts(payload, Arrays.asList(url1Required, activedIfs));
+
+    }
 
 
     }
