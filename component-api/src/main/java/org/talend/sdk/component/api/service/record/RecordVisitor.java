@@ -82,6 +82,10 @@ public interface RecordVisitor<T> extends Supplier<T>, BinaryOperator<T> {
         // no-op
     }
 
+    default void onObject(final Schema.Entry entry, final Optional<Object> object) {
+        // no-op
+    }
+
     default void onDatetime(final Schema.Entry entry, final Optional<ZonedDateTime> dateTime) {
         // no-op
     }
