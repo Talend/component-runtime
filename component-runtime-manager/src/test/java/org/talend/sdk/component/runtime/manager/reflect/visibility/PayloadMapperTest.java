@@ -94,6 +94,24 @@ class PayloadMapperTest {
                 + "\"other\":{\"value\":\"done\"},\"simple\":\"rs\",\"strings\":[\"rs1\"]}}", value.toString());
     }
 
+    @Test
+    void filters() throws NoSuchMethodException {
+        final List<ParameterMeta> params = service
+                .buildParameterMetas(
+                        MethodsHolder.class.getMethod("visibility", MethodsHolder.FilterConfiguration.class), "def",
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Map<String, String> payload = new TreeMap<>();
+        payload.put("configuration.logicalOpType", "ALL");
+        payload.put("configuration.filters[0].columnName", "col0");
+        payload.put("configuration.filters[0].operator", "IS_NULL");
+        payload.put("configuration.filters[0].value", "");
+        final JsonValue value = extractorFactory.visitAndMap(params, payload);
+        System.out.println(value.toString());
+        assertEquals(
+                "{\"configuration\":{\"filters\":[{\"columnName\":\"col0\",\"operator\":\"IS_NULL\",\"value\":\"\"}],\"logicalOpType\":\"ALL\"}}",
+                value.toString());
+    }
+
     public static class OtherObject {
 
         @Option

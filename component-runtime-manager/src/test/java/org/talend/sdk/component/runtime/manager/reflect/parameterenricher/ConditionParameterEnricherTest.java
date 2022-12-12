@@ -317,4 +317,175 @@ class ConditionParameterEnricherTest {
             }
         }));
     }
+
+    @Test
+    void activeIfsOnSameTarget() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::condition::ifs::operator", "AND");
+                put("tcomp::condition::if::target::0", "filter.operator");
+                put("tcomp::condition::if::value::0", "IS_NULL");
+                put("tcomp::condition::if::negate::0", "true");
+                put("tcomp::condition::if::evaluationStrategy::0", "DEFAULT");
+                put("tcomp::condition::if::target::1", "filter.operator");
+                put("tcomp::condition::if::value::1", "IS_NOT_NULL");
+                put("tcomp::condition::if::negate::1", "true");
+                put("tcomp::condition::if::evaluationStrategy::1", "DEFAULT");
+                put("tcomp::condition::if::target::2", "filter.operator");
+                put("tcomp::condition::if::value::2", "IS_EMPTY");
+                put("tcomp::condition::if::negate::2", "true");
+                put("tcomp::condition::if::evaluationStrategy::2", "DEFAULT");
+                put("tcomp::condition::if::target::3", "filter.operator");
+                put("tcomp::condition::if::value::3", "IS_NOT_EMPTY");
+                put("tcomp::condition::if::negate::3", "true");
+                put("tcomp::condition::if::evaluationStrategy::3", "DEFAULT");
+            }
+        }, new ConditionParameterEnricher().onParameterAnnotation("testParam", String.class, new ActiveIfs() {
+
+            @Override
+            public Operator operator() {
+                return Operator.AND;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return ActiveIfs.class;
+            }
+
+            @Override
+            public ActiveIf[] value() {
+                return new ActiveIf[] {
+                        new ActiveIf() {
+
+                            @Override
+                            public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                                return new EvaluationStrategyOption[0];
+                            }
+
+                            @Override
+                            public String target() {
+                                return "filter.operator";
+                            }
+
+                            @Override
+                            public boolean negate() {
+                                return true;
+                            }
+
+                            @Override
+                            public EvaluationStrategy evaluationStrategy() {
+                                return EvaluationStrategy.DEFAULT;
+                            }
+
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return ActiveIf.class;
+                            }
+
+                            @Override
+                            public String[] value() {
+                                return new String[] { "IS_NULL" };
+                            }
+                        },
+                        new ActiveIf() {
+
+                            @Override
+                            public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                                return new EvaluationStrategyOption[0];
+                            }
+
+                            @Override
+                            public String target() {
+                                return "filter.operator";
+                            }
+
+                            @Override
+                            public boolean negate() {
+                                return true;
+                            }
+
+                            @Override
+                            public EvaluationStrategy evaluationStrategy() {
+                                return EvaluationStrategy.DEFAULT;
+                            }
+
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return ActiveIf.class;
+                            }
+
+                            @Override
+                            public String[] value() {
+                                return new String[] { "IS_NOT_NULL" };
+                            }
+                        },
+                        new ActiveIf() {
+
+                            @Override
+                            public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                                return new EvaluationStrategyOption[0];
+                            }
+
+                            @Override
+                            public String target() {
+                                return "filter.operator";
+                            }
+
+                            @Override
+                            public boolean negate() {
+                                return true;
+                            }
+
+                            @Override
+                            public EvaluationStrategy evaluationStrategy() {
+                                return EvaluationStrategy.DEFAULT;
+                            }
+
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return ActiveIf.class;
+                            }
+
+                            @Override
+                            public String[] value() {
+                                return new String[] { "IS_EMPTY" };
+                            }
+                        },
+                        new ActiveIf() {
+
+                            @Override
+                            public EvaluationStrategyOption[] evaluationStrategyOptions() {
+                                return new EvaluationStrategyOption[0];
+                            }
+
+                            @Override
+                            public String target() {
+                                return "filter.operator";
+                            }
+
+                            @Override
+                            public boolean negate() {
+                                return true;
+                            }
+
+                            @Override
+                            public EvaluationStrategy evaluationStrategy() {
+                                return EvaluationStrategy.DEFAULT;
+                            }
+
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return ActiveIf.class;
+                            }
+
+                            @Override
+                            public String[] value() {
+                                return new String[] { "IS_NOT_EMPTY" };
+                            }
+                        }
+                };
+            }
+        }));
+    }
 }
