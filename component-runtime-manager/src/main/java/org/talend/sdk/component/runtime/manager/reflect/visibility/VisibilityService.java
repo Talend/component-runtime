@@ -29,6 +29,7 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonPointer;
@@ -40,6 +41,7 @@ import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @RequiredArgsConstructor
 public class VisibilityService {
@@ -63,7 +65,8 @@ public class VisibilityService {
                     final String negateKey = "tcomp::condition::if::negate" + index;
                     final String evaluationStrategyKey = "tcomp::condition::if::evaluationStrategy" + index;
                     final String absoluteTargetPath = pathResolver.resolveProperty(param.getPath(), meta.getValue());
-                    return new Condition(toPointer(absoluteTargetPath),
+                    return new Condition('/' + absoluteTargetPath.replace('.', '/'),
+                            toPointer(absoluteTargetPath),
                             Boolean.parseBoolean(param.getMetadata().getOrDefault(negateKey, "false")),
                             param.getMetadata().getOrDefault(evaluationStrategyKey, "DEFAULT").toUpperCase(ROOT),
                             param.getMetadata().getOrDefault(valueKey, "true").split(","));
@@ -119,12 +122,15 @@ public class VisibilityService {
     }
 
     @RequiredArgsConstructor(access = PRIVATE)
+    @ToString
     public static class Condition {
 
         private static final Function<Object, String> TO_STRING = v -> v == null ? null : String.valueOf(v);
 
         private static final Function<Object, String> TO_LOWERCASE =
                 v -> v == null ? null : String.valueOf(v).toLowerCase(ROOT);
+
+        private final String path;
 
         private final JsonPointer pointer;
 
@@ -142,6 +148,9 @@ public class VisibilityService {
             final Object actual = extractValue(payload);
             switch (evaluationStrategy) {
             case "DEFAULT":
+                if (Collection.class.isInstance(actual)) {
+                    return Collection.class.cast(actual).contains(expected);
+                }
                 return expected.equals(TO_STRING.apply(actual));
             case "LENGTH":
                 if (actual == null) {
@@ -209,10 +218,22 @@ public class VisibilityService {
 
         private Object extractValue(final JsonObject payload) {
             if (!pointer.containsValue(payload)) {
+                if (path.contains("[${index}]")) {
+                    final JsonPointer ptr = JsonProvider.provider()
+                            .createPointer(path.substring(0, path.indexOf("[${index}]")));
+                    final JsonPointer subptr = JsonProvider.provider()
+                            .createPointer(path.substring(path.indexOf("]") + 1));
+                    final JsonArrayBuilder builder = JsonProvider.provider().createArrayBuilder();
+                    ptr.getValue(payload)
+                            .asJsonArray()
+                            .stream()
+                            .forEach(j -> builder.add(subptr.getValue(j.asJsonObject())));
+                    // TODO comment to activate initial behavior / remove comments to activate start of fix
+                    //return ofNullable(builder.build()).map(this::mapValue).orElse(null);
+                }
                 return null;
             }
             return ofNullable(pointer.getValue(payload)).map(this::mapValue).orElse(null);
-
         }
 
         private Object mapValue(final JsonValue value) {
