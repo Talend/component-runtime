@@ -15,6 +15,7 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.Assert.assertTrue;
@@ -29,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.json.Json;
@@ -42,6 +44,7 @@ import javax.ws.rs.client.WebTarget;
 import org.apache.johnzon.jsonschema.JsonSchemaValidator;
 import org.apache.johnzon.jsonschema.JsonSchemaValidatorFactory;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.form.api.Client;
@@ -54,6 +57,10 @@ import org.talend.sdk.component.form.internal.validation.JsonSchemaValidatorFact
 import org.talend.sdk.component.form.model.Ui;
 import org.talend.sdk.component.form.model.jsonschema.JsonSchema;
 import org.talend.sdk.component.form.model.uischema.UiSchema;
+import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
+import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
+import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
@@ -160,7 +167,9 @@ public class ValidationServiceTest {
                 .thenApply(factory::newInstance);
     }
 
-    private void findActiveIf(final ConfigTypeNode config, JsonObject properties) {
+    private void findActiveIf(final ConfigTypeNode config, JsonObject properties) throws NoSuchMethodException {
+        extracted(config.getProperties().get(0));
+        extracted(config.getProperties().get(1));
         //TCOMP-2260: find out all activeIf's target , and its value in jsonObject; if it is not active, clear its validation
         config
                 .getProperties()
@@ -170,6 +179,18 @@ public class ValidationServiceTest {
                     if (isNotActive(simplePropertyDefinition, properties))
                         simplePropertyDefinition.setValidation(null);
                 });
+    }
+
+    private static void extracted(final SimplePropertyDefinition properties) throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+//        final List<ParameterMeta> metas = service
+//                .buildParameterMetas(SimplePropertyDefinition.class.getMethod("getMetadata"),
+//                        "", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "server")));
+        final List<ParameterMeta> metas2 = service.buildParameterMetas(Stream.of(new ParameterModelService.Param(SimplePropertyDefinition.class, SimplePropertyDefinition.class.getAnnotations(), properties.getName())),
+                        SimplePropertyDefinition.class,
+                    ofNullable(SimplePropertyDefinition.class.getPackage()).map(Package::getName).orElse(""), true,
+                        new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "server-model")));
+        System.err.println("size: " + metas2.size());
     }
 
     //should own the same first parent.
@@ -213,8 +234,19 @@ public class ValidationServiceTest {
         Ui ui = uiSpecService.convert(family, lang, connection, null).toCompletableFuture().get();
         jsonSchema = ui.getJsonSchema();
         uiSchemas = ui.getUiSchema();
+        int i = 0;
     }
 
+    @Test
+    public void test1(){
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+            final List<ParameterMeta> metas2 = service.buildParameterMetas(Stream.of(new ParameterModelService.Param(JsonSchema.class,
+                        JsonSchema.class.getAnnotations(), jsonSchema.getTitle())),
+                JsonSchema.class,
+                ofNullable(JsonSchema.class.getPackage()).map(Package::getName).orElse(""), true,
+                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "server-model")));
+            System.err.println("size: " + metas2.size());
+    }
     private void checkAsserts(JsonObject payload, List<ValidationError> expected) throws Exception {
         Result errors = validate(connection, payload).toCompletableFuture().get();
 
