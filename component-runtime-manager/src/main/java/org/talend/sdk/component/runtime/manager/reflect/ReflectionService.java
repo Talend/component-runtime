@@ -208,17 +208,21 @@ public class ReflectionService {
 
         return config -> {
             final Map<String, String> notNullConfig = ofNullable(config).orElseGet(Collections::emptyMap);
-            final PayloadValidator visitor = new PayloadValidator();
-            if (!visitor.skip) {
-                visitor.globalPayload = new PayloadMapper((a, b) -> {
-                }).visitAndMap(metas, notNullConfig);
-                final PayloadMapper payloadMapper = new PayloadMapper(visitor);
-                payloadMapper.setGlobalPayload(visitor.globalPayload);
-                payloadMapper.visitAndMap(metas, notNullConfig);
-                visitor.throwIfFailed();
-            }
+            checkPayload(metas, notNullConfig);
             return factories.stream().map(f -> f.apply(notNullConfig)).toArray(Object[]::new);
         };
+    }
+
+    public static void checkPayload(List<ParameterMeta> metas, Map<String, String> notNullConfig) {
+        final PayloadValidator visitor = new PayloadValidator();
+        if (!visitor.skip) {
+            visitor.globalPayload = new PayloadMapper((a, b) -> {
+            }).visitAndMap(metas, notNullConfig);
+            final PayloadMapper payloadMapper = new PayloadMapper(visitor);
+            payloadMapper.setGlobalPayload(visitor.globalPayload);
+            payloadMapper.visitAndMap(metas, notNullConfig);
+            visitor.throwIfFailed();
+        }
     }
 
     public Function<Supplier<Object>, Object> createContextualSupplier(final ClassLoader loader) {
