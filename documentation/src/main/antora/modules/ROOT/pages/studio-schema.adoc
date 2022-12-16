@@ -1,7 +1,7 @@
 = Studio schema
 :page-partial:
 :description: How to access studio's schema in your component.
-:keywords: studio, studio-integration, schema, metadata, dynamic, columns, output, sink, connector, record-schema
+:keywords: studio, studio-integration, schema, metadata, dynamic, columns, output, sink, connector, record-schema, guess, discover, guess-schema, discover-schema
 
 == Dynamic schema
 
@@ -132,6 +132,115 @@ public void process(final Record input) {
 ----
 
 NOTE: This usage of properties is cumbersome but may fix some potential issues for now. We plan to widen managed types in Record and Schema in a few iterations (No ETA defined yet).
+
+== Discovering schema (Guess schema)
+
+There are two annotations allowing to discover a component's schema:
+
+- `@DiscoverSchema` (only for _input_ components)
+- `@DiscoverSchemaExtended` (all components)
+
+=== Using the `@DiscoverSchema` annotation
+
+[source,java]
+----
+@Service
+public class UiServices {
+
+    @DiscoverSchema("MyDataSet")
+    public Schema guessSchema(@Option final MyDataSet dataset) {
+       // some code
+       retrurn factory.newSchemaBuilder(Schema.Type.RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withName("DataSetor")
+                        .withType(Schema.Type.STRING)
+                        .withNullable(true)
+                        .build())
+       // building some entries
+                .withEntry(factory.newEntryBuilder()
+                        .withName("effective_date")
+                        .withType(Schema.Type.DATETIME)
+                        .withNullable(true)
+                        .withComment("Effective date of purchase")
+                        .build())
+                .build();
+    }
+}
+----
+
+=== Using the `@DiscoverSchemaExtended` annotation
+
+Prototype:
+
+[source,java]
+----
+/**
+ *
+ * @param incomingSchema the schema of the input flow
+ * @param conf the configuration of the processor (not a @Dataset)
+ * @param branch the name of the output flow for which the the computed schema is expected (FLOW, MAIN, REJECT, etc.)
+ * @return
+ */
+@DiscoverSchemaExtended("full")
+public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf, final String branch) {...}
+
+@DiscoverSchemaExtended("incoming_schema")
+public Schema guessMethodName(final Schema incomingSchema, final @Option procConf) {...}
+
+@DiscoverSchemaExtended("branch")
+public Schema guessMethodName(final @Option("configuration") procConf, final String branch) {...}
+
+@DiscoverSchemaExtended("minimal")
+public Schema guessMethodName(final @Option procConf) {...}
+----
+
+NOTE: As you may pass other parameters to method, ensure to use the above naming : _incomingSchema_ for the schema and _branch_ for the outgoing branch.
+
+Example:
+[source,java]
+----
+    @DiscoverSchemaExtended("MyProcessorSchema")
+    public Schema discoverProcessorSchema(final Schema incomingSchema, @Option final MyProcessorConfiguration configuration, final String branch) {
+        final Schema.Builder outgoingSchema = factory.newSchemaBuilder(incomingSchema);
+        outgoingSchema.withEntry(factory.newEntryBuilder()
+                .withName("RejectorProcessorSchema")
+                .withType(Type.STRING)
+                .build());
+        outgoingSchema.withEntry(factory.newEntryBuilder()
+                .withName(branch)
+                .withType(Type.FLOAT)
+                .withComment(infos)
+                .withProp(org.talend.sdk.component.api.record.SchemaProperty.SIZE, "10")
+                .withProp(org.talend.sdk.component.api.record.SchemaProperty.SCALE, "3")
+                .build());
+        if ("REJECT".equals(branch.toUpperCase())) {
+            outgoingSchema.withEntry(factory.newEntryBuilder()
+                    .withName("ERROR_MESSAGE")
+                    .withType(Type.STRING)
+                    .withDefaultValue(code)
+                    .build());
+        }
+        return outgoingSchema.build();
+    }
+----
+
+
+=== Guess schema action selection
+
+==== For inputs
+
+. Try to find an action in declared Service class
+.. search an action of type `@DiscoverSchema` named like the input dataset.
+.. search an action of type `@DiscoverSchemaExtended` named like the input dataset.
+.. search an action of type `@DiscoverSchema`.
+. Execute a fake job with component to retrieve output schema.
+
+==== For processors
+
+. Try to find an action in declared Service class
+.. search an action of type `@DiscoverSchemaExtended` named like the input dataset.
+.. search an action of type `@DiscoverSchemaExtended`.
+
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
