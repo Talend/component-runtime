@@ -1,3 +1,10 @@
+== Version 1.38.7
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2294[TCOMP-2294^]: Upgrade batik to 1.16
+- link:https://jira.talendforge.org/browse/TCOMP-2295[TCOMP-2295^]: Upgrade tomcat to 9.0.68
+
 == Version 1.38.6
 
 === New Feature
