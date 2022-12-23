@@ -74,6 +74,10 @@ public interface Schema {
      */
     Stream<Entry> getAllEntries();
 
+    default LogicalType getLogicalType() {
+        throw new UnsupportedOperationException("#getLogicalType is not implemented");
+    }
+
     /**
      * Get a Builder from the current schema.
      *
@@ -218,6 +222,10 @@ public interface Schema {
          */
         Type getType();
 
+        default LogicalType getLogicalType() {
+            throw new UnsupportedOperationException("#getLogicalType is not implemented");
+        }
+
         /**
          * @return Is this entry nullable or always valued.
          */
@@ -295,6 +303,10 @@ public interface Schema {
 
             Builder withType(Type type);
 
+            default Builder withLogicalType(LogicalType logicalType) {
+                throw new UnsupportedOperationException("#withLogicalType is not implemented");
+            }
+
             Builder withNullable(boolean nullable);
 
             Builder withMetadata(boolean metadata);
@@ -324,6 +336,10 @@ public interface Schema {
          * @return this builder.
          */
         Builder withType(Type type);
+
+        default Builder withLogicalType(LogicalType logicalType) {
+            throw new UnsupportedOperationException("#withLogicalType is not implemented");
+        }
 
         /**
          * @param entry element for either an array or record type.

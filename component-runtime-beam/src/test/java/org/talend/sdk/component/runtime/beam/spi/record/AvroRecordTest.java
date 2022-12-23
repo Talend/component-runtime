@@ -31,14 +31,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 
 import javax.json.Json;
@@ -62,6 +59,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.talend.sdk.component.api.record.LogicalType;
+import org.talend.sdk.component.api.record.LogicalTypes;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
@@ -416,6 +415,91 @@ class AvroRecordTest {
                 pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
         final PCollection<Record> output = input.apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
+    }
+
+    @Test
+    void testLogicalType() {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
+
+        final Schema.Entry f1 = factory.newEntryBuilder()
+                .withType(Schema.Type.STRING)
+                .withLogicalType(LogicalTypes.uuid())
+                .withName("uuidColumn")
+                .withNullable(true)
+                .build();
+
+        final Schema.Entry f2 = factory.newEntryBuilder()
+                .withType(Schema.Type.LONG)
+                .withLogicalType(LogicalTypes.date())
+                .withName("dateColumn")
+                .withNullable(true)
+                .build();
+
+        final Schema.Entry f3 = factory.newEntryBuilder()
+                .withType(Schema.Type.LONG)
+                .withLogicalType(LogicalTypes.timeNanos())// TODO consider how to store nano together
+                .withName("timeColumn")
+                .withNullable(true)
+                .build();
+
+        final Schema.Entry f4 = factory.newEntryBuilder()
+                .withType(Schema.Type.LONG)
+                .withLogicalType(LogicalTypes.timestampNanos())// TODO consider how to store nano together
+                .withName("timestampColumn")
+                .withNullable(true)
+                .build();
+
+        final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+                .withEntry(f1)
+                .withEntry(f2)
+                .withEntry(f3)
+                .withEntry(f4)
+                .build();
+
+        final Record.Builder builder = factory.newRecordBuilder(schema);
+
+        UUID uuid = UUID.randomUUID();
+        builder.withString("uuidColumn", uuid.toString());
+
+        Instant instant = Instant.now();
+        builder.withLong("dateColumn", instant.toEpochMilli());
+
+        builder.withLong("timeColumn", instant.toEpochMilli());
+
+        builder.withLong("timestampColumn", instant.toEpochMilli());
+
+        Record rec1 = builder.build();
+
+        Schema sch1 = rec1.getSchema();
+        for (Schema.Entry entry : sch1.getEntries()) {
+            Schema.Type type = entry.getType();
+            LogicalType logicalType = entry.getLogicalType();
+            if (type == Schema.Type.STRING) {
+                if (logicalType == LogicalTypes.uuid()) {
+                    // TODO can provide some api like getUUID, but not sure in Record interface
+                    UUID value = UUID.fromString(rec1.getString(entry.getName()));
+                    Assertions.assertEquals(uuid, value);
+                } else {
+                    // TODO
+                }
+            } else if (type == Schema.Type.LONG) {
+                if (logicalType == LogicalTypes.date()) {
+                    // TODO can provide some api like getDate, but not sure in Record interface
+                    Instant value = Instant.ofEpochMilli(rec1.getLong(entry.getName()));
+                    // here user can do format by logicalType
+                    System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(new Date(value.toEpochMilli())));
+                } else if (logicalType == LogicalTypes.timeNanos()) {
+                    Instant value = Instant.ofEpochMilli(rec1.getLong(entry.getName()));
+                    System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date(value.toEpochMilli())));
+                } else if (logicalType == LogicalTypes.timestampNanos()) {
+                    Instant value = Instant.ofEpochMilli(rec1.getLong(entry.getName()));
+                    System.out.println(
+                            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(value.toEpochMilli())));
+                }
+            } else {
+                // TODO
+            }
+        }
     }
 
     @Test

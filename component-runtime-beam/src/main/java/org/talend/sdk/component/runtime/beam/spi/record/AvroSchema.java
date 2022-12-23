@@ -33,6 +33,7 @@ import javax.json.bind.annotation.JsonbTransient;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
+import org.talend.sdk.component.api.record.LogicalType;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
@@ -67,6 +68,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     private List<Entry> metadataEntries;
 
     private Type type;
+
+    private LogicalType logicalType;
 
     private Schema actualDelegate;
 
@@ -189,6 +192,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 .withName(field.name()) //
                 .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
                 .withType(type) //
+                .withLogicalType(org.talend.sdk.component.api.record.LogicalTypes
+                        .get(field.getProp(LogicalType.LOGICAL_TYPE_PROP))) //
                 .withNullable(field.schema().getType() == UNION) //
                 .withMetadata(AvroSchema.isMetadata(field)) //
                 .withDefaultValue(field.defaultVal()) //

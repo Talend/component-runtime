@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
+import org.talend.sdk.component.api.record.LogicalType;
 import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
@@ -401,6 +402,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
             }
             if (entry.getRawName() != null) {
                 field.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
+            }
+            if (entry.getLogicalType() != null) {
+                field.addProp(LogicalType.LOGICAL_TYPE_PROP, entry.getLogicalType().getName());
             }
             entry.getProps().forEach((k, v) -> field.addProp(k, v));
 

@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
+import org.talend.sdk.component.api.record.LogicalType;
 import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
 
@@ -43,6 +44,9 @@ public class SchemaImpl implements Schema {
 
     @Getter
     private final Type type;
+
+    @Getter
+    private final LogicalType logicalType;
 
     @Getter
     private final Schema elementSchema;
@@ -63,6 +67,7 @@ public class SchemaImpl implements Schema {
 
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
         this.type = builder.type;
+        this.logicalType = builder.logicalType;
         this.elementSchema = builder.elementSchema;
         this.entries = unmodifiableList(builder.entries.streams().collect(toList()));
         this.metadataEntries = unmodifiableList(builder.metadataEntries.streams().collect(toList()));
@@ -83,7 +88,7 @@ public class SchemaImpl implements Schema {
                 ? this.metadataEntries.stream().map(Entry::getName).collect(joining(","))
                 : "";
 
-        return Objects.hash(this.type, this.elementSchema, e1, m1);
+        return Objects.hash(this.type, this.logicalType, this.elementSchema, e1, m1);
     }
 
     @Override
@@ -99,6 +104,7 @@ public class SchemaImpl implements Schema {
             return false;
         }
         return Objects.equals(this.type, other.type)
+                && Objects.equals(this.logicalType, other.logicalType)
                 && Objects.equals(this.elementSchema, other.elementSchema)
                 && Objects.equals(this.entries, other.entries)
                 && Objects.equals(this.metadataEntries, other.metadataEntries)
@@ -129,6 +135,7 @@ public class SchemaImpl implements Schema {
     public Builder toBuilder() {
         final Builder builder = new BuilderImpl()
                 .withType(this.type)
+                .withLogicalType(this.logicalType)
                 .withElementSchema(this.elementSchema)
                 .withProps(this.props
                         .entrySet()
@@ -163,6 +170,8 @@ public class SchemaImpl implements Schema {
 
         private Type type;
 
+        private LogicalType logicalType;
+
         private Schema elementSchema;
 
         private final OrderedMap<Schema.Entry> entries = new OrderedMap<>(Schema.Entry::getName);
@@ -185,6 +194,12 @@ public class SchemaImpl implements Schema {
         @Override
         public Builder withType(final Type type) {
             this.type = type;
+            return this;
+        }
+
+        @Override
+        public Builder withLogicalType(final LogicalType logicalType) {
+            this.logicalType = logicalType;
             return this;
         }
 
@@ -340,6 +355,7 @@ public class SchemaImpl implements Schema {
             this.name = builder.name;
             this.rawName = builder.rawName;
             this.type = builder.type;
+            this.logicalType = builder.logicalType;
             this.nullable = builder.nullable;
             this.metadata = builder.metadata;
             this.defaultValue = builder.defaultValue;
@@ -362,6 +378,8 @@ public class SchemaImpl implements Schema {
          * Type of the entry, this determine which other fields are populated.
          */
         private final Schema.Type type;
+
+        private final LogicalType logicalType;
 
         /**
          * Is this entry nullable or always valued.
@@ -425,6 +443,11 @@ public class SchemaImpl implements Schema {
         }
 
         @Override
+        public LogicalType getLogicalType() {
+            return this.logicalType;
+        }
+
+        @Override
         public boolean isNullable() {
             return this.nullable;
         }
@@ -465,6 +488,8 @@ public class SchemaImpl implements Schema {
 
             private Schema.Type type;
 
+            private LogicalType logicalType;
+
             private boolean nullable;
 
             private boolean metadata = false;
@@ -485,6 +510,7 @@ public class SchemaImpl implements Schema {
                 this.rawName = entry.getRawName();
                 this.nullable = entry.isNullable();
                 this.type = entry.getType();
+                this.logicalType = entry.getLogicalType();
                 this.comment = entry.getComment();
                 this.elementSchema = entry.getElementSchema();
                 this.defaultValue = entry.getDefaultValue();
@@ -511,6 +537,12 @@ public class SchemaImpl implements Schema {
             @Override
             public Builder withType(final Type type) {
                 this.type = type;
+                return this;
+            }
+
+            @Override
+            public Builder withLogicalType(final LogicalType logicalType) {
+                this.logicalType = logicalType;
                 return this;
             }
 
