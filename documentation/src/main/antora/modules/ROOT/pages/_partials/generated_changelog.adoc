@@ -1,5 +1,11 @@
 
 
+== Version 1.52.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2327[TCOMP-2327^]: Upgrade cxf to 3.5.5
+
 == Version 1.52.0
 
 === Bug
