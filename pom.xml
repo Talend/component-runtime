@@ -170,7 +170,7 @@
     <meecrowave.version>1.2.12</meecrowave.version>
     <owb.version>2.0.23</owb.version>
     <tomcat.version>9.0.68</tomcat.version>
-    <cxf.version>3.4.4</cxf.version>
+    <cxf.version>3.4.10</cxf.version>
     <log4j2.version>2.16.0</log4j2.version>
     
     <woodstox.version>6.4.0</woodstox.version>
