@@ -175,6 +175,8 @@
     <tomcat.version>9.0.68</tomcat.version>
     <cxf.version>3.5.2</cxf.version>
 
+    <woodstox.version>6.4.0</woodstox.version>
+
     <logback.version>1.2.5</logback.version>
     <reload4j.version>1.2.19</reload4j.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
@@ -501,6 +503,13 @@
         <artifactId>openwebbeans-web</artifactId>
         <version>${owb.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.woodstox</groupId>
+        <artifactId>woodstox-core</artifactId>
+        <version>${woodstox.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-features-logging</artifactId>
