@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2327[TCOMP-2327^]: Upgrade cxf to 3.5.5
+- link:https://jira.talendforge.org/browse/TCOMP-2328[TCOMP-2328^]: Upgrade woodstox-core to 6.4.0
 
 == Version 1.52.0
 
