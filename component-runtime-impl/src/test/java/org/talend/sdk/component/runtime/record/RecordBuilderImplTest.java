@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,8 +35,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
@@ -43,6 +46,8 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
+
+import javax.json.bind.annotation.JsonbTransient;
 
 class RecordBuilderImplTest {
 
@@ -73,7 +78,9 @@ class RecordBuilderImplTest {
                 .withNullable(true) //
                 .withType(Type.STRING) //
                 .build();//
-        assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
+
+        // now tck STRING accept any object as TCOMP-2292
+        // assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
 
         builder.with(entry, "value");
         Assertions.assertEquals("value", builder.getValue("name"));
@@ -234,6 +241,76 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void nullDateTime() {
+        Entry entry = new EntryImpl.BuilderImpl().withName("date").withNullable(true).withType(Type.DATETIME).build();
+        final Record record = new RecordImpl.BuilderImpl().with(entry, null).build();
+        // ensure that entry was not skipped
+        assertEquals(1, record.getSchema().getEntries().size());
+        assertNull(record.getDateTime("date"));
+    }
+
+    @Test
+    void decimal() {
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("decimal")
+                        .withNullable(true)
+                        .withType(Schema.Type.DECIMAL)
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withDecimal("decimal", new BigDecimal("123456789.123456789")).build();
+        assertEquals(new BigDecimal("123456789.123456789"), record.getDecimal("decimal"));
+        assertEquals(new BigDecimal("123456789.123456789"), record.get(Object.class, "decimal"));
+        assertEquals("123456789.123456789", record.getString("decimal"));
+    }
+
+    @AllArgsConstructor
+    static class NonSerObject {
+
+        // jsonb.tojson will miss this info as JsonbTransient
+        @JsonbTransient
+        private String content;
+
+        private boolean allowAccessSecretInfo;
+
+        private String secretInfo;
+
+        public String getContent() {
+            return content;
+        }
+
+        // jsonb.tojson default depend on get method, this not work
+        public String getSecretInfo() {
+            if (allowAccessSecretInfo) {
+                return secretInfo;
+            }
+            throw new RuntimeException("this is a secret info, don't allow access");
+        }
+
+    }
+
+    @Test
+    void object() {
+        // jsonb can't process it and also not java Serializable
+        NonSerObject value = new NonSerObject("the content", false, "secret info");
+
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("value")
+                        .withNullable(true)
+                        .withType(Type.STRING)
+                        .withProp(SchemaProperty.STUDIO_TYPE, "id_Object")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.with(schema.getEntry("value"), value).build();
+        assertTrue(value == record.get(Object.class, "value"));
+    }
+
+    @Test
     void array() {
         final Schema schemaArray = new SchemaImpl.BuilderImpl().withType(Schema.Type.STRING).build();
         final Schema.Entry entry = new SchemaImpl.EntryImpl.BuilderImpl()
@@ -309,6 +386,69 @@ class RecordBuilderImplTest {
         assertEquals("semantic-test1", rSchema.getEntries().get(0).getProp("dqType"));
         assertEquals(1, rSchema.getEntries().get(1).getProps().size());
         assertEquals("semantic-test2", rSchema.getEntries().get(1).getProp("dqType"));
+    }
+
+    @Test
+    void withEntryProp() {
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("ID")
+                        .withRawName("THE ID")
+                        .withType(Type.INT)
+                        .withProp(SchemaProperty.IS_KEY, "true")
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "10")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("NAME")
+                        .withType(Type.STRING)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "64")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("PHONE")
+                        .withType(Type.STRING)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR2")
+                        .withProp(SchemaProperty.SIZE, "64")
+                        .withProp(SchemaProperty.IS_UNIQUE, "true")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("CREDIT")
+                        .withType(Type.DECIMAL)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "DECIMAL")
+                        .withProp(SchemaProperty.SIZE, "10")
+                        .withProp(SchemaProperty.SCALE, "2")
+                        .build())
+                .withEntry(new EntryImpl.BuilderImpl()
+                        .withName("ADDRESS_ID")
+                        .withType(Type.INT)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "INT")
+                        .withProp(SchemaProperty.SIZE, "10")
+                        .withProp(SchemaProperty.IS_FOREIGN_KEY, "true")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder
+                .withInt("ID", 1)
+                .withString("NAME", "Wang Wei")
+                .withString("PHONE", "18611111111")
+                .withDecimal("CREDIT", new BigDecimal("123456789.00"))
+                .withInt("ADDRESS_ID", 10101)
+                .build();
+        final Schema rSchema = record.getSchema();
+        assertEquals(schema, rSchema);
+        assertEquals("THE ID", rSchema.getEntry("ID").getOriginalFieldName());
+        assertEquals("true", rSchema.getEntry("ID").getProp(SchemaProperty.IS_KEY));
+        assertEquals("VARCHAR2", rSchema.getEntry("ID").getProp(SchemaProperty.ORIGIN_TYPE));
+        assertEquals("10", rSchema.getEntry("ID").getProp(SchemaProperty.SIZE));
+        assertNull(rSchema.getEntry("ID").getProp(SchemaProperty.SCALE));
+
+        assertEquals("true", rSchema.getEntry("PHONE").getProp(SchemaProperty.IS_UNIQUE));
+
+        assertEquals("2", rSchema.getEntry("CREDIT").getProp(SchemaProperty.SCALE));
+
+        assertEquals("true", rSchema.getEntry("ADDRESS_ID").getProp(SchemaProperty.IS_FOREIGN_KEY));
     }
 
     @Test
@@ -458,6 +598,83 @@ class RecordBuilderImplTest {
                 .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
                         && Type.STRING.equals(e.getType())));
         assertEquals("10", newBuilder.getValue("field2"));
+    }
+
+    @Test
+    void updateEntryByName_fromEntries_withTypeConversion() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "10").withInt("fieldInt", 20);
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(2, entries.size());
+
+        final Entry entry = newEntry("field2", "newFieldName", Type.INT, true, 5, "Comment");
+        builder.updateEntryByName("field1", entry, value -> Integer.valueOf(value.toString()));
+        Assertions.assertEquals(2, builder.getCurrentEntries().size());
+        assertTrue(builder.getCurrentEntries()
+                .stream()
+                .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())));
+        assertEquals(10, builder.getValue("field2"));
+    }
+
+    @Test
+    void updateEntryByName_fromEntries_withTypeConversion_NotCompatible() {
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl();
+        builder.withString("field1", "abc");
+        final List<Entry> entries = builder.getCurrentEntries();
+        Assertions.assertEquals(1, entries.size());
+
+        final Entry entryTypeNotCompatible = newEntry("field2", "newFieldName", Type.INT, true, 5, "Comment");
+        assertThrows(IllegalArgumentException.class, () -> builder.updateEntryByName("field1", entryTypeNotCompatible,
+                value -> Integer.valueOf(value.toString())));
+    }
+
+    @Test
+    void updateEntryByName_fromProvidedSchema_withTypeConversion() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(newEntry("field1", "field1", Type.STRING, true, 5, "Comment"))
+                .build();
+        final RecordImpl.BuilderImpl builder1 = new RecordImpl.BuilderImpl(schema);
+        builder1.with(schema.getEntry("field1"), "10");
+        final List<Entry> entries1 = builder1.getCurrentEntries();
+        Assertions.assertEquals(1, entries1.size());
+        final Entry entry1 = newEntry("field2", "newFieldName", Type.INT, true, 5, "Comment");
+        Record.Builder newBuilder =
+                builder1.updateEntryByName("field1", entry1, value -> Integer.valueOf(value.toString()));
+        Assertions.assertEquals(1, newBuilder.getCurrentEntries().size());
+        assertTrue(newBuilder
+                .getCurrentEntries()
+                .stream()
+                .anyMatch((Entry e) -> "field2".equals(e.getName()) && "newFieldName".equals(e.getRawName())
+                        && Type.INT.equals(e.getType())));
+        assertEquals(10, newBuilder.getValue("field2"));
+    }
+
+    @Test
+    void updateEntryByName_preservesOrder() {
+        // Given
+        final Record.Builder builder = new RecordImpl.BuilderImpl()
+                .withString("firstColumn", "hello")
+                .withInt("secondColumn", 20)
+                .withString("thirdColumn", "foo");
+
+        // When
+        final Entry renamedEntry = newEntry("firstColumn_renamed", Type.STRING);
+        builder.updateEntryByName("firstColumn", renamedEntry);
+
+        // Then order is preserved in the builder
+        Assertions.assertEquals(3, builder.getCurrentEntries().size());
+        final List<String> builderEntriesName =
+                builder.getCurrentEntries().stream().map(Entry::getName).collect(Collectors.toList());
+        assertEquals(Arrays.asList("firstColumn_renamed", "secondColumn", "thirdColumn"), builderEntriesName);
+
+        // Then order is also preserved in the built Record
+        final Record outputRecord = builder.build();
+        final Schema outputRecordSchema = outputRecord.getSchema();
+        final List<String> outputEntriesName =
+                outputRecordSchema.getEntriesOrdered().stream().map(Schema.Entry::getName).collect(Collectors.toList());
+
+        assertEquals(Arrays.asList("firstColumn_renamed", "secondColumn", "thirdColumn"), outputEntriesName);
     }
 
     @Test

@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Locale.ENGLISH;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,8 +29,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -53,6 +56,7 @@ import javax.websocket.CloseReason;
 import javax.websocket.DeploymentException;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
+import javax.websocket.MessageHandler.Partial;
 import javax.websocket.Session;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
@@ -92,6 +96,7 @@ import org.talend.sdk.component.server.front.memory.SimpleServletConfig;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 // ensure any JAX-RS command can use websockets
@@ -220,19 +225,20 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private final Map<String, List<String>> baseHeaders;
 
-        @Override
-        public void onOpen(final Session session, final EndpointConfig endpointConfig) {
-            log.debug("Opened session {}", session.getId());
-            session.addMessageHandler(InputStream.class, message -> {
+        @RequiredArgsConstructor
+        private class PartialMessageHandler implements Partial<byte[]> {
+
+            private final Session session;
+
+            private InMemoryRequest request;
+
+            private InMemoryResponse response;
+
+            private void handleStart(final StringBuilder buffer, final InputStream message) {
                 final Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                 headers.putAll(baseHeaders);
 
-                final StringBuilder buffer = new StringBuilder(128);
                 try { // read headers from the message
-                    if (!"SEND".equalsIgnoreCase(readLine(buffer, message))) {
-                        throw new IllegalArgumentException("not a message");
-                    }
-
                     String line;
                     int del;
                     while ((line = readLine(buffer, message)) != null) {
@@ -285,45 +291,79 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                     path = uri;
                 }
 
-                try {
-                    final InMemoryRequest request = new InMemoryRequest(method.toUpperCase(ENGLISH), headers, path,
-                            appBase + path, appBase, queryString, 8080, context, new WebSocketInputStream(message),
-                            session::getUserPrincipal, controller);
-                    final InMemoryResponse response = new InMemoryResponse(session::isOpen, () -> {
-                        if (session.getBasicRemote().getBatchingAllowed()) {
+                request = new InMemoryRequest(method.toUpperCase(ENGLISH), headers, path,
+                        appBase + path, appBase, queryString, 8080, context, new WebSocketInputStream(message),
+                        session::getUserPrincipal, controller);
+                response = new InMemoryResponse(session::isOpen,
+                        () -> {
+                            if (session.getBasicRemote().getBatchingAllowed()) {
+                                try {
+                                    session.getBasicRemote().flushBatch();
+                                } catch (final IOException e) {
+                                    throw new IllegalStateException(e);
+                                }
+                            }
+                        }, bytes -> {
                             try {
-                                session.getBasicRemote().flushBatch();
+                                session.getBasicRemote().sendBinary(ByteBuffer.wrap(bytes));
                             } catch (final IOException e) {
                                 throw new IllegalStateException(e);
                             }
-                        }
-                    }, bytes -> {
-                        try {
-                            session.getBasicRemote().sendBinary(ByteBuffer.wrap(bytes));
-                        } catch (final IOException e) {
-                            throw new IllegalStateException(e);
-                        }
-                    }, (status, responseHeaders) -> {
-                        final StringBuilder top = new StringBuilder("MESSAGE\r\n");
-                        top.append("status: ").append(status).append("\r\n");
-                        responseHeaders
-                                .forEach((k,
-                                        v) -> top.append(k).append(": ").append(String.join(",", v)).append("\r\n"));
-                        top.append("\r\n");// empty line, means the next bytes are the payload
-                        return top.toString();
-                    }) {
+                        }, (status, responseHeaders) -> {
+                            final StringBuilder top = new StringBuilder("MESSAGE\r\n");
+                            top.append("status: ").append(status).append("\r\n");
+                            responseHeaders
+                                    .forEach((k,
+                                            v) -> top.append(k)
+                                                    .append(": ")
+                                                    .append(String.join(",", v))
+                                                    .append("\r\n"));
+                            top.append("\r\n");// empty line, means the next bytes are the payload
+                            return top.toString();
+                        }) {
 
-                        @Override
-                        protected void onClose(final OutputStream stream) throws IOException {
-                            stream.write(EOM.getBytes(StandardCharsets.UTF_8));
-                        }
-                    };
-                    request.setResponse(response);
-                    controller.invoke(request, response);
-                } catch (final ServletException e) {
-                    throw new IllegalArgumentException(e);
+                    @Override
+                    protected void onClose(final OutputStream stream) throws IOException {
+                        stream.write(EOM.getBytes(StandardCharsets.UTF_8));
+                    }
+                };
+                request.setResponse(response);
+            }
+
+            @Override
+            public void onMessage(final byte[] byteBuffer, final boolean last) {
+                final ByteArrayInputStream message = new ByteArrayInputStream(byteBuffer);
+
+                final StringBuilder buffer = new StringBuilder(128);
+                try { // read headers from the message
+                    if (request != null) {
+                        ((WebSocketInputStream) request.getInputStream()).addStream(message);
+                    } else if ("SEND".equalsIgnoreCase(readLine(buffer, message))) {
+                        handleStart(buffer, message);
+                    } else {
+                        throw new IllegalArgumentException("not a message");
+                    }
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
                 }
-            });
+
+                if (last) {
+                    try {
+                        controller.invoke(request, response);
+                    } catch (final ServletException e) {
+                        throw new IllegalArgumentException(e);
+                    } finally {
+                        request = null;
+                        response = null;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onOpen(final Session session, final EndpointConfig endpointConfig) {
+            log.debug("Opened session {}", session.getId());
+            session.addMessageHandler(byte[].class, new PartialMessageHandler(session));
         }
 
         @Override
@@ -359,8 +399,11 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
 
         private int previous = Integer.MAX_VALUE;
 
+        private final Queue<InputStream> queue = new LinkedList<>();
+
         private WebSocketInputStream(final InputStream delegate) {
             super(delegate);
+            queue.add(delegate);
         }
 
         @Override
@@ -372,9 +415,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 previous = Integer.MAX_VALUE;
                 return previous;
             }
-            final int read = delegate.read();
+            final int read = delegate().read();
             if (read == '^') {
-                previous = delegate.read();
+                previous = delegate().read();
                 if (previous == '@') {
                     finished = true;
                     return -1;
@@ -384,6 +427,22 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 finished = true;
             }
             return read;
+        }
+
+        private InputStream delegate() throws IOException {
+            if (queue.isEmpty()) {
+                throw new IOException("Don't have an input stream.");
+            }
+
+            if (queue.peek().available() == 0) {
+                queue.remove();
+            }
+
+            return queue.peek();
+        }
+
+        public void addStream(final InputStream stream) {
+            queue.add(stream);
         }
     }
 

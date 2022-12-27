@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -56,6 +57,7 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -141,6 +143,36 @@ class AvroRecordTest {
             final Record record = builder.get().withDateTime("name", (Date) null).build();
             assertEquals(1, record.getSchema().getEntries().size());
             assertNull(record.getDateTime("name"));
+        }
+    }
+
+    @Test
+    void providedSchemaNullableDecimal() {
+        final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("decimal")
+                        .withNullable(true)
+                        .withType(Schema.Type.DECIMAL)
+                        .build())
+                .build());
+        { // null
+            final Record record1 = builder.get().withDecimal("decimal", (BigDecimal) null).build();
+            assertEquals(1, record1.getSchema().getEntries().size());
+            assertNull(record1.getDecimal("decimal"));
+            assertNull(record1.get(Object.class, "decimal"));
+            // We should promise this?
+            assertNull(record1.get(String.class, "decimal"));
+
+            final BigDecimal value2 = new BigDecimal("1.23E-15");
+            final Record record2 = builder.get().withDecimal("decimal", value2).build();
+            assertEquals(1, record2.getSchema().getEntries().size());
+            assertEquals(value2, record2.getDecimal("decimal"));
+            assertEquals(value2, record2.get(BigDecimal.class, "decimal"));
+            // align with RecordImpl
+            assertEquals(value2, record2.get(Object.class, "decimal"));
+            // We should promise this?
+            assertEquals("1.23E-15", record2.get(String.class, "decimal"));
         }
     }
 
@@ -341,6 +373,47 @@ class AvroRecordTest {
         final Record rec = builder.build();
         final Pipeline pipeline = Pipeline.create();
         final PCollection<Record> input = pipeline.apply(Create.of(asList(rec)).withCoder(SchemaRegistryCoder.of())); //
+        final PCollection<Record> output = input.apply(new RecordToRecord());
+        assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
+    }
+
+    @Test
+    void pipelineDecimalFieldsWithAvroRecord() throws Exception {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
+
+        final Schema.Entry f1 = factory.newEntryBuilder()
+                .withType(Schema.Type.DECIMAL)
+                .withName("t_decimal")
+                .withNullable(true)
+                .build();
+        final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+
+        final Record.Builder builder = factory.newRecordBuilder(schema);
+
+        final BigDecimal decimal1 = new BigDecimal("1.23");
+        builder.withDecimal("t_decimal", decimal1);
+        final Record rec1 = builder.build();
+
+        BigDecimal decimal2 = new BigDecimal("1.2345");
+        builder.withDecimal("t_decimal", decimal2);
+        final Record rec2 = builder.build();
+
+        final Pipeline pipeline = Pipeline.create();
+
+        // if we want AvroCoder auto to support decimal conversion, we must patch beam's AvroCoder for cross vm case for
+        // ser/deser
+
+        // data processing platform need to add this statement to enable decimal support for beam compiler
+        // how to add this for cross threads/cross vm, maybe we need to do a fix for beam LazyAvroCoder/AvroCoder class
+        // and all codec class like SchemaRegistryCoder too, to add this
+        // GenericData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
+        // GenericData.get().addLogicalTypeConversion(new Decimal.DecimalConversion());
+
+        // should not use ReflectData for any GenericRecord implements
+        // ReflectData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
+
+        final PCollection<Record> input =
+                pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
         final PCollection<Record> output = input.apply(new RecordToRecord());
         assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }

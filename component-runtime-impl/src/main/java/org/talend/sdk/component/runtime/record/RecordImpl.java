@@ -22,6 +22,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
 import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
+import static org.talend.sdk.component.api.record.Schema.Type.DECIMAL;
 import static org.talend.sdk.component.api.record.Schema.Type.DOUBLE;
 import static org.talend.sdk.component.api.record.Schema.Type.FLOAT;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
@@ -29,6 +30,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -80,6 +83,7 @@ public final class RecordImpl implements Record {
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
         final Object value = values.get(name);
+        // here mean get(Object.class, name) return origin store type, like DATETIME return long, is expected?
         if (value == null || expectedType.isInstance(value)) {
             return expectedType.cast(value);
         }
@@ -166,15 +170,15 @@ public final class RecordImpl implements Record {
 
             if (entry.getType() == Schema.Type.DATETIME) {
                 if (value == null) {
-                    return this;
+                    withDateTime(entry, (ZonedDateTime) value);
                 } else if (value instanceof Long) {
-                    this.withTimestamp(entry, (Long) value);
+                    withTimestamp(entry, (Long) value);
                 } else if (value instanceof Date) {
-                    this.withDateTime(entry, (Date) value);
+                    withDateTime(entry, (Date) value);
                 } else if (value instanceof ZonedDateTime) {
-                    this.withDateTime(entry, (ZonedDateTime) value);
+                    withDateTime(entry, (ZonedDateTime) value);
                 } else if (value instanceof Temporal) {
-                    this.withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
+                    withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
                 }
                 return this;
             } else {
@@ -229,6 +233,10 @@ public final class RecordImpl implements Record {
                 }
                 this.entries.replace(name, schemaEntry);
 
+                if (this.orderState != null) {
+                    this.orderState.orderedEntries.replace(name, schemaEntry);
+                }
+
                 this.values.remove(name);
                 this.values.put(schemaEntry.getName(), value);
                 return this;
@@ -238,6 +246,14 @@ public final class RecordImpl implements Record {
                     new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()),
                             this.values);
             return builder.updateEntryByName(name, schemaEntry);
+        }
+
+        @Override
+        public Builder updateEntryByName(final String name, final Entry schemaEntry,
+                final Function<Object, Object> valueCastFunction) {
+            Object currentValue = this.values.get(name);
+            this.values.put(name, valueCastFunction.apply(currentValue));
+            return updateEntryByName(name, schemaEntry);
         }
 
         @Override
@@ -347,9 +363,6 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final Schema.Entry entry, final Date value) {
-            if (value == null && !entry.isNullable()) {
-                throw new IllegalArgumentException("date '" + entry.getName() + "' is not allowed to be null");
-            }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value == null ? null : value.getTime());
         }
@@ -360,11 +373,21 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withDateTime(final Schema.Entry entry, final ZonedDateTime value) {
-            if (value == null && !entry.isNullable()) {
-                throw new IllegalArgumentException("datetime '" + entry.getName() + "' is not allowed to be null");
-            }
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value == null ? null : value.toInstant().toEpochMilli());
+        }
+
+        @Override
+        public Builder withDecimal(final String name, final BigDecimal value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, DECIMAL, true);
+            return withDecimal(entry, value);
+        }
+
+        @Override
+        public Builder withDecimal(final Entry entry, final BigDecimal value) {
+            assertType(entry.getType(), DECIMAL);
+            validateTypeAgainstProvidedSchema(entry.getName(), DECIMAL, value);
+            return append(entry, value);
         }
 
         public Builder withTimestamp(final String name, final long value) {

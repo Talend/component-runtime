@@ -22,6 +22,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.ARRAY;
 import static org.talend.sdk.component.api.record.Schema.Type.BOOLEAN;
 import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
 import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
+import static org.talend.sdk.component.api.record.Schema.Type.DECIMAL;
 import static org.talend.sdk.component.api.record.Schema.Type.DOUBLE;
 import static org.talend.sdk.component.api.record.Schema.Type.FLOAT;
 import static org.talend.sdk.component.api.record.Schema.Type.INT;
@@ -29,11 +30,11 @@ import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_KEY;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
+import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
+import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import routines.system.Dynamic;
 
@@ -78,7 +79,7 @@ public class DiRowStructVisitor {
 
     private Set<String> allowedFields;
 
-    public void visit(final Object data) {
+    private void visit(final Object data) {
         log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
@@ -112,7 +113,7 @@ public class DiRowStructVisitor {
                     onString(name, raw);
                     break;
                 case StudioTypes.BIGDECIMAL:
-                    onString(name, BigDecimal.class.cast(raw).toString());
+                    onDecimal(name, BigDecimal.class.cast(raw));
                     break;
                 case StudioTypes.BYTE:
                     onInt(name, Byte.class.cast(raw).intValue());
@@ -188,7 +189,7 @@ public class DiRowStructVisitor {
                             onDouble(metaName, value);
                             break;
                         case StudioTypes.BIGDECIMAL:
-                            onString(metaName, BigDecimal.class.cast(value).toString());
+                            onDecimal(metaName, BigDecimal.class.cast(value));
                             break;
                         case StudioTypes.BOOLEAN:
                             onBoolean(metaName, value);
@@ -282,8 +283,11 @@ public class DiRowStructVisitor {
                 case StudioTypes.OBJECT:
                 case StudioTypes.STRING:
                 case StudioTypes.CHARACTER:
-                case StudioTypes.BIGDECIMAL:
                     schema.withEntry(toEntry(name, STRING, originalDbColumnName, isNullable, comment, isKey, length,
+                            precision, defaultValue, null, studioType));
+                    break;
+                case StudioTypes.BIGDECIMAL:
+                    schema.withEntry(toEntry(name, DECIMAL, originalDbColumnName, isNullable, comment, isKey, length,
                             precision, defaultValue, null, studioType));
                     break;
                 case StudioTypes.INTEGER:
@@ -341,7 +345,7 @@ public class DiRowStructVisitor {
                                     metaIsKey, null, null, defaultValue, null, metaStudioType));
                             break;
                         case StudioTypes.BIGDECIMAL:
-                            schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
+                            schema.withEntry(toEntry(metaName, DECIMAL, metaOriginalName, metaIsNullable, comment,
                                     metaIsKey, metaLength, metaPrecision, defaultValue, null, metaStudioType));
                             break;
                         case StudioTypes.BYTE_ARRAY:
@@ -414,6 +418,10 @@ public class DiRowStructVisitor {
         recordBuilder.withString(name, String.class.cast(MappingUtils.coerce(String.class, value, name)));
     }
 
+    private void onDecimal(final String name, final BigDecimal value) {
+        recordBuilder.withDecimal(name, value);
+    }
+
     private void onDatetime(final String name, final ZonedDateTime value) {
         recordBuilder.withDateTime(name, value);
     }
@@ -427,7 +435,12 @@ public class DiRowStructVisitor {
     }
 
     private void onObject(final String name, final Object value) {
-        recordBuilder.withString(name, jsonb.toJson(value));
+        if (Record.class.isInstance(value)) {// keep old action here
+            recordBuilder.withString(name, jsonb.toJson(value));
+            return;
+        }
+
+        recordBuilder.with(rowStructSchema.getEntry(name), value);
     }
 
     // CHECKSTYLE:OFF
@@ -437,16 +450,16 @@ public class DiRowStructVisitor {
         // CHECKSTYLE:ON
         final Map<String, String> props = new HashMap();
         if (isKey != null) {
-            props.put(STUDIO_KEY, String.valueOf(isKey));
+            props.put(IS_KEY, String.valueOf(isKey));
         }
         if (length != null) {
-            props.put(STUDIO_LENGTH, String.valueOf(length));
+            props.put(SIZE, String.valueOf(length));
         }
         if (precision != null) {
-            props.put(STUDIO_PRECISION, String.valueOf(precision));
+            props.put(SCALE, String.valueOf(precision));
         }
         if (pattern != null) {
-            props.put(STUDIO_PATTERN, pattern);
+            props.put(PATTERN, pattern);
         }
         props.put(STUDIO_TYPE, studioType);
 
@@ -475,7 +488,7 @@ public class DiRowStructVisitor {
                 .withNullable(true)
                 .withType(ARRAY)
                 .withElementSchema(factory.newSchemaBuilder(elementType).build())
-                .withProp(STUDIO_KEY, StudioTypes.LIST)
+                .withProp(STUDIO_TYPE, StudioTypes.LIST)
                 .build();
     }
 
@@ -493,7 +506,7 @@ public class DiRowStructVisitor {
             return FLOAT;
         }
         if (BigDecimal.class.isInstance(value)) {
-            return STRING;
+            return DECIMAL;
         }
         if (Double.class.isInstance(value)) {
             return DOUBLE;

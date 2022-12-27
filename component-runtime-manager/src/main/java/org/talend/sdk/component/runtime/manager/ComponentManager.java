@@ -149,6 +149,8 @@ import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.internationalization.InternationalizationServiceFactory;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.builtinparams.MaxBatchSizeParamBuilder;
+import org.talend.sdk.component.runtime.manager.builtinparams.StreamingLongParamBuilder.StreamingMaxDurationMsParamBuilder;
+import org.talend.sdk.component.runtime.manager.builtinparams.StreamingLongParamBuilder.StreamingMaxRecordsParamBuilder;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContextImpl;
 import org.talend.sdk.component.runtime.manager.extension.ComponentContexts;
 import org.talend.sdk.component.runtime.manager.json.TalendAccessMode;
@@ -1682,17 +1684,25 @@ public class ComponentManager implements AutoCloseable {
         @Override
         public void onPartitionMapper(final Class<?> type, final PartitionMapper partitionMapper) {
             final Constructor<?> constructor = findConstructor(type);
+            final boolean infinite = partitionMapper.infinite();
             final Supplier<List<ParameterMeta>> parameterMetas = lazy(() -> executeInContainer(plugin,
-                    () -> parameterModelService
-                            .buildParameterMetas(constructor, getPackage(type),
-                                    new BaseParameterEnricher.Context(LocalConfiguration.class
-                                            .cast(services.getServices().get(LocalConfiguration.class))))));
+                    () -> {
+                        final List<ParameterMeta> params = parameterModelService
+                                .buildParameterMetas(constructor, getPackage(type),
+                                        new BaseParameterEnricher.Context(LocalConfiguration.class
+                                                .cast(services.getServices().get(LocalConfiguration.class))));
+                        if (infinite) {
+                            if (partitionMapper.stoppable()) {
+                                addInfiniteMapperBuiltInParameters(type, params);
+                            }
+                        }
+                        return params;
+                    }));
             final Function<Map<String, String>, Object[]> parameterFactory =
                     createParametersFactory(plugin, constructor, services.getServices(), parameterMetas);
             final String name = of(partitionMapper.name()).filter(n -> !n.isEmpty()).orElseGet(type::getName);
             final ComponentFamilyMeta component = getOrCreateComponent(partitionMapper.family());
 
-            final boolean infinite = partitionMapper.infinite();
             final Function<Map<String, String>, Mapper> instantiator =
                     context.getOwningExtension() != null && context.getOwningExtension().supports(Mapper.class)
                             ? config -> executeInContainer(plugin,
@@ -1702,6 +1712,15 @@ public class ComponentManager implements AutoCloseable {
                                                     doInvoke(constructor, parameterFactory.apply(config)), plugin,
                                                     component.getName(), name), Mapper.class))
                             : config -> new PartitionMapperImpl(component.getName(), name, null, plugin, infinite,
+                                    ofNullable(config)
+                                            .map(it -> it
+                                                    .entrySet()
+                                                    .stream()
+                                                    .filter(e -> e.getKey().startsWith("$")
+                                                            || e.getKey().contains(".$"))
+                                                    .collect(toMap(java.util.Map.Entry::getKey,
+                                                            java.util.Map.Entry::getValue)))
+                                            .orElseGet(Collections::emptyMap),
                                     doInvoke(constructor, parameterFactory.apply(config)));
             final Map<String, String> metadata = metadataService.getMetadata(type);
 
@@ -1807,6 +1826,51 @@ public class ComponentManager implements AutoCloseable {
                                             .lazy(() -> migrationHandlerFactory
                                                     .findMigrationHandler(parameterMetas, type, services)),
                                     !context.isNoValidation(), metadata));
+        }
+
+        private void addInfiniteMapperBuiltInParameters(final Class<?> type, final List<ParameterMeta> parameterMetas) {
+            final ParameterMeta root =
+                    parameterMetas.stream().filter(p -> p.getName().equals(p.getPath())).findFirst().orElseGet(() -> {
+                        final ParameterMeta umbrella = new ParameterMeta(new ParameterMeta.Source() {
+
+                            @Override
+                            public String name() {
+                                return "$configuration";
+                            }
+
+                            @Override
+                            public Class<?> declaringClass() {
+                                return Object.class;
+                            }
+                        }, Object.class, ParameterMeta.Type.OBJECT, "$configuration", "$configuration", new String[0],
+                                new ArrayList<>(), new ArrayList<>(), new HashMap<>(), true);
+                        parameterMetas.add(umbrella);
+                        return umbrella;
+                    });
+
+            final StreamingMaxRecordsParamBuilder paramBuilder = new StreamingMaxRecordsParamBuilder(root,
+                    type.getSimpleName(),
+                    LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class)));
+            final ParameterMeta maxRecords = paramBuilder.newBulkParameter();
+            final ParameterMeta maxDuration = new StreamingMaxDurationMsParamBuilder(root, type.getSimpleName(),
+                    LocalConfiguration.class.cast(services.services.get(LocalConfiguration.class))).newBulkParameter();
+            final String layoutOptions = maxRecords.getName() + "|" + maxDuration.getName();
+            final String layoutType = paramBuilder.getLayoutType();
+            if (layoutType == null) {
+                root.getMetadata().put("tcomp::ui::gridlayout::Advanced::value", layoutOptions);
+                root.getMetadata()
+                        .put("tcomp::ui::gridlayout::Main::value", root.getNestedParameters()
+                                .stream()
+                                .map(ParameterMeta::getName)
+                                .collect(joining("|")));
+            } else if (!root.getMetadata().containsKey(layoutType)) {
+                root.getMetadata().put(layoutType, layoutType.contains("gridlayout") ? layoutOptions : "true");
+            } else if (layoutType.contains("gridlayout")) {
+                final String oldLayout = root.getMetadata().get(layoutType);
+                root.getMetadata().put(layoutType, layoutOptions + "|" + oldLayout);
+            }
+            root.getNestedParameters().add(maxRecords);
+            root.getNestedParameters().add(maxDuration);
         }
 
         private void addProcessorsBuiltInParameters(final Class<?> type, final List<ParameterMeta> parameterMetas) {

@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.manager.service;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -35,6 +36,7 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
@@ -110,10 +112,18 @@ public class RecordServiceImpl implements RecordService, Serializable {
                 visitor.onBoolean(entry, record.getOptionalBoolean(entry.getName()));
                 break;
             case STRING:
-                visitor.onString(entry, record.getOptionalString(entry.getName()));
+                String insideType = entry.getProp(SchemaProperty.STUDIO_TYPE);
+                if ("id_Object".equals(insideType)) {
+                    visitor.onObject(entry, Optional.ofNullable(record.get(Object.class, entry.getName())));
+                } else {
+                    visitor.onString(entry, record.getOptionalString(entry.getName()));
+                }
                 break;
             case DATETIME:
                 visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));
+                break;
+            case DECIMAL:
+                visitor.onDecimal(entry, record.getOptionalDecimal(entry.getName()));
                 break;
             case BYTES:
                 visitor.onBytes(entry, record.getOptionalBytes(entry.getName()));
@@ -152,6 +162,9 @@ public class RecordServiceImpl implements RecordService, Serializable {
                     break;
                 case DATETIME:
                     visitor.onDatetimeArray(entry, record.getOptionalArray(ZonedDateTime.class, entry.getName()));
+                    break;
+                case DECIMAL:
+                    visitor.onDecimalArray(entry, record.getOptionalArray(BigDecimal.class, entry.getName()));
                     break;
                 case BYTES:
                     visitor.onBytesArray(entry, record.getOptionalArray(byte[].class, entry.getName()));
@@ -229,6 +242,10 @@ public class RecordServiceImpl implements RecordService, Serializable {
             final Optional<ZonedDateTime> optionalDateTime = source.getOptionalDateTime(sourceColumn);
             optionalDateTime.ifPresent(v -> builder.withDateTime(entry, v));
             return optionalDateTime.isPresent();
+        case DECIMAL:
+            final Optional<BigDecimal> optionalDecimal = source.getOptionalDecimal(sourceColumn);
+            optionalDecimal.ifPresent(v -> builder.withDecimal(entry, v));
+            return optionalDecimal.isPresent();
         case BYTES:
             final Optional<byte[]> optionalBytes = source.getOptionalBytes(sourceColumn);
             optionalBytes.ifPresent(v -> builder.withBytes(entry, v));

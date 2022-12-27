@@ -16,6 +16,7 @@
 package org.talend.sdk.component.api.record;
 
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +41,7 @@ import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonValue;
 import javax.json.bind.annotation.JsonbTransient;
+import javax.json.stream.JsonParser;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -143,8 +145,9 @@ public interface Schema {
         if (prop == null) {
             return null;
         }
-        try {
-            return Json.createParser(new StringReader(prop)).getValue();
+        try (final StringReader reader = new StringReader(prop);
+                final JsonParser parser = Json.createParser(reader)) {
+            return parser.getValue();
         } catch (RuntimeException ex) {
             return Json.createValue(prop);
         }
@@ -154,14 +157,15 @@ public interface Schema {
 
         RECORD(new Class<?>[] { Record.class }),
         ARRAY(new Class<?>[] { Collection.class }),
-        STRING(new Class<?>[] { String.class }),
+        STRING(new Class<?>[] { String.class, Object.class }),
         BYTES(new Class<?>[] { byte[].class, Byte[].class }),
         INT(new Class<?>[] { Integer.class }),
         LONG(new Class<?>[] { Long.class }),
         FLOAT(new Class<?>[] { Float.class }),
         DOUBLE(new Class<?>[] { Double.class }),
         BOOLEAN(new Class<?>[] { Boolean.class }),
-        DATETIME(new Class<?>[] { Long.class, Date.class, Temporal.class });
+        DATETIME(new Class<?>[] { Long.class, Date.class, Temporal.class }),
+        DECIMAL(new Class<?>[] { BigDecimal.class });
 
         /**
          * All compatibles Java classes
@@ -265,8 +269,9 @@ public interface Schema {
             if (prop == null) {
                 return null;
             }
-            try {
-                return Json.createParser(new StringReader(prop)).getValue();
+            try (final StringReader reader = new StringReader(prop);
+                    final JsonParser parser = Json.createParser(reader)) {
+                return parser.getValue();
             } catch (RuntimeException ex) {
                 return Json.createValue(prop);
             }

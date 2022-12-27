@@ -134,12 +134,6 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Valida
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.reflect.Defaults;
-import org.talend.sdk.component.runtime.server.vault.proxy.endpoint.security.SecurityFilter;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.VaultService;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.http.ClientSetup;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.CacheConfigurationFactory;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.JCacheSetup;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.VaultProxyCacheResolver;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
@@ -178,9 +172,7 @@ public class Generator {
             tasks.register(() -> generatedActions(generatedDir));
             tasks.register(() -> generatedUi(generatedDir));
             tasks.register(() -> generatedServerConfiguration(generatedDir));
-            tasks.register(() -> generatedServerVaultProxyConfiguration(generatedDir));
             tasks.register(() -> updateComponentServerApi(generatedDir, version));
-            tasks.register(() -> updateComponentServerVaultApi(generatedDir, version));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
             tasks.register(() -> generatedRemoteEngineCustomizerHelp(generatedDir));
@@ -205,11 +197,6 @@ public class Generator {
     private static void updateComponentServerApi(final File generatedDir, final String version) throws Exception {
         writeServerOpenApi(new File(generatedDir, "generated_rest-resources.adoc"),
                 "META-INF/resources/documentation/openapi.json", version);
-    }
-
-    private static void updateComponentServerVaultApi(final File generatedDir, final String version) throws Exception {
-        writeServerOpenApi(new File(generatedDir, "generated_rest-resources-vault.adoc"),
-                "META-INF/resources/openapi.json", version);
     }
 
     private static void writeServerOpenApi(final File output, final String resource, final String version)
@@ -676,18 +663,6 @@ public class Generator {
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
             stream.println();
             generateConfigTableContent(stream, ComponentServerConfiguration.class);
-            stream.println();
-        }
-    }
-
-    private static void generatedServerVaultProxyConfiguration(final File generatedDir) {
-        final File file = new File(generatedDir, "generated_server-vault-proxy-configuration.adoc");
-        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println();
-            stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
-            stream.println();
-            generateConfigTableContent(stream, ClientSetup.class, VaultService.class, JCacheSetup.class,
-                    SecurityFilter.class, VaultProxyCacheResolver.class, CacheConfigurationFactory.class);
             stream.println();
         }
     }

@@ -17,6 +17,7 @@ package org.talend.sdk.component.api.record;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -141,7 +142,8 @@ class SchemaTest {
         Assertions.assertFalse(Schema.Type.ARRAY.isCompatible(new int[] {}));
 
         Assertions.assertTrue(Type.STRING.isCompatible("Hello"));
-        Assertions.assertFalse(Schema.Type.STRING.isCompatible(new int[] {}));
+        Assertions.assertTrue(Schema.Type.STRING.isCompatible(new Object()));
+        Assertions.assertTrue(Schema.Type.STRING.isCompatible(new int[] {}));
 
         Assertions.assertTrue(Type.BYTES.isCompatible("Hello".getBytes()));
         Assertions.assertTrue(Type.BYTES.isCompatible(new Byte[] {}));
@@ -168,6 +170,9 @@ class SchemaTest {
         Assertions.assertTrue(Type.DATETIME.isCompatible(new Date()));
         Assertions.assertTrue(Type.DATETIME.isCompatible(ZonedDateTime.now()));
         Assertions.assertFalse(Schema.Type.DATETIME.isCompatible(10));
+
+        Assertions.assertTrue(Type.DECIMAL.isCompatible(new BigDecimal("1.23")));
+        Assertions.assertFalse(Type.DECIMAL.isCompatible("1.23"));
     }
 
     /**

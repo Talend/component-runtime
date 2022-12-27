@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
@@ -56,7 +57,7 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
                 .of(fromSystemProperties(), fromStudioConfiguration(), fromMavenSettings(), fromEnvironmentVariables())
                 .filter(Objects::nonNull)
                 .findFirst()
-                .orElse(fallback());
+                .orElseGet(this::fallback);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
     }
 
     private Path fromStudioConfiguration() {
-        // check if we are in the studio process if so just grab the the studio config
+        // check if we are in the studio process if so just grab the studio config
         final String m2Repo = System.getProperty(STUDIO_MVN_REPOSITORY);
         if (!"global".equals(m2Repo)) {
             return handler.get(Paths.get(System.getProperty("osgi.configuration.area", ""), M2_REPOSITORY).toString());
@@ -111,13 +112,13 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
 
     public Path fromMavenSettings() {
         return Stream.of(
-                System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS), //
-                System.getProperty("user.home") + M2_SETTINGS, //
-                System.getenv(MAVEN_HOME) + CONF_SETTINGS, //
-                System.getenv(M2_HOME) + CONF_SETTINGS //
-        )
+                Optional.ofNullable(System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS))
+                        .map(Paths::get)
+                        .orElse(null), //
+                Optional.ofNullable(System.getProperty("user.home")).map(it -> Paths.get(it, M2_SETTINGS)).orElse(null),
+                Optional.ofNullable(System.getenv(MAVEN_HOME)).map(it -> Paths.get(it, CONF_SETTINGS)).orElse(null),
+                Optional.ofNullable(System.getenv(M2_HOME)).map(it -> Paths.get(it, CONF_SETTINGS)).orElse(null))
                 .filter(Objects::nonNull)
-                .map(Paths::get)
                 .filter(Files::exists)
                 .map(MavenRepositoryDefaultResolver::parseSettings)
                 .filter(Objects::nonNull)

@@ -411,6 +411,77 @@ private String login;
 private String password;
 ----
 
+=== Return Variables
+
+NOTE: Return variables availability (1.51+) deprecates link:#_after_variables[After Variables].
+
+Javajet
+[source,XML]
+----
+<RETURNS>
+    <RETURN NAME="QUERY" TYPE="id_String" AVAILABILITY="FLOW"/>
+    <RETURN NAME="NAME_1_OF_AFTER_VARIABLE" TYPE="id_Integer" AVAILABILITY="AFTER"/>
+</RETURNS>
+----
+
+`AVAILABILITY` can be :
+
+- `AFTER` : set after component finished.
+- `FLOW` : changed on row level.
+
+Component Kit
+
+[source,java]
+----
+@Slf4j
+@Version(1)
+@ReturnVariable(value = "QUERY", availability = FLOW, type = String.class, description = "Current row query")
+@Processor(name = "Row")
+@Documentation("JDBC Row component.")
+public class JDBCRowProcessor implements Serializable {
+
+    @RuntimeContext
+    private transient RuntimeContextHolder context;
+
+    @ElementListener
+    public void elementListener(@Input final Record record,
+                                @Output final OutputEmitter<Record> success) throws SQLException {
+        ...
+
+        if (context != null) {
+            context.set("QUERY", configuration.getDataSet().getSqlQuery());
+        }
+    }
+}
+----
+
+
+Return variables can be nested as below:
+[source,java]
+----
+import org.talend.sdk.component.api.component.ReturnVariables;
+import org.talend.sdk.component.api.component.ReturnVariables.ReturnVariable;
+import org.talend.sdk.component.api.processor.Processor;
+
+
+    @ReturnVariables({
+            @ReturnVariable(value = "PROCESS_COUNT", type = Integer.class,
+                            availability = ReturnVariable.AVAILABILITY.AFTER),
+            @ReturnVariable(value = "MISC", type = String.class,
+                            availability = ReturnVariable.AVAILABILITY.FLOW) })
+    @Processor
+    public class ClassWithReturnVariablesGroup {
+        ...
+
+        @PreDestroy
+        public void close() {
+            context.set("PROCESS_COUNT", counted);
+        }
+
+    }
+----
+
+
 === After Variables
 
 Javajet

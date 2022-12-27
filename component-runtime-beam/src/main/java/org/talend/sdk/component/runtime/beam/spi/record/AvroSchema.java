@@ -59,16 +59,16 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     @JsonbTransient
     private final Schema delegate;
 
-    private volatile AvroSchema elementSchema;
+    private AvroSchema elementSchema;
 
-    private volatile List<Entry> entries;
+    private List<Entry> entries;
 
     @JsonbTransient
-    private volatile List<Entry> metadataEntries;
+    private List<Entry> metadataEntries;
 
-    private volatile Type type;
+    private Type type;
 
-    private volatile Schema actualDelegate;
+    private Schema actualDelegate;
 
     Schema getActualDelegate() {
         if (actualDelegate != null) {
@@ -139,17 +139,20 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         if (getActualDelegate().getType() != Schema.Type.RECORD) {
             return emptyList();
         }
-        if (this.metadataEntries == null) {
-            synchronized (this) {
-                if (this.metadataEntries == null) {
-                    this.metadataEntries = this
-                            .getNonNullFields() //
-                            .filter(AvroSchema::isMetadata) // only metadata fields
-                            .map(this::fromAvro) //
-                            .collect(Collectors.toList());
-                }
+        if (this.metadataEntries != null) {
+            return this.metadataEntries;
+        }
+
+        synchronized (this) {
+            if (this.metadataEntries == null) {
+                this.metadataEntries = this
+                        .getNonNullFields() //
+                        .filter(AvroSchema::isMetadata) // only metadata fields
+                        .map(this::fromAvro) //
+                        .collect(Collectors.toList());
             }
         }
+
         return this.metadataEntries;
     }
 
@@ -248,6 +251,12 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 return Type.DATETIME;
             }
             return Type.LONG;
+        case STRING:
+            if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
+                    || (Decimal.logicalType().equals(schema.getLogicalType()))) {
+                return Type.DECIMAL;
+            }
+            return Type.STRING;
         default:
             return Type.valueOf(schema.getType().name());
         }

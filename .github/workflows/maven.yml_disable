@@ -114,15 +114,7 @@ jobs:
               -e -B \
               -gs .travis/settings.xml \
               -pl images/component-server-image \
-              -pl images/component-server-vault-proxy-image \
               -am &&
-          cd images/component-server-vault-proxy-image &&
-          mvn clean install jib:build@build \
-              -e -B \
-              -gs ../../.travis/settings.xml \
-              -Dtalend.server.image.registry=registry.hub.docker.com/ \
-              -Possrh -Prelease -Ptravis -Pgpg2 \
-              -Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true &&
           cd - &&
           cd images/component-server-image &&
           mvn clean install jib:build@build \

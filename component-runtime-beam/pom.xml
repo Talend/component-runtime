@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.47.0-SNAPSHOT</version>
+    <version>1.53.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-beam</artifactId>
@@ -102,7 +102,7 @@
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>2.5.0</version>
+      <version>2.7.1</version>
       <scope>test</scope>
     </dependency>
     <!-- forbidden to avoid a cycle

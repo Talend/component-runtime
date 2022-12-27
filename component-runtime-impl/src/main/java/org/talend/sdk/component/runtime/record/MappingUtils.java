@@ -60,6 +60,12 @@ public class MappingUtils {
                 return new Date(Number.class.cast(value).longValue());
             }
         }
+
+        // we store decimal by string for AvroRecord case
+        if ((expectedType == BigDecimal.class) && String.class.isInstance(value)) {
+            return new BigDecimal(String.class.cast(value));
+        }
+
         // non-matching types
         if (!expectedType.isInstance(value)) {
             // number classes mapping

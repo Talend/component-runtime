@@ -197,7 +197,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     }
 
     private void logUnexpectedDependency(final URL url, final String entry) {
-        log.error("{} shouldn't be provided outside the JVM itself, origin={}", entry, url);
+        log.warn("{} shouldn't be provided outside the JVM itself, origin={}", entry, url);
     }
 
     private boolean isBlacklisted(final String name) {

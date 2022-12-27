@@ -22,6 +22,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_INPUT;
@@ -369,6 +370,58 @@ class ComponentResourceImplTest {
                 .getDefaultValue());
     }
 
+    @Test
+    void getStreamingDetails() {
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", client.getStreamingId())
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
+        assertEquals(1, details.getDetails().size());
+        final ComponentDetail detail = details.getDetails().iterator().next();
+        assertEquals(1, detail.getProperties().size());
+        assertThrows(IllegalArgumentException.class, () -> detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.$maxDurationMs"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No max duration found")));
+        assertThrows(IllegalArgumentException.class, () -> detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.$maxRecords"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No max records found")));
+    }
+
+    @Test
+    void getStreamingStoppableDetails() {
+        final ComponentDetailList details = base
+                .path("component/details")
+                .queryParam("identifiers", client.getStreamingStoppableId())
+                .request(APPLICATION_JSON_TYPE)
+                .get(ComponentDetailList.class);
+        assertEquals(1, details.getDetails().size());
+        final ComponentDetail detail = details.getDetails().iterator().next();
+        assertEquals(3, detail.getProperties().size());
+        org.talend.sdk.component.server.front.model.SimplePropertyDefinition maxDuration = detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.$maxDurationMs"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No max duration found"));
+        assertEquals("-1", maxDuration.getMetadata().get("ui::defaultvalue::value"));
+        assertEquals(-1, maxDuration.getValidation().getMin());
+        org.talend.sdk.component.server.front.model.SimplePropertyDefinition maxRecords = detail
+                .getProperties()
+                .stream()
+                .filter(p -> p.getPath().equals("configuration.$maxRecords"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No max records found"));
+        assertEquals("-1", maxRecords.getMetadata().get("ui::defaultvalue::value"));
+        assertEquals(-1, maxRecords.getValidation().getMin());
+    }
+
     private void assertValidation(final String path, final ComponentDetail aggregate,
             final Predicate<PropertyValidation> validator) {
         assertTrue(validator.test(findProperty(path, aggregate).getValidation()), path);
@@ -423,7 +476,7 @@ class ComponentResourceImplTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(10, index.getComponents().size());
+        assertEquals(12, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));

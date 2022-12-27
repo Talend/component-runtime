@@ -65,6 +65,8 @@ public class VisitorsTest {
     protected static final Record RECORD =
             factory.newRecordBuilder().withInt("ntgr", 1).withString("str", "one").build();
 
+    protected static final Object OBJECT = new Object();
+
     protected static final List<String> STRINGS = Arrays.asList("one", "two", "three", "four", "five");
 
     protected static final List<Integer> INTEGERS = Arrays.asList(1, 2, 3, 4, 5);
@@ -171,11 +173,21 @@ public class VisitorsTest {
 
         public BigDecimal bigDecimal0;
 
+        public BigDecimal bigDecimal1;
+
         public Integer bigDecimal0Length() {
             return 30;
         }
 
         public Integer bigDecimal0Precision() {
+            return 10;
+        }
+
+        public Integer bigDecimal1Length() {
+            return 30;
+        }
+
+        public Integer bigDecimal1Precision() {
             return 10;
         }
 
@@ -186,6 +198,8 @@ public class VisitorsTest {
         public List<Integer> array0;
 
         public Object object0;
+
+        public Object object1;
 
         public Dynamic dynamic;
 

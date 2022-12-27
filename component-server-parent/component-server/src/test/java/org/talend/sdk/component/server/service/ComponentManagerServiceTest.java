@@ -17,12 +17,12 @@ package org.talend.sdk.component.server.service;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
-import static org.apache.webbeans.util.Asserts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Paths;
 import java.util.Arrays;

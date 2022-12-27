@@ -22,9 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import org.talend.sdk.component.api.context.RuntimeContext;
+import org.talend.sdk.component.api.context.RuntimeContextHolder;
 import routines.system.Dynamic;
 
 import java.io.File;
@@ -60,6 +61,7 @@ import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.connection.CloseConnection;
@@ -113,6 +115,10 @@ public class DynamicColumnsTest {
         final Collection<Object> processorData = new ArrayList<>();
 
         globalMap.put("key", "value");
+        globalMap.put("outputDi_1_key", "value4Output");
+        globalMap.put("inputDi_1_key", "value4Input");
+        globalMap.put("connection_1_key", "value4Connection");
+        globalMap.put("close_1_key", "value4Close");
 
         callConnectionComponent(manager);
 
@@ -126,7 +132,7 @@ public class DynamicColumnsTest {
 
     private void callCloseComponent(final ComponentManager manager) {
         String plugin = "test-classes";
-        RuntimeContextInjector.injectService(manager, plugin, globalMap);
+        RuntimeContextInjector.injectService(manager, plugin, new RuntimeContextHolder("close_1", globalMap));
 
         manager
                 .findPlugin(plugin)
@@ -156,7 +162,7 @@ public class DynamicColumnsTest {
 
         String plugin = "test-classes";
 
-        RuntimeContextInjector.injectService(manager, plugin, globalMap);
+        RuntimeContextInjector.injectService(manager, plugin, new RuntimeContextHolder("connection_1", globalMap));
 
         // TODO how to get the plugin id in client?
         manager
@@ -169,7 +175,7 @@ public class DynamicColumnsTest {
                 .filter(actionMeta -> "create_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object connnection = actionMeta.getInvoker().apply(runtimeParams);
-                    assertEquals("v1100value", connnection);
+                    assertEquals("v1100connection_1value", connnection);
 
                     globalMap.put("conn_tS3Connection_1", connnection);
                 });
@@ -180,7 +186,7 @@ public class DynamicColumnsTest {
         try {
             final Processor processor = proc.orElseThrow(() -> new IllegalStateException("scanning failed"));
 
-            RuntimeContextInjector.injectLifecycle(processor, globalMap);
+            RuntimeContextInjector.injectLifecycle(processor, new RuntimeContextHolder("outputDi_1", globalMap));
 
             try {
                 Field field = processor.getClass().getSuperclass().getDeclaredField("delegate");
@@ -224,7 +230,7 @@ public class DynamicColumnsTest {
             final Mapper tempMapperMapper = mapper.orElseThrow(() -> new IllegalStateException("scanning failed"));
             JobStateAware.init(tempMapperMapper, globalMap);
 
-            RuntimeContextInjector.injectLifecycle(tempMapperMapper, globalMap);
+            RuntimeContextInjector.injectLifecycle(tempMapperMapper, new RuntimeContextHolder("inputDi_1", globalMap));
 
             doRun(manager, sourceData, processorData, processorProcessor, inputsHandlerProcessor,
                     outputHandlerProcessor, inputsProcessor, outputsProcessor, tempMapperMapper);
@@ -339,7 +345,7 @@ public class DynamicColumnsTest {
     public static class OutputComponentDi implements Serializable {
 
         @RuntimeContext
-        private transient Map<String, Object> context;
+        private transient RuntimeContextHolder context;
 
         int counter;
 
@@ -351,7 +357,9 @@ public class DynamicColumnsTest {
             // can get connection, if not null, can use it directly instead of creating again
             assertNotNull(conn);
 
-            assertEquals("value", context.get("key"));
+            assertEquals("outputDi_1", context.getConnectorId());
+            assertEquals("value", context.getGlobal("key"));
+            assertEquals("value4Output", context.get("key"));
 
             assertNotNull(record);
             assertNotNull(record.getString("id"));
@@ -389,8 +397,14 @@ public class DynamicColumnsTest {
                     record.getArray(Integer.class, "array0"));
             assertEquals(StudioTypes.DATE, record.getSchema().getEntry("date0").getProp(STUDIO_TYPE));
             assertTrue(ZonedDateTime.now().toEpochSecond() >= record.getDateTime("date0").toEpochSecond());
+
             assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("bigDecy").getProp(STUDIO_TYPE));
             assertEquals("12345.67890", record.getString("bigDecy"));
+
+            assertEquals(Schema.Type.DECIMAL, record.getSchema().getEntry("bigDecy2").getType());
+            assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("bigDecy2").getProp(STUDIO_TYPE));
+            assertEquals(new BigDecimal("12345.67890"), record.getDecimal("bigDecy2"));
+
             assertEquals(StudioTypes.BIGDECIMAL, record.getSchema().getEntry("dynBigDecimal").getProp(STUDIO_TYPE));
             assertEquals("12345.67890", record.getString("dynBigDecimal"));
             assertEquals(StudioTypes.CHARACTER, record.getSchema().getEntry("chary").getProp(STUDIO_TYPE));
@@ -422,12 +436,13 @@ public class DynamicColumnsTest {
     public static class MyService implements Serializable {
 
         @RuntimeContext
-        private transient Map<String, Object> context;
+        private transient RuntimeContextHolder context;
 
         @CreateConnection
         public Object createConn(@Option("conn") final TestDataStore dataStore) throws ComponentException {
             // create connection
-            return dataStore.para1 + dataStore.para2 + context.get("key");
+            assertEquals("value4Connection", context.get("key"));
+            return dataStore.para1 + dataStore.para2 + context.getConnectorId() + context.getGlobal("key");
         }
 
         @CloseConnection
@@ -435,7 +450,11 @@ public class DynamicColumnsTest {
             return new CloseConnectionObject() {
 
                 public boolean close() throws ComponentException {
-                    return "v1100value".equals(this.getConnection()) && "value".equals(context.get("key"));
+                    assertEquals("value4Close", context.get("key"));
+
+                    return "v1100connection_1value".equals(this.getConnection())
+                            && "value".equals(context.getGlobal("key"))
+                            && "close_1".equals(context.getConnectorId());
                 }
 
             };
@@ -446,7 +465,7 @@ public class DynamicColumnsTest {
     public static class InputComponentDi implements Serializable {
 
         @RuntimeContext
-        private transient Map<String, Object> context;
+        private transient RuntimeContextHolder context;
 
         private final PrimitiveIterator.OfInt stream;
 
@@ -463,7 +482,9 @@ public class DynamicColumnsTest {
                 return null;
             }
 
-            assertEquals("value", context.get("key"));
+            assertEquals("inputDi_1", context.getConnectorId());
+            assertEquals("value", context.getGlobal("key"));
+            assertEquals("value4Input", context.get("key"));
 
             final Integer i = stream.next();
             final Record record = builderFactory
@@ -512,6 +533,10 @@ public class DynamicColumnsTest {
                             .withType(Type.STRING)
                             .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
                             .build(), "12345.67890")
+                    .withDecimal(builderFactory.newEntryBuilder()
+                            .withName("bigDecy2")
+                            .withType(Type.DECIMAL)
+                            .build(), new BigDecimal("12345.67890"))
                     .withString(builderFactory.newEntryBuilder()
                             .withName("chary")
                             .withType(Type.STRING)
@@ -541,6 +566,8 @@ public class DynamicColumnsTest {
         public double doubly;
 
         public BigDecimal bigDecy;
+
+        public BigDecimal bigDecy2;
 
         public Character chary;
 

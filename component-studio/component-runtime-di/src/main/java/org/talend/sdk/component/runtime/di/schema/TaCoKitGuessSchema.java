@@ -19,13 +19,14 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_LENGTH;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PATTERN;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_PRECISION;
+import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
+import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
+import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,7 +37,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.json.JsonNumber;
@@ -45,12 +45,8 @@ import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Output;
-import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -60,7 +56,6 @@ import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
-import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,6 +63,12 @@ import lombok.extern.slf4j.Slf4j;
 public class TaCoKitGuessSchema {
 
     public static final String STRING_ESCAPE = "\"";
+
+    public static final String NO_COMPONENT = "No component ";
+
+    public static final String TCOMP_CONFIGURATIONTYPE_TYPE = "tcomp::configurationtype::type";
+
+    public static final String DATASET = "dataset";
 
     private ComponentManager componentManager;
 
@@ -95,12 +96,16 @@ public class TaCoKitGuessSchema {
 
     private String action;
 
-    private final String type = "schema";
+    private final Integer version;
+
+    private static final String SCHEMA_TYPE = "schema";
+
+    private static final String SCHEMA_EXTENDED_TYPE = "schema_extended";
 
     private static final String EMPTY = ""; //$NON-NLS-1$
 
     public TaCoKitGuessSchema(final PrintStream out, final Map<String, String> configuration, final String plugin,
-            final String family, final String componentName, final String action) {
+            final String family, final String componentName, final String action, final String version) {
         this.out = out;
         this.lineLimit = 50;
         this.lineCount = -1;
@@ -114,6 +119,7 @@ public class TaCoKitGuessSchema {
         this.columns = new LinkedHashMap<>();
         this.keysNoTypeYet = new HashSet<>();
         this.javaTypesManager = new JavaTypesManager();
+        this.version = Optional.ofNullable(version).map(Integer::parseInt).orElse(null);
         initClass2JavaTypeMap();
     }
 
@@ -132,43 +138,9 @@ public class TaCoKitGuessSchema {
         }
     }
 
-    public void fromOutputEmitterPojo(final Processor processor, final String outBranchName) {
-        Object o = processor;
-        while (Delegated.class.isInstance(o)) {
-            o = Delegated.class.cast(o).getDelegate();
-        }
-        final ClassLoader classLoader = o.getClass().getClassLoader();
-        final Thread thread = Thread.currentThread();
-        final ClassLoader old = thread.getContextClassLoader();
-        thread.setContextClassLoader(classLoader);
+    public void guessInputComponentSchema(final Schema schema) throws Exception {
         try {
-            final Optional<java.lang.reflect.Type> type = Stream
-                    .of(o.getClass().getMethods())
-                    .filter(m -> m.isAnnotationPresent(ElementListener.class))
-                    .flatMap(m -> IntStream
-                            .range(0, m.getParameterCount())
-                            .filter(i -> m.getParameters()[i].isAnnotationPresent(Output.class)
-                                    && outBranchName.equals(m.getParameters()[i].getAnnotation(Output.class).value()))
-                            .mapToObj(i -> m.getGenericParameterTypes()[i])
-                            .filter(t -> ParameterizedType.class.isInstance(t)
-                                    && ParameterizedType.class.cast(t).getRawType() == OutputEmitter.class
-                                    && ParameterizedType.class.cast(t).getActualTypeArguments().length == 1)
-                            .map(p -> ParameterizedType.class.cast(p).getActualTypeArguments()[0]))
-                    .findFirst();
-            if (type.isPresent() && Class.class.isInstance(type.get())) {
-                final Class<?> clazz = Class.class.cast(type.get());
-                if (clazz != JsonObject.class) {
-                    guessSchemaThroughResultClass(clazz);
-                }
-            }
-        } finally {
-            thread.setContextClassLoader(old);
-        }
-    }
-
-    public void guessInputComponentSchema() throws Exception {
-        try {
-            if (guessSchemaThroughAction()) {
+            if (guessSchemaThroughAction(schema)) {
                 return;
             }
         } catch (Exception e) {
@@ -178,6 +150,91 @@ public class TaCoKitGuessSchema {
             return;
         }
         throw new Exception("There is no available schema found.");
+    }
+
+    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch)
+            throws Exception {
+        try {
+            final Collection<ServiceMeta> services = getPluginServices();
+            ServiceMeta.ActionMeta actionRef = services
+                    .stream()
+                    .flatMap(s -> s.getActions().stream())
+                    .filter(a -> a.getFamily().equals(family) &&
+                            a.getType().equals(SCHEMA_EXTENDED_TYPE) &&
+                            componentName.equals(a.getAction()))
+                    .findFirst()
+                    .orElse(null);
+            // did not find action named like componentName, trying to find one matching action...
+            if (actionRef == null) {
+                actionRef = services
+                        .stream()
+                        .flatMap(s -> s.getActions().stream())
+                        .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "No action " + family + "#" + SCHEMA_EXTENDED_TYPE));
+            }
+            final Object schemaResult = actionRef.getInvoker()
+                    .apply(buildActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
+            if (schemaResult instanceof Schema && fromSchema(Schema.class.cast(schemaResult))) {
+                return;
+            }
+        } catch (Exception e) {
+            log.error("Can't guess processor schema through action.", e);
+        }
+
+        log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema.");
+        throw new Exception("There is no available schema found.");
+    }
+
+    private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
+            final Map<String, String> configuration, final Schema schema, final String branch) {
+        final String schemaPath = action.getParameters()
+                .get()
+                .stream()
+                .filter(p -> Schema.class.isAssignableFrom((Class) p.getJavaType()))
+                .map(p -> p.getPath())
+                .findFirst()
+                .orElse("");
+        final String branchPath = action.getParameters()
+                .get()
+                .stream()
+                .filter(p -> String.class.isAssignableFrom((Class) p.getJavaType()))
+                .map(ParameterMeta::getPath)
+                .findFirst()
+                .orElse("");
+
+        final Map<String, String> mapped = new HashMap<>();
+        if (!schemaPath.isEmpty()) {
+            try (final Jsonb jsonb = JsonbBuilder.create()) {
+                mapped.put(schemaPath, jsonb.toJson(schema));
+            } catch (final Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        if (!branchPath.isEmpty()) {
+            mapped.put(branchPath, branch);
+        }
+        if (configuration == null || configuration.isEmpty()) {
+            return mapped;
+        }
+        final String prefix = action
+                .getParameters()
+                .get()
+                .stream()
+                .filter(s -> !s.getPath().equals(schemaPath) && !s.getPath().equals(branchPath))
+                .map(ParameterMeta::getPath)
+                .findFirst()
+                .orElse(null);
+        if (prefix == null) {
+            return mapped;
+        }
+        mapped.putAll(configuration
+                .entrySet()
+                .stream()
+                .filter(e -> isChildParameter(e.getKey(), prefix) || prefix.equals(e.getKey()))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        return mapped;
     }
 
     private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
@@ -190,8 +247,8 @@ public class TaCoKitGuessSchema {
                 .getParameters()
                 .get()
                 .stream()
-                .filter(param -> param.getMetadata().containsKey("tcomp::configurationtype::type")
-                        && "dataset".equals(param.getMetadata().get("tcomp::configurationtype::type")))
+                .filter(param -> param.getMetadata().containsKey(TCOMP_CONFIGURATIONTYPE_TYPE)
+                        && DATASET.equals(param.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
                 .findFirst()
                 .map(ParameterMeta::getPath)
                 .orElse(null);
@@ -223,14 +280,14 @@ public class TaCoKitGuessSchema {
         final Collection<ParameterMeta> metas = toStream(componentMeta.getParameterMetas().get()).collect(toList());
         return ofNullable(metas
                 .stream()
-                .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type"))
+                .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE))
                         && action.getAction().equals(p.getMetadata().get("tcomp::configurationtype::name")))
                 .findFirst()
                 .orElseGet(() -> {
                     // find and use single dataset
                     final Iterator<ParameterMeta> iterator = metas
                             .stream()
-                            .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type")))
+                            .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
                             .iterator();
                     if (iterator.hasNext()) {
                         final ParameterMeta value = iterator.next();
@@ -252,7 +309,7 @@ public class TaCoKitGuessSchema {
                 .filter(e -> e.getKey().equals(componentName))
                 .map(Map.Entry::getValue)
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No component " + componentName));
+                .orElseThrow(() -> new IllegalStateException(NO_COMPONENT + componentName));
     }
 
     private ComponentFamilyMeta findFamily() {
@@ -278,42 +335,53 @@ public class TaCoKitGuessSchema {
         final ComponentFamilyMeta familyMeta = findFamily();
         final ComponentFamilyMeta.BaseMeta<?> componentMeta = findComponent(familyMeta);
         return toStream(componentMeta.getParameterMetas().get())
-                .filter(p -> "dataset".equals(p.getMetadata().get("tcomp::configurationtype::type")))
+                .filter(p -> DATASET.equals(p.getMetadata().get(TCOMP_CONFIGURATIONTYPE_TYPE)))
                 .findFirst()
                 .map(p -> p.getMetadata().get("tcomp::configurationtype::name"));
     }
 
-    public boolean guessSchemaThroughAction() {
-        final Collection<ServiceMeta> services = componentManager
-                .findPlugin(plugin)
-                .orElseThrow(() -> new IllegalArgumentException("No component " + plugin))
-                .get(ContainerComponentRegistry.class)
-                .getServices();
+    public boolean guessSchemaThroughAction(final Schema schema) {
+        final Collection<ServiceMeta> services = getPluginServices();
 
-        final ServiceMeta.ActionMeta actionRef;
+        ServiceMeta.ActionMeta actionRef;
         if (action == null || action.isEmpty()) {
             // dataset name should be the same as DiscoverSchema action name so let's try to guess from the component
             actionRef = findFirstComponentDataSetName()
                     .flatMap(datasetName -> services
                             .stream()
                             .flatMap(s -> s.getActions().stream())
-                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(type))
+                            .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_TYPE))
                             .filter(a -> a.getAction().equals(datasetName))
                             .findFirst())
                     .orElse(null);
             if (actionRef == null) {
-                return false;
+                // let's try DiscoverSchemaExtended action name
+                actionRef = findFirstComponentDataSetName()
+                        .flatMap(datasetName -> services
+                                .stream()
+                                .flatMap(s -> s.getActions().stream())
+                                .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
+                                .filter(a -> a.getAction().equals(datasetName))
+                                .findFirst())
+                        .orElse(null);
             }
         } else {
             actionRef = services
                     .stream()
                     .flatMap(s -> s.getActions().stream())
                     .filter(a -> a.getFamily().equals(family) && a.getAction().equals(action)
-                            && a.getType().equals(type))
+                            && a.getType().equals(SCHEMA_TYPE))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("No action " + family + "#" + type + "#" + action));
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "No action " + family + "#" + SCHEMA_TYPE + "#" + action));
         }
-        final Object schemaResult = actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration));
+        if (actionRef == null) {
+            return false;
+        }
+        final Map<String, String> actionConfiguration =
+                SCHEMA_TYPE.equals(actionRef.getType()) ? buildActionConfig(actionRef, configuration)
+                        : buildActionConfig(actionRef, configuration, schema, "INPUT");
+        final Object schemaResult = actionRef.getInvoker().apply(actionConfiguration);
 
         if (schemaResult instanceof Schema) {
             return fromSchema(Schema.class.cast(schemaResult));
@@ -324,20 +392,30 @@ public class TaCoKitGuessSchema {
         }
     }
 
+    private Collection<ServiceMeta> getPluginServices() {
+        final Collection<ServiceMeta> services = componentManager
+                .findPlugin(plugin)
+                .orElseThrow(() -> new IllegalArgumentException(NO_COMPONENT + plugin))
+                .get(ContainerComponentRegistry.class)
+                .getServices();
+        return services;
+    }
+
     private boolean fromSchema(final Schema schema) {
         final Collection<Schema.Entry> entries = schema.getEntries();
         if (entries == null || entries.isEmpty()) {
             log.info("No column found by guess schema action");
             return false;
         }
-
         for (Schema.Entry entry : entries) {
             String name = entry.getName();
             Schema.Type entryType = entry.getType();
             String dbName = entry.getOriginalFieldName();
-            String pattern = null;
-            String length = null;
-            String precision = null;
+            String pattern = entry.getProps().getOrDefault(PATTERN, null);
+            String length = entry.getProps().getOrDefault(SIZE, null);
+            String precision = entry.getProps().getOrDefault(SCALE, null);
+            String isKey = entry.getProps().getOrDefault(IS_KEY, null);
+            String talendType = entry.getProps().getOrDefault(STUDIO_TYPE, "");
             boolean isDateTime = false;
             if (entryType == null) {
                 entryType = Schema.Type.STRING;
@@ -349,19 +427,19 @@ public class TaCoKitGuessSchema {
                 break;
             case DOUBLE:
                 typeName = javaTypesManager.DOUBLE.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case INT:
-                typeName = javaTypesManager.INTEGER.getId();
+                if (talendType.equals(javaTypesManager.SHORT.getId())) {
+                    typeName = javaTypesManager.SHORT.getId();
+                } else {
+                    typeName = javaTypesManager.INTEGER.getId();
+                }
                 break;
             case LONG:
                 typeName = javaTypesManager.LONG.getId();
                 break;
             case FLOAT:
                 typeName = javaTypesManager.FLOAT.getId();
-                length = entry.getProp(STUDIO_LENGTH);
-                precision = entry.getProp(STUDIO_PRECISION);
                 break;
             case BYTES:
                 typeName = javaTypesManager.BYTE_ARRAY.getId();
@@ -369,7 +447,6 @@ public class TaCoKitGuessSchema {
             case DATETIME:
                 typeName = javaTypesManager.DATE.getId();
                 isDateTime = true;
-                pattern = entry.getProp(STUDIO_PATTERN);
                 break;
             case RECORD:
                 typeName = javaTypesManager.OBJECT.getId();
@@ -377,8 +454,17 @@ public class TaCoKitGuessSchema {
             case ARRAY:
                 typeName = javaTypesManager.LIST.getId();
                 break;
+            case DECIMAL:
+                typeName = javaTypesManager.BIGDECIMAL.getId();
+                break;
             default:
-                typeName = javaTypesManager.STRING.getId();
+                if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
+                    typeName = javaTypesManager.CHARACTER.getId();
+                } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
+                    typeName = javaTypesManager.BYTE.getId();
+                } else {
+                    typeName = javaTypesManager.STRING.getId();
+                }
                 break;
             }
 
@@ -388,9 +474,15 @@ public class TaCoKitGuessSchema {
             column.setTalendType(typeName);
             column.setNullable(entry.isNullable());
             column.setComment(entry.getComment());
-            if (length != null && precision != null) {
+            if (length != null) {
                 try {
                     column.setLength(Integer.valueOf(length));
+                } catch (NumberFormatException e) {
+                    // let default values if props are trash...
+                }
+            }
+            if (precision != null) {
+                try {
                     column.setPrecision(Integer.valueOf(precision));
                 } catch (NumberFormatException e) {
                     // let default values if props are trash...
@@ -403,6 +495,9 @@ public class TaCoKitGuessSchema {
                     // studio default pattern
                     column.setPattern(STRING_ESCAPE + "dd-MM-yyyy" + STRING_ESCAPE);
                 }
+            }
+            if (isKey != null) {
+                column.setKey(Boolean.parseBoolean(isKey));
             }
             if (entry.getDefaultValue() != null) {
                 try {
@@ -417,8 +512,13 @@ public class TaCoKitGuessSchema {
     }
 
     private boolean guessInputComponentSchemaThroughResult() throws Exception {
+        // migration handler will be triggered and version of component will be passed
+        // It is a Studio part. As fallback idea is to have Integer.MAX_VALUE in case if the version is null.
+        // MAX_VALUE because we think that all appropriate migrations were already executed at the time when user can
+        // invoke guess schema.
+        final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
         final Mapper mapper = componentManager
-                .findMapper(family, componentName, 1, configuration)
+                .findMapper(family, componentName, version, configuration)
                 .orElseThrow(() -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
         if (JobStateAware.class.isInstance(mapper)) {
             JobStateAware.class.cast(mapper).setState(new JobStateAware.State());

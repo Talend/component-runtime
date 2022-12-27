@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.runtime.di.schema.StudioRecordProperties.STUDIO_TYPE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -73,6 +73,10 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
                         .build(), BIGDEC.toString())
+                .withDecimal(factory.newEntryBuilder()
+                        .withName("bigDecimal1")
+                        .withType(Type.DECIMAL)
+                        .build(), BIGDEC)
                 .withBoolean("bool1", true)
                 .withString("dynString", "stringy")
                 .withInt("dynInteger", INT)
@@ -86,6 +90,10 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
                         .build(), BIGDEC.toString())
+                .withDecimal(factory.newEntryBuilder()
+                        .withName("dynBigDecimal2")
+                        .withType(Type.DECIMAL)
+                        .build(), BIGDEC)
                 .withInt(factory.newEntryBuilder()
                         .withName("dynShort")
                         .withType(Type.INT)
@@ -96,8 +104,18 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
                         .build(), String.valueOf(Character.MAX_VALUE))
+                .with(factory.newEntryBuilder()
+                        .withName("dynObject")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
+                        .build(), OBJECT)
 
                 .withRecord("object0", RECORD)
+                .with(factory.newEntryBuilder()
+                        .withName("object1")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
+                        .build(), OBJECT)
                 .withRecord("RECORD", RECORD)
                 .withArray(factory
                         .newEntryBuilder()
@@ -159,6 +177,12 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.ARRAY)
                         .withElementSchema(factory.newSchemaBuilder(Type.STRING).build())
                         .build(), BIG_DECIMALS)
+                .withArray(factory
+                        .newEntryBuilder()
+                        .withName("BIG_DECIMALS2")
+                        .withType(Type.ARRAY)
+                        .withElementSchema(factory.newSchemaBuilder(Type.DECIMAL).build())
+                        .build(), BIG_DECIMALS)
                 //
                 .build();
         //
@@ -183,12 +207,16 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date2.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date3.toInstant());
         assertEquals(BIGDEC.doubleValue(), rowStruct.bigDecimal0.doubleValue());
+
         assertEquals(BIGDEC, rowStruct.bigDecimal0);
+        assertEquals(BIGDEC, rowStruct.bigDecimal1);
+
         assertFalse(rowStruct.bool0);
         assertTrue(rowStruct.bool1);
         assertArrayEquals(BYTES0, rowStruct.bytes0);
         assertArrayEquals(BYTES1, rowStruct.bytes1);
         assertEquals(RECORD, rowStruct.object0);
+        assertEquals(OBJECT, rowStruct.object1);
         // asserts rowStruct::dynamic
         assertNotNull(rowStruct.dynamic);
         assertNotNull(rowStruct.dynamic.metadatas);
@@ -207,15 +235,25 @@ class DiRecordVisitorTest extends VisitorsTest {
         dynObject = rowStruct.dynamic.getColumnValue("dynBytesWString");
         assertTrue(byte[].class.isInstance(dynObject));
         assertArrayEquals(String.valueOf(BYTES0).getBytes(), (byte[]) dynObject);
+
         dynObject = rowStruct.dynamic.getColumnValue("dynBigDecimal");
         assertTrue(BigDecimal.class.isInstance(dynObject));
         assertEquals(BIGDEC, dynObject);
+        dynObject = rowStruct.dynamic.getColumnValue("dynBigDecimal2");
+        assertTrue(BigDecimal.class.isInstance(dynObject));
+        assertEquals(BIGDEC, dynObject);
+
         dynObject = rowStruct.dynamic.getColumnValue("dynShort");
         assertTrue(Short.class.isInstance(dynObject));
         assertEquals(SHORT, dynObject);
         dynObject = rowStruct.dynamic.getColumnValue("dynChar");
         assertTrue(Character.class.isInstance(dynObject));
         assertEquals(Character.MAX_VALUE, dynObject);
+
+        dynObject = rowStruct.dynamic.getColumnValue("dynObject");
+        assertTrue(Object.class.isInstance(dynObject));
+        assertEquals(OBJECT, dynObject);
+
         //
         assertEquals(INTEGERS, rowStruct.array0);
         assertEquals(RECORD, rowStruct.dynamic.getColumnValue("RECORD"));
@@ -235,6 +273,7 @@ class DiRecordVisitorTest extends VisitorsTest {
             assertEquals("one", r.getString("str"));
         });
         assertEquals(BIG_DECIMALS, rowStruct.dynamic.getColumnValue("BIG_DECIMALS"));
+        assertEquals(BIG_DECIMALS, rowStruct.dynamic.getColumnValue("BIG_DECIMALS2"));
     }
 
     @Test
