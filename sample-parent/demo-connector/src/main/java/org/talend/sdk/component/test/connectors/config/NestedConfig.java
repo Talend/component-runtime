@@ -22,16 +22,20 @@ import org.talend.sdk.component.api.meta.Documentation;
 import lombok.Data;
 
 @Data
-@Documentation("Dummy configuration.")
-@GridLayout({ @GridLayout.Row({ "abc" }), @GridLayout.Row({ "def" }) })
-public class DummySub {
+@Documentation("Nested configuration sample.")
+@GridLayout({
+        @GridLayout.Row({ "stringOption1" }),
+        @GridLayout.Row({ "stringOption2" }) })
+public class NestedConfig {
+
+    /*
+     * Sample of nested config
+     */
+    @Option
+    @Documentation("String option 1 (Sample nested field).")
+    private String stringOption1;
 
     @Option
-    @Documentation("Dummy filed abc.")
-    private String abc;
-
-    @Option
-    @Documentation("Dummy filed def.")
-    private String def;
-
+    @Documentation("String option 2 (Sample nested field).")
+    private String stringOption2;
 }

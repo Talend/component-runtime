@@ -32,13 +32,13 @@ import org.talend.sdk.component.test.connectors.config.InputConfig;
 
 @Version(1)
 @Icon(value = Icon.IconType.CUSTOM, custom = "test-family")
-@PartitionMapper(name = "DummyMapper", infinite = false)
-@Documentation("This is a dummy mapper for test.")
-public class DummyMapper implements Serializable {
+@PartitionMapper(name = "DemoMapper1", infinite = false)
+@Documentation("This is a demo mapper.")
+public class DemoMapper1 implements Serializable {
 
     private InputConfig config;
 
-    public DummyMapper(final @Option("DummyConfig") InputConfig config) {
+    public DemoMapper1(final @Option("NestedConfig") InputConfig config) {
         this.config = config;
     }
 
@@ -48,13 +48,13 @@ public class DummyMapper implements Serializable {
     }
 
     @Split
-    public List<DummyMapper> split(@PartitionSize final int desiredNbSplits) {
+    public List<DemoMapper1> split(@PartitionSize final int desiredNbSplits) {
         return Collections.singletonList(this);
     }
 
     @Emitter
-    public DummyInput createSource() {
-        return new DummyInput();
+    public DemoInput1 createSource() {
+        return new DemoInput1();
     }
 
 }

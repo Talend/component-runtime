@@ -32,9 +32,9 @@ import lombok.Data;
 @Version(value = Dataset.DATASET_VERSION, migrationHandler = DatasetMigrationHandler.class)
 @Data
 @DataSet("Dataset")
-@Documentation("The dataset of the TCK plugin.")
-@GridLayout({ @GridLayout.Row({ "datastore" }), @GridLayout.Row({ "entity" }), @GridLayout.Row({ "dummySubSrc" }),
-        @GridLayout.Row({ "dummySubDest" }) })
+@Documentation("The dataset of the demo connector plugin.")
+@GridLayout({ @GridLayout.Row({ "datastore" }), @GridLayout.Row({ "entity" }), @GridLayout.Row({ "nestedConfigSrc" }),
+        @GridLayout.Row({ "nestedConfigDest" }) })
 @GridLayout(names = GridLayout.FormType.ADVANCED,
         value = { @GridLayout.Row({ "datastore" }), @GridLayout.Row({ "readAll" }) })
 public class Dataset implements Serializable {
@@ -56,11 +56,11 @@ public class Dataset implements Serializable {
 
     @Option
     @Documentation("Original value for the updatable.")
-    private DummySub dummySubSrc;
+    private NestedConfig nestedConfigSrc;
 
     @Option
-    @Documentation("Updatable sub-object that should retrieve its values from dummySubSrc.")
-    @Updatable(value = UIService.UPDATE_DUMMYSUB, parameters = { "dummySubSrc" }, after = "dummySubDest")
-    private DummySub dummySubDest;
+    @Documentation("Updatable sub-object that should retrieve its values from nestedConfigSrc.")
+    @Updatable(value = UIService.UPDATE_NESTED_CONFIG, parameters = { "nestedConfigSrc" }, after = "nestedConfigDest")
+    private NestedConfig nestedConfigDest;
 
 }

@@ -23,7 +23,7 @@ import org.talend.sdk.component.api.input.Producer;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DummyInput {
+public class DemoInput1 {
 
     @PostConstruct
     public void init() {

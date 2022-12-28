@@ -24,13 +24,14 @@ import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.SuggestionValues.Item;
 import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.update.Update;
-import org.talend.sdk.component.test.connectors.config.DummySub;
+import org.talend.sdk.component.test.connectors.config.NestedConfig;
 
 @Service
 public class UIService {
 
     public final static String LIST_ENTITIES = "LIST_ENTITIES";
-    public final static String UPDATE_DUMMYSUB = "UPDATE_DUMMYSUB";
+
+    public final static String UPDATE_NESTED_CONFIG = "UPDATE_NESTED_CONFIG";
 
     /**
      * Suggestions action without any configuration.
@@ -47,11 +48,11 @@ public class UIService {
         return new SuggestionValues(true, entities);
     }
 
-    @Update(UPDATE_DUMMYSUB)
-    public DummySub retrieveFeedback(final DummySub source) throws Exception {
-        DummySub dest = new DummySub();
-        dest.setAbc(source.getAbc());
-        dest.setDef(source.getDef());
+    @Update(UPDATE_NESTED_CONFIG)
+    public NestedConfig retrieveFeedback(final NestedConfig source) throws Exception {
+        NestedConfig dest = new NestedConfig();
+        dest.setStringOption1(source.getStringOption1());
+        dest.setStringOption2(source.getStringOption2());
         return dest;
     }
 
