@@ -24,8 +24,9 @@
 
   <artifactId>demo-connector</artifactId>
 
-  <name>Component Runtime :: Sample Parent :: Mock connectors for tests automation</name>
-  <description>Some dumb connectors for testing TCK APIs.</description>
+  <name>Component Runtime :: Sample Parent :: Demo connectors</name>
+  <description>Demo connectors for test.
+    Used in TCK API automatic testing.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.demo</talend.build.name>
