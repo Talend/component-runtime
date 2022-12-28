@@ -25,9 +25,13 @@ import org.talend.sdk.component.api.meta.Documentation;
 import lombok.Data;
 
 @Data
-@GridLayout({ @GridLayout.Row({ "login" }), @GridLayout.Row({ "password" }) })
-@GridLayout(names = GridLayout.FormType.ADVANCED, value = { @GridLayout.Row({ "nbAuthentRetry" }) })
-public class Authent implements Serializable {
+@GridLayout({
+        @GridLayout.Row({ "login" }),
+        @GridLayout.Row({ "password" }) })
+@GridLayout(
+        names = GridLayout.FormType.ADVANCED,
+        value = { @GridLayout.Row({ "nbAuthRetry" }) })
+public class Auth implements Serializable {
 
     @Option
     @Documentation("The credential's login.")
@@ -40,6 +44,6 @@ public class Authent implements Serializable {
 
     @Option
     @Documentation("Number of authentication retry.")
-    private int nbAuthentRetry;
+    private int nbAuthRetry;
 
 }

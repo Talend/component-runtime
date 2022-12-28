@@ -33,10 +33,15 @@ import lombok.Data;
 @Data
 @DataSet("Dataset")
 @Documentation("The dataset of the demo connector plugin.")
-@GridLayout({ @GridLayout.Row({ "datastore" }), @GridLayout.Row({ "entity" }), @GridLayout.Row({ "nestedConfigSrc" }),
+@GridLayout({
+        @GridLayout.Row({ "datastore" }),
+        @GridLayout.Row({ "entity" }),
+        @GridLayout.Row({ "nestedConfigSrc" }),
         @GridLayout.Row({ "nestedConfigDest" }) })
-@GridLayout(names = GridLayout.FormType.ADVANCED,
-        value = { @GridLayout.Row({ "datastore" }), @GridLayout.Row({ "readAll" }) })
+@GridLayout(
+        names = GridLayout.FormType.ADVANCED,
+        value = { @GridLayout.Row({ "datastore" }),
+                @GridLayout.Row({ "readAll" }) })
 public class Dataset implements Serializable {
 
     public final static int DATASET_VERSION = 3;

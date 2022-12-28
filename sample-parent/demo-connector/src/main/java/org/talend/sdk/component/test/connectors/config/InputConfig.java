@@ -25,9 +25,14 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler.ExtraMigrationHandler;
 
 @Version(value = InputConfig.INPUT_CONFIG_VERSION, migrationHandler = ExtraMigrationHandler.class)
-@Documentation("The dataset of the TCK plugin.")
-@GridLayout({ @GridLayout.Row({ "dataset" }), @GridLayout.Row({ "date" }) })
-@GridLayout(names = GridLayout.FormType.ADVANCED, value = { @GridLayout.Row({ "dataset" }) })
+@Documentation("The input config for connectors.")
+@GridLayout({
+        @GridLayout.Row({ "dataset" }),
+        @GridLayout.Row({ "date" }) })
+@GridLayout(
+        names = GridLayout.FormType.ADVANCED,
+        value = {
+                @GridLayout.Row({ "dataset" }) })
 public class InputConfig implements Serializable {
 
     public final static int INPUT_CONFIG_VERSION = 3;

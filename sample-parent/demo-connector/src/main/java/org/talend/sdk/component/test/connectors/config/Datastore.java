@@ -31,9 +31,14 @@ import lombok.Data;
 @Data
 @DataStore("Connection")
 @Documentation("The connection part of the connector's configuration.")
-@GridLayout({ @GridLayout.Row({ "url" }), @GridLayout.Row({ "authent" }) })
-@GridLayout(names = GridLayout.FormType.ADVANCED,
-        value = { @GridLayout.Row({ "authent" }), @GridLayout.Row({ "timeout" }) })
+@GridLayout({
+        @GridLayout.Row({ "url" }),
+        @GridLayout.Row({ "auth" }) })
+@GridLayout(
+        names = GridLayout.FormType.ADVANCED,
+        value = {
+                @GridLayout.Row({ "auth" }),
+                @GridLayout.Row({ "timeout" }) })
 public class Datastore implements Serializable {
 
     public final static int DATASTORE_VERSION = 2;
@@ -45,7 +50,7 @@ public class Datastore implements Serializable {
 
     @Option
     @Documentation("The authentication part.")
-    private Authent authent;
+    private Auth auth;
 
     @Option
     @Documentation("Connection's timeout.")
