@@ -20,11 +20,13 @@ import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.test.connectors.config.OutputConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +36,19 @@ import lombok.extern.slf4j.Slf4j;
 @Processor(name = "DemoOutput1")
 @Documentation("Doc: default DemoOutput1 documentation without Internationalization.")
 public class DemoOutput1 {
+
+    /*
+     * An Output is a Processor that does not return any data.
+     * Conceptually, an output is a data listener. It matches the concept of processor. Being the
+     * last component of the execution chain or returning no data makes your processor an
+     * output component.
+     */
+
+    private OutputConfig config;
+
+    public DemoOutput1(final @Option("OutputConfig") OutputConfig config) {
+        this.config = config;
+    }
 
     @PostConstruct
     public void init() {
@@ -45,11 +60,11 @@ public class DemoOutput1 {
 
     @ElementListener
     public void onNext(@Input final Record record) {
-    // skip empty record
-    if (record != null && record.getSchema().getEntries().isEmpty()) {
-        log.info("[onNext] Skipping empty record.");
-        return;
-    }
+        // skip empty record
+        if (record != null && record.getSchema().getEntries().isEmpty()) {
+            log.info("[onNext] Skipping empty record.");
+            return;
+        }
         log.info("[onNext] manage record.");
     }
 

@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(family = "demo_family", categories = "demo_categories")
-@Icon(value = Icon.IconType.CUSTOM, custom = "family")
+@Components(
+        family = "demo_family",
+        categories = "demo_categories")
+@Icon(
+        value = Icon.IconType.CUSTOM,
+        custom = "family")
 package org.talend.sdk.component.test.connectors;
 
 import org.talend.sdk.component.api.component.Components;

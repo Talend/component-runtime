@@ -36,6 +36,13 @@ import org.talend.sdk.component.test.connectors.config.InputConfig;
 @Documentation("Doc: default DemoMapper1 documentation without Internationalization.")
 public class DemoMapper1 implements Serializable {
 
+    /*
+     * A partition mapper (Input component) requires three methods marked with specific annotations:
+     * 1. @Assessor for the evaluating method
+     * 2. @Split for the dividing method
+     * 3. @Emitter for the Producer factory
+     */
+
     private InputConfig config;
 
     public DemoMapper1(final @Option("NestedConfig") InputConfig config) {

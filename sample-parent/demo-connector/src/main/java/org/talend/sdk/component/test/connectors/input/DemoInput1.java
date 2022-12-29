@@ -20,8 +20,10 @@ import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.test.connectors.config.InputConfig;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +32,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Documentation("Doc: default DemoInput1 documentation without Internationalization.")
 public class DemoInput1 {
+
+    /*
+     * The Producer (input component) handles the interaction
+     * with a physical source and produces input data for the processing flow.
+     * A producer must have a @Producer method without any parameter. It is triggered by the
+     * 
+     * @Emitter method of the partition mapper and can return any data.
+     */
+
+    InputConfig config;
+
+    public DemoInput1(final @Option("InputConfig") InputConfig config) {
+        this.config = config;
+    }
 
     @PostConstruct
     public void init() {
