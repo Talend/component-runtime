@@ -25,7 +25,6 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler.ExtraMigrationHandler;
 
 @Version(value = InputConfig.INPUT_CONFIG_VERSION, migrationHandler = ExtraMigrationHandler.class)
-@Documentation("The input config for connectors.")
 @GridLayout({
         @GridLayout.Row({ "dataset" }),
         @GridLayout.Row({ "date" }) })
@@ -38,11 +37,11 @@ public class InputConfig implements Serializable {
     public final static int INPUT_CONFIG_VERSION = 3;
 
     @Option
-    @Documentation("The dataset.")
+    @Documentation("Doc: default dataset documentation without Internationalization.")
     private Dataset dataset;
 
     @Option
-    @Documentation("Retrieve only data after the given date.")
+    @Documentation("Doc: default date documentation without Internationalization.")
     private ZonedDateTime date;
 
 }

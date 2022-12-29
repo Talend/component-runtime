@@ -34,16 +34,16 @@ import lombok.Data;
 public class Auth implements Serializable {
 
     @Option
-    @Documentation("The credential's login.")
+    @Documentation("Doc: default login documentation without Internationalization.")
     private String login;
 
     @Option
+    @Documentation("Doc: default password documentation without Internationalization.")
     @Credential
-    @Documentation("The credential's password.")
     private String password;
 
     @Option
-    @Documentation("Number of authentication retry.")
+    @Documentation("Doc: default nbAuthRetry documentation without Internationalization.")
     private int nbAuthRetry;
 
 }

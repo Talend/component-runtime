@@ -22,7 +22,6 @@ import org.talend.sdk.component.api.meta.Documentation;
 import lombok.Data;
 
 @Data
-@Documentation("Nested configuration sample.")
 @GridLayout({
         @GridLayout.Row({ "stringOption1" }),
         @GridLayout.Row({ "stringOption2" }) })
@@ -32,10 +31,10 @@ public class NestedConfig {
      * Sample of nested config
      */
     @Option
-    @Documentation("String option 1 (Sample nested field).")
+    @Documentation("Doc: default stringOption1 documentation without Internationalization.")
     private String stringOption1;
 
     @Option
-    @Documentation("String option 2 (Sample nested field).")
+    @Documentation("Doc: default stringOption2 documentation without Internationalization.")
     private String stringOption2;
 }

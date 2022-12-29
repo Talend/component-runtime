@@ -288,7 +288,7 @@ public class ComponentManager implements AutoCloseable {
         }
 
         @Override
-        public String[] categories() {
+        public String categories() {
             return new String[] { "Misc" };
         }
     };

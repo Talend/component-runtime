@@ -32,13 +32,16 @@ class I18nMessagePropertiesGenerator:
             for line in lines:
                 # Ignore blank lines and comments
                 if line.strip() and not line.startswith('#'):
-                    f.write(line.strip() + ' -' + suffix + '\n')
+                    if line.__contains__('._documentation'):
+                        f.write(line.strip() + ' -' + suffix + '.\n')
+                    else:
+                        f.write(line.strip() + ' -' + suffix + '\n')
                 else:
                     f.write(line)
 
     def main(self):
 
-        suffixes = ['en', 'fr', 'cn', 'ja', 'uk']
+        suffixes = ['en', 'fr', 'zh', 'ja', 'uk']
 
         # Get all "Messages.properties" files in the current directory and its subdirectories
         properties_files = []
@@ -48,8 +51,14 @@ class I18nMessagePropertiesGenerator:
                     properties_files.append(os.path.join(root, file))
 
         # Print the list of files, one file per line
+        print("Processed files:")
         for file in properties_files:
-            print(file)
+            print('- ' + file)
+
+        # Print the list of languages, one file per line
+        print("Processed languages:")
+        for language in suffixes:
+            print('- ' + language)
 
         # For each file, add the given suffix to the end of each property
         for file in properties_files:

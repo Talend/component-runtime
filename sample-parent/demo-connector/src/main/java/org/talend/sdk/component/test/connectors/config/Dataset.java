@@ -32,7 +32,6 @@ import lombok.Data;
 @Version(value = Dataset.DATASET_VERSION, migrationHandler = DatasetMigrationHandler.class)
 @Data
 @DataSet("Dataset")
-@Documentation("The dataset of the demo connector plugin.")
 @GridLayout({
         @GridLayout.Row({ "datastore" }),
         @GridLayout.Row({ "entity" }),
@@ -40,31 +39,32 @@ import lombok.Data;
         @GridLayout.Row({ "nestedConfigDest" }) })
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
-        value = { @GridLayout.Row({ "datastore" }),
+        value = {
+                @GridLayout.Row({ "datastore" }),
                 @GridLayout.Row({ "readAll" }) })
 public class Dataset implements Serializable {
 
     public final static int DATASET_VERSION = 3;
 
     @Option
-    @Documentation("The connection configuration.")
+    @Documentation("Doc: default datastore documentation without Internationalization.")
     private Datastore datastore;
 
     @Option
-    @Documentation("Entity list.")
+    @Documentation("Doc: default entity documentation without Internationalization.")
     @Suggestable(value = UIService.LIST_ENTITIES)
     private String entity;
 
     @Option
-    @Documentation("Read all the data.")
+    @Documentation("Doc: default readAll documentation without Internationalization.")
     private boolean readAll;
 
     @Option
-    @Documentation("Original value for the updatable.")
+    @Documentation("Doc: default nestedConfigSrc documentation without Internationalization.")
     private NestedConfig nestedConfigSrc;
 
     @Option
-    @Documentation("Updatable sub-object that should retrieve its values from nestedConfigSrc.")
+    @Documentation("Doc: default nestedConfigDest documentation without Internationalization.")
     @Updatable(value = UIService.UPDATE_NESTED_CONFIG, parameters = { "nestedConfigSrc" }, after = "nestedConfigDest")
     private NestedConfig nestedConfigDest;
 

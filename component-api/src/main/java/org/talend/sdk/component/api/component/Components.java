@@ -41,5 +41,5 @@ public @interface Components {
      *
      * @return the categories to associate to this component. Default to "Misc".
      */
-    String[] categories() default { "Misc" };
+    String categories() default;
 }

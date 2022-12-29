@@ -18,11 +18,17 @@ package org.talend.sdk.component.test.connectors.input;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.RequiredArgsConstructor;
 
+@Version(1)
+@Icon(value = Icon.IconType.CUSTOM, custom = "icons8-flower-doodle")
 @RequiredArgsConstructor
+@Documentation("Doc: default DemoInput1 documentation without Internationalization.")
 public class DemoInput1 {
 
     @PostConstruct

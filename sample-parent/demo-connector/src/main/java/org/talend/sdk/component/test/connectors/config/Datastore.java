@@ -30,7 +30,6 @@ import lombok.Data;
 @Version(value = Datastore.DATASTORE_VERSION, migrationHandler = DatastoreMigrationHandler.class)
 @Data
 @DataStore("Connection")
-@Documentation("The connection part of the connector's configuration.")
 @GridLayout({
         @GridLayout.Row({ "url" }),
         @GridLayout.Row({ "auth" }) })
@@ -45,15 +44,15 @@ public class Datastore implements Serializable {
 
     @Option
     @Required
-    @Documentation("The url connection.")
+    @Documentation("Doc: default url documentation without Internationalization.")
     private String url;
 
     @Option
-    @Documentation("The authentication part.")
+    @Documentation("Doc: default auth documentation without Internationalization.")
     private Auth auth;
 
     @Option
-    @Documentation("Connection's timeout.")
+    @Documentation("Doc: default timeout documentation without Internationalization.")
     private int timeout;
 
 }
