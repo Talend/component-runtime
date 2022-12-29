@@ -29,9 +29,9 @@ import org.talend.sdk.component.test.connectors.service.UIService;
 
 import lombok.Data;
 
-@Version(value = Dataset.DATASET_VERSION, migrationHandler = DatasetMigrationHandler.class)
+@Version(value = DemoDataset.DATASET_VERSION, migrationHandler = DatasetMigrationHandler.class)
 @Data
-@DataSet("Dataset")
+@DataSet("DemoDataset")
 @GridLayout({
         @GridLayout.Row({ "datastore" }),
         @GridLayout.Row({ "entity" }),
@@ -42,13 +42,13 @@ import lombok.Data;
         value = {
                 @GridLayout.Row({ "datastore" }),
                 @GridLayout.Row({ "readAll" }) })
-public class Dataset implements Serializable {
+public class DemoDataset implements Serializable {
 
     public final static int DATASET_VERSION = 3;
 
     @Option
     @Documentation("Doc: default datastore documentation without Internationalization.")
-    private Datastore datastore;
+    private DemoDatastore datastore;
 
     @Option
     @Documentation("Doc: default entity documentation without Internationalization.")

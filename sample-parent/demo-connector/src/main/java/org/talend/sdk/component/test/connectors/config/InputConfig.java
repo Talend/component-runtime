@@ -38,7 +38,7 @@ public class InputConfig implements Serializable {
 
     @Option
     @Documentation("Doc: default dataset documentation without Internationalization.")
-    private Dataset dataset;
+    private DemoDataset dataset;
 
     @Option
     @Documentation("Doc: default date documentation without Internationalization.")

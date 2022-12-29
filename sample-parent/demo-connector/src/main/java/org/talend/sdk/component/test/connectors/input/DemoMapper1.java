@@ -31,7 +31,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
 
 @Version(1)
-@Icon(value = Icon.IconType.CUSTOM, custom = "icons8-cherry")
+@Icon(value = Icon.IconType.CUSTOM, custom = "mapper")
 @PartitionMapper(name = "DemoMapper1", infinite = false)
 @Documentation("Doc: default DemoMapper1 documentation without Internationalization.")
 public class DemoMapper1 implements Serializable {

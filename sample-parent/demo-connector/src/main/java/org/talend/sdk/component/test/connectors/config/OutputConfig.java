@@ -24,10 +24,16 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler.ExtraMigrationHandler;
 
 @Version(value = OutputConfig.OUTPUT_CONFIG_VERSION, migrationHandler = ExtraMigrationHandler.class)
-@GridLayout({ @GridLayout.Row({ "message" }) })
+@GridLayout({
+        @GridLayout.Row({ "dataset" }),
+        @GridLayout.Row({ "message" }) })
 public class OutputConfig implements Serializable {
 
     public final static int OUTPUT_CONFIG_VERSION = 1;
+
+    @Option
+    @Documentation("Doc: default dataset documentation without Internationalization.")
+    private DemoDataset dataset;
 
     @Option
     @Documentation("Doc: default message documentation without Internationalization.")

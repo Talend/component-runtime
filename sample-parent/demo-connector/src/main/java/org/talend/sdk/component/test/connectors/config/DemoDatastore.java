@@ -27,7 +27,7 @@ import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandl
 
 import lombok.Data;
 
-@Version(value = Datastore.DATASTORE_VERSION, migrationHandler = DatastoreMigrationHandler.class)
+@Version(value = DemoDatastore.DATASTORE_VERSION, migrationHandler = DatastoreMigrationHandler.class)
 @Data
 @DataStore("Connection")
 @GridLayout({
@@ -38,7 +38,7 @@ import lombok.Data;
         value = {
                 @GridLayout.Row({ "auth" }),
                 @GridLayout.Row({ "timeout" }) })
-public class Datastore implements Serializable {
+public class DemoDatastore implements Serializable {
 
     public final static int DATASTORE_VERSION = 2;
 

@@ -22,11 +22,15 @@ import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.record.Record;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Version(1)
-@Icon(value = Icon.IconType.CUSTOM, custom = "icons8-raspberry")
+@Icon(value = Icon.IconType.CUSTOM, custom = "output")
 @Processor(name = "DemoOutput1")
 @Documentation("Doc: default DemoOutput1 documentation without Internationalization.")
 public class DemoOutput1 {
@@ -37,6 +41,16 @@ public class DemoOutput1 {
 
     @PreDestroy
     public void release() {
+    }
+
+    @ElementListener
+    public void onNext(@Input final Record record) {
+    // skip empty record
+    if (record != null && record.getSchema().getEntries().isEmpty()) {
+        log.info("[onNext] Skipping empty record.");
+        return;
+    }
+        log.info("[onNext] manage record.");
     }
 
 }

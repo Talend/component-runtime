@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @Components(family = "demo_family", categories = "demo_categories")
-@Icon(value = Icon.IconType.CUSTOM, custom = "icons8-compost-heap")
+@Icon(value = Icon.IconType.CUSTOM, custom = "family")
 package org.talend.sdk.component.test.connectors;
 
 import org.talend.sdk.component.api.component.Components;

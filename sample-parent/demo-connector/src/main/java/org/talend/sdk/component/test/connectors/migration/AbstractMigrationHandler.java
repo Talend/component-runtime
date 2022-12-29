@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
-import org.talend.sdk.component.test.connectors.config.Dataset;
-import org.talend.sdk.component.test.connectors.config.Datastore;
+import org.talend.sdk.component.test.connectors.config.DemoDataset;
+import org.talend.sdk.component.test.connectors.config.DemoDatastore;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
 
 public abstract class AbstractMigrationHandler implements MigrationHandler {
@@ -51,7 +51,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
 
         @Override
         protected int getCurrentVersion() {
-            return Datastore.DATASTORE_VERSION;
+            return DemoDatastore.DATASTORE_VERSION;
         }
     }
 
@@ -64,7 +64,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
 
         @Override
         protected int getCurrentVersion() {
-            return Dataset.DATASET_VERSION;
+            return DemoDataset.DATASET_VERSION;
         }
     }
 
