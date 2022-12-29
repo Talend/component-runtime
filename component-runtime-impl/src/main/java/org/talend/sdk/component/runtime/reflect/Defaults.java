@@ -31,10 +31,17 @@ public class Defaults {
 
     private static final Handler HANDLER;
 
+    private static int toVersion(final String version) {
+        if (version.indexOf('-') > 0) {
+            Integer.parseInt(version.substring(0, version.indexOf('-')));
+        }
+        return Integer.parseInt(version);
+    }
+
     static {
         final String[] versionElements = System.getProperty("java.version").split("\\.");
-        final int unsureVersion = Integer.parseInt(versionElements[0]);
-        final int javaVersion = unsureVersion == 1 ? Integer.parseInt(versionElements[1]) : unsureVersion;
+        final int unsureVersion = toVersion(versionElements[0]);
+        final int javaVersion = unsureVersion == 1 ? toVersion(versionElements[1]) : unsureVersion;
         final Boolean isJava8 = javaVersion == 8 ? true : false;
         if (javaVersion > 8 && javaVersion < 17) {
             try {
