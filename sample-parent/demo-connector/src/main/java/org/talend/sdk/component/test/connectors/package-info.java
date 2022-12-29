@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(family = "test", categories = "automation")
+@Components(family = "demo_family", categories = "demo_categories")
 @Icon(value = Icon.IconType.CUSTOM, custom = "icons8-compost-heap")
 package org.talend.sdk.component.test.connectors;
 
