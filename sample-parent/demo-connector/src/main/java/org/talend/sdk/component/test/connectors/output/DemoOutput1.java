@@ -22,6 +22,7 @@ import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
@@ -47,7 +48,7 @@ public class DemoOutput1 implements Serializable {
 
     private OutputConfig config;
 
-    public DemoOutput1(final OutputConfig config) {
+    public DemoOutput1(final @Option("configout") OutputConfig config) {
 
         this.config = config;
     }

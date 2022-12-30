@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler.ExtraMigrationHandler;
 
@@ -41,6 +42,7 @@ public class InputConfig implements Serializable {
     private DemoDataset dataset;
 
     @Option
+    @DateTime
     @Documentation("Doc: default date documentation without Internationalization.")
     private ZonedDateTime date;
 
