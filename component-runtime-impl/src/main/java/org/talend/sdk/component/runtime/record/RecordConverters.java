@@ -509,7 +509,7 @@ public class RecordConverters implements Serializable {
                     final Constructor<?> constructor = visitorClass.getConstructors()[0];
                     constructor.setAccessible(true);
                     rowStructVisitor = constructor.newInstance();
-                    visitRowStruct = visitorClass.getDeclaredMethod("get", Object.class, RecordBuilderFactory.class);
+                    visitRowStruct = visitorClass.getMethod("get", Object.class, RecordBuilderFactory.class);
                 } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
                         | InvocationTargetException | NoSuchMethodException e) {
                     throw new IllegalStateException(e);
