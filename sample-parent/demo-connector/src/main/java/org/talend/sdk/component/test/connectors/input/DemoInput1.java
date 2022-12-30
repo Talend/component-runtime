@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.test.connectors.input;
 
+import java.time.LocalDate;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -58,7 +60,7 @@ public class DemoInput1 {
     @Producer
     public Object next() {
 
-        return null;
+        return LocalDate.now();
     }
 
 }
