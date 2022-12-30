@@ -42,7 +42,7 @@ public final class Unsafes {
 
     private static int toVersion(final String version) {
         if (version.indexOf('-') > 0) {
-            Integer.parseInt(version.substring(0, version.indexOf('-')));
+            return Integer.parseInt(version.substring(0, version.indexOf('-')));
         }
         return Integer.parseInt(version);
     }
