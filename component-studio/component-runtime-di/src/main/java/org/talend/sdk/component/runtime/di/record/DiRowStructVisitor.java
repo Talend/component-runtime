@@ -36,8 +36,6 @@ import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
-import routines.system.Dynamic;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -138,9 +136,9 @@ public class DiRowStructVisitor {
                     onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
                     break;
                 case StudioTypes.DYNAMIC:
-                    final Dynamic dynamic = Dynamic.class.cast(raw);
-                    dynamic.metadatas.forEach(meta -> {
-                        final Object value = dynamic.getColumnValue(meta.getName());
+                    final DynamicWrapper dynamic = new DynamicWrapper(raw);
+                    dynamic.getDynamic().metadatas.forEach(meta -> {
+                        final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         log.debug("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
@@ -321,9 +319,9 @@ public class DiRowStructVisitor {
                             defaultValue, null, studioType));
                     break;
                 case StudioTypes.DYNAMIC:
-                    final Dynamic dynamic = Dynamic.class.cast(raw);
-                    dynamic.metadatas.forEach(meta -> {
-                        final Object value = dynamic.getColumnValue(meta.getName());
+                    final DynamicWrapper dynamic = new DynamicWrapper(raw);
+                    dynamic.getDynamic().metadatas.forEach(meta -> {
+                        final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         final boolean metaIsNullable = meta.isNullable();

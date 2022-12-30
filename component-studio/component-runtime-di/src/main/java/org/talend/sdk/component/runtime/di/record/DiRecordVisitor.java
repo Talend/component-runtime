@@ -180,7 +180,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     public Object get() {
         if (hasDynamic) {
             try {
-                fields.get(dynamicColumn).set(instance, dynamic);
+                fields.get(dynamicColumn).set(instance, dynamic.getDynamic());
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
@@ -280,7 +280,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             } else {
                 dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
             }
-            log.debug("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(), value);
+            log.debug("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(),
+                    value);
             return;
         }
         if (field == null) {
