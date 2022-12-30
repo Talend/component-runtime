@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.test.connectors.output;
 
+import java.io.Serializable;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -35,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Icon(value = Icon.IconType.CUSTOM, custom = "output")
 @Processor(name = "DemoOutput1")
 @Documentation("Doc: default DemoOutput1 documentation without Internationalization.")
-public class DemoOutput1 {
+public class DemoOutput1 implements Serializable {
 
     /*
      * An Output is a Processor that does not return any data.
