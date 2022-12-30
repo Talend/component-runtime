@@ -49,6 +49,7 @@ public class DemoOutput1 implements Serializable {
     private OutputConfig config;
 
     public DemoOutput1(final @Option("OutputConfig") OutputConfig config) {
+
         this.config = config;
     }
 

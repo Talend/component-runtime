@@ -46,6 +46,7 @@ public class DemoMapper1 implements Serializable {
     private InputConfig config;
 
     public DemoMapper1(final @Option("NestedConfig") InputConfig config) {
+
         this.config = config;
     }
 
@@ -56,11 +57,13 @@ public class DemoMapper1 implements Serializable {
 
     @Split
     public List<DemoMapper1> split(@PartitionSize final int desiredNbSplits) {
+
         return Collections.singletonList(this);
     }
 
     @Emitter
     public DemoInput1 createSource() {
+
         return new DemoInput1();
     }
 

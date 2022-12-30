@@ -57,6 +57,7 @@ public class DemoInput1 {
 
     @Producer
     public Object next() {
+
         return null;
     }
 
