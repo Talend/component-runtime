@@ -31,17 +31,17 @@ import lombok.Data;
 
 @Version(value = DemoDataset.DATASET_VERSION, migrationHandler = DatasetMigrationHandler.class)
 @Data
-@DataSet("DemoDataset")
+@DataSet("TheDemoDataset")
 @GridLayout({
-        @GridLayout.Row({ "datastore" }),
         @GridLayout.Row({ "entity" }),
         @GridLayout.Row({ "nestedConfigSrc" }),
-        @GridLayout.Row({ "nestedConfigDest" }) })
+        @GridLayout.Row({ "nestedConfigDest" }),
+        @GridLayout.Row({ "datastore" }) })
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
         value = {
-                @GridLayout.Row({ "datastore" }),
-                @GridLayout.Row({ "readAll" }) })
+                @GridLayout.Row({ "readAll" }),
+                @GridLayout.Row({ "datastore" }) })
 public class DemoDataset implements Serializable {
 
     public final static int DATASET_VERSION = 3;

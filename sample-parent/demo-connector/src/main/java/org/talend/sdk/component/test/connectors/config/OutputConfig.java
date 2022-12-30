@@ -25,8 +25,12 @@ import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandl
 
 @Version(value = OutputConfig.OUTPUT_CONFIG_VERSION, migrationHandler = ExtraMigrationHandler.class)
 @GridLayout({
-        @GridLayout.Row({ "dataset" }),
-        @GridLayout.Row({ "message" }) })
+        @GridLayout.Row({ "message" }),
+        @GridLayout.Row({ "dataset" }) })
+@GridLayout(
+        names = GridLayout.FormType.ADVANCED,
+        value = {
+                @GridLayout.Row({ "dataset" }) })
 public class OutputConfig implements Serializable {
 
     public final static int OUTPUT_CONFIG_VERSION = 1;

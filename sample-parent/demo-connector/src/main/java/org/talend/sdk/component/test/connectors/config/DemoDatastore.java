@@ -29,15 +29,15 @@ import lombok.Data;
 
 @Version(value = DemoDatastore.DATASTORE_VERSION, migrationHandler = DatastoreMigrationHandler.class)
 @Data
-@DataStore("Connection")
+@DataStore("TheConnection")
 @GridLayout({
         @GridLayout.Row({ "url" }),
         @GridLayout.Row({ "auth" }) })
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
         value = {
-                @GridLayout.Row({ "auth" }),
-                @GridLayout.Row({ "timeout" }) })
+                @GridLayout.Row({ "timeout" }),
+                @GridLayout.Row({ "auth" }) })
 public class DemoDatastore implements Serializable {
 
     public final static int DATASTORE_VERSION = 2;

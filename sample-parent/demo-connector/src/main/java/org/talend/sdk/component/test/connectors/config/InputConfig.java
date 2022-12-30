@@ -26,8 +26,8 @@ import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandl
 
 @Version(value = InputConfig.INPUT_CONFIG_VERSION, migrationHandler = ExtraMigrationHandler.class)
 @GridLayout({
-        @GridLayout.Row({ "dataset" }),
-        @GridLayout.Row({ "date" }) })
+        @GridLayout.Row({ "date" }),
+        @GridLayout.Row({ "dataset" }) })
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
         value = {

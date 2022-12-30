@@ -45,7 +45,7 @@ public class DemoMapper1 implements Serializable {
 
     private InputConfig config;
 
-    public DemoMapper1(final @Option("NestedConfig") InputConfig config) {
+    public DemoMapper1(final InputConfig config) {
 
         this.config = config;
     }

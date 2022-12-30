@@ -27,8 +27,7 @@ import lombok.Data;
 @Data
 @GridLayout({
         @GridLayout.Row({ "login" }),
-        @GridLayout.Row({ "password" }),
-        @GridLayout.Row({ "nbAuthRetry" }) })
+        @GridLayout.Row({ "password" }) })
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
         value = { @GridLayout.Row({ "nbAuthRetry" }) })
