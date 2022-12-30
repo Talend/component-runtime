@@ -27,11 +27,8 @@ import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
 
-import lombok.RequiredArgsConstructor;
-
 @Version(1)
 @Icon(value = Icon.IconType.CUSTOM, custom = "input")
-@RequiredArgsConstructor
 @Documentation("Doc: default DemoInput1 documentation without Internationalization.")
 public class DemoInput1 {
 

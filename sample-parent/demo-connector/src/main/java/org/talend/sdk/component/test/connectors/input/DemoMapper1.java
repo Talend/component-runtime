@@ -64,7 +64,7 @@ public class DemoMapper1 implements Serializable {
     @Emitter
     public DemoInput1 createSource() {
 
-        return new DemoInput1();
+        return new DemoInput1(this.config);
     }
 
 }
