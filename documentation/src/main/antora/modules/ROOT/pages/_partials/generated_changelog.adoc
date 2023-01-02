@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2334[TCOMP-2334^]: Upgrade netty to 4.1.86.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2335[TCOMP-2335^]: Upgrade commons-net to 3.9.0 link:search.html?query=documentation[documentation^,role='dockey']
 
 == Version 1.52.0
 
