@@ -95,6 +95,19 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>talend-component-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <id>talend-component-documentation</id>
+            <goals>
+              <goal>asciidoc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
