@@ -28,6 +28,7 @@ import java.security.ProtectionDomain;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.runtime.reflect.JavaVersion;
 
 import lombok.NoArgsConstructor;
 
@@ -40,18 +41,9 @@ public final class Unsafes {
 
     private static final Method UNSAFE_DEFINE_CLASS;
 
-    private static int toVersion(final String version) {
-        if (version.indexOf('-') > 0) {
-            return Integer.parseInt(version.substring(0, version.indexOf('-')));
-        }
-        return Integer.parseInt(version);
-    }
-
     static {
         Class<?> unsafeClass;
-        final String[] versionElements = System.getProperty("java.version").split("\\.");
-        final int unsureVersion = toVersion(versionElements[0]);
-        final int javaVersion = unsureVersion == 1 ? toVersion(versionElements[1]) : unsureVersion;
+        final int javaVersion = JavaVersion.major();
         if (javaVersion > 8 && javaVersion < 17) {
             try {
                 /**
