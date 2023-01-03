@@ -32,9 +32,7 @@ public class Defaults {
     private static final Handler HANDLER;
 
     static {
-        final String[] versionElements = System.getProperty("java.version").split("\\.");
-        final int unsureVersion = Integer.parseInt(versionElements[0]);
-        final int javaVersion = unsureVersion == 1 ? Integer.parseInt(versionElements[1]) : unsureVersion;
+        final int javaVersion = JavaVersion.major();
         final Boolean isJava8 = javaVersion == 8 ? true : false;
         if (javaVersion > 8 && javaVersion < 17) {
             try {
