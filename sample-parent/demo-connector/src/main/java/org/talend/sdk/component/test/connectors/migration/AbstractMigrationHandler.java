@@ -23,6 +23,9 @@ import org.talend.sdk.component.test.connectors.config.DemoDataset;
 import org.talend.sdk.component.test.connectors.config.DemoDatastore;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public abstract class AbstractMigrationHandler implements MigrationHandler {
 
     protected abstract String getLevel();
@@ -31,12 +34,17 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
 
     @Override
     public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
+
+
+        log.info(java.lang.String.format("Execute a %s migration.", this.getLevel()));
+
         Map<String, String> migrated = new HashMap<>(incomingData);
 
         migrated.put("configuration.level", this.getLevel());
         migrated.put("configuration.incomingVersion", "" + incomingVersion);
         migrated.put("configuration.currentVersion", "" + this.getCurrentVersion());
 
+        // The migration do something simple
         migrated.keySet().stream().forEach(k -> migrated.put(k, migrated.get(k).toUpperCase()));
 
         return migrated;
