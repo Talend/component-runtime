@@ -2,10 +2,32 @@
 
 == Version 1.53.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2330[TCOMP-2330^]: A better way to check the JVM version link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2327[TCOMP-2327^]: CVE-2022-46364,org.apache.cxf:cxf-core:3.4.4,3.5.2
+- link:https://jira.talendforge.org/browse/TCOMP-2328[TCOMP-2328^]: CVE-2022-40152,com.fasterxml.woodstox:woodstox-core:(6.2.6,6.2.7,6.2.8,6.2.1,5.3.0 <6.4.0)
 - link:https://jira.talendforge.org/browse/TCOMP-2334[TCOMP-2334^]: Upgrade netty to 4.1.86.Final link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2335[TCOMP-2335^]: Upgrade commons-net to 3.9.0 link:search.html?query=documentation[documentation^,role='dockey']
+
+
+
+== Version 1.52.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2330[TCOMP-2330^]: A better way to check the JVM version link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2327[TCOMP-2327^]: CVE-2022-46364,org.apache.cxf:cxf-core:3.4.4,3.5.2
+- link:https://jira.talendforge.org/browse/TCOMP-2328[TCOMP-2328^]: CVE-2022-40152,com.fasterxml.woodstox:woodstox-core:(6.2.6,6.2.7,6.2.8,6.2.1,5.3.0 <6.4.0)
 
 == Version 1.52.0
 
@@ -23,6 +45,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2308[TCOMP-2308^]: component-runtime-http-junit capture headers case sensitivity link:search.html?query=testing[testing^,role='dockey']
 
 
+
+
+
+== Version 1.51.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2330[TCOMP-2330^]: A better way to check the JVM version link:search.html?query=component-manager[component-manager^,role='dockey']
 
 == Version 1.51.2
 
@@ -547,6 +577,15 @@
 
 
 
+
+
+
+== Version 1.38.8
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2327[TCOMP-2327^]: CVE-2022-46364,org.apache.cxf:cxf-core:3.4.4,3.5.2
+- link:https://jira.talendforge.org/browse/TCOMP-2328[TCOMP-2328^]: CVE-2022-40152,com.fasterxml.woodstox:woodstox-core:(6.2.6,6.2.7,6.2.8,6.2.1,5.3.0 <6.4.0)
 
 == Version 1.38.7
 
@@ -1320,12 +1359,6 @@
 
 
 
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
-
 == Version 1.1.15
 
 === Bug
@@ -1358,6 +1391,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
+
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
