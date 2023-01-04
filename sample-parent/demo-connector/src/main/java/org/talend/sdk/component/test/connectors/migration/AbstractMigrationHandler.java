@@ -35,7 +35,6 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     @Override
     public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
 
-
         log.info(java.lang.String.format("Execute a %s migration.", this.getLevel()));
 
         Map<String, String> migrated = new HashMap<>(incomingData);

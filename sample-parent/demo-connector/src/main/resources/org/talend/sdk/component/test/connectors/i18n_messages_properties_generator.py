@@ -19,23 +19,42 @@
 
 import os
 
+# The specials_characters dict is used to add languages dependant specials characters to some entries for test purposes
+# For now we only do it for demo_family.DemoInput1._displayName
+specials_characters = {"fr": u"é",
+                       "uk": u"Ж",
+                       "ja": u"愛",
+                       "zh": u"爱"}
+
 
 class I18nMessagePropertiesGenerator:
     @staticmethod
-    def add_suffix_to_properties_files(file, suffix):
-        output_file = file.replace('Messages', 'Messages_' + suffix)
+    def add_suffix_to_properties_files(file, language_id: str):
+        output_file = file.replace('Messages', 'Messages_' + language_id)
+        special_character = specials_characters.get(language_id)
 
-        with open(file, 'r') as f:
+        with open(file, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             for line in lines:
                 # Ignore blank lines and comments
                 if line.strip() and not line.startswith('#'):
+
+                    f.write(line.strip() + ' -' + language_id)
+
                     if line.__contains__('._documentation'):
-                        f.write(line.strip() + ' -' + suffix + '.\n')
-                    else:
-                        f.write(line.strip() + ' -' + suffix + '\n')
+                        # Documentation shall always end with a '.'
+                        f.write(".")
+
+                    if line.__contains__('demo_family.DemoInput1._displayName') and special_character:
+                        # Inject special character for test purpose
+
+                        f.write(' +')
+                        f.write(special_character)
+
+                    f.write('\n')
+
                 else:
                     f.write(line)
 
