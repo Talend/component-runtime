@@ -890,7 +890,7 @@ public class ReflectionService {
     }
 
     @RequiredArgsConstructor
-    private static class PayloadValidator implements PayloadMapper.OnParameter {
+    protected static class PayloadValidator implements PayloadMapper.OnParameter {
 
         private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
 
@@ -902,6 +902,8 @@ public class ReflectionService {
         private final Collection<String> errors = new ArrayList<>();
 
         JsonObject globalPayload;
+
+        public String currentParamPath;
 
         @Override
         public void onParameter(final ParameterMeta meta, final JsonValue value) {

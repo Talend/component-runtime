@@ -23,8 +23,7 @@ import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -53,7 +52,8 @@ public class VisibilityService {
     public ConditionGroup build(final ParameterMeta param) {
         final boolean and =
                 "AND".equalsIgnoreCase(param.getMetadata().getOrDefault("tcomp::condition::ifs::operator", "AND"));
-        return new ConditionGroup(param
+        Map<String, Condition> conditions = new HashMap<>();
+        ConditionGroup group = new ConditionGroup(param
                 .getMetadata()
                 .entrySet()
                 .stream()
@@ -65,13 +65,32 @@ public class VisibilityService {
                     final String negateKey = "tcomp::condition::if::negate" + index;
                     final String evaluationStrategyKey = "tcomp::condition::if::evaluationStrategy" + index;
                     final String absoluteTargetPath = pathResolver.resolveProperty(param.getPath(), meta.getValue());
-                    return new Condition('/' + absoluteTargetPath.replace('.', '/'),
-                            toPointer(absoluteTargetPath),
-                            Boolean.parseBoolean(param.getMetadata().getOrDefault(negateKey, "false")),
-                            param.getMetadata().getOrDefault(evaluationStrategyKey, "DEFAULT").toUpperCase(ROOT),
-                            param.getMetadata().getOrDefault(valueKey, "true").split(","));
+                    Condition condition = conditions.get(absoluteTargetPath);
+                    if (condition == null) {
+                        condition = new Condition('/' + absoluteTargetPath.replace('.', '/'),
+                                toPointer(absoluteTargetPath),
+                                Boolean.parseBoolean(param.getMetadata().getOrDefault(negateKey, "false")),
+                                param.getMetadata().getOrDefault(evaluationStrategyKey, "DEFAULT").toUpperCase(ROOT),
+                                param.getMetadata().getOrDefault(valueKey, "true").split(","));
+                        conditions.put(absoluteTargetPath, condition);
+                    } else {
+                        List<String> collection = Arrays.stream(condition.values).collect(toList());
+                        collection.add(String.valueOf(param.getMetadata().getOrDefault(valueKey, "true")));
+                        condition = new Condition('/' + absoluteTargetPath.replace('.', '/'),
+                                toPointer(absoluteTargetPath),
+                                Boolean.parseBoolean(param.getMetadata().getOrDefault(negateKey, "false")),
+                                param.getMetadata().getOrDefault(evaluationStrategyKey, "DEFAULT").toUpperCase(ROOT),
+                                collection.toArray(new String[0]));
+                        conditions.replace(absoluteTargetPath, condition);
+                    }
+                    return condition;
                 })
                 .collect(toList()), and ? stream -> stream.allMatch(i -> i) : stream -> stream.anyMatch(i -> i));
+        if (and) {
+            group.conditions.clear();
+            group.conditions.addAll(conditions.values());
+        }
+        return group;
     }
 
     private JsonPointer toPointer(final String absoluteTargetPath) {
@@ -140,16 +159,26 @@ public class VisibilityService {
 
         private final String[] values;
 
+        //used for array position
+        private int index;
+
         boolean evaluateCondition(final JsonObject payload) {
+            System.err.println("[Condition]--negation--"+negation+"--values--" );
+            for (String s :values) {
+                System.err.print(s +",");
+            }
             return negation != Stream.of(values).anyMatch(val -> evaluate(val, payload));
         }
 
         private boolean evaluate(final String expected, final JsonObject payload) {
             final Object actual = extractValue(payload);
+            System.err.println("[Condition]--extract--" + actual.toString());
             switch (evaluationStrategy) {
             case "DEFAULT":
                 if (Collection.class.isInstance(actual)) {
-                    return Collection.class.cast(actual).contains(expected);
+                    //if values >= actual, return true, it actual contains any element out of values, return false;
+                    return Stream.of(Collection.class.cast(actual)).filter(c -> !Arrays.stream(values).collect(toList()).contains(c)).count() == 0;
+                    //return Collection.class.cast(actual).contains(expected);
                 }
                 return expected.equals(TO_STRING.apply(actual));
             case "LENGTH":
@@ -227,9 +256,13 @@ public class VisibilityService {
                     ptr.getValue(payload)
                             .asJsonArray()
                             .stream()
-                            .forEach(j -> builder.add(subptr.getValue(j.asJsonObject())));
+                            .forEach(j -> {
+                                JsonValue value = subptr.getValue(j.asJsonObject());
+//                                System.err.println(value.toString());
+                                    builder.add(value);
+                            });
                     // TODO comment to activate initial behavior / remove comments to activate start of fix
-                    //return ofNullable(builder.build()).map(this::mapValue).orElse(null);
+                    return ofNullable(builder.build()).map(this::mapValue).orElse(null);
                 }
                 return null;
             }
@@ -239,7 +272,16 @@ public class VisibilityService {
         private Object mapValue(final JsonValue value) {
             switch (value.getValueType()) {
             case ARRAY:
-                return value.asJsonArray().stream().map(this::mapValue).collect(toList());
+//                List<String> list = new ArrayList();
+//                value.asJsonArray().forEach(each -> {
+//                    String str = each.toString().substring(1,each.toString().length()-1);
+//                     if (!Stream.of(values).anyMatch(s->s.equals(str))){//.collect(toList()).contains(str)) {
+//                        list.add(each.toString());
+//                    }
+//                });
+//                return list;
+//
+                    return value.asJsonArray().stream().map(this::mapValue).collect(toList());
             case STRING:
                 return JsonString.class.cast(value).getString();
             case TRUE:
@@ -265,6 +307,7 @@ public class VisibilityService {
         private final Function<Stream<Boolean>, Boolean> aggregator;
 
         public boolean isVisible(final JsonObject payload) {
+            System.err.println("[ConditionGroup::isVisible]: conditions size :" +conditions.size());
             return conditions
                     .stream()
                     .allMatch(group -> aggregator.apply(conditions.stream().map(c -> c.evaluateCondition(payload))));
