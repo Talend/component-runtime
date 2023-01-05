@@ -2,13 +2,13 @@
 <jsonArray>[
   {
     "commits":2548,
-    "description":"Apache addict I'm involved in several project (OpenWebBeans, Johnzon, Geronimo, Meecrowave, ... - http://home.apache.org/committer-index.html#rmannibucau).\n\nBlog: https://rmannibucau.metawerx.net",
+    "description":"OSS addict I'm involved in several ASF projects (http://home.apache.org/committer-index.html#rmannibucau) and Yupiik (https://www.yupiik.io/projects.html).\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":659,
+    "commits":660,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
