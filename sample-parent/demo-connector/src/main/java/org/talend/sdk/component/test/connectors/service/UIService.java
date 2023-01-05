@@ -29,9 +29,11 @@ import org.talend.sdk.component.test.connectors.config.NestedConfig;
 @Service
 public class UIService {
 
-    public final static String LIST_ENTITIES = "LIST_ENTITIES";
+    // TODO add translation for the services
 
-    public final static String UPDATE_NESTED_CONFIG = "UPDATE_NESTED_CONFIG";
+    public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
+
+    public final static String UPDATE_NESTED_CONFIG = "action_UPDATE_NESTED_CONFIG";
 
     /**
      * Suggestions action without any configuration.
@@ -41,7 +43,7 @@ public class UIService {
     @Suggestions(LIST_ENTITIES)
     public SuggestionValues getListEntities() {
         final List<Item> entities =
-                Arrays.stream(new String[] { "Account", "Customer", "Prospect", "Quotation", "Sale" })
+                Arrays.stream(new String[] { "Entity 1", "Entity 2", "Entity 3" })
                         .map(e -> new Item(e, e))
                         .collect(Collectors.toList());
 
