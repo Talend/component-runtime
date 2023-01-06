@@ -39,6 +39,7 @@ import org.apache.avro.generic.IndexedRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
@@ -466,6 +467,41 @@ class AvroSchemaTest {
                 System.setProperty("talend.component.beam.record.factory.impl", oldValue);
             }
         }
+    }
+
+    /**
+     * The {@link KeysForAvroProperty#LABEL} property ({@code talend.component.label}) is an implementation
+     * detail of the Avro implementation of TCK's {@link Record} API and should not leak when building
+     * {@link Record} instances from this Avro implementation.
+     */
+    @Test
+    void schemaBuiltFromEntriesWithSanitizedNamesShouldNotHaveATalendComponentLabelProp() {
+        // Given
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
+
+        final Builder tckSchemaBuilder = factory.newSchemaBuilder(RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withName("prénom") // Name contains invalid characters for Avro Field "name" property, will be sanitized
+                        .withType(STRING)
+                        .withProp("hello", "world")
+                        .build()
+                );
+
+        // When
+        final org.talend.sdk.component.api.record.Schema tckSchema = tckSchemaBuilder.build();
+
+        // Then
+        final List<Entry> schemaEntries = tckSchema.getEntries();
+
+        Assertions.assertEquals(1, schemaEntries.size());
+
+        final Entry prenomEntry = schemaEntries.get(0);
+
+        Assertions.assertEquals("pr_nom", prenomEntry.getName());
+        Assertions.assertEquals("prénom", prenomEntry.getOriginalFieldName());
+        Assertions.assertEquals(1, prenomEntry.getProps().size());
+        Assertions.assertEquals("world", prenomEntry.getProps().get("hello"));
+        Assertions.assertFalse(prenomEntry.getProps().containsKey(KeysForAvroProperty.LABEL));
     }
 
     private Schema nonNullType(final Schema schema) {

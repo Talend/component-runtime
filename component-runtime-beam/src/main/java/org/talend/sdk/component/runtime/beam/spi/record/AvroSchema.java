@@ -23,6 +23,7 @@ import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -184,7 +185,28 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         return AvroSchema.buildFromAvro(field, fieldType, fieldSchema);
     }
 
+    /**
+     * Builds a TCK {@link org.talend.sdk.component.api.record.Schema.Entry} from an Avro {@link Field}.
+     * <p>
+     * Entry original name is stored in an Avro property (named {@link KeysForAvroProperty#LABEL}), among
+     * other possible properties. As this property is an implementation detail of this Avro TCK implementation,
+     * it should never leak in the resulting {@link org.talend.sdk.component.api.record.Schema.Entry} props.
+     * <p>
+     * <i>Note regarding the warning suppression: ideally, one should avoid using the {@link Field#getProps()}</i>
+     * method as it is deprecated...
+     */
+    @SuppressWarnings("deprecation")
     private static Entry buildFromAvro(final Field field, final Type type, final AvroSchema elementSchema) {
+        Map<String, String> tckEntryProps;
+
+        if (field.getProps().containsKey(KeysForAvroProperty.LABEL)) {
+            tckEntryProps = new HashMap<>(field.getProps());
+            tckEntryProps.remove(KeysForAvroProperty.LABEL);
+        }
+        else {
+            tckEntryProps = field.getProps();
+        }
+
         return new EntryImpl.BuilderImpl() //
                 .withName(field.name()) //
                 .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
@@ -194,7 +216,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 .withDefaultValue(field.defaultVal()) //
                 .withElementSchema(elementSchema) //
                 .withComment(field.doc()) //
-                .withProps(field.getProps()) //
+                .withProps(tckEntryProps) //
                 .build();
     }
 
