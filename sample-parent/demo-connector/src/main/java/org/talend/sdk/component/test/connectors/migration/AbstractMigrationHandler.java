@@ -32,6 +32,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
 
     protected abstract int getCurrentVersion();
 
+    // Todo
     @Override
     public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
 
@@ -39,12 +40,13 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
 
         Map<String, String> migrated = new HashMap<>(incomingData);
 
-        migrated.put("configuration.level", this.getLevel());
-        migrated.put("configuration.incomingVersion", "" + incomingVersion);
-        migrated.put("configuration.currentVersion", "" + this.getCurrentVersion());
+        migrated.put("configuration.__level", this.getLevel());
+        migrated.put("configuration.__incomingVersion", "" + incomingVersion);
+        migrated.put("configuration.__currentVersion", "" + this.getCurrentVersion());
+        migrated.putAll(incomingData);
 
         // The migration do something simple
-        migrated.keySet().stream().forEach(k -> migrated.put(k, migrated.get(k).toUpperCase()));
+        // migrated.keySet().stream().forEach(k -> migrated.put(k, migrated.get(k).toUpperCase()));
 
         return migrated;
     }

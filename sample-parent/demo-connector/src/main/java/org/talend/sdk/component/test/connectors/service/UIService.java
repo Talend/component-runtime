@@ -35,6 +35,9 @@ public class UIService {
 
     public final static String UPDATE_NESTED_CONFIG = "action_UPDATE_NESTED_CONFIG";
 
+    @Service
+    private I18n i18n;
+
     /**
      * Suggestions action without any configuration.
      * 
@@ -42,10 +45,12 @@ public class UIService {
      */
     @Suggestions(LIST_ENTITIES)
     public SuggestionValues getListEntities() {
-        final List<Item> entities =
-                Arrays.stream(new String[] { "Entity 1", "Entity 2", "Entity 3" })
-                        .map(e -> new Item(e, e))
-                        .collect(Collectors.toList());
+
+        List<Item> entities = Arrays.asList(1, 2, 3, 4)
+                .stream()
+                .map(i -> String.valueOf(i))
+                .map(i -> new Item(i, i18n.entityName(i)))
+                .collect(Collectors.toList());
 
         return new SuggestionValues(true, entities);
     }
@@ -53,8 +58,8 @@ public class UIService {
     @Update(UPDATE_NESTED_CONFIG)
     public NestedConfig retrieveFeedback(final NestedConfig source) throws Exception {
         NestedConfig dest = new NestedConfig();
-        dest.setStringOption1(source.getStringOption1());
-        dest.setStringOption2(source.getStringOption2());
+        dest.setStringOption1("set by service : " + source.getStringOption1());
+        dest.setStringOption2("set by service : " + source.getStringOption2());
         return dest;
     }
 
