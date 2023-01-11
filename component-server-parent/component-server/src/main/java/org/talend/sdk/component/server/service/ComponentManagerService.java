@@ -70,6 +70,7 @@ import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.dao.ConfigurationDao;
 import org.talend.sdk.component.server.front.model.Connectors;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -127,6 +128,9 @@ public class ComponentManagerService {
     private Long latestPluginUpdate;
 
     private ScheduledExecutorService scheduledExecutorService;
+
+    @Inject
+    private FrontCacheResolver cacheResolver;
 
     public void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // no-op
@@ -240,6 +244,8 @@ public class ComponentManagerService {
         log.info("Plugins deployed.");
         // reset connectors' version
         synchronizeConnectors();
+        // reset caches
+        cacheResolver.clearCaches();
 
         return null;
     }
