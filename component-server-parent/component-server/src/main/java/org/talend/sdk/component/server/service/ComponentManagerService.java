@@ -301,7 +301,12 @@ public class ComponentManagerService {
                     try (final InputStream is = Files.newInputStream(registry)) {
                         properties.load(is);
                     } catch (final IOException e) {
-                        throw new IllegalArgumentException(e);
+                        // when using plugin reloading, main registry file may be not available at startup.
+                        if (configuration.getPluginsReloadActive()) {
+                            log.warn("[deployPlugins] registry file {} is unavailable.", registry);
+                        } else {
+                            throw new IllegalArgumentException(e);
+                        }
                     }
                     properties
                             .stringPropertyNames()
