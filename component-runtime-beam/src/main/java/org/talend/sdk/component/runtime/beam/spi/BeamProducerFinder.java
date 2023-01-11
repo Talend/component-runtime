@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.beam.spi;
 
 import java.io.ObjectStreamException;
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
@@ -47,8 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 public class BeamProducerFinder extends ProducerFinderImpl {
 
     static final int CAPACITY = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "100000"));
-
-    static final Queue<Record> QUEUE = new ArrayBlockingQueue<>(CAPACITY, true);
 
     @Override
     public Iterator<Record> find(final String familyName, final String inputName, final int version,
@@ -83,6 +80,8 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         private boolean end;
 
         private Record next;
+
+        private Queue<Record> QUEUE = new ArrayBlockingQueue<>(CAPACITY, true);
 
         public QueueInput(final Object delegate, final String rootName, final String name, final String plugin,
                 final PTransform<PBegin, PCollection<Record>> transform) {
@@ -151,7 +150,24 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                 Thread.currentThread().setContextClassLoader(beamAwareClassLoader);
 
                 PipelineOptions options = PipelineOptionsFactory.create();
-                PushRecord pushRecord = new PushRecord();
+                DoFn<Record, Void> pushRecord = new DoFn<Record, Void>() {
+
+                    @ProcessElement
+                    public void processElement(final @Element Record record) {
+                        boolean ok = QUEUE.offer(record);
+                        while (!ok) {
+                            if (QUEUE.size() >= CAPACITY) {
+                                final String msg = String.format(
+                                        "Wrapper queue if full (capacity: %d). Consider increasing it according data with talend.beam.wrapper.capacity property.",
+                                        CAPACITY);
+                                log.error("[processElement] {}", msg);
+                                throw new IllegalStateException(msg);
+                            }
+                            sleep();
+                            ok = QUEUE.offer(record);
+                        }
+                    }
+                };
                 ParDo.SingleOutput<Record, Void> of = ParDo.of(pushRecord);
                 Pipeline p = Pipeline.create(options);
                 p.apply(transform).apply(of);
@@ -159,33 +175,6 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                 return p.run();
             } finally {
                 Thread.currentThread().setContextClassLoader(callerClassLoader);
-            }
-        }
-
-        private void sleep() {
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    static class PushRecord extends DoFn<Record, Void> implements Serializable {
-
-        @ProcessElement
-        public void processElement(final @Element Record record) {
-            boolean ok = QUEUE.offer(record);
-            while (!ok) {
-                if (QUEUE.size() >= CAPACITY) {
-                    final String msg = String.format(
-                            "Wrapper queue if full (capacity: %d). Consider increasing it according data with talend.beam.wrapper.capacity property.",
-                            CAPACITY);
-                    log.error("[processElement] {}", msg);
-                    throw new IllegalStateException(msg);
-                }
-                sleep();
-                ok = QUEUE.offer(record);
             }
         }
 
