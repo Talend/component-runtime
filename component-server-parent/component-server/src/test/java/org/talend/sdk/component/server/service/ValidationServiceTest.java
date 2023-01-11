@@ -238,9 +238,13 @@ public class ValidationServiceTest {
     }
 
     @Test
-    public void test1(){
+    public void test1() throws NoSuchMethodException {
         final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
-            final List<ParameterMeta> metas2 = service.buildParameterMetas(Stream.of(new ParameterModelService.Param(JsonSchema.class,
+        final List<ParameterMeta> metas = service
+                .buildParameterMetas(ConfigTypeNodes.class.getMethod("visibility", SimplePropertyDefinition.class),
+                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+
+        final List<ParameterMeta> metas2 = service.buildParameterMetas(Stream.of(new ParameterModelService.Param(JsonSchema.class,
                         JsonSchema.class.getAnnotations(), jsonSchema.getTitle())),
                 JsonSchema.class,
                 ofNullable(JsonSchema.class.getPackage()).map(Package::getName).orElse(""), true,

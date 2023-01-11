@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -34,6 +35,8 @@ import org.talend.sdk.component.server.front.model.PropertyValidation;
 public class PropertyValidationService {
 
     private Function<Map<String, String>, PropertyValidation> propertyValidationCreator;
+
+    private Function<PropertyValidation, Map<String, String>> propertyMetaCreator;
 
     @PostConstruct
     private void initMapper() {
@@ -56,17 +59,17 @@ public class PropertyValidationService {
                         f.setAccessible(true);
                     }
                     return (BiFunction<Object, Map<String, String>, Boolean>) (instance,
-                            meta) -> ofNullable(meta.get(ValidationParameterEnricher.META_PREFIX + f.getName()))
-                                    .map(valueConverter)
-                                    .map(val -> {
-                                        try {
-                                            f.set(instance, val);
-                                        } catch (IllegalAccessException e) {
-                                            throw new IllegalStateException(e);
-                                        }
-                                        return true;
-                                    })
-                                    .orElse(false);
+                                                                               meta) -> ofNullable(meta.get(ValidationParameterEnricher.META_PREFIX + f.getName()))
+                            .map(valueConverter)
+                            .map(val -> {
+                                try {
+                                    f.set(instance, val);
+                                } catch (IllegalAccessException e) {
+                                    throw new IllegalStateException(e);
+                                }
+                                return true;
+                            })
+                            .orElse(false);
                 }).collect(toList());
         propertyValidationCreator = config -> {
             final PropertyValidation validation = new PropertyValidation();
@@ -75,9 +78,42 @@ public class PropertyValidationService {
             }
             return validation;
         };
+
+        final Collection<BiFunction<Object, Map<String, String>, Boolean>> validationGetters =
+                Stream.of(PropertyValidation.class.getDeclaredFields()).map(f -> {
+                    f.setAccessible(true);
+                    return (BiFunction<Object, Map<String, String>, Boolean>) (instance,
+                                                                               meta) -> {
+                        try {
+                            return ofNullable(f.get(instance))
+                                    .map(val -> {
+                                        try {
+                                            meta.put(ValidationParameterEnricher.META_PREFIX + f.getName(), f.get(instance).toString());
+                                        } catch (IllegalAccessException e) {
+                                            throw new IllegalStateException(e);
+                                        }
+                                        return true;
+                                    })
+                                    .orElse(false);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+                    };
+                }).collect(toList());
+        propertyMetaCreator = config -> {
+            final Map<String, String> meta = new HashMap<>();
+            if (validationGetters.stream().filter(s -> s.apply(config, meta)).count() == 0) {
+                return null;
+            }
+            return meta;
+        };
     }
 
     public PropertyValidation map(final Map<String, String> meta) {
         return propertyValidationCreator.apply(meta);
+    }
+
+    public Map<String, String> mapMeta(final PropertyValidation propertyValidation) {
+        return propertyMetaCreator.apply(propertyValidation);
     }
 }

@@ -225,6 +225,14 @@ public class ReflectionService {
         }
     }
 
+//    public static void checkPayload(List<ParameterMeta> metas, Map<String, String> notNullConfig, JsonObject payload) {
+//        final PayloadValidator visitor = new PayloadValidator();
+//        final PayloadMapper payloadMapper = new PayloadMapper(visitor);
+//        payloadMapper.setGlobalPayload(payload);
+//        payloadMapper.visitAndMap(metas, notNullConfig);
+//        visitor.throwIfFailed();
+//    }
+
     public Function<Supplier<Object>, Object> createContextualSupplier(final ClassLoader loader) {
         return supplier -> {
             final Thread thread = Thread.currentThread();
@@ -912,7 +920,6 @@ public class ReflectionService {
             if (!VISIBILITY_SERVICE.build(meta).isVisible(globalPayload)) {
                 return;
             }
-
             if (Boolean.parseBoolean(meta.getMetadata().get("tcomp::validation::required"))
                     && value == JsonValue.NULL) {
                 errors.add(MESSAGES.required(meta.getPath()));
