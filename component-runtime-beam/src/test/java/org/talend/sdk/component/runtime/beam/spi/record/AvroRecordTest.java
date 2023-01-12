@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -337,7 +338,11 @@ class AvroRecordTest {
                 .name("f4")
                 .prop("logicalType", "date")
                 .prop("talend.component.DATETIME", "true")
-                .type().array().items().longType().noDefault()
+                .type()
+                .array()
+                .items()
+                .longType()
+                .noDefault()
                 //
                 .endRecord();
         final ZonedDateTime zdt = ZonedDateTime.of(2020, 01, 24, 15, 0, 1, 0, ZoneId.of("UTC"));
@@ -347,7 +352,7 @@ class AvroRecordTest {
         avro.put(0, zdt.toInstant().toEpochMilli());
         avro.put(1, date.getTime());
         avro.put(2, null);
-        avro.put(3, new long[]{instant.getEpochSecond(), instant.getNano()});
+        avro.put(3, new long[] { instant.getEpochSecond(), instant.getNano() });
         final Record record = new AvroRecord(avro);
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SchemaRegistryCoder.of().encode(record, buffer);
@@ -421,6 +426,35 @@ class AvroRecordTest {
 
         // should not use ReflectData for any GenericRecord implements
         // ReflectData.get().addLogicalTypeConversion(new Conversions.DecimalConversion());
+
+        final PCollection<Record> input =
+                pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
+        final PCollection<Record> output = input.apply(new RecordToRecord());
+        assertEquals(org.apache.beam.sdk.PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
+    }
+
+    @Test
+    void pipelineTimestampFieldsWithAvroRecord() throws Exception {
+        final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
+
+        final Schema.Entry f1 = factory.newEntryBuilder()
+                .withType(Schema.Type.DATETIME)
+                .withName("t_timestamp")
+                .withNullable(true)
+                .build();
+        final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+
+        final Record.Builder builder = factory.newRecordBuilder(schema);
+
+        final Instant instant1 = Timestamp.valueOf("2021-04-19 13:37:07.752345").toInstant();
+        builder.with(f1, instant1);
+        final Record rec1 = builder.build();
+
+        final Instant instant2 = Timestamp.valueOf("2021-04-19 13:37:07.123456").toInstant();
+        builder.with(f1, instant2);
+        final Record rec2 = builder.build();
+
+        final Pipeline pipeline = Pipeline.create();
 
         final PCollection<Record> input =
                 pipeline.apply(Create.of(asList(rec1, rec2)).withCoder(SchemaRegistryCoder.of())); //
