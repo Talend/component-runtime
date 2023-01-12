@@ -14,6 +14,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2328[TCOMP-2328^]: Upgrade woodstox to 6.4.0 due to CVE-2022-40152 
 - link:https://jira.talendforge.org/browse/TCOMP-2334[TCOMP-2334^]: Upgrade netty to 4.1.86.Final link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2335[TCOMP-2335^]: Upgrade commons-net to 3.9.0 link:search.html?query=documentation[documentation^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2340[TCOMP-2340^]: Reduce warning on jmx registration link:search.html?query=component-manager[component-manager^,role='dockey']
 
 
 
@@ -44,6 +45,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2237[TCOMP-2237^]: Create a streaming configuration section for documentation link:search.html?query=documentation[documentation^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2308[TCOMP-2308^]: component-runtime-http-junit capture headers case sensitivity link:search.html?query=testing[testing^,role='dockey']
+
+
 
 
 
@@ -569,6 +572,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
 
 
 
