@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,10 @@ public interface RecordVisitor<T> extends Supplier<T>, BinaryOperator<T> {
     }
 
     default void onString(final Schema.Entry entry, final Optional<String> string) {
+        // no-op
+    }
+
+    default void onObject(final Schema.Entry entry, final Optional<Object> object) {
         // no-op
     }
 

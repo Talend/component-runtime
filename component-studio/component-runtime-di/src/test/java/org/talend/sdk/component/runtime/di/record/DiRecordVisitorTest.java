@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,8 +104,18 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
                         .build(), String.valueOf(Character.MAX_VALUE))
+                .with(factory.newEntryBuilder()
+                        .withName("dynObject")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
+                        .build(), OBJECT)
 
                 .withRecord("object0", RECORD)
+                .with(factory.newEntryBuilder()
+                        .withName("object1")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
+                        .build(), OBJECT)
                 .withRecord("RECORD", RECORD)
                 .withArray(factory
                         .newEntryBuilder()
@@ -206,6 +216,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertArrayEquals(BYTES0, rowStruct.bytes0);
         assertArrayEquals(BYTES1, rowStruct.bytes1);
         assertEquals(RECORD, rowStruct.object0);
+        assertEquals(OBJECT, rowStruct.object1);
         // asserts rowStruct::dynamic
         assertNotNull(rowStruct.dynamic);
         assertNotNull(rowStruct.dynamic.metadatas);
@@ -238,6 +249,11 @@ class DiRecordVisitorTest extends VisitorsTest {
         dynObject = rowStruct.dynamic.getColumnValue("dynChar");
         assertTrue(Character.class.isInstance(dynObject));
         assertEquals(Character.MAX_VALUE, dynObject);
+
+        dynObject = rowStruct.dynamic.getColumnValue("dynObject");
+        assertTrue(Object.class.isInstance(dynObject));
+        assertEquals(OBJECT, dynObject);
+
         //
         assertEquals(INTEGERS, rowStruct.array0);
         assertEquals(RECORD, rowStruct.dynamic.getColumnValue("RECORD"));

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.security.ProtectionDomain;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
+import org.talend.sdk.component.runtime.reflect.JavaVersion;
 
 import lombok.NoArgsConstructor;
 
@@ -42,9 +43,7 @@ public final class Unsafes {
 
     static {
         Class<?> unsafeClass;
-        final String[] versionElements = System.getProperty("java.version").split("\\.");
-        final int unsureVersion = Integer.parseInt(versionElements[0]);
-        final int javaVersion = unsureVersion == 1 ? Integer.parseInt(versionElements[1]) : unsureVersion;
+        final int javaVersion = JavaVersion.major();
         if (javaVersion > 8 && javaVersion < 17) {
             try {
                 /**
