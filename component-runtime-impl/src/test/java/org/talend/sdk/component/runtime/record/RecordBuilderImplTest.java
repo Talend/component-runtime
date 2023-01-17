@@ -254,13 +254,13 @@ class RecordBuilderImplTest {
                         .withType(Type.DATETIME)
                         .build())
                 .build();
-        //getInstant("x") with an initial record made withDateTime("x", zdt), and lose precision
+        // getInstant("x") with an initial record made withDateTime("x", zdt), and lose precision
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
         final Record record = builder.withDateTime("time", ZonedDateTime.parse("2021-04-19T13:37:07.752345Z")).build();
         assertNotNull(record.getDateTime("time"));
         assertEquals(ZonedDateTime.parse("2021-04-19T13:37:07.752Z").toInstant(), record.getInstant("time"));
 
-        //getDateTime("x") with an initial record made withInstant("x", v), and keep precision
+        // getDateTime("x") with an initial record made withInstant("x", v), and keep precision
         java.sql.Timestamp time = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345");
         final RecordImpl.BuilderImpl builder3 = new RecordImpl.BuilderImpl(schema);
         final Record record3 = builder3.withInstant("time", time.toInstant()).build();
@@ -288,7 +288,7 @@ class RecordBuilderImplTest {
         assertEquals(time.toInstant(), record.getInstant("time"));
 
         int nano = time.toInstant().getNano();
-        long natime = time.toInstant().toEpochMilli();///1000 * 1000_000_000 +nano;
+        long natime = time.toInstant().toEpochMilli();/// 1000 * 1000_000_000 +nano;
         long ntime = time.toInstant().getEpochSecond();
 
         Instant back1 = Instant.ofEpochSecond(ntime, nano);
@@ -296,7 +296,6 @@ class RecordBuilderImplTest {
         assertEquals(time.toInstant(), back1);
 
     }
-
 
     @Test
     void decimal() {

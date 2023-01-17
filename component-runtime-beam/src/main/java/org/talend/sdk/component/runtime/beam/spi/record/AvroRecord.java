@@ -116,8 +116,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return Date.class.cast(value).getTime();
         }
         if (value instanceof Instant) {
-            //TCOMP-2293 support Instant with nano second
-            return new long[]{Instant.class.cast(value).getEpochSecond(), Instant.class.cast(value).getNano()};
+            // TCOMP-2293 support Instant with nano second
+            return new long[] { Instant.class.cast(value).getEpochSecond(), Instant.class.cast(value).getNano() };
         }
         if (value instanceof byte[]) {
             return ByteBuffer.wrap(byte[].class.cast(value));
@@ -248,7 +248,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             if (ZonedDateTime.class == expectedType) {
                 List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
                 final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
-               return expectedType.cast(ZonedDateTime.ofInstant(instant, UTC));
+                return expectedType.cast(ZonedDateTime.ofInstant(instant, UTC));
             }
             if (Instant.class == expectedType) {
                 List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());

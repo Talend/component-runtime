@@ -308,10 +308,10 @@ class RecordConvertersTest {
     void convertInstant() {
         final ZonedDateTime dateTime = ZonedDateTime.of(2017, 7, 17, 9, 0, 0, 0, ZoneId.of("GMT"));
         final Instant asInstant = new RecordConverters().coerce(Instant.class,
-                new long[]{dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano()}, "foo");
+                new long[] { dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano() }, "foo");
         assertEquals(dateTime.toInstant(), asInstant);
         final ZonedDateTime asDate = new RecordConverters().coerce(ZonedDateTime.class,
-                new long[]{dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano()}, "foo");
+                new long[] { dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano() }, "foo");
         assertEquals(dateTime.toInstant(), asDate.toInstant());
     }
 

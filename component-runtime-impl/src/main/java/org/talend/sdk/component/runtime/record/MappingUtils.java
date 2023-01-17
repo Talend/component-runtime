@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class MappingUtils {
 
@@ -82,12 +83,12 @@ public class MappingUtils {
             if (String.class == expectedType) {
                 return String.valueOf(value);
             }
-            //TCOMP-2293 support Instant
+            // TCOMP-2293 support Instant
             if (Instant.class.isInstance(value) && ZonedDateTime.class == expectedType) {
-                return ZonedDateTime.ofInstant((Instant)value, UTC);
+                return ZonedDateTime.ofInstant((Instant) value, UTC);
             }
             if (value instanceof long[]) {
-                final Instant instant = Instant.ofEpochSecond(((long[])value)[0], ((long[])value)[1]);
+                final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
                 if (ZonedDateTime.class == expectedType) {
                     return ZonedDateTime.ofInstant(instant, UTC);
                 }
