@@ -489,8 +489,11 @@ public class RecordConverters implements Serializable {
                     constructor.setAccessible(true);
                     recordVisitor = constructor.newInstance(rowStruct, metadata);
                     visitRecord = visitorClass.getDeclaredMethod("visit", Record.class);
-                } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
-                        | InvocationTargetException | NoSuchMethodException e) {
+                } catch (final NoClassDefFoundError | ClassNotFoundException | InstantiationException
+                        | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    if (e.getMessage().matches(".*routines.system.Dynamic.*")) {
+                        throw new IllegalStateException("TOS does not support dynamic type", e);
+                    }
                     throw new IllegalStateException(e);
                 }
             }
@@ -509,9 +512,12 @@ public class RecordConverters implements Serializable {
                     final Constructor<?> constructor = visitorClass.getConstructors()[0];
                     constructor.setAccessible(true);
                     rowStructVisitor = constructor.newInstance();
-                    visitRowStruct = visitorClass.getDeclaredMethod("get", Object.class, RecordBuilderFactory.class);
-                } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
-                        | InvocationTargetException | NoSuchMethodException e) {
+                    visitRowStruct = visitorClass.getMethod("get", Object.class, RecordBuilderFactory.class);
+                } catch (final NoClassDefFoundError | ClassNotFoundException | InstantiationException
+                        | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    if (e.getMessage().matches(".*routines.system.Dynamic.*")) {
+                        throw new IllegalStateException("TOS does not support dynamic type", e);
+                    }
                     throw new IllegalStateException(e);
                 }
             }
