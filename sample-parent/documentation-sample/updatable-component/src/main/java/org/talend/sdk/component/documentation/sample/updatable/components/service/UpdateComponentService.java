@@ -25,7 +25,7 @@ public class UpdateComponentService {
 
     @Update("updateMe")
     public IAmUpdatable doUpdate(@Option("self") final IAmUpdatable config,
-                                 @Option("otherConfig") final String input) {
+            @Option("otherConfig") final String input) {
         final IAmUpdatable updatable = new IAmUpdatable();
         updatable.setFullUpdate(config.isFullUpdate()); // keep original value
         if (config.isFullUpdate()) {

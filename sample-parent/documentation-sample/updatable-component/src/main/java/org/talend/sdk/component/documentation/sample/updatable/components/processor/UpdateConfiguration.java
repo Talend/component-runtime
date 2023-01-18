@@ -24,7 +24,7 @@ import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.meta.Documentation;
 
-@OptionsOrder({"otherConfig", "updateMe"})
+@OptionsOrder({ "otherConfig", "updateMe" })
 @Documentation("TODO fill the documentation for this configuration")
 public class UpdateConfiguration implements Serializable {
 
@@ -37,7 +37,7 @@ public class UpdateConfiguration implements Serializable {
     @Updatable(
             after = "complex", // add the button after the last field of IAmUpdatable
             parameters = { // callback parameter binding
-                    "." , // send my own value
+                    ".", // send my own value
                     "../otherConfig" // the path here is relative to updateMe itself so go up to send also a sibling
             },
             value = "updateMe") // callback name/identifier in @Service classes
@@ -59,9 +59,10 @@ public class UpdateConfiguration implements Serializable {
         this.updateMe = updateMe;
     }
 
-    @OptionsOrder({"fullUpdate", "simple", "complex"})
+    @OptionsOrder({ "fullUpdate", "simple", "complex" })
     @Documentation("TODO fill the documentation for this configuration")
     public static class IAmUpdatable implements Serializable {
+
         @Option
         @Documentation("The type of update to do when clicking on the button, " +
                 "if selected it updates simple and complex")
