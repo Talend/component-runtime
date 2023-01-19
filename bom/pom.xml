@@ -92,7 +92,7 @@
     <commons-io.version>2.9.0</commons-io.version>
 
     <!-- misc dependencies -->
-    <jcommander.version>1.81</jcommander.version>
+    <jcommander.version>1.82</jcommander.version>
   </properties>
 
   <dependencyManagement>

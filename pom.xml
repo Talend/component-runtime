@@ -163,7 +163,7 @@
     <xbean.version>4.20</xbean.version>
     <!-- do not update without updating test-->
     <xbean.test.version>4.9</xbean.test.version>
-    <xerces.version>2.12.0</xerces.version>
+    <xerces.version>2.12.2</xerces.version>
 
     <junit.version>4.13.2</junit.version>
     <ziplock.version>8.0.4</ziplock.version>
@@ -260,6 +260,15 @@
     <!-- misc dependencies -->
     <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
     <bndlib.version>5.1.0</bndlib.version>
+    <ant.version>1.10.12</ant.version>
+    <jcommander.version>1.82</jcommander.version>
+    <snakeyaml.version>1.33</snakeyaml.version>
+    <google-oauth-client.version>1.34.1</google-oauth-client.version>
+    <nekohtml.version>1.9.6.2</nekohtml.version>
+    <gson.version>2.9.1</gson.version>
+    <ivy.version>2.5.1</ivy.version>
+    <aws-java-sdk-s3.version>1.12.285</aws-java-sdk-s3.version>
+    <testng.version>7.4.0</testng.version>
 
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
@@ -378,6 +387,76 @@
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>${commons-logging.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>${commons-compress.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>${snakeyaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.oauth-client</groupId>
+        <artifactId>google-oauth-client</artifactId>
+        <version>${google-oauth-client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>${xerces.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>nekohtml</groupId>
+        <artifactId>nekohtml</artifactId>
+        <version>${nekohtml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mozilla</groupId>
+        <artifactId>rhino</artifactId>
+        <version>${rhino.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>${gson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ivy</groupId>
+        <artifactId>ivy</artifactId>
+        <version>${ivy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>${aws-java-sdk-s3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ant</groupId>
+        <artifactId>ant</artifactId>
+        <version>${ant.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.testng</groupId>
+        <artifactId>testng</artifactId>
+        <version>${testng.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>${jcommander.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
@@ -1049,7 +1128,7 @@
             <dependency>
               <groupId>org.apache.ant</groupId>
               <artifactId>ant</artifactId>
-              <version>1.10.11</version>
+              <version>${ant.version}</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -1132,6 +1211,11 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <version>${shade-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-compat</artifactId>
+          <version>${mvn.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
