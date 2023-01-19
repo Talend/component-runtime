@@ -5,6 +5,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2348[TCOMP-2348^]: Upgrade tomcat to 9.0.69 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2349[TCOMP-2349^]: Upgrade netty to 4.1.87.Final link:search.html?query=testing[testing^,role='dockey']
 
 == Version 1.53.0
 
