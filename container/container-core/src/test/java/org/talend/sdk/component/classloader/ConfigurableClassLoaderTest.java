@@ -304,7 +304,7 @@ class ConfigurableClassLoaderTest {
     @Test
     void excludedSpiResources() throws Exception {
         final Predicate<String> parentClasses = name -> true;
-        final File xerces = new File(Constants.DEPENDENCIES_LOCATION, "xerces/xercesImpl/2.12.0/xercesImpl-2.12.0.jar");
+        final File xerces = new File(Constants.DEPENDENCIES_LOCATION, "xerces/xercesImpl/2.12.2/xercesImpl-2.12.2.jar");
         assertTrue(xerces.exists());
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
