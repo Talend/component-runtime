@@ -22,4 +22,6 @@ public interface I18n {
 
     String entityName(String param);
 
+    String setByService(String param);
+
 }

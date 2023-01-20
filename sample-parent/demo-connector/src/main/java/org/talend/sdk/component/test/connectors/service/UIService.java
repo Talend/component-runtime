@@ -29,7 +29,28 @@ import org.talend.sdk.component.test.connectors.config.NestedConfig;
 @Service
 public class UIService {
 
-    // TODO add translation for the services
+    /**
+     * In this service demo class we will implement every existing particular actions to check their API usages.
+     * Services actions are listed here: https://talend.github.io/component-runtime/main/latest/services-actions.html
+     *
+     * Implemented:
+     * - Suggestions https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
+     * - Update https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
+     *
+     * Todo:
+     * - Close Connection https://talend.github.io/component-runtime/main/latest/services-actions.html#_close_connection
+     * - Create Connection
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_create_connection
+     * - Discoverdataset https://talend.github.io/component-runtime/main/latest/services-actions.html#_discoverdataset
+     * - Dynamic Values https://talend.github.io/component-runtime/main/latest/services-actions.html#_dynamic_values
+     * - Healthcheck https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
+     * - Schema https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema
+     * - Schema Extended https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema_extended
+     * - User https://talend.github.io/component-runtime/main/latest/services-actions.html#_user
+     * - Validation https://talend.github.io/component-runtime/main/latest/services-actions.html#_validation
+     * - built_in_suggestable
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_built_in_suggestable
+     */
 
     public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
 
@@ -39,7 +60,9 @@ public class UIService {
     private I18n i18n;
 
     /**
-     * Suggestions action without any configuration.
+     * Suggestions action
+     *
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
      * 
      * @return
      */
@@ -55,11 +78,18 @@ public class UIService {
         return new SuggestionValues(true, entities);
     }
 
+    /**
+     * Update action
+     *
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
+     *
+     * @return
+     */
     @Update(UPDATE_NESTED_CONFIG)
     public NestedConfig retrieveFeedback(final NestedConfig source) throws Exception {
         NestedConfig dest = new NestedConfig();
-        dest.setStringOption1("set by service : " + source.getStringOption1());
-        dest.setStringOption2("set by service : " + source.getStringOption2());
+        dest.setStringOption1(i18n.setByService(source.getStringOption1()));
+        dest.setStringOption2(i18n.setByService(source.getStringOption2()));
         return dest;
     }
 

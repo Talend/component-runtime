@@ -43,7 +43,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
         migrated.put("configuration.__level", this.getLevel());
         migrated.put("configuration.__incomingVersion", "" + incomingVersion);
         migrated.put("configuration.__currentVersion", "" + this.getCurrentVersion());
-        migrated.putAll(incomingData);
+        // migrated.putAll(incomingData);
 
         // The migration do something simple
         // migrated.keySet().stream().forEach(k -> migrated.put(k, migrated.get(k).toUpperCase()));
