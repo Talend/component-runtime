@@ -2760,7 +2760,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependencies"
                     },
-                    "description": "Call using a wrong id\nTDOD ticket for wrong content type",
+                    "description": "Call using a wrong id\nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2194",
                     "id": "6f3aee0d-06df-419d-a634-9769bb01f6cd",
                     "name": "component/dependencies - wrong identifier - error 500",
                     "headers": [],
