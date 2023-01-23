@@ -24,10 +24,9 @@
 /**
  * Pod configuration
  */
+// TODO move to custom builder
 final String _TSBI_IMAGE = 'jdk11-svc-springboot-builder'
 final String _TSBI_VERSION = '2.9.18-2.4-20220104141654'
-final String _STAGE_DEFAULT_CONTAINER = _TSBI_IMAGE
-final String _POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 /**
  * Job configuration
@@ -112,9 +111,8 @@ pipeline {
    */
   agent {
     kubernetes {
-      label _POD_LABEL
       yaml _POD_CONFIGURATION
-      defaultContainer _STAGE_DEFAULT_CONTAINER
+      defaultContainer _TSBI_IMAGE
     }
   }
   /**
@@ -136,6 +134,13 @@ pipeline {
       choices: ['tcomp_approved', 'tcomp_draft'] ,
       description: 'Select test project to execute.'
     )
+    booleanParam(
+      name: 'JENKINS_DEBUG',
+      defaultValue: false,
+      description: '''
+        Add an extra comportment to the job allowing to extra analysis:
+          - keep the pod alive for debug purposes at the end
+          - activate some extra log artifacts''')
   }
   /**
    * environment
@@ -248,8 +253,9 @@ pipeline {
 
           // updating build description
           currentBuild.description = ("""
-            User: $user_name - Runtime:  $runtimeVersion
-            Project: $fileToRun""".stripIndent()
+            User: $user_name - Runtime: $runtimeVersion
+            Project: $fileToRun
+            Debug: $params.JENKINS_DEBUG""".stripIndent()
           )
         }
 
@@ -268,6 +274,7 @@ pipeline {
               "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" \
                                                          "${runtimeVersion}" \
                                                          "1.36.0" "azure-dls-gen2" \
+                                                         "1.53.0-SNAPSHOT" \
                                                          "${_SERVER_PORT}"
               "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
             """
@@ -275,6 +282,15 @@ pipeline {
         }
       }
     }
+    post{
+      script {
+        println "Artifact SETENV: ${_ARTIFACT_SETENV}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact REGISTRY: ${_ARTIFACT_REGISTRY}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
+      }
+    }
+
     stage('Execute Test') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
@@ -291,6 +307,14 @@ pipeline {
                             --define file="${fileToRun}.json"
              """
         }
+      }
+    }
+    post{
+      script{
+        println "Artifact TEST_RESULTS: ${_ARTIFACT_TEST_RESULTS}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact COVERAGE: ${_ARTIFACT_COVERAGE}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
       }
     }
   }
@@ -361,36 +385,33 @@ pipeline {
       }
 
       script {
-        println "====== Archive artifacts"
-
-        println "Artifact 1: ${_ARTIFACT_TEST_RESULTS}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 2: ${_ARTIFACT_COVERAGE}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
-        // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
-        // println "Artifact 3: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
-        // archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
-        // println "Artifact 4: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
-        // archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 5: ${_ARTIFACT_SETENV}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 6: ${_ARTIFACT_REGISTRY}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
-
+        if (params.JENKINS_DEBUG) {
+          // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
+          println "Artifact LOGS_COMPONENT_SERVER: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
+          println "Artifact LOGS_MEECROWAVE: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
+          archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
+        }
       }
 
-      //script {
-      //  println "====== Debug optional step"
-      //  sh """
-      //    ls "${distribution_dir}/logs/"
-      //    printf "--------------------------------------------------------------------------------------------------\\n"
-      //    printf "--------------------------------------------------------------------------------------------------\\n"
-      //    cat "${distribution_dir}/logs/component-server.log"
-      //    printf "--------------------------------------------------------------------------------------------------\\n"
-      //    printf "--------------------------------------------------------------------------------------------------\\n"
-      //    cat "${distribution_dir}/logs/meecrowave.out"
-      //  """
-      //}
+      script {
+        if (params.JENKINS_DEBUG) {
+        println "====== Debug optional step"
+        sh """
+          ls "${distribution_dir}/logs/"
+          printf "--------------------------------------------------------------------------------------------------\\n"
+          cat "${distribution_dir}/logs/component-server.log"
+          printf "--------------------------------------------------------------------------------------------------\\n"
+          cat "${distribution_dir}/logs/meecrowave.out"
+        """
+        }
+      }
+
+      script {
+        if (params.JENKINS_DEBUG) {
+          jenkinsBreakpoint()
+        }
+      }
     }
   }
 }

@@ -33,7 +33,8 @@ function usage(){
 [ -z ${4+x} ] && usage 'Parameter "tck_version" is needed.'
 [ -z ${5+x} ] && usage 'Parameter "connectors_version" is needed.'
 [ -z ${6+x} ] && usage 'Parameter "connector" is needed.'
-[ -z ${7+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
+[ -z ${7+x} ] && usage 'Parameter "demo_connectors_version" is needed.'
+[ -z ${8+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
 
 _DOWNLOAD_DIR=${1}
 _INSTALL_DIR=${2}
@@ -41,7 +42,8 @@ _COVERAGE_DIR=${3}
 _TCK_VERSION=${4}
 _CONNECTOR_VERSION=${5}
 _CONNECTOR_LIST=${6}
-_SERVER_PORT=${7:-"8080"}
+_DEMO_CONNECTOR_VERSION=${7}
+_SERVER_PORT=${8:-"8080"}
 
 # Check command possibilities
 which wget || { usage 'wget is not present'; }
@@ -91,10 +93,10 @@ function init {
 
   printf '# Init the environment\n'
   printf '##############################################\n'
-  printf 'Install dir       : %s\n' "${_INSTALL_DIR}"
-  printf 'Server version    : %s\n' "${_TCK_VERSION}"
-  printf 'Server version    : %s\n' "${_CONNECTOR_VERSION}"
-  printf 'Server version    : %s\n' "${_CONNECTOR_LIST}"
+  printf 'Install dir        : %s\n' "${_INSTALL_DIR}"
+  printf 'TCK server version : %s\n' "${_TCK_VERSION}"
+  printf 'Connectors version : %s\n' "${_CONNECTOR_VERSION}"
+  printf 'Connectors list    : %s\n' "${_CONNECTOR_LIST}"
 
   printf 'Delete the install dir\n'
   rm --recursive --force "${_INSTALL_DIR}"
@@ -214,6 +216,8 @@ function generate_registry {
 	printf '\n' > "${_REGISTRY_PATH}"
 	# Add connectors FIXME: TCOMP-2246 make really compatible with a list
   printf 'conn_1=org.talend.components\\:%s\\:%s' "${_CONNECTOR_LIST}" "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
+  # Add the demo connectors
+  printf 'conn_2=org.talend.sdk.component\\:demo-connector\\:%s' "${_DEMO_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
 }
 
 
