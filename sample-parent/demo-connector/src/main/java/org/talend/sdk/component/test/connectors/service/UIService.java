@@ -39,8 +39,7 @@ public class UIService {
      *
      * Todo:
      * - Close Connection https://talend.github.io/component-runtime/main/latest/services-actions.html#_close_connection
-     * - Create Connection
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_create_connection
+     * - Create Connection https://talend.github.io/component-runtime/main/latest/services-actions.html#_create_connection
      * - Discoverdataset https://talend.github.io/component-runtime/main/latest/services-actions.html#_discoverdataset
      * - Dynamic Values https://talend.github.io/component-runtime/main/latest/services-actions.html#_dynamic_values
      * - Healthcheck https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
@@ -48,8 +47,7 @@ public class UIService {
      * - Schema Extended https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema_extended
      * - User https://talend.github.io/component-runtime/main/latest/services-actions.html#_user
      * - Validation https://talend.github.io/component-runtime/main/latest/services-actions.html#_validation
-     * - built_in_suggestable
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_built_in_suggestable
+     * - built_in_suggestable https://talend.github.io/component-runtime/main/latest/services-actions.html#_built_in_suggestable
      */
 
     public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
