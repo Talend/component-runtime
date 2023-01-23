@@ -15,20 +15,21 @@
 #  limitations under the License.
 #
 
-# Manual server starter like ci would do.
+# Manual server starter, like ci would do.
 
-_DOWNLOAD_DIR="/tmp/test_demo/download"
-_INSTALL_DIR="/tmp/test_demo/install"
-_COVERAGE_DIR="/tmp/test_demo/coverage"
-_RUNTIME_VERSION="1.53.0-SNAPSHOT"
-_SERVER_PORT="8080"
+_DOWNLOAD_DIR=/home/acatoire/test_demo/download
+_INSTALL_DIR=/home/acatoire/test_demo/install
+_COVERAGE_DIR=/home/acatoire/test_demo/coverage
+_RUNTIME_VERSION=1.53.0-SNAPSHOT
+_SERVER_PORT=8080
 
 ./server-registry-init.sh "${_DOWNLOAD_DIR}" \
                           "${_INSTALL_DIR}" \
                           "${_COVERAGE_DIR}" \
                           "${_RUNTIME_VERSION}" \
-                          "1.36.0" \
-                          "azure-dls-gen2" \
+                          '1.36.0' \
+                          'azure-dls-gen2' \
+                          '/home/acatoire/.m2/repository'\
                           "${_SERVER_PORT}"
 
 ./server-registry-start.sh "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"

@@ -33,7 +33,8 @@ function usage(){
 [ -z ${4+x} ] && usage 'Parameter "tck_version" is needed.'
 [ -z ${5+x} ] && usage 'Parameter "connectors_version" is needed.'
 [ -z ${6+x} ] && usage 'Parameter "connector" is needed.'
-[ -z ${7+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
+[ -z ${7+x} ] && usage 'Parameter "local_m2_dir" is needed.'
+[ -z ${8+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
 
 _DOWNLOAD_DIR=${1}
 _INSTALL_DIR=${2}
@@ -41,7 +42,8 @@ _COVERAGE_DIR=${3}
 _TCK_VERSION=${4}
 _CONNECTOR_VERSION=${5}
 _CONNECTOR_LIST=${6}
-_SERVER_PORT=${7:-"8080"}
+_LOCAL_M2_DIR=${7}
+_SERVER_PORT=${8:-"8080"}
 
 # Check command possibilities
 which wget || { usage 'wget is not present'; }
@@ -53,7 +55,8 @@ _JACOCO_VERSION='0.8.1'
 _JAVAX_VERSION='1.1.1'
 _MVN_CENTRAL='https://repo.maven.apache.org/maven2'
 _TALEND_REPO='https://artifacts-zl.talend.com/nexus/service/local/repositories'
-_COMPONENT_SE_REPO="${_TALEND_REPO}/TalendOpenSourceRelease/content/org/talend/components"
+_TALEND_SE_REPO="${_TALEND_REPO}/TalendOpenSourceRelease/content/org/talend"
+_COMPONENT_SE_REPO="${_TALEND_SE_REPO}/components"
 _COMPONENT_LINK="${_COMPONENT_SE_REPO}/NAME/VERSION/NAME-VERSION-component.car"
 
 _DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"
@@ -62,7 +65,8 @@ _LIB_BACKUP_DIR="${_COVERAGE_DIR}/lib_backup"
 _LIB_INSTRUMENTED_DIR="${_COVERAGE_DIR}/lib_instrumented"
 _SOURCES_DIR="${_COVERAGE_DIR}/src"
 _M2_DIR="${_DISTRIBUTION_DIR}/m2"
-_LOCAL_M2_DIR='/root/.m2/repository'
+
+_DEMO_CONNECTOR_PATH="${_LOCAL_M2_DIR}/org/talend/sdk/component/demo-connector/VERSION/demo-connector-VERSION-component.car"
 
 _SETENV_PATH="${_DISTRIBUTION_DIR}/bin/setenv.sh"
 _REGISTRY_PATH="${_DISTRIBUTION_DIR}/conf/components-registry.properties"
@@ -154,6 +158,26 @@ function download_connector {
 
 }
 
+function copy_demo_connector {
+
+  printf '##############################################\n'
+  printf '# Download demo connector\n'
+  printf '##############################################\n'
+
+  # Replace "VERSION" by var $_TCK_VERSION in _DEMO_CONNECTOR_PATH
+  demo_connector_path=${_DEMO_CONNECTOR_PATH//VERSION/$_TCK_VERSION}
+
+  printf 'From : %s\n' "${demo_connector_path}"
+
+  # Download
+  cp -v "${demo_connector_path}" "${_DOWNLOAD_DIR}"
+
+  # Deploy
+  printf 'Deploy the car: %s\n' "${demo_connector_path}"
+  java -jar "${demo_connector_path}" maven-deploy --location "${_M2_DIR}"
+
+}
+
 function download_all {
   printf '\n# Download ALL\n'
 
@@ -190,6 +214,7 @@ function download_all {
   download_component_lib "${_EXTRA_INSTRUMENTED}"
 
   download_connector
+  copy_demo_connector
 }
 
 function create_setenv_script {
@@ -211,9 +236,9 @@ function create_setenv_script {
 function generate_registry {
   printf '\n# Generate components registry\n'
   # Create the file
-	printf '\n' > "${_REGISTRY_PATH}"
-	# Add connectors FIXME: TCOMP-2246 make really compatible with a list
-  printf 'conn_1=org.talend.components\\:%s\\:%s' "${_CONNECTOR_LIST}" "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
+  printf '\n' > "${_REGISTRY_PATH}"
+  # Add connectors FIXME: TCOMP-2246 make really compatible with a list
+  printf 'conn_1=org.talend.components\\:%s\\:%s\n' "${_CONNECTOR_LIST}" "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
   # Add the demo connectors
   printf 'conn_2=org.talend.sdk.component\\:demo-connector\\:%s' "${_TCK_VERSION}" >> "${_REGISTRY_PATH}"
 }

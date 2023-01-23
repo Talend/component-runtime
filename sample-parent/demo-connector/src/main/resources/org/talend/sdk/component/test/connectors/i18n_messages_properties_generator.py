@@ -14,7 +14,7 @@
 # Here you can change all your configuration display names to use more explicit labels
 # You can also translate your configuration by adding one file by local Messages_fr.properties for french for example
 
-# This script allows to easyly duplicate language files adding th language suffix to the text.
+# This script allows to easily duplicate language files adding th language suffix to the text.
 # Simply execute it
 
 import os
