@@ -80,7 +80,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "5"
+                        "value": "8"
                       },
                       {
                         "comparison": "Contains",
@@ -313,12 +313,6 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
-                      },
-                      {
                         "comparison": "DoesNotExist",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].icon.customIcon",
@@ -378,12 +372,6 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
                       },
                       {
                         "comparison": "Exists",
@@ -447,12 +435,6 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
-                      },
-                      {
                         "comparison": "DoesNotExist",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].icon.customIcon",
@@ -512,12 +494,6 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
@@ -1331,7 +1307,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependencies"
                     },
-                    "description": "Call using a wrong id",
+                    "description": "Call using a wrong id  \nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2194",
                     "id": "9c180cc6-111c-4778-a198-2e9f2045afef",
                     "name": "component/dependencies - wrong identifier - error 500",
                     "headers": [],
@@ -1469,13 +1445,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "175600"
+                        "value": "170000"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "175650"
+                        "value": "180000"
                       },
                       {
                         "comparison": "Equals",
@@ -1623,7 +1599,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependency/net.java.dev.jna%3Ajna%3A5.6.0"
                     },
-                    "description": "Call using a maven coordinate as id",
+                    "description": "Call using a maven coordinate as id   \nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2195 corrected on demo connector",
                     "id": "31ec4e89-8bd5-4e3f-9756-f06b9bf80ed9",
                     "name": "component/dependency - maven coordinat",
                     "headers": [],
@@ -2108,19 +2084,19 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "930"
+                        "value": "1800"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "940"
+                        "value": "2000"
                       },
                       {
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.nodes",
-                        "value": "3"
+                        "value": "6"
                       }
                     ]
                   }
@@ -2248,13 +2224,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "25260"
+                        "value": "30000"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "25270"
+                        "value": "40000"
                       }
                     ]
                   }
@@ -2321,13 +2297,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "930"
+                        "value": "1000"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "940"
+                        "value": "2000"
                       }
                     ]
                   }
@@ -2394,13 +2370,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "25260"
+                        "value": "30000"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "25270"
+                        "value": "40000"
                       }
                     ]
                   }
@@ -2825,7 +2801,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/details"
                     },
-                    "description": "The default call, with a one identifiers parameter using the \"identifiers\" as a table.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "The default call, with a one identifiers parameter using the \"identifiers\" as a table.  \nOpened ticket: https://jira.talendforge.org/browse/TCOMP-2197  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "f36f79a7-348d-4b67-976f-82746757eb47",
                     "name": "configurationtype/details - identifiers (two) bis",
                     "headers": [
@@ -3643,12 +3619,6 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
-                      },
-                      {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].displayName",
@@ -3708,12 +3678,6 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
@@ -3777,12 +3741,6 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
-                      },
-                      {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].displayName",
@@ -3844,12 +3802,6 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
-                      },
-                      {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].displayName",
@@ -3909,12 +3861,6 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
@@ -3984,13 +3930,6 @@
                         "enabled": true,
                         "path": "code",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "enabled": true,
-                        "path": "$.components",
-                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
@@ -4079,21 +4018,21 @@
   ],
   "environments": [
     {
-      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
-      "name": "component_runtime_ci",
+      "id": "18bf351f-9c68-4b27-a824-00083bddde00",
+      "name": "localhost",
       "variables": {
-        "78e23335-f4c2-4fff-b764-83219c834815": {
+        "98617fb1-23bd-44bf-b9f8-b424a6c98e38": {
           "name": "server-port",
-          "value": "8081",
+          "value": "8080",
           "enabled": true,
-          "createdAt": "2022-06-24T10:07:00.309Z",
+          "createdAt": "2022-05-06T08:30:39.511Z",
           "private": false
         },
-        "03a24f13-bd11-45ed-9ed0-5fc9ccfffc48": {
+        "a8075682-4c57-4bf2-ac7a-2c9dcbecb86f": {
           "name": "server-ip",
-          "value": "127.0.0.1",
+          "value": "localhost",
           "enabled": true,
-          "createdAt": "2022-06-24T10:07:00.309Z",
+          "createdAt": "2022-05-06T08:30:39.511Z",
           "private": false
         }
       }
