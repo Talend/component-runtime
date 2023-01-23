@@ -289,7 +289,7 @@ pipeline {
       }
     }
     post{
-      script {
+      always {
         println "Artifact SETENV: ${_ARTIFACT_SETENV}\\n"
         archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
         println "Artifact REGISTRY: ${_ARTIFACT_REGISTRY}\\n"
