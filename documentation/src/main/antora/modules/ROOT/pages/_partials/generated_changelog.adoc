@@ -1,5 +1,35 @@
 
 
+== Version 1.53.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2330[TCOMP-2330^]: Improve JVM version check link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2327[TCOMP-2327^]: Upgrade cxf to 3.5.5 due to CVE-2022-46364 
+- link:https://jira.talendforge.org/browse/TCOMP-2328[TCOMP-2328^]: Upgrade woodstox to 6.4.0 due to CVE-2022-40152 
+- link:https://jira.talendforge.org/browse/TCOMP-2334[TCOMP-2334^]: Upgrade netty to 4.1.86.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2335[TCOMP-2335^]: Upgrade commons-net to 3.9.0 link:search.html?query=documentation[documentation^,role='dockey']
+
+
+
+== Version 1.52.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2330[TCOMP-2330^]: Improve JVM version check link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2327[TCOMP-2327^]: Upgrade cxf to 3.5.5 due to CVE-2022-46364 
+- link:https://jira.talendforge.org/browse/TCOMP-2328[TCOMP-2328^]: Upgrade woodstox to 6.4.0 due to CVE-2022-40152 
+
 == Version 1.52.0
 
 === Bug
@@ -16,6 +46,16 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2308[TCOMP-2308^]: component-runtime-http-junit capture headers case sensitivity link:search.html?query=testing[testing^,role='dockey']
 
 
+
+
+
+
+
+== Version 1.51.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2330[TCOMP-2330^]: Improve JVM version check link:search.html?query=component-manager[component-manager^,role='dockey']
 
 == Version 1.51.2
 
@@ -540,6 +580,17 @@
 
 
 
+
+
+
+
+
+== Version 1.38.8
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2327[TCOMP-2327^]: Upgrade cxf to 3.5.5 due to CVE-2022-46364 
+- link:https://jira.talendforge.org/browse/TCOMP-2328[TCOMP-2328^]: Upgrade woodstox to 6.4.0 due to CVE-2022-40152 
 
 == Version 1.38.7
 

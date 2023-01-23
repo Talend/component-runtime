@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
         migrated.put("configuration.__level", this.getLevel());
         migrated.put("configuration.__incomingVersion", "" + incomingVersion);
         migrated.put("configuration.__currentVersion", "" + this.getCurrentVersion());
-        migrated.putAll(incomingData);
+        // migrated.putAll(incomingData);
 
         // The migration do something simple
         // migrated.keySet().stream().forEach(k -> migrated.put(k, migrated.get(k).toUpperCase()));
