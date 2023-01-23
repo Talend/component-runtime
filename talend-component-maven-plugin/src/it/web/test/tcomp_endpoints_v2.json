@@ -95,7 +95,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.items",
-                        "value": "2"
+                        "value": "5"
                       },
                       {
                         "comparison": "Exists",
@@ -122,27 +122,21 @@
                         "value": "\"displayName\":\"Account Name\""
                       },
                       {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName",
-                        "value": "3"
-                      },
-                      {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[2]",
+                        "path": "$.items..displayName[32]",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[1]",
+                        "path": "$.items..displayName[31]",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[0]",
+                        "path": "$.items..displayName[30]",
                         "value": "-en"
                       }
                     ]
@@ -209,27 +203,21 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName",
-                        "value": "3"
-                      },
-                      {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[2]",
+                        "path": "$.items..displayName[32]",
                         "value": "-fr"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[1]",
+                        "path": "$.items..displayName[31]",
                         "value": "-fr"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[0]",
+                        "path": "$.items..displayName[30]",
                         "value": "-fr"
                       }
                     ]
@@ -299,12 +287,12 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.items",
-                        "value": "1"
+                        "value": "2"
                       },
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items[0].name",
+                        "path": "$.items[1].name",
                         "value": "action_LIST_ENTITIES"
                       }
                     ]
@@ -351,7 +339,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/index"
                     },
-                    "description": "TODO: Need another connector with another family  ",
+                    "description": "TODO: Need another connector with another family  (3 family to be sure that only one of 3 is returned)",
                     "id": "a36f4ceb-b306-4d4b-acf3-8e672e5292b3",
                     "name": "action/index - family*",
                     "headers": [],
@@ -374,14 +362,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.items",
-                        "value": "1"
-                      },
-                      {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "enabled": true,
-                        "path": "content",
-                        "value": "{\"items\":\\[.+\\]}"
+                        "value": "2"
                       }
                     ]
                   }
@@ -828,7 +809,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO Should be, missing type",
+                    "description": "TODO ticket Message should be, \"missing type\"",
                     "id": "68c951ef-f7ca-4a93-81bc-ae2de35e15b5",
                     "name": "4. action:execute - no type - 400 with message*",
                     "headers": [
@@ -908,7 +889,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO Should be, missing family",
+                    "description": "TODO ticket Message should be, \"missing family\"",
                     "id": "a0dd8816-1bcd-423d-aacb-461efc6fb010",
                     "name": "5. action:execute - no family - 400 with message*",
                     "headers": [
@@ -1498,12 +1479,24 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "3"
+                        "value": "8"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
+                        "value": "-en"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[6].displayName",
+                        "value": "-en"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].displayName",
                         "value": "-en"
                       },
                       {
@@ -1556,9 +1549,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Call of the endpoint with \"q\" parameter, the list length should be affected by the query.",
+                    "description": "Call of the endpoint with \"q\" parameter, the list length should be affected by the query.   \nTODO do we need to test more query?",
                     "id": "3e0c5b06-cca4-479c-8d82-cf6bfa3d9de8",
-                    "name": "component/index - query - filtered answer",
+                    "name": "component/index - query - filtered answer*",
                     "headers": [],
                     "assertions": [
                       {
@@ -1856,7 +1849,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "3"
+                        "value": "8"
                       },
                       {
                         "comparison": "DoesNotExist",
@@ -1922,7 +1915,19 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[1].displayName",
+                        "path": "$.components[5].displayName",
+                        "value": "-fr"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[6].displayName",
+                        "value": "-fr"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].displayName",
                         "value": "-fr"
                       }
                     ]
@@ -2080,7 +2085,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"d5c96ada-00d3-4d68-a6d9-91a7601955e4\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"d5c96ada-00d3-4d68-a6d9-91a7601955e4\").\"response\".\"body\".\"components\".\"7\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -2149,12 +2154,12 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"d5c96ada-00d3-4d68-a6d9-91a7601955e4\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"d5c96ada-00d3-4d68-a6d9-91a7601955e4\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                           },
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"d5c96ada-00d3-4d68-a6d9-91a7601955e4\").\"response\".\"body\".\"components\".\"2\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"d5c96ada-00d3-4d68-a6d9-91a7601955e4\").\"response\".\"body\".\"components\".\"7\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -2398,7 +2403,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"d5c96ada-00d3-4d68-a6d9-91a7601955e4\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"d5c96ada-00d3-4d68-a6d9-91a7601955e4\").\"response\".\"body\".\"components\".\"7\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -2591,7 +2596,7 @@
                           {
                             "enabled": true,
                             "name": "identifier",
-                            "value": "${getEntityById(\"2da00597-0de1-4699-b496-ac80f65aff29\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"2da00597-0de1-4699-b496-ac80f65aff29\").\"response\".\"body\".\"components\".\"7\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -2656,12 +2661,12 @@
                           {
                             "enabled": true,
                             "name": "identifier",
-                            "value": "${getEntityById(\"2da00597-0de1-4699-b496-ac80f65aff29\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"2da00597-0de1-4699-b496-ac80f65aff29\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                           },
                           {
                             "enabled": true,
                             "name": "identifier",
-                            "value": "${getEntityById(\"2da00597-0de1-4699-b496-ac80f65aff29\").\"response\".\"body\".\"components\".\"2\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"2da00597-0de1-4699-b496-ac80f65aff29\").\"response\".\"body\".\"components\".\"7\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -2755,7 +2760,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependencies"
                     },
-                    "description": "Call using a wrong id",
+                    "description": "Call using a wrong id\nTDOD ticket for wrong content type",
                     "id": "6f3aee0d-06df-419d-a634-9769bb01f6cd",
                     "name": "component/dependencies - wrong identifier - error 500",
                     "headers": [],
@@ -2876,9 +2881,9 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/dependency/${getEntityById(\"6012dd7f-1cc2-4fb9-abce-6a0308bc9fbf\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      "path": "/api/v1/component/dependency/${getEntityById(\"6012dd7f-1cc2-4fb9-abce-6a0308bc9fbf\").\"response\".\"body\".\"components\".\"7\".\"id\".\"id\"}"
                     },
-                    "description": "Call using a component id",
+                    "description": "Call using a component id\nTODO should we check dependency size or annother way",
                     "id": "b8bd28e4-57a6-4c1a-9d24-1852661c663e",
                     "name": "component/dependency - component",
                     "headers": [],
@@ -2893,13 +2898,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "53010"
+                        "value": "50000"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "53030"
+                        "value": "60000"
                       },
                       {
                         "comparison": "Equals",
@@ -3102,7 +3107,7 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "This scenario will test all basic interaction with TCOMP component/icon and component/icon/family endpoints\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "description": "This scenario will test all basic interaction with TCOMP component/icon and component/icon/family endpoints   \nTODO test png in addition to svg?   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                 "id": "61834e36-9777-4186-8508-2ff6beb89fa7",
                 "name": "5-component.icon_and_icon.family"
               },
@@ -3183,12 +3188,16 @@
                       "bodyType": "Text"
                     },
                     "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": []
+                      },
                       "scheme": {
                         "name": "http",
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/${getEntityById(\"6a202605-7967-4bc1-9b88-11da762d75a0\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      "path": "/api/v1/component/icon/${getEntityById(\"6a202605-7967-4bc1-9b88-11da762d75a0\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                     },
                     "description": "The default call",
                     "id": "6cc60f87-4cca-4f52-8f82-9afdbc4f87a8",
@@ -3327,7 +3336,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/family/${getEntityById(\"6a202605-7967-4bc1-9b88-11da762d75a0\").\"response\".\"body\".\"components\".\"0\".\"id\".\"familyId\"}"
+                      "path": "/api/v1/component/icon/family/${getEntityById(\"6a202605-7967-4bc1-9b88-11da762d75a0\").\"response\".\"body\".\"components\".\"7\".\"id\".\"familyId\"}"
                     },
                     "description": "The default call",
                     "id": "78e4e34d-8055-4cf8-8379-ec2e6b8701e3",
@@ -3644,9 +3653,9 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/migrate/${getEntityById(\"97dcc21e-d5a4-4115-be65-cd451d1376f0\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}/4"
+                      "path": "/api/v1/component/migrate/${getEntityById(\"97dcc21e-d5a4-4115-be65-cd451d1376f0\").\"response\".\"body\".\"components\".\"7\".\"id\".\"id\"}/4"
                     },
-                    "description": "/api/v1/component/migrate/{id}/{configurationVersion}",
+                    "description": "FIXME: default hash map seem not to be used  \n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "c6900f5d-1f96-4e70-ae96-42383e4c69ca",
                     "name": "component/migrate/id/configurationVersion - default*",
                     "headers": [
@@ -3699,9 +3708,9 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/migrate/${getEntityById(\"97dcc21e-d5a4-4115-be65-cd451d1376f0\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}/4"
+                      "path": "/api/v1/component/migrate/${getEntityById(\"97dcc21e-d5a4-4115-be65-cd451d1376f0\").\"response\".\"body\".\"components\".\"7\".\"id\".\"id\"}/4"
                     },
-                    "description": "\nFIXME: migrated hash map seem not to be used",
+                    "description": "\nFIXME: migrated hash map seem not to be used\n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6b116228-8ede-4800-9edd-a53a3fdf9e81",
                     "name": "component/migrate/id/configurationVersion - with data*",
                     "headers": [
@@ -3793,7 +3802,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/index"
                     },
-                    "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.  \nTODO why famillys appears in configuration types?\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "f89386e2-27e3-48ae-9b3a-f507446bae85",
                     "name": "configurationtype/index - default",
                     "headers": [],
@@ -3805,22 +3814,16 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Greater",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "1010"
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.nodes",
+                        "value": "6"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "1020"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.nodes",
-                        "value": "3"
+                        "value": "2000"
                       }
                     ]
                   }
@@ -3870,7 +3873,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/index"
                     },
-                    "description": "Call, with query parameter, should be in English with one elements in light payload mode.  \nTODO: see why I can't filter on configurationType (see un selected parameter)\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Call, with query parameter, should be in English with one elements in light payload mode.  \nTODO: see why I can't filter on configurationType (see un selected parameter)  \nTODO: should we test others query\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)  ",
                     "id": "dd97f899-64b5-437a-926c-8f6f39e82a5f",
                     "name": "configurationtype/index - query - filtered answer",
                     "headers": [],
@@ -3931,9 +3934,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/index"
                     },
-                    "description": "The default call, with lightPayload parameter set to false.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "The default call, with lightPayload parameter set to false.  \nTODO: what is the best test to compare light and non-light payload?  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "296cda9d-6259-4d6f-a3b4-9e93a380b293",
-                    "name": "configurationtype/index - lightPayload - false",
+                    "name": "configurationtype/index - lightPayload - false*",
                     "headers": [],
                     "assertions": [
                       {
@@ -3952,13 +3955,7 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "8800"
-                      },
-                      {
-                        "comparison": "Less",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "8810"
+                        "value": "30000"
                       }
                     ]
                   }
@@ -4022,16 +4019,10 @@
                         "value": "{\"nodes\":{.+}}"
                       },
                       {
-                        "comparison": "Greater",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "1010"
-                      },
-                      {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "1030"
+                        "value": "2000"
                       }
                     ]
                   }
@@ -4098,13 +4089,7 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "8800"
-                      },
-                      {
-                        "comparison": "Less",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "8820"
+                        "value": "2000"
                       }
                     ]
                   }
@@ -4529,7 +4514,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/details"
                     },
-                    "description": "The default call, with a one identifiers parameter using the \"identifiers\" as a table.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "The default call, with a one identifiers parameter using the \"identifiers\" as a table.  \nOpened ticket: https://jira.talendforge.org/browse/TCOMP-2197  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6debcd63-c2c5-48df-8869-a410677393b2",
                     "name": "configurationtype/details - identifiers (two) bis",
                     "headers": [
@@ -4605,7 +4590,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/index"
                     },
-                    "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Get the configuration types list for followings steps  \n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6ca8a7f4-713f-4f77-b132-f40c447b7514",
                     "name": "configurationtype/index - default",
                     "headers": [],
@@ -4617,28 +4602,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Greater",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "1010"
-                      },
-                      {
-                        "comparison": "Less",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "1020"
-                      },
-                      {
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.nodes",
-                        "value": "3"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseJsonBody",
-                        "path": "",
-                        "value": "ddd"
+                        "value": "6"
                       }
                     ]
                   }
@@ -4672,7 +4639,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/migrate/ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjZGF0YXNldCNUaGVEZW1vRGF0YXNldA/4"
                     },
-                    "description": "/api/v1/component/migrate/{id}/{configurationVersion}",
+                    "description": "FIXME: default hash map seem not to be used  \n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "1436c87f-872c-4f85-bb5e-a260a8cf836d",
                     "name": "configurationtype/migrate/id/configurationVersion - default*",
                     "headers": [
@@ -4727,7 +4694,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/migrate/ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjZGF0YXNldCNUaGVEZW1vRGF0YXNldA/4"
                     },
-                    "description": "\nFIXME: migrated hash map seem not to be used",
+                    "description": "FIXME: migrated hash map seem not to be used  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "30db0dab-4577-4a03-adb0-1e346dcc675b",
                     "name": "configurationtype/migrate/id/configurationVersion - with data*",
                     "headers": [
@@ -4865,11 +4832,11 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                     },
-                    "description": "The default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "The default call, without any parameter.  \nTODO issue with language, documentation need to be generated?  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "8edf2aff-37af-4c50-9781-cbacce319b2f",
-                    "name": "documentation/component - default",
+                    "name": "documentation/component - default*",
                     "headers": [],
                     "assertions": [
                       {
@@ -4885,10 +4852,16 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
+                        "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.source",
-                        "value": "^(== DemoInput1\\n\\n)([\\s\\S]*)(\\n\\n//configuration_start\\n\\n=== Configuration\\n\\n)([\\s\\S]*)(===\\n\\n//configuration_end)"
+                        "value": "== DemoInput1"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.source",
+                        "value": "=== Configuration"
                       },
                       {
                         "comparison": "Equals",
@@ -4925,13 +4898,13 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "language",
-                            "value": "fr"
-                          },
-                          {
                             "enabled": true,
                             "name": "segment",
                             "value": "ALL"
+                          },
+                          {
+                            "name": "language",
+                            "value": "fr"
                           }
                         ]
                       },
@@ -4940,7 +4913,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                     },
                     "description": "Call with a \"ALL\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "c6986320-4577-4595-8950-cdb795c253f1",
@@ -4982,6 +4955,12 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.source",
                         "value": "=== Configuration"
+                      },
+                      {
+                        "comparison": "Matches",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.source",
+                        "value": "\\[cols=\\\"d,d,m,a,e,d\\\",[\\s\\S]+"
                       }
                     ]
                   }
@@ -5006,13 +4985,13 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "language",
-                            "value": "fr"
-                          },
-                          {
                             "enabled": true,
                             "name": "segment",
                             "value": "DESCRIPTION"
+                          },
+                          {
+                            "name": "language",
+                            "value": "fr"
                           }
                         ]
                       },
@@ -5021,7 +5000,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                     },
                     "description": "Call with a \"DESCRIPTION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6bb3ff71-f48b-4db7-bd2b-5329cc61abca",
@@ -5063,6 +5042,12 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.source",
                         "value": "=== Configuration"
+                      },
+                      {
+                        "comparison": "DoesNotContain",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.source",
+                        "value": "d,d,m,a,e,d"
                       }
                     ]
                   }
@@ -5087,13 +5072,13 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "language",
-                            "value": "fr"
-                          },
-                          {
                             "enabled": true,
                             "name": "segment",
                             "value": "CONFIGURATION"
+                          },
+                          {
+                            "name": "language",
+                            "value": "fr"
                           }
                         ]
                       },
@@ -5102,7 +5087,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                     },
                     "description": "Call with a \"CONFIGURATION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6d396c00-3e30-4c48-b0fb-9cbfaaa9744f",
@@ -5168,13 +5153,13 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "language",
-                            "value": "fr"
-                          },
-                          {
                             "enabled": true,
                             "name": "segment",
                             "value": "unknow"
+                          },
+                          {
+                            "name": "language",
+                            "value": "fr"
                           }
                         ]
                       },
@@ -5183,7 +5168,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                     },
                     "description": "Call with a given unknow segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "4cab0cf4-44d3-458c-a981-426e7bd1ac5b",
@@ -5240,9 +5225,9 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                     },
-                    "description": "Call with a given language parameter to \"fr\".  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Call with a given language parameter to \"fr\".  \nTODO issue with language, documentation need to be generated?  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "876db3b2-4ff6-44ee-9c21-c29f1eb3139e",
                     "name": "documentation/component - language - fr",
                     "headers": [],
@@ -5385,75 +5370,6 @@
                       }
                     ]
                   }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "enabled": true,
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
-                            "name": "segment",
-                            "value": "none"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
-                    },
-                    "description": "Call with a given language parameter to \"fr\".  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "078aaf3a-b71e-4e4d-89a6-ed1da6039de4",
-                    "name": "documentation/component - language - en for test",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Exists",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "-fr"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.type",
-                        "value": "asciidoc"
-                      }
-                    ]
-                  }
                 }
               ]
             }
@@ -5516,12 +5432,6 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Matches",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
-                      },
-                      {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
                         "path": "$.commit",
@@ -5568,6 +5478,67 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.version",
                         "value": "{\"commit\":\".+\",\"connectors\":{\"pluginsHash\":\".+\",\"pluginsList\":\\[.+\\],\"version\":\".+\"},\"lastUpdated\":\".+\",\"latestApiVersion\":.+,\"time\":\".+\",\"version\":\".+\"}"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/environment"
+                    },
+                    "description": "Default endpoint call.",
+                    "id": "cd54be50-cf4a-40de-bbeb-04b7f6e112fb",
+                    "name": "environment - check plugins",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.connectors.pluginsList",
+                        "value": "2"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.connectors.pluginsList[0]",
+                        "value": "azure-dls-gen2"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.connectors.pluginsList[1]",
+                        "value": "demo-connector"
                       }
                     ]
                   }
@@ -5647,24 +5618,24 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "3"
+                        "value": "8"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].familyDisplayName",
+                        "path": "$.components[5].familyDisplayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].metadata.documentation::value",
+                        "path": "$.components[5].metadata.documentation::value",
                         "value": "-en"
                       }
                     ]
@@ -5725,19 +5696,19 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].familyDisplayName",
+                        "path": "$.components[5].familyDisplayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].metadata.documentation::value",
+                        "path": "$.components[5].metadata.documentation::value",
                         "value": "-en"
                       }
                     ]
@@ -5798,19 +5769,19 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].familyDisplayName",
+                        "path": "$.components[5].familyDisplayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].metadata.documentation::value",
+                        "path": "$.components[5].metadata.documentation::value",
                         "value": "-en"
                       }
                     ]
@@ -5871,13 +5842,13 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].familyDisplayName",
+                        "path": "$.components[5].familyDisplayName",
                         "value": "-en"
                       }
                     ]
@@ -5939,19 +5910,19 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-fr"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].familyDisplayName",
+                        "path": "$.components[5].familyDisplayName",
                         "value": "-fr"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].metadata.documentation::value",
+                        "path": "$.components[5].metadata.documentation::value",
                         "value": "-fr"
                       }
                     ]
@@ -6020,19 +5991,19 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-ja"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].familyDisplayName",
+                        "path": "$.components[5].familyDisplayName",
                         "value": "-ja"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].metadata.documentation::value",
+                        "path": "$.components[5].metadata.documentation::value",
                         "value": "-ja"
                       }
                     ]
@@ -6093,19 +6064,19 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-uk"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].familyDisplayName",
+                        "path": "$.components[5].familyDisplayName",
                         "value": "-uk"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].metadata.documentation::value",
+                        "path": "$.components[5].metadata.documentation::value",
                         "value": "-uk"
                       }
                     ]
@@ -6174,19 +6145,19 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-zh"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].familyDisplayName",
+                        "path": "$.components[5].familyDisplayName",
                         "value": "-zh"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].metadata.documentation::value",
+                        "path": "$.components[5].metadata.documentation::value",
                         "value": "-zh"
                       }
                     ]
@@ -6288,7 +6259,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -6352,7 +6323,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -6363,7 +6334,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "A non given language fall back to English",
+                    "description": "Request for English",
                     "id": "8516ef10-16b9-4f94-a1a7-a01823435054",
                     "name": "component details - English",
                     "headers": [],
@@ -6416,7 +6387,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -6427,7 +6398,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "A non given language fall back to English",
+                    "description": "Request for French",
                     "id": "49173d03-0e74-470d-ad26-897fae8f2a8c",
                     "name": "component details - French",
                     "headers": [],
@@ -6486,7 +6457,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"0\".\"id\".\"id\"}"
+                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
                           }
                         ]
                       },
@@ -6497,9 +6468,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "A non given language fall back to English",
+                    "description": "Request for Ukrainian  \nTODO Ticket Not working?",
                     "id": "b7820cc8-92d3-40fe-b3bf-fba72f3416f1",
-                    "name": "component details - Ukrainian",
+                    "name": "component details - Ukrainian*",
                     "headers": [],
                     "assertions": [
                       {
@@ -6519,6 +6490,76 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.details[0].displayName",
                         "value": "-uk"
+                      },
+                      {
+                        "comparison": "DoesNotContain",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "-en"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "language",
+                            "value": "zh"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "identifiers",
+                            "value": "${getEntityById(\"34c447e6-3f8c-468e-a4f7-a9701ab93a89\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/details"
+                    },
+                    "description": "Request for Chinese  \nTODO Ticket Not working?",
+                    "id": "9d0368bd-1466-445d-9797-b97eb13f2950",
+                    "name": "component details - Chinese*",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details",
+                        "value": "1"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details[0].displayName",
+                        "value": "-zh"
                       },
                       {
                         "comparison": "DoesNotContain",
@@ -6580,7 +6621,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test somes French accents",
+                    "description": "Test some French accents",
                     "id": "1ddd8a88-e102-4ca6-a62b-9985912aa268",
                     "name": "component list - fr",
                     "headers": [],
@@ -6595,7 +6636,7 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-fr +é"
                       }
                     ]
@@ -6642,7 +6683,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test somes Japanes characters",
+                    "description": "Test some Japanes characters",
                     "id": "ace85545-063b-4698-876b-7e3a3f49ca69",
                     "name": "component list - ja",
                     "headers": [
@@ -6664,7 +6705,7 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-ja +愛"
                       }
                     ]
@@ -6711,9 +6752,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test some cyrillic Ukranians charcters",
+                    "description": "Test some cyrillic Ukranians charcters  \nTODO: not working?  ",
                     "id": "69f441f2-f2d4-4023-9e8c-706d8c4782f0",
-                    "name": "component list - uk",
+                    "name": "component list - uk*",
                     "headers": [],
                     "assertions": [
                       {
@@ -6725,7 +6766,7 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-uk +Ж"
                       }
                     ]
@@ -6772,9 +6813,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test somes Chinese characters",
+                    "description": "Test some Chinese characters  \nTODO: not working?",
                     "id": "cf19d56e-da8a-428a-90f4-036f29d705d0",
-                    "name": "component list - zh",
+                    "name": "component list - zh*",
                     "headers": [
                       {
                         "enabled": true,
@@ -6794,7 +6835,7 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[0].displayName",
+                        "path": "$.components[5].displayName",
                         "value": "-zh +爱"
                       }
                     ]
