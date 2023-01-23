@@ -287,13 +287,13 @@ pipeline {
           }
         }
       }
-    }
-    post{
-      always {
-        println "Artifact SETENV: ${_ARTIFACT_SETENV}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact REGISTRY: ${_ARTIFACT_REGISTRY}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
+      post {
+        always {
+          println "Artifact SETENV: ${_ARTIFACT_SETENV}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
+          println "Artifact REGISTRY: ${_ARTIFACT_REGISTRY}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
+        }
       }
     }
 
@@ -314,13 +314,13 @@ pipeline {
              """
         }
       }
-    }
-    post{
-      script{
-        println "Artifact TEST_RESULTS: ${_ARTIFACT_TEST_RESULTS}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact COVERAGE: ${_ARTIFACT_COVERAGE}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
+      post {
+        always {
+          println "Artifact TEST_RESULTS: ${_ARTIFACT_TEST_RESULTS}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
+          println "Artifact COVERAGE: ${_ARTIFACT_COVERAGE}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
+        }
       }
     }
   }
