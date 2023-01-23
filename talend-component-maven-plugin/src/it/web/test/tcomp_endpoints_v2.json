@@ -6918,21 +6918,21 @@
   ],
   "environments": [
     {
-      "id": "18bf351f-9c68-4b27-a824-00083bddde00",
-      "name": "localhost",
+      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "name": "component_runtime_ci",
       "variables": {
-        "98617fb1-23bd-44bf-b9f8-b424a6c98e38": {
+        "78e23335-f4c2-4fff-b764-83219c834815": {
           "name": "server-port",
-          "value": "8080",
+          "value": "8081",
           "enabled": true,
-          "createdAt": "2022-05-06T08:30:39.511Z",
+          "createdAt": "2022-06-24T10:07:00.309Z",
           "private": false
         },
-        "a8075682-4c57-4bf2-ac7a-2c9dcbecb86f": {
+        "03a24f13-bd11-45ed-9ed0-5fc9ccfffc48": {
           "name": "server-ip",
-          "value": "localhost",
+          "value": "127.0.0.1",
           "enabled": true,
-          "createdAt": "2022-05-06T08:30:39.511Z",
+          "createdAt": "2022-06-24T10:07:00.309Z",
           "private": false
         }
       }
