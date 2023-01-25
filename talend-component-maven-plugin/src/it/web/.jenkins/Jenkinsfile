@@ -389,15 +389,11 @@ pipeline {
         ])
       }
 
-      script {
-        if (params.JENKINS_DEBUG) {
-          // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
-          println "Artifact LOGS_COMPONENT_SERVER: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
-          archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
-          println "Artifact LOGS_MEECROWAVE: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
-          archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
-        }
-      }
+      // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
+      //println "Artifact LOGS_COMPONENT_SERVER: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
+      //archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
+      //println "Artifact LOGS_MEECROWAVE: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
+      //archiveArtifacts artifacts: "${_ARTIFACT_LOGS_MEECROWAVE}", allowEmptyArchive: false, onlyIfSuccessful: false
 
       script {
         if (params.JENKINS_DEBUG) {
