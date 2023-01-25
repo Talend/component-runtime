@@ -24,4 +24,6 @@ public interface I18n {
 
     String setByService(String param);
 
+    String validationComment();
+
 }

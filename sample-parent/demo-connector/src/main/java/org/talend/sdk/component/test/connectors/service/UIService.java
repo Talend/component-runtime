@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
+import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
 import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.SuggestionValues.Item;
 import org.talend.sdk.component.api.service.completion.Suggestions;
@@ -36,23 +38,25 @@ public class UIService {
      * Implemented:
      * - Suggestions https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
      * - Update https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
+     * - Validation https://talend.github.io/component-runtime/main/latest/services-actions.html#_validation
      *
      * Todo:
      * - Close Connection https://talend.github.io/component-runtime/main/latest/services-actions.html#_close_connection
-     * - Create Connection https://talend.github.io/component-runtime/main/latest/services-actions.html#_create_connection
+     * - Create Connection
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_create_connection
      * - Discoverdataset https://talend.github.io/component-runtime/main/latest/services-actions.html#_discoverdataset
      * - Dynamic Values https://talend.github.io/component-runtime/main/latest/services-actions.html#_dynamic_values
      * - Healthcheck https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
-     * - Schema https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema
-     * - Schema Extended https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema_extended
      * - User https://talend.github.io/component-runtime/main/latest/services-actions.html#_user
-     * - Validation https://talend.github.io/component-runtime/main/latest/services-actions.html#_validation
-     * - built_in_suggestable https://talend.github.io/component-runtime/main/latest/services-actions.html#_built_in_suggestable
+     * - built_in_suggestable
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_built_in_suggestable
      */
 
     public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
 
-    public final static String UPDATE_NESTED_CONFIG = "action_UPDATE_NESTED_CONFIG";
+    public final static String UPDATE_CONFIG = "action_UPDATE";
+
+    public final static String VALIDATION = "action_VALIDATION";
 
     @Service
     private I18n i18n;
@@ -61,6 +65,8 @@ public class UIService {
      * Suggestions action
      *
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
+     *
+     * Returned type: org.talend.sdk.component.api.service.completion.SuggestionValues
      * 
      * @return
      */
@@ -83,12 +89,30 @@ public class UIService {
      *
      * @return
      */
-    @Update(UPDATE_NESTED_CONFIG)
+    @Update(UPDATE_CONFIG)
     public NestedConfig retrieveFeedback(final NestedConfig source) throws Exception {
         NestedConfig dest = new NestedConfig();
         dest.setStringOption1(i18n.setByService(source.getStringOption1()));
         dest.setStringOption2(i18n.setByService(source.getStringOption2()));
         return dest;
+    }
+
+    /**
+     * Validation action
+     *
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
+     *
+     * Returned type: org.talend.sdk.component.api.service.asyncvalidation.ValidationResult
+     * 
+     * @return
+     */
+    @AsyncValidation(VALIDATION)
+    public ValidationResult retrieveValidation() throws Exception {
+        ValidationResult result = new ValidationResult();
+
+        result.setStatus(ValidationResult.Status.OK);
+        result.setComment(i18n.validationComment());
+        return result;
     }
 
 }

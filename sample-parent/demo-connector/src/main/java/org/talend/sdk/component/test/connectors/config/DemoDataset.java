@@ -65,7 +65,7 @@ public class DemoDataset implements Serializable {
 
     @Option
     @Documentation("Doc: default nestedConfigDest documentation without Internationalization.")
-    @Updatable(value = UIService.UPDATE_NESTED_CONFIG, parameters = { "nestedConfigSrc" }, after = "nestedConfigDest")
+    @Updatable(value = UIService.UPDATE_CONFIG, parameters = { "nestedConfigSrc" }, after = "nestedConfigDest")
     private NestedConfig nestedConfigDest;
 
 }

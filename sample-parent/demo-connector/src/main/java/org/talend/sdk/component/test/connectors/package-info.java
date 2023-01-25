@@ -15,7 +15,7 @@
  */
 @Components(
         family = "demo_family",
-        categories = "demo_categories")
+        categories = "demo_categorie_1")
 @Icon(
         value = Icon.IconType.CUSTOM,
         custom = "family")
