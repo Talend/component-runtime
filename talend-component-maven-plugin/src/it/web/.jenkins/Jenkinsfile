@@ -252,13 +252,12 @@ pipeline {
           )
 
           // updating build description
-          currentBuild.description = ("""
+          String description = """
             User: $user_name - Runtime: $runtimeVersion
             Project: $fileToRun
             Debug: $params.JENKINS_DEBUG""".stripIndent()
-          )
+          job_description_append(description)
         }
-
       }
     }
     stage('Prepare Test') {
