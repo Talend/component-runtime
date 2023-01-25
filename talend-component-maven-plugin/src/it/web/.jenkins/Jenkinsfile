@@ -341,6 +341,7 @@ pipeline {
           mvn surefire-report:report-only --file ${_TESTS_PATH}
           mvn site --define generateReports=false --file ${_TESTS_PATH}
         """
+        archiveJenkinsLog()
       }
 
       // recordIssues is a multi result file publisher allowing to have the same publish format on multiples analysis.
@@ -419,4 +420,66 @@ pipeline {
       }
     }
   }
+}
+
+/**
+ * Append a new line to job description
+ * This is MARKDOWN, do not forget double space at the end of line
+ *
+ * @param new line
+ * @return void
+ */
+private void job_description_append(String new_line) {
+    if (currentBuild.description == null) {
+        println "Create the job description with: \n$new_line"
+        currentBuild.description = new_line
+    } else {
+        println "Edit the job description adding: $new_line"
+        currentBuild.description = currentBuild.description + '\n' + new_line
+    }
+}
+
+/**
+ * Implement a simple breakpoint to stop actual job
+ * Use the method anywhere you need to stop
+ * The first usage is to keep the pod alive on post stage.
+ * Change and restore the job description to be more visible
+ *
+ * @param job_description_to_backup
+ * @return void
+ */
+private void jenkinsBreakpoint() {
+    // Backup the description
+    String job_description_backup = currentBuild.description
+    // updating build description
+    currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
+    // Request user action
+    input message: 'Finish the job?', ok: 'Yes'
+    // updating build description
+    currentBuild.description = "$job_description_backup"
+}
+
+/**
+ * Extract actual jenkins job log content, store it in "build_log.txt"
+ *
+ * @param None
+ * @return Nothing
+ */
+private void archiveJenkinsLog() {
+
+    println "Extract the jenkins log file"
+    String newLog = Jenkins.getInstance().getItemByFullName(env.JOB_NAME)
+      .getBuildByNumber(env.BUILD_NUMBER.toInteger())
+      .logFile.text
+    // copy the log in the job's own workspace
+    writeFile file: "raw_log.txt", text: newLog
+
+    // Clean jenkins log file, could do better with a "ansi2txt < raw_log.txt" instead of "cat raw_log.txt"
+    // https://en.wikipedia.org/wiki/ANSI_escape_code
+    // Also could be good to replace '8m0m' by '' when common lib will be in place
+    sh """
+      cat raw_log.txt | col -b | sed 's;ha:////[[:print:]]*AAAA[=]*;;g' > build_log.txt
+    """
+
+    archiveArtifacts artifacts: '**/build_log.txt', allowEmptyArchive: true, onlyIfSuccessful: false
 }
