@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.53.0-SNAPSHOT</version>
+  <version>1.54.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
@@ -92,7 +92,7 @@
     <commons-io.version>2.9.0</commons-io.version>
 
     <!-- misc dependencies -->
-    <jcommander.version>1.81</jcommander.version>
+    <jcommander.version>1.82</jcommander.version>
   </properties>
 
   <dependencyManagement>

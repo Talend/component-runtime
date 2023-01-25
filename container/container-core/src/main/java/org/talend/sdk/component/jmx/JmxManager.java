@@ -50,7 +50,7 @@ public class JmxManager implements ContainerListener {
             container.set(JmxData.class, new JmxData(name));
         } catch (final InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException
                 | MalformedObjectNameException e) {
-            log.warn(e.getMessage(), e);
+            log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         }
     }
 

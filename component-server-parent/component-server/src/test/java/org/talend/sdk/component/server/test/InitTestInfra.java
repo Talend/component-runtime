@@ -103,6 +103,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         //
         System.setProperty("talend.component.server.plugins.reloading.active", "true");
         System.setProperty("talend.component.server.plugins.reloading.interval", "5");
+        System.setProperty("talend.component.server.plugins.reloading.method", "connectors");
         System
                 .setProperty("talend.component.server.plugins.reloading.marker",
                         "target/InitTestInfra/.m2/repository/CONNECTORS_VERSION");
