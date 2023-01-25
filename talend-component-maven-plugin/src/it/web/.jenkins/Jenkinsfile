@@ -397,19 +397,6 @@ pipeline {
 
       script {
         if (params.JENKINS_DEBUG) {
-        println "====== Debug optional step"
-        sh """
-          ls "${_SERVER_DIR}/logs/"
-          printf "--------------------------------------------------------------------------------------------------\\n"
-          cat "${_SERVER_DIR}/logs/component-server.log"
-          printf "--------------------------------------------------------------------------------------------------\\n"
-          cat "${_SERVER_DIR}/logs/meecrowave.out"
-        """
-        }
-      }
-
-      script {
-        if (params.JENKINS_DEBUG) {
           jenkinsBreakpoint()
         }
       }
