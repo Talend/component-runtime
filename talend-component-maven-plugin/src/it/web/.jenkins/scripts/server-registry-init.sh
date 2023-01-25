@@ -19,7 +19,7 @@
 
 function usage(){
   printf 'Configure the environment to start a local server\n'
-  printf 'Usage : %s <download_dir> <install_dir> <coverage_dir> <tck_version> <connector_version> <connector_list> [server_port]\n' "${0}"
+  printf 'Usage : %s <download_dir> <install_dir> <coverage_dir> <tck_version> <connector_version> [server_port]\n' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
@@ -32,18 +32,16 @@ function usage(){
 [ -z ${3+x} ] && usage 'Parameter "coverage_dir" is needed.'
 [ -z ${4+x} ] && usage 'Parameter "tck_version" is needed.'
 [ -z ${5+x} ] && usage 'Parameter "connectors_version" is needed.'
-[ -z ${6+x} ] && usage 'Parameter "connector" is needed.'
-[ -z ${7+x} ] && usage 'Parameter "local_m2_dir" is needed.'
-[ -z ${8+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
+[ -z ${6+x} ] && usage 'Parameter "local_m2_dir" is needed.'
+[ -z ${7+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
 
 _DOWNLOAD_DIR=${1}
 _INSTALL_DIR=${2}
 _COVERAGE_DIR=${3}
 _TCK_VERSION=${4}
 _CONNECTOR_VERSION=${5}
-_CONNECTOR_LIST=${6}
-_LOCAL_M2_DIR=${7}
-_SERVER_PORT=${8:-"8080"}
+_LOCAL_M2_DIR=${6}
+_SERVER_PORT=${7:-"8080"}
 
 # Check command possibilities
 which wget || { usage 'wget is not present'; }
@@ -98,7 +96,6 @@ function init {
   printf 'Install dir        : %s\n' "${_INSTALL_DIR}"
   printf 'TCK server version : %s\n' "${_TCK_VERSION}"
   printf 'Connectors version : %s\n' "${_CONNECTOR_VERSION}"
-  printf 'Connectors list    : %s\n' "${_CONNECTOR_LIST}"
 
   printf 'Delete the install dir\n'
   rm --recursive --force "${_INSTALL_DIR}"
@@ -134,17 +131,17 @@ function download_component_lib {
   cp -v "${_DOWNLOAD_DIR}/${file_name}" "${_LIB_DIR}"
 }
 
-function download_connector {
-
+function download_connector (){
+  connector_name=$1
   printf '##############################################\n'
-  printf '# Download connector: %s\n' "${_CONNECTOR_LIST}"
+  printf '# Download connector: %s\n' "${connector_name}"
   printf '##############################################\n'
   printf 'Downloaded connectors:\n'
 
   # Replace "VERSION" by var $CONNECTOR_VERSION in $COMPONENT_LINK
   connector_final_link=${_COMPONENT_LINK//VERSION/$_CONNECTOR_VERSION}
   # Replace "COMPONENT" by var $connector
-  connector_final_link=${connector_final_link//NAME/$_CONNECTOR_LIST}
+  connector_final_link=${connector_final_link//NAME/$connector_name}
 
   printf 'From following link: %s\n' "${connector_final_link}"
 
@@ -152,7 +149,7 @@ function download_connector {
   wget --timestamping --directory-prefix "${_DOWNLOAD_DIR}" "${connector_final_link}"
 
   # Deploy
-  component_path="${_DOWNLOAD_DIR}/${_CONNECTOR_LIST}-${_CONNECTOR_VERSION}-component.car"
+  component_path="${_DOWNLOAD_DIR}/${connector_name}-${_CONNECTOR_VERSION}-component.car"
   printf 'Deploy the car: %s\n' "${component_path}"
   java -jar "${component_path}" maven-deploy --location "${_M2_DIR}"
 
@@ -213,7 +210,8 @@ function download_all {
   download_component_lib 'component-runtime-beam'
   download_component_lib "${_EXTRA_INSTRUMENTED}"
 
-  download_connector
+  download_connector azureblob
+  download_connector azure-dls-gen2
   copy_demo_connector
 }
 
@@ -238,9 +236,11 @@ function generate_registry {
   # Create the file
   printf '\n' > "${_REGISTRY_PATH}"
   # Add connectors FIXME: TCOMP-2246 make really compatible with a list
-  printf 'conn_1=org.talend.components\\:%s\\:%s\n' "${_CONNECTOR_LIST}" "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
+
+  printf 'conn_1=org.talend.components\\:%s\\:%s\n' 'azure-dls-gen2' "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
+  printf 'conn_2=org.talend.components\\:%s\\:%s\n' 'azureblob' "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
   # Add the demo connectors
-  printf 'conn_2=org.talend.sdk.component\\:demo-connector\\:%s' "${_TCK_VERSION}" >> "${_REGISTRY_PATH}"
+  printf 'conn_3=org.talend.sdk.component\\:demo-connector\\:%s' "${_TCK_VERSION}" >> "${_REGISTRY_PATH}"
 }
 
 

@@ -29,8 +29,10 @@ import org.talend.sdk.component.api.input.PartitionSize;
 import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
+import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler;
 
-@Version(1)
+@Version(value = InputConfig.INPUT_CONFIG_VERSION,
+        migrationHandler = AbstractMigrationHandler.ExtraMigrationHandler.class)
 @Icon(value = Icon.IconType.CUSTOM, custom = "mapper")
 @PartitionMapper(name = "DemoMapper1", infinite = false)
 @Documentation("Doc: default DemoMapper1 documentation without Internationalization.")

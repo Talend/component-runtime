@@ -275,8 +275,7 @@ pipeline {
                                                          "${_INSTALL_DIR}" \
                                                          "${_COVERAGE_DIR}" \
                                                          "${runtimeVersion}" \
-                                                         '1.36.0' \
-                                                         'azure-dls-gen2' \
+                                                         '1.41.0' \
                                                          '/root/.m2/repository' \
                                                          "${_SERVER_PORT}"
 

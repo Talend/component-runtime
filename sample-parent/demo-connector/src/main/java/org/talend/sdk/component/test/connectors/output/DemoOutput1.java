@@ -29,11 +29,13 @@ import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.test.connectors.config.OutputConfig;
+import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Version(1)
+@Version(value = OutputConfig.OUTPUT_CONFIG_VERSION,
+        migrationHandler = AbstractMigrationHandler.ExtraMigrationHandler.class)
 @Icon(value = Icon.IconType.CUSTOM, custom = "output")
 @Processor(name = "DemoOutput1")
 @Documentation("Doc: default DemoOutput1 documentation without Internationalization.")

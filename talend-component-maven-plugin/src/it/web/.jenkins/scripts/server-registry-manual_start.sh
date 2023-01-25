@@ -29,8 +29,7 @@ _SERVER_PORT=8081
                           "${_INSTALL_DIR}" \
                           "${_COVERAGE_DIR}" \
                           "${_RUNTIME_VERSION}" \
-                          '1.36.0' \
-                          'azure-dls-gen2' \
+                          '1.41.0' \
                           '/home/acatoire/.m2/repository'\
                           "${_SERVER_PORT}"
 

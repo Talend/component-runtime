@@ -17,13 +17,10 @@ package org.talend.sdk.component.test.connectors.config;
 
 import java.io.Serializable;
 
-import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler.ExtraMigrationHandler;
 
-@Version(value = OutputConfig.OUTPUT_CONFIG_VERSION, migrationHandler = ExtraMigrationHandler.class)
 @GridLayout({
         @GridLayout.Row({ "message" }),
         @GridLayout.Row({ "dataset" }) })
