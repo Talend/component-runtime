@@ -95,7 +95,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.items",
-                        "value": "5"
+                        "value": "6"
                       },
                       {
                         "comparison": "Exists",
@@ -946,6 +946,7 @@
                         "items": []
                       },
                       "bodyType": "Text",
+                      "textBodyEditorHeight": 150,
                       "textBody": "{}"
                     },
                     "uri": {
@@ -1083,7 +1084,7 @@
                     },
                     "description": "Language seem not to work",
                     "id": "7b5ca354-3a6b-41b9-977c-e26c225e6da2",
-                    "name": "4. action.execute - suggestions - language",
+                    "name": "4. action.execute - suggestions - language*",
                     "headers": [
                       {
                         "enabled": true,
@@ -1176,7 +1177,7 @@
                           {
                             "enabled": true,
                             "name": "action",
-                            "value": "action_UPDATE_NESTED_CONFIG"
+                            "value": "action_UPDATE"
                           },
                           {
                             "name": "language",
@@ -1258,7 +1259,7 @@
                           {
                             "enabled": true,
                             "name": "action",
-                            "value": "action_UPDATE_NESTED_CONFIG"
+                            "value": "action_UPDATE"
                           },
                           {
                             "enabled": true,
@@ -1276,7 +1277,7 @@
                     },
                     "description": "TODO test default language\nFIXME finish it",
                     "id": "3e32bb35-3b52-463b-9be2-f19ab3cdf9dd",
-                    "name": "2. action.execute - update - language",
+                    "name": "2. action.execute - update - language*",
                     "headers": [
                       {
                         "enabled": true,
@@ -1348,7 +1349,7 @@
                           {
                             "enabled": true,
                             "name": "action",
-                            "value": "action_UPDATE_NESTED_CONFIG"
+                            "value": "action_UPDATE"
                           },
                           {
                             "name": "language",
@@ -1392,6 +1393,181 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.stringOption2",
                         "value": "\"set by service : value 2 -en\""
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "entity": {
+                "type": "Scenario",
+                "description": "Api documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "id": "4cf2a7ac-d760-4c23-a93f-8dbc8db9e3e1",
+                "name": "5-action:execute.validation"
+              },
+              "children": [
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "requestBody": true,
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                      "name": "POST"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text",
+                      "textBody": "{}"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "family",
+                            "value": "demo_family"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "type",
+                            "value": "validation"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "action",
+                            "value": "action_VALIDATION"
+                          },
+                          {
+                            "name": "language",
+                            "value": "fr"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/action/execute"
+                    },
+                    "description": "TODO test default language\nFIXME finish it",
+                    "id": "4f94e034-18d7-4ab6-b8b4-63ef79e4e400",
+                    "name": "1. action.execute - validation - default",
+                    "headers": [
+                      {
+                        "enabled": true,
+                        "name": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "enabled": true,
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.comment",
+                        "value": "\"The status comment. -en\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.status",
+                        "value": "\"OK\""
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "requestBody": true,
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                      "name": "POST"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text",
+                      "textBody": "{}"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "family",
+                            "value": "demo_family"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "type",
+                            "value": "validation"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "action",
+                            "value": "action_VALIDATION"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "language",
+                            "value": "fr"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/action/execute"
+                    },
+                    "description": "TODO: language is failing",
+                    "id": "5ca4c199-5b93-4dba-8e27-4fe0fba7c729",
+                    "name": "2. action.execute - validation - language*",
+                    "headers": [
+                      {
+                        "enabled": true,
+                        "name": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "enabled": true,
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.comment",
+                        "value": "\"The status comment. -fr\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.status",
+                        "value": "\"OK\""
                       }
                     ]
                   }
@@ -6052,7 +6228,7 @@
                     },
                     "description": "Test the Deutch request",
                     "id": "b04c8782-a6ec-4861-b1a2-3d12887debcc",
-                    "name": "component list - uk",
+                    "name": "component list - uk*",
                     "headers": [],
                     "assertions": [
                       {
@@ -6125,7 +6301,7 @@
                     },
                     "description": "Test the Chinese request",
                     "id": "ca80e004-65d1-41d6-82f8-234ae0d33e60",
-                    "name": "component list - zh",
+                    "name": "component list - zh*",
                     "headers": [
                       {
                         "enabled": true,
