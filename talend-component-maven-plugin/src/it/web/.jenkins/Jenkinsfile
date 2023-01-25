@@ -399,11 +399,11 @@ pipeline {
         if (params.JENKINS_DEBUG) {
         println "====== Debug optional step"
         sh """
-          ls "${distribution_dir}/logs/"
+          ls "${_SERVER_DIR}/logs/"
           printf "--------------------------------------------------------------------------------------------------\\n"
-          cat "${distribution_dir}/logs/component-server.log"
+          cat "${_SERVER_DIR}/logs/component-server.log"
           printf "--------------------------------------------------------------------------------------------------\\n"
-          cat "${distribution_dir}/logs/meecrowave.out"
+          cat "${_SERVER_DIR}/logs/meecrowave.out"
         """
         }
       }
