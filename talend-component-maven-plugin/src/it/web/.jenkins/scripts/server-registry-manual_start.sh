@@ -20,7 +20,7 @@
 _DOWNLOAD_DIR=/home/acatoire/test_demo/download
 _INSTALL_DIR=/home/acatoire/test_demo/install
 _COVERAGE_DIR=/home/acatoire/test_demo/coverage
-_RUNTIME_VERSION=1.53.0-SNAPSHOT
+_RUNTIME_VERSION=1.54.0-SNAPSHOT
 _SERVER_PORT=8081
 
 ./server-registry-stop.sh "${_INSTALL_DIR}"
