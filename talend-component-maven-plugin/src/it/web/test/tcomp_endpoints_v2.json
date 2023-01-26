@@ -12,7 +12,7 @@
         {
           "entity": {
             "type": "Service",
-            "description": "action endpoint  \nTODO implement all action types  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)  ",
+            "description": "action endpoint  \nTODO: implement all action types https://jira.talendforge.org/browse/TCOMP-2247  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)  ",
             "id": "e2806285-c2e9-4a1f-9a6a-0909e5c1ea18",
             "name": "action"
           },
@@ -65,7 +65,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/index"
                     },
-                    "description": "",
+                    "description": "TODO improve language test  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
                     "id": "f323b5aa-ff3c-46b0-a8fa-8ac66dff12ca",
                     "name": "action/index - default",
                     "headers": [],
@@ -95,7 +95,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.items",
-                        "value": "6"
+                        "value": "9"
                       },
                       {
                         "comparison": "Exists",
@@ -124,19 +124,13 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[32]",
+                        "path": "$.items..displayName[62]",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[31]",
-                        "value": "-en"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[30]",
+                        "path": "$.items..displayName[63]",
                         "value": "-en"
                       }
                     ]
@@ -203,22 +197,225 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Contains",
+                        "comparison": "Matches",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[32]",
-                        "value": "-fr"
+                        "path": "$.items..displayName",
+                        "value": "option 1 -fr"
                       },
                       {
-                        "comparison": "Contains",
+                        "comparison": "Matches",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[31]",
-                        "value": "-fr"
+                        "path": "$.items..displayName",
+                        "value": "option 2 -fr"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "family",
+                            "value": "demo_family"
+                          },
+                          {
+                            "name": "type",
+                            "value": ""
+                          },
+                          {
+                            "name": "language",
+                            "value": ""
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/action/index"
+                    },
+                    "description": "",
+                    "id": "a36f4ceb-b306-4d4b-acf3-8e672e5292b3",
+                    "name": "action/index - family",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "enabled": true,
+                        "path": "code",
+                        "value": "200"
                       },
                       {
-                        "comparison": "Contains",
+                        "comparison": "Exists",
+                        "subject": "ResponseBody",
+                        "enabled": true,
+                        "path": "content",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items..displayName[30]",
-                        "value": "-fr"
+                        "path": "$.items",
+                        "value": "3"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "name": "type",
+                            "value": ""
+                          },
+                          {
+                            "enabled": true,
+                            "name": "family",
+                            "value": "unknown_family"
+                          },
+                          {
+                            "name": "language",
+                            "value": ""
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/action/index"
+                    },
+                    "description": "Expected:  empty item list",
+                    "id": "77a53d64-40b2-42ca-aaa4-5ade534af785",
+                    "name": "action/index - family unknown",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "enabled": true,
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseBody",
+                        "enabled": true,
+                        "path": "content",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseBody",
+                        "enabled": true,
+                        "path": "content",
+                        "value": "{\"items\":[]}"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "type",
+                            "value": "unknown"
+                          },
+                          {
+                            "name": "family",
+                            "value": ""
+                          },
+                          {
+                            "name": "language",
+                            "value": ""
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/action/index"
+                    },
+                    "description": "Expected:  empty item list",
+                    "id": "58d04cd3-a5b2-450f-8b92-669193c926a1",
+                    "name": "action/index - type unknown",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "enabled": true,
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseBody",
+                        "enabled": true,
+                        "path": "content",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseBody",
+                        "enabled": true,
+                        "path": "content",
+                        "value": "{\"items\":[]}"
                       }
                     ]
                   }
@@ -287,222 +484,13 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.items",
-                        "value": "2"
+                        "value": "4"
                       },
                       {
-                        "comparison": "Equals",
+                        "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items[1].name",
+                        "path": "$.items..name",
                         "value": "action_LIST_ENTITIES"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "enabled": true,
-                            "name": "family",
-                            "value": "demo_family"
-                          },
-                          {
-                            "name": "type",
-                            "value": ""
-                          },
-                          {
-                            "name": "language",
-                            "value": ""
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/action/index"
-                    },
-                    "description": "TODO: Need another connector with another family  (3 family to be sure that only one of 3 is returned)",
-                    "id": "a36f4ceb-b306-4d4b-acf3-8e672e5292b3",
-                    "name": "action/index - family*",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "enabled": true,
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Exists",
-                        "subject": "ResponseBody",
-                        "enabled": true,
-                        "path": "content",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.items",
-                        "value": "2"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "type",
-                            "value": ""
-                          },
-                          {
-                            "enabled": true,
-                            "name": "family",
-                            "value": "unknown_family"
-                          },
-                          {
-                            "name": "language",
-                            "value": ""
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/action/index"
-                    },
-                    "description": "",
-                    "id": "77a53d64-40b2-42ca-aaa4-5ade534af785",
-                    "name": "action/index - family unknown - empty item list",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "enabled": true,
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Exists",
-                        "subject": "ResponseBody",
-                        "enabled": true,
-                        "path": "content",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "enabled": true,
-                        "path": "content",
-                        "value": "{\"items\":[]}"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "enabled": true,
-                            "name": "type",
-                            "value": "unknown"
-                          },
-                          {
-                            "name": "family",
-                            "value": ""
-                          },
-                          {
-                            "name": "language",
-                            "value": ""
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/action/index"
-                    },
-                    "description": "",
-                    "id": "58d04cd3-a5b2-450f-8b92-669193c926a1",
-                    "name": "action/index - type unknown - empty list",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "enabled": true,
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Exists",
-                        "subject": "ResponseBody",
-                        "enabled": true,
-                        "path": "content",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "enabled": true,
-                        "path": "content",
-                        "value": "{\"items\":[]}"
                       }
                     ]
                   }
@@ -563,8 +551,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
+                    "description": "Expected:  400 with message",
                     "id": "8c9e1654-5df1-4a75-9722-32326229d70f",
-                    "name": "1. action.execute - none of the required parameters - 400 with message",
+                    "name": "1. action.execute - none of the required parameters",
                     "headers": [
                       {
                         "enabled": true,
@@ -643,8 +632,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
+                    "description": "Expected: 404 with message",
                     "id": "2a7aa2fe-9b2e-46ba-baae-e06dee703f3d",
-                    "name": "2. action.execute - unknown action - 404 with message",
+                    "name": "2. action.execute - unknown action",
                     "headers": [
                       {
                         "enabled": true,
@@ -730,8 +720,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
+                    "description": "Expected: 400 with message",
                     "id": "156d8cce-143b-42de-b84c-db6d72f56d03",
-                    "name": "3. action:execute - no action - 400 with message",
+                    "name": "3. action:execute - no action",
                     "headers": [
                       {
                         "enabled": true,
@@ -794,7 +785,7 @@
                           {
                             "enabled": true,
                             "name": "action",
-                            "value": "LIST_ENTITIES"
+                            "value": "action_LIST_ENTITIES"
                           },
                           {
                             "name": "language",
@@ -809,9 +800,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO ticket Message should be, \"missing type\"",
+                    "description": "Expected: 400 with message  \nTODO Error Message should be, \"missing type\"  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
                     "id": "68c951ef-f7ca-4a93-81bc-ae2de35e15b5",
-                    "name": "4. action:execute - no type - 400 with message*",
+                    "name": "4. action:execute - no type",
                     "headers": [
                       {
                         "enabled": true,
@@ -874,7 +865,7 @@
                           {
                             "enabled": true,
                             "name": "action",
-                            "value": "LIST_ENTITIES"
+                            "value": "action_LIST_ENTITIES"
                           },
                           {
                             "name": "language",
@@ -889,9 +880,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO ticket Message should be, \"missing family\"",
+                    "description": "Expected: 400 with message\nTODO error Message should be, \"missing family\"  \nhttps://jira.talendforge.org/browse/TCOMP-2246  ",
                     "id": "a0dd8816-1bcd-423d-aacb-461efc6fb010",
-                    "name": "5. action:execute - no family - 400 with message*",
+                    "name": "5. action:execute - no family",
                     "headers": [
                       {
                         "enabled": true,
@@ -981,7 +972,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO test default language",
+                    "description": "",
                     "id": "9b330aba-a6a2-4d9f-a82d-5dc5514f6537",
                     "name": "1. action.execute - suggestions - default",
                     "headers": [
@@ -1024,10 +1015,16 @@
                         "value": "0"
                       },
                       {
-                        "comparison": "Contains",
+                        "comparison": "Matches",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items.label[0]",
-                        "value": "-en"
+                        "path": "$.items.label",
+                        "value": "Entity name 1 -en"
+                      },
+                      {
+                        "comparison": "Matches",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.items.label",
+                        "value": "Entity name 4 -en"
                       }
                     ]
                   }
@@ -1082,9 +1079,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "Language seem not to work",
+                    "description": "TODO: language is failing  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
                     "id": "7b5ca354-3a6b-41b9-977c-e26c225e6da2",
-                    "name": "2. action.execute - suggestions - language*",
+                    "name": "2. action.execute - suggestions - language",
                     "headers": [
                       {
                         "enabled": true,
@@ -1127,8 +1124,14 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.items.label[0]",
-                        "value": "-fr"
+                        "path": "$.items.label",
+                        "value": "Entity name 1 -fr"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.items.label",
+                        "value": "Entity name 4 -fr"
                       }
                     ]
                   }
@@ -1275,9 +1278,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO test default language\nFIXME finish it",
+                    "description": "TODO: language is failing  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
                     "id": "3e32bb35-3b52-463b-9be2-f19ab3cdf9dd",
-                    "name": "2. action.execute - update - language*",
+                    "name": "2. action.execute - update - language",
                     "headers": [
                       {
                         "enabled": true,
@@ -1364,9 +1367,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO test default language\nFIXME finish it",
+                    "description": "FIXME not working for now  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
                     "id": "4ca09681-4461-4c15-baf6-abf04998c6d9",
-                    "name": "3. action.execute - update - with content*",
+                    "name": "3. action.execute - update - with content",
                     "headers": [
                       {
                         "enabled": true,
@@ -1456,7 +1459,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO test default language\nFIXME finish it",
+                    "description": "",
                     "id": "4f94e034-18d7-4ab6-b8b4-63ef79e4e400",
                     "name": "1. action.execute - validation - default",
                     "headers": [
@@ -1539,9 +1542,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "TODO: language is failing",
+                    "description": "TODO: language is failing  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
                     "id": "5ca4c199-5b93-4dba-8e27-4fe0fba7c729",
-                    "name": "2. action.execute - validation - language*",
+                    "name": "2. action.execute - validation - language",
                     "headers": [
                       {
                         "enabled": true,
@@ -1577,9 +1580,9 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "FIXME, Need more documentation example of the flat map of string",
+                "description": "FIXME, Need more documentation example of the flat map of string  \nhttps://jira.talendforge.org/browse/TCOMP-2246  ",
                 "id": "944733ec-c03a-48a6-80b9-a246969ec274",
-                "name": "X-bulk* "
+                "name": "X-bulk"
               }
             }
           ]
@@ -1587,7 +1590,7 @@
         {
           "entity": {
             "type": "Service",
-            "description": "component endpoint\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "component endpoint  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "ece901b1-dc38-4762-90e3-7a72850348a9",
             "name": "component"
           },
@@ -1595,7 +1598,7 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "This scenario will test all basic interaction with TCOMP component/index endpoint.\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "description": "This scenario will test all basic interaction with TCOMP component/index endpoint.  \nTODO: avoid usage of table id https://jira.talendforge.org/browse/TCOMP-2351\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                 "id": "ce0897d3-1ed3-4a0e-b6d6-f22ba87e9aed",
                 "name": "1-component.index"
               },
@@ -1655,25 +1658,19 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "8"
+                        "value": "9"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].displayName",
-                        "value": "-en"
+                        "path": "$.components..displayName",
+                        "value": "Name: Demo Mapper 1 -en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[6].displayName",
-                        "value": "-en"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components[7].displayName",
-                        "value": "-en"
+                        "path": "$.components..displayName",
+                        "value": "Name: Demo Output 1 -en"
                       },
                       {
                         "comparison": "DoesNotExist",
@@ -1714,7 +1711,7 @@
                           {
                             "enabled": true,
                             "name": "q",
-                            "value": "(name = DemoInput1)"
+                            "value": "(name = DemoOutput1)"
                           }
                         ]
                       },
@@ -1725,9 +1722,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Call of the endpoint with \"q\" parameter, the list length should be affected by the query.   \nTODO do we need to test more query?",
+                    "description": "Call of the endpoint with \"q\" parameter, the list length should be affected by the query.   \nTODO do we need to test more query? https://jira.talendforge.org/browse/TCOMP-2352",
                     "id": "3e0c5b06-cca4-479c-8d82-cf6bfa3d9de8",
-                    "name": "component/index - query - filtered answer*",
+                    "name": "component/index - query - filtered answer",
                     "headers": [],
                     "assertions": [
                       {
@@ -1961,10 +1958,10 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Exists",
+                        "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].icon.customIcon",
-                        "value": "67600"
+                        "path": "$.components..icon.customIcon",
+                        "value": "9"
                       }
                     ]
                   }
@@ -2010,9 +2007,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Call of the endpoint with \"includeIconContent\" parameter set to a wrong value, the response should not contain any icons files.",
+                    "description": "Expected: default answer (false)  \nCall of the endpoint with \"includeIconContent\" parameter set to a wrong value, the response should not contain any icons files.",
                     "id": "7aecc902-55b9-491d-a871-68de38563f3c",
-                    "name": "component/index - includeIconContent with wrong value - default answer (false)",
+                    "name": "component/index - includeIconContent - wrong value",
                     "headers": [],
                     "assertions": [
                       {
@@ -2025,13 +2022,13 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "8"
+                        "value": "9"
                       },
                       {
-                        "comparison": "DoesNotExist",
+                        "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[0].icon.customIcon",
-                        "value": "3800"
+                        "path": "$.components..icon.customIcon",
+                        "value": "0"
                       }
                     ]
                   }
@@ -2091,20 +2088,14 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].displayName",
-                        "value": "-fr"
+                        "path": "$.components..displayName",
+                        "value": "Name: Demo Mapper 1 -fr"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[6].displayName",
-                        "value": "-fr"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components[7].displayName",
-                        "value": "-fr"
+                        "path": "$.components..displayName",
+                        "value": "Name: Demo Output 1 -fr"
                       }
                     ]
                   }
@@ -2143,66 +2134,6 @@
                             "value": "en"
                           },
                           {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
-                            "name": "name",
-                            "value": "input"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/index"
-                    },
-                    "description": "Get the component list to work with it in the next requests.",
-                    "id": "d5c96ada-00d3-4d68-a6d9-91a7601955e4",
-                    "name": "Get component list",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "1"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
                             "name": "identifiers",
                             "value": ""
                           }
@@ -2215,9 +2146,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "The error call, with a no \"identifier\" parameter, should return a 200 status with a empty content",
+                    "description": "Expected:empty answer  \nThe error call, with a no \"identifier\" parameter, should return a 200 status with a empty content",
                     "id": "406a523f-39fe-42d1-852b-bcb8f056889e",
-                    "name": "component/details - missing identifier - empty answer",
+                    "name": "component/details - missing identifier",
                     "headers": [],
                     "assertions": [
                       {
@@ -2429,67 +2360,67 @@
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].actions",
+                        "path": "$.details..actions",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].displayName",
+                        "path": "$.details..displayName",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].icon",
+                        "path": "$.details..icon",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].id",
+                        "path": "$.details..id",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].inputFlows",
+                        "path": "$.details..inputFlows",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].links",
+                        "path": "$.details..links",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].metadata",
+                        "path": "$.details..metadata",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].outputFlows",
+                        "path": "$.details..outputFlows",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].properties",
+                        "path": "$.details..properties",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].type",
+                        "path": "$.details..type",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       },
                       {
                         "comparison": "Exists",
                         "subject": "ResponseJsonBody",
-                        "path": "$.details[0].version",
+                        "path": "$.details..version",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
                       }
                     ]
@@ -2532,9 +2463,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "The error call, with a wrong \"identifier\" parameter, should return a 400 status with a json content",
+                    "description": "Expected: 400  \nThe error call, with a wrong \"identifier\" parameter, should return a 400 status with a json content",
                     "id": "9ad44c73-c1a1-45c7-970d-2eb4a9df5a86",
-                    "name": "component/details - wrong identifier - 400",
+                    "name": "component/details - wrong identifier",
                     "headers": [],
                     "assertions": [
                       {
@@ -2652,66 +2583,6 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
-                            "name": "name",
-                            "value": "input"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/index"
-                    },
-                    "description": "Get the component list to work with it in the next requests.",
-                    "id": "2da00597-0de1-4699-b496-ac80f65aff29",
-                    "name": "Get component list ",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "1"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
                             "name": "identifier",
                             "value": "missing"
                           }
@@ -2724,9 +2595,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependencies"
                     },
-                    "description": "Error call, without \"identifier\" parameter, should return a 200 status with an empty dependencies list",
+                    "description": "Expected: empty answer  \nError call, without \"identifier\" parameter, should return a 200 status with an empty dependencies list",
                     "id": "3b21e235-1a8c-4751-b895-411cbfe5cad2",
-                    "name": "component/dependencies - missing identifier - empty answer",
+                    "name": "component/dependencies - missing identifier",
                     "headers": [],
                     "assertions": [
                       {
@@ -2936,9 +2807,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependencies"
                     },
-                    "description": "Call using a wrong id\nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2194",
+                    "description": "Expected: error 500  \nCall using a wrong id  \nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2194",
                     "id": "6f3aee0d-06df-419d-a634-9769bb01f6cd",
-                    "name": "component/dependencies - wrong identifier - error 500",
+                    "name": "component/dependencies - wrong identifier",
                     "headers": [],
                     "assertions": [
                       {
@@ -2972,66 +2843,6 @@
                 "name": "4-component.dependency"
               },
               "children": [
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
-                            "name": "name",
-                            "value": "input"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/index"
-                    },
-                    "description": "Get the component list to work with it in the next requests.",
-                    "id": "6012dd7f-1cc2-4fb9-abce-6a0308bc9fbf",
-                    "name": "Get component list ",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "1"
-                      }
-                    ]
-                  }
-                },
                 {
                   "entity": {
                     "type": "Request",
@@ -3124,9 +2935,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependency"
                     },
-                    "description": "Call missing the id",
+                    "description": "Expected: error 404\nCall missing the id",
                     "id": "783067cb-b7cb-4861-a157-ec0ad9c75cc7",
-                    "name": "component/dependency - missing id - error 404",
+                    "name": "component/dependency - missing id",
                     "headers": [],
                     "assertions": [
                       {
@@ -3181,9 +2992,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependency/unknow_id"
                     },
-                    "description": "Call using a wrong id",
+                    "description": "Expected: error 404  \nCall using a wrong id",
                     "id": "39fe2068-54df-4e99-8609-e01587456803",
-                    "name": "component/dependency - wrong id - error 404",
+                    "name": "component/dependency - wrong id",
                     "headers": [],
                     "assertions": [
                       {
@@ -3306,66 +3117,6 @@
                     "uri": {
                       "query": {
                         "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
-                            "name": "name",
-                            "value": "input"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/index"
-                    },
-                    "description": "Get the component list to work with it in the next requests.",
-                    "id": "6a202605-7967-4bc1-9b88-11da762d75a0",
-                    "name": "Get component list",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "1"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
                         "items": []
                       },
                       "scheme": {
@@ -3424,9 +3175,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/icon/wrong_id"
                     },
-                    "description": "The call with wrong id parameter",
+                    "description": "Expected:error 404 with body  \nThe call with wrong id parameter",
                     "id": "49305d4a-c4bf-444b-9614-a036091bee22",
-                    "name": "component/icon - wrong id - error 404 with body",
+                    "name": "component/icon - wrong id",
                     "headers": [],
                     "assertions": [
                       {
@@ -3467,9 +3218,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/icon"
                     },
-                    "description": "The call without providing id parameter",
+                    "description": "Expected: error 404 without body  \nThe call without providing id parameter",
                     "id": "9b69207d-8a2c-4434-9f94-d0fee6c61c3a",
-                    "name": "component/icon - missing id - error 404 no body",
+                    "name": "component/icon - missing id",
                     "headers": [],
                     "assertions": [
                       {
@@ -3567,9 +3318,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/icon/family/unknow_identifier"
                     },
-                    "description": "The call with wrong id parameter",
+                    "description": "Expected: error 404 with body  \nThe call with wrong id parameter",
                     "id": "ebe28e9f-6957-4a31-9ace-8b0736a19de0",
-                    "name": "component/icon/family - wrong id - error 404 with body",
+                    "name": "component/icon/family - wrong id",
                     "headers": [],
                     "assertions": [
                       {
@@ -3614,9 +3365,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/icon/family"
                     },
-                    "description": "The call without providing id parameter",
+                    "description": "Expected: error 404 with body  \nThe call without providing id parameter",
                     "id": "f7e7c3aa-f93e-4b35-a246-a85c53dc9e97",
-                    "name": "component/icon/family - missing id - error 404 with body",
+                    "name": "component/icon/family - missing id",
                     "headers": [],
                     "assertions": [
                       {
@@ -3641,69 +3392,9 @@
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP component/migrate endpoint  \nTODO:  wait for the demo connector to implement those tests\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                 "id": "b3e1aca6-04b1-44e3-9314-3078aa68be79",
-                "name": "6-component.migrate*"
+                "name": "6-component.migrate"
               },
               "children": [
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
-                            "name": "name",
-                            "value": "input"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/index"
-                    },
-                    "description": "Get the component list to work with it in the next requests.",
-                    "id": "97dcc21e-d5a4-4115-be65-cd451d1376f0",
-                    "name": "Get component list",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "1"
-                      }
-                    ]
-                  }
-                },
                 {
                   "entity": {
                     "type": "Request",
@@ -3733,9 +3424,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/migrate/${\"demo_maper_id\"}/4"
                     },
-                    "description": "/api/v1/component/migrate/{id}/{configurationVersion}",
+                    "description": "Expected: 400",
                     "id": "7e60b135-c1e8-451e-a43c-4da8e081341a",
-                    "name": "component/migrate/id/configurationVersion - empty body - 400",
+                    "name": "component/migrate/id/configurationVersion - empty body",
                     "headers": [
                       {
                         "enabled": true,
@@ -3782,9 +3473,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/migrate/wrong_id/4"
                     },
-                    "description": "/api/v1/component/migrate/{id}/{configurationVersion}",
+                    "description": "Expected: 400",
                     "id": "0e345d21-c984-479a-9661-c5ba6bd68ca9",
-                    "name": "component/migrate/id/configurationVersion - wrong id - 400",
+                    "name": "component/migrate/id/configurationVersion - wrong id",
                     "headers": [
                       {
                         "enabled": true,
@@ -3817,7 +3508,7 @@
                         "items": []
                       },
                       "bodyType": "Text",
-                      "textBody": "{\n\n}\n"
+                      "textBody": "{\n  \"data\": \"input data\"\n}\n"
                     },
                     "uri": {
                       "query": {
@@ -3829,11 +3520,11 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/migrate/${\"demo_maper_id\"}/4"
+                      "path": "/api/v1/component/migrate/${\"demo_mapper_id\"}/2"
                     },
-                    "description": "FIXME: default hash map seem not to be used  \n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "c6900f5d-1f96-4e70-ae96-42383e4c69ca",
-                    "name": "component/migrate/id/configurationVersion - default*",
+                    "name": "component/migrate/id/configurationVersion - with demo mapper",
                     "headers": [
                       {
                         "enabled": true,
@@ -3851,8 +3542,26 @@
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
-                        "path": "$.configuration.__level",
-                        "value": "something"
+                        "path": "$.level",
+                        "value": "INPUT"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.incomingVersion",
+                        "value": "\"2\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.currentVersion",
+                        "value": "\"3\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.data",
+                        "value": "input data"
                       }
                     ]
                   }
@@ -3884,11 +3593,11 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/migrate/${\"demo_maper_id\"}/4"
+                      "path": "/api/v1/component/migrate/${\"demo_output_id\"}/1"
                     },
-                    "description": "\nFIXME: migrated hash map seem not to be used\n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "6b116228-8ede-4800-9edd-a53a3fdf9e81",
-                    "name": "component/migrate/id/configurationVersion - with data*",
+                    "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "660d6fd1-c138-484b-bc7e-0d3c0708d09d",
+                    "name": "component/migrate/id/configurationVersion - with demo output",
                     "headers": [
                       {
                         "enabled": true,
@@ -3906,14 +3615,99 @@
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
-                        "path": "$.data",
-                        "value": "input data"
+                        "path": "$.level",
+                        "value": "OUTPUT"
                       },
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
-                        "path": "$.configuration.__level",
-                        "value": "something"
+                        "path": "$.incomingVersion",
+                        "value": "\"1\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.currentVersion",
+                        "value": "\"2\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.data",
+                        "value": "input data"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "requestBody": true,
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                      "name": "POST"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text",
+                      "textBody": "{\n  \"data\": \"input data\"\n}\n"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": []
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/migrate/${\"demo_mapper_id\"}/10"
+                    },
+                    "description": "TODO: Is the comportment normal? https://jira.talendforge.org/browse/TCOMP-2359\n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "9918bfa8-d856-48ca-a837-ee99f58b31c9",
+                    "name": "component/migrate/id/configurationVersion - invalid migration version",
+                    "headers": [
+                      {
+                        "enabled": true,
+                        "name": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.level",
+                        "value": "EXTRA"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.incomingVersion",
+                        "value": "\"1\""
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.currentVersion",
+                        "value": "\"3\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.data",
+                        "value": "input data"
                       }
                     ]
                   }
@@ -3925,7 +3719,7 @@
         {
           "entity": {
             "type": "Service",
-            "description": "configurationType endpoint\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "configurationType endpoint  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "ece3e302-6cc5-4ceb-b8f8-07caab95609d",
             "name": "configurationType"
           },
@@ -3993,13 +3787,13 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.nodes",
-                        "value": "6"
+                        "value": "9"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "2000"
+                        "value": "3000"
                       }
                     ]
                   }
@@ -4112,7 +3906,7 @@
                     },
                     "description": "The default call, with lightPayload parameter set to false.  \nTODO: what is the best test to compare light and non-light payload?  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "296cda9d-6259-4d6f-a3b4-9e93a380b293",
-                    "name": "configurationtype/index - lightPayload - false*",
+                    "name": "configurationtype/index - lightPayload set to false",
                     "headers": [],
                     "assertions": [
                       {
@@ -4179,7 +3973,7 @@
                     },
                     "description": "The default call, with lightPayload parameter set to true.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "36ebd687-c36f-4404-a15f-91d54218aa35",
-                    "name": "configurationtype/index - lightPayload - true",
+                    "name": "configurationtype/index - lightPayload set to true",
                     "headers": [],
                     "assertions": [
                       {
@@ -4198,7 +3992,7 @@
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "2000"
+                        "value": "3000"
                       }
                     ]
                   }
@@ -4246,7 +4040,7 @@
                     },
                     "description": "The default call, with lightPayload parameter set to wrong value.  \nTODO: Check if normal than wrong_value = true  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "f6fbbf00-93ae-4693-beda-076c6a5eca66",
-                    "name": "configurationtype/index - lightPayload - wrong value",
+                    "name": "configurationtype/index - lightPayload set to a wrong value",
                     "headers": [],
                     "assertions": [
                       {
@@ -4265,7 +4059,7 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "2000"
+                        "value": "3000"
                       }
                     ]
                   }
@@ -4311,9 +4105,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/index"
                     },
-                    "description": "TODO: No language dependent so no body change, need the demo connector  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "e23577a4-8a07-4ea1-9657-dac83588cf44",
-                    "name": "configurationtype/index - language*",
+                    "name": "configurationtype/index - language",
                     "headers": [],
                     "assertions": [
                       {
@@ -4377,9 +4171,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/details"
                     },
-                    "description": "The default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Expected: empty body answer  \nThe default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "b91ee5b1-1b4d-4987-9fac-a21d250e0ecf",
-                    "name": "configurationtype/details - default - empty",
+                    "name": "configurationtype/details - default",
                     "headers": [],
                     "assertions": [
                       {
@@ -4434,9 +4228,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/details"
                     },
-                    "description": "The default call, with a given identifiers parameter unknown.   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Expected: empty body answer  \nThe default call, with a given identifiers parameter unknown.   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "af09c580-7dd0-4f12-a65d-b11853ade70e",
-                    "name": "configurationtype/details - unknow identifier - empty",
+                    "name": "configurationtype/details - unknow identifier",
                     "headers": [],
                     "assertions": [
                       {
@@ -4723,69 +4517,9 @@
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP configurationtype/migrate endpoint.  \n",
                 "id": "755690a2-949a-4e9a-9e16-3cfcf42ce208",
-                "name": "3 - configurationtype.migrate*"
+                "name": "3 - configurationtype.migrate"
               },
               "children": [
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
-                            "name": "lightPayload",
-                            "value": "true"
-                          },
-                          {
-                            "name": "q",
-                            "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/index"
-                    },
-                    "description": "Get the configuration types list for reminder\n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "6ca8a7f4-713f-4f77-b132-f40c447b7514",
-                    "name": "configurationtype/index - default",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.nodes",
-                        "value": "6"
-                      }
-                    ]
-                  }
-                },
                 {
                   "entity": {
                     "type": "Request",
@@ -4815,9 +4549,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/migrate/${\"demo_dataset_id\"}/4"
                     },
-                    "description": "FIXME: default hash map seem not to be used  \n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "1436c87f-872c-4f85-bb5e-a260a8cf836d",
-                    "name": "configurationtype/migrate/id/configurationVersion - default* on demo dataset",
+                    "name": "configurationtype/migrate/id/configurationVersion - default on demo dataset",
                     "headers": [
                       {
                         "enabled": true,
@@ -4835,8 +4569,26 @@
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
-                        "path": "$.configuration.__level",
-                        "value": "something"
+                        "path": "$.'configuration.incomingVersion'",
+                        "value": "\"4\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.currentVersion'",
+                        "value": "\"5\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.level'",
+                        "value": "DATASET"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$",
+                        "value": "3"
                       }
                     ]
                   }
@@ -4870,9 +4622,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/migrate/${\"demo_dataset_id\"}/4"
                     },
-                    "description": "FIXME: migrated hash map seem not to be used  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "30db0dab-4577-4a03-adb0-1e346dcc675b",
-                    "name": "configurationtype/migrate/id/configurationVersion - with data*",
+                    "name": "configurationtype/migrate/id/configurationVersion - with data on demo dataset",
                     "headers": [
                       {
                         "enabled": true,
@@ -4896,8 +4648,26 @@
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
-                        "path": "$.configuration.__level",
-                        "value": "something"
+                        "path": "$.'configuration.incomingVersion'",
+                        "value": "\"4\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.currentVersion'",
+                        "value": "\"5\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.level'",
+                        "value": "DATASET"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$",
+                        "value": "4"
                       }
                     ]
                   }
@@ -4917,7 +4687,7 @@
                         "items": []
                       },
                       "bodyType": "Text",
-                      "textBody": "{\n\n}\n"
+                      "textBody": "{\n  \"data\": \"input data\"\n}\n"
                     },
                     "uri": {
                       "query": {
@@ -4929,11 +4699,11 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/migrate/${\"demo_datastore_id\"}/4"
+                      "path": "/api/v1/configurationtype/migrate/${\"demo_datastore_id\"}/1"
                     },
-                    "description": "FIXME: default hash map seem not to be used  \n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "83dc0e70-820c-45f2-b77f-2168ddbbc38a",
-                    "name": "configurationtype/migrate/id/configurationVersion - default* on demo datastore",
+                    "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "db0f2f5b-400e-42e6-8b97-65e8a5c1f2ad",
+                    "name": "configurationtype/migrate/id/configurationVersion - with data on demo datastore",
                     "headers": [
                       {
                         "enabled": true,
@@ -4951,8 +4721,190 @@
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
-                        "path": "$.configuration.__level",
-                        "value": "something"
+                        "path": "$.data",
+                        "value": "input data"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.incomingVersion'",
+                        "value": "\"1\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.currentVersion'",
+                        "value": "\"2\""
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.level'",
+                        "value": "DATASTORE"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$",
+                        "value": "4"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "requestBody": true,
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                      "name": "POST"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text",
+                      "textBody": "{\n  \"data\": \"input data\"\n}\n"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": []
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/configurationtype/migrate/${\"demo_datastore_id\"}/2"
+                    },
+                    "description": "Migration from 2 to 3 is not possible because 2 doesn't know 3  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "b93f63b0-8b13-4fe3-8a07-f49809b98a13",
+                    "name": "configurationtype/migrate/id/configurationVersion - impossible migration (same version)",
+                    "headers": [
+                      {
+                        "enabled": true,
+                        "name": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.data",
+                        "value": "input data"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.incomingVersion'",
+                        "value": "\"1\""
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.currentVersion'",
+                        "value": "\"2\""
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.level'",
+                        "value": "DATASTORE"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "requestBody": true,
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                      "name": "POST"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text",
+                      "textBody": "{\n  \"data\": \"input data\"\n}\n"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": []
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/configurationtype/migrate/${\"demo_datastore_id\"}/3"
+                    },
+                    "description": "Migration from 2 to 3 is not possible because 2 doesn't know 3  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "id": "cf558187-01cf-4c98-a580-9f5c6b9d8a7e",
+                    "name": "configurationtype/migrate/id/configurationVersion - impossible migration (higher version)",
+                    "headers": [
+                      {
+                        "enabled": true,
+                        "name": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.data",
+                        "value": "input data"
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.incomingVersion'",
+                        "value": "\"1\""
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.currentVersion'",
+                        "value": "\"2\""
+                      },
+                      {
+                        "comparison": "DoesNotExist",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.'configuration.level'",
+                        "value": "DATASTORE"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$",
+                        "value": "1"
                       }
                     ]
                   }
@@ -4964,7 +4916,7 @@
         {
           "entity": {
             "type": "Service",
-            "description": "documentation endpoint\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "documentation endpoint  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "9ccdae23-deaa-43db-b783-d3c3d8074cde",
             "name": "documentation"
           },
@@ -4999,58 +4951,6 @@
                           {
                             "name": "language",
                             "value": "en"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/index"
-                    },
-                    "description": "Get the component list to work with it in the next requests.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "280dd5bf-beba-4ec6-9505-b214efca7e2b",
-                    "name": "Get component list ",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components",
-                        "value": "1"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "name": "language",
-                            "value": "en"
                           },
                           {
                             "name": "segment",
@@ -5063,11 +4963,11 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
                     },
-                    "description": "The default call, without any parameter.  \nTODO issue with language, documentation need to be generated?  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "The default call, without any parameter.  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "8edf2aff-37af-4c50-9781-cbacce319b2f",
-                    "name": "documentation/component - default*",
+                    "name": "documentation/component - default",
                     "headers": [],
                     "assertions": [
                       {
@@ -5086,7 +4986,7 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.source",
-                        "value": "== DemoInput1"
+                        "value": "== DemoOutput1"
                       },
                       {
                         "comparison": "Contains",
@@ -5144,7 +5044,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
                     },
                     "description": "Call with a \"ALL\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "c6986320-4577-4595-8950-cdb795c253f1",
@@ -5179,7 +5079,7 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.source",
-                        "value": "== DemoInput1"
+                        "value": "== DemoOutput1"
                       },
                       {
                         "comparison": "Contains",
@@ -5231,7 +5131,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
                     },
                     "description": "Call with a \"DESCRIPTION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6bb3ff71-f48b-4db7-bd2b-5329cc61abca",
@@ -5318,7 +5218,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
                     },
                     "description": "Call with a \"CONFIGURATION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6d396c00-3e30-4c48-b0fb-9cbfaaa9744f",
@@ -5399,11 +5299,11 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
                     },
-                    "description": "Call with a given unknow segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Expected: error 404 empty  \nCall with a given unknow segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "4cab0cf4-44d3-458c-a981-426e7bd1ac5b",
-                    "name": "documentation/component - segment - unknow - error 404 empty",
+                    "name": "documentation/component - segment - unknow",
                     "headers": [],
                     "assertions": [
                       {
@@ -5456,9 +5356,9 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${getEntityById(\"280dd5bf-beba-4ec6-9505-b214efca7e2b\").\"response\".\"body\".\"components\".\"5\".\"id\".\"id\"}"
+                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
                     },
-                    "description": "Call with a given language parameter to \"fr\".  \nTODO issue with language, documentation need to be generated?  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Call with a given language parameter to \"fr\".  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "876db3b2-4ff6-44ee-9c21-c29f1eb3139e",
                     "name": "documentation/component - language - fr",
                     "headers": [],
@@ -5526,9 +5426,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/documentation/component/"
                     },
-                    "description": "The default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Expected: error 404  \nThe default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "4b2208c9-87a3-415c-801c-9ad3a542ac27",
-                    "name": "documentation/component - id missing - error 404",
+                    "name": "documentation/component - id missing",
                     "headers": [],
                     "assertions": [
                       {
@@ -5582,9 +5482,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/documentation/component/unknow_id"
                     },
-                    "description": "The default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "Expected: error 404  \nThe default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "fba7a8a8-e149-4d09-b8d7-c55d692f7fe6",
-                    "name": "documentation/component - id unknow - error 404",
+                    "name": "documentation/component - id unknow",
                     "headers": [],
                     "assertions": [
                       {
@@ -5609,7 +5509,7 @@
         {
           "entity": {
             "type": "Service",
-            "description": "environment endpoint\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "environment endpoint  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "79ebd4a7-3c76-4459-8859-8ca4ceff912d",
             "name": "environment"
           },
@@ -5757,7 +5657,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.connectors.pluginsList",
-                        "value": "2"
+                        "value": "3"
                       },
                       {
                         "comparison": "Equals",
@@ -5769,6 +5669,12 @@
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
                         "path": "$.connectors.pluginsList[1]",
+                        "value": "azureblob"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.connectors.pluginsList[2]",
                         "value": "demo-connector"
                       }
                     ]
@@ -5781,7 +5687,7 @@
         {
           "entity": {
             "type": "Service",
-            "description": "Folder of languages specifics tests  \n\nThe fall back and default language should be English (en),\nFor now only the following languages are supported in most of the connectors:  \n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)  \nThe demo connector have the following:\n - Default (en),\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)  \n - Chinees(zh) \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "Folder of languages specifics tests  \nThe fall back and default language should be English (en),  \nFor now only the following languages are supported in most of the connectors:\n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)\n\nThe demo connector have the following:\n - Default (en)\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)\n - Chinees(zh)\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "3d585806-20f7-4dfc-971c-4f4483ad6089",
             "name": "languages"
           },
@@ -5834,9 +5740,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "A non given language fall back to English",
+                    "description": "Expected: English  \nA non given language fall back to English",
                     "id": "e3420024-0004-4aa6-b6b0-dcfbd4ac58a0",
-                    "name": "component list - default language - English",
+                    "name": "component list - default language",
                     "headers": [],
                     "assertions": [
                       {
@@ -5913,9 +5819,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "An unknown language fall back to English",
+                    "description": "Expected: English fall back  \nAn unknown language fall back to English",
                     "id": "ac7f7768-de9d-4135-8ab1-1aa735f2a423",
-                    "name": "component list - non i18n language id - English fall back",
+                    "name": "component list - non i18n language id",
                     "headers": [],
                     "assertions": [
                       {
@@ -5986,9 +5892,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "An unknown language fall back to English",
+                    "description": "Expected: English fall back  \nAn unknown language fall back to English",
                     "id": "30ec3216-0e90-4a67-9626-79518e667691",
-                    "name": "component list - unimplemented i18n language - English fall back",
+                    "name": "component list - unimplemented i18n language",
                     "headers": [],
                     "assertions": [
                       {
@@ -6281,7 +6187,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test the Deutch request",
+                    "description": "Test the Ukrainian request   \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "b04c8782-a6ec-4861-b1a2-3d12887debcc",
                     "name": "component list - uk*",
                     "headers": [],
@@ -6354,7 +6260,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test the Chinese request",
+                    "description": "Test the Chinese request   \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "ca80e004-65d1-41d6-82f8-234ae0d33e60",
                     "name": "component list - zh*",
                     "headers": [
@@ -6639,9 +6545,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "Request for Ukrainian  \nTODO Ticket Not working?",
+                    "description": "Request for Ukrainian  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "b7820cc8-92d3-40fe-b3bf-fba72f3416f1",
-                    "name": "component details - Ukrainian*",
+                    "name": "component details - Ukrainian",
                     "headers": [],
                     "assertions": [
                       {
@@ -6709,9 +6615,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "Request for Chinese  \nTODO Ticket Not working?",
+                    "description": "Request for Chinese  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "9d0368bd-1466-445d-9797-b97eb13f2950",
-                    "name": "component details - Chinese*",
+                    "name": "component details - Chinese",
                     "headers": [],
                     "assertions": [
                       {
@@ -6923,9 +6829,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test some cyrillic Ukranians charcters  \nTODO: not working?  ",
+                    "description": "Test some cyrillic Ukranians charcters  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "69f441f2-f2d4-4023-9e8c-706d8c4782f0",
-                    "name": "component list - uk*",
+                    "name": "component list - uk",
                     "headers": [],
                     "assertions": [
                       {
@@ -6984,9 +6890,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test some Chinese characters  \nTODO: not working?",
+                    "description": "Test some Chinese characters  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "cf19d56e-da8a-428a-90f4-036f29d705d0",
-                    "name": "component list - zh*",
+                    "name": "component list - zh",
                     "headers": [
                       {
                         "enabled": true,
@@ -7019,7 +6925,7 @@
         {
           "entity": {
             "type": "Service",
-            "description": "test around security on any endpoints\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "Tests around security on any endpoints  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "be2fa0ac-2a23-428a-95e9-6e17922e05ea",
             "name": "security"
           },
@@ -7061,7 +6967,7 @@
                     },
                     "description": "Call with an unknown endpoint.",
                     "id": "1b488e8b-2d69-4a4e-a47b-bdd31c97ea8a",
-                    "name": "Wrong endpoint - 404 - empty",
+                    "name": "Wrong endpoint",
                     "headers": [],
                     "assertions": [
                       {
@@ -7092,13 +6998,6 @@
       "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
       "name": "component_runtime_ci",
       "variables": {
-        "c7506670-3fdd-4ebf-82bf-e820da204aa3": {
-          "name": "demo_maper_id",
-          "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjRGVtb01hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-01-25T15:58:16.092Z",
-          "private": false
-        },
         "0b2fb7bf-70d5-4751-bab1-846c89c06b08": {
           "name": "demo_datastore_id",
           "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjZGF0YXN0b3JlI1RoZUNvbm5lY3Rpb24",
@@ -7125,6 +7024,13 @@
           "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHk",
           "enabled": true,
           "createdAt": "2023-01-25T16:36:10.645Z",
+          "private": false
+        },
+        "c7506670-3fdd-4ebf-82bf-e820da204aa3": {
+          "name": "demo_mapper_id",
+          "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjRGVtb01hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-01-25T15:58:16.092Z",
           "private": false
         },
         "78e23335-f4c2-4fff-b764-83219c834815": {
