@@ -252,13 +252,11 @@ pipeline {
           )
 
           // updating build description
-          currentBuild.description = ("""
-            User: $user_name - Runtime: $runtimeVersion
+          String description = """
             Project: $fileToRun
             Debug: $params.JENKINS_DEBUG""".stripIndent()
-          )
+          job_description_append(description)
         }
-
       }
     }
     stage('Prepare Test') {
@@ -390,28 +388,11 @@ pipeline {
         ])
       }
 
-      script {
-        if (params.JENKINS_DEBUG) {
-          // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
-          println "Artifact LOGS_COMPONENT_SERVER: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
-          archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
-          println "Artifact LOGS_MEECROWAVE: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
-          archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
-        }
-      }
-
-      script {
-        if (params.JENKINS_DEBUG) {
-        println "====== Debug optional step"
-        sh """
-          ls "${distribution_dir}/logs/"
-          printf "--------------------------------------------------------------------------------------------------\\n"
-          cat "${distribution_dir}/logs/component-server.log"
-          printf "--------------------------------------------------------------------------------------------------\\n"
-          cat "${distribution_dir}/logs/meecrowave.out"
-        """
-        }
-      }
+      // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
+      //println "Artifact LOGS_COMPONENT_SERVER: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
+      //archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
+      //println "Artifact LOGS_MEECROWAVE: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
+      //archiveArtifacts artifacts: "${_ARTIFACT_LOGS_MEECROWAVE}", allowEmptyArchive: false, onlyIfSuccessful: false
 
       script {
         if (params.JENKINS_DEBUG) {
