@@ -131,7 +131,7 @@ pipeline {
     )
     choice(
       name: 'PROJECT_NAME' ,
-      choices: ['tcomp_approved', 'tcomp_draft', 'tcomp_endpoints_v2'] ,
+      choices: ['tcomp_endpoints', 'tcomp_approved', 'tcomp_draft'] ,
       description: 'Select test project to execute.'
     )
     booleanParam(
