@@ -18,30 +18,46 @@
 function usage(){
   printf 'Manual server starter, like ci would do.\n'
   printf 'For manual testing.\n'
-  printf 'Usage : %s [install_dir] [runtime_version] [server_port]\n' "${0}"
+  printf 'Usage : %s [install_dir] [runtime_version] [server_port] [connectors_version]\n' "${0}"
   printf '\n'
   exit 1
 }
 
 # Parameters:
-_LOCAL_SERVER_TEST_PATH=${1:"/tmp/tck_server"}
-_RUNTIME_VERSION=${2:"1.54.0-SNAPSHOT"}
+_USER_PATH=~
+_LOCAL_SERVER_TEST_PATH=${1:-"/tmp"}
+_RUNTIME_VERSION=${2:-"1.54.0-SNAPSHOT"}
 _SERVER_PORT=${3:-"8081"}
+_CONNECTORS_VERSION=${4:-"1.41.0"}
 
-_LOCAL_SERVER_TEST_PATH=/home/acatoire
-_DOWNLOAD_DIR="${_LOCAL_SERVER_TEST_PATH}/test_demo/download"
-_INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/test_demo/install"
-_COVERAGE_DIR="${_LOCAL_SERVER_TEST_PATH}/test_demo/coverage"
+_DOWNLOAD_DIR="${_LOCAL_SERVER_TEST_PATH}/test_tck_server/download"
+_INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/test_tck_server/install"
+_COVERAGE_DIR="${_LOCAL_SERVER_TEST_PATH}/test_tck_server/coverage"
 
-./server-registry-stop.sh "${_INSTALL_DIR}"
+_SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
 
-./server-registry-init.sh "${_DOWNLOAD_DIR}" \
-                          "${_INSTALL_DIR}" \
-                          "${_COVERAGE_DIR}" \
-                          "${_RUNTIME_VERSION}" \
-                          '1.41.0' \
-                          '/home/acatoire/.m2/repository'\
-                          "${_SERVER_PORT}"
+printf '##############################################\n'
+printf 'Init parameters\n'
+printf '##############################################\n'
+printf "USER_PATH = %s\n" "${_USER_PATH}"
+printf "LOCAL_SERVER_TEST_PATH = %s\n" "${_LOCAL_SERVER_TEST_PATH}"
+printf "RUNTIME_VERSION = %s\n" "${_RUNTIME_VERSION}"
+printf "SERVER_PORT = %s\n" "${_SERVER_PORT}"
+printf "CONNECTORS_VERSION = %s\n" "${_CONNECTORS_VERSION}"
+printf "DOWNLOAD_DIR = %s\n" "${_DOWNLOAD_DIR}"
+printf "INSTALL_DIR = %s\n" "${_INSTALL_DIR}"
+printf "COVERAGE_DIR = %s\n" "${_COVERAGE_DIR}"
+printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
 
-./server-registry-start.sh "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
+"${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}"
+
+"${_SCRIPT_PATH}"/server-registry-init.sh "${_DOWNLOAD_DIR}" \
+                                          "${_INSTALL_DIR}" \
+                                          "${_COVERAGE_DIR}" \
+                                          "${_RUNTIME_VERSION}" \
+                                          "${_CONNECTORS_VERSION}" \
+                                          "${_USER_PATH}/.m2/repository"\
+                                          "${_SERVER_PORT}"
+
+"${_SCRIPT_PATH}"/server-registry-start.sh "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
 

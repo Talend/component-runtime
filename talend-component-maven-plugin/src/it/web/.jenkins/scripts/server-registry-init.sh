@@ -80,6 +80,17 @@ fi
 
 main() (
   printf '##############################################\n'
+  printf 'Server init parameters\n'
+  printf '##############################################\n'
+  printf "DOWNLOAD_DIR = %s\n" "${_DOWNLOAD_DIR}"
+  printf "INSTALL_DIR = %s\n" "${_INSTALL_DIR}"
+  printf "COVERAGE_DIR = %s\n" "${_COVERAGE_DIR}"
+  printf "TCK_VERSION = %s\n" "${_TCK_VERSION}"
+  printf "CONNECTOR_VERSION = %s\n" "${_CONNECTOR_VERSION}"
+  printf "LOCAL_M2_DIR = %s\n" "${_LOCAL_M2_DIR}"
+  printf "SERVER_PORT = %s\n" "${_SERVER_PORT}"
+
+  printf '##############################################\n'
   printf 'Server download\n'
   printf '##############################################\n'
 
