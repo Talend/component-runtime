@@ -13,15 +13,25 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
 
-# Manual server starter, like ci would do.
 
-_DOWNLOAD_DIR=/home/acatoire/test_demo/download
-_INSTALL_DIR=/home/acatoire/test_demo/install
-_COVERAGE_DIR=/home/acatoire/test_demo/coverage
-_RUNTIME_VERSION=1.54.0-SNAPSHOT
-_SERVER_PORT=8081
+function usage(){
+  printf 'Manual server starter, like ci would do.\n'
+  printf 'For manual testing.\n'
+  printf 'Usage : %s [install_dir] [runtime_version] [server_port]\n' "${0}"
+  printf '\n'
+  exit 1
+}
+
+# Parameters:
+_LOCAL_SERVER_TEST_PATH=${1:"/tmp/tck_server"}
+_RUNTIME_VERSION=${2:"1.54.0-SNAPSHOT"}
+_SERVER_PORT=${3:-"8081"}
+
+_LOCAL_SERVER_TEST_PATH=/home/acatoire
+_DOWNLOAD_DIR="${_LOCAL_SERVER_TEST_PATH}/test_demo/download"
+_INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/test_demo/install"
+_COVERAGE_DIR="${_LOCAL_SERVER_TEST_PATH}/test_demo/coverage"
 
 ./server-registry-stop.sh "${_INSTALL_DIR}"
 
