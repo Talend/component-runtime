@@ -31,8 +31,8 @@ The execution with maven plugin is done in several steps as follows:
 
 sample:
 ```bash
-mvn clean install --file "sample-parents/demo-connector/pom.xml"
-bash talend-component-maven-plugin\src\it\web\.jenkins\scripts\server-registry-manual_start.sh
+mvn clean install --file "sample-parent/demo-connector/pom.xml"
+bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh
 mvn clean test --file talend-component-maven-plugin/src/it/web/test/pom.xml \
                --define instance='YOUR_TENANT_INSTANCE'\
                --define accountId='YOUR_ID'\
