@@ -30,7 +30,7 @@ import org.talend.sdk.component.api.meta.Documentation;
                 @GridLayout.Row({ "dataset" }) })
 public class OutputConfig implements Serializable {
 
-    public final static int OUTPUT_CONFIG_VERSION = 1;
+    public final static int OUTPUT_CONFIG_VERSION = 2;
 
     @Option
     @Documentation("Doc: default dataset documentation without Internationalization.")

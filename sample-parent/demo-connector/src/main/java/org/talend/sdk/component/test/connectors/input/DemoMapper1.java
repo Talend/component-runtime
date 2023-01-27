@@ -32,7 +32,7 @@ import org.talend.sdk.component.test.connectors.config.InputConfig;
 import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler;
 
 @Version(value = InputConfig.INPUT_CONFIG_VERSION,
-        migrationHandler = AbstractMigrationHandler.ExtraMigrationHandler.class)
+         migrationHandler = AbstractMigrationHandler.InputMigrationHandler.class)
 @Icon(value = Icon.IconType.CUSTOM, custom = "mapper")
 @PartitionMapper(name = "DemoMapper1", infinite = false)
 @Documentation("Doc: default DemoMapper1 documentation without Internationalization.")

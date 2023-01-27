@@ -22,6 +22,7 @@ import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.test.connectors.config.DemoDataset;
 import org.talend.sdk.component.test.connectors.config.DemoDatastore;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
+import org.talend.sdk.component.test.connectors.config.OutputConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,9 +38,9 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
     public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
 
         Map<String, String> migrated = new HashMap<>(incomingData);
-        migrated.put("configuration.__level", this.getLevel());
-        migrated.put("configuration.__incomingVersion", "" + incomingVersion);
-        migrated.put("configuration.__currentVersion", "" + this.getCurrentVersion());
+        migrated.put("level", this.getLevel());
+        migrated.put("incomingVersion", "" + incomingVersion);
+        migrated.put("currentVersion", "" + this.getCurrentVersion());
 
         return migrated;
     }
@@ -70,16 +71,29 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
         }
     }
 
-    public static class ExtraMigrationHandler extends AbstractMigrationHandler {
+    public static class InputMigrationHandler extends AbstractMigrationHandler {
 
         @Override
         protected String getLevel() {
-            return "EXTRA";
+            return "INPUT";
         }
 
         @Override
         protected int getCurrentVersion() {
             return InputConfig.INPUT_CONFIG_VERSION;
+        }
+    }
+
+    public static class OutputMigrationHandler extends AbstractMigrationHandler {
+
+        @Override
+        protected String getLevel() {
+            return "OUTPUT";
+        }
+
+        @Override
+        protected int getCurrentVersion() {
+            return OutputConfig.OUTPUT_CONFIG_VERSION;
         }
     }
 
