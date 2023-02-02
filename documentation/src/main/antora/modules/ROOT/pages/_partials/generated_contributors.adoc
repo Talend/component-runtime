@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":666,
+    "commits":668,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -79,6 +79,13 @@
   },
   {
     "commits":9,
+    "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
+    "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
+    "id":"coheigea",
+    "name":"Colm O hEigeartaigh"
+  },
+  {
+    "commits":9,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7734020?v=4",
     "id":"bchen-talend",
@@ -90,13 +97,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/10761073?v=4",
     "id":"jsomsanith-tlnd",
     "name":"Jimmy Somsanith"
-  },
-  {
-    "commits":8,
-    "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
-    "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
-    "id":"coheigea",
-    "name":"Colm O hEigeartaigh"
   },
   {
     "commits":8,

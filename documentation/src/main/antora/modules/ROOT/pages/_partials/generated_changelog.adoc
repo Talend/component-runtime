@@ -6,6 +6,15 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2348[TCOMP-2348^]: Upgrade tomcat to 9.0.69 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2349[TCOMP-2349^]: Upgrade netty to 4.1.87.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2366[TCOMP-2366^]: Replace JAVA_OPTS by JDK_JAVA_OPTIONS link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.53.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2366[TCOMP-2366^]: Replace JAVA_OPTS by JDK_JAVA_OPTIONS link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.53.0
 
@@ -26,6 +35,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2340[TCOMP-2340^]: Reduce warning on jmx registration link:search.html?query=component-manager[component-manager^,role='dockey']
 
 
+
+
+
+== Version 1.52.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2366[TCOMP-2366^]: Replace JAVA_OPTS by JDK_JAVA_OPTIONS link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.52.1
 
@@ -66,6 +83,14 @@
 
 
 
+
+
+
+== Version 1.51.4
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2366[TCOMP-2366^]: Replace JAVA_OPTS by JDK_JAVA_OPTIONS link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.51.3
 
