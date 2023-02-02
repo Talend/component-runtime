@@ -79,7 +79,7 @@ main() {
   if [[ ${branch} == 'master' ]]; then
     tag_latest="true"
   fi
-  bash .jenkins/scripts/docker_build.sh "${release}" "${tag_latest}"
+  bash .jenkins/scripts/docker_build.sh "${release}" "${tag_latest}" || true
   ###
   echo ">> Rebuilding ${branch} and updating it (doc) for next iteration"
   git reset --hard
