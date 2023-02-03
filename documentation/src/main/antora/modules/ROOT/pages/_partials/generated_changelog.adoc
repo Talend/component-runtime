@@ -2,6 +2,12 @@
 
 == Version 1.54.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2348[TCOMP-2348^]: Upgrade tomcat to 9.0.69 link:search.html?query=component-server[component-server^,role='dockey']
@@ -11,6 +17,12 @@
 
 
 == Version 1.53.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+
+
 
 === Work Item
 
@@ -38,7 +50,15 @@
 
 
 
+
+
 == Version 1.52.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+
+
 
 === Work Item
 
@@ -86,7 +106,15 @@
 
 
 
+
+
 == Version 1.51.4
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+
+
 
 === Work Item
 
