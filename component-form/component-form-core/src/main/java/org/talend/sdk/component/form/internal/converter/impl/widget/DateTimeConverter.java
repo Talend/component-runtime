@@ -28,6 +28,9 @@ import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DateTimeConverter extends AbstractWidgetConverter {
 
     private final String format; // date, time, datetime, zoneddatetime
@@ -49,25 +52,32 @@ public class DateTimeConverter extends AbstractWidgetConverter {
     }
 
     private void initDatePicker(final PropertyContext<?> context, final UiSchema schema) {
+        final String dateFormat =
+                context.getProperty().getMetadata().getOrDefault("ui::datetime::dateFormat", "YYYY/MM/DD");
+        final boolean useSeconds = Boolean
+                .parseBoolean(context.getProperty().getMetadata().getOrDefault("ui::datetime::useSeconds", "true"));
+        final boolean useUTC =
+                Boolean.parseBoolean(context.getProperty().getMetadata().getOrDefault("ui::datetime::useUTC", "true"));
+        log.warn("[initDatePicker] {} {} {}", dateFormat, useSeconds, useUTC);
         switch (format) {
         case "time": {
             schema.setWidget("datetime"); // todo: move to "time" widget when existing
             final Map<String, Object> options = new HashMap<>();
-            options.put("useSeconds", true);
+            options.put("useSeconds", useSeconds);
             schema.setOptions(options);
             break;
         }
         case "date":
             schema.setWidget("date");
-            schema.setOptions(singletonMap("dateFormat", "YYYY/MM/DD"));
+            schema.setOptions(singletonMap("dateFormat", dateFormat));
             break;
         case "datetime":
         case "zoneddatetime": {
             schema.setWidget("datetime");
             final Map<String, Object> options = new HashMap<>();
-            options.put("useSeconds", true);
-            options.put("useUTC", true);
-            options.put("dateFormat", "YYYY/MM/DD");
+            options.put("useSeconds", useSeconds);
+            options.put("useUTC", useUTC);
+            options.put("dateFormat", dateFormat);
             schema.setOptions(options);
             break;
         }

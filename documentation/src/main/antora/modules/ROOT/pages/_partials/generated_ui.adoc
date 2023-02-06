@@ -159,28 +159,36 @@ Mark a field as being a date. It supports and is *implicit* - which means you do
 [source,js]
 ----
 {
-  "ui::datetime":"time"
+  "ui::datetime":"time",
+  "ui::datetime::useSeconds":"false"
 }
 ----
 
 [source,js]
 ----
 {
-  "ui::datetime":"date"
+  "ui::datetime":"date",
+  "ui::datetime::dateFormat":"test"
 }
 ----
 
 [source,js]
 ----
 {
-  "ui::datetime":"datetime"
+  "ui::datetime":"datetime",
+  "ui::datetime::dateFormat":"test",
+  "ui::datetime::useSeconds":"false",
+  "ui::datetime::useUTC":"false"
 }
 ----
 
 [source,js]
 ----
 {
-  "ui::datetime":"zoneddatetime"
+  "ui::datetime":"zoneddatetime",
+  "ui::datetime::dateFormat":"test",
+  "ui::datetime::useSeconds":"false",
+  "ui::datetime::useUTC":"false"
 }
 ----
 

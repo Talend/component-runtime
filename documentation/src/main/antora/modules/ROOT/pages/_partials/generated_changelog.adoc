@@ -52,6 +52,8 @@
 
 
 
+
+
 == Version 1.52.2
 
 === Bug
@@ -91,6 +93,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2237[TCOMP-2237^]: Create a streaming configuration section for documentation link:search.html?query=documentation[documentation^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2308[TCOMP-2308^]: component-runtime-http-junit capture headers case sensitivity link:search.html?query=testing[testing^,role='dockey']
+
+
 
 
 
