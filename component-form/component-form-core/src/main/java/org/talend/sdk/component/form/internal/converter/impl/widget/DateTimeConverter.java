@@ -28,9 +28,6 @@ import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class DateTimeConverter extends AbstractWidgetConverter {
 
     private final String format; // date, time, datetime, zoneddatetime
@@ -58,7 +55,6 @@ public class DateTimeConverter extends AbstractWidgetConverter {
                 .parseBoolean(context.getProperty().getMetadata().getOrDefault("ui::datetime::useSeconds", "true"));
         final boolean useUTC =
                 Boolean.parseBoolean(context.getProperty().getMetadata().getOrDefault("ui::datetime::useUTC", "true"));
-        log.warn("[initDatePicker] {} {} {}", dateFormat, useSeconds, useUTC);
         switch (format) {
         case "time": {
             schema.setWidget("datetime"); // todo: move to "time" widget when existing

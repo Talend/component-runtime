@@ -41,9 +41,6 @@ import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.PropertyValidation;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 class DateTimeConverterTest {
 
     @ParameterizedTest
@@ -82,7 +79,6 @@ class DateTimeConverterTest {
                 .get();
 
         final UiSchema schema = schemas.iterator().next();
-        log.warn("[convert] {} options: {} definition: {}", widget, schema.getOptions(), definition);
         assertEquals(widget, schema.getWidget());
         assertEquals(loadMap(options).values().toString(), schema.getOptions().values().toString());
     }

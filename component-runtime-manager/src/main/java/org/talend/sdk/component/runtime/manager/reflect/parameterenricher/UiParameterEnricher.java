@@ -45,9 +45,7 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class UiParameterEnricher extends BaseParameterEnricher {
 
     public static final String META_PREFIX = "tcomp::ui::";
@@ -75,8 +73,6 @@ public class UiParameterEnricher extends BaseParameterEnricher {
             if (DateTime.class == annotation.annotationType()) {
                 final String key = META_PREFIX + "datetime";
                 final DateTime dateTime = DateTime.class.cast(annotation);
-                log.warn("[onParameterAnnotation] key: {} -- {} {} {}", key, dateTime.dateFormat(),
-                        dateTime.useSeconds(), dateTime.useUTC());
                 final Map<String, String> dtmap = new HashMap<>();
                 if (parameterType == LocalTime.class) {
                     dtmap.put(key, "time");
