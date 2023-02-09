@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -332,6 +332,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     public void onString(final Entry entry, final Optional<String> string) {
         log.debug("[onString] visiting {}.", entry.getName());
         string.ifPresent(value -> setField(entry, value));
+    }
+
+    @Override
+    public void onObject(final Entry entry, final Optional<Object> object) {
+        log.debug("[onObject] visiting {}.", entry.getName());
+        object.ifPresent(value -> setField(entry, value));
     }
 
     @Override

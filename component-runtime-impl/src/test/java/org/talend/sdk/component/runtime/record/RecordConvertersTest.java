@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,10 +308,10 @@ class RecordConvertersTest {
     void convertInstant() {
         final ZonedDateTime dateTime = ZonedDateTime.of(2017, 7, 17, 9, 0, 0, 0, ZoneId.of("GMT"));
         final Instant asInstant = new RecordConverters().coerce(Instant.class,
-                new long[]{dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano()}, "foo");
+                new long[] { dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano() }, "foo");
         assertEquals(dateTime.toInstant(), asInstant);
         final ZonedDateTime asDate = new RecordConverters().coerce(ZonedDateTime.class,
-                new long[]{dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano()}, "foo");
+                new long[] { dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano() }, "foo");
         assertEquals(dateTime.toInstant(), asDate.toInstant());
     }
 

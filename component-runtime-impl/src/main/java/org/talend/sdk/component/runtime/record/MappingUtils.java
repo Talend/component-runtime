@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class MappingUtils {
 
@@ -82,12 +83,12 @@ public class MappingUtils {
             if (String.class == expectedType) {
                 return String.valueOf(value);
             }
-            //TCOMP-2293 support Instant
+            // TCOMP-2293 support Instant
             if (Instant.class.isInstance(value) && ZonedDateTime.class == expectedType) {
-                return ZonedDateTime.ofInstant((Instant)value, UTC);
+                return ZonedDateTime.ofInstant((Instant) value, UTC);
             }
             if (value instanceof long[]) {
-                final Instant instant = Instant.ofEpochSecond(((long[])value)[0], ((long[])value)[1]);
+                final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
                 if (ZonedDateTime.class == expectedType) {
                     return ZonedDateTime.ofInstant(instant, UTC);
                 }

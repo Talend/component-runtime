@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ main() {
 
   echo ">> Building and pushing component-server:${tag}"
   cd images/component-server-image
-  mvn verify dockerfile:build -P ci-tsbi
+  mvn verify dockerfile:build -P ci-tsbi -Dimage.tag=${tag}
   local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server"
   docker tag "talend/common/tacokit/component-server:${tag}" "${registry_srv}:${tag}"
   docker push "${registry_srv}:${tag}"
@@ -37,7 +37,7 @@ main() {
   echo ">> Building and pushing component-starter-server:${tag}"
   cd ../..
   cd images/component-starter-server-image
-  mvn verify dockerfile:build -P ci-tsbi
+  mvn verify dockerfile:build -P ci-tsbi -Dimage.tag=${tag}
   local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-starter-server"
   docker tag "talend/common/tacokit/component-starter-server:${tag}" "${registry_srv}:${tag}"
   docker push "${registry_srv}:${tag}"

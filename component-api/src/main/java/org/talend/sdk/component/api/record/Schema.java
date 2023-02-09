@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ public interface Schema {
 
         RECORD(new Class<?>[] { Record.class }),
         ARRAY(new Class<?>[] { Collection.class }),
-        STRING(new Class<?>[] { String.class }),
+        STRING(new Class<?>[] { String.class, Object.class }),
         BYTES(new Class<?>[] { byte[].class, Byte[].class }),
         INT(new Class<?>[] { Integer.class }),
         LONG(new Class<?>[] { Long.class }),

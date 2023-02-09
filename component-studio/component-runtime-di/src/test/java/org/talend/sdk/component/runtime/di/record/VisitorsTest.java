@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,8 @@ public class VisitorsTest {
 
     protected static final Record RECORD =
             factory.newRecordBuilder().withInt("ntgr", 1).withString("str", "one").build();
+
+    protected static final Object OBJECT = new Object();
 
     protected static final List<String> STRINGS = Arrays.asList("one", "two", "three", "four", "five");
 
@@ -202,6 +204,8 @@ public class VisitorsTest {
         public List<Integer> array0;
 
         public Object object0;
+
+        public Object object1;
 
         public Dynamic dynamic;
 

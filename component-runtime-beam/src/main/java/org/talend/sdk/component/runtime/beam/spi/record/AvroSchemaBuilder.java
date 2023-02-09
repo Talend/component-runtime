@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,12 +88,13 @@ public class AvroSchemaBuilder implements Schema.Builder {
                             LogicalTypes
                                     .timestampMillis()
                                     .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
-                            Schema.Type.DATETIME.name(), "true"), new AvroPropertyMapper() {
-            }
-                    .setProp(
-                            org.apache.avro.Schema.createArray(
+                            Schema.Type.DATETIME.name(), "true"),
+                    new AvroPropertyMapper() {
+                    }
+                            .setProp(
+                                    org.apache.avro.Schema.createArray(
                                             org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
-                            Schema.Type.DATETIME.name(), "true"))));
+                                    Schema.Type.DATETIME.name(), "true"))));
 
     private static final AvroSchema STRING_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
             .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING))));

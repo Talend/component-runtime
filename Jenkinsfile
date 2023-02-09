@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
 final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
 final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
+final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 
 // Files and folder definition
 final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
@@ -227,7 +228,7 @@ pipeline {
                     script {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """
-                               bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}
+                               bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
                                """
                         }
                     }
@@ -266,7 +267,8 @@ pipeline {
                     }
                     withCredentials([sonarCredentials]) {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            sh "_JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
+                            // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
+                            sh "_JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar"
                         }
                     }
                 }
