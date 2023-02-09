@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
 class DiRecordVisitorTest extends VisitorsTest {
@@ -68,6 +70,12 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .withString("date1", ZONED_DATE_TIME.toString())
                 .withDateTime("date2", ZONED_DATE_TIME)
                 .withLong("date3", ZONED_DATE_TIME.toInstant().toEpochMilli())
+                .withInstant(factory.newEntryBuilder()
+                        .withName("date4")
+                        .withType(Type.DATETIME)
+                        .withProp(STUDIO_TYPE, StudioTypes.DATE)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, Instant.class.getName())
+                        .build(), INSTANT)
                 .withString(factory.newEntryBuilder()
                         .withName("bigDecimal0")
                         .withType(Type.STRING)
@@ -196,6 +204,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date1.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date2.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date3.toInstant());
+        assertEquals(INSTANT, rowStruct.date4);
         assertEquals(BIGDEC.doubleValue(), rowStruct.bigDecimal0.doubleValue());
 
         assertEquals(BIGDEC, rowStruct.bigDecimal0);

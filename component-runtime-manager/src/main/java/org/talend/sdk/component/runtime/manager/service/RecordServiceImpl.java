@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -36,6 +37,7 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
@@ -114,6 +116,10 @@ public class RecordServiceImpl implements RecordService, Serializable {
                 visitor.onString(entry, record.getOptionalString(entry.getName()));
                 break;
             case DATETIME:
+                if (Instant.class.getName().equals(entry.getProp(SchemaProperty.ORIGIN_TYPE))) {
+                    visitor.onInstant(entry, record.getOptionalInstant(entry.getName()));
+                    break;
+                }
                 visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));
                 break;
             case DECIMAL:
