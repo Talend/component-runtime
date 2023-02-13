@@ -325,7 +325,7 @@ public class DiRowStructVisitor {
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         final boolean metaIsNullable = meta.isNullable();
-                        final boolean metaIsKey = meta.isKey() ? meta.isKey() : isKey;
+                        final boolean metaIsKey = meta.isKey();
                         final int metaLength = meta.getLength() != -1 ? meta.getLength() : length;
                         final int metaPrecision = meta.getPrecision() != -1 ? meta.getPrecision() : precision;
                         final String metaPattern =
