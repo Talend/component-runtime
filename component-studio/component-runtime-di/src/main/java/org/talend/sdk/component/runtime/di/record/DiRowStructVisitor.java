@@ -42,6 +42,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -135,6 +136,10 @@ public class DiRowStructVisitor {
                     onBoolean(name, raw);
                     break;
                 case StudioTypes.DATE:
+                    if (Timestamp.class.isInstance(raw)) {
+                        onInstant(name, (Timestamp) raw);
+                        break;
+                    }
                     onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
                     break;
                 case StudioTypes.DYNAMIC:
@@ -424,6 +429,10 @@ public class DiRowStructVisitor {
 
     private void onDatetime(final String name, final ZonedDateTime value) {
         recordBuilder.withDateTime(name, value);
+    }
+
+    private void onInstant(String name, Timestamp raw) {
+         recordBuilder.withInstant(name, raw.toInstant());
     }
 
     private void onBytes(final String name, final byte[] value) {

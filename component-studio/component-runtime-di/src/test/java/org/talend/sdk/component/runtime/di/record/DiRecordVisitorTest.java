@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
@@ -75,7 +76,6 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withName("date4")
                         .withType(Type.DATETIME)
                         .withProp(STUDIO_TYPE, StudioTypes.DATE)
-                        .withProp(SchemaProperty.ORIGIN_TYPE, Instant.class.getName())
                         .build(), INSTANT)
                 .withString(factory.newEntryBuilder()
                         .withName("bigDecimal0")
@@ -215,7 +215,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date1.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date2.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date3.toInstant());
-        assertEquals(Date.from(INSTANT), rowStruct.date4);
+        assertEquals(Timestamp.from(INSTANT), rowStruct.date4);
         assertEquals(BIGDEC.doubleValue(), rowStruct.bigDecimal0.doubleValue());
 
         assertEquals(BIGDEC, rowStruct.bigDecimal0);
