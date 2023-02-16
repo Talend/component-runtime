@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -214,7 +215,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date1.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date2.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date3.toInstant());
-        assertEquals(INSTANT, rowStruct.date4);
+        assertEquals(Date.from(INSTANT), rowStruct.date4);
         assertEquals(BIGDEC.doubleValue(), rowStruct.bigDecimal0.doubleValue());
 
         assertEquals(BIGDEC, rowStruct.bigDecimal0);

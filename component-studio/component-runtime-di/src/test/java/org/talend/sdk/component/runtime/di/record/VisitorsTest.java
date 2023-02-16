@@ -170,8 +170,8 @@ public class VisitorsTest {
         public Date date2;
 
         public Date date3;
-
-        public Instant date4;
+        
+        public Date date4;
 
         public byte[] bytes0;
 
