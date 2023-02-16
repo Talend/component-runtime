@@ -121,11 +121,7 @@ public class RecordServiceImpl implements RecordService, Serializable {
                 }
                 break;
             case DATETIME:
-                if (Instant.class.getName().equals(entry.getProp(SchemaProperty.ORIGIN_TYPE))) {
-                    visitor.onInstant(entry, record.getOptionalInstant(entry.getName()));
-                    break;
-                }
-                visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));
+                visitor.onDatetime(entry, Optional.ofNullable(record.get(java.util.Date.class, entry.getName())));
                 break;
             case DECIMAL:
                 visitor.onDecimal(entry, record.getOptionalDecimal(entry.getName()));

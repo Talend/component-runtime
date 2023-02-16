@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.record;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -84,8 +85,15 @@ public class MappingUtils {
                 return String.valueOf(value);
             }
             // TCOMP-2293 support Instant
-            if (Instant.class.isInstance(value) && ZonedDateTime.class == expectedType) {
-                return ZonedDateTime.ofInstant((Instant) value, UTC);
+            if (Instant.class.isInstance(value)) {
+                if (ZonedDateTime.class == expectedType) {
+                    return ZonedDateTime.ofInstant((Instant) value, UTC);
+                } else if (java.util.Date.class == expectedType) {
+                    return java.sql.Timestamp.from((Instant) value);
+                }
+            }
+            if (Timestamp.class.isInstance(value) && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
+                return value;
             }
             if (value instanceof long[]) {
                 final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
