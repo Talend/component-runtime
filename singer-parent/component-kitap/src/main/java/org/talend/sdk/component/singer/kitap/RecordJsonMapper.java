@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -130,7 +131,7 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
         }
 
         @Override
-        public void onDatetime(final Schema.Entry entry, final Optional<ZonedDateTime> dateTime) {
+        public void onDatetime(final Schema.Entry entry, final Optional<Date> dateTime) {
             dateTime.ifPresent(v -> builder.add(entry.getName(), singer.formatDate(v)));
         }
 
