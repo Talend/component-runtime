@@ -431,7 +431,7 @@ public class DiRowStructVisitor {
         recordBuilder.withDateTime(name, value);
     }
 
-    private void onInstant(String name, Timestamp raw) {
+    private void onInstant(final String name, final Timestamp raw) {
          recordBuilder.withInstant(name, raw.toInstant());
     }
 
