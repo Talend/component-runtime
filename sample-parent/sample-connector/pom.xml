@@ -23,7 +23,7 @@
     <version>1.54.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>demo-connector</artifactId>
+  <artifactId>sample-connector</artifactId>
 
   <name>Component Runtime :: Sample Parent :: Demo connectors</name>
   <description>Demo connectors for test.

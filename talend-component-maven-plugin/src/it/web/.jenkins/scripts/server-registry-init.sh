@@ -64,7 +64,7 @@ _LIB_INSTRUMENTED_DIR="${_COVERAGE_DIR}/lib_instrumented"
 _SOURCES_DIR="${_COVERAGE_DIR}/src"
 _M2_DIR="${_DISTRIBUTION_DIR}/m2"
 
-_DEMO_CONNECTOR_PATH="${_LOCAL_M2_DIR}/org/talend/sdk/component/demo-connector/VERSION/demo-connector-VERSION-component.car"
+_SAMPLE_CONNECTOR_PATH="${_LOCAL_M2_DIR}/org/talend/sdk/component/sample-connector/VERSION/sample-connector-VERSION-component.car"
 
 _SETENV_PATH="${_DISTRIBUTION_DIR}/bin/setenv.sh"
 _REGISTRY_PATH="${_DISTRIBUTION_DIR}/conf/components-registry.properties"
@@ -96,6 +96,10 @@ main() (
 
   init
   download_all
+
+  printf '##############################################\n'
+  printf 'Server configuration\n'
+  printf '##############################################\n'
   create_setenv_script
   generate_registry
 )
@@ -166,23 +170,23 @@ function download_connector (){
 
 }
 
-function copy_demo_connector {
+function copy_sample_connector {
 
   printf '##############################################\n'
-  printf '# Download demo connector\n'
+  printf '# Download sample connector\n'
   printf '##############################################\n'
 
-  # Replace "VERSION" by var $_TCK_VERSION in _DEMO_CONNECTOR_PATH
-  demo_connector_path=${_DEMO_CONNECTOR_PATH//VERSION/$_TCK_VERSION}
+  # Replace "VERSION" by var $_TCK_VERSION in _SAMPLE_CONNECTOR_PATH
+  sample_connector_path=${_SAMPLE_CONNECTOR_PATH//VERSION/$_TCK_VERSION}
 
-  printf 'From : %s\n' "${demo_connector_path}"
+  printf 'From : %s\n' "${sample_connector_path}"
 
   # Download
-  cp -v "${demo_connector_path}" "${_DOWNLOAD_DIR}"
+  cp -v "${sample_connector_path}" "${_DOWNLOAD_DIR}"
 
   # Deploy
-  printf 'Deploy the car: %s\n' "${demo_connector_path}"
-  java -jar "${demo_connector_path}" maven-deploy --location "${_M2_DIR}"
+  printf 'Deploy the car: %s\n' "${sample_connector_path}"
+  java -jar "${sample_connector_path}" maven-deploy --location "${_M2_DIR}"
 
 }
 
@@ -223,52 +227,45 @@ function download_all {
 
   download_connector azureblob
   download_connector azure-dls-gen2
-  copy_demo_connector
+  copy_sample_connector
 }
 
 function create_setenv_script {
-  printf '# Create the setenv.sh script\n'
+  printf '# Create the setenv.sh script: %s\n' "${_SETENV_PATH}"
 
   # For debug you can use:
   # export JAVA_OPTS=\"-agentlib:jdwp=server=y,transport=dt_socket,suspend=y,address=*:5005 \${JAVA_OPTS}\"
   #
 
-  echo "export JAVA_HOME=\"${JAVA_HOME}\"" >> "${_SETENV_PATH}"
-  echo "export ENDORSED_PROP=\"ignored.endorsed.dir\"" >> "${_SETENV_PATH}"
-  echo "export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT} \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
-  echo "export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
-  echo "export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
-  echo "export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
-  echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
+  {
+    echo "export JAVA_HOME=\"${JAVA_HOME}\""
+    echo "export ENDORSED_PROP=\"ignored.endorsed.dir\""
+    echo "export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT} \${MEECROWAVE_OPTS}\""
+    echo "export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\""
+    echo "export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\""
+    echo "export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\""
+    echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\""
 
-  # TODO change default locale.mapping https://jira.talendforge.org/browse/TCOMP-2378
-  # Default is en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de
-  # It has to be edited to add more languages
-  # echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.locale.mapping=en*=en\\nfr*=fr\\nzh*=zh_CN\\nja*=ja\\nde*=de\\nuk*=uk \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
-
+    # TODO change default locale.mapping https://jira.talendforge.org/browse/TCOMP-2378
+    # Default is en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de
+    # It has to be edited to add more languages
+    # echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.locale.mapping=en*=en\\nfr*=fr\\nzh*=zh_CN\\nja*=ja\\nde*=de\\nuk*=uk \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
+  } >> "${_SETENV_PATH}"
   chmod +x "${_SETENV_PATH}"
 }
 
 function generate_registry {
-  printf '\n# Generate components registry\n'
+  printf '# Generate components registry: %s\n' "${_REGISTRY_PATH}"
   # Create the file
   printf '\n' > "${_REGISTRY_PATH}"
-  # Add connectors FIXME: TCOMP-2246 make really compatible with a list
 
+  # Add connectors FIXME: TCOMP-2246 make really compatible with a list
   printf 'conn_1=org.talend.components\\:%s\\:%s\n' 'azure-dls-gen2' "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
   printf 'conn_2=org.talend.components\\:%s\\:%s\n' 'azureblob' "${_CONNECTOR_VERSION}" >> "${_REGISTRY_PATH}"
-  # Add the demo connectors
-  printf 'conn_3=org.talend.sdk.component\\:demo-connector\\:%s' "${_TCK_VERSION}" >> "${_REGISTRY_PATH}"
+  # Add the sample connectors
+  printf 'conn_3=org.talend.sdk.component\\:sample-connector\\:%s' "${_TCK_VERSION}" >> "${_REGISTRY_PATH}"
 }
 
 
 main "$@"
-
-#export MEECROWAVE_OPTS="-Dhttp=8081 \
-#                        -Dtalend.component.manager.m2.repository=m2 \
-#                        -D_talend.studio.version=7.4.1 \
-#                        -Dtalend.vault.cache.vault.url=none \
-#                        -Dtalend.component.server.component.registry=conf/components-registry.properties \
-#                        "
-#                        -Dtalend.component.server.locale.mapping=en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de\nuk*=uk \
     
