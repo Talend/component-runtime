@@ -24,7 +24,7 @@ import os
 specials_characters = {"fr": u"é",
                        "uk": u"Ж",
                        "ja": u"愛",
-                       "zh": u"爱"}
+                       "zh_CN": u"爱"}
 
 
 class I18nMessagePropertiesGenerator:
@@ -60,7 +60,7 @@ class I18nMessagePropertiesGenerator:
 
     def main(self):
 
-        suffixes = ['en', 'fr', 'zh', 'ja', 'uk']
+        suffixes = ['en', 'fr', 'zh_cn', 'ja', 'uk', 'zh', 'cn']
 
         # Get all "Messages.properties" files in the current directory and its subdirectories
         properties_files = []
