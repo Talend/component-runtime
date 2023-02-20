@@ -47,7 +47,7 @@ class I18nMessagePropertiesGenerator:
                         # Documentation shall always end with a '.'
                         f.write(".")
 
-                    if line.__contains__('demo_family.DemoInput1._displayName') and special_character:
+                    if line.__contains__('demo_family.DemoOutput1._displayName') and special_character:
                         # Inject special character for test purpose
 
                         f.write(' +')
@@ -60,7 +60,7 @@ class I18nMessagePropertiesGenerator:
 
     def main(self):
 
-        suffixes = ['en', 'fr', 'zh_cn', 'ja', 'uk', 'zh', 'cn']
+        suffixes = ['en', 'fr', 'ja', 'uk', 'zh_CN']
 
         # Get all "Messages.properties" files in the current directory and its subdirectories
         properties_files = []
