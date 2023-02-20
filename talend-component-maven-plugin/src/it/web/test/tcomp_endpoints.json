@@ -6,7 +6,7 @@
         "type": "Project",
         "description": "To run the test you need to run a component server (1.45 minimum). \nGo to a component directory and run :  \nmvn talend-component:web \"-Dtalend.web.batch=true\" \"-Dtalend.web.batch.timeout=1\" \"-Dtalend.web.port=8081\"  \"-Dtalend.web.batch.timeout=5\"\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
         "id": "53c0e2fa-3cc2-4a22-9ebf-14f168c955d1",
-        "name": "tcomp_endpoints_v2"
+        "name": "tcomp_endpoints"
       },
       "children": [
         {

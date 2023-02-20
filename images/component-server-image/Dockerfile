@@ -51,6 +51,6 @@ ENV TALEND_COMPONENT_SERVER_USER_EXTENSIONS_LOCATION ${TALEND_HOME}/extensions
 ENV TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY ${TALEND_HOME}/connectors
 ENV TALEND_VAULT_CACHE_VAULT_DECRYPT_ENDPOINT v1/tenants-keyrings/decrypt/{x-talend-tenant-id}
 ENV CLASSPATH ${TALEND_HOME}/component-kit/custom/*:${TALEND_HOME}/custom/*:${TALEND_HOME}/extensions/*:${TALEND_APP_HOME}/resources:${TALEND_APP_HOME}/classes
-ENV JAVA_OPTS "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2-component-server-${LOGGING_LAYOUT}.xml"
+ENV JDK_JAVA_OPTIONS "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED -Dlog4j.configurationFile=${TALEND_APP_HOME}/conf/log4j2-component-server-${LOGGING_LAYOUT}.xml"
 
 CMD ["java", "org.apache.meecrowave.runner.Cli"]
