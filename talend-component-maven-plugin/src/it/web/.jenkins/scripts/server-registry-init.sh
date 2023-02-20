@@ -228,18 +228,25 @@ function download_all {
 
 function create_setenv_script {
   printf '# Create the setenv.sh script\n'
-	{
-		echo 	"""
-    export JAVA_HOME=\"${JAVA_HOME}\"
-    export ENDORSED_PROP=\"ignored.endorsed.dir\"
-    export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT}\"
-    export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"
-    export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"
-    """
-	} > "${_SETENV_PATH}"
-	chmod +x "${_SETENV_PATH}"
+
+  # For debug you can use:
+  # export JAVA_OPTS=\"-agentlib:jdwp=server=y,transport=dt_socket,suspend=y,address=*:5005 \${JAVA_OPTS}\"
+  #
+
+  echo "export JAVA_HOME=\"${JAVA_HOME}\"" >> "${_SETENV_PATH}"
+  echo "export ENDORSED_PROP=\"ignored.endorsed.dir\"" >> "${_SETENV_PATH}"
+  echo "export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT} \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
+  echo "export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
+  echo "export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
+  echo "export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
+  echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
+
+  # TODO change default locale.mapping https://jira.talendforge.org/browse/TCOMP-2378
+  # Default is en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de
+  # It has to be edited to add more languages
+  # echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.locale.mapping=en*=en\\nfr*=fr\\nzh*=zh_CN\\nja*=ja\\nde*=de\\nuk*=uk \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
+
+  chmod +x "${_SETENV_PATH}"
 }
 
 function generate_registry {
@@ -256,3 +263,12 @@ function generate_registry {
 
 
 main "$@"
+
+#export MEECROWAVE_OPTS="-Dhttp=8081 \
+#                        -Dtalend.component.manager.m2.repository=m2 \
+#                        -D_talend.studio.version=7.4.1 \
+#                        -Dtalend.vault.cache.vault.url=none \
+#                        -Dtalend.component.server.component.registry=conf/components-registry.properties \
+#                        "
+#                        -Dtalend.component.server.locale.mapping=en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de\nuk*=uk \
+    
