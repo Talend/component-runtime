@@ -1067,7 +1067,7 @@
                           },
                           {
                             "enabled": true,
-                            "name": "language",
+                            "name": "lang",
                             "value": "fr"
                           }
                         ]
@@ -1266,7 +1266,7 @@
                           },
                           {
                             "enabled": true,
-                            "name": "language",
+                            "name": "lang",
                             "value": "fr"
                           }
                         ]
@@ -1530,7 +1530,7 @@
                           },
                           {
                             "enabled": true,
-                            "name": "language",
+                            "name": "lang",
                             "value": "fr"
                           }
                         ]
@@ -2891,7 +2891,7 @@
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "60000"
+                        "value": "70000"
                       },
                       {
                         "comparison": "Equals",
@@ -2903,7 +2903,7 @@
                         "comparison": "Contains",
                         "subject": "ResponseBody",
                         "path": "content",
-                        "value": "META-INF/maven/org.talend.sdk.component/demo-connector"
+                        "value": "META-INF/maven/org.talend.sdk.component/sample-connector"
                       }
                     ]
                   }
@@ -5675,7 +5675,7 @@
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
                         "path": "$.connectors.pluginsList[2]",
-                        "value": "demo-connector"
+                        "value": "sample-connector"
                       }
                     ]
                   }
@@ -5755,24 +5755,24 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "8"
+                        "value": "9"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[7].displayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].familyDisplayName",
+                        "path": "$.components[7].familyDisplayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].metadata.documentation::value",
+                        "path": "$.components[7].metadata.documentation::value",
                         "value": "-en"
                       }
                     ]
@@ -5833,19 +5833,19 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[7].displayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].familyDisplayName",
+                        "path": "$.components[7].familyDisplayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].metadata.documentation::value",
+                        "path": "$.components[7].metadata.documentation::value",
                         "value": "-en"
                       }
                     ]
@@ -5906,19 +5906,19 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[7].displayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].familyDisplayName",
+                        "path": "$.components[7].familyDisplayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].metadata.documentation::value",
+                        "path": "$.components[7].metadata.documentation::value",
                         "value": "-en"
                       }
                     ]
@@ -5979,13 +5979,13 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[7].displayName",
                         "value": "-en"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].familyDisplayName",
+                        "path": "$.components[7].familyDisplayName",
                         "value": "-en"
                       }
                     ]
@@ -6047,19 +6047,19 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[7].displayName",
                         "value": "-fr"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].familyDisplayName",
+                        "path": "$.components[7].familyDisplayName",
                         "value": "-fr"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].metadata.documentation::value",
+                        "path": "$.components[7].metadata.documentation::value",
                         "value": "-fr"
                       }
                     ]
@@ -6128,20 +6128,102 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[7].displayName",
                         "value": "-ja"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].familyDisplayName",
+                        "path": "$.components[7].familyDisplayName",
                         "value": "-ja"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].metadata.documentation::value",
+                        "path": "$.components[7].metadata.documentation::value",
                         "value": "-ja"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "language",
+                            "value": "zh"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "includeIconContent",
+                            "value": "false"
+                          },
+                          {
+                            "name": "name",
+                            "value": "input"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/index"
+                    },
+                    "description": "Test the Chinese request   \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
+                    "id": "ca80e004-65d1-41d6-82f8-234ae0d33e60",
+                    "name": "component list - zh*",
+                    "headers": [
+                      {
+                        "enabled": true,
+                        "name": "Accept-Charset",
+                        "value": "utf-8"
+                      }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "enabled": true,
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "enabled": true,
+                        "path": "$.components[7].displayName",
+                        "value": "-zh"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].familyDisplayName",
+                        "value": "-zh"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].metadata.documentation::value",
+                        "value": "-zh"
                       }
                     ]
                   }
@@ -6187,7 +6269,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test the Ukrainian request   \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
+                    "description": "Test the Ukrainian request   \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378",
                     "id": "b04c8782-a6ec-4861-b1a2-3d12887debcc",
                     "name": "component list - uk*",
                     "headers": [],
@@ -6201,101 +6283,20 @@
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[7].displayName",
                         "value": "-uk"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].familyDisplayName",
+                        "path": "$.components[7].familyDisplayName",
                         "value": "-uk"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
-                        "path": "$.components[5].metadata.documentation::value",
+                        "path": "$.components[7].metadata.documentation::value",
                         "value": "-uk"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "enabled": true,
-                            "name": "language",
-                            "value": "zh"
-                          },
-                          {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
-                            "name": "name",
-                            "value": "input"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/index"
-                    },
-                    "description": "Test the Chinese request   \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
-                    "id": "ca80e004-65d1-41d6-82f8-234ae0d33e60",
-                    "name": "component list - zh*",
-                    "headers": [
-                      {
-                        "enabled": true,
-                        "name": "Accept-Charset",
-                        "value": "utf-8"
-                      }
-                    ],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "enabled": true,
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "enabled": true,
-                        "path": "$.components[5].displayName",
-                        "value": "-zh"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components[5].familyDisplayName",
-                        "value": "-zh"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components[5].metadata.documentation::value",
-                        "value": "-zh"
                       }
                     ]
                   }
@@ -6529,76 +6530,6 @@
                           {
                             "enabled": true,
                             "name": "language",
-                            "value": "uk"
-                          },
-                          {
-                            "enabled": true,
-                            "name": "identifiers",
-                            "value": "${\"demo_mapper_id\"}"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/details"
-                    },
-                    "description": "Request for Ukrainian  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
-                    "id": "b7820cc8-92d3-40fe-b3bf-fba72f3416f1",
-                    "name": "component details - Ukrainian",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.details",
-                        "value": "1"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.details[0].displayName",
-                        "value": "-uk"
-                      },
-                      {
-                        "comparison": "DoesNotContain",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "-en"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "enabled": true,
-                            "name": "language",
                             "value": "zh"
                           },
                           {
@@ -6637,6 +6568,76 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.details[0].displayName",
                         "value": "-zh"
+                      },
+                      {
+                        "comparison": "DoesNotContain",
+                        "subject": "ResponseBody",
+                        "path": "content",
+                        "value": "-en"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "language",
+                            "value": "uk"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "identifiers",
+                            "value": "${\"demo_mapper_id\"}"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/details"
+                    },
+                    "description": "Request for Ukrainian  \nTODO: clarify the language configuration https://jira.talendforge.org/browse/TCOMP-2378",
+                    "id": "b7820cc8-92d3-40fe-b3bf-fba72f3416f1",
+                    "name": "component details - Ukrainian",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details",
+                        "value": "1"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.details[0].displayName",
+                        "value": "-uk"
                       },
                       {
                         "comparison": "DoesNotContain",
@@ -6686,8 +6687,9 @@
                             "value": "false"
                           },
                           {
-                            "name": "name",
-                            "value": "input"
+                            "enabled": true,
+                            "name": "q",
+                            "value": "(name = DemoOutput1)"
                           }
                         ]
                       },
@@ -6713,7 +6715,7 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[0].displayName",
                         "value": "-fr +é"
                       }
                     ]
@@ -6748,8 +6750,9 @@
                             "value": "false"
                           },
                           {
-                            "name": "name",
-                            "value": "input"
+                            "enabled": true,
+                            "name": "q",
+                            "value": "(name = DemoOutput1)"
                           }
                         ]
                       },
@@ -6782,69 +6785,8 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[0].displayName",
                         "value": "-ja +愛"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": [
-                          {
-                            "enabled": true,
-                            "name": "language",
-                            "value": "uk"
-                          },
-                          {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
-                            "name": "name",
-                            "value": "input"
-                          }
-                        ]
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/index"
-                    },
-                    "description": "Test some cyrillic Ukranians charcters  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
-                    "id": "69f441f2-f2d4-4023-9e8c-706d8c4782f0",
-                    "name": "component list - uk",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.components[5].displayName",
-                        "value": "-uk +Ж"
                       }
                     ]
                   }
@@ -6878,8 +6820,9 @@
                             "value": "false"
                           },
                           {
-                            "name": "name",
-                            "value": "input"
+                            "enabled": true,
+                            "name": "q",
+                            "value": "(name = DemoOutput1)"
                           }
                         ]
                       },
@@ -6912,8 +6855,70 @@
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "enabled": true,
-                        "path": "$.components[5].displayName",
+                        "path": "$.components[0].displayName",
                         "value": "-zh +爱"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "language",
+                            "value": "uk"
+                          },
+                          {
+                            "name": "includeIconContent",
+                            "value": "false"
+                          },
+                          {
+                            "enabled": true,
+                            "name": "q",
+                            "value": "(name = DemoOutput1)"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/index"
+                    },
+                    "description": "Test some cyrillic Ukranians charcters  \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378",
+                    "id": "69f441f2-f2d4-4023-9e8c-706d8c4782f0",
+                    "name": "component list - uk",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[0].displayName",
+                        "value": "-uk +Ж"
                       }
                     ]
                   }
@@ -6998,39 +7003,39 @@
       "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
       "name": "component_runtime_ci",
       "variables": {
+        "e7068001-0b42-48db-a592-15a0017ae5f8": {
+          "name": "demo_family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseQ",
+          "enabled": true,
+          "createdAt": "2023-01-25T16:36:10.645Z",
+          "private": false
+        },
+        "f8c7bb79-392e-4cce-add2-9ecd2d199258": {
+          "name": "demo_output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseSNEZW1vT3V0cHV0MQ",
+          "enabled": true,
+          "createdAt": "2023-01-25T16:36:09.959Z",
+          "private": false
+        },
+        "c7506670-3fdd-4ebf-82bf-e820da204aa3": {
+          "name": "demo_mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseSNEZW1vTWFwcGVyMQ",
+          "enabled": true,
+          "createdAt": "2023-01-25T15:58:16.092Z",
+          "private": false
+        },
         "0b2fb7bf-70d5-4751-bab1-846c89c06b08": {
           "name": "demo_datastore_id",
-          "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjZGF0YXN0b3JlI1RoZUNvbm5lY3Rpb24",
+          "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseSNkYXRhc3RvcmUjVGhlQ29ubmVjdGlvbg",
           "enabled": true,
           "createdAt": "2023-01-25T15:58:31.556Z",
           "private": false
         },
         "b4923c1a-de25-4df2-a7ec-e373bafed074": {
           "name": "demo_dataset_id",
-          "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjZGF0YXNldCNUaGVEZW1vRGF0YXNldA",
+          "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseSNkYXRhc2V0I1RoZURlbW9EYXRhc2V0",
           "enabled": true,
           "createdAt": "2023-01-25T15:58:40.752Z",
-          "private": false
-        },
-        "f8c7bb79-392e-4cce-add2-9ecd2d199258": {
-          "name": "demo_output_id",
-          "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjRGVtb091dHB1dDE",
-          "enabled": true,
-          "createdAt": "2023-01-25T16:36:09.959Z",
-          "private": false
-        },
-        "e7068001-0b42-48db-a592-15a0017ae5f8": {
-          "name": "demo_family_id",
-          "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHk",
-          "enabled": true,
-          "createdAt": "2023-01-25T16:36:10.645Z",
-          "private": false
-        },
-        "c7506670-3fdd-4ebf-82bf-e820da204aa3": {
-          "name": "demo_mapper_id",
-          "value": "ZGVtby1jb25uZWN0b3IjZGVtb19mYW1pbHkjRGVtb01hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-01-25T15:58:16.092Z",
           "private": false
         },
         "78e23335-f4c2-4fff-b764-83219c834815": {
