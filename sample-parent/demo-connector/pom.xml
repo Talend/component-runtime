@@ -108,6 +108,18 @@
             <goals>
               <goal>asciidoc</goal>
             </goals>
+            <phase>process-classes</phase>
+            <configuration>
+              <locales>
+                <locale>root</locale>
+                <locale>en</locale>
+                <locale>fr</locale>
+                <locale>ja</locale>
+                <locale>de</locale>
+                <locale>uk</locale>
+                <locale>zh</locale>
+              </locales>
+            </configuration>
           </execution>
         </executions>
       </plugin>
