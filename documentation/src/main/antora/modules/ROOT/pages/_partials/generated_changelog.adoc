@@ -5,6 +5,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2370[TCOMP-2370^]: [RunConv] Prep output: the "operation key" field in additional parameters had an empty list instead of the list of table columns. link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -13,6 +14,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2348[TCOMP-2348^]: Upgrade tomcat to 9.0.69 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2349[TCOMP-2349^]: Upgrade netty to 4.1.87.Final link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2366[TCOMP-2366^]: Replace JAVA_OPTS by JDK_JAVA_OPTIONS link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2371[TCOMP-2371^]: [TCK JDBC]: Studio dynamic column metadata info : isKey should follow runtime dynamic object, not the input component's studio schema link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
@@ -21,6 +23,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2370[TCOMP-2370^]: [RunConv] Prep output: the "operation key" field in additional parameters had an empty list instead of the list of table columns. link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -52,11 +55,16 @@
 
 
 
+
+
+
+
 == Version 1.52.2
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2370[TCOMP-2370^]: [RunConv] Prep output: the "operation key" field in additional parameters had an empty list instead of the list of table columns. link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -108,11 +116,16 @@
 
 
 
+
+
+
+
 == Version 1.51.4
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2370[TCOMP-2370^]: [RunConv] Prep output: the "operation key" field in additional parameters had an empty list instead of the list of table columns. link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
