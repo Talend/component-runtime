@@ -3390,7 +3390,7 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "This scenario will test all basic interaction with TCOMP component/migrate endpoint  \nTODO:  wait for the demo connector to implement those tests\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "description": "This scenario will test all basic interaction with TCOMP component/migrate endpoint  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                 "id": "b3e1aca6-04b1-44e3-9314-3078aa68be79",
                 "name": "6-component.migrate"
               },
@@ -3508,6 +3508,7 @@
                         "items": []
                       },
                       "bodyType": "Text",
+                      "textBodyEditorHeight": 150,
                       "textBody": "{\n  \"data\": \"input data\"\n}\n"
                     },
                     "uri": {
@@ -3581,6 +3582,7 @@
                         "items": []
                       },
                       "bodyType": "Text",
+                      "textBodyEditorHeight": 150,
                       "textBody": "{\n  \"data\": \"input data\"\n}\n"
                     },
                     "uri": {
