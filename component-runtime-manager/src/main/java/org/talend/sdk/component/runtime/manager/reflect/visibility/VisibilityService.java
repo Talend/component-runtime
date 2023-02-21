@@ -228,8 +228,7 @@ public class VisibilityService {
                             .asJsonArray()
                             .stream()
                             .forEach(j -> builder.add(subptr.getValue(j.asJsonObject())));
-                    // TODO comment to activate initial behavior / remove comments to activate start of fix
-                    //return ofNullable(builder.build()).map(this::mapValue).orElse(null);
+                    return ofNullable(builder.build()).map(this::mapValue).orElse(null);
                 }
                 return null;
             }

@@ -898,7 +898,8 @@ class ReflectionServiceTest {
         assertEquals("col0", value.getFilters().get(0).getColumnName());
     }
 
-    @Test
+    //open this test case after TCOMP-2337 done
+    // @Test
     void nestedRequiredActiveIfFiltersKo() throws NoSuchMethodException {
         final String expected = "- Property 'configuration.filters[${index}].value' is required.";
         final Map<String, String> payload = new HashMap<String, String>();

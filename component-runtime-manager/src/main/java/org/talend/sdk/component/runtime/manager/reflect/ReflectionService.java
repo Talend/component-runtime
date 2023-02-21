@@ -905,12 +905,9 @@ public class ReflectionService {
 
         @Override
         public void onParameter(final ParameterMeta meta, final JsonValue value) {
-            // TODO remove logging via stderr
             if (!VISIBILITY_SERVICE.build(meta).isVisible(globalPayload)) {
-                System.err.println("[onParameter] NOT VISIBLE " + meta.getPath() + "\t\t value: " + value);
                 return;
             }
-            System.err.println("[onParameter]     VISIBLE " + meta.getPath() + "\t\t value: " + value);
 
             if (Boolean.parseBoolean(meta.getMetadata().get("tcomp::validation::required"))
                     && value == JsonValue.NULL) {
