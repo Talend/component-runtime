@@ -20,6 +20,8 @@ import routines.system.Dynamic;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -56,6 +58,8 @@ public class VisitorsTest {
 
     protected static final ZonedDateTime ZONED_DATE_TIME =
             ZonedDateTime.of(1946, 02, 03, 11, 6, 9, 0, ZoneId.of("UTC"));
+
+    protected static final Instant INSTANT = Timestamp.valueOf("2021-04-19 13:37:07.123456").toInstant();
 
     protected static final byte[] BYTES0 =
             { -2, -1, 0, 72, 0, 101, 0, 108, 0, 108, 0, 111, 0, 32, 0, 87, 0, 111, 0, 114, 0, 108, 0, 100, 0, 33 };
@@ -166,6 +170,8 @@ public class VisitorsTest {
         public Date date2;
 
         public Date date3;
+        
+        public Date date4;
 
         public byte[] bytes0;
 
