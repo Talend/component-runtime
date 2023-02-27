@@ -1367,7 +1367,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "FIXME not working for now  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
+                    "description": "FIXME not working for now  \nhttps://jira.talendforge.org/browse/TCOMP-2247",
                     "id": "4ca09681-4461-4c15-baf6-abf04998c6d9",
                     "name": "3. action.execute - update - with content",
                     "headers": [
@@ -1389,13 +1389,13 @@
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
                         "path": "$.stringOption1",
-                        "value": "\"set by service : value 1 -en\""
+                        "value": "\"Set by service : value 1 -en\""
                       },
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
                         "path": "$.stringOption2",
-                        "value": "\"set by service : value 2 -en\""
+                        "value": "\"Set by service : value 2 -en\""
                       }
                     ]
                   }
@@ -2086,13 +2086,13 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Contains",
+                        "comparison": "Matches",
                         "subject": "ResponseJsonBody",
                         "path": "$.components..displayName",
                         "value": "Name: Demo Mapper 1 -fr"
                       },
                       {
-                        "comparison": "Contains",
+                        "comparison": "Matches",
                         "subject": "ResponseJsonBody",
                         "path": "$.components..displayName",
                         "value": "Name: Demo Output 1 -fr"
@@ -2192,7 +2192,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_mapper_id\"}"
+                            "value": "${\"mapper_id\"}"
                           }
                         ]
                       },
@@ -2261,12 +2261,12 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_mapper_id\"}"
+                            "value": "${\"mapper_id\"}"
                           },
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_output_id\"}"
+                            "value": "${\"output_id\"}"
                           }
                         ]
                       },
@@ -2335,7 +2335,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_output_id\"}"
+                            "value": "${\"output_id\"}"
                           }
                         ]
                       },
@@ -2510,7 +2510,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_output_id\"}"
+                            "value": "${\"output_id\"}"
                           }
                         ]
                       },
@@ -2643,7 +2643,7 @@
                           {
                             "enabled": true,
                             "name": "identifier",
-                            "value": "${\"demo_output_id\"}"
+                            "value": "${\"output_id\"}"
                           }
                         ]
                       },
@@ -2708,12 +2708,12 @@
                           {
                             "enabled": true,
                             "name": "identifier",
-                            "value": "${\"demo_output_id\"}"
+                            "value": "${\"output_id\"}"
                           },
                           {
                             "enabled": true,
                             "name": "identifier",
-                            "value": "${\"demo_mapper_id\"}"
+                            "value": "${\"mapper_id\"}"
                           }
                         ]
                       },
@@ -2868,7 +2868,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/dependency/${\"demo_output_id\"}"
+                      "path": "/api/v1/component/dependency/${\"output_id\"}"
                     },
                     "description": "Call using a component id\nTODO should we check dependency size or annother way",
                     "id": "b8bd28e4-57a6-4c1a-9d24-1852661c663e",
@@ -3124,7 +3124,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/${\"demo_mapper_id\"}"
+                      "path": "/api/v1/component/icon/${\"mapper_id\"}"
                     },
                     "description": "The default call",
                     "id": "6cc60f87-4cca-4f52-8f82-9afdbc4f87a8",
@@ -3263,7 +3263,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/family/${\"demo_family_id\"}"
+                      "path": "/api/v1/component/icon/family/${\"family_id\"}"
                     },
                     "description": "The default call",
                     "id": "78e4e34d-8055-4cf8-8379-ec2e6b8701e3",
@@ -3422,7 +3422,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/migrate/${\"demo_maper_id\"}/4"
+                      "path": "/api/v1/component/migrate/${\"maper_id\"}/4"
                     },
                     "description": "Expected: 400",
                     "id": "7e60b135-c1e8-451e-a43c-4da8e081341a",
@@ -3521,7 +3521,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/migrate/${\"demo_mapper_id\"}/2"
+                      "path": "/api/v1/component/migrate/${\"mapper_id\"}/2"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "c6900f5d-1f96-4e70-ae96-42383e4c69ca",
@@ -3595,7 +3595,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/migrate/${\"demo_output_id\"}/1"
+                      "path": "/api/v1/component/migrate/${\"output_id\"}/1"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "660d6fd1-c138-484b-bc7e-0d3c0708d09d",
@@ -3668,7 +3668,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/migrate/${\"demo_mapper_id\"}/10"
+                      "path": "/api/v1/component/migrate/${\"mapper_id\"}/10"
                     },
                     "description": "TODO: Is the comportment normal? https://jira.talendforge.org/browse/TCOMP-2359\n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "9918bfa8-d856-48ca-a837-ee99f58b31c9",
@@ -4270,13 +4270,13 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "language",
-                            "value": "fr"
-                          },
-                          {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_dataset_id\"}"
+                            "value": "${\"dataset_id\"}"
+                          },
+                          {
+                            "name": "language",
+                            "value": "fr"
                           }
                         ]
                       },
@@ -4346,7 +4346,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_dataset_id\"}"
+                            "value": "${\"dataset_id\"}"
                           }
                         ]
                       },
@@ -4411,12 +4411,12 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_dataset_id\"}"
+                            "value": "${\"dataset_id\"}"
                           },
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_datastore_id\"}"
+                            "value": "${\"datastore_id\"}"
                           }
                         ]
                       },
@@ -4475,7 +4475,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_dataset_id\"},${\"demo_datastore_id\"}"
+                            "value": "${\"dataset_id\"},${\"datastore_id\"}"
                           }
                         ]
                       },
@@ -4549,7 +4549,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/migrate/${\"demo_dataset_id\"}/4"
+                      "path": "/api/v1/configurationtype/migrate/${\"dataset_id\"}/4"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "1436c87f-872c-4f85-bb5e-a260a8cf836d",
@@ -4622,7 +4622,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/migrate/${\"demo_dataset_id\"}/4"
+                      "path": "/api/v1/configurationtype/migrate/${\"dataset_id\"}/4"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "30db0dab-4577-4a03-adb0-1e346dcc675b",
@@ -4701,7 +4701,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/migrate/${\"demo_datastore_id\"}/1"
+                      "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/1"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "db0f2f5b-400e-42e6-8b97-65e8a5c1f2ad",
@@ -4780,7 +4780,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/migrate/${\"demo_datastore_id\"}/2"
+                      "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/2"
                     },
                     "description": "Migration from 2 to 3 is not possible because 2 doesn't know 3  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "b93f63b0-8b13-4fe3-8a07-f49809b98a13",
@@ -4859,7 +4859,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/configurationtype/migrate/${\"demo_datastore_id\"}/3"
+                      "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/3"
                     },
                     "description": "Migration from 2 to 3 is not possible because 2 doesn't know 3  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "cf558187-01cf-4c98-a580-9f5c6b9d8a7e",
@@ -4965,7 +4965,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
+                      "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "The default call, without any parameter.  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "8edf2aff-37af-4c50-9781-cbacce319b2f",
@@ -5046,7 +5046,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
+                      "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Call with a \"ALL\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "c6986320-4577-4595-8950-cdb795c253f1",
@@ -5133,7 +5133,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
+                      "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Call with a \"DESCRIPTION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6bb3ff71-f48b-4db7-bd2b-5329cc61abca",
@@ -5220,7 +5220,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
+                      "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Call with a \"CONFIGURATION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "6d396c00-3e30-4c48-b0fb-9cbfaaa9744f",
@@ -5301,7 +5301,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
+                      "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Expected: error 404 empty  \nCall with a given unknow segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "4cab0cf4-44d3-458c-a981-426e7bd1ac5b",
@@ -5358,7 +5358,7 @@
                         "version": "V11"
                       },
                       "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/documentation/component/${\"demo_output_id\"}"
+                      "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Call with a given language parameter to \"fr\".  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "876db3b2-4ff6-44ee-9c21-c29f1eb3139e",
@@ -5699,7 +5699,7 @@
                 "type": "Scenario",
                 "description": "Check the component language support for the endpoint component/list\n",
                 "id": "3dd47891-b87a-4d3a-bb69-a4c03f53efab",
-                "name": "1 - component list - languages"
+                "name": "1 - languages - component/index"
               },
               "children": [
                 {
@@ -5744,7 +5744,7 @@
                     },
                     "description": "Expected: English  \nA non given language fall back to English",
                     "id": "e3420024-0004-4aa6-b6b0-dcfbd4ac58a0",
-                    "name": "component list - default language",
+                    "name": "component/index - default language",
                     "headers": [],
                     "assertions": [
                       {
@@ -5823,7 +5823,7 @@
                     },
                     "description": "Expected: English fall back  \nAn unknown language fall back to English",
                     "id": "ac7f7768-de9d-4135-8ab1-1aa735f2a423",
-                    "name": "component list - non i18n language id",
+                    "name": "component/index - non i18n language id",
                     "headers": [],
                     "assertions": [
                       {
@@ -5896,7 +5896,7 @@
                     },
                     "description": "Expected: English fall back  \nAn unknown language fall back to English",
                     "id": "30ec3216-0e90-4a67-9626-79518e667691",
-                    "name": "component list - unimplemented i18n language",
+                    "name": "component/index - unimplemented i18n language",
                     "headers": [],
                     "assertions": [
                       {
@@ -5969,7 +5969,7 @@
                     },
                     "description": "Test the English request",
                     "id": "3d6bae5a-2dff-4689-941d-a7e367ea474e",
-                    "name": "component list - en",
+                    "name": "component/index - en",
                     "headers": [],
                     "assertions": [
                       {
@@ -6036,7 +6036,7 @@
                     },
                     "description": "Test the French request",
                     "id": "8520d0b1-a670-47f0-8f9d-5aac8f025d3b",
-                    "name": "component list - fr",
+                    "name": "component/index - fr",
                     "headers": [],
                     "assertions": [
                       {
@@ -6110,7 +6110,7 @@
                     },
                     "description": "Test the Japanese request",
                     "id": "e41e327b-61d9-4981-94a8-f31079729ea7",
-                    "name": "component list - ja",
+                    "name": "component/index - ja",
                     "headers": [
                       {
                         "enabled": true,
@@ -6192,7 +6192,7 @@
                     },
                     "description": "Test the Chinese request   \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "ca80e004-65d1-41d6-82f8-234ae0d33e60",
-                    "name": "component list - zh*",
+                    "name": "component/index - zh*",
                     "headers": [
                       {
                         "enabled": true,
@@ -6271,9 +6271,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test the Ukrainian request   \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378",
+                    "description": "Test the Ukrainian request   \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378  ",
                     "id": "b04c8782-a6ec-4861-b1a2-3d12887debcc",
-                    "name": "component list - uk*",
+                    "name": "component/index - uk*",
                     "headers": [],
                     "assertions": [
                       {
@@ -6310,7 +6310,7 @@
                 "type": "Scenario",
                 "description": "Check the component language support.  \nThe fall back and default language should be English (en),\nFor now only the following languages are supported in most of the connectors:  \n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)  \nThe demo connector have the following:\n - Default (en),\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)  \n - Chinees(zh) \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                 "id": "9286542c-1efa-4607-a064-4014d4af5e42",
-                "name": "2 - component detail - languages"
+                "name": "2 - languages - component/details"
               },
               "children": [
                 {
@@ -6333,13 +6333,13 @@
                         "delimiter": "&",
                         "items": [
                           {
-                            "name": "language",
-                            "value": "en"
-                          },
-                          {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_mapper_id\"}"
+                            "value": "${\"mapper_id\"}"
+                          },
+                          {
+                            "name": "language",
+                            "value": "en"
                           }
                         ]
                       },
@@ -6352,7 +6352,7 @@
                     },
                     "description": "A non given language fall back to English",
                     "id": "4b8d4aeb-a948-42a6-a072-fa5463aa3ff5",
-                    "name": "component details - default language - English",
+                    "name": "component details - default language",
                     "headers": [],
                     "assertions": [
                       {
@@ -6403,7 +6403,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_mapper_id\"}"
+                            "value": "${\"mapper_id\"}"
                           }
                         ]
                       },
@@ -6467,7 +6467,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_mapper_id\"}"
+                            "value": "${\"mapper_id\"}"
                           }
                         ]
                       },
@@ -6537,7 +6537,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_mapper_id\"}"
+                            "value": "${\"mapper_id\"}"
                           }
                         ]
                       },
@@ -6607,7 +6607,7 @@
                           {
                             "enabled": true,
                             "name": "identifiers",
-                            "value": "${\"demo_mapper_id\"}"
+                            "value": "${\"mapper_id\"}"
                           }
                         ]
                       },
@@ -6685,13 +6685,13 @@
                             "value": "fr"
                           },
                           {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
                             "enabled": true,
                             "name": "q",
                             "value": "(name = DemoOutput1)"
+                          },
+                          {
+                            "name": "includeIconContent",
+                            "value": "false"
                           }
                         ]
                       },
@@ -6704,7 +6704,7 @@
                     },
                     "description": "Test some French accents",
                     "id": "1ddd8a88-e102-4ca6-a62b-9985912aa268",
-                    "name": "component list - fr",
+                    "name": "French",
                     "headers": [],
                     "assertions": [
                       {
@@ -6748,13 +6748,13 @@
                             "value": "ja"
                           },
                           {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
                             "enabled": true,
                             "name": "q",
                             "value": "(name = DemoOutput1)"
+                          },
+                          {
+                            "name": "includeIconContent",
+                            "value": "false"
                           }
                         ]
                       },
@@ -6767,7 +6767,7 @@
                     },
                     "description": "Test some Japanes characters",
                     "id": "ace85545-063b-4698-876b-7e3a3f49ca69",
-                    "name": "component list - ja",
+                    "name": "Japanese",
                     "headers": [
                       {
                         "enabled": true,
@@ -6818,13 +6818,13 @@
                             "value": "zh"
                           },
                           {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
                             "enabled": true,
                             "name": "q",
                             "value": "(name = DemoOutput1)"
+                          },
+                          {
+                            "name": "includeIconContent",
+                            "value": "false"
                           }
                         ]
                       },
@@ -6837,7 +6837,7 @@
                     },
                     "description": "Test some Chinese characters  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "cf19d56e-da8a-428a-90f4-036f29d705d0",
-                    "name": "component list - zh",
+                    "name": "Chinese",
                     "headers": [
                       {
                         "enabled": true,
@@ -6888,13 +6888,13 @@
                             "value": "uk"
                           },
                           {
-                            "name": "includeIconContent",
-                            "value": "false"
-                          },
-                          {
                             "enabled": true,
                             "name": "q",
                             "value": "(name = DemoOutput1)"
+                          },
+                          {
+                            "name": "includeIconContent",
+                            "value": "false"
                           }
                         ]
                       },
@@ -6907,7 +6907,7 @@
                     },
                     "description": "Test some cyrillic Ukranians charcters  \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378",
                     "id": "69f441f2-f2d4-4023-9e8c-706d8c4782f0",
-                    "name": "component list - uk",
+                    "name": "Ukranian",
                     "headers": [],
                     "assertions": [
                       {
@@ -7006,35 +7006,35 @@
       "name": "component_runtime_ci",
       "variables": {
         "e7068001-0b42-48db-a592-15a0017ae5f8": {
-          "name": "demo_family_id",
+          "name": "family_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseQ",
           "enabled": true,
           "createdAt": "2023-01-25T16:36:10.645Z",
           "private": false
         },
         "f8c7bb79-392e-4cce-add2-9ecd2d199258": {
-          "name": "demo_output_id",
+          "name": "output_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseSNEZW1vT3V0cHV0MQ",
           "enabled": true,
           "createdAt": "2023-01-25T16:36:09.959Z",
           "private": false
         },
         "c7506670-3fdd-4ebf-82bf-e820da204aa3": {
-          "name": "demo_mapper_id",
+          "name": "mapper_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseSNEZW1vTWFwcGVyMQ",
           "enabled": true,
           "createdAt": "2023-01-25T15:58:16.092Z",
           "private": false
         },
         "0b2fb7bf-70d5-4751-bab1-846c89c06b08": {
-          "name": "demo_datastore_id",
+          "name": "datastore_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseSNkYXRhc3RvcmUjVGhlQ29ubmVjdGlvbg",
           "enabled": true,
           "createdAt": "2023-01-25T15:58:31.556Z",
           "private": false
         },
         "b4923c1a-de25-4df2-a7ec-e373bafed074": {
-          "name": "demo_dataset_id",
+          "name": "dataset_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciNkZW1vX2ZhbWlseSNkYXRhc2V0I1RoZURlbW9EYXRhc2V0",
           "enabled": true,
           "createdAt": "2023-01-25T15:58:40.752Z",
