@@ -1367,7 +1367,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/action/execute"
                     },
-                    "description": "FIXME not working for now  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
+                    "description": "FIXME not working for now  \nhttps://jira.talendforge.org/browse/TCOMP-2247",
                     "id": "4ca09681-4461-4c15-baf6-abf04998c6d9",
                     "name": "3. action.execute - update - with content",
                     "headers": [
@@ -1389,13 +1389,13 @@
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
                         "path": "$.stringOption1",
-                        "value": "\"set by service : value 1 -en\""
+                        "value": "\"Set by service : value 1 -en\""
                       },
                       {
                         "comparison": "Equals",
                         "subject": "ResponseJsonBody",
                         "path": "$.stringOption2",
-                        "value": "\"set by service : value 2 -en\""
+                        "value": "\"Set by service : value 2 -en\""
                       }
                     ]
                   }
@@ -2086,13 +2086,13 @@
                         "value": "200"
                       },
                       {
-                        "comparison": "Contains",
+                        "comparison": "Matches",
                         "subject": "ResponseJsonBody",
                         "path": "$.components..displayName",
                         "value": "Name: Demo Mapper 1 -fr"
                       },
                       {
-                        "comparison": "Contains",
+                        "comparison": "Matches",
                         "subject": "ResponseJsonBody",
                         "path": "$.components..displayName",
                         "value": "Name: Demo Output 1 -fr"
@@ -5699,7 +5699,7 @@
                 "type": "Scenario",
                 "description": "Check the component language support for the endpoint component/list\n",
                 "id": "3dd47891-b87a-4d3a-bb69-a4c03f53efab",
-                "name": "1 - component list - languages"
+                "name": "1 - languages - component/index"
               },
               "children": [
                 {
@@ -5744,7 +5744,7 @@
                     },
                     "description": "Expected: English  \nA non given language fall back to English",
                     "id": "e3420024-0004-4aa6-b6b0-dcfbd4ac58a0",
-                    "name": "component list - default language",
+                    "name": "component/index - default language",
                     "headers": [],
                     "assertions": [
                       {
@@ -5823,7 +5823,7 @@
                     },
                     "description": "Expected: English fall back  \nAn unknown language fall back to English",
                     "id": "ac7f7768-de9d-4135-8ab1-1aa735f2a423",
-                    "name": "component list - non i18n language id",
+                    "name": "component/index - non i18n language id",
                     "headers": [],
                     "assertions": [
                       {
@@ -5896,7 +5896,7 @@
                     },
                     "description": "Expected: English fall back  \nAn unknown language fall back to English",
                     "id": "30ec3216-0e90-4a67-9626-79518e667691",
-                    "name": "component list - unimplemented i18n language",
+                    "name": "component/index - unimplemented i18n language",
                     "headers": [],
                     "assertions": [
                       {
@@ -5969,7 +5969,7 @@
                     },
                     "description": "Test the English request",
                     "id": "3d6bae5a-2dff-4689-941d-a7e367ea474e",
-                    "name": "component list - en",
+                    "name": "component/index - en",
                     "headers": [],
                     "assertions": [
                       {
@@ -6036,7 +6036,7 @@
                     },
                     "description": "Test the French request",
                     "id": "8520d0b1-a670-47f0-8f9d-5aac8f025d3b",
-                    "name": "component list - fr",
+                    "name": "component/index - fr",
                     "headers": [],
                     "assertions": [
                       {
@@ -6110,7 +6110,7 @@
                     },
                     "description": "Test the Japanese request",
                     "id": "e41e327b-61d9-4981-94a8-f31079729ea7",
-                    "name": "component list - ja",
+                    "name": "component/index - ja",
                     "headers": [
                       {
                         "enabled": true,
@@ -6192,7 +6192,7 @@
                     },
                     "description": "Test the Chinese request   \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "ca80e004-65d1-41d6-82f8-234ae0d33e60",
-                    "name": "component list - zh*",
+                    "name": "component/index - zh*",
                     "headers": [
                       {
                         "enabled": true,
@@ -6271,9 +6271,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test the Ukrainian request   \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378",
+                    "description": "Test the Ukrainian request   \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378  ",
                     "id": "b04c8782-a6ec-4861-b1a2-3d12887debcc",
-                    "name": "component list - uk*",
+                    "name": "component/index - uk*",
                     "headers": [],
                     "assertions": [
                       {
@@ -6310,7 +6310,7 @@
                 "type": "Scenario",
                 "description": "Check the component language support.  \nThe fall back and default language should be English (en),\nFor now only the following languages are supported in most of the connectors:  \n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)  \nThe demo connector have the following:\n - Default (en),\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)  \n - Chinees(zh) \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                 "id": "9286542c-1efa-4607-a064-4014d4af5e42",
-                "name": "2 - component detail - languages"
+                "name": "2 - languages - component/details"
               },
               "children": [
                 {
@@ -6352,7 +6352,7 @@
                     },
                     "description": "A non given language fall back to English",
                     "id": "4b8d4aeb-a948-42a6-a072-fa5463aa3ff5",
-                    "name": "component details - default language - English",
+                    "name": "component details - default language",
                     "headers": [],
                     "assertions": [
                       {
@@ -6704,7 +6704,7 @@
                     },
                     "description": "Test some French accents",
                     "id": "1ddd8a88-e102-4ca6-a62b-9985912aa268",
-                    "name": "component list - fr",
+                    "name": "French",
                     "headers": [],
                     "assertions": [
                       {
@@ -6767,7 +6767,7 @@
                     },
                     "description": "Test some Japanes characters",
                     "id": "ace85545-063b-4698-876b-7e3a3f49ca69",
-                    "name": "component list - ja",
+                    "name": "Japanese",
                     "headers": [
                       {
                         "enabled": true,
@@ -6837,7 +6837,7 @@
                     },
                     "description": "Test some Chinese characters  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
                     "id": "cf19d56e-da8a-428a-90f4-036f29d705d0",
-                    "name": "component list - zh",
+                    "name": "Chinese",
                     "headers": [
                       {
                         "enabled": true,
@@ -6907,7 +6907,7 @@
                     },
                     "description": "Test some cyrillic Ukranians charcters  \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378",
                     "id": "69f441f2-f2d4-4023-9e8c-706d8c4782f0",
-                    "name": "component list - uk",
+                    "name": "Ukranian",
                     "headers": [],
                     "assertions": [
                       {
