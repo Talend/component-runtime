@@ -37,9 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 @Version(value = OutputConfig.OUTPUT_CONFIG_VERSION,
         migrationHandler = AbstractMigrationHandler.OutputMigrationHandler.class)
 @Icon(value = Icon.IconType.CUSTOM, custom = "output")
-@Processor(name = "DemoOutput1")
-@Documentation("Doc: default DemoOutput1 documentation without Internationalization.")
-public class DemoOutput1 implements Serializable {
+@Processor(name = "TheOutput1")
+@Documentation("Doc: default TheOutput1 documentation without Internationalization.")
+public class TheOutput1 implements Serializable {
 
     /*
      * An Output is a Processor that does not return any data.
@@ -50,7 +50,7 @@ public class DemoOutput1 implements Serializable {
 
     private OutputConfig config;
 
-    public DemoOutput1(final @Option("configout") OutputConfig config) {
+    public TheOutput1(final @Option("configout") OutputConfig config) {
 
         this.config = config;
     }

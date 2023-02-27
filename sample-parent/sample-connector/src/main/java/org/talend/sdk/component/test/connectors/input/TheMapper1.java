@@ -34,9 +34,9 @@ import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandl
 @Version(value = InputConfig.INPUT_CONFIG_VERSION,
         migrationHandler = AbstractMigrationHandler.InputMigrationHandler.class)
 @Icon(value = Icon.IconType.CUSTOM, custom = "mapper")
-@PartitionMapper(name = "DemoMapper1", infinite = false)
-@Documentation("Doc: default DemoMapper1 documentation without Internationalization.")
-public class DemoMapper1 implements Serializable {
+@PartitionMapper(name = "TheMapper1", infinite = false)
+@Documentation("Doc: default TheMapper1 documentation without Internationalization.")
+public class TheMapper1 implements Serializable {
 
     /*
      * A partition mapper (Input component) requires three methods marked with specific annotations:
@@ -47,7 +47,7 @@ public class DemoMapper1 implements Serializable {
 
     private InputConfig config;
 
-    public DemoMapper1(final @Option("configin") InputConfig config) {
+    public TheMapper1(final @Option("configin") InputConfig config) {
 
         this.config = config;
     }
@@ -58,15 +58,15 @@ public class DemoMapper1 implements Serializable {
     }
 
     @Split
-    public List<DemoMapper1> split(@PartitionSize final int desiredNbSplits) {
+    public List<TheMapper1> split(@PartitionSize final int desiredNbSplits) {
 
         return Collections.singletonList(this);
     }
 
     @Emitter
-    public DemoInput1 createSource() {
+    public TheInput1 createSource() {
 
-        return new DemoInput1(this.config);
+        return new TheInput1(this.config);
     }
 
 }

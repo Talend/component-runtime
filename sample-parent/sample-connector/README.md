@@ -1,11 +1,11 @@
-# Demo Connector
+# Sample Connector
 
 ## Description
-This module contains a demo connector developed as a QA tool.
+This module contains a sample connector developed as a QA tool.
 It is also a good code sample for tck beginners.
 
 ## Goal
-This demo connector has been firstly built to cover endpoint tests with API Tester.
+This sample connector has been firstly built to cover endpoint tests with API Tester.
 You can see actual tests in [API test project](../../talend-component-maven-plugin/src/it/web/README.md)
 It should have enough content to be able to validate all tck api endpoints with all possible parameters.
 The connectors should have everything translated in at least 2 languages, no need for real translation

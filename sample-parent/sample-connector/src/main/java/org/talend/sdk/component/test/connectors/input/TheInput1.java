@@ -28,8 +28,8 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
 
 @Icon(value = Icon.IconType.CUSTOM, custom = "input")
-@Documentation("Doc: default DemoInput1 documentation without Internationalization.")
-public class DemoInput1 implements Serializable {
+@Documentation("Doc: default TheInput1 documentation without Internationalization.")
+public class TheInput1 implements Serializable {
 
     /*
      * The Producer (input component) handles the interaction
@@ -41,7 +41,7 @@ public class DemoInput1 implements Serializable {
 
     InputConfig config;
 
-    public DemoInput1(final @Option("configin") InputConfig config) {
+    public TheInput1(final @Option("configin") InputConfig config) {
         this.config = config;
     }
 

@@ -25,14 +25,14 @@
 
   <artifactId>sample-connector</artifactId>
 
-  <name>Component Runtime :: Sample Parent :: Demo connectors</name>
-  <description>Demo connectors for test.
-    This connector plugin include several connectors used for learning process ot in automation testing.
+  <name>Component Runtime :: Sample Parent :: Sample connectors</name>
+  <description>Sample connectors for test.
+    This connector plugin include several connectors used for learning process and automation testing.
     Examples of automation testing projects:
      - TCK API automatic testing.</description>
 
   <properties>
-    <talend.build.name>${talend.build.name.base}.demo</talend.build.name>
+    <talend.build.name>${talend.build.name.base}.sample</talend.build.name>
   </properties>
 
   <dependencies>

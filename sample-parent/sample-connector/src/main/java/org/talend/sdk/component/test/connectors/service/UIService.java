@@ -32,7 +32,7 @@ import org.talend.sdk.component.test.connectors.config.NestedConfig;
 public class UIService {
 
     /**
-     * In this service demo class we will implement every existing particular actions to check their API usages.
+     * In this service sample class we will implement every existing particular actions to check their API usages.
      * Services actions are listed here: https://talend.github.io/component-runtime/main/latest/services-actions.html
      *
      * Implemented:
