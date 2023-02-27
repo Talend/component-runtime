@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.sdk.component.api.component.MigrationHandler;
-import org.talend.sdk.component.test.connectors.config.TheDataset;
-import org.talend.sdk.component.test.connectors.config.TheDatastore;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
 import org.talend.sdk.component.test.connectors.config.OutputConfig;
+import org.talend.sdk.component.test.connectors.config.TheDataset;
+import org.talend.sdk.component.test.connectors.config.TheDatastore;
 
 import lombok.extern.slf4j.Slf4j;
 
