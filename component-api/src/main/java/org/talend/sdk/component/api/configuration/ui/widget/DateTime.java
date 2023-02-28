@@ -33,4 +33,10 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })
 public @interface DateTime {
+
+    String dateFormat() default "YYYY/MM/DD";
+
+    boolean useSeconds() default true;
+
+    boolean useUTC() default true;
 }

@@ -64,6 +64,7 @@ import org.talend.sdk.component.api.configuration.constraint.Pattern;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.service.cache.LocalCache;
 import org.talend.sdk.component.api.service.configuration.Configuration;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
@@ -1099,6 +1100,7 @@ class ReflectionServiceTest {
     public static class ConfigWithDate {
 
         @Option
+        @DateTime(dateFormat = "YYYY-DD-MM", useSeconds = false, useUTC = false)
         private ZonedDateTime date;
     }
 
