@@ -1,7 +1,7 @@
 # Sample Connector
 
 ## Description
-This module contains a sample connector developed as a QA tool.
+This module contains a sample (demonstration) connector developped as a QA tool.
 It is also a good code sample for tck beginners.
 
 ## Goal
