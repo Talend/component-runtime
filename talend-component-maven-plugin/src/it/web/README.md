@@ -20,8 +20,8 @@ If you want to run the test with maven, you will need the followings:
 
 ### Start local server
 The execution with maven plugin is done in several steps as follows:
-- Go into the demo connector folder and build it with Maven.
-- Start the tcomp server using the provided `\talend-component-maven-plugin\src\it\web\.jenkins\scripts\server-registry-manual_start.sh`
+- Go into the sample connector folder and build it with Maven.
+- Start the component server using the provided `\talend-component-maven-plugin\src\it\web\.jenkins\scripts\server-registry-manual_start.sh`
   - Default test environment is (https://localhost:8081).
 - Go to the test location folder.
 - Run the tests from with Maven  with your Talend instance and account ID.
@@ -31,7 +31,7 @@ The execution with maven plugin is done in several steps as follows:
 
 sample:
 ```bash
-mvn clean install --file "sample-parent/demo-connector/pom.xml"
+mvn clean install --file "sample-parent/sample-connector/pom.xml"
 bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh
 mvn clean test --file talend-component-maven-plugin/src/it/web/test/pom.xml \
                --define instance='YOUR_TENANT_INSTANCE'\
@@ -51,7 +51,7 @@ If you want to edit the test or simply play them in API Tester environment, you 
   - from: `/talend-component-maven-plugin/src/it/web/test`.
 - It will be loaded on your personnal API Tester DRIVE.
 - You can then edit and test your modifications directly on API Tester while running [local server](#Start-local-server)
-- When the edition is finish, you can push it back to GitHub branch and make a Push Request.
+- When the edition is finish, you can push it back to GitHub branch and make a Pull Request.
   - You can use built-in API Tester GitHub integration on doing it manually by exporting the project file.
 
 ### REMARK
