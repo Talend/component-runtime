@@ -133,7 +133,8 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
 
         @Override
         public void onDatetime(final Schema.Entry entry, final Optional<Date> dateTime) {
-            dateTime.ifPresent(v -> builder.add(entry.getName(), singer.formatDate(ZonedDateTime.ofInstant(v.toInstant(), ZoneId.of("UTC")))));
+            dateTime.ifPresent(v -> builder.add(entry.getName(),
+                    singer.formatDate(ZonedDateTime.ofInstant(v.toInstant(), ZoneId.of("UTC")))));
         }
 
         @Override

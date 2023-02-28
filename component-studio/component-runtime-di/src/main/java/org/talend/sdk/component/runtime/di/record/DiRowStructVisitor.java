@@ -430,7 +430,7 @@ public class DiRowStructVisitor {
     }
 
     private void onInstant(final String name, final Timestamp raw) {
-         recordBuilder.withInstant(name, raw.toInstant());
+        recordBuilder.withInstant(name, raw.toInstant());
     }
 
     private void onBytes(final String name, final byte[] value) {
