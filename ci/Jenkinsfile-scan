@@ -80,62 +80,56 @@ pipeline {
     stages {
         stage('Post login') {
             steps {
-                container('main') {
-                    checkout([$class : 'GitSCM',
-                              branches: [[name: 'master']],
-                              extensions : [
-                                      [$class: 'CheckoutOption', timeout: 30],
-                                      [$class: 'CloneOption', depth: 30, noTags: true, shallow: true, timeout: 30]],
-                              userRemoteConfigs : [[url: 'https://github.com/Talend/component-runtime.git', credentialsId: 'github-credentials']]])
+                checkout([$class : 'GitSCM',
+                          branches: [[name: 'master']],
+                          extensions : [
+                                  [$class: 'CheckoutOption', timeout: 30],
+                                  [$class: 'CloneOption', depth: 30, noTags: true, shallow: true, timeout: 30]],
+                          userRemoteConfigs : [[url: 'https://github.com/Talend/component-runtime.git', credentialsId: 'github-credentials']]])
 
-                    script {
-                        try {
-                            sh """
-                                   bash .jenkins/scripts/npm_fix.sh
-                               """
-                        } catch (error) {
-                            //
-                        }
+                script {
+                    try {
+                        sh """
+                               bash .jenkins/scripts/npm_fix.sh
+                           """
+                    } catch (error) {
+                        //
                     }
                 }
             }
         }
         stage("SourceClear analysis") {
             steps {
-                container('main') {
-                    withCredentials([string(credentialsId: 'veracode-token', variable: 'SRCCLR_API_TOKEN'), nexusCredentials]) {
-                        sh '''#!/bin/bash
-                          cp .jenkins/settings.xml ~/.m2/
-                          curl -sSL https://download.sourceclear.com/ci.sh | SRCCLR_API_TOKEN=${SRCCLR_API_TOKEN} DEBUG=1 sh -s -- scan --allow-dirty --recursive --skip-collectors npm;
-                        '''
-                    }
+                withCredentials([string(credentialsId: 'veracode-token', variable: 'SRCCLR_API_TOKEN'), nexusCredentials]) {
+                    sh '''#!/bin/bash
+                      cp .jenkins/settings.xml ~/.m2/
+                      curl -sSL https://download.sourceclear.com/ci.sh | SRCCLR_API_TOKEN=${SRCCLR_API_TOKEN} DEBUG=1 sh -s -- scan --allow-dirty --recursive --skip-collectors npm;
+                    '''
                 }
             }
         }
         stage('Vera code') {
             steps {
-                container('main') {
-                    withCredentials([veracodeCredentials, nexusCredentials]) {
-                        sh "mvn -B -s .jenkins/settings.xml package $SKIP_OPTS"
-                        veracode applicationName: "$VERACODE_SANDBOX",
-                            teams: "Components",
-                            canFailJob: true,
-                            createProfile: true,
-                            criticality: "High",
-                            debug: true,
-                            copyRemoteFiles: true,
-                            fileNamePattern: '',
-                            useProxy: false,
-                            replacementPattern: '',
-                            scanExcludesPattern: '',
-                            scanIncludesPattern: '',
-                            scanName: "master-${currentBuild.number}-${currentBuild.startTimeInMillis}",
-                            uploadExcludesPattern: '**/.cache/**/*.jar,**/*dep*/**/*.jar,**/lib/**/*.jar,**/*repo*/**/*.jar,**/it/**/*.jar,**/sample*.jar',
-                            uploadIncludesPattern: '**/*.jar',
-                            waitForScan: true,
-                            vid: "$VERACODE_ID",
-                            vkey: "$VERACODE_KEY"
-                    }
+                withCredentials([veracodeCredentials, nexusCredentials]) {
+                    sh "mvn -B -s .jenkins/settings.xml package $SKIP_OPTS"
+                    veracode applicationName: "$VERACODE_SANDBOX",
+                        teams: "Components",
+                        canFailJob: true,
+                        createProfile: true,
+                        criticality: "High",
+                        debug: true,
+                        copyRemoteFiles: true,
+                        fileNamePattern: '',
+                        useProxy: false,
+                        replacementPattern: '',
+                        scanExcludesPattern: '',
+                        scanIncludesPattern: '',
+                        scanName: "master-${currentBuild.number}-${currentBuild.startTimeInMillis}",
+                        uploadExcludesPattern: '**/.cache/**/*.jar,**/*dep*/**/*.jar,**/lib/**/*.jar,**/*repo*/**/*.jar,**/it/**/*.jar,**/sample*.jar',
+                        uploadIncludesPattern: '**/*.jar',
+                        waitForScan: true,
+                        vid: "$VERACODE_ID",
+                        vkey: "$VERACODE_KEY"
                 }
             }
         }
