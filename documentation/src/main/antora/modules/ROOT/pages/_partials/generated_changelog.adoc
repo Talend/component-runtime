@@ -1,5 +1,11 @@
 
 
+== Version 1.54.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2369[TCOMP-2369^]: Make DateTime option configurable link:search.html?query=api[api^,role='dockey']
+
 == Version 1.54.0
 
 === Bug
@@ -1452,6 +1458,12 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.15
 
 === Bug
@@ -1484,12 +1496,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
