@@ -49,7 +49,7 @@ final String _POD_CONFIGURATION = """
   kind: Pod
   spec:
     containers:
-      - name: '${_TSBI_IMAGE}'
+      - name: main
         image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
         command: [ cat ]
         tty: true
@@ -111,7 +111,7 @@ pipeline {
   agent {
     kubernetes {
       yaml _POD_CONFIGURATION
-      defaultContainer _TSBI_IMAGE
+      defaultContainer 'main'
     }
   }
   /**
