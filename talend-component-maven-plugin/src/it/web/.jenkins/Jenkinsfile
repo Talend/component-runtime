@@ -26,8 +26,6 @@
  */
 final String _TSBI_IMAGE = 'jdk17-svc-builder'
 final String _TSBI_VERSION = '3.1.9-20230228074507'
-final String _STAGE_DEFAULT_CONTAINER = _TSBI_IMAGE
-final String _POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 /**
  * Job configuration
@@ -112,9 +110,8 @@ pipeline {
    */
   agent {
     kubernetes {
-      label _POD_LABEL
       yaml _POD_CONFIGURATION
-      defaultContainer _STAGE_DEFAULT_CONTAINER
+      defaultContainer _TSBI_IMAGE
     }
   }
   /**
