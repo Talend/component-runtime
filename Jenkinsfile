@@ -29,7 +29,7 @@ final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
-final String _TSBI_IMAGE = 'jdk17-svc-builder'
+final String _TSBI_IMAGE = 'java17-base'
 final String _TSBI_VERSION = '3.1.9-20230228074507'
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 

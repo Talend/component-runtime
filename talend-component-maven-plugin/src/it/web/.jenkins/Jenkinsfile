@@ -24,7 +24,7 @@
 /**
  * Pod configuration
  */
-final String _TSBI_IMAGE = 'jdk17-svc-builder'
+final String _TSBI_IMAGE = 'java17-base'
 final String _TSBI_VERSION = '3.1.9-20230228074507'
 
 /**
