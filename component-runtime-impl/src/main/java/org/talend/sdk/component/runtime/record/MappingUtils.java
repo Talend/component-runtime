@@ -92,7 +92,8 @@ public class MappingUtils {
                     return java.sql.Timestamp.from((Instant) value);
                 }
             }
-            if (Timestamp.class.isInstance(value) && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
+            if (Timestamp.class.isInstance(value)
+                    && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
                 return value;
             }
             if (value instanceof long[]) {
