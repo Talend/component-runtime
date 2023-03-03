@@ -29,10 +29,7 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonPointer;
-import javax.json.JsonValue;
+import javax.json.*;
 import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
@@ -85,13 +82,30 @@ public class PropertiesService {
     private Map<String, String> extractConfig(ConfigTypeNode configNode, JsonObject payload) {
         Map<String, String> payloadConfig = new HashMap<>();
         for(SimplePropertyDefinition propertyDefinition : configNode.getProperties()) {
-           JsonValue value = toPointer(propertyDefinition.getPath()).getValue(payload);
-           if (value != null) {
-               payloadConfig.put(propertyDefinition.getPath(), value.toString());
-           }
+            try {
+                JsonValue value = toPointer(propertyDefinition.getPath()).getValue(payload);
+                if (value != null && !JsonObject.class.isInstance(value)) {
+                     payloadConfig.put(propertyDefinition.getPath(), getValue(value));
+                 }
+            } catch (JsonException e) {
+                continue;
+            }
         }
 
         return payloadConfig;
+    }
+
+    private String getValue(JsonValue value) {
+        switch (value.getValueType()) {
+            case TRUE:
+            case FALSE:
+            case NUMBER:
+                return String.valueOf(value);
+            case STRING:
+                return JsonString.class.cast(value).getString();
+            default:
+                return null;
+        }
     }
 
     private List<ParameterMeta> buildParameterMetas(List<SimplePropertyDefinition> properties){

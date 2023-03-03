@@ -186,10 +186,12 @@ class PropertiesServiceTest {
         String activeIfsError = "- Property 'configuration.connection.activedIfs' is required.";
         String connectionError = "- Property 'configuration.connection' is required.";
         String passwordError = "- Property 'configuration.connection.password' is required.";
-        String url1Error = "- Property 'configuration.connection.url1' is required.";
+        String url1Required = "- Property 'configuration.connection.url1' is required.";
+        String url0Error = "- 'configuration.connection.url0' does not match '^https?://.*'.";
+        String url1Error = "- 'configuration.connection.url1' does not match '^https?://.*'.";
         String usernameError = "- Property 'configuration.connection.username' is required.";
-        String minError = "Property 'limit' min";
-        String maxError = "Property 'limit' max";
+        String minError = "- Property 'configuration.limit' should be > 100, got 99.";
+        String maxError = "- Property 'configuration.limit' should be < 150, got 200.";
 
         connection = base
                 .path("configurationtype/details")
@@ -201,28 +203,52 @@ class PropertiesServiceTest {
 
         JsonObject payload;
 
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
+                                .add("password", JsonValue.NULL).build())
+                        .build()).build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required));
+
+
         /**
          * min/max
          **/
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
-                                .add("url", "http://t")
+                                .add("url0", "http://t")
                                 .add("username", "abc")
                                 .add("password", "aaa")
                                 .build())
-                        .add("limit", 100))
+                        .add("limit", 110))
                 .build();
-        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Error, minError));
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("url0", "https://t")
+                                .add("url1", "https://t")
+                                .add("username", "abc")
+                                .add("password", "aaa")
+                                .build())
+                        .add("limit", 99))
+                .build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, minError));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
                                 .add("username", "abc")
                                 .add("password", "abc")
-                                .add("limit", 1000)).build())
+                                .add("url0", "https://t")
+                                .add("url1", "https://t")
+                                .build())
+                        .add("limit", 200))
                 .build();
-        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Error, maxError));
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, maxError));
 
         /*
          * url0 pattern
@@ -230,9 +256,36 @@ class PropertiesServiceTest {
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
-                                .add("url0", "mailto://toto@titi.org").build())
-                        .build()).build();
-        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, passwordError, url1Error, usernameError));
+                                .add("username", "abc")
+                                .add("password", "abc")
+                                .add("url0", "https://www.talend.com")
+                                .build()))
+                .build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abc")
+                                .add("password", "abc")
+                                .add("url0", "mailto://toto@titi.org")
+                                .build()))
+                .build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url0Error, url1Required));
+
+        /*
+         * url1 pattern
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abc")
+                                .add("password", "abc")
+                                .add("url1", "mailto://toto@titi.org")
+                                .build()))
+                .build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Error));
+
 
         /*
          * uniqVals
@@ -242,7 +295,7 @@ class PropertiesServiceTest {
                         .add("connection", factory.createObjectBuilder()
                                 .add("url0", JsonValue.NULL)
                                 .add("url1", JsonValue.NULL)
-                                .add("username", JsonValue.NULL)
+                                .add("username", "abc")
                                 .add("password", JsonValue.NULL)
                                 .add("uniqVals", factory.createArrayBuilder(notUniques).build())
                                 .add("checkbox1", JsonValue.TRUE)
@@ -250,8 +303,78 @@ class PropertiesServiceTest {
                                 .build())
                         .add("limit", 100))
                 .build();
-        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, passwordError, url1Error, usernameError));
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, passwordError, url1Required));
 
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("url0", JsonValue.NULL)
+                                .add("url1", JsonValue.NULL)
+                                .add("username", JsonValue.NULL)
+                                .add("password", JsonValue.NULL)
+                                .add("uniqVals", factory.createArrayBuilder(uniques).build())
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("checkbox2", JsonValue.TRUE)
+                                .build())
+                        .add("limit", 100))
+                .build();
+
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, passwordError, url1Required, usernameError));
+
+        /*
+         * password : @ActiveIf(target = "username", evaluationStrategy = ActiveIf.EvaluationStrategy.CONTAINS, value = "undx")
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "undx")
+                                .add("password", JsonValue.NULL).build())
+                        .build()).build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, passwordError, url1Required));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
+                                .add("password", JsonValue.NULL).build())
+                        .build()).build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required));
+
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "undx")
+                                .add("password", "abc").build())
+                        .build()).build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required));
+
+        /*
+         *   valueEval     @ActiveIf(target = "checkbox1", value = "true")
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("valueEval", JsonValue.NULL).build())
+                        .build()).build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Error));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("checkbox1", JsonValue.FALSE)
+                                .add("valueEval", JsonValue.NULL).build())
+                        .build()).build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Error));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("valueEval", "VALUE_2").build())
+                        .build()).build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Error));
     }
 
     private void checkErrors(JsonObject payload, List<String> expected) {

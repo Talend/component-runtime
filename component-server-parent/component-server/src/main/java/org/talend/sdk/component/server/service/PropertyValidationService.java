@@ -79,34 +79,6 @@ public class PropertyValidationService {
             return validation;
         };
 
-        final Collection<BiFunction<Object, Map<String, String>, Boolean>> validationGetters =
-                Stream.of(PropertyValidation.class.getDeclaredFields()).map(f -> {
-                    f.setAccessible(true);
-                    return (BiFunction<Object, Map<String, String>, Boolean>) (instance,
-                                                                               meta) -> {
-                        try {
-                            return ofNullable(f.get(instance))
-                                    .map(val -> {
-                                        try {
-                                            meta.put(ValidationParameterEnricher.META_PREFIX + f.getName(), f.get(instance).toString());
-                                        } catch (IllegalAccessException e) {
-                                            throw new IllegalStateException(e);
-                                        }
-                                        return true;
-                                    })
-                                    .orElse(false);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    };
-                }).collect(toList());
-        propertyMetaCreator = config -> {
-            final Map<String, String> meta = new HashMap<>();
-            if (validationGetters.stream().filter(s -> s.apply(config, meta)).count() == 0) {
-                return null;
-            }
-            return meta;
-        };
     }
 
     public PropertyValidation map(final Map<String, String> meta) {
@@ -114,6 +86,27 @@ public class PropertyValidationService {
     }
 
     public Map<String, String> mapMeta(final PropertyValidation propertyValidation) {
-        return propertyMetaCreator.apply(propertyValidation);
+        final Map<String, String> metaMap = new HashMap<>();
+
+        Stream.of(PropertyValidation.class.getDeclaredFields()).filter(field -> {
+                    try {
+                        field.setAccessible(true);
+                        return field.get(propertyValidation) != null;
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .forEach(field -> {
+                    field.setAccessible(true);
+                    try {
+                        Object value = field.get(propertyValidation);
+                        if (value != null) {
+                            metaMap.put(ValidationParameterEnricher.META_PREFIX + field.getName(), String.valueOf(value));//f.get(instance).toString());
+                        }
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        return metaMap;
     }
 }

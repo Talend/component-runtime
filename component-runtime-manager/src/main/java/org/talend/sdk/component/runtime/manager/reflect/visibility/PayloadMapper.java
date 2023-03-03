@@ -84,7 +84,7 @@ public class PayloadMapper {
             break;
         }
         case BOOLEAN:
-            final String boolValue = config.get(newPath);
+            final String boolValue = getValue(config, newPath, definition);
             if (boolValue == null || boolValue.isEmpty()) {
                 parameterVisitor.onParameter(definition, JsonValue.NULL);
             } else {
@@ -98,7 +98,7 @@ public class PayloadMapper {
                     .ifPresent(v -> json.add(name, Boolean.parseBoolean(v)));
             break;
         case NUMBER:
-            final String numberValue = config.get(newPath);
+            final String numberValue = getValue(config, newPath, definition);
             if (numberValue == null || numberValue.isEmpty()) {
                 parameterVisitor.onParameter(definition, JsonValue.NULL);
             } else {
@@ -114,13 +114,17 @@ public class PayloadMapper {
             break;
         case ENUM:
         case STRING: {
-            final String value = config.get(newPath);
+            final String value = getValue(config, newPath, definition);
             parameterVisitor.onParameter(definition, value == null ? JsonValue.NULL : jsonp.createValue(value));
             ofNullable(value).ifPresent(v -> json.add(name, v));
             break;
         }
         default:
         }
+    }
+
+    private static String getValue(Map<String, String> config, String newPath, ParameterMeta definition) {
+        return config.get(newPath) == null ? config.get(definition.getPath()) : config.get(newPath);
     }
 
     private void onObject(final Collection<ParameterMeta> definitions, final ParameterMeta meta,
