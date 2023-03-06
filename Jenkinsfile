@@ -131,16 +131,6 @@ pipeline {
         stage('Preliminary steps') {
             steps {
                 script {
-
-                    ///////////////////////////////////////////
-                    // asdf install
-                    ///////////////////////////////////////////
-                    script {
-                        println "asdf install the content of .tool-versions'\n"
-                        sh """
-                            bash asdf install
-                        """
-                    }
                     withCredentials([gitCredentials]) {
                         sh """
                            bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
@@ -182,6 +172,16 @@ pipeline {
                        Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
                        Extra args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
                     )
+                }
+                ///////////////////////////////////////////
+                // asdf install
+                ///////////////////////////////////////////
+                script {
+                    println "asdf install the content of .tool-versions'\n"
+                    sh """
+                        asdf install
+                        asdf reshim
+                    """
                 }
             }
         }
