@@ -179,8 +179,8 @@ pipeline {
                 script {
                     println "asdf install the content of .tool-versions'\n"
                     sh """
-                        asdf install
-                        asdf reshim
+                        bash asdf install
+                        bash asdf reshim
                     """
                 }
             }
