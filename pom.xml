@@ -1217,6 +1217,11 @@
           <artifactId>maven-compat</artifactId>
           <version>${mvn.version}</version>
         </plugin>
+        <plugin>
+          <groupId>com.google.cloud.tools</groupId>
+          <artifactId>jib-maven-plugin</artifactId>
+          <version>${jib.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
