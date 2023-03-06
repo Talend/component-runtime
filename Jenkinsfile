@@ -29,8 +29,6 @@ final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
-final String _TSBI_IMAGE = 'custom-builder'
-final String _TSBI_VERSION = '3.0.9-20220930152032' // Last root version
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 
 // Files and folder definition
@@ -39,46 +37,10 @@ final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
 // Artifacts paths
 final String _ARTIFACT_COVERAGE = '**/jacoco-aggregate/**/*.*'
 
-// Pod definition
-final String podDefinition = """\
-    apiVersion: v1
-    kind: Pod
-    spec:
-      imagePullSecrets:
-        - name: talend-registry
-      containers:
-        - name: main
-          image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
-          command: [ cat ]
-          tty: true
-          volumeMounts: [
-            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository},
-            { name: 'efs-jenkins-connectors-asdf', mountPath: '/root/.asdf/installs', subPath: 'installs' },
-          ]
-          resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-          env:
-            - name: DOCKER_HOST
-              value: tcp://localhost:2375
-        - name: docker-daemon
-          image: artifactory.datapwn.com/docker-io-remote/docker:19.03.1-dind
-          env:
-            - name: DOCKER_TLS_CERTDIR
-              value: ""
-          securityContext:
-            privileged: true
-      volumes:
-        - name: efs-jenkins-component-runtime-m2
-          persistentVolumeClaim:
-            claimName: efs-jenkins-component-runtime-m2
-      - name: efs-jenkins-connectors-asdf
-        persistentVolumeClaim:
-          claimName: efs-jenkins-connectors-asdf
-""".stripIndent()
-
 pipeline {
     agent {
         kubernetes {
-            yaml podDefinition
+            yamlFile '.jenkins/jenkins_pod.yml'
             defaultContainer 'main'
         }
     }
@@ -98,10 +60,6 @@ pipeline {
         buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '15' : '10'))
         timeout(time: 180, unit: 'MINUTES')
         skipStagesAfterUnstable()
-    }
-
-    triggers {
-        cron(env.BRANCH_NAME == "master" ? "@daily" : "")
     }
 
     parameters {
@@ -131,30 +89,14 @@ pipeline {
         stage('Preliminary steps') {
             steps {
                 script {
-
-                    ///////////////////////////////////////////
-                    // asdf install
-                    ///////////////////////////////////////////
-                    script {
-                        println "asdf install the content of .tool-versions'\n"
-                        sh """
-                            bash asdf install
-                        """
-                    }
                     withCredentials([gitCredentials]) {
-                        sh """
-                           bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
-                           """
+                        sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
                     }
                     withCredentials([dockerCredentials]) {
-                        sh """
-                           bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
-                           """
+                        sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
                     }
                     withCredentials([keyImportCredentials]) {
-                        sh """
-                           bash .jenkins/scripts/setup_gpg.sh
-                           """
+                        sh """ bash .jenkins/scripts/setup_gpg.sh"""
                     }
 
                     def pom = readMavenPom file: 'pom.xml'
@@ -183,6 +125,13 @@ pipeline {
                        Extra args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
                     )
                 }
+                ///////////////////////////////////////////
+                // asdf install
+                ///////////////////////////////////////////
+                script {
+                    println "asdf install the content of repository .tool-versions'\n"
+                    sh 'bash .jenkins/scripts/asdf_install.sh'
+                }
             }
         }
         stage('Post login') {
@@ -190,10 +139,11 @@ pipeline {
                 withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                     script {
                         try {
-                            sh "${params.POST_LOGIN_SCRIPT}"
-                            sh """
-                               bash .jenkins/scripts/npm_fix.sh
-                               """
+                            sh """\
+                                #!/usr/bin/env bash
+                                bash "${params.POST_LOGIN_SCRIPT}"
+                                bash .jenkins/scripts/npm_fix.sh
+                                """.stripIndent()
                         } catch (ignored) {
                             //
                         }
@@ -205,7 +155,10 @@ pipeline {
             when { expression { params.Action != 'RELEASE' } }
             steps {
                 withCredentials([ossrhCredentials]) {
-                    sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                    sh """\
+                        #!/usr/bin/env bash
+                        mvn clean verify $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        """.stripIndent()
                 }
             }
         }
@@ -218,7 +171,10 @@ pipeline {
             }
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
-                    sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                    sh """\
+                        #!/usr/bin/env bash
+                        bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                    """.stripIndent()
                 }
             }
         }
@@ -232,9 +188,10 @@ pipeline {
             steps {
                 script {
                     configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                        sh """
-                           bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
-                           """
+                        sh """\
+                            #!/usr/bin/env bash 
+                            bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
+                            """.stripIndent()
                     }
                 }
             }
@@ -248,7 +205,10 @@ pipeline {
             }
             steps {
                 withCredentials([ossrhCredentials, gitCredentials]) {
-                    sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -"
+                    sh """\
+                        #!/usr/bin/env bash 
+                        cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -
+                    """.stripIndent()
                 }
             }
         }
@@ -260,16 +220,20 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        sh """
+                        sh """\
+                            #!/usr/bin/env bash 
                             mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
                             mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
-                           """
+                           """.stripIndent()
                     }
                 }
                 withCredentials([sonarCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
-                        sh "_JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar"
+                        sh """\
+                            #!/usr/bin/env bash 
+                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar
+                        """.stripIndent()
                     }
                 }
             }
@@ -325,9 +289,10 @@ pipeline {
                 script {
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                            sh """
+                            sh """\
+                               #!/usr/bin/env bash
                                bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
-                               """
+                               """.stripIndent()
                         }
                     }
                 }

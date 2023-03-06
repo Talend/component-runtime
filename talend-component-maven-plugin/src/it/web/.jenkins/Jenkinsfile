@@ -24,8 +24,10 @@
 /**
  * Pod configuration
  */
-final String _TSBI_IMAGE = 'java17-base'
-final String _TSBI_VERSION = '3.1.9-20230228074507'
+final String _TSBI_IMAGE = 'jdk11-svc-springboot-builder'
+final String _TSBI_VERSION = '2.9.18-2.4-20220104141654'
+final String _STAGE_DEFAULT_CONTAINER = _TSBI_IMAGE
+final String _POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
 
 /**
  * Job configuration
@@ -49,7 +51,7 @@ final String _POD_CONFIGURATION = """
   kind: Pod
   spec:
     containers:
-      - name: main
+      - name: '${_TSBI_IMAGE}'
         image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
         command: [ cat ]
         tty: true
@@ -110,8 +112,9 @@ pipeline {
    */
   agent {
     kubernetes {
+      label _POD_LABEL
       yaml _POD_CONFIGURATION
-      defaultContainer 'main'
+      defaultContainer _STAGE_DEFAULT_CONTAINER
     }
   }
   /**
