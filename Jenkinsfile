@@ -53,7 +53,7 @@ final String podDefinition = """\
           tty: true
           volumeMounts: [
             { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository},
-            { name: 'efs-jenkins-connectors-asdf', mountPath: '/root/.asdf/installs', subPath: 'installs' },
+            { name: 'efs-jenkins-connectors-asdf', mountPath: '/root/.asdf/installs', subPath: 'installs' }
           ]
           resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
           env:
@@ -70,9 +70,9 @@ final String podDefinition = """\
         - name: efs-jenkins-component-runtime-m2
           persistentVolumeClaim:
             claimName: efs-jenkins-component-runtime-m2
-      - name: efs-jenkins-connectors-asdf
-        persistentVolumeClaim:
-          claimName: efs-jenkins-connectors-asdf
+        - name: efs-jenkins-connectors-asdf
+          persistentVolumeClaim:
+            claimName: efs-jenkins-connectors-asdf
 """.stripIndent()
 
 pipeline {
