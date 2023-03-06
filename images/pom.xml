@@ -88,22 +88,17 @@
             <id>build</id>
             <phase>none</phase>
             <configuration>
-              <extraDirectories>
-                <paths>
-                  <path>${docker.image.extra.files}</path>
-                </paths>
-              </extraDirectories>
               <from>
                 <image>${docker.image.from}</image>
               </from>
               <to>
                 <image>${docker.image.to}</image>
               </to>
-              <user>61000</user>
               <container>
                 <appRoot>${docker.talend.dir.app}</appRoot>
                 <workingDirectory>${docker.talend.dir.app}</workingDirectory>
                 <environment>
+                  <LANG>en_US.UTF-8</LANG>
                   <TALEND_APP_HOME>${docker.talend.dir.app}</TALEND_APP_HOME>
                 </environment>
                 <labels>

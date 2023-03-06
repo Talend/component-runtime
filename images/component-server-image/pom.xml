@@ -32,6 +32,7 @@
     <docker.talend.app.name>component-server</docker.talend.app.name>
     <docker.talend.app.product>component-kit</docker.talend.app.product>
     <docker.talend.app.description>Talend Component Kit backend server</docker.talend.app.description>
+    <!-- custom component-server parameters -->
     <docker.talend.image.tag>${project.version}-${maven.build.timestamp}</docker.talend.image.tag>
   </properties>
 
@@ -200,16 +201,18 @@
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-maven-plugin</artifactId>
-        <!--
-        mvn clean install jib:build@build [-Ddocker.talend.registry.host=...] -> will be pushed
-        mvn clean install jib:dockerBuild@build -> local docker image
-        -->
         <executions>
           <execution>
             <id>build</id>
             <phase>none</phase>
             <configuration>
+              <extraDirectories>
+                <paths>
+                  <path>${docker.image.extra.files}</path>
+                </paths>
+              </extraDirectories>
               <container>
+                <user>talend:talend</user>
                 <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
                 <extraClasspath>${docker.talend.dir.app}custom/*</extraClasspath>
                 <environment>
@@ -218,7 +221,6 @@
                   <MEECROWAVE_PID>${docker.talend.dir.app}conf/server.pid</MEECROWAVE_PID>
                   <MEECROWAVE-PROPERTIES>${docker.talend.dir.app}conf/meecrowave.properties</MEECROWAVE-PROPERTIES>
                   <JAVA_IO_TMPDIR>${docker.talend.dir.app}temp</JAVA_IO_TMPDIR>
-                  <LANG>en_US.UTF-8</LANG>
                   <LD_LIBRARY_PATH>${docker.talend.dir.app}sigar</LD_LIBRARY_PATH>
                   <LOGGING_LAYOUT>JSON</LOGGING_LAYOUT>
                   <LOG4J_CONFIGURATIONFILE>${docker.talend.dir.app}conf/log4j2-component-server-${LOGGING_LAYOUT}.xml</LOG4J_CONFIGURATIONFILE>
