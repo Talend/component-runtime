@@ -115,7 +115,7 @@ public class PropertiesService {
             final String name = sanitizePropertyName(propertyDefinition.getName());
             final ParameterMeta.Type type = findType(propertyDefinition.getType());
             //translate PropertyValidation
-            final Map<String, String> sanitizedMetadata = ofNullable(getSanitizedMetadata(propertyDefinition.getMetadata()))
+            final Map<String, String> sanitizedMetadata = ofNullable(getParamMetadata(propertyDefinition.getMetadata()))
                     .orElse(new LinkedHashMap<>());
             if (propertyDefinition.getValidation() != null) {
                 sanitizedMetadata.putAll(propertyValidationService.mapMeta(propertyDefinition.getValidation()));
@@ -125,6 +125,16 @@ public class PropertiesService {
                     emptyList(), null, sanitizedMetadata, false));
         }
         return parameterMetaList;
+    }
+
+    private static LinkedHashMap<String, String> getParamMetadata(Map<String, String> p) {
+        return ofNullable(p)
+                .map(m -> m
+                        .entrySet()
+                        .stream()
+                        .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
+                        .collect(toLinkedMap(e -> e.getKey().replace("condition::", "tcomp::condition::"), Map.Entry::getValue)))
+                .orElse(null);
     }
 
     private static LinkedHashMap<String, String> getSanitizedMetadata(Map<String, String> p) {
