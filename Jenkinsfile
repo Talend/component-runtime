@@ -29,8 +29,8 @@ final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
-final String _TSBI_IMAGE = 'java17-base'
-final String _TSBI_VERSION = '3.1.9-20230228074507'
+final String _TSBI_IMAGE = 'custom-builder'
+final String _TSBI_VERSION = '3.0.9-20220930152032' // Last root version
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 
 // Files and folder definition
@@ -52,7 +52,8 @@ final String podDefinition = """\
           command: [ cat ]
           tty: true
           volumeMounts: [
-            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}
+            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository},
+            { name: 'efs-jenkins-connectors-asdf', mountPath: '/root/.asdf/installs', subPath: 'installs' },
           ]
           resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
           env:
@@ -69,6 +70,9 @@ final String podDefinition = """\
         - name: efs-jenkins-component-runtime-m2
           persistentVolumeClaim:
             claimName: efs-jenkins-component-runtime-m2
+      - name: efs-jenkins-connectors-asdf
+        persistentVolumeClaim:
+          claimName: efs-jenkins-connectors-asdf
 """.stripIndent()
 
 pipeline {
@@ -127,6 +131,16 @@ pipeline {
         stage('Preliminary steps') {
             steps {
                 script {
+
+                    ///////////////////////////////////////////
+                    // asdf install
+                    ///////////////////////////////////////////
+                    script {
+                        println "asdf install the content of .tool-versions'\n"
+                        sh """
+                            bash asdf install
+                        """
+                    }
                     withCredentials([gitCredentials]) {
                         sh """
                            bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
