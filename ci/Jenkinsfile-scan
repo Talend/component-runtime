@@ -41,6 +41,15 @@ pipeline {
     }
 
     stages {
+        stage('Preliminary steps') {
+            ///////////////////////////////////////////
+            // asdf install
+            ///////////////////////////////////////////
+            script {
+                println "asdf install the content of repository .tool-versions'\n"
+                sh "bash .jenkins/scripts/asdf_install.sh"
+            }
+        }
         stage('Post login') {
             steps {
                 checkout([$class : 'GitSCM',
@@ -52,29 +61,29 @@ pipeline {
 
                 script {
                     try {
-                        sh """
-                               bash .jenkins/scripts/npm_fix.sh
-                           """
+                        sh " bash .jenkins/scripts/npm_fix.sh"
                     } catch (error) {
                         //
                     }
                 }
             }
         }
-        stage("SourceClear analysis") {
+        stage("Veracode SCA (Source Clear Analysis)") {
             steps {
                 withCredentials([string(credentialsId: 'veracode-token', variable: 'SRCCLR_API_TOKEN'), nexusCredentials]) {
+
                     sh '''#!/bin/bash
                       cp .jenkins/settings.xml ~/.m2/
                       curl -sSL https://download.sourceclear.com/ci.sh | SRCCLR_API_TOKEN=${SRCCLR_API_TOKEN} DEBUG=1 sh -s -- scan --allow-dirty --recursive --skip-collectors npm;
-                    '''
+                    '''.stripIndent()
                 }
             }
         }
-        stage('Vera code') {
+        stage('Veracode SAST (Static testing)') {
             steps {
                 withCredentials([veracodeCredentials, nexusCredentials]) {
-                    sh "mvn -B -s .jenkins/settings.xml package $SKIP_OPTS"
+                    sh "bash mvn -B -s .jenkins/settings.xml package $SKIP_OPTS"
+
                     veracode applicationName: "$VERACODE_SANDBOX",
                         teams: "Components",
                         canFailJob: true,
