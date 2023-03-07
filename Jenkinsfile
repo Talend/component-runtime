@@ -138,13 +138,13 @@ pipeline {
                 ///////////////////////////////////////////
                 // asdf install
                 ///////////////////////////////////////////
-                //script {
-                //    println "asdf install the content of .tool-versions'\n"
-                //    sh """
-                //        bash asdf install
-                //        bash asdf reshim
-                //    """
-                //}
+                script {
+                    println "asdf install the content of repository .tool-versions'\n"
+                    sh """
+                        bash asdf install
+                    """
+                    // bash asdf reshim
+                }
             }
         }
         stage('Post login') {
