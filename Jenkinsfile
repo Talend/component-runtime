@@ -172,8 +172,8 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials]) {
                     sh """\
-                        #!/usr/bin/env  bash
-                        mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        #!/usr/bin/env bash
+                        mvn clean verify $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
                         """.stripIndent()
                 }
             }
@@ -188,7 +188,7 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
                     sh """\
-                        #!/usr/bin/env  bash
+                        #!/usr/bin/env bash
                         bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
                     """.stripIndent()
                 }
