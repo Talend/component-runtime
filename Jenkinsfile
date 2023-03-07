@@ -94,19 +94,22 @@ pipeline {
             steps {
                 script {
                     withCredentials([gitCredentials]) {
-                        sh """
+                        sh """\
+                           #!/usr/bin/env
                            bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
-                           """
+                           """.stripIndent()
                     }
                     withCredentials([dockerCredentials]) {
-                        sh """
+                        sh """\
+                           #!/usr/bin/env
                            bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
-                           """
+                           """.stripIndent()
                     }
                     withCredentials([keyImportCredentials]) {
-                        sh """
+                        sh """\
+                           #!/usr/bin/env
                            bash .jenkins/scripts/setup_gpg.sh
-                           """
+                           """.stripIndent()
                     }
 
                     def pom = readMavenPom file: 'pom.xml'
@@ -140,9 +143,10 @@ pipeline {
                 ///////////////////////////////////////////
                 script {
                     println "asdf install the content of repository .tool-versions'\n"
-                    sh """
+                    sh """\
+                        #!/usr/bin/env
                         bash .jenkins/scripts/asdf_install.sh
-                    """
+                        """.stripIndent()
                 }
             }
         }
@@ -151,10 +155,11 @@ pipeline {
                 withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                     script {
                         try {
-                            sh "${params.POST_LOGIN_SCRIPT}"
-                            sh """
-                               bash .jenkins/scripts/npm_fix.sh
-                               """
+                            sh """\
+                                #!/usr/bin/env
+                                bash "${params.POST_LOGIN_SCRIPT}"
+                                bash .jenkins/scripts/npm_fix.sh
+                                """.stripIndent()
                         } catch (ignored) {
                             //
                         }
@@ -166,7 +171,10 @@ pipeline {
             when { expression { params.Action != 'RELEASE' } }
             steps {
                 withCredentials([ossrhCredentials]) {
-                    sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                    sh """\
+                        #!/usr/bin/env 
+                        mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        """.stripIndent()
                 }
             }
         }
@@ -179,7 +187,10 @@ pipeline {
             }
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
-                    sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                    sh """\
+                        #!/usr/bin/env 
+                        bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                    """.stripIndent()
                 }
             }
         }
@@ -193,9 +204,10 @@ pipeline {
             steps {
                 script {
                     configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                        sh """
-                           bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
-                           """
+                        sh """\
+                            #!/usr/bin/env bash 
+                            bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
+                            """.stripIndent()
                     }
                 }
             }
@@ -209,7 +221,10 @@ pipeline {
             }
             steps {
                 withCredentials([ossrhCredentials, gitCredentials]) {
-                    sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -"
+                    sh """\
+                        #!/usr/bin/env bash 
+                        cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -
+                    """.stripIndent()
                 }
             }
         }
@@ -221,16 +236,20 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        sh """
+                        sh """\
+                            #!/usr/bin/env bash 
                             mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
                             mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
-                           """
+                           """.stripIndent()
                     }
                 }
                 withCredentials([sonarCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
-                        sh "_JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar"
+                        sh """\
+                            #!/usr/bin/env bash 
+                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar
+                        """.stripIndent()
                     }
                 }
             }
@@ -286,9 +305,10 @@ pipeline {
                 script {
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                            sh """
+                            sh """\
+                               #!/usr/bin/env
                                bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
-                               """
+                               """.stripIndent()
                         }
                     }
                 }

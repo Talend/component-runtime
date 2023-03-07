@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 #
 #  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
