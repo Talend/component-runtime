@@ -94,22 +94,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([gitCredentials]) {
-                        sh """\
-                           #!/usr/bin/env bash
-                           bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
-                           """.stripIndent()
+                        sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
                     }
                     withCredentials([dockerCredentials]) {
-                        sh """\
-                           #!/usr/bin/env bash
-                           bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
-                           """.stripIndent()
+                        sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
                     }
                     withCredentials([keyImportCredentials]) {
-                        sh """\
-                           #!/usr/bin/env bash
-                           bash .jenkins/scripts/setup_gpg.sh
-                           """.stripIndent()
+                        sh """ bash .jenkins/scripts/setup_gpg.sh"""
                     }
 
                     def pom = readMavenPom file: 'pom.xml'
@@ -143,10 +134,7 @@ pipeline {
                 ///////////////////////////////////////////
                 script {
                     println "asdf install the content of repository .tool-versions'\n"
-                    sh """\
-                        #!/usr/bin/env bash
-                        bash .jenkins/scripts/asdf_install.sh
-                        """.stripIndent()
+                    sh 'bash .jenkins/scripts/asdf_install.sh'
                 }
             }
         }
