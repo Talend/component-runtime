@@ -95,19 +95,19 @@ pipeline {
                 script {
                     withCredentials([gitCredentials]) {
                         sh """\
-                           #!/usr/bin/env
+                           #!/usr/bin/env bash
                            bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
                            """.stripIndent()
                     }
                     withCredentials([dockerCredentials]) {
                         sh """\
-                           #!/usr/bin/env
+                           #!/usr/bin/env bash
                            bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
                            """.stripIndent()
                     }
                     withCredentials([keyImportCredentials]) {
                         sh """\
-                           #!/usr/bin/env
+                           #!/usr/bin/env bash
                            bash .jenkins/scripts/setup_gpg.sh
                            """.stripIndent()
                     }
@@ -144,7 +144,7 @@ pipeline {
                 script {
                     println "asdf install the content of repository .tool-versions'\n"
                     sh """\
-                        #!/usr/bin/env
+                        #!/usr/bin/env bash
                         bash .jenkins/scripts/asdf_install.sh
                         """.stripIndent()
                 }
@@ -156,7 +156,7 @@ pipeline {
                     script {
                         try {
                             sh """\
-                                #!/usr/bin/env
+                                #!/usr/bin/env bash
                                 bash "${params.POST_LOGIN_SCRIPT}"
                                 bash .jenkins/scripts/npm_fix.sh
                                 """.stripIndent()
@@ -172,7 +172,7 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials]) {
                     sh """\
-                        #!/usr/bin/env 
+                        #!/usr/bin/env  bash
                         mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
                         """.stripIndent()
                 }
@@ -188,7 +188,7 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
                     sh """\
-                        #!/usr/bin/env 
+                        #!/usr/bin/env  bash
                         bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
                     """.stripIndent()
                 }
@@ -306,7 +306,7 @@ pipeline {
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """\
-                               #!/usr/bin/env
+                               #!/usr/bin/env bash
                                bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
                                """.stripIndent()
                         }
