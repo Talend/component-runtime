@@ -16,7 +16,7 @@
 final def slackChannel = 'components-ci'
 final def veracodeCredentials = usernamePassword(credentialsId: 'veracode-api-credentials', usernameVariable: 'VERACODE_ID', passwordVariable: 'VERACODE_KEY')
 final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')
-²
+
 pipeline {
     agent {
         kubernetes {
@@ -62,7 +62,7 @@ pipeline {
                 script {
                     try {
                         sh " bash .jenkins/scripts/npm_fix.sh"
-                    } catch (error) {
+                    } catch (ignored) {
                         //
                     }
                 }
