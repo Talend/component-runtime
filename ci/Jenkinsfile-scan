@@ -16,44 +16,11 @@
 final def slackChannel = 'components-ci'
 final def veracodeCredentials = usernamePassword(credentialsId: 'veracode-api-credentials', usernameVariable: 'VERACODE_ID', passwordVariable: 'VERACODE_KEY')
 final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')
-final String _TSBI_IMAGE = 'java17-base'
-final String _TSBI_VERSION = '3.1.9-20230228074507'
-
-
-final String _POD_CONFIGURATION = """
-  apiVersion: v1
-  kind: Pod
-  spec:
-    containers:
-      - name: 'main'
-        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
-        command: [ cat ]
-        tty: true
-        volumeMounts: [
-          { name: docker, mountPath: /var/run/docker.sock },
-          { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
-          { name: dockercache, mountPath: /root/.dockercache }
-        ]
-        resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
-    volumes:
-      - name: docker
-        hostPath: { path: /var/run/docker.sock }
-      - name: dockercache
-        hostPath: { path: /tmp/jenkins/tdi/docker }
-      - name: efs-jenkins-component-runtime-m2
-        persistentVolumeClaim:
-          claimName: efs-jenkins-component-runtime-m2
-      - name: efs-jenkins-component-runtime-download
-        persistentVolumeClaim:
-          claimName: efs-jenkins-component-runtime-download
-    imagePullSecrets:
-      - name: talend-registry
-"""
-
+²
 pipeline {
     agent {
         kubernetes {
-            yaml _POD_CONFIGURATION
+            yamlFile '.jenkins/jenkins_pod.yml'
             defaultContainer 'main'
         }
     }
