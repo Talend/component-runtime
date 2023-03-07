@@ -141,9 +141,8 @@ pipeline {
                 script {
                     println "asdf install the content of repository .tool-versions'\n"
                     sh """
-                        bash asdf install
+                        bash .jenkins/scripts/asdf_install.sh
                     """
-                    // bash asdf reshim
                 }
             }
         }
