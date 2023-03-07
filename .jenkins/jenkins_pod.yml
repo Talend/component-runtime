@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Pod
+spec:
+  imagePullSecrets:
+    - name: talend-registry
+  containers:
+    - name: main
+      # '3.0.9-20220930152032 is the last root version
+#      image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/custom-builder:3.0.9-20220930152032'
+      image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.9-20220930152032'
+      command: [ cat ]
+      tty: true
+      volumeMounts: [
+        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository},
+        { name: efs-jenkins-connectors-asdf, mountPath: /root/.asdf/installs, subPath: installs }
+      ]
+      resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+      env:
+        - name: DOCKER_HOST
+          value: tcp://localhost:2375
+    - name: docker-daemon
+      image: artifactory.datapwn.com/docker-io-remote/docker:19.03.1-dind
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ""
+      securityContext:
+        privileged: true
+  volumes:
+    - name: efs-jenkins-component-runtime-m2
+      persistentVolumeClaim:
+        claimName: efs-jenkins-component-runtime-m2
+    - name: efs-jenkins-connectors-asdf
+      persistentVolumeClaim:
+        claimName: efs-jenkins-connectors-asdf

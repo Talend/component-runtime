@@ -29,8 +29,6 @@ final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
-final String _TSBI_IMAGE = 'custom-builder'
-final String _TSBI_VERSION = '3.0.9-20220930152032' // Last root version
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 
 // Files and folder definition
@@ -39,46 +37,10 @@ final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
 // Artifacts paths
 final String _ARTIFACT_COVERAGE = '**/jacoco-aggregate/**/*.*'
 
-// Pod definition
-final String podDefinition = """\
-    apiVersion: v1
-    kind: Pod
-    spec:
-      imagePullSecrets:
-        - name: talend-registry
-      containers:
-        - name: main
-          image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
-          command: [ cat ]
-          tty: true
-          volumeMounts: [
-            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository},
-            { name: 'efs-jenkins-connectors-asdf', mountPath: '/root/.asdf/installs', subPath: 'installs' }
-          ]
-          resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-          env:
-            - name: DOCKER_HOST
-              value: tcp://localhost:2375
-        - name: docker-daemon
-          image: artifactory.datapwn.com/docker-io-remote/docker:19.03.1-dind
-          env:
-            - name: DOCKER_TLS_CERTDIR
-              value: ""
-          securityContext:
-            privileged: true
-      volumes:
-        - name: efs-jenkins-component-runtime-m2
-          persistentVolumeClaim:
-            claimName: efs-jenkins-component-runtime-m2
-        - name: efs-jenkins-connectors-asdf
-          persistentVolumeClaim:
-            claimName: efs-jenkins-connectors-asdf
-""".stripIndent()
-
 pipeline {
     agent {
         kubernetes {
-            yaml podDefinition
+            yamlFile '.jenkins/jenkins_pod.yml'
             defaultContainer 'main'
         }
     }
@@ -176,13 +138,13 @@ pipeline {
                 ///////////////////////////////////////////
                 // asdf install
                 ///////////////////////////////////////////
-                script {
-                    println "asdf install the content of .tool-versions'\n"
-                    sh """
-                        bash asdf install
-                        bash asdf reshim
-                    """
-                }
+                //script {
+                //    println "asdf install the content of .tool-versions'\n"
+                //    sh """
+                //        bash asdf install
+                //        bash asdf reshim
+                //    """
+                //}
             }
         }
         stage('Post login') {
