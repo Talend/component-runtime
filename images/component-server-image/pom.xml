@@ -27,15 +27,13 @@
   <name>Component Runtime :: Images :: Server</name>
 
   <properties>
-    <additionalDockerFiles>${project.build.outputDirectory}/docker/additional</additionalDockerFiles>
-    <image.currentVersion>${project.version}_${maven.build.timestamp}</image.currentVersion>
-    <image.tag>${project.version}</image.tag>
-    <image.target>talend/common/tacokit/component-server</image.target>
-    <imageWorkDir>${baseImageDir}/component-kit</imageWorkDir>
     <talend.build.name>${talend.build.name.base}.server.image</talend.build.name>
-    <talend.server.image.name>${talend.server.image.registry}tacokit/component-server:${image.currentVersion}</talend.server.image.name>
-    <tsbi.product>component-kit</tsbi.product>
-    <tsbi.service>component-server</tsbi.service>
+    <!-- mandatory module docker properties -->
+    <docker.talend.app.name>component-server</docker.talend.app.name>
+    <docker.talend.app.product>component-kit</docker.talend.app.product>
+    <docker.talend.app.description>Talend Component Kit backend server</docker.talend.app.description>
+    <!-- custom component-server parameters -->
+    <docker.talend.image.tag>${project.version}-${maven.build.timestamp}</docker.talend.image.tag>
   </properties>
 
   <dependencies>
@@ -163,7 +161,7 @@
             </goals>
             <phase>prepare-package</phase>
             <configuration>
-              <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/conf</outputDirectory>
+              <outputDirectory>${docker.image.extra.files}/opt/talend/component-kit/conf</outputDirectory>
               <resources>
                 <resource>
                   <directory>${project.basedir}/src/main/resources</directory>
@@ -192,7 +190,7 @@
                   <version>1.6.4</version>
                   <classifier>native</classifier>
                   <type>jar</type>
-                  <outputDirectory>${additionalDockerFiles}/opt/talend/component-kit/sigar</outputDirectory>
+                  <outputDirectory>${docker.image.extra.files}/opt/talend/component-kit/sigar</outputDirectory>
                   <includes>**/libsigar-amd64-linux-1.6.4.so</includes>
                 </artifactItem>
               </artifactItems>
@@ -203,11 +201,6 @@
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-maven-plugin</artifactId>
-        <version>${jib.version}</version>
-        <!--
-        mvn clean install jib:build@build [-Dtalend.server.image.registry=...] -> will be pushed
-        mvn clean install jib:dockerBuild@build -> local docker image
-        -->
         <executions>
           <execution>
             <id>build</id>
@@ -215,96 +208,38 @@
             <configuration>
               <extraDirectories>
                 <paths>
-                  <path>${additionalDockerFiles}</path>
+                  <path>${docker.image.extra.files}</path>
                 </paths>
               </extraDirectories>
-              <from>
-                <image>${baseImage}</image>
-              </from>
-              <to>
-                <image>${talend.server.image.name}</image>
-              </to>
               <container>
-                <extraClasspath>${imageWorkDir}/custom/*</extraClasspath>
+                <user>talend:talend</user>
                 <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
-                <appRoot>${imageWorkDir}</appRoot>
-                <workingDirectory>${imageWorkDir}</workingDirectory>
+                <extraClasspath>${docker.talend.dir.app}custom/*</extraClasspath>
                 <environment>
-                  <MEECROWAVE_HOME>${imageWorkDir}</MEECROWAVE_HOME>
-                  <MEECROWAVE_BASE>${imageWorkDir}</MEECROWAVE_BASE>
-                  <MEECROWAVE_PID>${imageWorkDir}/conf/server.pid</MEECROWAVE_PID>
-                  <LANG>en_US.UTF-8</LANG>
-                  <LOGGING_LAYOUT>TEXT</LOGGING_LAYOUT>
-                  <LD_LIBRARY_PATH>/opt/talend/component-kit/sigar</LD_LIBRARY_PATH>
+                  <MEECROWAVE_HOME>${docker.talend.dir.app}</MEECROWAVE_HOME>
+                  <MEECROWAVE_BASE>${docker.talend.dir.app}</MEECROWAVE_BASE>
+                  <MEECROWAVE_PID>${docker.talend.dir.app}conf/server.pid</MEECROWAVE_PID>
+                  <MEECROWAVE-PROPERTIES>${docker.talend.dir.app}conf/meecrowave.properties</MEECROWAVE-PROPERTIES>
+                  <JAVA_IO_TMPDIR>${docker.talend.dir.app}temp</JAVA_IO_TMPDIR>
+                  <LD_LIBRARY_PATH>${docker.talend.dir.app}sigar</LD_LIBRARY_PATH>
+                  <LOGGING_LAYOUT>JSON</LOGGING_LAYOUT>
+                  <LOG4J_CONFIGURATIONFILE>${docker.talend.dir.app}conf/log4j2-component-server-${LOGGING_LAYOUT}.xml</LOG4J_CONFIGURATIONFILE>
+                  <TRACING_SAMPLING_RATE>1</TRACING_SAMPLING_RATE>
+                  <TALEND_JDK_SERIAL_FILTER>oracle.sql.**;!*</TALEND_JDK_SERIAL_FILTER>
+                  <TALEND_COMPONENT_SERVER_COMPONENT_REGISTRY>${TALEND_HOME}/connectors/component-registry.properties</TALEND_COMPONENT_SERVER_COMPONENT_REGISTRY>
+                  <TALEND_COMPONENT_SERVER_USER_EXTENSIONS_LOCATION>${TALEND_HOME}/extensions</TALEND_COMPONENT_SERVER_USER_EXTENSIONS_LOCATION>
+                  <TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY>${TALEND_HOME}/connectors</TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY>
+                  <TALEND_VAULT_CACHE_VAULT_DECRYPT_ENDPOINT>v1/tenants-keyrings/decrypt/{x-talend-tenant-id}</TALEND_VAULT_CACHE_VAULT_DECRYPT_ENDPOINT>
+                  <CLASSPATH>${docker.talend.dir.base}component-kit/custom/*:${docker.talend.dir.base}custom/*:${TALEND_HOME}/extensions/*:${docker.talend.dir.app}resources:${docker.talend.dir.app}classes</CLASSPATH>
+                  <JDK_JAVA_OPTIONS>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED -Dlog4j.configurationFile=${docker.talend.dir.app}conf/log4j2-component-server-TEXT.xml</JDK_JAVA_OPTIONS>
                 </environment>
-                <jvmFlags>
-                  <jvmFlag>-Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER:-!*}</jvmFlag>
-                  <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
-                  <jvmFlag>-Djava.io.tmpdir=${imageWorkDir}/temp</jvmFlag>
-                  <jvmFlag>-Dhttp=${boundPort}</jvmFlag>
-                  <jvmFlag>-Dmeecrowave.home=${imageWorkDir}</jvmFlag>
-                  <jvmFlag>-Dmeecrowave.base=${imageWorkDir}</jvmFlag>
-                  <jvmFlag>-Dlog4j.configurationFile=${imageWorkDir}/conf/log4j2-component-server-${env:LOGGING_LAYOUT}.xml</jvmFlag>
-                  <jvmFlag>-Dgeronimo.metrics.sigar.refreshInterval=0</jvmFlag>
-                  <jvmFlag>-Dtalend.component.exit-on-destroy=true</jvmFlag>
-                </jvmFlags>
-                <ports>
-                  <port>${boundPort}</port>
-                </ports>
                 <labels>
-                  <com.talend.maintainer>Talend &lt;support@talend.com&gt;</com.talend.maintainer>
-                  <com.talend.build-date>${maven.build.timestamp}</com.talend.build-date>
-                  <com.talend.git.repositories>${project.scm.url}</com.talend.git.repositories>
-                  <com.talend.git.branches>${git.branch}</com.talend.git.branches>
-                  <com.talend.git.commits>${git.commit.id}</com.talend.git.commits>
-                  <com.talend.name>Talend Component Kit Server</com.talend.name>
-                  <com.talend.application>component-server</com.talend.application>
-                  <com.talend.service>component-server</com.talend.service>
-                  <com.talend.description>Talend Component Kit Backend Server</com.talend.description>
-                  <com.talend.url>https://www.talend.com</com.talend.url>
-                  <com.talend.vendor>Talend</com.talend.vendor>
-                  <com.talend.version>${image.currentVersion}</com.talend.version>
-                  <com.talend.docker.cmd>docker run -d -p ${boundPort}:${boundPort} tacokit/component-server:${image.currentVersion}</com.talend.docker.cmd>
-                  <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc), ex:
-                    -Dtalend.component.server.component.registry=/path/to/component-registry.propertes
-                    -Dtalend.component.server.maven.repository=/path/to/m2&gt;</com.talend.docker.params>
-                  <com.talend.docker.healthcheck>curl --fail http://localhost:${boundPort}/api/v1/environment</com.talend.docker.healthcheck>
+                  <com.talend.docker.cmd>docker run -d -p ${docker.image.port}:${docker.image.port} ${docker.image.to}</com.talend.docker.cmd>
+                  <com.talend.docker.healthcheck>curl --fail http://localhost:${docker.image.port}/api/v1/environment</com.talend.docker.healthcheck>
+                  <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc), ex: -Dtalend.component.server.component.registry=/path/to/component-registry.properties -Dtalend.component.server.maven.repository=/path/to/m2&gt;</com.talend.docker.params>
                 </labels>
               </container>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <!--
-        mvn clean verify dockerfile:build -P dev-tsbi
-        docker tag talend/common/tacokit/component-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release}
-        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${release}
-        -->
-        <groupId>com.spotify</groupId>
-        <artifactId>dockerfile-maven-plugin</artifactId>
-        <configuration>
-          <repository>${image.target}</repository>
-          <tag>${image.tag}</tag>
-          <dockerfile>Dockerfile</dockerfile>
-          <buildArgs>
-            <PROJECT_VERSION>${project.version}</PROJECT_VERSION>
-            <TIMESTAMP>${maven.build.timestamp}</TIMESTAMP>
-            <DOCKER_REGISTRY_HOST>${docker.registryHost}</DOCKER_REGISTRY_HOST>
-            <TSBI_IMAGE_PATH>${docker.tsbiPath}</TSBI_IMAGE_PATH>
-            <TSBI_VERSION>${docker.tsbiVersion}</TSBI_VERSION>
-            <GIT_BRANCH>${git.branch}</GIT_BRANCH>
-            <GIT_COMMIT>${git.commit.id}</GIT_COMMIT>
-          </buildArgs>
-          <skip>${disable.dockerBuild}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <id>default</id>
-            <goals>
-              <goal>build</goal>
-            </goals>
-            <phase>none</phase>
           </execution>
         </executions>
       </plugin>
