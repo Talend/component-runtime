@@ -35,7 +35,15 @@ pipeline {
 
   environment {
     MAVEN_OPTS = '-Dmaven.artifact.threads=128 -Dorg.slf4j.simpleLogger.showThreadName=true -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss'
-    SKIP_OPTS = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -pl '!talend-component-kit-intellij-plugin' -pl '!reporting'"
+    // Maven package skipped elements
+    // Everything that is not needed for the veracode scan is excluded to reduce time
+    SKIP_OPTS = "-Dspotless.apply.skip=true\
+                 -Dcheckstyle.skip=true\
+                 -Drat.skip=true\
+                 -DskipTests\
+                 -Dinvoker.skip=true\
+                 -pl '!talend-component-kit-intellij-plugin'\
+                 -pl '!reporting'"
     TALEND_REGISTRY = 'registry.datapwn.com'
     VERACODE_APP_NAME = 'Components'
     VERACODE_SANDBOX = 'component-runtime'
@@ -121,6 +129,7 @@ pipeline {
       steps {
         withCredentials([veracodeCredentials, nexusCredentials]) {
           script {
+            // Execute a mvn package skipping not needed element
             sh "bash .jenkins/scripts/package.sh ${SKIP_OPTS}"
           }
         }

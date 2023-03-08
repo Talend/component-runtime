@@ -17,14 +17,13 @@
 
 set -xe
 
-# Parameters:
-# $1: skips options
+# This script allow to package the current project with maven on specific jenkins provided settings.xml
+# You can provide extra parameters to tune maven
+# $1: extra_mvn_parameters
 main() {
-  _POM_FILE_PATH="${1?Missing pom_file_path}"; shift
-  SKIP_OPTS=("$@")
+  _EXTRA_MVN_PARAMETERS=("$@")
   
-  mvn package --batch-mode --settings .jenkins/settings.xml ${SKIP_OPTS[*]}
-
+  mvn package --batch-mode --settings .jenkins/settings.xml ${_EXTRA_MVN_PARAMETERS[*]}
 }
 
 main "$@"
