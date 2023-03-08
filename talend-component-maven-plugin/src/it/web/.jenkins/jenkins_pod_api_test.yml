@@ -6,7 +6,8 @@ spec:
   containers:
     - name: main
       # '3.0.9-20220930152032 is the last root version of custom builder
-      image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/custom-builder:3.0.9-20220930152032'
+      # image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/custom-builder:3.0.9-20220930152032'
+      image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.9-20220930152032'
       command: [ cat ]
       tty: true
       volumeMounts: [
