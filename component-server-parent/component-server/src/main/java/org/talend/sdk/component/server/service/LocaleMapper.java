@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.server.service;
 
-import static java.util.Locale.ENGLISH;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
@@ -58,7 +57,7 @@ public class LocaleMapper {
 
     // intended to limit and normalize the locales to avoid a tons when used with caching
     public Locale mapLocale(final String requested) {
-        return new Locale(getLanguage(requested).toLowerCase(ENGLISH));
+        return new Locale(getLanguage(requested));
     }
 
     private String getLanguage(final String requested) {
