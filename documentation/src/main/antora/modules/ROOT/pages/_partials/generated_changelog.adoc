@@ -2,6 +2,12 @@
 
 == Version 1.55.0
 
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2372[TCOMP-2372^]: rename QueryParam language to lang link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2369[TCOMP-2369^]: Make DateTime option configurable link:search.html?query=api[api^,role='dockey']
