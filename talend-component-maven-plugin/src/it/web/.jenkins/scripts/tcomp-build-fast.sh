@@ -15,11 +15,11 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 function usage(){
-  printf 'Quick tcomp build without any test and facultative modules (documentation...)\n'
-  printf 'Usage : %s <pom_file_path>\n' "${0}"
+  printf 'Tcomp build, with minimals modules\n'
+  printf 'Usage : %s <pom_file_path> <mvn_quick_params>\n' "${0}"
   printf '\n'
   printf "%s\n" "${1}"
   printf '\n'
@@ -27,20 +27,12 @@ function usage(){
 }
 
 # Parameters
-[ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.\n'
-
-_POM_FILE_PATH=${1}
+_POM_FILE_PATH="${1?Missing pom_file_path}"; shift
+extraBuildParams=("$@")
 
 # Constants
-_MAVEN_FAST_INSTALL_CMD="mvn clean install \
-                --define spotless.apply.skip=true \
-                --define spotbugs.skip=true \
-                --define checkstyle.skip=true \
-                --define rat.skip=true \
-                --define skipTests \
-                --define maven.javadoc.skip=true \
-                --define invoker.skip=true \
-                --define maven.artifact.threads=25"
+_MAVEN_FAST_INSTALL_CMD="mvn clean install ${extraBuildParams[*]}"
+
 
 main() (
   printf '##############################################\n'

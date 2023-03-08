@@ -22,21 +22,14 @@
  */
 
 /**
- * Pod configuration
- */
-final String _TSBI_IMAGE = 'jdk11-svc-springboot-builder'
-final String _TSBI_VERSION = '2.9.18-2.4-20220104141654'
-final String _STAGE_DEFAULT_CONTAINER = _TSBI_IMAGE
-final String _POD_LABEL = ((String) "tck-api-test-${UUID.randomUUID().toString()}").take(53)
-
-/**
  * Job configuration
  */
 // Local folder location
 final String _SERVER_PORT="8081"
 final String _INSTALL_DIR="webtester"
 final String _COVERAGE_DIR="coverage"
-final String _DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration
+// volume mounted on the podConfiguration, do not edit unless you edit the pod configuration file
+final String _DOWNLOAD_DIR="/tmp/download"
 final String _SERVER_DIR="${_INSTALL_DIR}/component-server-distribution"
 // Local artifact definition
 final String _ARTIFACT_TEST_RESULTS="**/src/it/web/test/target/**/*"
@@ -45,37 +38,6 @@ final String _ARTIFACT_LOGS_COMPONENT_SERVER="**/${_SERVER_DIR}/logs/component-s
 final String _ARTIFACT_LOGS_MEECROWAVE="**/${_SERVER_DIR}/logs/meecrowave*"
 final String _ARTIFACT_SETENV="**/${_SERVER_DIR}/bin/setenv.sh"
 final String _ARTIFACT_REGISTRY="**/${_SERVER_DIR}/conf/components-registry.properties"
-
-final String _POD_CONFIGURATION = """
-  apiVersion: v1
-  kind: Pod
-  spec:
-    containers:
-      - name: '${_TSBI_IMAGE}'
-        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
-        command: [ cat ]
-        tty: true
-        volumeMounts: [
-          { name: docker, mountPath: /var/run/docker.sock },
-          { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
-          { name: efs-jenkins-component-runtime-download, mountPath: ${_DOWNLOAD_DIR}},
-          { name: dockercache, mountPath: /root/.dockercache }
-        ]
-        resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
-    volumes:
-      - name: docker
-        hostPath: { path: /var/run/docker.sock }
-      - name: dockercache
-        hostPath: { path: /tmp/jenkins/tdi/docker }
-      - name: efs-jenkins-component-runtime-m2
-        persistentVolumeClaim:
-          claimName: efs-jenkins-component-runtime-m2
-      - name: efs-jenkins-component-runtime-download
-        persistentVolumeClaim:
-          claimName: efs-jenkins-component-runtime-download
-    imagePullSecrets:
-      - name: talend-registry
-"""
 
 /**
  * Credentials
@@ -112,9 +74,8 @@ pipeline {
    */
   agent {
     kubernetes {
-      label _POD_LABEL
-      yaml _POD_CONFIGURATION
-      defaultContainer _STAGE_DEFAULT_CONTAINER
+      yamlFile 'talend-component-maven-plugin/src/it/web/.jenkins/jenkins_pod_api_test.yml'
+      defaultContainer 'main'
     }
   }
   /**
@@ -135,6 +96,17 @@ pipeline {
       name: 'PROJECT_NAME' ,
       choices: ['tcomp_approved', 'tcomp_draft'] ,
       description: 'Select test project to execute.'
+    )
+    booleanParam(
+      name: 'JENKINS_DEBUG',
+      defaultValue: false,
+      description: '''
+        Add an extra comportment to the job allowing to extra analysis:
+        - keep the pod alive for debug purposes''')
+    string(
+      name: 'MVN_QUICK_PARAMS',
+      defaultValue: '--define spotless.apply.skip=true  --define spotbugs.skip=true --define checkstyle.skip=true --define rat.skip=true --define skipTests --define maven.javadoc.skip=true --define invoker.skip=true --define maven.artifact.threads=25',
+      description: 'Quick parameters used during tcomp build stage, only edit it for test purpose.'
     )
   }
   /**
@@ -175,18 +147,20 @@ pipeline {
     stage('Validate parameters') {
       steps {
         ///////////////////////////////////////////
+        // asdf install
+        ///////////////////////////////////////////
+        //script {
+        //  println "asdf install the content of repository .tool-versions'\n"
+        //  sh 'bash .jenkins/scripts/asdf_install.sh'
+        //}
+        ///////////////////////////////////////////
         // Validate parameters
         ///////////////////////////////////////////
         script {
 
-          println "Setup all script as executables in ${_SCRIPTS_PATH}\n"
-          sh """
-            find ${_SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
-          """
-
           println "Get actual tck version from ${_ROOT_PATH}/pom.xml: \n"
           TCOMP_VERSION = sh (
-            script: "${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
+            script: "bash ${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
             returnStdout: true
           ).trim()
 
@@ -239,38 +213,50 @@ pipeline {
         ///////////////////////////////////////////
         script {
 
-          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-          if ( user_name == null) { user_name = "auto" }
-
-          currentBuild.displayName = (
-            "#$currentBuild.number: $user_name - $runtimeVersion"
-          )
+          job_name_creation(runtimeVersion)
 
           // updating build description
-          currentBuild.description = ("""
-            User: $user_name - Runtime:  $runtimeVersion
+          String description = """
+            User: Runtime:  $runtimeVersion
             Project: $fileToRun""".stripIndent()
-          )
-        }
+          job_description_append(description)
 
+        }
       }
     }
-    stage('Prepare Test') {
+    stage('Build component-runtime fast') {
+      when {
+        expression { runtimeVersion.contains('-SNAPSHOT') }
+      }
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
-            if (runtimeVersion.contains('-SNAPSHOT')) {
-              sh """ "${_SCRIPTS_PATH}/tcomp-build.sh" "${_ROOT_PATH}/pom.xml" """
-            }
-
-            // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
-            sh """
-              "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" \
-                                                         "${runtimeVersion}" \
-                                                         "1.36.0" "azure-dls-gen2" \
-                                                         "${_SERVER_PORT}"
-              "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
-            """
+            sh "bash ${_SCRIPTS_PATH}/tcomp-build-fast.sh ${_ROOT_PATH}/pom.xml ${params.MVN_QUICK_PARAMS}"
+          }
+        }
+      }
+    }
+    stage('Start component-runtime server') {
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
+            sh """\
+              #!/usr/bin/env bash
+              bash ${_SCRIPTS_PATH}/server-registry-init.sh ${_DOWNLOAD_DIR} ${_INSTALL_DIR} ${_COVERAGE_DIR} \
+                                                            ${runtimeVersion} \
+                                                            1.36.0 azure-dls-gen2 \
+                                                            ${_SERVER_PORT}
+              bash ${_SCRIPTS_PATH}/server-registry-start.sh ${_INSTALL_DIR} ${_COVERAGE_DIR} ${_SERVER_PORT}
+            """.stripIndent()
+          }
+        }
+      }
+    }
+    stage('Check component-runtime server') {
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
+            sh "bash ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}"
           }
         }
       }
@@ -278,18 +264,15 @@ pipeline {
     stage('Execute Test') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
-          sh """              
-             ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}
-
-             printf "======== Execute test\n"
-             cd ${_TESTS_PATH}
-             mvn clean test --settings="${MAVEN_SETTINGS}" \
-                            --define instance="${tenantInstance}" \
-                            --define accountId="${componentRuntimeApiTenantId_Rd}" \
-                            --define selectedEnvironment="${apiTesterEnv}" \
-                            --define stopOnFailure=false \
-                            --define file="${fileToRun}.json"
-             """
+          sh """\
+            #!/usr/bin/env bash
+            bash ${_SCRIPTS_PATH}/apitester-run.sh ${_TESTS_PATH}\
+                                                   ${MAVEN_SETTINGS}\
+                                                   ${tenantInstance}\
+                                                   ${componentRuntimeApiTenantId_Rd} \
+                                                   ${apiTesterEnv}\
+                                                   ${fileToRun}.json"
+            """.stripIndent()
         }
       }
     }
@@ -301,17 +284,17 @@ pipeline {
     always {
 
       script {
-        sh """
+        sh """\
+          #!/usr/bin/env bash  
           printf "======== Stop server\n"
-          ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
+          bash ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
 
           printf "======== Generate jacoco report \n"
-          ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
+          bash ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
 
           printf "======== Generate Html reports\n"
-          mvn surefire-report:report-only --file ${_TESTS_PATH}
-          mvn site --define generateReports=false --file ${_TESTS_PATH}
-        """
+          bash ${_SCRIPTS_PATH}/jacoco-html.sh ${_TESTS_PATH}
+        """.stripIndent()
       }
 
       // recordIssues is a multi result file publisher allowing to have the same publish format on multiples analysis.
@@ -379,6 +362,12 @@ pipeline {
 
       }
 
+      script {
+        if (params.JENKINS_DEBUG) {
+          jenkinsBreakpoint()
+        }
+      }
+
       //script {
       //  println "====== Debug optional step"
       //  sh """
@@ -393,4 +382,59 @@ pipeline {
       //}
     }
   }
+}
+
+/**
+ * Append a new line to job description
+ * REM This is MARKDOWN, do not forget double space at the end of line
+ *
+ * @param new line
+ * @return void
+ */
+private void job_name_creation(String extra) {
+  String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+  if (user_name == null) {
+    user_name = "auto"
+  }
+
+  currentBuild.displayName = (
+    "#$currentBuild.number-$extra-$user_name"
+  )
+}
+
+/**
+ * Append a new line to job description
+ * REM This is MARKDOWN, do not forget double space at the end of line
+ *
+ * @param new line
+ * @return void
+ */
+private void job_description_append(String new_line) {
+  if (currentBuild.description == null) {
+    println "Create the job description with: \n$new_line"
+    currentBuild.description = new_line
+  } else {
+    println "Edit the job description adding: $new_line"
+    currentBuild.description = currentBuild.description + '\n' + new_line
+  }
+}
+
+/**
+ * Implement a simple breakpoint to stop actual job
+ * Use the method anywhere you need to stop
+ * The first usage is to keep the pod alive on post stage.
+ * Change and restore the job description to be more visible
+ *
+ * @param job_description_to_backup
+ * @return void
+ */
+private void jenkinsBreakpoint() {
+  // Backup the description
+  String job_description_backup = currentBuild.description
+  // updating build description
+  currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
+  // Request user action
+  input message: 'Finish the job?', ok: 'Yes'
+  // updating build description
+  currentBuild.description = "$job_description_backup"
 }

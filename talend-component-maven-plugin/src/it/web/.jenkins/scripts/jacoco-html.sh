@@ -18,27 +18,31 @@
 set -xe
 
 function usage(){
-  printf 'Get the version from a pom file\n'
-  printf 'Usage : %s <pom_file_path>\n' "${0}"
+  printf 'Generate Jacoco html report\n'
+  printf 'Usage : %s <tests_path>\n' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
   exit 1
 }
-
 # Parameters:
-[ -z ${1+x} ] && usage 'Parameter "pom_file_path" is needed.'
-_POM_FILE_PATH=${1}
+[ -z ${1+x} ] && usage "Parameter 'tests_path' is needed."
+
+_TESTS_PATH=${1}
 
 main() (
+  printf '##############################################\n'
+  printf 'Jacoco generate html report from:\n'
+  printf '%s\n' "${_TESTS_PATH}"
+  printf '##############################################\n'
 
-  # shellcheck disable=SC2016
-  mvn --quiet \
-      --file "${_POM_FILE_PATH}" \
-      --non-recursive \
-      --define exec.executable=printf \
-      --define exec.args='${project.version}' \
-      exec:exec
+  jacoco_html
 )
+
+function jacoco_html {
+  mvn surefire-report:report-only --file "${_TESTS_PATH}"
+  mvn site --define generateReports=false --file "${_TESTS_PATH}"
+	printf '##############################################\n'
+}
 
 main "$@"
