@@ -216,7 +216,7 @@
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <mvn.version>3.8.6</mvn.version>
+    <mvn.version>3.8.7</mvn.version>
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
