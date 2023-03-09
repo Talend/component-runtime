@@ -67,7 +67,7 @@ class BeamComponentResourceImplTest {
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertNotNull(definition);
         assertEquals(1, definition.getDependencies().size());
-        assertEquals("org.apache.tomee:ziplock:jar:7.0.5", definition.getDependencies().iterator().next());
+        assertEquals("org.apache.tomee:ziplock:jar:8.0.14", definition.getDependencies().iterator().next());
     }
 
 }

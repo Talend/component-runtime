@@ -166,10 +166,10 @@
     <xerces.version>2.12.2</xerces.version>
 
     <junit.version>4.13.2</junit.version>
-    <ziplock.version>8.0.4</ziplock.version>
+    <ziplock.version>8.0.14</ziplock.version>
 
     <!-- do not update without updating test-->
-    <ziplock.test.version>7.0.5</ziplock.test.version>
+    <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
     <tomcat.version>9.0.69</tomcat.version>
