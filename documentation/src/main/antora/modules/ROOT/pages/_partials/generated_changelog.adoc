@@ -18,6 +18,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2396[TCOMP-2396^]: Upgrade lombok to 1.18.26 link:search.html?query=build[build^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2397[TCOMP-2397^]: Upgrade junit5 to 5.9.2 link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2398[TCOMP-2398^]: Upgrade httpclient to 4.5.14 link:search.html?query=bom[bom^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2399[TCOMP-2399^]: Upgrade woodstox to 6.5.0 link:search.html?query=component-manager[component-manager^,role='dockey']
 
 
 

@@ -258,10 +258,10 @@ class ConfigurableClassLoaderTest {
     void spi() throws IOException {
         final Predicate<String> parentClasses = name -> true;
         final File staxApi =
-                new File(Constants.DEPENDENCIES_LOCATION, "org/codehaus/woodstox/stax2-api/4.1/stax2-api-4.1.jar");
+                new File(Constants.DEPENDENCIES_LOCATION, "org/codehaus/woodstox/stax2-api/4.2.1/stax2-api-4.2.1.jar");
         assertTrue(staxApi.isFile());
         final File woodstox = new File(Constants.DEPENDENCIES_LOCATION,
-                "com/fasterxml/woodstox/woodstox-core/5.1.0/woodstox-core-5.1.0.jar");
+                "com/fasterxml/woodstox/woodstox-core/6.5.0/woodstox-core-6.5.0.jar");
         assertTrue(woodstox.isFile());
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
