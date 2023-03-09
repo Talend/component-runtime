@@ -69,8 +69,8 @@ public class PropertiesService {
     }
 
     public void  validate(final ConfigTypeNode configNode, final JsonObject payload){
-        ReflectionService.checkPayload(buildParameterMetas(configNode.getProperties()),
-                extractConfig(configNode, payload));
+        ReflectionService.checkWithPayload(buildParameterMetas(configNode.getProperties()),
+                extractConfig(configNode, payload), payload);
     }
 
     private JsonPointer toPointer(final String absoluteTargetPath) {

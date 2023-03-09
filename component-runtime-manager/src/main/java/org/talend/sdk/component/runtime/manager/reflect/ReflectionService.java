@@ -214,12 +214,17 @@ public class ReflectionService {
     }
 
     public static void checkPayload(List<ParameterMeta> metas, Map<String, String> notNullConfig) {
+        JsonObject globalPayload = new PayloadMapper((a, b) -> {
+            }).visitAndMap(metas, notNullConfig);
+        checkWithPayload(metas, notNullConfig, globalPayload);
+    }
+
+    public static void checkWithPayload(List<ParameterMeta> metas, Map<String, String> notNullConfig, final JsonObject payload) {
         final PayloadValidator visitor = new PayloadValidator();
         if (!visitor.skip) {
-            visitor.globalPayload = new PayloadMapper((a, b) -> {
-            }).visitAndMap(metas, notNullConfig);
+            visitor.globalPayload = payload;
             final PayloadMapper payloadMapper = new PayloadMapper(visitor);
-            payloadMapper.setGlobalPayload(visitor.globalPayload);
+            payloadMapper.setGlobalPayload(payload);
             payloadMapper.visitAndMap(metas, notNullConfig);
             visitor.throwIfFailed();
         }

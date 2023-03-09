@@ -203,6 +203,13 @@ class PropertiesServiceTest {
 
         JsonObject payload;
 
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("valueEval", JsonValue.NULL).build())
+                        .build()).build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Required, usernameError));
         /**
          * min/max
          **/
@@ -294,7 +301,7 @@ class PropertiesServiceTest {
                                 .build())
                         .add("limit", 100))
                 .build();
-        checkErrors(payload, Arrays.asList(connectionError, url1Required));
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
@@ -310,7 +317,7 @@ class PropertiesServiceTest {
                         .add("limit", 100))
                 .build();
 
-        checkErrors(payload, Arrays.asList(connectionError, url1Required, usernameError));
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required, usernameError));
 
         /*
          * password : @ActiveIf(target = "username", evaluationStrategy = ActiveIf.EvaluationStrategy.CONTAINS, value = "undx")
