@@ -259,7 +259,7 @@
 
     <!-- misc dependencies -->
     <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
-    <bndlib.version>5.1.0</bndlib.version>
+    <bndlib.version>5.3.0</bndlib.version>
     <ant.version>1.10.12</ant.version>
     <jcommander.version>1.82</jcommander.version>
     <snakeyaml.version>1.33</snakeyaml.version>
@@ -268,7 +268,7 @@
     <gson.version>2.9.1</gson.version>
     <ivy.version>2.5.1</ivy.version>
     <aws-java-sdk-s3.version>1.12.285</aws-java-sdk-s3.version>
-    <testng.version>7.4.0</testng.version>
+    <testng.version>7.7.1</testng.version>
 
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
