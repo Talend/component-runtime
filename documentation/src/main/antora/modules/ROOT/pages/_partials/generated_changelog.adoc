@@ -11,6 +11,12 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2369[TCOMP-2369^]: Make DateTime option configurable link:search.html?query=api[api^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2392[TCOMP-2392^]: Upgrade maven plugins to 3.8.7 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2393[TCOMP-2393^]: Upgrade bndlib to 5.3.0 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2394[TCOMP-2394^]: Upgrade log4j2 to 2.20.0 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2395[TCOMP-2395^]: Upgrade meecrowave to 1.2.15 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2396[TCOMP-2396^]: Upgrade lombok to 1.18.26 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2397[TCOMP-2397^]: Upgrade junit5 to 5.9.2 link:search.html?query=testing[testing^,role='dockey']
 
 
 
