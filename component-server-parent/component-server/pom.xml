@@ -379,7 +379,6 @@
       <plugin>
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
-        <version>${meecrowave.version}</version>
         <configuration>
           <cdiConversation>false</cdiConversation>
           <watcherBouncing>-1</watcherBouncing>
