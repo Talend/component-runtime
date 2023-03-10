@@ -80,7 +80,7 @@
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.components",
-                        "value": "8"
+                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
@@ -313,6 +313,12 @@
                         "value": "200"
                       },
                       {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
+                      },
+                      {
                         "comparison": "DoesNotExist",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].icon.customIcon",
@@ -372,6 +378,12 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
                         "comparison": "Exists",
@@ -435,6 +447,12 @@
                         "value": "200"
                       },
                       {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
+                      },
+                      {
                         "comparison": "DoesNotExist",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].icon.customIcon",
@@ -494,6 +512,12 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
@@ -1307,7 +1331,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependencies"
                     },
-                    "description": "Call using a wrong id  \nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2194",
+                    "description": "Call using a wrong id",
                     "id": "9c180cc6-111c-4778-a198-2e9f2045afef",
                     "name": "component/dependencies - wrong identifier - error 500",
                     "headers": [],
@@ -1445,13 +1469,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "170000"
+                        "value": "175600"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "180000"
+                        "value": "175650"
                       },
                       {
                         "comparison": "Equals",
@@ -1599,7 +1623,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependency/net.java.dev.jna%3Ajna%3A5.6.0"
                     },
-                    "description": "Call using a maven coordinate as id   \nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2195 corrected on demo connector",
+                    "description": "Call using a maven coordinate as id",
                     "id": "31ec4e89-8bd5-4e3f-9756-f06b9bf80ed9",
                     "name": "component/dependency - maven coordinat",
                     "headers": [],
@@ -2084,19 +2108,19 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "1800"
+                        "value": "930"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "2000"
+                        "value": "940"
                       },
                       {
                         "comparison": "LengthEqual",
                         "subject": "ResponseJsonBody",
                         "path": "$.nodes",
-                        "value": "6"
+                        "value": "3"
                       }
                     ]
                   }
@@ -2224,13 +2248,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "30000"
+                        "value": "25260"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "40000"
+                        "value": "25270"
                       }
                     ]
                   }
@@ -2297,13 +2321,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "1000"
+                        "value": "930"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "2000"
+                        "value": "940"
                       }
                     ]
                   }
@@ -2370,13 +2394,13 @@
                         "comparison": "Greater",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "30000"
+                        "value": "25260"
                       },
                       {
                         "comparison": "Less",
                         "subject": "ResponseBody",
                         "path": "length",
-                        "value": "40000"
+                        "value": "25270"
                       }
                     ]
                   }
@@ -2801,7 +2825,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/configurationtype/details"
                     },
-                    "description": "The default call, with a one identifiers parameter using the \"identifiers\" as a table.  \nOpened ticket: https://jira.talendforge.org/browse/TCOMP-2197  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                    "description": "The default call, with a one identifiers parameter using the \"identifiers\" as a table.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
                     "id": "f36f79a7-348d-4b67-976f-82746757eb47",
                     "name": "configurationtype/details - identifiers (two) bis",
                     "headers": [
@@ -2969,12 +2993,6 @@
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "Client ID"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "Blobs path"
                       }
                     ]
                   }
@@ -3320,12 +3338,6 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.source",
                         "value": "== AdlsGen2Input\\n\\nMapper for Azure Data Lake Storage Gen2\\n\\n//configuration_start\\n\\n=== Configuration\\n\\n[cols=\\\"d,d,m,a,e,d\\\",options=\\\"header\\\"]\\n|===\\n|Display Name|Description|Default Value|Enabled If|Configuration Path|Configuration Type\\n|configuration|ADLS input configuration|-|Always enabled|configuration|-\\n||Dataset|-|Always enabled|configuration.dataSet|dataset\\n|Configuration Avro|Avro Configuration|-|`format` is equal to `AVRO_ENABLED`|configuration.dataSet.avroConfiguration|dataset\\n|Chemin des blobs|Path to Blob Object|-|Always enabled|configuration.dataSet.blobPath|dataset\\n|Connexion|ADLS Gen2 Connection|-|Always enabled|configuration.dataSet.connection|datastore\\n|Nom du compte|Storage Account Name|-|Always enabled|configuration.dataSet.connection.accountName|datastore\\n|Méthode d''authentification|Authentication method|-|Always enabled|configuration.dataSet.connection.authMethod|datastore\\n|ID du client|ID of Azure active directory authentication application|-|`authMethod` is equal to `ActiveDirectory`|configuration.dataSet.connection.clientId|datastore\\n|Secret du client|Secret key for provided auth application|-|`authMethod` is equal to `ActiveDirectory`|configuration.dataSet.connection.clientSecret|datastore\\n|Suffixe de l''endpoint|Endpoint suffix|dfs.core.windows.net|Always enabled|configuration.dataSet.connection.endpointSuffix|datastore\\n|Jeton SAS *|Shared Access Signature|-|`authMethod` is equal to `SAS`|configuration.dataSet.connection.sas|datastore\\n|Clé partagée *|Storage Shared Key|-|`authMethod` is equal to `SharedKey`|configuration.dataSet.connection.sharedKey|datastore\\n|ID du tenant|ID of Azure active directory (tenant)|-|`authMethod` is equal to `ActiveDirectory`|configuration.dataSet.connection.tenantId|datastore\\n|Délai avant expiration|Timeout|600|Always enabled|configuration.dataSet.connection.timeout|datastore\\n|Configuration CSV|Basic CSV configuration and CSV Schema|-|`format` is equal to `CSV`|configuration.dataSet.csvConfiguration|dataset\\n||Basic CSV Format options|-|Always enabled|configuration.dataSet.csvConfiguration.csvFormatOptions|dataset\\n|Encodage personnalisé|Your custom file encoding format|-|`encoding` is equal to `OTHER`|configuration.dataSet.csvConfiguration.csvFormatOptions.customEncoding|dataset\\n|Séparateur de champs personnalisé|Your custom field delimiter|-|`fieldDelimiter` is equal to `OTHER`|configuration.dataSet.csvConfiguration.csvFormatOptions.customFieldDelimiter|dataset\\n|Séparateur d''enregistrements personnalisé|Your custom record delimiter|-|`recordDelimiter` is equal to `OTHER`|configuration.dataSet.csvConfiguration.csvFormatOptions.customRecordDelimiter|dataset\\n|Encodage|Encoding|UTF8|Always enabled|configuration.dataSet.csvConfiguration.csvFormatOptions.encoding|dataset\\n|Caractère d''échappement|Escape character|-|Always enabled|configuration.dataSet.csvConfiguration.csvFormatOptions.escapeCharacter|dataset\\n|Séparateur de champs|Symbol(s) used to separate fields|SEMICOLON|Always enabled|configuration.dataSet.csvConfiguration.csvFormatOptions.fieldDelimiter|dataset\\n|En-tête|Header size|1|`useHeader` is equal to `true`|configuration.dataSet.csvConfiguration.csvFormatOptions.header|dataset\\n|Séparateur d''enregistrements|Symbol(s) used to separate records|CRLF|Always enabled|configuration.dataSet.csvConfiguration.csvFormatOptions.recordDelimiter|dataset\\n|Caractère d''entourage du texte|Text enclosure character|-|Always enabled|configuration.dataSet.csvConfiguration.csvFormatOptions.textEnclosureCharacter|dataset\\n|Utiliser un en-tête|Set header size|false|Always enabled|configuration.dataSet.csvConfiguration.csvFormatOptions.useHeader|dataset\\n|Schéma CSV|Schema|-|Always enabled|configuration.dataSet.csvConfiguration.csvSchema|dataset\\n|Configuration du delta|Delta Configuration|-|`format` is equal to `DELTA_ENABLED`|configuration.dataSet.deltaConfiguration|dataset\\n|Système de fichiers|FileSystem|-|Always enabled|configuration.dataSet.filesystem|dataset\\n|Format|Format of Blob content|CSV|Always enabled|configuration.dataSet.format|dataset\\n|Configuration JSON|JSON Configuration|-|`format` is equal to `JSON_ENABLED`|configuration.dataSet.jsonConfiguration|dataset\\n|Configuration Parquet|Parquet Configuration|-|`format` is equal to `PARQUET_ENABLED`|configuration.dataSet.parquetConfiguration|dataset\\n|===\\n\\n//configuration_end\""
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "Chemin des blobs"
                       }
                     ]
                   }
@@ -3631,6 +3643,12 @@
                         "value": "200"
                       },
                       {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
+                      },
+                      {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].displayName",
@@ -3690,6 +3708,12 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
@@ -3753,6 +3777,12 @@
                         "value": "200"
                       },
                       {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
+                      },
+                      {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].displayName",
@@ -3814,6 +3844,12 @@
                         "value": "200"
                       },
                       {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
+                      },
+                      {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[0].displayName",
@@ -3873,6 +3909,12 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
@@ -3942,6 +3984,13 @@
                         "enabled": true,
                         "path": "code",
                         "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "enabled": true,
+                        "path": "$.components",
+                        "value": "5"
                       },
                       {
                         "comparison": "Contains",
