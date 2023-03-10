@@ -32,7 +32,7 @@
      - TCK API automatic testing.</description>
 
   <properties>
-    <talend.build.name>${talend.build.name.base}.sample</talend.build.name>
+    <talend.build.name>${talend.build.name.base}.sample-connector</talend.build.name>
   </properties>
 
   <dependencies>
