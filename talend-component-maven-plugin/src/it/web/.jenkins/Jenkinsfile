@@ -149,10 +149,10 @@ pipeline {
         ///////////////////////////////////////////
         // asdf install
         ///////////////////////////////////////////
-        //script {
-        //  println "asdf install the content of repository .tool-versions'\n"
-        //  sh 'bash .jenkins/scripts/asdf_install.sh'
-        //}
+        script {
+          println "asdf install the content of repository .tool-versions'\n"
+          sh 'bash .jenkins/scripts/asdf_install.sh'
+        }
         ///////////////////////////////////////////
         // Validate parameters
         ///////////////////////////////////////////
@@ -271,7 +271,7 @@ pipeline {
                                                    ${tenantInstance}\
                                                    ${componentRuntimeApiTenantId_Rd} \
                                                    ${apiTesterEnv}\
-                                                   ${fileToRun}.json"
+                                                   ${fileToRun}.json
             """.stripIndent()
         }
       }
