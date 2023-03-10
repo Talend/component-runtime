@@ -1,10 +1,40 @@
 
 
+== Version 1.55.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2372[TCOMP-2372^]: rename QueryParam language to lang link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2369[TCOMP-2369^]: Make DateTime option configurable link:search.html?query=api[api^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2392[TCOMP-2392^]: Upgrade maven plugins to 3.8.7 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2393[TCOMP-2393^]: Upgrade bndlib to 5.3.0 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2394[TCOMP-2394^]: Upgrade log4j2 to 2.20.0 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2395[TCOMP-2395^]: Upgrade meecrowave to 1.2.15 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2396[TCOMP-2396^]: Upgrade lombok to 1.18.26 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2397[TCOMP-2397^]: Upgrade junit5 to 5.9.2 link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2398[TCOMP-2398^]: Upgrade httpclient to 4.5.14 link:search.html?query=bom[bom^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2399[TCOMP-2399^]: Upgrade woodstox to 6.5.0 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2400[TCOMP-2400^]: Upgrade ziplock to 8.0.14 link:search.html?query=testing[testing^,role='dockey']
+
+
+
+== Version 1.54.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2369[TCOMP-2369^]: Make DateTime option configurable link:search.html?query=api[api^,role='dockey']
+
 == Version 1.54.0
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2370[TCOMP-2370^]: [RunConv] Prep output: the "operation key" field in additional parameters had an empty list instead of the list of table columns. link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -13,6 +43,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2348[TCOMP-2348^]: Upgrade tomcat to 9.0.69 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2349[TCOMP-2349^]: Upgrade netty to 4.1.87.Final link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2366[TCOMP-2366^]: Replace JAVA_OPTS by JDK_JAVA_OPTIONS link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2371[TCOMP-2371^]: [TCK JDBC]: Studio dynamic column metadata info : isKey should follow runtime dynamic object, not the input component's studio schema link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
@@ -21,6 +52,7 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2370[TCOMP-2370^]: [RunConv] Prep output: the "operation key" field in additional parameters had an empty list instead of the list of table columns. link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -52,11 +84,16 @@
 
 
 
+
+
+
+
 == Version 1.52.2
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2370[TCOMP-2370^]: [RunConv] Prep output: the "operation key" field in additional parameters had an empty list instead of the list of table columns. link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -108,11 +145,16 @@
 
 
 
+
+
+
+
 == Version 1.51.4
 
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2365[TCOMP-2365^]: Add missing add-opens needed by some connectors to component-server link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2370[TCOMP-2370^]: [RunConv] Prep output: the "operation key" field in additional parameters had an empty list instead of the list of table columns. link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -1439,6 +1481,12 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.15
 
 === Bug
@@ -1471,12 +1519,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 

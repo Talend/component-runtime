@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.54.0-SNAPSHOT</version>
+  <version>1.55.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -166,16 +166,16 @@
     <xerces.version>2.12.2</xerces.version>
 
     <junit.version>4.13.2</junit.version>
-    <ziplock.version>8.0.4</ziplock.version>
+    <ziplock.version>8.0.14</ziplock.version>
 
     <!-- do not update without updating test-->
-    <ziplock.test.version>7.0.5</ziplock.test.version>
-    <meecrowave.version>1.2.14</meecrowave.version>
+    <ziplock.test.version>8.0.14</ziplock.test.version>
+    <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
     <tomcat.version>9.0.69</tomcat.version>
     <cxf.version>3.5.5</cxf.version>
 
-    <woodstox.version>6.4.0</woodstox.version>
+    <woodstox.version>6.5.0</woodstox.version>
 
     <logback.version>1.2.5</logback.version>
     <reload4j.version>1.2.19</reload4j.version>
@@ -202,7 +202,7 @@
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-opentracing.version>1.0.2</geronimo-opentracing.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
-    <junit5.version>5.9.1</junit5.version>
+    <junit5.version>5.9.2</junit5.version>
     <mockito4.version>4.8.1</mockito4.version>
     <hamcrest.version>1.3</hamcrest.version>
     <jackson.version>2.13.4</jackson.version>
@@ -216,7 +216,7 @@
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <mvn.version>3.8.6</mvn.version>
+    <mvn.version>3.8.7</mvn.version>
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
@@ -249,8 +249,8 @@
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
     <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
     <spotless.version>2.17.3</spotless.version>
-    <jib.version>3.3.0</jib.version>
-    <jib-core.version>0.22.0</jib-core.version>
+    <jib.version>3.3.1</jib.version>
+    <jib-core.version>0.23.0</jib-core.version>
 
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v16.14.0</node.version>
@@ -259,7 +259,7 @@
 
     <!-- misc dependencies -->
     <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
-    <bndlib.version>5.1.0</bndlib.version>
+    <bndlib.version>5.3.0</bndlib.version>
     <ant.version>1.10.12</ant.version>
     <jcommander.version>1.82</jcommander.version>
     <snakeyaml.version>1.33</snakeyaml.version>
@@ -268,7 +268,7 @@
     <gson.version>2.9.1</gson.version>
     <ivy.version>2.5.1</ivy.version>
     <aws-java-sdk-s3.version>1.12.285</aws-java-sdk-s3.version>
-    <testng.version>7.4.0</testng.version>
+    <testng.version>7.7.1</testng.version>
 
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
@@ -282,7 +282,7 @@
     <commons-io.version>2.9.0</commons-io.version>
     <commons-compress.version>1.21</commons-compress.version>
     <slf4j.version>1.7.34</slf4j.version>
-    <log4j2.version>2.18.0</log4j2.version>
+    <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
   </properties>
 
@@ -831,7 +831,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.20</version>
+      <version>1.18.26</version>
       <scope>provided</scope>
     </dependency>
 
@@ -1216,6 +1216,11 @@
           <groupId>org.apache.maven</groupId>
           <artifactId>maven-compat</artifactId>
           <version>${mvn.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.google.cloud.tools</groupId>
+          <artifactId>jib-maven-plugin</artifactId>
+          <version>${jib.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>

@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.54.0-SNAPSHOT</version>
+  <version>1.55.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
@@ -79,7 +79,7 @@
 
     <slf4j.version>1.7.34</slf4j.version>
     <johnzon.version>1.2.19</johnzon.version>
-    <log4j2.version>2.18.0</log4j2.version>
+    <log4j2.version>2.20.0</log4j2.version>
 
     <commons-codec.version>1.15</commons-codec.version>
     <commons-compress.version>1.21</commons-compress.version>
@@ -100,7 +100,7 @@
       <dependency><!-- upgrade for jib (to not get CVE) -->
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.5.13</version>
+        <version>4.5.14</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>

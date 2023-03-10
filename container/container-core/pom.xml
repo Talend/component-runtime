@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>container</artifactId>
-    <version>1.54.0-SNAPSHOT</version>
+    <version>1.55.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>container-core</artifactId>
@@ -74,20 +74,20 @@
                 <artifactItem>
                   <groupId>org.codehaus.woodstox</groupId>
                   <artifactId>stax2-api</artifactId>
-                  <version>4.1</version>
+                  <version>4.2.1</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/test-container-dependencies/org/codehaus/woodstox/stax2-api/4.1</outputDirectory>
-                  <destFileName>stax2-api-4.1.jar</destFileName>
+                  <outputDirectory>${project.build.directory}/test-container-dependencies/org/codehaus/woodstox/stax2-api/4.2.1</outputDirectory>
+                  <destFileName>stax2-api-4.2.1.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.fasterxml.woodstox</groupId>
                   <artifactId>woodstox-core</artifactId>
-                  <version>5.1.0</version>
+                  <version>6.5.0</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/test-container-dependencies/com/fasterxml/woodstox/woodstox-core/5.1.0</outputDirectory>
-                  <destFileName>woodstox-core-5.1.0.jar</destFileName>
+                  <outputDirectory>${project.build.directory}/test-container-dependencies/com/fasterxml/woodstox/woodstox-core/6.5.0</outputDirectory>
+                  <destFileName>woodstox-core-6.5.0.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>

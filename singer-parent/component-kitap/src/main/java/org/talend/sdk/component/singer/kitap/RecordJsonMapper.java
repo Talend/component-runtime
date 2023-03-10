@@ -19,9 +19,11 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -130,8 +132,9 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
         }
 
         @Override
-        public void onDatetime(final Schema.Entry entry, final Optional<ZonedDateTime> dateTime) {
-            dateTime.ifPresent(v -> builder.add(entry.getName(), singer.formatDate(v)));
+        public void onDatetime(final Schema.Entry entry, final Optional<Date> dateTime) {
+            dateTime.ifPresent(v -> builder.add(entry.getName(),
+                    singer.formatDate(ZonedDateTime.ofInstant(v.toInstant(), ZoneId.of("UTC")))));
         }
 
         @Override
