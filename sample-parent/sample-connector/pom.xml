@@ -25,7 +25,7 @@
 
   <artifactId>sample-connector</artifactId>
 
-  <name>Component Runtime :: Sample Parent :: Sample connectors</name>
+  <name>Component Runtime :: Sample Parent :: Sample connector</name>
   <description>Sample connectors for test.
     This connector plugin include several connectors used for learning process and automation testing.
     Examples of automation testing projects:
