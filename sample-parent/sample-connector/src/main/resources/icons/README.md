@@ -1,7 +1,5 @@
-Downloaded from
-https://icons8.com/icon/set/plants/material
-Or created with 
-https://uxwing.com/svg-icon-editor/
+Created with 
+https://uxwing.com/svg-icon-editor/ - [LICENSE](https://uxwing.com/license/) (Attribution and Credit is NOT required)
 
 Need to be svg or png with:
  - 32x32

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.54.0-SNAPSHOT</version>
+    <version>1.55.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-manager</artifactId>
@@ -142,11 +142,11 @@
                 <artifactItem>
                   <groupId>org.apache.tomee</groupId>
                   <artifactId>arquillian-tomee-codi-tests</artifactId>
-                  <version>${ziplock.test.version}</version>
+                  <version>8.0.9</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/${ziplock.test.version}</outputDirectory>
-                  <destFileName>arquillian-tomee-codi-tests-${ziplock.test.version}.jar</destFileName>
+                  <outputDirectory>${project.build.directory}/test-dependencies/org/apache/tomee/arquillian-tomee-codi-tests/8.0.9</outputDirectory>
+                  <destFileName>arquillian-tomee-codi-tests-8.0.9.jar</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>

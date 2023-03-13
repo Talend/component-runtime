@@ -16,7 +16,6 @@
 package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -52,7 +51,15 @@ class ParameterModelServiceTest {
 
         final ParameterMeta date = params.iterator().next();
         assertEquals(ParameterMeta.Type.STRING, date.getType());
-        assertEquals(singletonMap("tcomp::ui::datetime", "zoneddatetime"), date.getMetadata());
+        assertEquals(new HashMap() {
+
+            {
+                put("tcomp::ui::datetime", "zoneddatetime");
+                put("tcomp::ui::datetime::dateFormat", "YYYY/MM/DD");
+                put("tcomp::ui::datetime::useSeconds", "true");
+                put("tcomp::ui::datetime::useUTC", "true");
+            }
+        }, date.getMetadata());
     }
 
     @Test

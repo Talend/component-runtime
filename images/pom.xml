@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.54.0-SNAPSHOT</version>
+    <version>1.55.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>images</artifactId>
@@ -35,38 +35,32 @@
 
   <properties>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
-    <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
-    <!-- -->
-    <talend.server.image.registry/>
-    <baseImageDir>/opt/talend</baseImageDir>
-    <!-- ensure to use an image lib with glic -->
-    <baseImage>tacokit/java8:8u212</baseImage>
-    <!-- TSBI -->
-    <docker.registryHost>artifactory.datapwn.com</docker.registryHost>
-    <docker.tsbiPath>/tlnd-docker-prod/talend/common/tsbi</docker.tsbiPath>
-    <docker.tsbiVersionRelease>3.0.8</docker.tsbiVersionRelease>
-    <docker.tsbiVersionDate>20220928070500</docker.tsbiVersionDate>
-    <docker.tsbiVersion>${docker.tsbiVersionRelease}-${docker.tsbiVersionDate}</docker.tsbiVersion>
-    <disable.dockerBuild>false</disable.dockerBuild>
-    <disable.tsbiLayerspector>false</disable.tsbiLayerspector>
+    <!-- tsbi -->
+    <docker.tsbi.version.release>3.1.9</docker.tsbi.version.release>
+    <docker.tsbi.version.date>20230228074507</docker.tsbi.version.date>
+    <docker.tsbi.registry.host>artifactory.datapwn.com</docker.tsbi.registry.host>
+    <docker.tsbi.registry.path>/tlnd-docker-prod/talend/common/tsbi/</docker.tsbi.registry.path>
+    <docker.tsbi.image.base.name>java17-base</docker.tsbi.image.base.name>
+    <docker.tsbi.version>${docker.tsbi.version.release}-${docker.tsbi.version.date}</docker.tsbi.version>
+    <docker.tsbi.image.base>${docker.tsbi.registry.host}${docker.tsbi.registry.path}${docker.tsbi.image.base.name}:${docker.tsbi.version}</docker.tsbi.image.base>
+    <!-- talend docker image -->
+    <docker.talend.app.name>!!!Change me in sub-module!!!</docker.talend.app.name>
+    <docker.talend.app.product>!!!Change me in sub-module!!!</docker.talend.app.product>
+    <docker.talend.app.description>!!!Change me in sub-module!!!</docker.talend.app.description>
+    <docker.talend.dir.base>/opt/talend/</docker.talend.dir.base>
+    <docker.talend.dir.app>${docker.talend.dir.base}${docker.talend.app.product}/</docker.talend.dir.app>
+    <docker.talend.registry.host>${docker.tsbi.registry.host}</docker.talend.registry.host>
+    <docker.talend.registry.path>/tlnd-docker-dev/talend/common/tacokit/</docker.talend.registry.path>
+    <docker.talend.image.tag>${project.version}</docker.talend.image.tag>
+    <docker.talend.image.base>${docker.tsbi.registry.host}${docker.talend.registry.path}${docker.talend.app.name}:${docker.talend.image.tag}</docker.talend.image.base>
+    <!-- jib -->
+    <docker.image.from>${docker.tsbi.image.base}</docker.image.from>
+    <docker.image.to>${docker.talend.image.base}</docker.image.to>
+    <docker.image.port>80</docker.image.port>
+    <docker.image.extra.files>${project.build.outputDirectory}/docker/additional</docker.image.extra.files>
   </properties>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>com.google.cloud.tools</groupId>
-          <artifactId>jib-maven-plugin</artifactId>
-          <version>${jib.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>com.spotify</groupId>
-          <artifactId>dockerfile-maven-plugin</artifactId>
-          <version>${dockerfile-maven-plugin.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -82,95 +76,50 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <!--
+        mvn clean install jib:build@build [-Dtalend.server.image.registry=...] -> will be pushed
+        mvn clean install jib:dockerBuild@build -> local docker image
+        -->
+        <executions>
+          <execution>
+            <id>build</id>
+            <phase>none</phase>
+            <configuration>
+              <from>
+                <image>${docker.image.from}</image>
+              </from>
+              <to>
+                <image>${docker.image.to}</image>
+              </to>
+              <container>
+                <appRoot>${docker.talend.dir.app}</appRoot>
+                <workingDirectory>${docker.talend.dir.app}</workingDirectory>
+                <environment>
+                  <LANG>en_US.UTF-8</LANG>
+                  <TALEND_APP_HOME>${docker.talend.dir.app}</TALEND_APP_HOME>
+                </environment>
+                <labels>
+                  <com.talend.application>${docker.talend.app.name}</com.talend.application>
+                  <com.talend.name>${docker.talend.app.description}</com.talend.name>
+                  <com.talend.description>${docker.talend.app.description}</com.talend.description>
+                  <com.talend.service>${docker.talend.app.name}</com.talend.service>
+                  <com.talend.version>${project.version}</com.talend.version>
+                  <com.talend.build-date>${maven.build.timestamp}</com.talend.build-date>
+                  <com.talend.git.commits>${git.commit.id}</com.talend.git.commits>
+                  <com.talend.git.repositories>${project.scm.url}</com.talend.git.repositories>
+                  <com.talend.vendor>Talend</com.talend.vendor>
+                  <com.talend.maintainer>Talend &lt;support@talend.com&gt;</com.talend.maintainer>
+                  <com.talend.url>https://www.talend.com</com.talend.url>
+                </labels>
+              </container>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>dev-tsbi</id>
-      <build>
-        <plugins>
-          <!-- layerspector to generate TSBI layers -->
-          <!-- Local mode: use "mvn -P dev-tsbi ..." command line -->
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>${exec-maven-plugin.version}</version>
-            <configuration>
-              <executable>docker</executable>
-              <arguments>
-                <argument>run</argument>
-                <argument>--rm</argument>
-                <argument>-v</argument>
-                <argument>${PWD}:/product</argument>
-                <argument>-v</argument>
-                <argument>${HOME}/.m2/settings.xml:/root/.m2/settings.xml</argument>
-                <argument>-v</argument>
-                <argument>${HOME}/.m2/repository:/root/.m2/repository</argument>
-                <argument>-v</argument>
-                <argument>/tmp/layerspector/logs:/opt/talend/logs</argument>
-                <argument>${docker.registryHost}${docker.tsbiPath}/tools/layerspector:${docker.tsbiVersionRelease}-java-${docker.tsbiVersionDate}</argument>
-                <argument>-t</argument>
-                <argument>maven</argument>
-                <argument>-f</argument>
-                <argument>java</argument>
-                <argument>-p</argument>
-                <argument>${tsbi.product}</argument>
-                <argument>-s</argument>
-                <argument>${tsbi.service}</argument>
-                <argument>--single-project</argument>
-              </arguments>
-              <skip>${disable.tsbiLayerspector}</skip>
-            </configuration>
-            <executions>
-              <execution>
-                <id>layerspector-local</id>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <phase>verify</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>ci-tsbi</id>
-      <build>
-        <plugins>
-          <!-- layerspector in CI mode to generate TSBI layers -->
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>${exec-maven-plugin.version}</version>
-            <configuration>
-              <executable>/opt/talend/scripts/prepare_layers.sh</executable>
-              <arguments>
-                <argument>-t</argument>
-                <argument>maven</argument>
-                <argument>-f</argument>
-                <argument>java</argument>
-                <argument>-p</argument>
-                <argument>${tsbi.product}</argument>
-                <argument>-s</argument>
-                <argument>${tsbi.service}</argument>
-                <argument>--single-project</argument>
-              </arguments>
-              <skip>${disable.tsbiLayerspector}</skip>
-            </configuration>
-            <executions>
-              <execution>
-                <id>layerspector-ci</id>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <phase>verify</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

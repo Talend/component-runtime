@@ -17,22 +17,13 @@
 
 set -xe
 
+# This script allow to package the current project with maven on specific jenkins provided settings.xml
+# You can provide extra parameters to tune maven
+# $1: extra_mvn_parameters
 main() {
-  # force creation of gnupg folder by listing private keys and export it
-  gpg -k
-  export GPG_DIR="${HOME}/.gnupg"
-  # work folders
-  mkdir -p .build .build_source
-  # decrypt keys
-  openssl enc -aes256 -d -v \
-          -iv  "$KEY_USER" \
-          -K   "$KEY_PASS" \
-          -in  .travis/encrypted.tar.gz.enc \
-          -out .build_source/encrypted.tar.gz
-  tar xvzf .build_source/encrypted.tar.gz -C .build
-  cp  -v  .build/gpg/travis.* "$GPG_DIR/"
-  # import key
-  gpg --import --no-tty --batch --yes "$GPG_DIR/travis.priv.bin"
+  _EXTRA_MVN_PARAMETERS=("$@")
+  
+  mvn package --batch-mode --settings .jenkins/settings.xml ${_EXTRA_MVN_PARAMETERS[*]}
 }
 
 main "$@"
