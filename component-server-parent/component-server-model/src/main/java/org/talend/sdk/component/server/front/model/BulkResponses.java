@@ -39,5 +39,7 @@ public class BulkResponses {
         private Map<String, List<String>> headers;
 
         private byte[] response;
+
+        private String responseString;
     }
 }
