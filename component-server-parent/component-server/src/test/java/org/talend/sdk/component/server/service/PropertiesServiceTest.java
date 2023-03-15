@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +66,7 @@ class PropertiesServiceTest {
     }
 
     private static void multipleParams(@Option("aa") final String first, @Option("b") final BoolWrapper config,
-            @Option("a") final String last) {
+                                       @Option("a") final String last) {
         // no-op
     }
 
@@ -119,7 +119,7 @@ class PropertiesServiceTest {
     }
 
     private List<SimplePropertyDefinition> getProperties(final String locale) {
-        final String[] i18nPackages = { Config.class.getPackage().getName() };
+        final String[] i18nPackages = {Config.class.getPackage().getName()};
 
         final ParameterMeta host = new ParameterMeta(null, Config.class, ParameterMeta.Type.STRING,
                 "configuration.host", "host", i18nPackages, emptyList(), null, emptyMap(), false);
@@ -162,7 +162,8 @@ class PropertiesServiceTest {
         assertEquals("User Name FR", props.get(4).getDisplayName());
     }
 
-    @Test // the class BaseConfig don't contains attribute
+    @Test
+        // the class BaseConfig don't contains attribute
     void validateProp() {
         assertThrows(IllegalArgumentException.class, () -> {
             ParameterMeta attribute = new ParameterMeta(null, BadConfig.class, ParameterMeta.Type.STRING,
@@ -177,7 +178,8 @@ class PropertiesServiceTest {
         });
     }
 
-    @Test // the class BaseConfig don't contains attribute
+    @Test
+        // the class BaseConfig don't contains attribute
     void validateConfigNode() {
         final JsonBuilderFactory factory = Json.createBuilderFactory(emptyMap());
         final List<String> uniques = Arrays.asList("one", "two", "three");
@@ -192,6 +194,7 @@ class PropertiesServiceTest {
         String usernameError = "- Property 'configuration.connection.username' is required.";
         String minError = "- Property 'configuration.limit' should be > 100, got 99.";
         String maxError = "- Property 'configuration.limit' should be < 150, got 200.";
+        String ValueEvalError = "- Invalid value for Property 'configuration.connection.valueEval' expected: '[VALUE_1, VALUE_2, VALUE_3]', got null.";
 
         connection = base
                 .path("configurationtype/details")
@@ -203,13 +206,6 @@ class PropertiesServiceTest {
 
         JsonObject payload;
 
-        payload = factory.createObjectBuilder()
-                .add("configuration", factory.createObjectBuilder()
-                        .add("connection", factory.createObjectBuilder()
-                                .add("checkbox1", JsonValue.TRUE)
-                                .add("valueEval", JsonValue.NULL).build())
-                        .build()).build();
-        checkErrors(payload, Arrays.asList(connectionError, url1Required, usernameError));
         /**
          * min/max
          **/
@@ -301,7 +297,7 @@ class PropertiesServiceTest {
                                 .build())
                         .add("limit", 100))
                 .build();
-        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required));
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required, ValueEvalError));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
@@ -317,7 +313,7 @@ class PropertiesServiceTest {
                         .add("limit", 100))
                 .build();
 
-        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required, usernameError));
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required, usernameError, ValueEvalError));
 
         /*
          * password : @ActiveIf(target = "username", evaluationStrategy = ActiveIf.EvaluationStrategy.CONTAINS, value = "undx")
@@ -353,33 +349,36 @@ class PropertiesServiceTest {
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
                                 .add("checkbox1", JsonValue.TRUE)
                                 .add("valueEval", JsonValue.NULL).build())
                         .build()).build();
-        checkErrors(payload, Arrays.asList(connectionError, url1Required, usernameError));
+        checkErrors(payload, Arrays.asList(connectionError, url1Required, ValueEvalError));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
                                 .add("checkbox1", JsonValue.FALSE)
                                 .add("valueEval", JsonValue.NULL).build())
                         .build()).build();
-        checkErrors(payload, Arrays.asList(connectionError, url1Error));
+        checkErrors(payload, Arrays.asList(connectionError, url1Required));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
                                 .add("checkbox1", JsonValue.TRUE)
                                 .add("valueEval", "VALUE_2").build())
                         .build()).build();
-        checkErrors(payload, Arrays.asList(connectionError, url1Error));
+        checkErrors(payload, Arrays.asList(connectionError, url1Required));
     }
 
     private void checkErrors(JsonObject payload, List<String> expected) {
         try {
             propertiesService.validate(connection, payload);
-            if (expected != null && expected.size() >0) {
-                fail("There should be errors: "+expected);
+            if (expected != null && expected.size() > 0) {
+                fail("There should be errors: " + expected);
             }
         } catch (Exception errors) {
             StringBuffer expectedBuffer = new StringBuffer();
