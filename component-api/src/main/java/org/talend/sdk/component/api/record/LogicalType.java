@@ -15,24 +15,14 @@
  */
 package org.talend.sdk.component.api.record;
 
-public interface SchemaProperty {
+public enum LogicalType {
 
-    String LOGICAL_TYPE = "field.logical.type";
+    DATE,
 
-    String ORIGIN_TYPE = "field.origin.type";
+    TIME,
 
-    String SIZE = "field.size";
+    TIMESTAMP,
 
-    String SCALE = "field.scale";
-
-    String PATTERN = "field.pattern";
-
-    String STUDIO_TYPE = "talend.studio.type";
-
-    String IS_KEY = "field.key";
-
-    String IS_FOREIGN_KEY = "field.foreign.key";
-
-    String IS_UNIQUE = "field.unique";
+    UUID
 
 }
