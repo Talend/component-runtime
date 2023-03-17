@@ -22,20 +22,13 @@
  */
 
 /**
- * Pod configuration
- */
-// TODO move to custom builder
-final String _TSBI_IMAGE = 'jdk11-svc-springboot-builder'
-final String _TSBI_VERSION = '2.9.18-2.4-20220104141654'
-
-/**
  * Job configuration
  */
 // Local folder location
 final String _SERVER_PORT="8081"
 final String _INSTALL_DIR="webtester"
 final String _COVERAGE_DIR="coverage"
-final String _DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration
+final String _DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration, if you edit it, change it in the pod file
 final String _SERVER_DIR="${_INSTALL_DIR}/component-server-distribution"
 // Local artifact definition
 final String _ARTIFACT_TEST_RESULTS="**/src/it/web/test/target/**/*"
@@ -44,37 +37,6 @@ final String _ARTIFACT_LOGS_COMPONENT_SERVER="**/${_SERVER_DIR}/logs/component-s
 final String _ARTIFACT_LOGS_MEECROWAVE="**/${_SERVER_DIR}/logs/meecrowave*"
 final String _ARTIFACT_SETENV="**/${_SERVER_DIR}/bin/setenv.sh"
 final String _ARTIFACT_REGISTRY="**/${_SERVER_DIR}/conf/components-registry.properties"
-
-final String _POD_CONFIGURATION = """
-  apiVersion: v1
-  kind: Pod
-  spec:
-    containers:
-      - name: '${_TSBI_IMAGE}'
-        image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/${_TSBI_IMAGE}:${_TSBI_VERSION}'
-        command: [ cat ]
-        tty: true
-        volumeMounts: [
-          { name: docker, mountPath: /var/run/docker.sock },
-          { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
-          { name: efs-jenkins-component-runtime-download, mountPath: ${_DOWNLOAD_DIR}},
-          { name: dockercache, mountPath: /root/.dockercache }
-        ]
-        resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
-    volumes:
-      - name: docker
-        hostPath: { path: /var/run/docker.sock }
-      - name: dockercache
-        hostPath: { path: /tmp/jenkins/tdi/docker }
-      - name: efs-jenkins-component-runtime-m2
-        persistentVolumeClaim:
-          claimName: efs-jenkins-component-runtime-m2
-      - name: efs-jenkins-component-runtime-download
-        persistentVolumeClaim:
-          claimName: efs-jenkins-component-runtime-download
-    imagePullSecrets:
-      - name: talend-registry
-"""
 
 /**
  * Credentials
@@ -111,8 +73,8 @@ pipeline {
    */
   agent {
     kubernetes {
-      yaml _POD_CONFIGURATION
-      defaultContainer _TSBI_IMAGE
+      yamlFile 'talend-component-maven-plugin/src/it/web/.jenkins/jenkins_pod_api_test.yml'
+      defaultContainer 'main'
     }
   }
   /**
