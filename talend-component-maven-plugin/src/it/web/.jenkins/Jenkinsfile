@@ -233,37 +233,44 @@ pipeline {
         }
       }
     }
-    stage('Prepare Test') {
+    stage('Prepare component-runtime server') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
-            // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
             sh """
-              "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" \
-                                                         "${_INSTALL_DIR}" \
-                                                         "${_COVERAGE_DIR}" \
-                                                         "${runtimeVersion}" \
-                                                         '1.41.0' \
-                                                         '/root/.m2/repository' \
-                                                         "${_SERVER_PORT}"
-
-              "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" \
-                                                          "${_COVERAGE_DIR}" \
-                                                          "${_SERVER_PORT}"
-            """
+              bash "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" \
+                                                              "${_INSTALL_DIR}" \
+                                                              "${_COVERAGE_DIR}" \
+                                                              "${runtimeVersion}" \
+                                                              '1.41.0' \
+                                                              '/root/.m2/repository' \
+                                                              "${_SERVER_PORT}"
+              """.stripIndent()
           }
         }
       }
       post {
         always {
-          println "Artifact SETENV: ${_ARTIFACT_SETENV}\\n"
+          println "Artifact SETENV: ${_ARTIFACT_SETENV}\n"
           archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
-          println "Artifact REGISTRY: ${_ARTIFACT_REGISTRY}\\n"
+          println "Artifact REGISTRY: ${_ARTIFACT_REGISTRY}\n"
           archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
         }
       }
     }
-
+    stage('Start component-runtime server') {
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
+            sh """
+              bash "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" \
+                                                               "${_COVERAGE_DIR}" \
+                                                               "${_SERVER_PORT}"
+            """.stripIndent()
+          }
+        }
+      }
+    }
     stage('Execute Test') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
