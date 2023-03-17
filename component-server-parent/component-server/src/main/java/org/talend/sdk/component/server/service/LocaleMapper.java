@@ -57,7 +57,12 @@ public class LocaleMapper {
 
     // intended to limit and normalize the locales to avoid a tons when used with caching
     public Locale mapLocale(final String requested) {
-        return new Locale(getLanguage(requested));
+        final String lc = getLanguage(requested);
+        final String lang = lc.substring(0, 2);
+        final String lcreg[] = lc.split("_");
+        final String region = lcreg.length == 2 ? lcreg[1] : "";
+
+        return new Locale(lang, region);
     }
 
     private String getLanguage(final String requested) {
