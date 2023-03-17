@@ -19,7 +19,7 @@ set -xe
 
 function usage(){
   printf 'Configure the environment to start a local server\n'
-  printf 'Usage : %s <download_dir> <install_dir> <coverage_dir> <tck_version> <connector_version> [server_port]\n' "${0}"
+  printf 'Usage : %s <download_dir> <install_dir> <coverage_dir> <tck_version> <connector_version> [server_port] [java_debug]\n' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
@@ -34,6 +34,7 @@ function usage(){
 [ -z ${5+x} ] && usage 'Parameter "connectors_version" is needed.'
 [ -z ${6+x} ] && usage 'Parameter "local_m2_dir" is needed.'
 [ -z ${7+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
+[ -z ${7+x} ] && printf 'Parameter "java_debug" not given use default value: off\n'
 
 _DOWNLOAD_DIR=${1}
 _INSTALL_DIR=${2}
@@ -42,6 +43,7 @@ _TCK_VERSION=${4}
 _CONNECTOR_VERSION=${5}
 _LOCAL_M2_DIR=${6}
 _SERVER_PORT=${7:-"8080"}
+_JAVA_DEBUG=${8:-''}
 
 # Check command possibilities
 which wget || { usage 'wget is not present'; }
@@ -233,11 +235,6 @@ function download_all {
 
 function create_setenv_script {
   printf '# Create the setenv.sh script: %s\n' "${_SETENV_PATH}"
-
-  # For debug you can use:
-  # export JAVA_OPTS=\"-agentlib:jdwp=server=y,transport=dt_socket,suspend=y,address=*:5005 \${JAVA_OPTS}\"
-  #
-
   {
     echo "export JAVA_HOME=\"${JAVA_HOME}\""
     echo "export ENDORSED_PROP=\"ignored.endorsed.dir\""
@@ -252,6 +249,14 @@ function create_setenv_script {
     # It has to be edited to add more languages
     # echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.locale.mapping=en*=en\\nfr*=fr\\nzh*=zh_CN\\nja*=ja\\nde*=de\\nuk*=uk \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
   } >> "${_SETENV_PATH}"
+
+  if [[ ${_JAVA_DEBUG} ]]; then
+    printf '\n\n\n\n\n\n\n\nJava debug activated\n on port 5005\n\n\n\n\n\n\n\n\n'
+    {
+      echo "export MEECROWAVE_OPTS=\"-agentlib:jdwp=server=y,transport=dt_socket,suspend=y,address=*:5005 \${MEECROWAVE_OPTS}\""
+    } >> "${_SETENV_PATH}"
+  fi
+
   chmod +x "${_SETENV_PATH}"
 }
 

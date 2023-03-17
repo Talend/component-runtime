@@ -45,7 +45,7 @@ final String _ARTIFACT_REGISTRY="**/${_SERVER_DIR}/conf/components-registry.prop
 final def _NEXUS_CREDENTIALS = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
-    passwordVariable: 'NEXUS_PASSWORD')
+    passwordVariable: 'NEXUS_PASS')
 
 final def _TENANT_ID_RD = string(
     credentialsId: 'component-runtime-api-tenant-id-rd',
@@ -314,14 +314,13 @@ pipeline {
         withCredentials([_NEXUS_CREDENTIALS]) {
           sh """
             printf "======== Stop server\n"
-            ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
+            bash ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
 
             printf "======== Generate jacoco report \n"
-            ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
+            bash ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
 
             printf "======== Generate Html reports\n"
-            mvn surefire-report:report-only --file ${_TESTS_PATH}
-            mvn site --define generateReports=false --file ${_TESTS_PATH}
+            bash ${_SCRIPTS_PATH}/jacoco-html.sh ${_TESTS_PATH} ${MAVEN_SETTINGS}
           """
         archiveJenkinsLog()
         }

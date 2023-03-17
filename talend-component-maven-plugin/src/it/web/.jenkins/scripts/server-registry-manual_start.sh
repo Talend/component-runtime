@@ -23,6 +23,9 @@ function usage(){
   exit 1
 }
 
+# To debug the component server java app on port 5005, you can uncomment the following line
+# _JAVA_DEBUG="YES"
+
 # Parameters:
 _USER_PATH=~
 _LOCAL_SERVER_TEST_PATH=${1:-"/tmp"}
@@ -56,7 +59,8 @@ printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
                                           "${_COVERAGE_DIR}" \
                                           "${_RUNTIME_VERSION}" \
                                           "${_CONNECTORS_VERSION}" \
-                                          "${_USER_PATH}/.m2/repository"\
-                                          "${_SERVER_PORT}"
+                                          "${_USER_PATH}/.m2/repository" \
+                                          "${_SERVER_PORT}" \
+                                          "${_JAVA_DEBUG}"
 
 "${_SCRIPT_PATH}"/server-registry-start.sh "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"

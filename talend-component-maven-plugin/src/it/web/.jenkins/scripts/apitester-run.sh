@@ -57,7 +57,7 @@ function test_run {
                  --define accountId="${_ACCOUNT_ID}" \
                  --define selectedEnvironment="${_ENVIRONMENT}" \
                  --define stopOnFailure=false \
-                 --define file="${_FILE_TO_RUN}.json"
+                 --define file="${_FILE_TO_RUN}"
 }
 
 main "$@"

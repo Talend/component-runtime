@@ -48,7 +48,7 @@ _MEECROWAVE_LOG_PATH="${_DISTRIBUTION_DIR}/logs/meecrowave.out"
 
 main() (
   printf '##############################################\n'
-  printf 'Start web tester\n'
+  printf 'Start tcomp web server\n'
   printf '##############################################\n'
 
   jacoco_instrument

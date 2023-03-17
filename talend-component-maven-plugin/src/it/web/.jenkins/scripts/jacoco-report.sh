@@ -32,6 +32,7 @@ function usage(){
 _INSTALL_DIR=${1}
 _COVERAGE_DIR=${2}
 
+
 # Constants
 _DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"
 _JACOCO_EXEC_PATH="${_DISTRIBUTION_DIR}/jacoco.exec"

@@ -49,6 +49,7 @@ main() (
 
   ${_MAVEN_FAST_INSTALL_CMD} \
   --file "${_POM_FILE_PATH}" \
+  --settings .jenkins/settings.xml \
   --projects \!documentation \
   --projects \!reporting \
   --projects \!sample-parent \
