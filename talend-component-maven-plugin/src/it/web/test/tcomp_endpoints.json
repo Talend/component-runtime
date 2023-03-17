@@ -6015,6 +6015,73 @@
                           {
                             "enabled": true,
                             "name": "language",
+                            "value": "en_US"
+                          },
+                          {
+                            "name": "includeIconContent",
+                            "value": "false"
+                          },
+                          {
+                            "name": "name",
+                            "value": "input"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/index"
+                    },
+                    "description": "Test the English request with region  ",
+                    "id": "10b17eb6-2486-45a3-9130-59d598c92f7e",
+                    "name": "component/index - en_US",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].displayName",
+                        "value": "-en"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].familyDisplayName",
+                        "value": "-en"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "language",
                             "value": "fr"
                           },
                           {
@@ -6037,6 +6104,80 @@
                     "description": "Test the French request",
                     "id": "8520d0b1-a670-47f0-8f9d-5aac8f025d3b",
                     "name": "component/index - fr",
+                    "headers": [],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "enabled": true,
+                        "path": "$.components[7].displayName",
+                        "value": "-fr"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].familyDisplayName",
+                        "value": "-fr"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].metadata.documentation::value",
+                        "value": "-fr"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "language",
+                            "value": "fr_CA"
+                          },
+                          {
+                            "name": "includeIconContent",
+                            "value": "false"
+                          },
+                          {
+                            "name": "name",
+                            "value": "input"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/index"
+                    },
+                    "description": "Test the French request with region",
+                    "id": "6e7a0675-34f6-4998-8c45-517c190ce783",
+                    "name": "component/index - fr_CA",
                     "headers": [],
                     "assertions": [
                       {
@@ -6173,7 +6314,6 @@
                             "value": "zh"
                           },
                           {
-                            "enabled": true,
                             "name": "includeIconContent",
                             "value": "false"
                           },
@@ -6190,9 +6330,9 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test the Chinese request   \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
+                    "description": "Test the Chinese request   ",
                     "id": "ca80e004-65d1-41d6-82f8-234ae0d33e60",
-                    "name": "component/index - zh*",
+                    "name": "component/index - zh",
                     "headers": [
                       {
                         "enabled": true,
@@ -6213,19 +6353,100 @@
                         "subject": "ResponseJsonBody",
                         "enabled": true,
                         "path": "$.components[7].displayName",
-                        "value": "-zh"
+                        "value": "-zh_CN"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[7].familyDisplayName",
-                        "value": "-zh"
+                        "value": "-zh_CN"
                       },
                       {
                         "comparison": "Contains",
                         "subject": "ResponseJsonBody",
                         "path": "$.components[7].metadata.documentation::value",
-                        "value": "-zh"
+                        "value": "-zh_CN"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "entity": {
+                    "type": "Request",
+                    "method": {
+                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                      "name": "GET"
+                    },
+                    "body": {
+                      "formBody": {
+                        "overrideContentType": true,
+                        "encoding": "application/x-www-form-urlencoded",
+                        "items": []
+                      },
+                      "bodyType": "Text"
+                    },
+                    "uri": {
+                      "query": {
+                        "delimiter": "&",
+                        "items": [
+                          {
+                            "enabled": true,
+                            "name": "language",
+                            "value": "zh_ZONE"
+                          },
+                          {
+                            "name": "includeIconContent",
+                            "value": "false"
+                          },
+                          {
+                            "name": "name",
+                            "value": "input"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "name": "http",
+                        "version": "V11"
+                      },
+                      "host": "${\"server-ip\"}:${\"server-port\"}",
+                      "path": "/api/v1/component/index"
+                    },
+                    "description": "Test the Chinese request with region  ",
+                    "id": "c24056ee-0bcc-4db2-98e4-33076662f6fe",
+                    "name": "component/index - zh_ZONE",
+                    "headers": [
+                      {
+                        "enabled": true,
+                        "name": "Accept-Charset",
+                        "value": "utf-8"
+                      }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "enabled": true,
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "enabled": true,
+                        "path": "$.components[7].displayName",
+                        "value": "-zh_CN"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].familyDisplayName",
+                        "value": "-zh_CN"
+                      },
+                      {
+                        "comparison": "Contains",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.components[7].metadata.documentation::value",
+                        "value": "-zh_CN"
                       }
                     ]
                   }
@@ -6548,7 +6769,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/details"
                     },
-                    "description": "Request for Chinese  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
+                    "description": "Request for Chinese  ",
                     "id": "9d0368bd-1466-445d-9797-b97eb13f2950",
                     "name": "component details - Chinese",
                     "headers": [],
@@ -6835,7 +7056,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/index"
                     },
-                    "description": "Test some Chinese characters  \nTODO: clarify the language support https://jira.talendforge.org/browse/TCOMP-2355  ",
+                    "description": "Test some Chinese characters  ",
                     "id": "cf19d56e-da8a-428a-90f4-036f29d705d0",
                     "name": "Chinese",
                     "headers": [
@@ -6858,7 +7079,7 @@
                         "subject": "ResponseJsonBody",
                         "enabled": true,
                         "path": "$.components[0].displayName",
-                        "value": "-zh +爱"
+                        "value": "-zh_CN +爱"
                       }
                     ]
                   }
