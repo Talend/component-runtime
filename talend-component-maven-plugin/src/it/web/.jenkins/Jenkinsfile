@@ -294,13 +294,13 @@ pipeline {
             """.stripIndent()
         }
       }
-    }
-    post {
-      always {
-        println "Artifact TEST_RESULTS: ${_ARTIFACT_TEST_RESULTS}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact COVERAGE: ${_ARTIFACT_COVERAGE}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
+      post {
+        always {
+          println "Artifact TEST_RESULTS: ${_ARTIFACT_TEST_RESULTS}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
+          println "Artifact COVERAGE: ${_ARTIFACT_COVERAGE}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
+        }
       }
     }
   }
