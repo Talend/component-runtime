@@ -290,18 +290,20 @@ pipeline {
     always {
 
       script {
-        sh """
-          printf "======== Stop server\n"
-          ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          sh """
+            printf "======== Stop server\n"
+            ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
 
-          printf "======== Generate jacoco report \n"
-          ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
+            printf "======== Generate jacoco report \n"
+            ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
 
-          printf "======== Generate Html reports\n"
-          mvn surefire-report:report-only --file ${_TESTS_PATH}
-          mvn site --define generateReports=false --file ${_TESTS_PATH}
-        """
+            printf "======== Generate Html reports\n"
+            mvn surefire-report:report-only --file ${_TESTS_PATH}
+            mvn site --define generateReports=false --file ${_TESTS_PATH}
+          """
         archiveJenkinsLog()
+        }
       }
 
       // recordIssues is a multi result file publisher allowing to have the same publish format on multiples analysis.
