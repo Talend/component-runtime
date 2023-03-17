@@ -3410,7 +3410,7 @@
                         "items": []
                       },
                       "bodyType": "Text",
-                      "textBody": "\n"
+                      "textBody": ""
                     },
                     "uri": {
                       "query": {
@@ -3459,7 +3459,7 @@
                         "items": []
                       },
                       "bodyType": "Text",
-                      "textBody": "\n"
+                      "textBody": ""
                     },
                     "uri": {
                       "query": {
