@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 function usage(){
   printf 'Configure the environment to start a local server\n'
@@ -112,8 +112,9 @@ function init {
   printf 'TCK server version : %s\n' "${_TCK_VERSION}"
   printf 'Connectors version : %s\n' "${_CONNECTOR_VERSION}"
 
-  printf 'Delete the install dir\n'
+  printf 'Delete existing dir if needed\n'
   rm --recursive --force "${_INSTALL_DIR}"
+  rm --recursive --force "${_COVERAGE_DIR}"
 
   printf 'Create needed directories:\n'
   mkdir --verbose --parents "${_INSTALL_DIR}"
