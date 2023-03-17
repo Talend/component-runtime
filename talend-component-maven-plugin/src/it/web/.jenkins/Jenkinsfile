@@ -221,14 +221,22 @@ pipeline {
         }
       }
     }
+    stage('Build component-runtime fast') {
+      when {
+        expression { runtimeVersion.contains('-SNAPSHOT') }
+      }
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
+            sh "bash ${_SCRIPTS_PATH}/tcomp-build-fast.sh ${_ROOT_PATH}/pom.xml"
+          }
+        }
+      }
+    }
     stage('Prepare Test') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
-            if (runtimeVersion.contains('-SNAPSHOT')) {
-              sh """ "${_SCRIPTS_PATH}/tcomp-build.sh" "${_ROOT_PATH}/pom.xml" """
-            }
-
             // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
             sh """
               "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" \
