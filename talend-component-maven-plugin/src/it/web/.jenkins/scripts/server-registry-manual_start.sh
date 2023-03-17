@@ -26,7 +26,7 @@ function usage(){
 # Parameters:
 _USER_PATH=~
 _LOCAL_SERVER_TEST_PATH=${1:-"/tmp"}
-_RUNTIME_VERSION=${2:-"1.55.0-SNAPSHOT"}
+_RUNTIME_VERSION=${2:-"1.56.0-SNAPSHOT"}
 _SERVER_PORT=${3:-"8081"}
 _CONNECTORS_VERSION=${4:-"1.41.0"}
 
