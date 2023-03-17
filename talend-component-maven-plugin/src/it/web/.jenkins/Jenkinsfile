@@ -283,25 +283,24 @@ pipeline {
     stage('Execute Test') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
-          sh """
-             printf "======== Execute test\n"
-             cd ${_TESTS_PATH}
-             mvn clean test --settings="${MAVEN_SETTINGS}" \
-                            --define instance="${tenantInstance}" \
-                            --define accountId="${componentRuntimeApiTenantId_Rd}" \
-                            --define selectedEnvironment="${apiTesterEnv}" \
-                            --define stopOnFailure=false \
-                            --define file="${fileToRun}.json"
-             """
+          sh """\
+            #!/usr/bin/env bash
+            bash ${_SCRIPTS_PATH}/apitester-run.sh ${_TESTS_PATH}\
+                                                   ${MAVEN_SETTINGS}\
+                                                   ${tenantInstance}\
+                                                   ${componentRuntimeApiTenantId_Rd} \
+                                                   ${apiTesterEnv}\
+                                                   ${fileToRun}.json
+            """.stripIndent()
         }
       }
-      post {
-        always {
-          println "Artifact TEST_RESULTS: ${_ARTIFACT_TEST_RESULTS}\\n"
-          archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
-          println "Artifact COVERAGE: ${_ARTIFACT_COVERAGE}\\n"
-          archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
-        }
+    }
+    post {
+      always {
+        println "Artifact TEST_RESULTS: ${_ARTIFACT_TEST_RESULTS}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
+        println "Artifact COVERAGE: ${_ARTIFACT_COVERAGE}\\n"
+        archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
       }
     }
   }
