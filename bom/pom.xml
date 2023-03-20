@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.55.1</version>
+  <version>1.55.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
@@ -57,7 +57,7 @@
   <scm>
     <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
     <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
-    <tag>component-runtime-1.55.1</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/talend/component-runtime</url>
   </scm>
   <distributionManagement>
