@@ -15,6 +15,8 @@
 #  limitations under the License.
 
 
+set -xe
+
 function usage(){
   printf 'Manual server stop, like ci would do.\n'
   printf 'For manual testing.\n'

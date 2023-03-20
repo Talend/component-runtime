@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 function usage(){
   printf 'Quick tcomp build without any test and facultative modules (documentation...)\n'
