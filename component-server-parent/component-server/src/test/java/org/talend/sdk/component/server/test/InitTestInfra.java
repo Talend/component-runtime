@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         //
         System.setProperty("talend.component.server.plugins.reloading.active", "true");
         System.setProperty("talend.component.server.plugins.reloading.interval", "5");
+        System.setProperty("talend.component.server.plugins.reloading.method", "connectors");
         System
                 .setProperty("talend.component.server.plugins.reloading.marker",
                         "target/InitTestInfra/.m2/repository/CONNECTORS_VERSION");
@@ -220,7 +221,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             });
         }
 
-        final File ziplock = new File(m2, "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar");
+        final File ziplock = new File(m2, "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar");
         ziplock.getParentFile().mkdirs();
         try (final InputStream from = new FileInputStream(jarLocation(IO.class));
                 final OutputStream to = new FileOutputStream(ziplock)) {
@@ -328,7 +329,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out.closeEntry();
 
                     out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
-                    out.write("org.apache.tomee:ziplock:jar:7.0.5:runtime".getBytes(StandardCharsets.UTF_8));
+                    out.write("org.apache.tomee:ziplock:jar:8.0.14:runtime".getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
 
                     /*

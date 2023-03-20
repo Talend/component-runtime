@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -34,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
 class DiRecordVisitorTest extends VisitorsTest {
@@ -68,6 +72,11 @@ class DiRecordVisitorTest extends VisitorsTest {
                 .withString("date1", ZONED_DATE_TIME.toString())
                 .withDateTime("date2", ZONED_DATE_TIME)
                 .withLong("date3", ZONED_DATE_TIME.toInstant().toEpochMilli())
+                .withInstant(factory.newEntryBuilder()
+                        .withName("date4")
+                        .withType(Type.DATETIME)
+                        .withProp(STUDIO_TYPE, StudioTypes.DATE)
+                        .build(), INSTANT)
                 .withString(factory.newEntryBuilder()
                         .withName("bigDecimal0")
                         .withType(Type.STRING)
@@ -104,8 +113,18 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
                         .build(), String.valueOf(Character.MAX_VALUE))
+                .with(factory.newEntryBuilder()
+                        .withName("dynObject")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
+                        .build(), OBJECT)
 
                 .withRecord("object0", RECORD)
+                .with(factory.newEntryBuilder()
+                        .withName("object1")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
+                        .build(), OBJECT)
                 .withRecord("RECORD", RECORD)
                 .withArray(factory
                         .newEntryBuilder()
@@ -196,6 +215,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date1.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date2.toInstant());
         assertEquals(ZONED_DATE_TIME.toInstant(), rowStruct.date3.toInstant());
+        assertEquals(Timestamp.from(INSTANT), rowStruct.date4);
         assertEquals(BIGDEC.doubleValue(), rowStruct.bigDecimal0.doubleValue());
 
         assertEquals(BIGDEC, rowStruct.bigDecimal0);
@@ -206,6 +226,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertArrayEquals(BYTES0, rowStruct.bytes0);
         assertArrayEquals(BYTES1, rowStruct.bytes1);
         assertEquals(RECORD, rowStruct.object0);
+        assertEquals(OBJECT, rowStruct.object1);
         // asserts rowStruct::dynamic
         assertNotNull(rowStruct.dynamic);
         assertNotNull(rowStruct.dynamic.metadatas);
@@ -238,6 +259,11 @@ class DiRecordVisitorTest extends VisitorsTest {
         dynObject = rowStruct.dynamic.getColumnValue("dynChar");
         assertTrue(Character.class.isInstance(dynObject));
         assertEquals(Character.MAX_VALUE, dynObject);
+
+        dynObject = rowStruct.dynamic.getColumnValue("dynObject");
+        assertTrue(Object.class.isInstance(dynObject));
+        assertEquals(OBJECT, dynObject);
+
         //
         assertEquals(INTEGERS, rowStruct.array0);
         assertEquals(RECORD, rowStruct.dynamic.getColumnValue("RECORD"));

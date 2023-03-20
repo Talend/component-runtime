@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -19,44 +19,21 @@ set -xe
 
 # Parameters:
 # $1: docker tag version
-main() {
-  local tag="${1?Missing tag}"
-  local latest="${2:-false}"
+# $2: should tag as latest
 
-  echo ">> Building and pushing component-server:${tag}"
-  cd images/component-server-image
-  mvn verify dockerfile:build -P ci-tsbi
-  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server"
-  docker tag "talend/common/tacokit/component-server:${tag}" "${registry_srv}:${tag}"
-  docker push "${registry_srv}:${tag}"
+tag="${1?Missing tag}"
+latest="${2:-false}"
+
+dockerBuild() {
+  echo ">> Building and pushing $1:${tag}"
+  cd "images/${1}-image"
+  mvn package jib:build@build -Ddocker.talend.image.tag=${tag}
   if [[ ${latest} == 'true' ]]; then
-    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
-    docker push "${registry_srv}:latest"
+    mvn package jib:build@build -Ddocker.talend.image.tag=latest
   fi
-  
-  echo ">> Building and pushing component-starter-server:${tag}"
   cd ../..
-  cd images/component-starter-server-image
-  mvn verify dockerfile:build -P ci-tsbi
-  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-starter-server"
-  docker tag "talend/common/tacokit/component-starter-server:${tag}" "${registry_srv}:${tag}"
-  docker push "${registry_srv}:${tag}"
-  if [[ ${latest} == 'true' ]]; then
-    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
-    docker push "${registry_srv}:latest"
-  fi
-  
-  echo ">> Building and pushing remote-engine-customizer:${tag}"
-  cd ../..
-  cd images/remote-engine-customizer-image
-  mvn package jib:dockerBuild -Dimage.currentVersion=${tag}
-  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/remote-engine-customizer"
-  docker tag "tacokit/remote-engine-customizer:${tag}" "${registry_srv}:${tag}"
-  docker push "${registry_srv}:${tag}"
-  if [[ ${latest} == 'true' ]]; then
-    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
-    docker push "${registry_srv}:latest"
-  fi
 }
 
-main "$@"
+dockerBuild "component-server"
+dockerBuild "component-starter-server"
+dockerBuild "remote-engine-customizer"

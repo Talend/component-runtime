@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -217,7 +218,7 @@ public class RecordConverters implements Serializable {
         if (Boolean.class.isInstance(next) || JsonValue.TRUE.equals(next) || JsonValue.FALSE.equals(next)) {
             return factory.newSchemaBuilder(Schema.Type.BOOLEAN).build();
         }
-        if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next)) {
+        if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next) || Instant.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DATETIME).build();
         }
         if (BigDecimal.class.isInstance(next)) {
@@ -489,8 +490,11 @@ public class RecordConverters implements Serializable {
                     constructor.setAccessible(true);
                     recordVisitor = constructor.newInstance(rowStruct, metadata);
                     visitRecord = visitorClass.getDeclaredMethod("visit", Record.class);
-                } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
-                        | InvocationTargetException | NoSuchMethodException e) {
+                } catch (final NoClassDefFoundError | ClassNotFoundException | InstantiationException
+                        | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    if (e.getMessage().matches(".*routines.system.Dynamic.*")) {
+                        throw new IllegalStateException("TOS does not support dynamic type", e);
+                    }
                     throw new IllegalStateException(e);
                 }
             }
@@ -509,9 +513,12 @@ public class RecordConverters implements Serializable {
                     final Constructor<?> constructor = visitorClass.getConstructors()[0];
                     constructor.setAccessible(true);
                     rowStructVisitor = constructor.newInstance();
-                    visitRowStruct = visitorClass.getDeclaredMethod("get", Object.class, RecordBuilderFactory.class);
-                } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
-                        | InvocationTargetException | NoSuchMethodException e) {
+                    visitRowStruct = visitorClass.getMethod("get", Object.class, RecordBuilderFactory.class);
+                } catch (final NoClassDefFoundError | ClassNotFoundException | InstantiationException
+                        | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    if (e.getMessage().matches(".*routines.system.Dynamic.*")) {
+                        throw new IllegalStateException("TOS does not support dynamic type", e);
+                    }
                     throw new IllegalStateException(e);
                 }
             }

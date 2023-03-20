@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ public class ComponentServerConfiguration {
             + "`talend.component.server.plugins.reloading.marker` variable, otherwise we inspect the content of the "
             + "`CONNECTORS_VERSION` file. Accepted values: `timestamp`, anything else defaults to `connectors`.")
     @ConfigProperty(name = "talend.component.server.plugins.reloading.method", defaultValue = "timestamp")
-    private Boolean pluginsReloadMethod;
+    private String pluginsReloadMethod;
 
     @Inject
     @Documentation("Interval in seconds between each check if plugins re-loading is enabled.")

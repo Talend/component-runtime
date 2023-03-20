@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class ContainerTest {
 
     @Test
     void ensureContainerCanLoadSpecificClasses(
-            @ContainerProviderRule.Instance("org.apache.tomee:ziplock:jar:7.0.5:compile") final Container ziplock) {
+            @ContainerProviderRule.Instance("org.apache.tomee:ziplock:jar:8.0.14:compile") final Container ziplock) {
         ziplock.execute(() -> {
             final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
             assertNotSame(contextClassLoader, ContainerTest.class.getClassLoader());
@@ -74,7 +74,7 @@ public class ContainerTest {
 
     @Test
     void closedContainerCantBeUsed(
-            @ContainerProviderRule.Instance("org.apache.tomee:ziplock:jar:7.0.5:compile") final Container ziplock) {
+            @ContainerProviderRule.Instance("org.apache.tomee:ziplock:jar:8.0.14:compile") final Container ziplock) {
         assertThrows(IllegalStateException.class, () -> {
             ziplock.close();
             ziplock.execute(() -> null);

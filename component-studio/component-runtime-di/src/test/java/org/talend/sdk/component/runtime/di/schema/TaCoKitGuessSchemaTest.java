@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,13 +101,13 @@ class TaCoKitGuessSchemaTest {
                     version) {
 
                 @Override
-                public boolean guessSchemaThroughAction() {
+                public boolean guessSchemaThroughAction(final Schema schema) {
                     // stub to invoke: guessInputComponentSchemaThroughResult
                     return false;
                 }
 
             };
-            guessSchema.guessInputComponentSchema();
+            guessSchema.guessInputComponentSchema(null);
             guessSchema.close();
 
             Assertions.assertTrue(byteArrayOutputStream.size() > 0);
@@ -141,14 +141,15 @@ class TaCoKitGuessSchemaTest {
                     version) {
 
                 @Override
-                public boolean guessSchemaThroughAction() {
+                public boolean guessSchemaThroughAction(final Schema schema) {
                     // stub to invoke: guessInputComponentSchemaThroughResult
                     return false;
                 }
 
             };
             final IllegalStateException exception =
-                    Assertions.assertThrows(IllegalStateException.class, guessSchema::guessInputComponentSchema);
+                    Assertions.assertThrows(IllegalStateException.class,
+                            () -> guessSchema.guessInputComponentSchema(null));
             assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
         }
     }

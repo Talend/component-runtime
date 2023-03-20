@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,6 +40,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.SchemaProperty;
@@ -45,6 +51,8 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
+
+import javax.json.bind.annotation.JsonbTransient;
 
 class RecordBuilderImplTest {
 
@@ -75,7 +83,9 @@ class RecordBuilderImplTest {
                 .withNullable(true) //
                 .withType(Type.STRING) //
                 .build();//
-        assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
+
+        // now tck STRING accept any object as TCOMP-2292
+        // assertThrows(IllegalArgumentException.class, () -> builder.with(entry, 234L));
 
         builder.with(entry, "value");
         Assertions.assertEquals("value", builder.getValue("name"));
@@ -96,6 +106,10 @@ class RecordBuilderImplTest {
         Date date = new Date(next + TimeUnit.DAYS.toMillis(1));
         builder.with(entryTime, date);
         Assertions.assertEquals(date.toInstant().toEpochMilli(), builder.getValue("time"));
+
+        final Instant instant = Timestamp.valueOf("2021-04-19 13:37:07.752345").toInstant();
+        builder.with(entryTime, instant);
+        Assertions.assertEquals(instant, builder.getValue("time"));
     }
 
     @Test
@@ -236,6 +250,59 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void zonedDateTimeVSInstant() {
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("time")
+                        .withNullable(false)
+                        .withType(Type.DATETIME)
+                        .build())
+                .build();
+        // getInstant("x") with an initial record made withDateTime("x", zdt), and lose precision
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.withDateTime("time", ZonedDateTime.parse("2021-04-19T13:37:07.752345Z")).build();
+        assertNotNull(record.getDateTime("time"));
+        assertEquals(ZonedDateTime.parse("2021-04-19T13:37:07.752Z").toInstant(), record.getInstant("time"));
+
+        // getDateTime("x") with an initial record made withInstant("x", v), and keep precision
+        java.sql.Timestamp time = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345");
+        final RecordImpl.BuilderImpl builder3 = new RecordImpl.BuilderImpl(schema);
+        final Record record3 = builder3.withInstant("time", time.toInstant()).build();
+
+        assertNotNull(record3.getDateTime("time"));
+        assertEquals(ZonedDateTime.ofInstant(time.toInstant(), ZoneId.of("UTC")), record3.getDateTime("time"));
+
+    }
+
+    @Test
+    void timestampExceedMillisecond() {
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("time")
+                        .withNullable(false)
+                        .withType(Type.DATETIME)
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        java.sql.Timestamp time = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345");
+        final Record record = builder.withInstant("time", time.toInstant()).build();
+
+        assertEquals(time.toInstant(), record.get(Instant.class, "time"));
+        assertEquals(time.toInstant(), record.getInstant("time"));
+
+        int nano = time.toInstant().getNano();
+        long natime = time.toInstant().toEpochMilli();/// 1000 * 1000_000_000 +nano;
+        long ntime = time.toInstant().getEpochSecond();
+
+        Instant back1 = Instant.ofEpochSecond(ntime, nano);
+        Instant back2 = Instant.ofEpochSecond(natime, nano);
+        assertEquals(time.toInstant(), back1);
+
+    }
+
+    @Test
     void decimal() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
@@ -250,6 +317,50 @@ class RecordBuilderImplTest {
         assertEquals(new BigDecimal("123456789.123456789"), record.getDecimal("decimal"));
         assertEquals(new BigDecimal("123456789.123456789"), record.get(Object.class, "decimal"));
         assertEquals("123456789.123456789", record.getString("decimal"));
+    }
+
+    @AllArgsConstructor
+    static class NonSerObject {
+
+        // jsonb.tojson will miss this info as JsonbTransient
+        @JsonbTransient
+        private String content;
+
+        private boolean allowAccessSecretInfo;
+
+        private String secretInfo;
+
+        public String getContent() {
+            return content;
+        }
+
+        // jsonb.tojson default depend on get method, this not work
+        public String getSecretInfo() {
+            if (allowAccessSecretInfo) {
+                return secretInfo;
+            }
+            throw new RuntimeException("this is a secret info, don't allow access");
+        }
+
+    }
+
+    @Test
+    void object() {
+        // jsonb can't process it and also not java Serializable
+        NonSerObject value = new NonSerObject("the content", false, "secret info");
+
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("value")
+                        .withNullable(true)
+                        .withType(Type.STRING)
+                        .withProp(SchemaProperty.STUDIO_TYPE, "id_Object")
+                        .build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        final Record record = builder.with(schema.getEntry("value"), value).build();
+        assertTrue(value == record.get(Object.class, "value"));
     }
 
     @Test

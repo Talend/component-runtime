@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.record;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -59,6 +60,9 @@ public class MappingUtils {
             if (Date.class == expectedType) {
                 return new Date(Number.class.cast(value).longValue());
             }
+            if (Instant.class == expectedType) {
+                return Instant.ofEpochMilli(Number.class.cast(value).longValue());
+            }
         }
 
         // we store decimal by string for AvroRecord case
@@ -80,6 +84,28 @@ public class MappingUtils {
             if (String.class == expectedType) {
                 return String.valueOf(value);
             }
+            // TCOMP-2293 support Instant
+            if (Instant.class.isInstance(value)) {
+                if (ZonedDateTime.class == expectedType) {
+                    return ZonedDateTime.ofInstant((Instant) value, UTC);
+                } else if (java.util.Date.class == expectedType) {
+                    return java.sql.Timestamp.from((Instant) value);
+                }
+            }
+            if (Timestamp.class.isInstance(value)
+                    && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
+                return value;
+            }
+            if (value instanceof long[]) {
+                final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
+                if (ZonedDateTime.class == expectedType) {
+                    return ZonedDateTime.ofInstant(instant, UTC);
+                }
+                if (Instant.class == expectedType) {
+                    return instant;
+                }
+            }
+
             // TODO: maybe add a Date.class / ZonedDateTime.class mapping case. Should check that...
             // mainly for CSV incoming data where everything is mapped to String
             if (String.class.isInstance(value)) {

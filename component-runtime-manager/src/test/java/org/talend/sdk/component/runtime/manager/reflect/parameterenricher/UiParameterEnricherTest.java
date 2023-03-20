@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,8 +215,39 @@ class UiParameterEnricherTest {
     @ParameterizedTest
     @ValueSource(classes = { ZonedDateTime.class, LocalDateTime.class, LocalDate.class })
     void datetime(final Class<?> type) {
-        assertEquals(singletonMap("tcomp::ui::datetime", type.getSimpleName().replace("Local", "").toLowerCase(ROOT)),
+        final HashMap<String, String> datetime = new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::datetime", type.getSimpleName().replace("Local", "").toLowerCase(ROOT));
+                put("tcomp::ui::datetime::dateFormat", "YYYY-MM-DD");
+                put("tcomp::ui::datetime::useSeconds", "false");
+                put("tcomp::ui::datetime::useUTC", "false");
+            }
+        };
+        final HashMap<String, String> date = new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::datetime", type.getSimpleName().replace("Local", "").toLowerCase(ROOT));
+                put("tcomp::ui::datetime::dateFormat", "YYYY-MM-DD");
+            }
+        };
+        assertEquals(type == LocalDate.class ? date : datetime,
                 enricher.onParameterAnnotation("testParam", type, new DateTime() {
+
+                    @Override
+                    public String dateFormat() {
+                        return "YYYY-MM-DD";
+                    }
+
+                    @Override
+                    public boolean useSeconds() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean useUTC() {
+                        return false;
+                    }
 
                     @Override
                     public Class<? extends Annotation> annotationType() {
@@ -226,6 +257,21 @@ class UiParameterEnricherTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> enricher.onParameterAnnotation("testParam", String.class, new DateTime() {
+
+                    @Override
+                    public String dateFormat() {
+                        return "YYYY/MM/DD";
+                    }
+
+                    @Override
+                    public boolean useSeconds() {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean useUTC() {
+                        return true;
+                    }
 
                     @Override
                     public Class<? extends Annotation> annotationType() {

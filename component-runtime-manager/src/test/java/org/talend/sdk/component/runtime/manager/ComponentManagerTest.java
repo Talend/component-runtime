@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -226,10 +226,10 @@ class ComponentManagerTest {
 
         // just some jars with classes we can scan
         final File plugin1 = pluginGenerator
-                .createPlugin(pluginFolder, "plugin1.jar", "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+                .createPlugin(pluginFolder, "plugin1.jar", "org.apache.tomee:openejb-itests-beans:jar:8.0.14:runtime");
         final File plugin2 = pluginGenerator
                 .createPlugin(pluginFolder, "plugin2.jar",
-                        "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.5:runtime");
+                        "org.apache.tomee:arquillian-tomee-codi-tests:jar:8.0.9:runtime");
 
         // ensure jmx value is free and we don't get a test luck
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -272,7 +272,7 @@ class ComponentManagerTest {
                             }
                         },
                         // must be ignored, if needed it will be in main dependencies.txt
-                        "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+                        "org.apache.tomee:openejb-itests-beans:jar:8.0.14:runtime");
         final File plugin2 = pluginGenerator.createPlugin(pluginFolder, "main.jar", "org.talend.test:transitive:1.0.0");
 
         try (final ComponentManager manager = newManager()) {
@@ -315,7 +315,7 @@ class ComponentManagerTest {
             }
         },
                 // must be ignored, if needed it will be in main dependencies.txt
-                "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+                "org.apache.tomee:openejb-itests-beans:jar:8.0.14:runtime");
         final File plugin2 = pluginGenerator
                 .createPluginAt(new File(pluginFolder, "main.jar"),
                         jar -> pluginGenerator.createComponent("comp", jar, "org/test"),

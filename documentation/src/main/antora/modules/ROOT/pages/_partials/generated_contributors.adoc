@@ -2,13 +2,13 @@
 <jsonArray>[
   {
     "commits":2548,
-    "description":"Apache addict I'm involved in several project (OpenWebBeans, Johnzon, Geronimo, Meecrowave, ... - http://home.apache.org/committer-index.html#rmannibucau).\n\nBlog: https://rmannibucau.metawerx.net",
+    "description":"OSS addict I'm involved in several ASF projects (http://home.apache.org/committer-index.html#rmannibucau) and Yupiik (https://www.yupiik.io/projects.html).\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":649,
+    "commits":689,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -29,7 +29,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":74,
+    "commits":75,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
     "id":"clesaec",
@@ -50,7 +50,7 @@
     "name":"ypiel"
   },
   {
-    "commits":26,
+    "commits":27,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -64,7 +64,7 @@
     "name":"Chao MENG"
   },
   {
-    "commits":12,
+    "commits":17,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",
@@ -76,6 +76,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
     "id":"ozhelezniak-talend",
     "name":"Oleksandr Zhelezniak"
+  },
+  {
+    "commits":9,
+    "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
+    "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
+    "id":"coheigea",
+    "name":"Colm O hEigeartaigh"
   },
   {
     "commits":9,
@@ -93,17 +100,17 @@
   },
   {
     "commits":8,
-    "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
-    "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
-    "id":"coheigea",
-    "name":"Colm O hEigeartaigh"
-  },
-  {
-    "commits":8,
     "description":"QA Automation @ Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
     "name":"Axel CATOIRE"
+  },
+  {
+    "commits":8,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
+    "id":"fdesiles",
+    "name":"Fabien Désiles"
   },
   {
     "commits":6,
@@ -111,13 +118,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/39268?v=4",
     "id":"anicolas",
     "name":"Antoine Nicolas"
-  },
-  {
-    "commits":6,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
-    "id":"fdesiles",
-    "name":"Fabien Désiles"
   },
   {
     "commits":4,
@@ -216,6 +216,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/35097656?v=4",
     "id":"aleboulanger",
     "name":"Aurélien Leboulanger"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7733973?v=4",
+    "id":"jzhao-talend",
+    "name":"jzhao"
   },
   {
     "commits":1,

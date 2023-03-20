@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -42,6 +43,8 @@ import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
 import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
+
+import lombok.Data;
 
 public class UiParameterEnricher extends BaseParameterEnricher {
 
@@ -69,17 +72,31 @@ public class UiParameterEnricher extends BaseParameterEnricher {
             }
             if (DateTime.class == annotation.annotationType()) {
                 final String key = META_PREFIX + "datetime";
+                final DateTime dateTime = DateTime.class.cast(annotation);
+                final Map<String, String> dtmap = new HashMap<>();
                 if (parameterType == LocalTime.class) {
-                    return singletonMap(key, "time");
+                    dtmap.put(key, "time");
+                    dtmap.put(key + "::useSeconds", String.valueOf(dateTime.useSeconds()));
+                    return dtmap;
                 }
                 if (parameterType == LocalDate.class) {
-                    return singletonMap(key, "date");
+                    dtmap.put(key, "date");
+                    dtmap.put(key + "::dateFormat", String.valueOf(dateTime.dateFormat()));
+                    return dtmap;
                 }
                 if (parameterType == LocalDateTime.class) {
-                    return singletonMap(key, "datetime");
+                    dtmap.put(key, "datetime");
+                    dtmap.put(key + "::dateFormat", String.valueOf(dateTime.dateFormat()));
+                    dtmap.put(key + "::useSeconds", String.valueOf(dateTime.useSeconds()));
+                    dtmap.put(key + "::useUTC", String.valueOf(dateTime.useUTC()));
+                    return dtmap;
                 }
                 if (parameterType == ZonedDateTime.class || parameterType == Object.class /* unsafe */) {
-                    return singletonMap(key, "zoneddatetime");
+                    dtmap.put(key, "zoneddatetime");
+                    dtmap.put(key + "::dateFormat", String.valueOf(dateTime.dateFormat()));
+                    dtmap.put(key + "::useSeconds", String.valueOf(dateTime.useSeconds()));
+                    dtmap.put(key + "::useUTC", String.valueOf(dateTime.useUTC()));
+                    return dtmap;
                 }
                 throw new IllegalArgumentException(
                         "Unsupported type for @DateTime option: " + parameterType + " on " + parameterName);
@@ -172,11 +189,33 @@ public class UiParameterEnricher extends BaseParameterEnricher {
         }
     }
 
+    @Data
     private static class DateTimeAnnotation implements DateTime {
+
+        public String dateFormat = "YYYY/MM/DD";
+
+        boolean useSeconds = true;
+
+        boolean useUTC = true;
 
         @Override
         public Class<? extends Annotation> annotationType() {
             return DateTime.class;
+        }
+
+        @Override
+        public String dateFormat() {
+            return dateFormat;
+        }
+
+        @Override
+        public boolean useSeconds() {
+            return useSeconds;
+        }
+
+        @Override
+        public boolean useUTC() {
+            return useUTC;
         }
     }
 }
