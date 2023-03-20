@@ -19,7 +19,7 @@ set -xe
 
 function usage(){
   printf 'Configure the environment to start a local server\n'
-  printf 'Usage : %s <download_dir> <install_dir> <coverage_dir> <tck_version> <connector_version> [server_port] [java_debug]\n' "${0}"
+  printf 'Usage : %s <download_dir> <install_dir> <coverage_dir> <tck_version> <connectors_version> <local_m2_dir> [server_port] [java_debug]\n' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
@@ -34,7 +34,7 @@ function usage(){
 [ -z ${5+x} ] && usage 'Parameter "connectors_version" is needed.'
 [ -z ${6+x} ] && usage 'Parameter "local_m2_dir" is needed.'
 [ -z ${7+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
-[ -z ${7+x} ] && printf 'Parameter "java_debug" not given use default value: off\n'
+[ -z ${8+x} ] && printf 'Parameter "java_debug" not given use default value: off\n'
 
 _DOWNLOAD_DIR=${1}
 _INSTALL_DIR=${2}

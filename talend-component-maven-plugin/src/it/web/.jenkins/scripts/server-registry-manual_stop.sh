@@ -18,16 +18,18 @@
 function usage(){
   printf 'Manual server stop, like ci would do.\n'
   printf 'For manual testing.\n'
-  printf 'Usage : %s [install_dir] [runtime_version] [server_port] [connectors_version]\n' "${0}"
+  printf 'Usage : %s [server_dir]\n' "${0}"
   printf '\n'
   exit 1
 }
 
+[ -z ${1+x} ] && printf 'Parameter "server_dir" not given use the default value: "/tmp/test_tck_server"\n'
+
 # Parameters:
 _USER_PATH=~
-_LOCAL_SERVER_TEST_PATH=${1:-"/tmp"}
+_LOCAL_SERVER_TEST_PATH=${1:-"/tmp/test_tck_server"}
 
-_INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/test_tck_server/install"
+_INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/install"
 _SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
 
 printf '##############################################\n'

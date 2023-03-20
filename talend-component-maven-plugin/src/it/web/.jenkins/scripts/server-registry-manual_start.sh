@@ -18,7 +18,7 @@
 function usage(){
   printf 'Manual server starter, like ci would do.\n'
   printf 'For manual testing.\n'
-  printf 'Usage : %s [install_dir] [runtime_version] [server_port] [connectors_version]\n' "${0}"
+  printf 'Usage : %s [server_dir] [runtime_version] [server_port] [connectors_version]\n' "${0}"
   printf '\n'
   exit 1
 }
@@ -26,16 +26,21 @@ function usage(){
 # To debug the component server java app on port 5005, you can uncomment the following line
 # _JAVA_DEBUG="YES"
 
+[ -z ${1+x} ] && printf 'Parameter "server_dir" not given use the default value: "/tmp/test_tck_server"\n'
+[ -z ${2+x} ] && printf 'Parameter "runtime_version" not given use default value\n'
+[ -z ${3+x} ] && printf 'Parameter "server_port" not given use default value: 8081\n'
+[ -z ${4+x} ] && printf 'Parameter "connectors_version" not given use default value: off\n'
+
 # Parameters:
 _USER_PATH=~
-_LOCAL_SERVER_TEST_PATH=${1:-"/tmp"}
+_LOCAL_SERVER_TEST_PATH=${1:-"/tmp/test_tck_server"}
 _RUNTIME_VERSION=${2:-"1.56.0-SNAPSHOT"}
 _SERVER_PORT=${3:-"8081"}
 _CONNECTORS_VERSION=${4:-"1.41.0"}
 
-_DOWNLOAD_DIR="${_LOCAL_SERVER_TEST_PATH}/test_tck_server/download"
-_INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/test_tck_server/install"
-_COVERAGE_DIR="${_LOCAL_SERVER_TEST_PATH}/test_tck_server/coverage"
+_DOWNLOAD_DIR="${_LOCAL_SERVER_TEST_PATH}/download"
+_INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/install"
+_COVERAGE_DIR="${_LOCAL_SERVER_TEST_PATH}/coverage"
 
 _SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
 
