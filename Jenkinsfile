@@ -29,6 +29,8 @@ final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
+final String tsbiImage = "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk17-svc-builder:3.0.8-20220928070500"
+final String podLabel = "component-runtime-${UUID.randomUUID().toString()}".take(53)
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 
 // Files and folder definition
@@ -37,11 +39,43 @@ final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
 // Artifacts paths
 final String _ARTIFACT_COVERAGE = '**/jacoco-aggregate/**/*.*'
 
+// Pod definition
+final String podDefinition = """\
+    apiVersion: v1
+    kind: Pod
+    spec:
+      imagePullSecrets:
+        - name: talend-registry
+      containers:
+        - name: main
+          image: '${tsbiImage}'
+          command: [ cat ]
+          tty: true
+          volumeMounts: [
+            { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}
+          ]
+          resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+        - name: docker-daemon
+          image: artifactory.datapwn.com/docker-io-remote/docker:19.03.1-dind
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          securityContext:
+            privileged: true
+      volumes:
+        - name: efs-jenkins-component-runtime-m2
+          persistentVolumeClaim:
+            claimName: efs-jenkins-component-runtime-m2
+""".stripIndent()
+
 pipeline {
     agent {
         kubernetes {
-            yamlFile '.jenkins/jenkins_pod.yml'
-            defaultContainer 'main'
+            label podLabel
+            yaml podDefinition
         }
     }
 
@@ -60,6 +94,10 @@ pipeline {
         buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '15' : '10'))
         timeout(time: 180, unit: 'MINUTES')
         skipStagesAfterUnstable()
+    }
+
+    triggers {
+        cron(env.BRANCH_NAME == "master" ? "@daily" : "")
     }
 
     parameters {
@@ -88,64 +126,66 @@ pipeline {
     stages {
         stage('Preliminary steps') {
             steps {
-                script {
-                    withCredentials([gitCredentials]) {
-                        sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
-                    }
-                    withCredentials([dockerCredentials]) {
-                        sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
-                    }
-                    withCredentials([keyImportCredentials]) {
-                        sh """ bash .jenkins/scripts/setup_gpg.sh"""
-                    }
+                container('main') {
+                    script {
+                        withCredentials([gitCredentials]) {
+                            sh """
+                               bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
+                               """
+                        }
+                        withCredentials([dockerCredentials]) {
+                            sh """
+                               bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}"
+                               """
+                        }
+                        withCredentials([keyImportCredentials]) {
+                            sh """
+                               bash .jenkins/scripts/setup_gpg.sh
+                               """
+                        }
 
-                    def pom = readMavenPom file: 'pom.xml'
-                    env.PROJECT_VERSION = pom.version
-                    try {
-                        EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
-                    } catch (ignored) {
-                        EXTRA_BUILD_ARGS = ""
+                        def pom = readMavenPom file: 'pom.xml'
+                        env.PROJECT_VERSION = pom.version
+                        try {
+                            EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
+                        } catch (ignored) {
+                            EXTRA_BUILD_ARGS = ""
+                        }
                     }
-                }
-                ///////////////////////////////////////////
-                // Updating build displayName and description
-                ///////////////////////////////////////////
-                script {
-                    String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-                    if ( user_name == null) { user_name = "auto" }
+                    ///////////////////////////////////////////
+                    // Updating build displayName and description
+                    ///////////////////////////////////////////
+                    script {
+                        String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+                        if ( user_name == null) { user_name = "auto" }
 
-                    currentBuild.displayName = (
-                      "#$currentBuild.number-$params.Action: $user_name"
-                    )
+                        currentBuild.displayName = (
+                          "#$currentBuild.number-$params.Action: $user_name"
+                        )
 
-                    // updating build description
-                    currentBuild.description = ("""
-                       User: $user_name - $params.Action Build
-                       Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
-                       Extra args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
-                    )
-                }
-                ///////////////////////////////////////////
-                // asdf install
-                ///////////////////////////////////////////
-                script {
-                    println "asdf install the content of repository .tool-versions'\n"
-                    sh 'bash .jenkins/scripts/asdf_install.sh'
+                        // updating build description
+                        currentBuild.description = ("""
+                           User: $user_name - $params.Action Build
+                           Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
+                           Extra args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
+                        )
+                    }
                 }
             }
         }
         stage('Post login') {
             steps {
-                withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
-                    script {
-                        try {
-                            sh """\
-                                #!/usr/bin/env bash
-                                bash "${params.POST_LOGIN_SCRIPT}"
-                                bash .jenkins/scripts/npm_fix.sh
-                                """.stripIndent()
-                        } catch (ignored) {
-                            //
+                container('main') {
+                    withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+                        script {
+                            try {
+                                sh "${params.POST_LOGIN_SCRIPT}"
+                                sh """
+                                   bash .jenkins/scripts/npm_fix.sh
+                                   """
+                            } catch (ignored) {
+                                //
+                            }
                         }
                     }
                 }
@@ -154,11 +194,10 @@ pipeline {
         stage('Standard maven build') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
-                withCredentials([ossrhCredentials]) {
-                    sh """\
-                        #!/usr/bin/env bash
-                        mvn clean verify $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
-                        """.stripIndent()
+                container('main') {
+                    withCredentials([ossrhCredentials]) {
+                        sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                    }
                 }
             }
         }
@@ -170,11 +209,10 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([ossrhCredentials, gpgCredentials]) {
-                    sh """\
-                        #!/usr/bin/env bash
-                        bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
-                    """.stripIndent()
+                container('main') {
+                    withCredentials([ossrhCredentials, gpgCredentials]) {
+                        sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                    }
                 }
             }
         }
@@ -186,12 +224,13 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                        sh """\
-                            #!/usr/bin/env bash 
-                            bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
-                            """.stripIndent()
+                container('main') {
+                    script {
+                        configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                            sh """
+                               bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
+                               """
+                        }
                     }
                 }
             }
@@ -204,11 +243,10 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([ossrhCredentials, gitCredentials]) {
-                    sh """\
-                        #!/usr/bin/env bash 
-                        cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -
-                    """.stripIndent()
+                container('main') {
+                    withCredentials([ossrhCredentials, gitCredentials]) {
+                        sh "cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -"
+                    }
                 }
             }
         }
@@ -218,22 +256,20 @@ pipeline {
                 branch 'master'
             }
             steps {
-                withCredentials([ossrhCredentials]) {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        sh """\
-                            #!/usr/bin/env bash 
-                            mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
-                            mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
-                           """.stripIndent()
+                container('main') {
+                    withCredentials([ossrhCredentials]) {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            sh """
+                                mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
+                                mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
+                               """
+                        }
                     }
-                }
-                withCredentials([sonarCredentials]) {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
-                        sh """\
-                            #!/usr/bin/env bash 
-                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar
-                        """.stripIndent()
+                    withCredentials([sonarCredentials]) {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
+                            sh "_JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar"
+                        }
                     }
                 }
             }
@@ -286,13 +322,14 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
-                        configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                            sh """\
-                               #!/usr/bin/env bash
-                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
-                               """.stripIndent()
+                container('main') {
+                    script {
+                        withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+                            configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                                sh """
+                                   bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
+                                   """
+                            }
                         }
                     }
                 }
@@ -355,35 +392,37 @@ pipeline {
             }
         }
         always {
-            recordIssues(
-                enabledForFailure: true,
-                tools: [
-                    junitParser(
-                      id: 'unit-test',
-                      name: 'Unit Test',
-                      pattern: '**/target/surefire-reports/*.xml'
-                    ),
-                    taskScanner(
-                        id: 'disabled',
-                        name: '@Disabled',
-                        includePattern: '**/src/**/*.java',
-                        ignoreCase: true,
-                        normalTags: '@Disabled'
-                    ),
-                    taskScanner(
-                        id: 'todo',
-                        name: 'Todo(low)/Fixme(high)',
-                        includePattern: '**/src/**/*.java',
-                        ignoreCase: true,
-                        highTags: 'FIX_ME, FIXME',
-                        lowTags: 'TO_DO, TODO'
-                    )
-                ]
-            )
-            script {
-                println '====== Archive artifacts'
-                println "Artifact 1: ${_ARTIFACT_COVERAGE}"
-                archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: true, onlyIfSuccessful: false
+            container(tsbiImage) {
+                recordIssues(
+                    enabledForFailure: true,
+                    tools: [
+                        junitParser(
+                          id: 'unit-test',
+                          name: 'Unit Test',
+                          pattern: '**/target/surefire-reports/*.xml'
+                        ),
+                        taskScanner(
+                            id: 'disabled',
+                            name: '@Disabled',
+                            includePattern: '**/src/**/*.java',
+                            ignoreCase: true,
+                            normalTags: '@Disabled'
+                        ),
+                        taskScanner(
+                            id: 'todo',
+                            name: 'Todo(low)/Fixme(high)',
+                            includePattern: '**/src/**/*.java',
+                            ignoreCase: true,
+                            highTags: 'FIX_ME, FIXME',
+                            lowTags: 'TO_DO, TODO'
+                        )
+                    ]
+                )
+                script {
+                    println '====== Archive artifacts'
+                    println "Artifact 1: ${_ARTIFACT_COVERAGE}"
+                    archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: true, onlyIfSuccessful: false
+                }
             }
         }
     }
