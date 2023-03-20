@@ -96,13 +96,6 @@
               <failOnValidateExceptions>true</failOnValidateExceptions>
             </configuration>
           </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.talend.sdk.component</groupId>
-        <artifactId>talend-component-maven-plugin</artifactId>
-        <version>${project.version}</version>
-        <executions>
           <execution>
             <id>talend-component-documentation</id>
             <goals>
