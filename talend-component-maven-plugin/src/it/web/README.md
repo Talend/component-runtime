@@ -29,6 +29,10 @@ The execution with maven plugin is done in several steps as follows:
   - You run them with `mvn clean test` on the pom file.
   - The script will load needed components for actuals tests as configured in: `server-registry-init.sh`
 
+### Debugging server during test
+In `server-registry-manual_start.sh` you can uncomment `# _JAVA_DEBUG="YES"` to enable java remote debugging on port 5005
+# _JAVA_DEBUG="YES"
+
 sample:
 ```bash
 mvn clean install --file "sample-parent/sample-connector/pom.xml"
