@@ -407,9 +407,13 @@ public interface Record {
 
         Builder withTimestamp(Schema.Entry entry, long value);
 
-        Builder withInstant(String name, Instant value);
+        default Builder withInstant(String name, Instant value) {
+            throw new UnsupportedOperationException("#withInstant");
+        }
 
-        Builder withInstant(Schema.Entry entry, Instant value);
+        default Builder withInstant(Schema.Entry entry, Instant value) {
+            throw new UnsupportedOperationException("#withInstant");
+        }
 
         Builder withInt(String name, int value);
 
