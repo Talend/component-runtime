@@ -157,7 +157,7 @@ pipeline {
                 withCredentials([ossrhCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
-                        mvn clean verify $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
                         """.stripIndent()
                 }
             }
