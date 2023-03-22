@@ -156,6 +156,7 @@ pipeline {
                 withCredentials([ossrhCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
+                        set -xe
                         mvn clean install $BUILD_ARGS $extraBuildParams -s .jenkins/settings.xml
                         """.stripIndent()
                 }
@@ -172,6 +173,7 @@ pipeline {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
+                        set -xe
                         bash mvn deploy $DEPLOY_OPTS $extraBuildParams -s .jenkins/settings.xml
                     """.stripIndent()
                 }
@@ -206,6 +208,7 @@ pipeline {
                 withCredentials([ossrhCredentials, gitCredentials]) {
                     sh """\
                         #!/usr/bin/env bash 
+                        set -xe
                         cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $extraBuildParams -s ../.jenkins/settings.xml && cd -
                     """.stripIndent()
                 }
@@ -221,6 +224,7 @@ pipeline {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         sh """\
                             #!/usr/bin/env bash 
+                            set -xe
                             mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
                             mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
                            """.stripIndent()
@@ -231,6 +235,7 @@ pipeline {
                         // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
                         sh """\
                             #!/usr/bin/env bash 
+                            set -xe
                             _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar
                         """.stripIndent()
                     }
