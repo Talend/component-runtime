@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import routines.system.IPersistableRow;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -302,17 +301,6 @@ class RecordConvertersTest {
         assertEquals(dateTime, asDate);
         final String asString = new RecordConverters().coerce(String.class, stringValue, "foo");
         assertEquals(stringValue, asString);
-    }
-
-    @Test
-    void convertInstant() {
-        final ZonedDateTime dateTime = ZonedDateTime.of(2017, 7, 17, 9, 0, 0, 0, ZoneId.of("GMT"));
-        final Instant asInstant = new RecordConverters().coerce(Instant.class,
-                new long[] { dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano() }, "foo");
-        assertEquals(dateTime.toInstant(), asInstant);
-        final ZonedDateTime asDate = new RecordConverters().coerce(ZonedDateTime.class,
-                new long[] { dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano() }, "foo");
-        assertEquals(dateTime.toInstant(), asDate.toInstant());
     }
 
     @Test

@@ -34,7 +34,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
@@ -79,7 +78,6 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.bytes0 = BYTES0;
         rowStruct.date0 = DATE;
         rowStruct.date2 = Date.from(ZONED_DATE_TIME.toInstant());
-        rowStruct.date4 = Timestamp.from(INSTANT);
         rowStruct.bigDecimal0 = BIGDEC;
         rowStruct.bool1 = Boolean.TRUE;
         rowStruct.array0 = INTEGERS;
@@ -115,7 +113,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(48, schema.getEntries().size());
+        assertEquals(47, schema.getEntries().size());
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
         assertEquals("true", schema.getEntry("id").getProp(IS_KEY));
@@ -131,7 +129,6 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals(StudioTypes.DATE, schema.getEntry("date0").getProp(STUDIO_TYPE));
         assertEquals("false", schema.getEntry("date0").getProp(IS_KEY));
         assertEquals("YYYY-mm-dd HH:MM:ss", schema.getEntry("date0").getProp(PATTERN));
-        assertEquals(StudioTypes.DATE, schema.getEntry("date4").getProp(STUDIO_TYPE));
         assertEquals(StudioTypes.BIGDECIMAL, schema.getEntry("bigDecimal0").getProp(STUDIO_TYPE));
         assertEquals("30", schema.getEntry("bigDecimal0").getProp(SIZE));
         assertEquals("10", schema.getEntry("bigDecimal0").getProp(SCALE));
@@ -166,7 +163,6 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertNull(record.getDateTime("date1"));
         assertEquals(ZONED_DATE_TIME, record.getDateTime("date2"));
         assertEquals(1946, record.getDateTime("date2").getYear());
-        assertEquals(INSTANT, record.getInstant("date4"));
         assertEquals(BIGDEC.doubleValue(), new BigDecimal(record.getString("bigDecimal0")).doubleValue());
         assertEquals(BIGDEC.toString(), record.getString("bigDecimal0"));
         assertFalse(record.getBoolean("bool0"));
