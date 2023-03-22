@@ -28,7 +28,7 @@ final String slackChannel = 'components-ci'
 final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
-final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
+final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 
 // Files and folder definition
@@ -101,11 +101,9 @@ pipeline {
 
                     def pom = readMavenPom file: 'pom.xml'
                     env.PROJECT_VERSION = pom.version
-                    try {
-                        EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
-                    } catch (ignored) {
-                        EXTRA_BUILD_ARGS = ""
-                    }
+
+                    extraBuildParams = extraBuildParams_assembly(isStdBranch)
+
                 }
                 ///////////////////////////////////////////
                 // Updating build displayName and description
@@ -122,7 +120,8 @@ pipeline {
                     currentBuild.description = ("""
                        User: $user_name - $params.Action Build
                        Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
-                       Extra args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
+                       Debug: $params.DEBUG_BEFORE_EXITING
+                       Extra build args: $extraBuildParams""".stripIndent()
                     )
                 }
                 ///////////////////////////////////////////
@@ -157,7 +156,7 @@ pipeline {
                 withCredentials([ossrhCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
-                        mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        mvn clean install $BUILD_ARGS $extraBuildParams -s .jenkins/settings.xml
                         """.stripIndent()
                 }
             }
@@ -173,7 +172,7 @@ pipeline {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
-                        bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        bash mvn deploy $DEPLOY_OPTS $extraBuildParams -s .jenkins/settings.xml
                     """.stripIndent()
                 }
             }
@@ -207,7 +206,7 @@ pipeline {
                 withCredentials([ossrhCredentials, gitCredentials]) {
                     sh """\
                         #!/usr/bin/env bash 
-                        cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -
+                        cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $extraBuildParams -s ../.jenkins/settings.xml && cd -
                     """.stripIndent()
                 }
             }
@@ -387,4 +386,34 @@ pipeline {
             }
         }
     }
+}
+
+/**
+ * Assembly all needed items to put inside extraBuildParams
+ *
+ * @param Boolean use_antora, if set to true, ---define skipAntora=true will be added
+ *
+ * @return extraBuildParams as a string ready for mvn cmd
+ */
+private String extraBuildParams_assembly(Boolean use_antora) {
+    String extraBuildParams
+
+    println 'Processing extraBuildParams'
+    println 'Manage the EXTRA_BUILD_PARAMS'
+    final List<String> buildParamsAsArray = []
+
+    if ( params.EXTRA_BUILD_PARAMS )
+        buildParamsAsArray.add( params.EXTRA_BUILD_PARAMS )
+
+    println 'Manage the use_antora option'
+    if (! use_antora) {
+        buildParamsAsArray.add('--define skipAntora=true')
+    }
+
+    println 'Construct extraBuildParams'
+
+    extraBuildParams = buildParamsAsArray.join(' ')
+    println "extraBuildParams: $extraBuildParams"
+
+    return extraBuildParams
 }
