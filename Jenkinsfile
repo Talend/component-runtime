@@ -80,6 +80,10 @@ pipeline {
           defaultValue: '',
           description: 'Execute a shell command after login. Useful for maintenance.')
         booleanParam(
+          name: 'FORCE_DOC',
+          defaultValue: false,
+          description: 'Force documentation stage for development branches. No action for Master/Maintenance.')
+        booleanParam(
           name: 'DEBUG_BEFORE_EXITING',
           defaultValue: false,
           description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
@@ -102,7 +106,9 @@ pipeline {
                     def pom = readMavenPom file: 'pom.xml'
                     env.PROJECT_VERSION = pom.version
 
-                    extraBuildParams = extraBuildParams_assembly(isStdBranch)
+                    Boolean documentation_requested = params.FORCE_DOC || isStdBranch
+
+                    extraBuildParams = extraBuildParams_assembly(documentation_requested)
 
                 }
                 ///////////////////////////////////////////
@@ -199,9 +205,8 @@ pipeline {
         }
         stage('Documentation') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isMasterBranch }
+                expression {
+                  params.FORCE_DOC || (params.Action != 'RELEASE' && isMasterBranch)
                 }
             }
             steps {
@@ -209,14 +214,15 @@ pipeline {
                     sh """\
                         #!/usr/bin/env bash 
                         set -xe
-                        
+                        # TODO --file documentation/pom.xml \\
                         cd documentation
-                        mvn verify pre-site -s ../.jenkins/settings.xml \
-                                            -Pgh-pages \
-                                            -Dgpg.skip=true \
-                                            $SKIP_OPTS \
+                        mvn verify pre-site -s ../.jenkins/settings.xml \\
+                                            -Pgh-pages \\
+                                            -Dgpg.skip=true \\
+                                            $SKIP_OPTS \\
                                             $extraBuildParams 
                         cd -
+
                     """.stripIndent()
                 }
             }
