@@ -209,7 +209,14 @@ pipeline {
                     sh """\
                         #!/usr/bin/env bash 
                         set -xe
-                        cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $extraBuildParams -s ../.jenkins/settings.xml && cd -
+                        
+                        cd documentation
+                        mvn verify pre-site -s ../.jenkins/settings.xml \
+                                            -Pgh-pages \
+                                            -Dgpg.skip=true \
+                                            $SKIP_OPTS \
+                                            $extraBuildParams 
+                        cd -
                     """.stripIndent()
                 }
             }
