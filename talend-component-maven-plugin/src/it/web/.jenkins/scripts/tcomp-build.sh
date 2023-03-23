@@ -61,6 +61,7 @@ main() (
   --projects \!org.talend.sdk.component:credentials-component \
   --projects \!org.talend.sdk.component:datastorevalidation-component \
   --projects \!org.talend.sdk.component:dropdownlist-component \
+  --projects \!org.talend.sdk.component:documentation \
   --projects \!org.talend.sdk.component:integer-component \
   --projects \!org.talend.sdk.component:minmaxvalidation-component \
   --projects \!org.talend.sdk.component:multiselect-component \

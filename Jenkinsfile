@@ -413,6 +413,11 @@ private String extraBuildParams_assembly(Boolean use_antora) {
     println 'Manage the use_antora option'
     if (! use_antora) {
         buildParamsAsArray.add('--define skipAntora=true')
+        buildParamsAsArray.add('--define antora.skip=true')
+        buildParamsAsArray.add('--define component.front.build.skip=true')
+        buildParamsAsArray.add('--define talend.documentation.pdf.skip=true')
+        buildParamsAsArray.add('--projects \\!org.talend.sdk.component:documentation')
+        buildParamsAsArray.add('--projects \\!documentation')
     }
 
     println 'Construct extraBuildParams'
