@@ -31,7 +31,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -329,14 +338,14 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     }
 
     @Override
-    public void onDatetime(final Entry entry, final Optional<Date> dateTime) {
+    public void onDatetime(final Entry entry, final Optional<ZonedDateTime> dateTime) {
         log.debug("[onDatetime] visiting {}.", entry.getName());
         dateTime.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onInstant(final Schema.Entry entry, final Optional<Instant> dateTime) {
-        log.debug("[onDatetime] visiting {}.", entry.getName());
+        log.debug("[onInstant] visiting {}.", entry.getName());
         dateTime.ifPresent(value -> setField(entry, value));
     }
 
