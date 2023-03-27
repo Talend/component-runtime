@@ -28,7 +28,7 @@
 final String _SERVER_PORT="8081"
 final String _INSTALL_DIR="webtester"
 final String _COVERAGE_DIR="coverage"
-// volume mounted on the podConfiguration, do not edit unless you edit the pod configuration file
+// volume mounted on the podConfiguration, do not edit unless you edit the pod configuration file //
 final String _DOWNLOAD_DIR="/tmp/download"
 final String _SERVER_DIR="${_INSTALL_DIR}/component-server-distribution"
 // Local artifact definition
