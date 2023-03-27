@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,32 +15,23 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect.visibility;
 
-import static java.util.Locale.ROOT;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static lombok.AccessLevel.PRIVATE;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
+import javax.json.*;
+import javax.json.spi.JsonProvider;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonPointer;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import javax.json.spi.JsonProvider;
-
-import org.talend.sdk.component.runtime.manager.ParameterMeta;
-
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import static java.util.Locale.ROOT;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.*;
+import static lombok.AccessLevel.PRIVATE;
 
 @RequiredArgsConstructor
 public class VisibilityService {
@@ -159,89 +150,85 @@ public class VisibilityService {
 
         private final String[] values;
 
-        //used for array position
-        private int index;
-
         boolean evaluateCondition(final JsonObject payload) {
-            System.err.println("[Condition]--negation--"+negation+"--values--" );
-            for (String s :values) {
-                System.err.print(s +",");
-            }
             return negation != Stream.of(values).anyMatch(val -> evaluate(val, payload));
         }
 
         private boolean evaluate(final String expected, final JsonObject payload) {
             final Object actual = extractValue(payload);
-            System.err.println("[Condition]--extract--" + actual.toString());
             switch (evaluationStrategy) {
-            case "DEFAULT":
-                if (Collection.class.isInstance(actual)) {
-                    //if values >= actual, return true, it actual contains any element out of values, return false;
-                    return Stream.of(Collection.class.cast(actual)).filter(c -> !Arrays.stream(values).collect(toList()).contains(c)).count() == 0;
-                    //return Collection.class.cast(actual).contains(expected);
-                }
-                return expected.equals(TO_STRING.apply(actual));
-            case "LENGTH":
-                if (actual == null) {
-                    return "0".equals(expected);
-                }
-                final int expectedSize = Integer.parseInt(expected);
-                if (Collection.class.isInstance(actual)) {
-                    return expectedSize == Collection.class.cast(actual).size();
-                }
-                if (actual.getClass().isArray()) {
-                    return expectedSize == Array.getLength(actual);
-                }
-                if (String.class.isInstance(actual)) {
-                    return expectedSize == String.class.cast(actual).length();
-                }
-                return false;
-            default:
-                Function<Object, String> preprocessor = TO_STRING;
-                if (evaluationStrategy.startsWith("CONTAINS")) {
-                    final int start = evaluationStrategy.indexOf('(');
-                    if (start >= 0) {
-                        final int end = evaluationStrategy.indexOf(')', start);
-                        if (end >= 0) {
-                            final Map<String, String> configuration = Stream
-                                    .of(evaluationStrategy.substring(start + 1, end).split(","))
-                                    .map(String::trim)
-                                    .filter(it -> !it.isEmpty())
-                                    .map(it -> {
-                                        final int sep = it.indexOf('=');
-                                        if (sep > 0) {
-                                            return new String[] { it.substring(0, sep), it.substring(sep + 1) };
-                                        }
-                                        return new String[] { "value", it };
-                                    })
-                                    .collect(toMap(a -> a[0], a -> a[1]));
-                            if (Boolean.parseBoolean(configuration.getOrDefault("lowercase", "false"))) {
-                                preprocessor = TO_LOWERCASE;
+                case "DEFAULT":
+                    if (Collection.class.isInstance(actual)) {
+                        //if values >= actual, return true, it actual contains any element out of values, return false;
+                        for (Object s : Collection.class.cast(actual)) {
+                            if (!Arrays.stream(values).collect(toList()).contains(s)) {
+                                return false;
                             }
                         }
+                        return true;
                     }
+                    return expected.equals(TO_STRING.apply(actual));
+                case "LENGTH":
                     if (actual == null) {
-                        return false;
+                        return "0".equals(expected);
                     }
-                    if (CharSequence.class.isInstance(actual)) {
-                        return ofNullable(preprocessor.apply(TO_STRING.apply(actual)))
-                                .map(it -> it.contains(expected))
-                                .orElse(false);
-                    }
+                    final int expectedSize = Integer.parseInt(expected);
                     if (Collection.class.isInstance(actual)) {
-                        final Collection<?> collection = Collection.class.cast(actual);
-                        return collection.stream().map(preprocessor).anyMatch(it -> it.contains(expected));
+                        return expectedSize == Collection.class.cast(actual).size();
                     }
                     if (actual.getClass().isArray()) {
-                        return IntStream
-                                .range(0, Array.getLength(actual))
-                                .mapToObj(i -> Array.get(actual, i))
-                                .map(preprocessor)
-                                .anyMatch(it -> it.contains(expected));
+                        return expectedSize == Array.getLength(actual);
+                    }
+                    if (String.class.isInstance(actual)) {
+                        return expectedSize == String.class.cast(actual).length();
                     }
                     return false;
-                }
-                throw new IllegalArgumentException("Not supported operation '" + evaluationStrategy + "'");
+                default:
+                    Function<Object, String> preprocessor = TO_STRING;
+                    if (evaluationStrategy.startsWith("CONTAINS")) {
+                        final int start = evaluationStrategy.indexOf('(');
+                        if (start >= 0) {
+                            final int end = evaluationStrategy.indexOf(')', start);
+                            if (end >= 0) {
+                                final Map<String, String> configuration = Stream
+                                        .of(evaluationStrategy.substring(start + 1, end).split(","))
+                                        .map(String::trim)
+                                        .filter(it -> !it.isEmpty())
+                                        .map(it -> {
+                                            final int sep = it.indexOf('=');
+                                            if (sep > 0) {
+                                                return new String[]{it.substring(0, sep), it.substring(sep + 1)};
+                                            }
+                                            return new String[]{"value", it};
+                                        })
+                                        .collect(toMap(a -> a[0], a -> a[1]));
+                                if (Boolean.parseBoolean(configuration.getOrDefault("lowercase", "false"))) {
+                                    preprocessor = TO_LOWERCASE;
+                                }
+                            }
+                        }
+                        if (actual == null) {
+                            return false;
+                        }
+                        if (CharSequence.class.isInstance(actual)) {
+                            return ofNullable(preprocessor.apply(TO_STRING.apply(actual)))
+                                    .map(it -> it.contains(expected))
+                                    .orElse(false);
+                        }
+                        if (Collection.class.isInstance(actual)) {
+                            final Collection<?> collection = Collection.class.cast(actual);
+                            return collection.stream().map(preprocessor).anyMatch(it -> it.contains(expected));
+                        }
+                        if (actual.getClass().isArray()) {
+                            return IntStream
+                                    .range(0, Array.getLength(actual))
+                                    .mapToObj(i -> Array.get(actual, i))
+                                    .map(preprocessor)
+                                    .anyMatch(it -> it.contains(expected));
+                        }
+                        return false;
+                    }
+                    throw new IllegalArgumentException("Not supported operation '" + evaluationStrategy + "'");
             }
         }
 
@@ -258,10 +245,8 @@ public class VisibilityService {
                             .stream()
                             .forEach(j -> {
                                 JsonValue value = subptr.getValue(j.asJsonObject());
-//                                System.err.println(value.toString());
-                                    builder.add(value);
+                                builder.add(value);
                             });
-                    // TODO comment to activate initial behavior / remove comments to activate start of fix
                     return ofNullable(builder.build()).map(this::mapValue).orElse(null);
                 }
                 return null;
@@ -271,30 +256,21 @@ public class VisibilityService {
 
         private Object mapValue(final JsonValue value) {
             switch (value.getValueType()) {
-            case ARRAY:
-//                List<String> list = new ArrayList();
-//                value.asJsonArray().forEach(each -> {
-//                    String str = each.toString().substring(1,each.toString().length()-1);
-//                     if (!Stream.of(values).anyMatch(s->s.equals(str))){//.collect(toList()).contains(str)) {
-//                        list.add(each.toString());
-//                    }
-//                });
-//                return list;
-//
+                case ARRAY:
                     return value.asJsonArray().stream().map(this::mapValue).collect(toList());
-            case STRING:
-                return JsonString.class.cast(value).getString();
-            case TRUE:
-                return true;
-            case FALSE:
-                return false;
-            case NUMBER:
-                return JsonNumber.class.cast(value).doubleValue();
-            case NULL:
-                return null;
-            case OBJECT:
-            default:
-                return value;
+                case STRING:
+                    return JsonString.class.cast(value).getString();
+                case TRUE:
+                    return true;
+                case FALSE:
+                    return false;
+                case NUMBER:
+                    return JsonNumber.class.cast(value).doubleValue();
+                case NULL:
+                    return null;
+                case OBJECT:
+                default:
+                    return value;
             }
         }
     }
@@ -307,7 +283,6 @@ public class VisibilityService {
         private final Function<Stream<Boolean>, Boolean> aggregator;
 
         public boolean isVisible(final JsonObject payload) {
-            System.err.println("[ConditionGroup::isVisible]: conditions size :" +conditions.size());
             return conditions
                     .stream()
                     .allMatch(group -> aggregator.apply(conditions.stream().map(c -> c.evaluateCondition(payload))));

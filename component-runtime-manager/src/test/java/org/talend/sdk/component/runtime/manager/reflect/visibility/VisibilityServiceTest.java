@@ -42,10 +42,10 @@ class VisibilityServiceTest {
         final VisibilityService.ConditionGroup conditionGroup = service
                 .build(new ParameterMeta(null, String.class, ParameterMeta.Type.STRING, "foo", "foo", null, emptyList(),
                         emptyList(), metadata, false));
+        assertFalse(conditionGroup.isVisible(Json.createObjectBuilder().build()));
         assertTrue(conditionGroup.isVisible(Json.createObjectBuilder().add("the_target", "a").build()));
         assertTrue(conditionGroup.isVisible(Json.createObjectBuilder().add("the_target", "c").build()));
         assertFalse(conditionGroup.isVisible(Json.createObjectBuilder().add("the_target", "d").build()));
-        assertFalse(conditionGroup.isVisible(Json.createObjectBuilder().build()));
     }
 
     @Test
@@ -140,6 +140,46 @@ class VisibilityServiceTest {
     }
 
     @Test
+    void activeIfsWithArray_false() {
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put("tcomp::condition::ifs::operator", "AND");
+        metadata.put("tcomp::condition::if::target::0", "arry[${index}].operator");
+        metadata.put("tcomp::condition::if::value::0", "IS_NULL");
+        metadata.put("tcomp::condition::if::negate::0", "false");
+        metadata.put("tcomp::condition::if::evaluationStrategy::0", "DEFAULT");
+        metadata.put("tcomp::condition::if::target::1", "arry[${index}].operator");
+        metadata.put("tcomp::condition::if::value::1", "IS_NOT_NULL");
+        metadata.put("tcomp::condition::if::negate::1", "false");
+        metadata.put("tcomp::condition::if::evaluationStrategy::1", "DEFAULT");
+        metadata.put("tcomp::condition::if::target::2", "arry[${index}].operator");
+        metadata.put("tcomp::condition::if::value::2", "IS_EMPTY");
+        metadata.put("tcomp::condition::if::negate::2", "false");
+        metadata.put("tcomp::condition::if::evaluationStrategy::2", "DEFAULT");
+        metadata.put("tcomp::condition::if::target::3", "arry[${index}].operator");
+        metadata.put("tcomp::condition::if::value::3", "IS_NOT_EMPTY");
+        metadata.put("tcomp::condition::if::negate::3", "false");
+        metadata.put("tcomp::condition::if::evaluationStrategy::3", "DEFAULT");
+        final VisibilityService.ConditionGroup conditionGroup = service
+                .build(new ParameterMeta(null, String.class, ParameterMeta.Type.STRING, "filter", "filter", null,
+                        emptyList(), emptyList(), metadata, false));
+        assertTrue(conditionGroup.isVisible(Json.createObjectBuilder()
+                .add("arry",
+                        Json.createArrayBuilder()
+                                .add(Json.createObjectBuilder().add("operator", "IS_NULL").build())
+                                .add(Json.createObjectBuilder().add("operator", "IS_NOT_EMPTY").build()))
+                .build()));
+        assertTrue(conditionGroup.isVisible(Json.createObjectBuilder()
+                .add("arry",
+                        Json.createArrayBuilder()
+                                .add(Json.createObjectBuilder().add("operator", "IS_NOT_NULL").build())
+                                .add(Json.createObjectBuilder().add("operator", "IS_EMPTY").build()))
+                .build()));
+        assertFalse(conditionGroup.isVisible(Json.createObjectBuilder()
+                .add("arry", Json.createArrayBuilder()
+                        .add(Json.createObjectBuilder().add("operator", "IS_VALID").build()))
+                .build()));
+    }
+    @Test
     void activeIfWithArray() {
         final Map<String, String> metadata = new HashMap<>();
         metadata.put("tcomp::condition::if::target::0", "arry[${index}].operator");
@@ -163,4 +203,27 @@ class VisibilityServiceTest {
                 .build()));
     }
 
+    @Test
+    void activeIfWithArray_false() {
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put("tcomp::condition::if::target::0", "arry[${index}].operator");
+        metadata.put("tcomp::condition::if::value::0", "IS_NULL,IS_NOT_NULL,IS_EMPTY,IS_NOT_EMPTY");
+        metadata.put("tcomp::condition::if::negate::0", "false");
+        metadata.put("tcomp::condition::if::evaluationStrategy::0", "DEFAULT");
+        final VisibilityService.ConditionGroup conditionGroup = service
+                .build(new ParameterMeta(null, String.class, ParameterMeta.Type.STRING, "filter", "filter", null,
+                        emptyList(), emptyList(), metadata, false));
+        assertTrue(conditionGroup.isVisible(Json.createObjectBuilder()
+                .add("arry",
+                        Json.createArrayBuilder()
+                                .add(Json.createObjectBuilder().add("operator", "IS_NULL").build())
+                                .add(Json.createObjectBuilder().add("operator", "IS_NOT_NULL").build())
+                                .add(Json.createObjectBuilder().add("operator", "IS_EMPTY").build())
+                                .add(Json.createObjectBuilder().add("operator", "IS_NOT_EMPTY").build()))
+                .build()));
+        assertFalse(conditionGroup.isVisible(Json.createObjectBuilder()
+                .add("arry", Json.createArrayBuilder()
+                        .add(Json.createObjectBuilder().add("operator", "IS_VALID").build()))
+                .build()));
+    }
 }

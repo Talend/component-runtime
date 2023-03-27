@@ -905,14 +905,13 @@ class ReflectionServiceTest {
         payload.put("configuration.logicalOpType", "AL");
         payload.put("configuration.filters[0].columnName", "col0");
         payload.put("configuration.filters[0].operator", "IS_NULL");
-        payload.put("configuration.filters[0].value", "");
+        payload.put("configuration.filters[0].value", "V");
         payload.put("configuration.filters[1].columnName", "col1");
         payload.put("configuration.filters[1].operator", "IS_EMPTY");
-//        payload.put("configuration.filters[1].value", "");
-        // FIXME this array element SHOULD BE VISIBLE and its value required
+        payload.put("configuration.filters[1].value", "V");
+        // this array element SHOULD BE VISIBLE and its value required
         payload.put("configuration.filters[2].columnName", "col2");
         payload.put("configuration.filters[2].operator", "IS_VALID");
-//        payload.put("configuration.filters[2].value", "");
         try {
             buildObjectParams("visibility", payload, MethodsHolder.FilterConfiguration.class);
             fail("configuration.filters[2].operator=IS_VALID should be visible!");
