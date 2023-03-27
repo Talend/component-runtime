@@ -239,7 +239,10 @@ pipeline {
                                                          --define ossindex.fail=false \
                                                          --define ossindex.reportFile=target/audit.txt \
                                                          --settings .jenkins/settings.xml
-                            mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
+                                                         
+                            mvn versions:dependency-updates-report versions:plugin-updates-report \
+                                                                   versions:property-updates-report \
+                                                                   -pl '!bom'
                            """.stripIndent()
                     }
                 }
