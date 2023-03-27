@@ -100,9 +100,10 @@ pipeline {
                     def pom = readMavenPom file: 'pom.xml'
                     env.PROJECT_VERSION = pom.version
 
-                    Boolean documentation_requested = params.FORCE_DOC || isStdBranch
+                    // By default the doc is skipped for standards branches
+                    Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
 
-                    extraBuildParams = extraBuildParams_assembly(documentation_requested)
+                    extraBuildParams = extraBuildParams_assembly(skip_documentation)
 
                 }
                 ///////////////////////////////////////////
@@ -420,22 +421,23 @@ pipeline {
 /**
  * Assembly all needed items to put inside extraBuildParams
  *
- * @param Boolean use_antora, if set to true, ---define skipAntora=true will be added
+ * @param Boolean skip_doc, if set to true documentation build will be skipped
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String extraBuildParams_assembly(Boolean use_antora) {
+private String extraBuildParams_assembly(Boolean skip_doc) {
     String extraBuildParams
 
     println 'Processing extraBuildParams'
     println 'Manage the EXTRA_BUILD_PARAMS'
     final List<String> buildParamsAsArray = []
 
+    println 'Manage user params'
     if ( params.EXTRA_BUILD_PARAMS )
         buildParamsAsArray.add( params.EXTRA_BUILD_PARAMS as String )
 
-    println 'Manage the use_antora option'
-    if (! use_antora) {
+    println 'Manage the skip_doc option'
+    if (skip_doc) {
         buildParamsAsArray.add('--define skipAntora=true')
         buildParamsAsArray.add('--define antora.skip=true')
         buildParamsAsArray.add('--define component.front.build.skip=true')
@@ -444,8 +446,7 @@ private String extraBuildParams_assembly(Boolean use_antora) {
         buildParamsAsArray.add('--projects \\!documentation')
     }
 
-    println 'Construct extraBuildParams'
-
+    println 'Construct final params content'
     extraBuildParams = buildParamsAsArray.join(' ')
     println "extraBuildParams: $extraBuildParams"
 
