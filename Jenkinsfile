@@ -215,7 +215,7 @@ pipeline {
                         set -xe                       
                         mvn verify pre-site --file documentation/pom.xml \
                                             --settings .jenkins/settings.xml \
-                                            -Pgh-pages \
+                                            --activate-profiles gh-pages \
                                             --define gpg.skip=true \
                                             $SKIP_OPTS \
                                             $extraBuildParams 
