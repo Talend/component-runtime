@@ -31,12 +31,6 @@ final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 
-// Files and folder definition
-final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
-
-// Artifacts paths
-final String _ARTIFACT_COVERAGE = '**/jacoco-aggregate/**/*.*'
-
 pipeline {
     agent {
         kubernetes {
@@ -416,9 +410,8 @@ pipeline {
                 ]
             )
             script {
-                println '====== Archive artifacts'
-                println "Artifact 1: ${_ARTIFACT_COVERAGE}"
-                archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: true, onlyIfSuccessful: false
+                println '====== Archive jacoco reports artifacts'
+                archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
             }
         }
     }
