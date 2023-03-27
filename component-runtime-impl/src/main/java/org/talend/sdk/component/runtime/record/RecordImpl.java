@@ -31,7 +31,6 @@ import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
@@ -178,8 +177,6 @@ public final class RecordImpl implements Record {
                     withDateTime(entry, (Date) value);
                 } else if (value instanceof ZonedDateTime) {
                     withDateTime(entry, (ZonedDateTime) value);
-                } else if (value instanceof Instant) {
-                    withInstant(entry, (Instant) value);
                 } else if (value instanceof Temporal) {
                     withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
                 }
@@ -399,17 +396,6 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withTimestamp(final Schema.Entry entry, final long value) {
-            assertType(entry.getType(), DATETIME);
-            validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
-            return append(entry, value);
-        }
-
-        public Builder withInstant(final String name, final Instant value) {
-            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, false);
-            return withInstant(entry, value);
-        }
-
-        public Builder withInstant(final Schema.Entry entry, final Instant value) {
             assertType(entry.getType(), DATETIME);
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value);
