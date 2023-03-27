@@ -213,15 +213,19 @@ pipeline {
                 withCredentials([ossrhCredentials, gitCredentials]) {
                     sh """\
                         #!/usr/bin/env bash 
-                        set -xe
-                        # TODO --file documentation/pom.xml \\
-                        cd documentation
-                        mvn verify pre-site -s ../.jenkins/settings.xml \\
+                        set -xe                       
+                        mvn verify pre-site --file documentation/pom.xml \\
+                                            --settings .jenkins/settings.xml \\
                                             -Pgh-pages \\
-                                            -Dgpg.skip=true \\
+                                            --define gpg.skip=true \\
                                             $SKIP_OPTS \\
                                             $extraBuildParams 
-                        cd -
+                        mvn verify pre-site --file documentation/pom.xml \\
+                                            --settings .jenkins/settings.xml \\
+                                            -Pgh-pages \\
+                                            --define gpg.skip=true \\
+                                            $SKIP_OPTS \\
+                                            $extraBuildParams 
 
                     """.stripIndent()
                 }
