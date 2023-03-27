@@ -213,17 +213,11 @@ pipeline {
                     sh """\
                         #!/usr/bin/env bash 
                         set -xe                       
-                        mvn verify pre-site --file documentation/pom.xml \\
-                                            --settings .jenkins/settings.xml \\
-                                            -Pgh-pages \\
-                                            --define gpg.skip=true \\
-                                            $SKIP_OPTS \\
-                                            $extraBuildParams 
-                        mvn verify pre-site --file documentation/pom.xml \\
-                                            --settings .jenkins/settings.xml \\
-                                            -Pgh-pages \\
-                                            --define gpg.skip=true \\
-                                            $SKIP_OPTS \\
+                        mvn verify pre-site --file documentation/pom.xml \
+                                            --settings .jenkins/settings.xml \
+                                            -Pgh-pages \
+                                            --define gpg.skip=true \
+                                            $SKIP_OPTS \
                                             $extraBuildParams 
 
                     """.stripIndent()
@@ -442,8 +436,8 @@ private String extraBuildParams_assembly(Boolean skip_doc) {
         buildParamsAsArray.add('--define antora.skip=true')
         buildParamsAsArray.add('--define component.front.build.skip=true')
         buildParamsAsArray.add('--define talend.documentation.pdf.skip=true')
-        buildParamsAsArray.add('--projects \\!org.talend.sdk.component:documentation')
-        buildParamsAsArray.add('--projects \\!documentation')
+        buildParamsAsArray.add('--projects !org.talend.sdk.component:documentation')
+        buildParamsAsArray.add('--projects !documentation')
     }
 
     println 'Construct final params content'
