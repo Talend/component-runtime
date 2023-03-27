@@ -432,7 +432,7 @@ private String extraBuildParams_assembly(Boolean use_antora) {
     final List<String> buildParamsAsArray = []
 
     if ( params.EXTRA_BUILD_PARAMS )
-        buildParamsAsArray.add( params.EXTRA_BUILD_PARAMS )
+        buildParamsAsArray.add( params.EXTRA_BUILD_PARAMS as String )
 
     println 'Manage the use_antora option'
     if (! use_antora) {
