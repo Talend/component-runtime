@@ -43,7 +43,7 @@ _TCK_VERSION=${4}
 _CONNECTOR_VERSION=${5}
 _LOCAL_M2_DIR=${6}
 _SERVER_PORT=${7:-"8080"}
-_JAVA_DEBUG=${8:-''}
+_JAVA_DEBUG_PORT=${8:-''}
 
 # Check command possibilities
 which wget || { usage 'wget is not present'; }
@@ -250,10 +250,10 @@ function create_setenv_script {
     # echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.locale.mapping=en*=en\\nfr*=fr\\nzh*=zh_CN\\nja*=ja\\nde*=de\\nuk*=uk \${MEECROWAVE_OPTS}\"" >> "${_SETENV_PATH}"
   } >> "${_SETENV_PATH}"
 
-  if [[ ${_JAVA_DEBUG} ]]; then
+  if [[ ${_JAVA_DEBUG_PORT} ]]; then
     printf '\n\n\n\n\n\n\n\nJava debug activated\n on port 5005\n\n\n\n\n\n\n\n\n'
     {
-      echo "export MEECROWAVE_OPTS=\"-agentlib:jdwp=server=y,transport=dt_socket,suspend=y,address=*:5005 \${MEECROWAVE_OPTS}\""
+      echo "export MEECROWAVE_OPTS=\"-agentlib:jdwp=server=y,transport=dt_socket,suspend=y,address=*:${_JAVA_DEBUG_PORT} \${MEECROWAVE_OPTS}\""
     } >> "${_SETENV_PATH}"
   fi
 

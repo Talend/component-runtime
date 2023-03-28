@@ -26,8 +26,8 @@ function usage(){
   exit 1
 }
 
-# To debug the component server java app on port 5005, you can uncomment the following line
-# _JAVA_DEBUG="YES"
+# To debug the component server java, you can uncomment the following line
+# _JAVA_DEBUG_PORT="5005"
 
 [ -z ${1+x} ] && printf 'Parameter "server_dir" not given use the default value: "/tmp/test_tck_server"\n'
 [ -z ${2+x} ] && printf 'Parameter "runtime_version" not given use default value\n'
@@ -69,6 +69,6 @@ printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
                                           "${_CONNECTORS_VERSION}" \
                                           "${_USER_PATH}/.m2/repository" \
                                           "${_SERVER_PORT}" \
-                                          "${_JAVA_DEBUG}"
+                                          "${_JAVA_DEBUG_PORT}"
 
 "${_SCRIPT_PATH}"/server-registry-start.sh "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
