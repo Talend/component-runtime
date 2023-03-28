@@ -76,7 +76,7 @@ pipeline {
         booleanParam(
           name: 'FORCE_DOC',
           defaultValue: false,
-          description: 'Force documentation stage for development branches. No action for Master/Maintenance.')
+          description: 'Force documentation stage for development branches. No effect on master and maintenance.')
         booleanParam(
           name: 'DEBUG_BEFORE_EXITING',
           defaultValue: false,
@@ -103,7 +103,7 @@ pipeline {
                     // By default the doc is skipped for standards branches
                     Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
 
-                    extraBuildParams = extraBuildParams_assembly(skip_documentation)
+                    extraBuildParams = assemblyExtraBuildParams(skip_documentation)
 
                 }
                 ///////////////////////////////////////////
@@ -422,16 +422,16 @@ pipeline {
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String extraBuildParams_assembly(Boolean skip_doc) {
+private String assemblyExtraBuildParams(Boolean skip_doc) {
     String extraBuildParams
 
     println 'Processing extraBuildParams'
-    println 'Manage the EXTRA_BUILD_PARAMS'
     final List<String> buildParamsAsArray = []
 
     println 'Manage user params'
-    if ( params.EXTRA_BUILD_PARAMS )
-        buildParamsAsArray.add( params.EXTRA_BUILD_PARAMS as String )
+    if ( params.EXTRA_BUILD_PARAMS ) {
+        buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
+    }
 
     println 'Manage the skip_doc option'
     if (skip_doc) {
