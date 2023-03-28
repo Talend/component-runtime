@@ -120,7 +120,7 @@ public class RecordServiceImpl implements RecordService, Serializable {
                 }
                 break;
             case DATETIME:
-                visitor.onDatetime(entry, Optional.ofNullable(record.get(ZonedDateTime.class, entry.getName())));
+                visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));
                 break;
             case DECIMAL:
                 visitor.onDecimal(entry, record.getOptionalDecimal(entry.getName()));

@@ -340,7 +340,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     @Override
     public void onDatetime(final Entry entry, final Optional<ZonedDateTime> dateTime) {
         log.debug("[onDatetime] visiting {}.", entry.getName());
-        dateTime.ifPresent(value -> setField(entry, value));
+        dateTime.ifPresent(value -> setField(entry, value.toInstant()));
     }
 
     @Override
