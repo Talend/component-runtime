@@ -63,13 +63,6 @@ pipeline {
           choices: ['STANDARD', 'RELEASE'],
           description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
         booleanParam(
-          name: 'MAVEN_DEPLOY',
-          defaultValue: true,
-          description: '''
-            Deploy to the Nexus after the build.
-            Using it on branches will add a qualifier (x.y.z-JIRA-12345-SNAPSHOT) to the version and deploy on talend nexus
-            No effect on master and maintenance who always deploy on open-source nexus''')
-        booleanParam(
           name: 'FORCE_SONAR',
           defaultValue: false,
           description: 'Force Sonar analysis')
@@ -173,11 +166,11 @@ pipeline {
                 }
             }
         }
-        stage('Deploy maven artifacts') {
+        stage('Deploy artifacts') {
             when {
-                anyOf {
-                    expression { isStdBranch && (params.Action != 'RELEASE') }
-                    expression { params.MAVEN_DEPLOY }
+                allOf {
+                    expression { params.Action != 'RELEASE' }
+                    expression { isStdBranch }
                 }
             }
             steps {
