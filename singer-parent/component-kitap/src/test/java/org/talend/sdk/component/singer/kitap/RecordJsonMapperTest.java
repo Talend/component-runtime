@@ -39,7 +39,7 @@ class RecordJsonMapperTest {
 
     private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl(null);
 
-    private final Instant INSTANT = Timestamp.valueOf("2021-04-19 13:37:07.123456").toInstant();
+    private final Instant INSTANT = ZonedDateTime.of(2019, 8, 23, 16, 31, 12, 123456, ZoneId.of("UTC")).toInstant();
 
     @Test
     void map() {
@@ -70,7 +70,7 @@ class RecordJsonMapperTest {
                                 .build());
         assertEquals("{" + "\"name\":\"hello\"," + "\"age\":1," + "\"toggle\":true,"
                         + "\"date\":\"2019-08-23T16:31:00.000000Z\"," + "\"lg\":2," + "\"bytes\":\"dGVzdA==\","
-                        + "\"array\":[\"value-from-array\"]," + "\"instant\":\"2021-04-19T05:37:07.123456Z\","
+                        + "\"array\":[\"value-from-array\"]," + "\"instant\":\"2019-08-23T16:31:12.000123Z\","
                         + "\"nested\":{\"value\":\"set\",\"nested2\":{\"l2\":2}}}",
                 object.toString());
     }
