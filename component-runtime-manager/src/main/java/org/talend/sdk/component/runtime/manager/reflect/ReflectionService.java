@@ -202,13 +202,13 @@ public class ReflectionService {
         };
     }
 
-    public static void checkPayload(List<ParameterMeta> metas, Map<String, String> notNullConfig) {
+    public static void checkPayload(final List<ParameterMeta> metas, final Map<String, String> notNullConfig) {
         JsonObject globalPayload = new PayloadMapper((a, b) -> {
         }).visitAndMap(metas, notNullConfig);
         checkWithPayload(metas, notNullConfig, globalPayload);
     }
 
-    public static void checkWithPayload(List<ParameterMeta> metas, Map<String, String> notNullConfig, final JsonObject payload) {
+    public static void checkWithPayload(final List<ParameterMeta> metas, final Map<String, String> notNullConfig, final JsonObject payload) {
         final PayloadValidator visitor = new PayloadValidator();
         if (!visitor.skip) {
             visitor.globalPayload = payload;
@@ -218,14 +218,6 @@ public class ReflectionService {
             visitor.throwIfFailed();
         }
     }
-
-//    public static void checkPayload(List<ParameterMeta> metas, Map<String, String> notNullConfig, JsonObject payload) {
-//        final PayloadValidator visitor = new PayloadValidator();
-//        final PayloadMapper payloadMapper = new PayloadMapper(visitor);
-//        payloadMapper.setGlobalPayload(payload);
-//        payloadMapper.visitAndMap(metas, notNullConfig);
-//        visitor.throwIfFailed();
-//    }
 
     public Function<Supplier<Object>, Object> createContextualSupplier(final ClassLoader loader) {
         return supplier -> {
