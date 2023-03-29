@@ -38,48 +38,7 @@ _MAVEN_TEST_SKIP="--define spotless.apply.skip=true \
                   --define rat.skip=true \
                   --define skipTests \
                   --define maven.javadoc.skip=true \
-                  --define invoker.skip=true \
-                  --define maven.artifact.threads=25"
-_MAVEN_MODULES_SKIP="--projects !documentation \
-                     --projects !reporting \
-                     --projects !sample-parent \
-                     --projects !sample-parent/sample \
-                     --projects !sample-parent/sample-beam \
-                     --projects !sample-parent/documentation-sample"
-_MAVEN_COMPONENT_SKIP="--projects !org.talend.sdk.component:activeif-component \
-                       --projects !org.talend.sdk.component:checkbox-component \
-                       --projects !org.talend.sdk.component:code-component \
-                       --projects !org.talend.sdk.component:credentials-component \
-                       --projects !org.talend.sdk.component:datastorevalidation-component \
-                       --projects !org.talend.sdk.component:dropdownlist-component \
-                       --projects !org.talend.sdk.component:integer-component \
-                       --projects !org.talend.sdk.component:minmaxvalidation-component \
-                       --projects !org.talend.sdk.component:multiselect-component \
-                       --projects !org.talend.sdk.component:patternvalidation-component \
-                       --projects !org.talend.sdk.component:requiredvalidation-component \
-                       --projects !org.talend.sdk.component:suggestions-component \
-                       --projects !org.talend.sdk.component:table-component \
-                       --projects !org.talend.sdk.component:textarea-component \
-                       --projects !org.talend.sdk.component:textinput-component \
-                       --projects !org.talend.sdk.component:updatable-component \
-                       --projects !org.talend.sdk.component:urlvalidation-component \
-                       --projects !org.talend.sdk.component:talend-component-kit-intellij-plugin \
-                       --projects !org.talend.sdk.component:remote-engine-customizer \
-                       --projects !org.talend.sdk.component:images \
-                       --projects !org.talend.sdk.component:component-server-image \
-                       --projects !org.talend.sdk.component:component-starter-server-image \
-                       --projects !org.talend.sdk.component:remote-engine-customizer-image \
-                       --projects !org.talend.sdk.component:singer-parent \
-                       --projects !org.talend.sdk.component:singer-java \
-                       --projects !org.talend.sdk.component:component-kitap \
-                       --projects !org.talend.sdk.component:talend-component-maven-plugin \
-                       --projects !org.talend.sdk.component:gradle-talend-component \
-                       --projects !org.talend.sdk.component:component-runtime-testing \
-                       --projects !org.talend.sdk.component:component-runtime-testing-spark \
-                       --projects !org.talend.sdk.component:component-runtime-junit \
-                       --projects !org.talend.sdk.component:component-runtime-http-junit \
-                       --projects !org.talend.sdk.component:component-runtime-junit-base \
-                       --projects !org.talend.sdk.component:component-runtime-beam-junit"
+                  --define invoker.skip=true"
 _MAVEN_FAST="--define maven.artifact.threads=25"
 
 main() (
@@ -90,10 +49,10 @@ main() (
   mvn clean install \
   --file "${_POM_FILE_PATH}" \
   --settings .jenkins/settings.xml \
+  --projects component-server-parent/component-server \
+  --also-make \
   ${_MAVEN_TEST_SKIP} \
-  ${_MAVEN_MODULES_SKIP} \
-  ${_MAVEN_COMPONENT_SKIP} \
-  ${_MAVEN_FAST} \
+  ${_MAVEN_FAST}
 )
 
 main "$@"
