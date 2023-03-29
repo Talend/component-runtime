@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 // Credentials
+//TODO what is rh in assrh?
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
+final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
 final def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
 final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datapwn-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
 final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
+//TODO what is the gpg for?
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
 
 // Job config
@@ -61,6 +64,13 @@ pipeline {
           name: 'Action',
           choices: ['STANDARD', 'RELEASE'],
           description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
+        booleanParam(
+          name: 'MAVEN_DEPLOY',
+          defaultValue: true,
+          description: '''
+            Deploy to the Nexus after the build.
+            Using it on branches will add a qualifier (x.y.z-JIRA-12345-SNAPSHOT) to the version and deploy on talend nexus
+            No effect on master and maintenance who always deploy on open-source nexus''')
         booleanParam(
           name: 'FORCE_SONAR',
           defaultValue: false,
@@ -165,22 +175,34 @@ pipeline {
                 }
             }
         }
-        stage('Deploy artifacts') {
+        stage('Deploy maven artifacts') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isStdBranch }
+                anyOf {
+                    expression { isStdBranch && (params.Action != 'RELEASE') }
+                    expression { params.MAVEN_DEPLOY }
                 }
             }
             steps {
-                withCredentials([ossrhCredentials, gpgCredentials]) {
-                    sh """\
+                if(isStdBranch){
+                    withCredentials([ossrhCredentials, gpgCredentials]) {
+                        sh """\
+                            #!/usr/bin/env bash
+                            set -xe
+                            bash mvn deploy $DEPLOY_OPTS \
+                                            $extraBuildParams \
+                                            --settings .jenkins/settings.xml
+                        """.stripIndent()
+                    }
+                } else {
+                    withCredentials([nexusCredentials, gpgCredentials]) {
+                        sh """\
                         #!/usr/bin/env bash
                         set -xe
                         bash mvn deploy $DEPLOY_OPTS \
                                         $extraBuildParams \
                                         --settings .jenkins/settings.xml
                     """.stripIndent()
+                    }
                 }
             }
         }
@@ -364,7 +386,7 @@ pipeline {
                 //Only post results to Slack for Master and Maintenance branches
                 if (isStdBranch) {
                     //if previous build was a success, ping channel in the Slack message
-                    if ("SUCCESS" == (currentBuild.previousBuild.result)) {
+                    if ("SUCCESS" == currentBuild.previousBuild.result) {
                         slackSend(
                             color: '#FF0000',
                             message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
@@ -435,11 +457,6 @@ private String assemblyExtraBuildParams(Boolean skip_doc) {
 
     println 'Manage the skip_doc option'
     if (skip_doc) {
-        buildParamsAsArray.add('--define skipAntora=true')
-        buildParamsAsArray.add('--define antora.skip=true')
-        buildParamsAsArray.add('--define component.front.build.skip=true')
-        buildParamsAsArray.add('--define talend.documentation.pdf.skip=true')
-        buildParamsAsArray.add('--projects !org.talend.sdk.component:documentation')
         buildParamsAsArray.add('--projects !documentation')
     }
 
