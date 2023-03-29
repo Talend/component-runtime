@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 // Credentials
-//TODO what is rh in assrh?
+
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
-final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
 final def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
 final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datapwn-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
 final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
-//TODO what is the gpg for?
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
 
 // Job config
@@ -183,26 +181,14 @@ pipeline {
                 }
             }
             steps {
-                if(isStdBranch){
-                    withCredentials([ossrhCredentials, gpgCredentials]) {
-                        sh """\
-                            #!/usr/bin/env bash
-                            set -xe
-                            bash mvn deploy $DEPLOY_OPTS \
-                                            $extraBuildParams \
-                                            --settings .jenkins/settings.xml
-                        """.stripIndent()
-                    }
-                } else {
-                    withCredentials([nexusCredentials, gpgCredentials]) {
-                        sh """\
+                withCredentials([ossrhCredentials, gpgCredentials]) {
+                    sh """\
                         #!/usr/bin/env bash
                         set -xe
                         bash mvn deploy $DEPLOY_OPTS \
                                         $extraBuildParams \
                                         --settings .jenkins/settings.xml
                     """.stripIndent()
-                    }
                 }
             }
         }
