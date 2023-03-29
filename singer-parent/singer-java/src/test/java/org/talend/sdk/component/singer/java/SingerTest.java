@@ -35,7 +35,7 @@ class SingerTest {
     @Test
     void writeRecord() throws UnsupportedEncodingException {
         write(s -> s.writeRecord("test_stream", Json.createObjectBuilder().add("id", 1).add("name", "Test").build()),
-                "{\"type\":\"RECORD\",\"stream\":\"test_stream\",\"time_extracted\":\"2019-08-23T11:26:00.000Z\",\"record\":{\"id\":1,\"name\":\"Test\"}}");
+                "{\"type\":\"RECORD\",\"stream\":\"test_stream\",\"time_extracted\":\"2019-08-23T11:26:00.000000Z\",\"record\":{\"id\":1,\"name\":\"Test\"}}");
     }
 
     @Test
