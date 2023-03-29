@@ -21,19 +21,30 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toSet;
 import static org.talend.sdk.component.server.lang.CustomCollectors.toLinkedMap;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.*;
+import javax.json.JsonException;
+import javax.json.JsonObject;
+import javax.json.JsonPointer;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
-import org.apache.cxf.common.util.StringUtils;
 import org.talend.sdk.component.runtime.internationalization.ParameterBundle;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
@@ -79,7 +90,7 @@ public class PropertiesService {
 
 
     //Map<full path, value> from JsonObject(payload).
-    private Map<String, String> extractConfig(ConfigTypeNode configNode, JsonObject payload) {
+    private Map<String, String> extractConfig(final ConfigTypeNode configNode, final JsonObject payload) {
         Map<String, String> payloadConfig = new HashMap<>();
         for (SimplePropertyDefinition propertyDefinition : configNode.getProperties()) {
             try {
@@ -95,7 +106,7 @@ public class PropertiesService {
         return payloadConfig;
     }
 
-    private String getValue(JsonValue value) {
+    private String getValue(final JsonValue value) {
         switch (value.getValueType()) {
             case TRUE:
             case FALSE:
@@ -108,7 +119,7 @@ public class PropertiesService {
         }
     }
 
-    private List<ParameterMeta> buildParameterMetas(List<SimplePropertyDefinition> properties) {
+    private List<ParameterMeta> buildParameterMetas(final List<SimplePropertyDefinition> properties) {
         List<ParameterMeta> parameterMetaList = new ArrayList<>();
         for (SimplePropertyDefinition propertyDefinition : properties) {
             final String path = sanitizePropertyName(propertyDefinition.getPath());
@@ -127,7 +138,7 @@ public class PropertiesService {
         return parameterMetaList;
     }
 
-    private static LinkedHashMap<String, String> getParamMetadata(Map<String, String> p) {
+    private static LinkedHashMap<String, String> getParamMetadata(final Map<String, String> p) {
         return ofNullable(p)
                 .map(m -> m
                         .entrySet()
@@ -137,7 +148,7 @@ public class PropertiesService {
                 .orElse(null);
     }
 
-    private static LinkedHashMap<String, String> getSanitizedMetadata(Map<String, String> p) {
+    private static LinkedHashMap<String, String> getSanitizedMetadata(final Map<String, String> p) {
         return ofNullable(p)
                 .map(m -> m
                         .entrySet()

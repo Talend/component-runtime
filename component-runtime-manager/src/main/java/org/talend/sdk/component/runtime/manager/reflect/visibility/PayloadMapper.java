@@ -123,7 +123,8 @@ public class PayloadMapper {
         }
     }
 
-    private static String getValue(final Map<String, String> config, final String newPath, final ParameterMeta definition) {
+    private static String getValue(final Map<String, String> config, final String newPath,
+            final ParameterMeta definition) {
         return config.get(newPath) == null ? config.get(definition.getPath()) : config.get(newPath);
     }
 
