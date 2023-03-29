@@ -61,7 +61,7 @@ String _API_TEST_FILES_PATTERN = '**/src/it/web/test/**/*.json'
 // Default value for parameters
 String runtimeVersion = "default"
 String apiTesterEnv = "component_runtime_ci"
-String fileToRun = "tcomp_approved"
+String fileToRun = "tcomp_endpoints"
 String tenantInstance = "eu"
 
 /**
