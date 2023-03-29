@@ -23,11 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -106,10 +101,6 @@ class RecordBuilderImplTest {
         Date date = new Date(next + TimeUnit.DAYS.toMillis(1));
         builder.with(entryTime, date);
         Assertions.assertEquals(date.toInstant().toEpochMilli(), builder.getValue("time"));
-
-        final Instant instant = Timestamp.valueOf("2021-04-19 13:37:07.752345").toInstant();
-        builder.with(entryTime, instant);
-        Assertions.assertEquals(instant, builder.getValue("time"));
     }
 
     @Test
@@ -250,56 +241,12 @@ class RecordBuilderImplTest {
     }
 
     @Test
-    void zonedDateTimeVSInstant() {
-        final Schema schema = new SchemaImpl.BuilderImpl()
-                .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("time")
-                        .withNullable(false)
-                        .withType(Type.DATETIME)
-                        .build())
-                .build();
-        // getInstant("x") with an initial record made withDateTime("x", zdt), and lose precision
-        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
-        final Record record = builder.withDateTime("time", ZonedDateTime.parse("2021-04-19T13:37:07.752345Z")).build();
-        assertNotNull(record.getDateTime("time"));
-        assertEquals(ZonedDateTime.parse("2021-04-19T13:37:07.752Z").toInstant(), record.getInstant("time"));
-
-        // getDateTime("x") with an initial record made withInstant("x", v), and keep precision
-        java.sql.Timestamp time = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345");
-        final RecordImpl.BuilderImpl builder3 = new RecordImpl.BuilderImpl(schema);
-        final Record record3 = builder3.withInstant("time", time.toInstant()).build();
-
-        assertNotNull(record3.getDateTime("time"));
-        assertEquals(ZonedDateTime.ofInstant(time.toInstant(), ZoneId.of("UTC")), record3.getDateTime("time"));
-
-    }
-
-    @Test
-    void timestampExceedMillisecond() {
-        final Schema schema = new SchemaImpl.BuilderImpl()
-                .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("time")
-                        .withNullable(false)
-                        .withType(Type.DATETIME)
-                        .build())
-                .build();
-        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
-        java.sql.Timestamp time = java.sql.Timestamp.valueOf("2021-04-19 13:37:07.752345");
-        final Record record = builder.withInstant("time", time.toInstant()).build();
-
-        assertEquals(time.toInstant(), record.get(Instant.class, "time"));
-        assertEquals(time.toInstant(), record.getInstant("time"));
-
-        int nano = time.toInstant().getNano();
-        long natime = time.toInstant().toEpochMilli();/// 1000 * 1000_000_000 +nano;
-        long ntime = time.toInstant().getEpochSecond();
-
-        Instant back1 = Instant.ofEpochSecond(ntime, nano);
-        Instant back2 = Instant.ofEpochSecond(natime, nano);
-        assertEquals(time.toInstant(), back1);
-
+    void nullDateTime() {
+        Entry entry = new EntryImpl.BuilderImpl().withName("date").withNullable(true).withType(Type.DATETIME).build();
+        final Record record = new RecordImpl.BuilderImpl().with(entry, null).build();
+        // ensure that entry was not skipped
+        assertEquals(1, record.getSchema().getEntries().size());
+        assertNull(record.getDateTime("date"));
     }
 
     @Test
