@@ -22,7 +22,7 @@
         <server>
             <id>snapshots</id>
             <username>${env.NEXUS_USER}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
+            <password>${env.NEXUS_PASS}</password>
             <configuration>
                 <timeout>30000</timeout>
             </configuration>
@@ -30,7 +30,7 @@
         <server>
             <id>releases</id>
             <username>${env.NEXUS_USER}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
+            <password>${env.NEXUS_PASS}</password>
             <configuration>
                 <timeout>30000</timeout>
             </configuration>

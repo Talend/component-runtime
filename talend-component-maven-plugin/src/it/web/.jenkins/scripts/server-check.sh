@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 function usage(){
   printf 'Check if the server is running on the giving port\n'

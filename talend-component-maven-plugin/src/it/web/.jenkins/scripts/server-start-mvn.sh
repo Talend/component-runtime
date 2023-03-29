@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 # Enter in a connector path and start a component test server in bash mode
 # This script will fail if the branch already exists.
