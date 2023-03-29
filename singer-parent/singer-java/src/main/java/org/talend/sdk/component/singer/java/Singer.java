@@ -40,7 +40,7 @@ public class Singer {
     private final JsonBuilderFactory builderFactory = Json.createBuilderFactory(emptyMap());
 
     private final DateTimeFormatter rfc339 =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("UTC"));
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'").withZone(ZoneId.of("UTC"));
 
     public Singer() {
         this(new IO(), ZonedDateTime::now);

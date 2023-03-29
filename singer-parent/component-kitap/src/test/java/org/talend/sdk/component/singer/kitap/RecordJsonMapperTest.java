@@ -20,6 +20,8 @@ import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -36,6 +38,8 @@ import org.talend.sdk.component.singer.java.Singer;
 class RecordJsonMapperTest {
 
     private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl(null);
+
+    private final Instant INSTANT = Timestamp.valueOf("2021-04-19 13:37:07.123456").toInstant();
 
     @Test
     void map() {
@@ -62,10 +66,12 @@ class RecordJsonMapperTest {
                                         .withName("array")
                                         .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build())
                                         .build(), singleton("value-from-array"))
+                                .withInstant("instant", INSTANT)
                                 .build());
         assertEquals("{" + "\"name\":\"hello\"," + "\"age\":1," + "\"toggle\":true,"
-                + "\"date\":\"2019-08-23T16:31:00.000Z\"," + "\"lg\":2," + "\"bytes\":\"dGVzdA==\","
-                + "\"array\":[\"value-from-array\"]," + "\"nested\":{\"value\":\"set\",\"nested2\":{\"l2\":2}}}",
+                        + "\"date\":\"2019-08-23T16:31:00.000000Z\"," + "\"lg\":2," + "\"bytes\":\"dGVzdA==\","
+                        + "\"array\":[\"value-from-array\"]," + "\"instant\":\"2021-04-19T05:37:07.123456Z\","
+                        + "\"nested\":{\"value\":\"set\",\"nested2\":{\"l2\":2}}}",
                 object.toString());
     }
 }
