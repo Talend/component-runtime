@@ -18,35 +18,37 @@
 set -xe
 
 function usage(){
-  printf 'Stop a running server in registry mode\n'
-  printf 'Usage : %s <install_dir>\n' "${0}"
+  printf 'Generate Jacoco html report\n'
+  printf 'Usage : %s <tests_path> <maven_settings>\n' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
   exit 1
 }
-
 # Parameters:
-[ -z ${1+x} ] && usage 'Parameter "install_dir" is needed.'
+[ -z ${1+x} ] && usage "Parameter 'tests_path' is needed."
+[ -z ${2+x} ] && usage "Parameter 'maven_settings' is needed."
 
-_INSTALL_DIR=${1}
-
-# Constants
-_DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"
+_TESTS_PATH=${1}
+_MAVEN_SETTINGS=${2}
 
 main() (
   printf '##############################################\n'
-  printf 'Stop web tester\n'
+  printf 'Jacoco generate html report from:\n'
+  printf '%s\n' "${_TESTS_PATH}"
   printf '##############################################\n'
 
-  stop_server
+  jacoco_html
 )
 
-function stop_server {
-  printf '# Stop server\n'
-  cd "${_DISTRIBUTION_DIR}" || exit
-  ./bin/meecrowave.sh stop --force
-	printf '##############################################\n'
+function jacoco_html {
+  mvn surefire-report:report-only --file "${_TESTS_PATH}" \
+                                  --settings="${_MAVEN_SETTINGS}"
+
+  mvn site --settings="${_MAVEN_SETTINGS}" \
+           --define generateReports=false \
+           --file "${_TESTS_PATH}"
+  printf '##############################################\n'
 }
 
 main "$@"

@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 function usage(){
   printf 'Generate Jacoco report\n'
@@ -31,6 +31,7 @@ function usage(){
 
 _INSTALL_DIR=${1}
 _COVERAGE_DIR=${2}
+
 
 # Constants
 _DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"
