@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,17 +59,17 @@ public class PropertyValidationService {
                         f.setAccessible(true);
                     }
                     return (BiFunction<Object, Map<String, String>, Boolean>) (instance,
-                                                                               meta) -> ofNullable(meta.get(ValidationParameterEnricher.META_PREFIX + f.getName()))
-                            .map(valueConverter)
-                            .map(val -> {
-                                try {
-                                    f.set(instance, val);
-                                } catch (IllegalAccessException e) {
-                                    throw new IllegalStateException(e);
-                                }
-                                return true;
-                            })
-                            .orElse(false);
+                            meta) -> ofNullable(meta.get(ValidationParameterEnricher.META_PREFIX + f.getName()))
+                                    .map(valueConverter)
+                                    .map(val -> {
+                                        try {
+                                            f.set(instance, val);
+                                        } catch (IllegalAccessException e) {
+                                            throw new IllegalStateException(e);
+                                        }
+                                        return true;
+                                    })
+                                    .orElse(false);
                 }).collect(toList());
         propertyValidationCreator = config -> {
             final PropertyValidation validation = new PropertyValidation();
@@ -89,19 +89,20 @@ public class PropertyValidationService {
         final Map<String, String> metaMap = new HashMap<>();
 
         Stream.of(PropertyValidation.class.getDeclaredFields()).filter(field -> {
-                    try {
-                        field.setAccessible(true);
-                        return field.get(propertyValidation) != null;
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
+            try {
+                field.setAccessible(true);
+                return field.get(propertyValidation) != null;
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        })
                 .forEach(field -> {
                     field.setAccessible(true);
                     try {
                         Object value = field.get(propertyValidation);
                         if (value != null) {
-                            metaMap.put(ValidationParameterEnricher.META_PREFIX + field.getName(), String.valueOf(value));//f.get(instance).toString());
+                            metaMap.put(ValidationParameterEnricher.META_PREFIX + field.getName(),
+                                    String.valueOf(value));// f.get(instance).toString());
                         }
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);

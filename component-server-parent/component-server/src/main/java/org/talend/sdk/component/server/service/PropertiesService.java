@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -74,7 +74,7 @@ public class PropertiesService {
     private Jsonb defaultMapper;
 
     public Stream<SimplePropertyDefinition> buildProperties(final List<ParameterMeta> meta, final ClassLoader loader,
-                                                            final Locale locale, final DefaultValueInspector.Instance rootInstance) {
+            final Locale locale, final DefaultValueInspector.Instance rootInstance) {
         return buildProperties(meta, loader, locale, rootInstance, null);
     }
 
@@ -87,8 +87,7 @@ public class PropertiesService {
         return JsonProvider.provider().createPointer('/' + absoluteTargetPath.replace('.', '/'));
     }
 
-
-    //Map<full path, value> from JsonObject(payload).
+    // Map<full path, value> from JsonObject(payload).
     private Map<String, String> extractConfig(final ConfigTypeNode configNode, final JsonObject payload) {
         Map<String, String> payloadConfig = new HashMap<>();
         for (SimplePropertyDefinition propertyDefinition : configNode.getProperties()) {
@@ -107,14 +106,14 @@ public class PropertiesService {
 
     private String getValue(final JsonValue value) {
         switch (value.getValueType()) {
-            case TRUE:
-            case FALSE:
-            case NUMBER:
-                return String.valueOf(value);
-            case STRING:
-                return JsonString.class.cast(value).getString();
-            default:
-                return null;
+        case TRUE:
+        case FALSE:
+        case NUMBER:
+            return String.valueOf(value);
+        case STRING:
+            return JsonString.class.cast(value).getString();
+        default:
+            return null;
         }
     }
 
@@ -124,7 +123,7 @@ public class PropertiesService {
             final String path = sanitizePropertyName(propertyDefinition.getPath());
             final String name = sanitizePropertyName(propertyDefinition.getName());
             final ParameterMeta.Type type = findType(propertyDefinition.getType());
-            //translate PropertyValidation
+            // translate PropertyValidation
             final Map<String, String> sanitizedMetadata = ofNullable(getParamMetadata(propertyDefinition.getMetadata()))
                     .orElse(new LinkedHashMap<>());
             if (propertyDefinition.getValidation() != null) {
@@ -143,7 +142,8 @@ public class PropertiesService {
                         .entrySet()
                         .stream()
                         .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
-                        .collect(toLinkedMap(e -> e.getKey().replace("condition::", "tcomp::condition::"), Map.Entry::getValue)))
+                        .collect(toLinkedMap(e -> e.getKey().replace("condition::", "tcomp::condition::"),
+                                Map.Entry::getValue)))
                 .orElse(null);
     }
 
@@ -157,9 +157,8 @@ public class PropertiesService {
                 .orElse(null);
     }
 
-
     private Stream<SimplePropertyDefinition> buildProperties(final List<ParameterMeta> meta, final ClassLoader loader,
-                                                             final Locale locale, final DefaultValueInspector.Instance rootInstance, final ParameterMeta parent) {
+            final Locale locale, final DefaultValueInspector.Instance rootInstance, final ParameterMeta parent) {
         return meta.stream().flatMap(p -> {
             final String path = sanitizePropertyName(p.getPath());
             final String name = sanitizePropertyName(p.getName());
@@ -187,12 +186,12 @@ public class PropertiesService {
             final ParameterBundle parentBundle = parent == null ? null : parent.findBundle(loader, locale);
             return Stream
                     .concat(Stream
-                                    .of(new SimplePropertyDefinition(path, name,
-                                            bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
-                                            validation, rewriteMetadataForLocale(metadata, parentBundle, bundle),
-                                            bundle.placeholder(parentBundle).orElse(p.getName()),
-                                            !isEnum ? null
-                                                    : p
+                            .of(new SimplePropertyDefinition(path, name,
+                                    bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
+                                    validation, rewriteMetadataForLocale(metadata, parentBundle, bundle),
+                                    bundle.placeholder(parentBundle).orElse(p.getName()),
+                                    !isEnum ? null
+                                            : p
                                                     .getProposals()
                                                     .stream()
                                                     .collect(toLinkedMap(identity(),
@@ -205,12 +204,12 @@ public class PropertiesService {
     }
 
     private Map<String, String> rewriteMetadataForLocale(final Map<String, String> metadata,
-                                                         final ParameterBundle parentBundle, final ParameterBundle bundle) {
+            final ParameterBundle parentBundle, final ParameterBundle bundle) {
         return rewriteLayoutMetadata(rewriteDocMetadata(metadata, parentBundle, bundle), parentBundle, bundle);
     }
 
     private Map<String, String> rewriteDocMetadata(final Map<String, String> metadata,
-                                                   final ParameterBundle parentBundle, final ParameterBundle bundle) {
+            final ParameterBundle parentBundle, final ParameterBundle bundle) {
         final String defaultDoc = metadata.get("documentation::value");
         final String bundleDoc = bundle.documentation(parentBundle).orElse(null);
         if (bundleDoc == null || bundleDoc.equals(defaultDoc)) {
@@ -222,7 +221,7 @@ public class PropertiesService {
     }
 
     private Map<String, String> rewriteLayoutMetadata(final Map<String, String> metadata,
-                                                      final ParameterBundle parentBundle, final ParameterBundle bundle) {
+            final ParameterBundle parentBundle, final ParameterBundle bundle) {
         if (!componentServerConfiguration.getTranslateGridLayoutTabNames()) {
             return metadata;
         }

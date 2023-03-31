@@ -1,15 +1,17 @@
-/*
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+/**
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.sdk.component.server.service;
 
@@ -59,6 +61,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @MonoMeecrowaveConfig
 public class ValidationServiceTest {
+
     @Inject
     private WebTarget base;
 
@@ -71,18 +74,24 @@ public class ValidationServiceTest {
     private Jsonb jsonb = JsonbBuilder.create();
 
     final String lang = "en";
+
     final String family = "custom";
+
     final String component = "noop";
+
     ConfigTypeNodes details;
+
     ConfigTypeNode connection;
+
     JsonSchema jsonSchema;
+
     private Collection<UiSchema> uiSchemas;
 
     private final UiSpecService<Object> uiSpecService = new UiSpecService<>(new Client() {
 
         @Override // for dynamic_values, just return an empty schema
         public CompletionStage<Map<String, Object>> action(final String family, final String type,
-                                                           final String action, final String lang, final Map params, final Object context) {
+                final String action, final String lang, final Map params, final Object context) {
             final Map<String, Object> result = new HashMap<>();
             result.put("items", emptyList());
             return CompletableFuture.completedFuture(result);
@@ -162,7 +171,8 @@ public class ValidationServiceTest {
         String usernameError = "- Property 'configuration.connection.username' is required.";
         String minError = "- Property 'configuration.limit' should be > 100, got 1.";
         String maxError = "- Property 'configuration.limit' should be < 150, got 1,000.";
-        String ValueEvalError = "- Invalid value for Property 'configuration.connection.valueEval' expected: '[VALUE_1, VALUE_2, VALUE_3]', got null.";
+        String ValueEvalError =
+                "- Invalid value for Property 'configuration.connection.valueEval' expected: '[VALUE_1, VALUE_2, VALUE_3]', got null.";
 
         JsonObject payload;
         /**
@@ -170,7 +180,9 @@ public class ValidationServiceTest {
          **/
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
-                        .add("connectn", "").build()).build();
+                        .add("connectn", "")
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url1Required, usernameError));
         /**
          * min/max
@@ -194,8 +206,10 @@ public class ValidationServiceTest {
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
-                                .add("url0", "mailto://toto@titi.org").build())
-                        .build()).build();
+                                .add("url0", "mailto://toto@titi.org")
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url0Error, url1Required, usernameError));
         /*
          * url1
@@ -203,15 +217,19 @@ public class ValidationServiceTest {
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
-                                .add("url1", "mailto://toto@titi.org").build())
-                        .build()).build();
+                                .add("url1", "mailto://toto@titi.org")
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url1Error, usernameError));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
-                                .add("url101", "mailto://toto@titi.org").build())
-                        .build()).build();
+                                .add("url101", "mailto://toto@titi.org")
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url1Required, usernameError));
 
         /*
@@ -245,7 +263,8 @@ public class ValidationServiceTest {
                         .add("limit", 100))
                 .build();
 
-        checkAsserts(payload, Arrays.asList(activeIfsError, connectionError, url1Required, usernameError, ValueEvalError));
+        checkAsserts(payload,
+                Arrays.asList(activeIfsError, connectionError, url1Required, usernameError, ValueEvalError));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
@@ -261,7 +280,8 @@ public class ValidationServiceTest {
                         .add("limit", 100))
                 .build();
 
-        checkAsserts(payload, Arrays.asList(activeIfsError, connectionError, url1Required, usernameError, ValueEvalError));
+        checkAsserts(payload,
+                Arrays.asList(activeIfsError, connectionError, url1Required, usernameError, ValueEvalError));
     }
 
     @Test
@@ -276,31 +296,37 @@ public class ValidationServiceTest {
         JsonObject payload;
 
         /*
-         * password : @ActiveIf(target = "username", evaluationStrategy = ActiveIf.EvaluationStrategy.CONTAINS, value = "undx")
+         * password : @ActiveIf(target = "username", evaluationStrategy = ActiveIf.EvaluationStrategy.CONTAINS, value =
+         * "undx")
          */
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
                                 .add("username", "undx")
-                                .add("password", JsonValue.NULL).build())
-                        .build()).build();
+                                .add("password", JsonValue.NULL)
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, passwordError, url1Required));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
                                 .add("username", "abcd")
-                                .add("password", JsonValue.NULL).build())
-                        .build()).build();
+                                .add("password", JsonValue.NULL)
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url1Required));
-
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
                                 .add("username", "undx")
-                                .add("password", "abc").build())
-                        .build()).build();
+                                .add("password", "abc")
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url1Required));
     }
 
@@ -312,38 +338,44 @@ public class ValidationServiceTest {
         String connectionError = "- Property 'configuration.connection' is required.";
         String usernameError = "- Property 'configuration.connection.username' is required.";
         String url1Required = "- Property 'configuration.connection.url1' is required.";
-        String ValueEvalError = "- Invalid value for Property 'configuration.connection.valueEval' expected: '[VALUE_1, VALUE_2, VALUE_3]', got null.";
+        String ValueEvalError =
+                "- Invalid value for Property 'configuration.connection.valueEval' expected: '[VALUE_1, VALUE_2, VALUE_3]', got null.";
 
         JsonObject payload;
         /*
-         *   valueEval     @ActiveIf(target = "checkbox1", value = "true")
+         * valueEval @ActiveIf(target = "checkbox1", value = "true")
          *
          */
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
                                 .add("checkbox1", JsonValue.TRUE)
-                                .add("valueEval", JsonValue.NULL).build())
-                        .build()).build();
+                                .add("valueEval", JsonValue.NULL)
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url1Required, usernameError, ValueEvalError));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
                                 .add("checkbox1", JsonValue.FALSE)
-                                .add("valueEval", JsonValue.NULL).build())
-                        .build()).build();
+                                .add("valueEval", JsonValue.NULL)
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url1Required, usernameError));
 
         payload = factory.createObjectBuilder()
                 .add("configuration", factory.createObjectBuilder()
                         .add("connection", factory.createObjectBuilder()
                                 .add("checkbox1", JsonValue.TRUE)
-                                .add("valueEval", "VALUE_2").build())
-                        .build()).build();
+                                .add("valueEval", "VALUE_2")
+                                .build())
+                        .build())
+                .build();
         checkAsserts(payload, Arrays.asList(connectionError, url1Required, usernameError));
 
     }
-
 
 }
