@@ -36,7 +36,8 @@ public class ComponentException extends RuntimeException {
 
     public ComponentException(final ErrorOrigin errorOrigin, final String type, final String message,
             final StackTraceElement[] stackTrace, final Throwable cause) {
-        super((type != null ? "(" + type + ") " : "") + message, cause);
+        super((type != null ? "(" + type + ") " : "") + message);
+        this.initCause(transformException(cause));
         this.errorOrigin = errorOrigin;
         originalType = type;
         originalMessage = message;
@@ -69,5 +70,24 @@ public class ComponentException extends RuntimeException {
     public ComponentException(final Throwable cause) {
         this(ErrorOrigin.UNKNOWN, cause.getMessage(), cause);
     }
+
+    /**
+     * Transform all specific cause exceptions to Exception class.
+     * @param t
+     * @return An exception of type java.lang.Exception.
+     */
+    private Exception transformException(Throwable t) {
+        Exception cause = null;
+        if (t.getCause() != null) {
+            cause = transformException(t.getCause());
+        }
+        String newMsg = String.format("[%s] : %s", t.getClass(), t.getMessage());
+
+        Exception e = new Exception(newMsg, cause);
+        e.setStackTrace(t.getStackTrace());
+
+        return e;
+    }
+
 
 }
