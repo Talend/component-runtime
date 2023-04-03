@@ -73,10 +73,11 @@ public class ComponentException extends RuntimeException {
 
     /**
      * Transform all specific cause exceptions to Exception class.
+     * 
      * @param t
      * @return An exception of type java.lang.Exception.
      */
-    private Exception transformException(Throwable t) {
+    private Exception transformException(final Throwable t) {
         Exception cause = null;
         if (t.getCause() != null) {
             cause = transformException(t.getCause());
@@ -88,6 +89,5 @@ public class ComponentException extends RuntimeException {
 
         return e;
     }
-
 
 }
