@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,6 @@ import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
-
-import routines.system.Dynamic;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -79,7 +77,7 @@ public class DiRowStructVisitor {
 
     private Set<String> allowedFields;
 
-    public void visit(final Object data) {
+    private void visit(final Object data) {
         log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
@@ -138,9 +136,9 @@ public class DiRowStructVisitor {
                     onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
                     break;
                 case StudioTypes.DYNAMIC:
-                    final Dynamic dynamic = Dynamic.class.cast(raw);
-                    dynamic.metadatas.forEach(meta -> {
-                        final Object value = dynamic.getColumnValue(meta.getName());
+                    final DynamicWrapper dynamic = new DynamicWrapper(raw);
+                    dynamic.getDynamic().metadatas.forEach(meta -> {
+                        final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         log.debug("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
@@ -321,13 +319,13 @@ public class DiRowStructVisitor {
                             defaultValue, null, studioType));
                     break;
                 case StudioTypes.DYNAMIC:
-                    final Dynamic dynamic = Dynamic.class.cast(raw);
-                    dynamic.metadatas.forEach(meta -> {
-                        final Object value = dynamic.getColumnValue(meta.getName());
+                    final DynamicWrapper dynamic = new DynamicWrapper(raw);
+                    dynamic.getDynamic().metadatas.forEach(meta -> {
+                        final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
                         final boolean metaIsNullable = meta.isNullable();
-                        final boolean metaIsKey = meta.isKey() ? meta.isKey() : isKey;
+                        final boolean metaIsKey = meta.isKey();
                         final int metaLength = meta.getLength() != -1 ? meta.getLength() : length;
                         final int metaPrecision = meta.getPrecision() != -1 ? meta.getPrecision() : precision;
                         final String metaPattern =
@@ -435,7 +433,12 @@ public class DiRowStructVisitor {
     }
 
     private void onObject(final String name, final Object value) {
-        recordBuilder.withString(name, jsonb.toJson(value));
+        if (Record.class.isInstance(value)) {// keep old action here
+            recordBuilder.withString(name, jsonb.toJson(value));
+            return;
+        }
+
+        recordBuilder.with(rowStructSchema.getEntry(name), value);
     }
 
     // CHECKSTYLE:OFF

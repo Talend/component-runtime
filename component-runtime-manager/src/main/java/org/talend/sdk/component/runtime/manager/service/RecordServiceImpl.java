@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
 import org.talend.sdk.component.api.service.record.RecordVisitor;
@@ -111,7 +112,12 @@ public class RecordServiceImpl implements RecordService, Serializable {
                 visitor.onBoolean(entry, record.getOptionalBoolean(entry.getName()));
                 break;
             case STRING:
-                visitor.onString(entry, record.getOptionalString(entry.getName()));
+                String insideType = entry.getProp(SchemaProperty.STUDIO_TYPE);
+                if ("id_Object".equals(insideType)) {
+                    visitor.onObject(entry, Optional.ofNullable(record.get(Object.class, entry.getName())));
+                } else {
+                    visitor.onString(entry, record.getOptionalString(entry.getName()));
+                }
                 break;
             case DATETIME:
                 visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -22,7 +22,7 @@
         <server>
             <id>snapshots</id>
             <username>${env.NEXUS_USER}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
+            <password>${env.NEXUS_PASS}</password>
             <configuration>
                 <timeout>30000</timeout>
             </configuration>
@@ -30,7 +30,7 @@
         <server>
             <id>releases</id>
             <username>${env.NEXUS_USER}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
+            <password>${env.NEXUS_PASS}</password>
             <configuration>
                 <timeout>30000</timeout>
             </configuration>

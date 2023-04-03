@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,15 @@ import lombok.Data;
 class DiRowStructVisitorTest extends VisitorsTest {
 
     private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value) {
+        createMetadata(dynamic, name, type, value, false);
+    }
+
+    private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
+            boolean isKey) {
         final DynamicMetadata meta = new DynamicMetadata();
         meta.setName(name);
         meta.setType(type);
+        meta.setKey(isKey);
         dynamic.metadatas.add(meta);
         dynamic.addColumnValue(value);
     }
@@ -81,7 +87,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.char0 = Character.MAX_VALUE;
         // dynamic
         final Dynamic dynamic = new Dynamic();
-        createMetadata(dynamic, "dynString", StudioTypes.STRING, "stringy");
+        createMetadata(dynamic, "dynString", StudioTypes.STRING, "stringy", true);
         createMetadata(dynamic, "dynInteger", StudioTypes.INTEGER, INT);
         createMetadata(dynamic, "dynDouble", StudioTypes.DOUBLE, DOUBLE);
         createMetadata(dynamic, "dynBytes", StudioTypes.BYTE_ARRAY, BYTES0);
@@ -89,7 +95,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "dynBytesBuffer", StudioTypes.BYTE_ARRAY, ByteBuffer.allocate(100).wrap(BYTES0));
         createMetadata(dynamic, "dynBytesWString", StudioTypes.BYTE_ARRAY, String.valueOf(BYTES0));
         createMetadata(dynamic, "dynBigDecimal", StudioTypes.BIGDECIMAL, BIGDEC);
-        createMetadata(dynamic, "dynObject", StudioTypes.OBJECT, new Rcd());
+        Rcd dynObject = new Rcd();
+        createMetadata(dynamic, "dynObject", StudioTypes.OBJECT, dynObject);
         createMetadata(dynamic, "STRINGS", StudioTypes.LIST, STRINGS);
         createMetadata(dynamic, "LONGS", StudioTypes.LIST, LONGS);
         createMetadata(dynamic, "FLOATS", StudioTypes.LIST, FLOATS);
@@ -106,7 +113,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(46, schema.getEntries().size());
+        assertEquals(47, schema.getEntries().size());
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
         assertEquals("true", schema.getEntry("id").getProp(IS_KEY));
@@ -130,6 +137,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals("true", schema.getEntry("dynString").getProp(IS_KEY));
         assertEquals(StudioTypes.STRING, schema.getEntry("dynString").getProp(STUDIO_TYPE));
         assertEquals("dYnAmIc", schema.getEntry("dynString").getComment());
+        assertEquals("false", schema.getEntry("dynDouble").getProp(IS_KEY));
         assertEquals(StudioTypes.DOUBLE, schema.getEntry("dynDouble").getProp(STUDIO_TYPE));
         assertEquals("30", schema.getEntry("dynDouble").getProp(SIZE));
         assertEquals("10", schema.getEntry("dynDouble").getProp(SCALE));
@@ -166,12 +174,12 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertArrayEquals(String.valueOf(BYTES0).getBytes(), record.getBytes("dynBytesWString"));
         assertEquals(BIGDEC.toString(), record.getString("dynBigDecimal"));
         assertEquals(BIGDEC, new BigDecimal(record.getString("dynBigDecimal")));
-        assertEquals(RECORD.toString(), record.getString("object0"));
+        assertEquals(rowStruct.object0, record.get(Object.class, "object0"));
         assertTrue(record.getBoolean("hAshcOdEdIrtY"));
         assertEquals(NAME, record.getString("h"));
         assertEquals(StudioTypes.CHARACTER, schema.getEntry("char0").getProp(STUDIO_TYPE));
         assertEquals(String.valueOf(Character.MAX_VALUE), record.getString("char0"));
-        assertEquals(RECORD.toString(), record.getString("dynObject"));
+        assertEquals(dynObject, record.get(Object.class, "dynObject"));
         assertEquals(INTEGERS, record.getArray(Integer.class, "array0"));
         assertEquals(STRINGS, record.getArray(String.class, "STRINGS"));
         assertEquals(LONGS, record.getArray(Long.class, "LONGS"));

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,9 +178,17 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should have a parameter being an option (marked with @Option)")
                 .sorted();
 
+        final Stream<String> returnType = finder
+                .findAnnotatedMethods(DiscoverSchemaExtended.class)
+                .stream()
+                .filter(m -> !hasCorrectReturnType(m))
+                .map(m -> m + " should return a Schema assignable")
+                .sorted();
+
         final Stream<String> incomingSchema = finder
                 .findAnnotatedMethods(DiscoverSchemaExtended.class)
                 .stream()
+                .filter(m -> hasTypeParameter(m, Schema.class))
                 .filter(m -> !hasSchemaCorrectNaming(m))
                 .map(m -> m + " should have its Schema `incomingSchema' parameter named `incomingSchema'")
                 .sorted();
@@ -188,15 +196,9 @@ public class ActionValidator implements Validator {
         final Stream<String> branch = finder
                 .findAnnotatedMethods(DiscoverSchemaExtended.class)
                 .stream()
+                .filter(m -> hasTypeParameter(m, String.class))
                 .filter(m -> !hasBranchCorrectNaming(m))
                 .map(m -> m + " should have its String `branch' parameter named `branch'")
-                .sorted();
-
-        final Stream<String> returnType = finder
-                .findAnnotatedMethods(DiscoverSchemaExtended.class)
-                .stream()
-                .filter(m -> !hasCorrectReturnType(m))
-                .map(m -> m + " should return a Schema assignable")
                 .sorted();
 
         return Stream.of(returnType, optionParameter, incomingSchema, branch)
@@ -266,6 +268,12 @@ public class ActionValidator implements Validator {
     private boolean hasOption(final Method method) {
         return Arrays.stream(method.getParameters())
                 .filter(p -> p.isAnnotationPresent(Option.class))
+                .count() == 1;
+    }
+
+    private boolean hasTypeParameter(final Method method, final Class<?> clazz) {
+        return Arrays.stream(method.getParameters())
+                .filter(p -> clazz.isAssignableFrom(p.getType()))
                 .count() == 1;
     }
 

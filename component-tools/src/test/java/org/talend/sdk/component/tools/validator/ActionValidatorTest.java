@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult;
 import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.DatasetDescription;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
@@ -69,7 +70,7 @@ class ActionValidatorTest {
         assertEquals(0, noerrors.count());
         finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaKo.class));
         final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaKo.class));
-        assertEquals(6, errors.count());
+        assertEquals(13, errors.count());
     }
 
     @Test
@@ -184,23 +185,81 @@ class ActionValidatorTest {
 
     static class ActionDiscoverProcessorSchemaOk {
 
-        @DiscoverSchemaExtended("test")
+        @DiscoverSchemaExtended("test-all")
         public Schema guessProcessorSchemaOk(final Schema incomingSchema, @Option FakeDataSet configuration,
                 final String branch) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-schema")
+        public Schema guessProcessorSchemaOk(final Schema incomingSchema, @Option FakeDataSet configuration) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-branch")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration, final String branch) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-min")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-extra")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration, RecordBuilderFactory factory) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-extra2")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration, final String branch,
+                RecordBuilderFactory factory, final String branchy) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-extra3")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration, final String branch,
+                RecordBuilderFactory factory, final String branchy, final Schema incomingSchema, final Schema schema) {
             return null;
         }
     }
 
     static class ActionDiscoverProcessorSchemaKo {
 
-        @DiscoverSchemaExtended("test")
+        @DiscoverSchemaExtended("test-none")
+        public Schema guessProcessorSchemaKo0() {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("schema")
         public Schema guessProcessorSchemaKo1(final Schema schema, final @Option FakeDataSet configuration,
                 final String outgoing) {
             return null;
         }
 
+        @DiscoverSchemaExtended("schema")
+        public Schema guessProcessorSchemaKo2(final Schema schema, final @Option FakeDataSet configuration,
+                final String outgoing) {
+            return null;
+        }
+
         @DiscoverSchemaExtended("record")
-        public Record guessProcessorSchemaKo2(FakeDataSet configuration, final String outgoing) {
+        public Record guessProcessorSchemaKo3(FakeDataSet configuration, final String outgoing) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("record")
+        public Record guessProcessorSchemaKo4(FakeDataSet configuration, final String branch) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("record")
+        public Record guessProcessorSchemaKo5(FakeDataSet configuration) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("record")
+        public Record guessProcessorSchemaKo6(@Option FakeDataSet configuration, RecordBuilderFactory factory) {
             return null;
         }
     }

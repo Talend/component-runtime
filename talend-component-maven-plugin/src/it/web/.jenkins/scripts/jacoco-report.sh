@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 function usage(){
   printf 'Generate Jacoco report\n'
@@ -31,6 +31,7 @@ function usage(){
 
 _INSTALL_DIR=${1}
 _COVERAGE_DIR=${2}
+
 
 # Constants
 _DISTRIBUTION_DIR="${_INSTALL_DIR}/component-server-distribution"

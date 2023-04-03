@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
+import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.configuration.Configuration;
@@ -236,7 +237,7 @@ public class ParameterModelService {
         // explicit annotations.
         // to avoid ambiguous exception we should filter out constraints that are provided by implicit annotation
         final Set<Class<? extends Annotation>> overwrittableAnnotations =
-                new HashSet<>(Arrays.asList(Min.class, Max.class));
+                new HashSet<>(Arrays.asList(Min.class, Max.class, DateTime.class));
         final Set<? extends Class<? extends Annotation>> skipImplicit = Stream.of(annotations)
                 .map(Annotation::annotationType)
                 .filter(overwrittableAnnotations::contains)

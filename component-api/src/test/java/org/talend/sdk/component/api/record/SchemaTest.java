@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,7 +142,8 @@ class SchemaTest {
         Assertions.assertFalse(Schema.Type.ARRAY.isCompatible(new int[] {}));
 
         Assertions.assertTrue(Type.STRING.isCompatible("Hello"));
-        Assertions.assertFalse(Schema.Type.STRING.isCompatible(new int[] {}));
+        Assertions.assertTrue(Schema.Type.STRING.isCompatible(new Object()));
+        Assertions.assertTrue(Schema.Type.STRING.isCompatible(new int[] {}));
 
         Assertions.assertTrue(Type.BYTES.isCompatible("Hello".getBytes()));
         Assertions.assertTrue(Type.BYTES.isCompatible(new Byte[] {}));
