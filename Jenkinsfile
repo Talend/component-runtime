@@ -437,7 +437,7 @@ private String assemblyExtraBuildParams(Boolean skip_doc) {
     println 'Manage the skip_doc option'
     if (skip_doc) {
         buildParamsAsArray.add('--projects !documentation')
-        buildParamsAsArray.add('--projects !reporting')
+        //buildParamsAsArray.add('--projects !reporting')
     }
 
     println 'Construct final params content'
