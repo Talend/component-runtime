@@ -48,7 +48,7 @@ class ResolverImplTest {
     void createClassLoader(@TempDir final Path temporaryFolder) throws Exception {
         final File root = temporaryFolder.toFile();
         root.mkdirs();
-        final String dep = "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.5";
+        final String dep = "org.apache.tomee:arquillian-tomee-codi-tests:jar:8.0.9";
         final File nestedJar = new File(root, UUID.randomUUID().toString() + ".jar");
         try (final JarOutputStream out = new JarOutputStream(new FileOutputStream(nestedJar))) {
             addDepToJar(dep, out);

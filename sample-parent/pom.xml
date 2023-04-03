@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.55.0</version>
+    <version>1.56.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>sample-parent</artifactId>
@@ -31,6 +31,7 @@
     <module>sample</module>
     <module>sample-beam</module>
     <module>documentation-sample</module>
+    <module>sample-connector</module>
   </modules>
 
   <dependencies>

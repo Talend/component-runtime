@@ -19,7 +19,7 @@ set -xe
 
 function usage(){
   printf 'Generate Jacoco html report\n'
-  printf 'Usage : %s <tests_path>\n' "${0}"
+  printf 'Usage : %s <tests_path> <maven_settings>\n' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
@@ -27,8 +27,10 @@ function usage(){
 }
 # Parameters:
 [ -z ${1+x} ] && usage "Parameter 'tests_path' is needed."
+[ -z ${2+x} ] && usage "Parameter 'maven_settings' is needed."
 
 _TESTS_PATH=${1}
+_MAVEN_SETTINGS=${2}
 
 main() (
   printf '##############################################\n'
@@ -40,9 +42,13 @@ main() (
 )
 
 function jacoco_html {
-  mvn surefire-report:report-only --file "${_TESTS_PATH}"
-  mvn site --define generateReports=false --file "${_TESTS_PATH}"
-	printf '##############################################\n'
+  mvn surefire-report:report-only --file "${_TESTS_PATH}" \
+                                  --settings="${_MAVEN_SETTINGS}"
+
+  mvn site --settings="${_MAVEN_SETTINGS}" \
+           --define generateReports=false \
+           --file "${_TESTS_PATH}"
+  printf '##############################################\n'
 }
 
 main "$@"

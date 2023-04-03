@@ -28,8 +28,7 @@
 final String _SERVER_PORT="8081"
 final String _INSTALL_DIR="webtester"
 final String _COVERAGE_DIR="coverage"
-// volume mounted on the podConfiguration, do not edit unless you edit the pod configuration file //
-final String _DOWNLOAD_DIR="/tmp/download"
+final String _DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration, if you edit it, change it in the pod file
 final String _SERVER_DIR="${_INSTALL_DIR}/component-server-distribution"
 // Local artifact definition
 final String _ARTIFACT_TEST_RESULTS="**/src/it/web/test/target/**/*"
@@ -46,7 +45,7 @@ final String _ARTIFACT_REGISTRY="**/${_SERVER_DIR}/conf/components-registry.prop
 final def _NEXUS_CREDENTIALS = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER',
-    passwordVariable: 'NEXUS_PASSWORD')
+    passwordVariable: 'NEXUS_PASS')
 
 final def _TENANT_ID_RD = string(
     credentialsId: 'component-runtime-api-tenant-id-rd',
@@ -62,7 +61,7 @@ String _API_TEST_FILES_PATTERN = '**/src/it/web/test/**/*.json'
 // Default value for parameters
 String runtimeVersion = "default"
 String apiTesterEnv = "component_runtime_ci"
-String fileToRun = "tcomp_approved"
+String fileToRun = "tcomp_endpoints"
 String tenantInstance = "eu"
 
 /**
@@ -94,7 +93,8 @@ pipeline {
     )
     choice(
       name: 'PROJECT_NAME' ,
-      choices: ['tcomp_approved', 'tcomp_draft'] ,
+      choices: ['tcomp_endpoints',
+                'tcomp_draft'] ,
       description: 'Select test project to execute.'
     )
     booleanParam(
@@ -102,12 +102,8 @@ pipeline {
       defaultValue: false,
       description: '''
         Add an extra comportment to the job allowing to extra analysis:
-        - keep the pod alive for debug purposes''')
-    string(
-      name: 'MVN_QUICK_PARAMS',
-      defaultValue: '--define spotless.apply.skip=true  --define spotbugs.skip=true --define checkstyle.skip=true --define rat.skip=true --define skipTests --define maven.javadoc.skip=true --define invoker.skip=true --define maven.artifact.threads=25',
-      description: 'Quick parameters used during tcomp build stage, only edit it for test purpose.'
-    )
+          - keep the pod alive for debug purposes at the end
+          - activate some extra log artifacts''')
   }
   /**
    * environment
@@ -147,20 +143,18 @@ pipeline {
     stage('Validate parameters') {
       steps {
         ///////////////////////////////////////////
-        // asdf install
-        ///////////////////////////////////////////
-        script {
-          println "asdf install the content of repository .tool-versions'\n"
-          sh 'bash .jenkins/scripts/asdf_install.sh'
-        }
-        ///////////////////////////////////////////
         // Validate parameters
         ///////////////////////////////////////////
         script {
 
+          println "Setup all script as executables in ${_SCRIPTS_PATH}\n"
+          sh """
+            find ${_SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
+          """
+
           println "Get actual tck version from ${_ROOT_PATH}/pom.xml: \n"
           TCOMP_VERSION = sh (
-            script: "bash ${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
+            script: "${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
             returnStdout: true
           ).trim()
 
@@ -217,46 +211,28 @@ pipeline {
 
           // updating build description
           String description = """
-            User: Runtime:  $runtimeVersion
-            Project: $fileToRun""".stripIndent()
+            Project: $fileToRun
+            Debug: $params.JENKINS_DEBUG""".stripIndent()
           job_description_append(description)
+        }
+      }
+    }
+    stage('Prepare Test') {
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
+            if (runtimeVersion.contains('-SNAPSHOT')) {
+              sh """ "${_SCRIPTS_PATH}/tcomp-build.sh" "${_ROOT_PATH}/pom.xml" """
+            }
 
-        }
-      }
-    }
-    stage('Build component-runtime fast') {
-      when {
-        expression { runtimeVersion.contains('-SNAPSHOT') }
-      }
-      steps {
-        withCredentials([_NEXUS_CREDENTIALS]) {
-          script {
-            sh "bash ${_SCRIPTS_PATH}/tcomp-build-fast.sh ${_ROOT_PATH}/pom.xml ${params.MVN_QUICK_PARAMS}"
-          }
-        }
-      }
-    }
-    stage('Start component-runtime server') {
-      steps {
-        withCredentials([_NEXUS_CREDENTIALS]) {
-          script {
-            sh """\
-              #!/usr/bin/env bash
-              bash ${_SCRIPTS_PATH}/server-registry-init.sh ${_DOWNLOAD_DIR} ${_INSTALL_DIR} ${_COVERAGE_DIR} \
-                                                            ${runtimeVersion} \
-                                                            1.36.0 azure-dls-gen2 \
-                                                            ${_SERVER_PORT}
-              bash ${_SCRIPTS_PATH}/server-registry-start.sh ${_INSTALL_DIR} ${_COVERAGE_DIR} ${_SERVER_PORT}
-            """.stripIndent()
-          }
-        }
-      }
-    }
-    stage('Check component-runtime server') {
-      steps {
-        withCredentials([_NEXUS_CREDENTIALS]) {
-          script {
-            sh "bash ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}"
+            // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
+            sh """
+              "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" \
+                                                         "${runtimeVersion}" \
+                                                         "1.36.0" "azure-dls-gen2" \
+                                                         "${_SERVER_PORT}"
+              "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
+            """
           }
         }
       }
@@ -264,15 +240,18 @@ pipeline {
     stage('Execute Test') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
-          sh """\
-            #!/usr/bin/env bash
-            bash ${_SCRIPTS_PATH}/apitester-run.sh ${_TESTS_PATH}\
-                                                   ${MAVEN_SETTINGS}\
-                                                   ${tenantInstance}\
-                                                   ${componentRuntimeApiTenantId_Rd} \
-                                                   ${apiTesterEnv}\
-                                                   ${fileToRun}.json
-            """.stripIndent()
+          sh """              
+             ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}
+
+             printf "======== Execute test\n"
+             cd ${_TESTS_PATH}
+             mvn clean test --settings="${MAVEN_SETTINGS}" \
+                            --define instance="${tenantInstance}" \
+                            --define accountId="${componentRuntimeApiTenantId_Rd}" \
+                            --define selectedEnvironment="${apiTesterEnv}" \
+                            --define stopOnFailure=false \
+                            --define file="${fileToRun}.json"
+             """
         }
       }
     }
@@ -284,17 +263,19 @@ pipeline {
     always {
 
       script {
-        sh """\
-          #!/usr/bin/env bash  
-          printf "======== Stop server\n"
-          bash ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          sh """
+            printf "======== Stop server\n"
+            bash ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
 
-          printf "======== Generate jacoco report \n"
-          bash ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
+            printf "======== Generate jacoco report \n"
+            bash ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
 
-          printf "======== Generate Html reports\n"
-          bash ${_SCRIPTS_PATH}/jacoco-html.sh ${_TESTS_PATH}
-        """.stripIndent()
+            printf "======== Generate Html reports\n"
+            bash ${_SCRIPTS_PATH}/jacoco-html.sh ${_TESTS_PATH} ${MAVEN_SETTINGS}
+          """
+        archiveJenkinsLog()
+        }
       }
 
       // recordIssues is a multi result file publisher allowing to have the same publish format on multiples analysis.
@@ -343,43 +324,17 @@ pipeline {
         ])
       }
 
-      script {
-        println "====== Archive artifacts"
-
-        println "Artifact 1: ${_ARTIFACT_TEST_RESULTS}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 2: ${_ARTIFACT_COVERAGE}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
-        // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
-        // println "Artifact 3: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
-        // archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
-        // println "Artifact 4: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
-        // archiveArtifacts artifacts: "${artifact_logs_meecrowave}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 5: ${_ARTIFACT_SETENV}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
-        println "Artifact 6: ${_ARTIFACT_REGISTRY}\\n"
-        archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
-
-      }
+      // FIXME: TCOMP-2244	Meecrowave stop doesn't work so the artifact cmd is failing (file nos accessible)
+      //println "Artifact LOGS_COMPONENT_SERVER: ${_ARTIFACT_LOGS_COMPONENT_SERVER}\\n"
+      //archiveArtifacts artifacts: "${_ARTIFACT_LOGS_COMPONENT_SERVER}", allowEmptyArchive: false, onlyIfSuccessful: false
+      //println "Artifact LOGS_MEECROWAVE: ${_ARTIFACT_LOGS_MEECROWAVE}\\n"
+      //archiveArtifacts artifacts: "${_ARTIFACT_LOGS_MEECROWAVE}", allowEmptyArchive: false, onlyIfSuccessful: false
 
       script {
         if (params.JENKINS_DEBUG) {
           jenkinsBreakpoint()
         }
       }
-
-      //script {
-      //  println "====== Debug optional step"
-      //  sh """
-      //    ls "${distribution_dir}/logs/"
-      //    printf "--------------------------------------------------------------------------------------------------\\n"
-      //    printf "--------------------------------------------------------------------------------------------------\\n"
-      //    cat "${distribution_dir}/logs/component-server.log"
-      //    printf "--------------------------------------------------------------------------------------------------\\n"
-      //    printf "--------------------------------------------------------------------------------------------------\\n"
-      //    cat "${distribution_dir}/logs/meecrowave.out"
-      //  """
-      //}
     }
   }
 }
@@ -419,6 +374,7 @@ private void job_description_append(String new_line) {
   }
 }
 
+
 /**
  * Implement a simple breakpoint to stop actual job
  * Use the method anywhere you need to stop
@@ -429,12 +385,38 @@ private void job_description_append(String new_line) {
  * @return void
  */
 private void jenkinsBreakpoint() {
-  // Backup the description
-  String job_description_backup = currentBuild.description
-  // updating build description
-  currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
-  // Request user action
-  input message: 'Finish the job?', ok: 'Yes'
-  // updating build description
-  currentBuild.description = "$job_description_backup"
+    // Backup the description
+    String job_description_backup = currentBuild.description
+    // updating build description
+    currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
+    // Request user action
+    input message: 'Finish the job?', ok: 'Yes'
+    // updating build description
+    currentBuild.description = "$job_description_backup"
 }
+
+/**
+ * Extract actual jenkins job log content, store it in "build_log.txt"
+ *
+ * @param None
+ * @return Nothing
+ */
+private void archiveJenkinsLog() {
+
+    println "Extract the jenkins log file"
+    String newLog = Jenkins.getInstance().getItemByFullName(env.JOB_NAME)
+      .getBuildByNumber(env.BUILD_NUMBER.toInteger())
+      .logFile.text
+    // copy the log in the job's own workspace
+    writeFile file: "raw_log.txt", text: newLog
+
+    // Clean jenkins log file, could do better with a "ansi2txt < raw_log.txt" instead of "cat raw_log.txt"
+    // https://en.wikipedia.org/wiki/ANSI_escape_code
+    // Also could be good to replace '8m0m' by '' when common lib will be in place
+    sh """
+      cat raw_log.txt | col -b | sed 's;ha:////[[:print:]]*AAAA[=]*;;g' > build_log.txt
+    """
+
+    archiveArtifacts artifacts: '**/build_log.txt', allowEmptyArchive: true, onlyIfSuccessful: false
+}
+

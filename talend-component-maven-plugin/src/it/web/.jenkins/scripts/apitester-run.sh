@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 function usage(){
   printf 'Run an apitester campaign\n'
@@ -43,7 +43,8 @@ _FILE_TO_RUN=${6}
 
 main() (
   printf '##############################################\n'
-  printf 'Test run\n'
+  printf 'Api Tester run\n'
+  printf 'on file %s\n' "${_FILE_TO_RUN}"
   printf '##############################################\n'
 
   test_run
@@ -57,7 +58,7 @@ function test_run {
                  --define accountId="${_ACCOUNT_ID}" \
                  --define selectedEnvironment="${_ENVIRONMENT}" \
                  --define stopOnFailure=false \
-                 --define file="${_FILE_TO_RUN}.json"
+                 --define file="${_FILE_TO_RUN}"
 }
 
 main "$@"

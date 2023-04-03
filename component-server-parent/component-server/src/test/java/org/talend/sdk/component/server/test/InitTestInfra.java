@@ -94,7 +94,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         System
                 .setProperty("talend.component.server.icon.paths",
                         "icons/%s.svg,icons/svg/%s.svg,%s.svg,%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png");
-        System.setProperty("talend.component.server.locale.mapping", "en*=en\nfr*=fr\ntest=test\nde*=de");
+        System.setProperty("talend.component.server.locale.mapping", "en*=en\nfr*=fr\ntest=te\nde*=de");
         System.setProperty("talend.component.server.gridlayout.translation.support", "true");
 
         final String skipLogs = System.getProperty("component.server.test.logging.skip", "true");
@@ -138,7 +138,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
     private String createI18nDocRepo(final String tempDir) {
         final File base = new File(tempDir, "i18n-doc");
         base.mkdirs();
-        try (final FileWriter writer = new FileWriter(new File(base, "documentation_the-test-component_test.adoc"))) {
+        try (final FileWriter writer = new FileWriter(new File(base, "documentation_the-test-component_te.adoc"))) {
             writer.write("== Input\n\nSome Input Overriden For Test locale\n\n=== Configuration\n\nblabla\n");
         } catch (final IOException e) {
             throw new IllegalStateException(e);
@@ -221,7 +221,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             });
         }
 
-        final File ziplock = new File(m2, "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar");
+        final File ziplock = new File(m2, "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar");
         ziplock.getParentFile().mkdirs();
         try (final InputStream from = new FileInputStream(jarLocation(IO.class));
                 final OutputStream to = new FileOutputStream(ziplock)) {
@@ -329,7 +329,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out.closeEntry();
 
                     out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
-                    out.write("org.apache.tomee:ziplock:jar:7.0.5:runtime".getBytes(StandardCharsets.UTF_8));
+                    out.write("org.apache.tomee:ziplock:jar:8.0.14:runtime".getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
 
                     /*
