@@ -188,12 +188,14 @@
       <artifactId>remote-engine-customizer-image</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>documentation</artifactId>
       <version>${project.version}</version>
       <optional>${documentation.skip}</optional>
     </dependency>
+    -->
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>talend-component-kit-intellij-plugin</artifactId>
