@@ -446,3 +446,23 @@ private String assemblyExtraBuildParams(Boolean skip_doc) {
 
     return extraBuildParams
 }
+
+/**
+ * Implement a simple breakpoint to stop actual job
+ * Use the method anywhere you need to stop
+ * The first usage is to keep the pod alive on post stage.
+ * Change and restore the job description to be more visible
+ *
+ * @param none
+ * @return void
+ */
+private void jenkinsBreakpoint() {
+    // Backup the description
+    String job_description_backup = currentBuild.description
+    // updating build description
+    currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
+    // Request user action
+    input message: 'Finish the job?', ok: 'Yes'
+    // updating build description
+    currentBuild.description = "$job_description_backup"
+}
