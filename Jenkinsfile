@@ -67,7 +67,7 @@ pipeline {
           defaultValue: false,
           description: 'Force Sonar analysis')
         string(
-          name: 'EXTRA_BUILD_ARGS',
+          name: 'EXTRA_BUILD_PARAMS',
           defaultValue: '',
           description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
         string(
