@@ -63,9 +63,13 @@ pipeline {
           choices: ['STANDARD', 'RELEASE'],
           description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
         booleanParam(
-          name: 'FORCE_SONAR',
+          name: 'MAVEN_DEPLOY',
           defaultValue: false,
-          description: 'Force Sonar analysis')
+          description: '''
+            Force maven deploy stage for development branches. No effect on master and maintenance.
+            INFO: master/maintenance branch are deploying on "talend.oss.snapshots/releases"
+                  dev branches are deploying on "talend.snapshots"
+            ''')
         string(
           name: 'EXTRA_BUILD_PARAMS',
           defaultValue: '',
@@ -74,6 +78,10 @@ pipeline {
           name: 'POST_LOGIN_SCRIPT',
           defaultValue: '',
           description: 'Execute a shell command after login. Useful for maintenance.')
+        booleanParam(
+          name: 'FORCE_SONAR',
+          defaultValue: false,
+          description: 'Force Sonar analysis')
         booleanParam(
           name: 'FORCE_DOC',
           defaultValue: false,
@@ -166,15 +174,16 @@ pipeline {
                 }
             }
         }
-        stage('Deploy artifacts') {
+        stage('Deploy maven artifacts') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isStdBranch }
+                anyOf {
+                    allOff { isStdBranch; expression {params.Action != 'RELEASE'} }
+                    allOff { not {isStdBranch}; params.MAVEN_DEPLOY}
                 }
             }
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
+                    jenkinsBreakpoint()
                     sh """\
                         #!/usr/bin/env bash
                         set -xe
