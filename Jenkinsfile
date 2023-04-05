@@ -298,7 +298,7 @@ pipeline {
                         set -xe
                         bash mvn deploy $DEPLOY_OPTS \
                                         $extraBuildParams \
-                                        --profile dev_branch
+                                        --activate-profiles dev_branch
                                         --settings .jenkins/settings.xml
                     """.stripIndent()
                 }
