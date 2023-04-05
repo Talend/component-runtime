@@ -16,6 +16,7 @@
  */
 // Imports
 import java.time.LocalDateTime
+import java.util.regex.Matcher
 
 // Credentials
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
@@ -210,7 +211,7 @@ pipeline {
                     String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
                     if ( user_name == null) { user_name = "auto" }
 
-                    string deploy_info
+                    String deploy_info
                     if (deploy_oss || deploy_private){
                         deploy_info = '+DEPLOY'
                     }
@@ -292,13 +293,12 @@ pipeline {
             }
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
-                    jenkinsBreakpoint()
                     sh """\
                         #!/usr/bin/env bash
                         set -xe
                         bash mvn deploy $DEPLOY_OPTS \
                                         $extraBuildParams \
-                                        --activate-profiles dev_branch
+                                        --activate-profiles dev_branch \
                                         --settings .jenkins/settings.xml
                     """.stripIndent()
                 }
@@ -656,7 +656,7 @@ private static String add_qualifier_to_version(String version, String ticket, St
 private static ArrayList<String> extract_branch_info(GString branch_name) {
 
     String branchRegex = /^(?<user>.*)\/(?<ticket>[A-Z]{2,8}-\d{1,6})[_-](?<description>.*)/
-    java.util.regex.Matcher branchMatcher = branch_name =~ branchRegex
+    Matcher branchMatcher = branch_name =~ branchRegex
 
     try {
         assert branchMatcher.matches()
