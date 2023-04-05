@@ -198,7 +198,7 @@ pipeline {
             when {
                 allOf {
                     expression { params.MAVEN_DEPLOY }
-                    not { isStdBranch }
+                    expression { !isStdBranch }
                 }
             }
             steps {
