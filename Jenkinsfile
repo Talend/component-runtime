@@ -254,7 +254,7 @@ pipeline {
                             #!/usr/bin/env bash 
                             set -xe
                             _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED'
-                            mvn sonar:sonar
+                            mvn sonar:sonar \
                                 --define sonar.host.url=https://sonar-eks.datapwn.com \
                                 --define sonar.login='$SONAR_USER' \
                                 --define sonar.password='$SONAR_PASS' \
