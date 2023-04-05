@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 // Credentials
+
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
@@ -28,14 +29,8 @@ final String slackChannel = 'components-ci'
 final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
-final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
+final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
-
-// Files and folder definition
-final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
-
-// Artifacts paths
-final String _ARTIFACT_COVERAGE = '**/jacoco-aggregate/**/*.*'
 
 pipeline {
     agent {
@@ -72,13 +67,17 @@ pipeline {
           defaultValue: false,
           description: 'Force Sonar analysis')
         string(
-          name: 'EXTRA_BUILD_ARGS',
+          name: 'EXTRA_BUILD_PARAMS',
           defaultValue: '',
           description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
         string(
           name: 'POST_LOGIN_SCRIPT',
           defaultValue: '',
           description: 'Execute a shell command after login. Useful for maintenance.')
+        booleanParam(
+          name: 'FORCE_DOC',
+          defaultValue: false,
+          description: 'Force documentation stage for development branches. No effect on master and maintenance.')
         booleanParam(
           name: 'DEBUG_BEFORE_EXITING',
           defaultValue: false,
@@ -101,11 +100,12 @@ pipeline {
 
                     def pom = readMavenPom file: 'pom.xml'
                     env.PROJECT_VERSION = pom.version
-                    try {
-                        EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
-                    } catch (ignored) {
-                        EXTRA_BUILD_ARGS = ""
-                    }
+
+                    // By default the doc is skipped for standards branches
+                    Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
+
+                    extraBuildParams = assemblyExtraBuildParams(skip_documentation)
+
                 }
                 ///////////////////////////////////////////
                 // Updating build displayName and description
@@ -122,7 +122,8 @@ pipeline {
                     currentBuild.description = ("""
                        User: $user_name - $params.Action Build
                        Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
-                       Extra args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
+                       Debug: $params.DEBUG_BEFORE_EXITING
+                       Extra build args: $extraBuildParams""".stripIndent()
                     )
                 }
                 ///////////////////////////////////////////
@@ -157,7 +158,10 @@ pipeline {
                 withCredentials([ossrhCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
-                        mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        set -xe
+                        mvn clean install $BUILD_ARGS \
+                                          $extraBuildParams \
+                                          --settings .jenkins/settings.xml
                         """.stripIndent()
                 }
             }
@@ -173,7 +177,10 @@ pipeline {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
-                        bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        set -xe
+                        bash mvn deploy $DEPLOY_OPTS \
+                                        $extraBuildParams \
+                                        --settings .jenkins/settings.xml
                     """.stripIndent()
                 }
             }
@@ -198,16 +205,22 @@ pipeline {
         }
         stage('Documentation') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isMasterBranch }
+                expression {
+                  params.FORCE_DOC || (params.Action != 'RELEASE' && isMasterBranch)
                 }
             }
             steps {
                 withCredentials([ossrhCredentials, gitCredentials]) {
                     sh """\
                         #!/usr/bin/env bash 
-                        cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -
+                        set -xe                       
+                        mvn verify pre-site --file documentation/pom.xml \
+                                            --settings .jenkins/settings.xml \
+                                            --activate-profiles gh-pages \
+                                            --define gpg.skip=true \
+                                            $SKIP_OPTS \
+                                            $extraBuildParams 
+
                     """.stripIndent()
                 }
             }
@@ -222,8 +235,15 @@ pipeline {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         sh """\
                             #!/usr/bin/env bash 
-                            mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
-                            mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
+                            set -xe
+                            mvn ossindex:audit-aggregate -pl '!bom' \
+                                                         --define ossindex.fail=false \
+                                                         --define ossindex.reportFile=target/audit.txt \
+                                                         --settings .jenkins/settings.xml
+                                                         
+                            mvn versions:dependency-updates-report versions:plugin-updates-report \
+                                                                   versions:property-updates-report \
+                                                                   -pl '!bom'
                            """.stripIndent()
                     }
                 }
@@ -232,7 +252,15 @@ pipeline {
                         // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
                         sh """\
                             #!/usr/bin/env bash 
-                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar
+                            set -xe
+                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED'
+                            mvn sonar:sonar
+                                --define sonar.host.url=https://sonar-eks.datapwn.com \
+                                --define sonar.login='$SONAR_USER' \
+                                --define sonar.password='$SONAR_PASS' \
+                                --define sonar.branch.name=${env.BRANCH_NAME} \
+                                --define sonar.analysisCache.enabled=false
+                                
                         """.stripIndent()
                     }
                 }
@@ -337,7 +365,7 @@ pipeline {
                 //Only post results to Slack for Master and Maintenance branches
                 if (isStdBranch) {
                     //if previous build was a success, ping channel in the Slack message
-                    if ("SUCCESS".equals(currentBuild.previousBuild.result)) {
+                    if ("SUCCESS" == currentBuild.previousBuild.result) {
                         slackSend(
                             color: '#FF0000',
                             message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
@@ -381,10 +409,40 @@ pipeline {
                 ]
             )
             script {
-                println '====== Archive artifacts'
-                println "Artifact 1: ${_ARTIFACT_COVERAGE}"
-                archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: true, onlyIfSuccessful: false
+                println '====== Archive jacoco reports artifacts'
+                archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
             }
         }
     }
+}
+
+/**
+ * Assembly all needed items to put inside extraBuildParams
+ *
+ * @param Boolean skip_doc, if set to true documentation build will be skipped
+ *
+ * @return extraBuildParams as a string ready for mvn cmd
+ */
+private String assemblyExtraBuildParams(Boolean skip_doc) {
+    String extraBuildParams
+
+    println 'Processing extraBuildParams'
+    final List<String> buildParamsAsArray = []
+
+    println 'Manage user params'
+    if ( params.EXTRA_BUILD_PARAMS ) {
+        buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
+    }
+
+    println 'Manage the skip_doc option'
+    if (skip_doc) {
+        buildParamsAsArray.add('--projects !documentation')
+        buildParamsAsArray.add('--define documentation.skip=true')
+    }
+
+    println 'Construct final params content'
+    extraBuildParams = buildParamsAsArray.join(' ')
+    println "extraBuildParams: $extraBuildParams"
+
+    return extraBuildParams
 }
