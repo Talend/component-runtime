@@ -255,7 +255,7 @@ pipeline {
                 }
             }
         }
-        stage('Master Post Build Tasks') {
+        stage('OSS security analysis') {
             when {
                 expression { params.Action != 'RELEASE' }
                 branch 'master'
@@ -270,13 +270,80 @@ pipeline {
                                                          --define ossindex.fail=false \
                                                          --define ossindex.reportFile=target/audit.txt \
                                                          --settings .jenkins/settings.xml
-                                                         
+                           """.stripIndent()
+                    }
+                }
+            }
+            post {
+                always {
+                    publishHTML(
+                      target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'target/',
+                        reportFiles          : 'audit.txt',
+                        reportName           : "security::audit"
+                      ])
+                }
+            }
+        }
+        stage('Dependencies updates project') {
+            when {
+                expression { params.Action != 'RELEASE' }
+                branch 'master'
+            }
+            steps {
+                withCredentials([ossrhCredentials]) {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        sh """\
+                            #!/usr/bin/env bash 
+                            set -xe
                             mvn versions:dependency-updates-report versions:plugin-updates-report \
                                                                    versions:property-updates-report \
                                                                    -pl '!bom'
                            """.stripIndent()
                     }
                 }
+            }
+            post {
+                always {
+                    publishHTML(
+                      target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'target/site/',
+                        reportFiles          : 'property-updates-report.html',
+                        reportName           : "outdated::property"
+                      ])
+                    publishHTML(
+                      target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'target/site/',
+                        reportFiles          : 'dependency-updates-report.html',
+                        reportName           : "outdated::dependency"
+                      ])
+                    publishHTML(
+                      target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'target/site/',
+                        reportFiles          : 'plugin-updates-report.html',
+                        reportName           : "outdated::plugins"
+                      ])
+                }
+            }
+        }
+        stage('Sonar execution') {
+            when {
+                expression { params.Action != 'RELEASE' }
+                branch 'master'
+            }
+            steps {
                 withCredentials([sonarCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
@@ -290,49 +357,8 @@ pipeline {
                                 --define sonar.password='$SONAR_PASS' \
                                 --define sonar.branch.name=${env.BRANCH_NAME} \
                                 --define sonar.analysisCache.enabled=false
-                                
                         """.stripIndent()
                     }
-                }
-            }
-            post {
-                always {
-                    publishHTML(
-                            target: [
-                                    allowMissing         : true,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'target/',
-                                    reportFiles          : 'audit.txt',
-                                    reportName           : "security::audit"
-                            ])
-                    publishHTML(
-                            target: [
-                                    allowMissing         : true,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'target/site/',
-                                    reportFiles          : 'property-updates-report.html',
-                                    reportName           : "outdated::property"
-                            ])
-                    publishHTML(
-                            target: [
-                                    allowMissing         : true,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'target/site/',
-                                    reportFiles          : 'dependency-updates-report.html',
-                                    reportName           : "outdated::dependency"
-                            ])
-                    publishHTML(
-                            target: [
-                                    allowMissing         : true,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'target/site/',
-                                    reportFiles          : 'plugin-updates-report.html',
-                                    reportName           : "outdated::plugins"
-                            ])
                 }
             }
         }
