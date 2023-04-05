@@ -174,11 +174,11 @@ pipeline {
                 }
             }
         }
-        stage('Deploy maven artifacts') {
+        stage('Deploy OSS maven artifacts') {
             when {
-                anyOf {
-                    allOff { isStdBranch; expression {params.Action != 'RELEASE'} }
-                    allOff { not {isStdBranch}; params.MAVEN_DEPLOY}
+                allOf {
+                    expression { params.Action != 'RELEASE' }
+                    expression { isStdBranch }
                 }
             }
             steps {
@@ -189,6 +189,27 @@ pipeline {
                         set -xe
                         bash mvn deploy $DEPLOY_OPTS \
                                         $extraBuildParams \
+                                        --settings .jenkins/settings.xml
+                    """.stripIndent()
+                }
+            }
+        }
+        stage('Deploy PRIVATE maven artifacts') {
+            when {
+                allOf {
+                    expression { params.MAVEN_DEPLOY }
+                    not { isStdBranch }
+                }
+            }
+            steps {
+                withCredentials([ossrhCredentials, gpgCredentials]) {
+                    jenkinsBreakpoint()
+                    sh """\
+                        #!/usr/bin/env bash
+                        set -xe
+                        bash mvn deploy $DEPLOY_OPTS \
+                                        $extraBuildParams \
+                                        --profile dev_branch
                                         --settings .jenkins/settings.xml
                     """.stripIndent()
                 }

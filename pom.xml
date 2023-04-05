@@ -1747,6 +1747,15 @@
 
   <profiles>
     <profile>
+      <id>dev_branch</id>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>ossrh</id>
+          <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+    <profile>
       <id>travis</id>
       <properties>
         <org.slf4j.simpleLogger.showThreadName>true</org.slf4j.simpleLogger.showThreadName>
