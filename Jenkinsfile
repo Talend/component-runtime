@@ -32,6 +32,14 @@ final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
 
+// Job variables declaration
+String branch_user
+String branch_ticket
+String branch_description
+String pomVersion
+String qualifiedVersion
+String releaseVersion = ''
+
 pipeline {
     agent {
         kubernetes {
@@ -71,6 +79,14 @@ pipeline {
                   dev branches are deploying on "talend.snapshots"
             ''')
         string(
+          name: 'VERSION_QUALIFIER',
+          defaultValue: 'DEFAULT',
+          description: '''
+            Only for dev branches. It will build/deploy jars with the given version qualifier.
+             - DEFAULT means the qualifier will be the Jira id extracted from the branch name.
+            From "user/JIRA-12345_some_information" the qualifier will be 'JIRA-12345'.
+            Before the build, the maven version will be set to: x.y.z-JIRA-12345-SNAPSHOT''')
+        string(
           name: 'EXTRA_BUILD_PARAMS',
           defaultValue: '',
           description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
@@ -95,6 +111,66 @@ pipeline {
     stages {
         stage('Preliminary steps') {
             steps {
+                script{
+                    final def pom = readMavenPom file: 'pom.xml'
+                    pomVersion = pom.version
+
+                    echo 'Manage the version qualifier'
+                    if (isStdBranch || (!params.MAVEN_DEPLOY && !isStdBranch)) {
+                        println """
+                             No need to add qualifier in followings cases:' +
+                             - We are on Master or Maintenance branch
+                             - We do not want to deploy on dev branch
+                             """.stripIndent()
+                        qualifiedVersion = pomVersion
+                    }
+                    else {
+                        branch_user = ""
+                        branch_ticket = ""
+                        branch_description = ""
+                        if (params.VERSION_QUALIFIER != ("DEFAULT")) {
+                            // If the qualifier is given, use it
+                            println """
+                             No need to add qualifier, use the given one: "$params.VERSION_QUALIFIER"
+                             """.stripIndent()
+                        }
+                        else {
+                            echo "Validate the branch name"
+                            (branch_user,
+                            branch_ticket,
+                            branch_description) = extract_branch_info("$env.BRANCH_NAME")
+
+                            // Check only branch_user, because if there is an error all three params are empty.
+                            if (branch_user == ("")) {
+                                println """
+                                ERROR: The branch name doesn't comply with the format: user/JIRA-1234-Description
+                                It is MANDATORY for artifact management.
+                                You have few options:
+                                - You do not need to deploy, uncheck MAVEN_DEPLOY checkbox
+                                - Change the VERSION_QUALIFIER text box to a personal qualifier, BUT you need to do it on ALL se/ee and cloud-components build
+                                - Rename your branch
+                                """.stripIndent()
+                                currentBuild.description = ("ERROR: The branch name is not correct")
+                                sh """exit 1"""
+                            }
+                        }
+
+                        echo "Insert a qualifier in pom version..."
+                        qualifiedVersion = add_qualifier_to_version(
+                          pomVersion,
+                          branch_ticket,
+                          "$params.VERSION_QUALIFIER" as String)
+
+                        echo """
+                          Configure the version qualifier for the curent branche: $env.BRANCH_NAME
+                          requested qualifier: $params.VERSION_QUALIFIER
+                          with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description
+                          Qualified Version = $qualifiedVersion"""
+                    }
+
+                    releaseVersion = pomVersion.split('-')[0]
+                    println "releaseVersion: $releaseVersion"
+                }
                 script {
                     withCredentials([gitCredentials]) {
                         sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
@@ -128,7 +204,7 @@ pipeline {
 
                     // updating build description
                     currentBuild.description = ("""
-                       User: $user_name - $params.Action Build
+                       Version = $qualifiedVersion - $params.Action Build
                        Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
                        Debug: $params.DEBUG_BEFORE_EXITING
                        Extra build args: $extraBuildParams""".stripIndent()
@@ -233,7 +309,7 @@ pipeline {
                 }
             }
         }
-        stage('Documentation') {
+        stage('Generate Doc') {
             when {
                 expression {
                   params.FORCE_DOC || (params.Action != 'RELEASE' && isMasterBranch)
@@ -288,7 +364,7 @@ pipeline {
                 }
             }
         }
-        stage('Dependencies updates project') {
+        stage('Dependencies project report') {
             when {
                 expression { params.Action != 'RELEASE' }
                 branch 'master'
@@ -521,4 +597,62 @@ private void jenkinsBreakpoint() {
     input message: 'Finish the job?', ok: 'Yes'
     // updating build description
     currentBuild.description = "$job_description_backup"
+}
+
+/**
+ * create a new version from actual one and given jira ticket or user qualifier
+ * Priority to user qualifier
+ *
+ * The branch name has comply with the format: user/JIRA-1234-Description
+ * It is MANDATORY for artifact management.
+ *
+ * @param String version actual version to edit
+ * @param GString ticket
+ * @param GString user_qualifier to be checked as priority qualifier
+ *
+ * @return String new_version with added qualifier
+ */
+private static String add_qualifier_to_version(String version, String ticket, String user_qualifier) {
+    String new_version
+
+    if (user_qualifier.contains("DEFAULT")) {
+        if (version.contains("-SNAPSHOT")) {
+            new_version = version.replace("-SNAPSHOT", "-$ticket-SNAPSHOT" as String)
+        } else {
+            new_version = "$version-$ticket".toString()
+        }
+    } else {
+        new_version = version.replace("-SNAPSHOT", "-$user_qualifier-SNAPSHOT" as String)
+    }
+    return new_version
+}
+
+/**
+ * extract given branch information
+ *
+ * The branch name has comply with the format: user/JIRA-1234-Description
+ * It is MANDATORY for artifact management.
+ *
+ * @param branch_name row name of the branch
+ *
+ * @return A list containing the extracted: [user, ticket, description]
+ * The method also raise an assert exception in case of wrong branch name
+ */
+private static ArrayList<String> extract_branch_info(GString branch_name) {
+
+    String branchRegex = /^(?<user>.*)\/(?<ticket>[A-Z]{2,8}-\d{1,6})[_-](?<description>.*)/
+    java.util.regex.Matcher branchMatcher = branch_name =~ branchRegex
+
+    try {
+        assert branchMatcher.matches()
+    }
+    catch (AssertionError ignored) {
+        return ["", "", ""]
+    }
+
+    String user = branchMatcher.group("user")
+    String ticket = branchMatcher.group("ticket")
+    String description = branchMatcher.group("description")
+
+    return [user, ticket, description]
 }
