@@ -103,7 +103,7 @@ pipeline {
           defaultValue: false,
           description: 'Force documentation stage for development branches. No effect on master and maintenance.')
         booleanParam(
-          name: 'DEBUG_BEFORE_EXITING',
+          name: 'JENKINS_DEBUG',
           defaultValue: false,
           description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
     }
@@ -111,6 +111,10 @@ pipeline {
     stages {
         stage('Preliminary steps') {
             steps {
+
+                ///////////////////////////////////////////
+                // Pom version and Qualifier management
+                ///////////////////////////////////////////
                 script{
                     final def pom = readMavenPom file: 'pom.xml'
                     pomVersion = pom.version
@@ -206,7 +210,7 @@ pipeline {
                     currentBuild.description = ("""
                        Version = $qualifiedVersion - $params.Action Build
                        Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
-                       Debug: $params.DEBUG_BEFORE_EXITING
+                       Debug: $params.JENKINS_DEBUG
                        Extra build args: $extraBuildParams""".stripIndent()
                     )
                 }
@@ -236,7 +240,7 @@ pipeline {
                 }
             }
         }
-        stage('Standard maven build') {
+        stage('Maven build') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
                 withCredentials([ossrhCredentials]) {
@@ -250,7 +254,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy OSS maven artifacts') {
+        stage('Maven deploy OSS') {
             when {
                 allOf {
                     expression { params.Action != 'RELEASE' }
@@ -259,7 +263,6 @@ pipeline {
             }
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
-                    jenkinsBreakpoint()
                     sh """\
                         #!/usr/bin/env bash
                         set -xe
@@ -270,7 +273,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy PRIVATE maven artifacts') {
+        stage('Maven deploy PRIVATE') {
             when {
                 allOf {
                     expression { params.MAVEN_DEPLOY }
@@ -364,7 +367,7 @@ pipeline {
                 }
             }
         }
-        stage('Dependencies project report') {
+        stage('Deps report') {
             when {
                 expression { params.Action != 'RELEASE' }
                 branch 'master'
@@ -414,7 +417,7 @@ pipeline {
                 }
             }
         }
-        stage('Sonar execution') {
+        stage('Sonar') {
             when {
                 expression { params.Action != 'RELEASE' }
                 branch 'master'
@@ -457,10 +460,6 @@ pipeline {
                     }
                 }
             }
-        }
-        stage('Debug') {
-            when { expression { return params.DEBUG_BEFORE_EXITING } }
-            steps { script { input message: 'Finish the job?', ok: 'Yes' } }
         }
     }
     post {
@@ -543,6 +542,12 @@ pipeline {
             script {
                 println '====== Archive jacoco reports artifacts'
                 archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
+            }
+
+            script {
+                if (params.JENKINS_DEBUG) {
+                    jenkinsBreakpoint()
+                }
             }
         }
     }
