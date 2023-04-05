@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
@@ -13,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Credentials
+// Imports
+import java.time.LocalDateTime
 
+// Credentials
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
@@ -30,7 +33,7 @@ final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final String extraBuildParams = ""
-final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
+final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDateTime.now())
 
 // Job variables declaration
 String branch_user
@@ -39,6 +42,8 @@ String branch_description
 String pomVersion
 String qualifiedVersion
 String releaseVersion = ''
+Boolean deploy_oss = false
+Boolean deploy_private = false
 
 pipeline {
     agent {
@@ -174,6 +179,9 @@ pipeline {
 
                     releaseVersion = pomVersion.split('-')[0]
                     println "releaseVersion: $releaseVersion"
+
+                    deploy_oss = isStdBranch && params.Action != 'RELEASE'
+                    deploy_private = !isStdBranch && params.MAVEN_DEPLOY
                 }
                 script {
                     withCredentials([gitCredentials]) {
@@ -202,8 +210,16 @@ pipeline {
                     String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
                     if ( user_name == null) { user_name = "auto" }
 
+                    string deploy_info
+                    if (deploy_oss || deploy_private){
+                        deploy_info = '+DEPLOY'
+                    }
+                    else{
+                        deploy_info = ''
+                    }
+
                     currentBuild.displayName = (
-                      "#$currentBuild.number-$params.Action: $user_name"
+                      "#$currentBuild.number-$params.Action" + deploy_info + ": $user_name"
                     )
 
                     // updating build description
@@ -256,10 +272,7 @@ pipeline {
         }
         stage('Maven deploy OSS') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isStdBranch }
-                }
+                expression { deploy_oss }
             }
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
@@ -275,10 +288,7 @@ pipeline {
         }
         stage('Maven deploy PRIVATE') {
             when {
-                allOf {
-                    expression { params.MAVEN_DEPLOY }
-                    expression { !isStdBranch }
-                }
+                expression { deploy_private }
             }
             steps {
                 withCredentials([ossrhCredentials, gpgCredentials]) {
