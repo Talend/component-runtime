@@ -880,6 +880,16 @@
       <id>TalendOpenSourceSnapshot</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>talend.snapshots</id>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/</url>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -1750,7 +1760,7 @@
       <id>dev_branch</id>
       <distributionManagement>
         <snapshotRepository>
-          <id>ossrh</id>
+          <id>talend.snapshots</id>
           <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
       </distributionManagement>

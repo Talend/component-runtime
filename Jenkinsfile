@@ -242,7 +242,12 @@ pipeline {
         }
         stage('Post login') {
             steps {
-                withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+                withCredentials([gitCredentials,
+                                 dockerCredentials,
+                                 ossrhCredentials,
+                                 jetbrainsCredentials,
+                                 jiraCredentials,
+                                 gpgCredentials]) {
                     script {
                         try {
                             sh """\
@@ -276,7 +281,8 @@ pipeline {
                 expression { deploy_oss }
             }
             steps {
-                withCredentials([ossrhCredentials, gpgCredentials]) {
+                withCredentials([ossrhCredentials,
+                                 gpgCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
                         set -xe
@@ -329,7 +335,8 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([ossrhCredentials, gitCredentials]) {
+                withCredentials([ossrhCredentials,
+                                 gitCredentials]) {
                     sh """\
                         #!/usr/bin/env bash 
                         set -xe                       
