@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
@@ -344,7 +343,7 @@ pipeline {
                 }
             }
         }
-        stage('OSS security analysis') {
+        stage('Master Post Build Tasks') {
             when {
                 expression { params.Action != 'RELEASE' }
                 branch 'master'
@@ -440,7 +439,7 @@ pipeline {
                             #!/usr/bin/env bash 
                             set -xe
                             _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED'
-                            mvn sonar:sonar
+                            mvn sonar:sonar \
                                 --define sonar.host.url=https://sonar-eks.datapwn.com \
                                 --define sonar.login='$SONAR_USER' \
                                 --define sonar.password='$SONAR_PASS' \
