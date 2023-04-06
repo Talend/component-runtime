@@ -19,6 +19,7 @@ import java.util.regex.Matcher
 
 // Credentials
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
+final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
 final def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
@@ -291,7 +292,7 @@ pipeline {
                 expression { deploy_private }
             }
             steps {
-                withCredentials([ossrhCredentials, gpgCredentials]) {
+                withCredentials([nexusCredentials, gpgCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
                         set -xe
@@ -343,7 +344,7 @@ pipeline {
                 }
             }
         }
-        stage('Master Post Build Tasks') {
+        stage('OSS security analysis') {
             when {
                 expression { params.Action != 'RELEASE' }
                 branch 'master'
