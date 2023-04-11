@@ -26,18 +26,15 @@ _REGISTRY="${2?Missing registry}"
 
 dockerPush() {
   _IMAGE="${1}"
-  echo ">> Building and pushing ${_IMAGE}:${_TAG} to ${_REGISTRY}"
-  cd "images/${_IMAGE}-image"
+  echo ">> Pushing ${_IMAGE}:${_TAG} to ${_REGISTRY}"
 
-  # TODO check where is -Prelease in docker build
-  # TODO use --file
-  mvn -DskipTests -Dinvoker.skip=true -T1C \
-      clean install \
-      jib:build@build \
+  # TODO validate: -Prelease removed
+  # TODO validate: why T1C?
+  mvn install jib:build@build \
+      --file "images/${_IMAGE}-image/pom.xml" \
       --define image.currentVersion=${_TAG} \
-      --define talend.server.image.registry=${_REGISTRY}
-#      --define talend.server.image.registry=registry.hub.docker.com/
-  cd ../..
+      --define talend.server.image.registry=${_REGISTRY} \
+      -DskipTests -Dinvoker.skip=true -T1C \
 }
 
 dockerPush "component-server"

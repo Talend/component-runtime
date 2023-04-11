@@ -25,13 +25,19 @@ tag="${1?Missing tag}"
 latest="${2:-false}"
 
 dockerBuild() {
-  echo ">> Building and pushing $1:${tag}"
-  cd "images/${1}-image"
-  mvn package jib:build@build -Ddocker.talend.image.tag=${tag}
+  _IMAGE="${1}"
+  echo ">> Building $_IMAGE:${tag}"
+
+  mvn package jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define docker.talend.image.tag=${tag}
+
   if [[ ${latest} == 'true' ]]; then
-    mvn package jib:build@build -Ddocker.talend.image.tag=latest
+    mvn package jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define docker.talend.image.tag=latest
   fi
-  cd ../..
+
 }
 
 dockerBuild "component-server"
