@@ -29,11 +29,10 @@ _REGISTRY="${3?Missing registry}"
 
 echo ">> Pushing ${_IMAGE}:${_TAG} to ${_REGISTRY}"
 
-# TODO validate: -Prelease removed
-# TODO validate: why T1C?
 mvn install jib:build@build \
     --file "images/${_IMAGE}-image/pom.xml" \
-    --define image.currentVersion=${_TAG} \
-    --define talend.server.image.registry=${_REGISTRY} \
-    -DskipTests -Dinvoker.skip=true -T1C \
+    --define image.currentVersion="${_TAG}" \
+    --define talend.server.image.registry="${_REGISTRY}" \
+    --activate-profiles release \
+    -DskipTests -Dinvoker.skip=true -T1C
 

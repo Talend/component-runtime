@@ -30,7 +30,7 @@ echo ">> Building $_IMAGE:${_TAG}"
 
 mvn package jib:build@build \
   --file "images/${_IMAGE}-image/pom.xml" \
-  --define docker.talend.image.tag=${_TAG}
+  --define docker.talend.image.tag="${_TAG}"
 
 if [[ ${_LATEST} == 'true' ]]; then
   mvn package jib:build@build \
