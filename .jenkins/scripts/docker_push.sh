@@ -21,22 +21,18 @@ set -xe
 # $1: docker tag version
 # $2: docker registry to push on
 
-_TAG="${1?Missing tag}"
-_REGISTRY="${2?Missing registry}"
+_IMAGE="${1?Missing image name}"
+_TAG="${2?Missing tag}"
+_REGISTRY="${3?Missing registry}"
 
-dockerPush() {
-  _IMAGE="${1}"
-  echo ">> Pushing ${_IMAGE}:${_TAG} to ${_REGISTRY}"
 
-  # TODO validate: -Prelease removed
-  # TODO validate: why T1C?
-  mvn install jib:build@build \
-      --file "images/${_IMAGE}-image/pom.xml" \
-      --define image.currentVersion=${_TAG} \
-      --define talend.server.image.registry=${_REGISTRY} \
-      -DskipTests -Dinvoker.skip=true -T1C \
-}
+echo ">> Pushing ${_IMAGE}:${_TAG} to ${_REGISTRY}"
 
-dockerPush "component-server"
-dockerPush "component-starter-server"
-# TODO see if needed dockerPush "remote-engine-customizer"
+# TODO validate: -Prelease removed
+# TODO validate: why T1C?
+mvn install jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define image.currentVersion=${_TAG} \
+    --define talend.server.image.registry=${_REGISTRY} \
+    -DskipTests -Dinvoker.skip=true -T1C \
+

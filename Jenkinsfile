@@ -44,7 +44,8 @@ String pomVersion
 String qualifiedVersion
 String releaseVersion = ''
 Boolean deploy_oss = false
-Boolean deploy_private = false
+Boolean deploy_maven_private = false
+Boolean deploy_docker_private = false
 
 pipeline {
     agent {
@@ -80,9 +81,17 @@ pipeline {
           name: 'MAVEN_DEPLOY',
           defaultValue: false,
           description: '''
-            Force maven deploy stage for development branches. No effect on master and maintenance.
+            Force MAVEN deploy stage for development branches. No effect on master and maintenance.
             INFO: master/maintenance branch are deploying on "talend.oss.snapshots/releases"
                   dev branches are deploying on "talend.snapshots"
+            ''')
+        booleanParam(
+          name: 'DOCKER_DEPLOY',
+          defaultValue: false,
+          description: '''
+            Force DOCKER deploy stage for development branches. No effect on master and maintenance.
+            INFO: master/maintenance branch are deploying on "registry.hub.docker.com/"
+                  dev branches are deploying on "artifactory"
             ''')
         string(
           name: 'VERSION_QUALIFIER',
@@ -182,7 +191,8 @@ pipeline {
                     println "releaseVersion: $releaseVersion"
 
                     deploy_oss = isStdBranch && params.Action != 'RELEASE'
-                    deploy_private = !isStdBranch && params.MAVEN_DEPLOY
+                    deploy_maven_private = !isStdBranch && params.MAVEN_DEPLOY
+                    deploy_docker_private = !isStdBranch && params.DOCKER_DEPLOY
                 }
                 script {
                     withCredentials([gitCredentials]) {
@@ -209,7 +219,7 @@ pipeline {
                     if ( user_name == null) { user_name = "auto" }
 
                     String deploy_info
-                    if (deploy_oss || deploy_private){
+                    if (deploy_oss || deploy_maven_private){
                         deploy_info = '+DEPLOY'
                     }
                     else{
@@ -292,7 +302,7 @@ pipeline {
         }
         stage('Maven deploy PRIVATE') {
             when {
-                expression { deploy_private }
+                expression { deploy_maven_private }
             }
             steps {
                 withCredentials([ossrhCredentials,
@@ -316,7 +326,7 @@ pipeline {
             when {
                 anyOf {
                   expression { params.Action != 'RELEASE' && isStdBranch }
-                  expression { deploy_private }
+                  expression { deploy_docker_private }
                 }
             }
             steps {
@@ -332,7 +342,7 @@ pipeline {
         }
         stage('Docker images PRIVATE deploy') {
             when {
-                expression { deploy_private }
+                expression { deploy_docker_private }
             }
             steps {
                 script {
@@ -340,6 +350,7 @@ pipeline {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """\
                             bash .jenkins/scripts/docker_push.sh \
+                              "component-server"
                               ${qualifiedVersion}${buildTimestamp} \
                               ${ARTIFACTORY_REGISTRY}
                             """.stripIndent()
