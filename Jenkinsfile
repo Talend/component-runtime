@@ -195,9 +195,6 @@ pipeline {
                         sh """ bash .jenkins/scripts/setup_gpg.sh"""
                     }
 
-                    def pom = readMavenPom file: 'pom.xml'
-                    env.PROJECT_VERSION = pom.version
-
                     // By default the doc is skipped for standards branches
                     Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
 
@@ -315,20 +312,38 @@ pipeline {
                   """.stripIndent() as String)
             }
         }
-        stage('Docker images') {
+        stage('Docker images build') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isStdBranch }
+                anyOf {
+                  expression { params.Action != 'RELEASE' && isStdBranch }
+                  expression { deploy_private }
                 }
             }
             steps {
                 script {
                     configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                         sh """\
-                            #!/usr/bin/env bash 
-                            bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
+                            bash .jenkins/scripts/docker_build.sh \
+                              ${qualifiedVersion}${buildTimestamp}
                             """.stripIndent()
+                    }
+                }
+            }
+        }
+        stage('Docker images PRIVATE deploy') {
+            when {
+                expression { deploy_private }
+            }
+            steps {
+                script {
+                    withCredentials([dockerCredentials]) {
+                        configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+                            sh """\
+                            bash .jenkins/scripts/docker_push.sh \
+                              ${qualifiedVersion}${buildTimestamp} \
+                              ${ARTIFACTORY_REGISTRY}
+                            """.stripIndent()
+                        }
                     }
                 }
             }
@@ -476,7 +491,7 @@ pipeline {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """\
                                #!/usr/bin/env bash
-                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
+                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${qualifiedVersion} 
                                """.stripIndent()
                         }
                     }
