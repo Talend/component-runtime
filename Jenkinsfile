@@ -329,9 +329,10 @@ pipeline {
             steps {
                 script {
                     configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                        sh """\
-                            bash .jenkins/scripts/docker_build.sh \
-                              ${qualifiedVersion}${buildTimestamp}
+                        sh """
+                              bash .jenkins/scripts/docker_build.sh "component-server" ${qualifiedVersion}${buildTimestamp}
+                              bash .jenkins/scripts/docker_build.sh "component-starter-server" ${qualifiedVersion}${buildTimestamp}
+                              bash .jenkins/scripts/docker_build.sh "remote-engine-customizer" ${qualifiedVersion}${buildTimestamp}
                             """.stripIndent()
                     }
                 }
@@ -345,17 +346,16 @@ pipeline {
                 script {
                     withCredentials([dockerCredentials]) {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                            sh """\
-                            bash .jenkins/scripts/docker_push.sh \
-                              "component-server"
-                              ${qualifiedVersion}${buildTimestamp} \
-                              ${ARTIFACTORY_REGISTRY}
+                            sh """
+                              bash .jenkins/scripts/docker_push.sh \
+                                "component-server" \
+                                ${qualifiedVersion}${buildTimestamp} \
+                                ${ARTIFACTORY_REGISTRY}
                             """.stripIndent()
                         }
                     }
                     job_description_append("""
                       Component server docker image deployed as component-server:${qualifiedVersion}${buildTimestamp} on [artifactory.datapwn.com](artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server)
-                      
                       """.stripIndent() as String)
 
                 }

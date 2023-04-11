@@ -18,28 +18,23 @@
 set -xe
 
 # Parameters:
-# $1: docker tag version
-# $2: should tag as latest
+# $1: docker image name
+# $2: docker tag version
+# $3: should tag as latest
 
-tag="${1?Missing tag}"
-latest="${2:-false}"
+_IMAGE="${1?Missing image name}"
+_TAG="${2?Missing tag}"
+_LATEST="${3:-false}"
 
-dockerBuild() {
-  _IMAGE="${1}"
-  echo ">> Building $_IMAGE:${tag}"
+echo ">> Building $_IMAGE:${_TAG}"
 
+mvn package jib:build@build \
+  --file "images/${_IMAGE}-image/pom.xml" \
+  --define docker.talend.image.tag=${_TAG}
+
+if [[ ${_LATEST} == 'true' ]]; then
   mvn package jib:build@build \
-    --file "images/${_IMAGE}-image/pom.xml" \
-    --define docker.talend.image.tag=${tag}
+  --file "images/${_IMAGE}-image/pom.xml" \
+  --define docker.talend.image.tag=latest
+fi
 
-  if [[ ${latest} == 'true' ]]; then
-    mvn package jib:build@build \
-    --file "images/${_IMAGE}-image/pom.xml" \
-    --define docker.talend.image.tag=latest
-  fi
-
-}
-
-dockerBuild "component-server"
-dockerBuild "component-starter-server"
-dockerBuild "remote-engine-customizer"

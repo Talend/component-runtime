@@ -18,8 +18,9 @@
 set -xe
 
 # Parameters:
-# $1: docker tag version
-# $2: docker registry to push on
+# $1: docker image name
+# $2: docker tag version
+# $3: docker registry to push on
 
 _IMAGE="${1?Missing image name}"
 _TAG="${2?Missing tag}"
