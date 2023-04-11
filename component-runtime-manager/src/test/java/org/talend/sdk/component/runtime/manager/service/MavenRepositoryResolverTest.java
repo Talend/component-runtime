@@ -17,7 +17,6 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.M2_REPOSITORY;
 import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.STUDIO_MVN_REPOSITORY;
 import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.TALEND_COMPONENT_MANAGER_M2_REPOSITORY;
 import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryResolver.TALEND_COMPONENT_MANAGER_M2_SETTINGS;
@@ -38,6 +37,8 @@ import org.talend.sdk.component.runtime.manager.service.path.PathHandler;
 import org.talend.sdk.component.runtime.manager.service.path.PathHandlerImpl;
 
 class MavenRepositoryResolverTest {
+
+    static String M2_REPOSITORY = ".m2" + File.separator + "repository";
 
     private final MavenRepositoryResolver resolver = new MavenRepositoryDefaultResolver();
 
@@ -63,7 +64,7 @@ class MavenRepositoryResolverTest {
         }
     };
 
-    private final String fallback = System.getProperty("user.home") + "/" + M2_REPOSITORY;
+    private final String fallback = System.getProperty("user.home") + File.separator + M2_REPOSITORY;
 
     private final Path repository = Paths.get(new File("target/test-classes").getAbsolutePath());
 
@@ -164,7 +165,8 @@ class MavenRepositoryResolverTest {
         mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
         final Path m2 = mavenSettingsOnlyResolver.discover();
         assertNotNull(m2);
-        assertEquals("C:/Users/maven/repository", m2.toString());
+        assertEquals("C:" + File.separator + "Users" + File.separator + "maven" + File.separator + "repository",
+                m2.toString());
         System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
     }
 
@@ -174,7 +176,8 @@ class MavenRepositoryResolverTest {
         mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
         final Path m2 = mavenSettingsOnlyResolver.discover();
         assertNotNull(m2);
-        assertEquals(System.getProperty("user.home") + "/mvn_home_dev/repository", m2.toString());
+        assertEquals(System.getProperty("user.home") + File.separator + "mvn_home_dev" + File.separator + "repository",
+                m2.toString());
         System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
     }
 
@@ -184,7 +187,8 @@ class MavenRepositoryResolverTest {
         mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
         final Path m2 = mavenSettingsOnlyResolver.discover();
         assertNotNull(m2);
-        assertEquals(System.getProperty("user.home") + "/mvn_home_dev/repository", m2.toString());
+        assertEquals(System.getProperty("user.home") + File.separator + "mvn_home_dev" + File.separator + "repository",
+                m2.toString());
         System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
     }
 
