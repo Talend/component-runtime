@@ -224,12 +224,12 @@ pipeline {
                     )
 
                     // updating build description
-                    currentBuild.description = ("""
-                       Version = $qualifiedVersion - $params.Action Build
-                       Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
-                       Debug: $params.JENKINS_DEBUG
-                       Extra build args: $extraBuildParams""".stripIndent()
-                    )
+                    String description = """
+                      Version = $qualifiedVersion - $params.Action Build
+                      Sonar forced: $params.FORCE_SONAR - Script: $hasPostLoginScript
+                      Debug: $params.JENKINS_DEBUG
+                      Extra build args: $extraBuildParams""".stripIndent()
+                    job_description_append(description)
                 }
                 ///////////////////////////////////////////
                 // asdf install
@@ -298,7 +298,9 @@ pipeline {
                 expression { deploy_private }
             }
             steps {
-                withCredentials([nexusCredentials, gpgCredentials]) {
+                withCredentials([ossrhCredentials,
+                                 nexusCredentials,
+                                 gpgCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
                         set -xe
@@ -308,6 +310,9 @@ pipeline {
                                         --settings .jenkins/settings.xml
                     """.stripIndent()
                 }
+                job_description_append("""
+                  Maven artefact deployed on [artifacts-zl.talend.com](https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/)
+                  """.stripIndent() as String)
             }
         }
         stage('Docker images') {
@@ -567,6 +572,24 @@ pipeline {
                 }
             }
         }
+    }
+}
+
+
+/**
+ * Append a new line to job description
+ * This is MARKDOWN, do not forget double space at the end of line
+ *
+ * @param new line
+ * @return void
+ */
+private void job_description_append(String new_line) {
+    if (currentBuild.description == null) {
+        println "Create the job description with: \n$new_line"
+        currentBuild.description = new_line
+    } else {
+        println "Edit the job description adding: $new_line"
+        currentBuild.description = currentBuild.description + '\n' + new_line
     }
 }
 
