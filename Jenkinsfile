@@ -95,10 +95,9 @@ pipeline {
           name: 'VERSION_QUALIFIER',
           defaultValue: 'DEFAULT',
           description: '''
-            Only for dev branches. It will build/deploy jars with the given version qualifier.
+            Deploy jars with the given version qualifier. No effect on master and maintenance.
              - DEFAULT means the qualifier will be the Jira id extracted from the branch name.
-            From "user/JIRA-12345_some_information" the qualifier will be 'JIRA-12345'.
-            Before the build, the maven version will be set to: x.y.z-JIRA-12345-SNAPSHOT''')
+            From "user/JIRA-12345_some_information" the qualifier will be JIRA-12345.''')
         string(
           name: 'EXTRA_BUILD_PARAMS',
           defaultValue: '',
@@ -316,7 +315,7 @@ pipeline {
                     """.stripIndent()
                 }
                 job_description_append("""
-                  Maven artefact deployed on [artifacts-zl.talend.com](https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/)
+                  Maven artefact deployed as ${qualifiedVersion} on [artifacts-zl.talend.com](https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component)
                   """.stripIndent() as String)
             }
         }
@@ -354,6 +353,11 @@ pipeline {
                             """.stripIndent()
                         }
                     }
+                    job_description_append("""
+                      Component server docker image deployed as component-server:${qualifiedVersion}${buildTimestamp} on [artifactory.datapwn.com](artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server)
+                      
+                      """.stripIndent() as String)
+
                 }
             }
         }
