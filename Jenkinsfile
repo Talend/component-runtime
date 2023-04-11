@@ -82,17 +82,15 @@ pipeline {
           defaultValue: false,
           description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance branch are deploying on "talend.oss.snapshots/releases"
-                  dev branches are deploying on "talend.snapshots"
-            '''.stripIndent())
+            INFO: master/maintenance branch are deploying on talend.oss.snapshots/releases
+                  dev branches are deploying on talend.snapshots''')
         booleanParam(
           name: 'DOCKER_DEPLOY',
           defaultValue: false,
           description: '''
             Force DOCKER deploy stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance branch are deploying on "registry.hub.docker.com/"
-                  dev branches are deploying on "artifactory"
-            '''.stripIndent())
+            INFO: master/maintenance branch are deploying on registry.hub.docker.com
+                  dev branches are deploying on artifactory''')
         string(
           name: 'VERSION_QUALIFIER',
           defaultValue: 'DEFAULT',
