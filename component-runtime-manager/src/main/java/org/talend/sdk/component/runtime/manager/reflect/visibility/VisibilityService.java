@@ -39,6 +39,7 @@ import javax.json.JsonPointer;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
+
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.NoArgsConstructor;
