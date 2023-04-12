@@ -43,9 +43,9 @@ String branch_description
 String pomVersion
 String qualifiedVersion
 String releaseVersion = ''
-Boolean deploy_maven_oss = false
-Boolean deploy_maven_private = false
-Boolean docker_branch_push = false
+Boolean stdBranch_buildOnly = false
+Boolean devBranch_mavenDeploy = false
+Boolean devBranch_dockerPush = false
 
 pipeline {
     agent {
@@ -186,9 +186,9 @@ pipeline {
                     releaseVersion = pomVersion.split('-')[0]
                     println "releaseVersion: $releaseVersion"
 
-                    deploy_maven_oss = isStdBranch && params.Action != 'RELEASE'
-                    deploy_maven_private = !isStdBranch && params.MAVEN_DEPLOY
-                    docker_branch_push = !isStdBranch && params.DOCKER_PUSH
+                    stdBranch_buildOnly = isStdBranch && params.Action != 'RELEASE'
+                    devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
+                    devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
                 }
                 script {
                     withCredentials([gitCredentials]) {
@@ -215,10 +215,10 @@ pipeline {
                     if ( user_name == null) { user_name = "auto" }
 
                     String deploy_info = ''
-                    if (deploy_maven_oss || deploy_maven_private){
+                    if (stdBranch_buildOnly || devBranch_mavenDeploy){
                         deploy_info = deploy_info + '+DEPLOY'
                     }
-                    if (docker_branch_push){
+                    if (devBranch_dockerPush){
                         deploy_info = deploy_info + '+PUSH'
                     }
 
@@ -282,15 +282,15 @@ pipeline {
         stage('Maven deploy') {
             when {
                 anyOf {
-                    expression { deploy_maven_oss }
-                    expression { deploy_maven_private }
+                    expression { stdBranch_buildOnly }
+                    expression { devBranch_mavenDeploy }
                 }
             }
             steps {
                 script {
                     // Manage extra arguments
                     String extraArgs = ''
-                    if (deploy_maven_private) {
+                    if (devBranch_mavenDeploy) {
                         extra_args = '--activate-profiles dev_branch'
                     }
 
@@ -311,7 +311,7 @@ pipeline {
                 // Add description to job
                 script {
                     def repo
-                    if (deploy_maven_private) {
+                    if (devBranch_mavenDeploy) {
                         repo = ['artifacts-zl.talend.com',
                                 'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
                     } else {
@@ -326,8 +326,8 @@ pipeline {
         stage('Docker build/push') {
             when {
                 anyOf {
-                  expression { params.Action != 'RELEASE' && isStdBranch }
-                  expression { docker_branch_push }
+                  expression { stdBranch_buildOnly }
+                  expression { devBranch_dockerPush }
                 }
             }
             steps {
