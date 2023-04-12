@@ -140,7 +140,8 @@ pipeline {
 
                     // By default the doc is skipped for standards branches
                     Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
-                    extraBuildParams = assemblyExtraBuildParams(skip_documentation)
+                    extraBuildParams = assemblyExtraBuildParams(skip_documentation, devBranch_mavenDeploy || devBranch_dockerPush)
+
                 }
 
                 ///////////////////////////////////////////
@@ -321,13 +322,6 @@ pipeline {
             }
             steps {
                 script {
-                    // Manage extra arguments
-                    String extraArgs = ''
-                    if (devBranch_mavenDeploy) {
-                        extraArgs = '--activate-profiles dev_branch'
-                    }
-
-                    // Deploy
                     withCredentials([ossrhCredentials,
                                      gpgCredentials,
                                      nexusCredentials]) {
@@ -654,7 +648,7 @@ private void job_description_append(String new_line) {
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams(Boolean skip_doc) {
+private String assemblyExtraBuildParams(Boolean skip_doc, Boolean use_dev_profile) {
     String extraBuildParams
 
     println 'Processing extraBuildParams'
@@ -669,6 +663,11 @@ private String assemblyExtraBuildParams(Boolean skip_doc) {
     if (skip_doc) {
         buildParamsAsArray.add('--projects !documentation')
         buildParamsAsArray.add('--define documentation.skip=true')
+    }
+
+    println 'Manage profile option'
+    if (use_dev_profile) {
+        buildParamsAsArray.add('--activate-profiles dev_branch')
     }
 
     println 'Construct final params content'
