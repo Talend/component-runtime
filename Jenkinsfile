@@ -291,7 +291,7 @@ pipeline {
                     // Manage extra arguments
                     String extraArgs = ''
                     if (devBranch_mavenDeploy) {
-                        extra_args = '--activate-profiles dev_branch'
+                        extraArgs = '--activate-profiles dev_branch'
                     }
 
                     // Deploy
