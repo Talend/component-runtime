@@ -41,7 +41,8 @@ String branch_user
 String branch_ticket
 String branch_description
 String pomVersion
-String qualifiedVersion
+String finalVersion
+Boolean needQualify
 Boolean stdBranch_buildOnly = false
 Boolean devBranch_mavenDeploy = false
 Boolean devBranch_dockerPush = false
@@ -138,9 +139,14 @@ pipeline {
                     devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
                     devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
 
-                    if (devBranch_mavenDeploy || devBranch_dockerPush) {
-                        env.DEPLOY_OPTS = "$SKIP_OPTS --activate-profiles dev_branch"
+                    needQualify = devBranch_mavenDeploy || devBranch_dockerPush
+
+                    if (needQualify) {
+                        // Qualified version have to be released on talend_repository
+                        // Overwrite the DEPLOY_OPTS
+                        env.DEPLOY_OPTS = "$SKIP_OPTS --activate-profiles private_repository"
                     }
+
 
                     // By default the doc is skipped for standards branches
                     Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
@@ -156,13 +162,13 @@ pipeline {
                     pomVersion = pom.version
 
                     echo 'Manage the version qualifier'
-                    if (isStdBranch || (!params.MAVEN_DEPLOY && !isStdBranch)) {
+                    if (!needQualify) {
                         println """
-                             No need to add qualifier in followings cases:' +
+                             No need to add qualifier in followings cases:
                              - We are on Master or Maintenance branch
                              - We do not want to deploy on dev branch
                              """.stripIndent()
-                        qualifiedVersion = pomVersion
+                        finalVersion = pomVersion
                     }
                     else {
                         branch_user = ""
@@ -196,7 +202,7 @@ pipeline {
                         }
 
                         echo "Insert a qualifier in pom version..."
-                        qualifiedVersion = add_qualifier_to_version(
+                        finalVersion = add_qualifier_to_version(
                           pomVersion,
                           branch_ticket,
                           "$params.VERSION_QUALIFIER" as String)
@@ -205,16 +211,16 @@ pipeline {
                           Configure the version qualifier for the curent branche: $env.BRANCH_NAME
                           requested qualifier: $params.VERSION_QUALIFIER
                           with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description
-                          Qualified Version = $qualifiedVersion"""
+                          Qualified Version = $finalVersion"""
 
                         // On development branches the connectors version shall be edited for deployment
                         // Maven documentation about maven_version:
                         // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
-                        println "Edit version on dev branches, new version is ${qualifiedVersion}"
+                        println "Edit version on dev branches, new version is ${finalVersion}"
                         sh """\
                           #!/usr/bin/env bash
-                          mvn versions:set --define newVersion=${qualifiedVersion}
-                          mvn versions:set --file bom/pom.xml --define newVersion=${qualifiedVersion}
+                          mvn versions:set --define newVersion=${finalVersion}
+                          mvn versions:set --file bom/pom.xml --define newVersion=${finalVersion}
                         """.stripIndent()
                     }
 
@@ -240,7 +246,7 @@ pipeline {
 
                     // updating build description
                     String description = """
-                      Version = $qualifiedVersion - $params.Action Build
+                      Version = $finalVersion - $params.Action Build
                       Sonar forced: $params.FORCE_SONAR - Script: $hasPostLoginScript
                       Debug: $params.JENKINS_DEBUG
                       Extra build args: $extraBuildParams""".stripIndent()
@@ -290,7 +296,7 @@ pipeline {
                 }
             }
         }
-        stage('Maven build') {
+        stage('Maven validate to install') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
                 withCredentials([ossrhCredentials]) {
@@ -351,7 +357,7 @@ pipeline {
                                 'https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/']
                     }
 
-                    job_description_append("Maven artefact deployed as ${qualifiedVersion} on [${repo[0]}](${repo[1]})")
+                    job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})")
                 }
             }
         }
@@ -370,7 +376,7 @@ pipeline {
                             // Build and push all images
                             sh """
                               bash .jenkins/scripts/docker_build.sh \
-                                ${qualifiedVersion}${buildTimestamp}
+                                ${finalVersion}${buildTimestamp}
                             """
                             job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer")
 
@@ -379,13 +385,13 @@ pipeline {
                             // Build and push specific image
                             sh """
                               bash .jenkins/scripts/docker_build.sh \
-                                ${qualifiedVersion}${buildTimestamp} \
+                                ${finalVersion}${buildTimestamp} \
                                 'false' \
                                 'component-server'
                             """
                             job_description_append("Only component-server docker images deployed:")
                         }
-                        job_description_append("As ${qualifiedVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
+                        job_description_append("As ${finalVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
                     }
 
                 }
@@ -534,7 +540,7 @@ pipeline {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """\
                                #!/usr/bin/env bash
-                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${qualifiedVersion} 
+                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${finalVersion} 
                                """.stripIndent()
                         }
                     }

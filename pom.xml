@@ -1747,7 +1747,11 @@
 
   <profiles>
     <profile>
-      <id>dev_branch</id>
+      <id>private_repository</id>
+      <!--
+        This profile is used by the CI or for development branch deployment.
+        Its overwrite the snapshotRepository with a private one.
+      -->
       <distributionManagement>
         <snapshotRepository>
           <id>talend.snapshots</id>
