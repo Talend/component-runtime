@@ -42,7 +42,6 @@ String branch_ticket
 String branch_description
 String pomVersion
 String qualifiedVersion
-String releaseVersion = ''
 Boolean stdBranch_buildOnly = false
 Boolean devBranch_mavenDeploy = false
 Boolean devBranch_dockerPush = false
@@ -124,6 +123,27 @@ pipeline {
             steps {
 
                 ///////////////////////////////////////////
+                // asdf install
+                ///////////////////////////////////////////
+                script {
+                    println "asdf install the content of repository .tool-versions'\n"
+                    sh 'bash .jenkins/scripts/asdf_install.sh'
+                }
+
+                ///////////////////////////////////////////
+                // Variables init
+                ///////////////////////////////////////////
+                script {
+                    stdBranch_buildOnly = isStdBranch && params.Action != 'RELEASE'
+                    devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
+                    devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
+
+                    // By default the doc is skipped for standards branches
+                    Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
+                    extraBuildParams = assemblyExtraBuildParams(skip_documentation)
+                }
+
+                ///////////////////////////////////////////
                 // Pom version and Qualifier management
                 ///////////////////////////////////////////
                 script{
@@ -192,30 +212,6 @@ pipeline {
                         """.stripIndent()
                     }
 
-                    releaseVersion = pomVersion.split('-')[0]
-                    println "releaseVersion: $releaseVersion"
-
-                    stdBranch_buildOnly = isStdBranch && params.Action != 'RELEASE'
-                    devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
-                    devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
-
-                }
-                script {
-                    withCredentials([gitCredentials]) {
-                        sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
-                    }
-                    withCredentials([dockerCredentials]) {
-                        sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
-                    }
-                    withCredentials([keyImportCredentials]) {
-                        sh """ bash .jenkins/scripts/setup_gpg.sh """
-                    }
-
-                    // By default the doc is skipped for standards branches
-                    Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
-
-                    extraBuildParams = assemblyExtraBuildParams(skip_documentation)
-
                 }
                 ///////////////////////////////////////////
                 // Updating build displayName and description
@@ -245,11 +241,18 @@ pipeline {
                     job_description_append(description)
                 }
                 ///////////////////////////////////////////
-                // asdf install
+                // Login tasks
                 ///////////////////////////////////////////
                 script {
-                    println "asdf install the content of repository .tool-versions'\n"
-                    sh 'bash .jenkins/scripts/asdf_install.sh'
+                    withCredentials([gitCredentials]) {
+                        sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
+                    }
+                    withCredentials([dockerCredentials]) {
+                        sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
+                    }
+                    withCredentials([keyImportCredentials]) {
+                        sh """ bash .jenkins/scripts/setup_gpg.sh """
+                    }
                 }
             }
             post {
