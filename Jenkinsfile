@@ -210,6 +210,7 @@ pipeline {
                         sh """\
                           #!/usr/bin/env bash
                           mvn versions:set --define newVersion=${qualifiedVersion}
+                          mvn versions:set --file bom/pom.xml --define newVersion=${qualifiedVersion}
                         """.stripIndent()
                     }
 
@@ -292,6 +293,7 @@ pipeline {
                     sh """\
                         #!/usr/bin/env bash
                         set -xe
+                        mvn clean install --file bom/pom.xml
                         mvn clean install $BUILD_ARGS \
                                           $extraBuildParams \
                                           --settings .jenkins/settings.xml
@@ -330,8 +332,7 @@ pipeline {
                         set -xe
                         bash mvn deploy $DEPLOY_OPTS \
                                         $extraBuildParams \
-                                        --settings .jenkins/settings.xml \
-                                        $extraArgs
+                                        --settings .jenkins/settings.xml
                     """.stripIndent()
                     }
                 }
