@@ -558,6 +558,9 @@
         "condition::if::target": "type",
         "documentation::value": "Date to use in the query.",
         "ui::datetime": "zoneddatetime",
+        "ui::datetime::dateFormat": "YYYY-MM-DD",
+        "ui::datetime::useSeconds": "false",
+        "ui::datetime::useUTC": "false",
         "condition::if::evaluationStrategy": "DEFAULT",
         "condition::if::negate": "false",
         "condition::if::value": "RECEIVED_DATE,SENT_DATE"

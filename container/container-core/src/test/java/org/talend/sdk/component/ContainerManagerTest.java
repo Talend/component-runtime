@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,7 +152,8 @@ class ContainerManagerTest {
     }
 
     private File createZiplockJar(final TempJars jars) {
-        return jars.create("org.apache.tomee:ziplock:jar:7.0.5");
+        return jars.create("org.apache.tomee:ziplock:jar:" +
+                "8.0.14");
     }
 
     private ContainerManager createDefaultManager() {

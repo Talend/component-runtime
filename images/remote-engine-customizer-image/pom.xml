@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.52.0-SNAPSHOT</version>
+    <version>1.56.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>remote-engine-customizer-image</artifactId>
@@ -27,11 +27,12 @@
   <name>Component Runtime :: Images :: Remote Engine Customizer</name>
 
   <properties>
-    <imageWorkDir>${baseImageDir}/remote-engine/customizer</imageWorkDir>
-    <image.currentVersion>${project.version}</image.currentVersion>
-    <talend.server.image.name>${talend.server.image.registry}tacokit/remote-engine-customizer:${image.currentVersion}</talend.server.image.name>
     <talend.build.name>${talend.build.name.base}.remoteengine.customizer</talend.build.name>
-    <baseImage>tacokit/openjdk-with-docker:8</baseImage>
+    <!-- mandatory module docker properties -->
+    <docker.talend.app.name>remote-engine-customizer</docker.talend.app.name>
+    <docker.talend.app.product>remote-engine/customizer</docker.talend.app.product>
+    <docker.talend.app.description>Talend Remote Engine Component Customizer</docker.talend.app.description>
+    <!-- custom remote-engine customizer parameters -->
   </properties>
 
   <dependencies>
@@ -47,45 +48,16 @@
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-maven-plugin</artifactId>
-        <version>${jib.version}</version>
-        <!--
-        mvn clean install jib:build@build [-Dtalend.server.image.registry=...] -> will be pushed
-        mvn clean install jib:dockerBuild@build -> local docker image
-        -->
         <configuration>
           <containerizingMode>packaged</containerizingMode>
-          <from>
-            <image>${baseImage}</image>
-          </from>
-          <to>
-            <image>${talend.server.image.name}</image>
-          </to>
           <container>
-            <extraClasspath>${imageWorkDir}/custom/*</extraClasspath>
-            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+            <extraClasspath>${docker.talend.dir.app}custom/*</extraClasspath>
             <mainClass>org.talend.sdk.component.remoteengine.customizer.Cli</mainClass>
-            <appRoot>${imageWorkDir}</appRoot>
-            <workingDirectory>${imageWorkDir}</workingDirectory>
-            <environment>
-              <LANG>en_US.UTF-8</LANG>
-            </environment>
             <jvmFlags>
               <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
             </jvmFlags>
             <labels>
-              <com.talend.maintainer>Talend &lt;support@talend.com&gt;</com.talend.maintainer>
-              <com.talend.build-date>${maven.build.timestamp}</com.talend.build-date>
-              <com.talend.git.repositories>${project.scm.url}</com.talend.git.repositories>
-              <com.talend.git.branches>${git.branch}</com.talend.git.branches>
-              <com.talend.git.commits>${git.commit.id}</com.talend.git.commits>
-              <com.talend.name>Talend Remote Engine Component Customizer</com.talend.name>
-              <com.talend.application>remote-engine-customizer</com.talend.application>
-              <com.talend.service>remote-engine-customizer</com.talend.service>
-              <com.talend.description>Talend Remote Engine Component Customizer (unsupported)</com.talend.description>
-              <com.talend.url>https://www.talend.com</com.talend.url>
-              <com.talend.vendor>Talend</com.talend.vendor>
-              <com.talend.version>${image.currentVersion}</com.talend.version>
-              <com.talend.docker.cmd>docker run -v tacokit/remote-engine-customizer:${image.currentVersion}</com.talend.docker.cmd>
+              <com.talend.docker.cmd>docker run ${docker.image.to}</com.talend.docker.cmd>
               <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc)&gt;</com.talend.docker.params>
             </labels>
           </container>

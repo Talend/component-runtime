@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,6 @@ import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
-
-import routines.system.Dynamic;
-import routines.system.DynamicMetadata;
-import routines.system.DynamicMetadata.sourceTypes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -77,7 +73,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private final boolean hasDynamic;
 
-    private final Dynamic dynamic;
+    private final DynamicWrapper dynamic;
 
     private final String dynamicColumn;
 
@@ -118,7 +114,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     .findAny()
                     .orElse(null);
             if (hasDynamic) {
-                dynamic = new Dynamic();
+                dynamic = new DynamicWrapper();
             } else {
                 dynamic = null;
             }
@@ -144,8 +140,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             throw new IllegalStateException(e);
         }
         if (hasDynamic) {
-            dynamic.metadatas.clear();
-            dynamic.clearColumnValues();
+            dynamic.getDynamic().metadatas.clear();
+            dynamic.getDynamic().clearColumnValues();
         }
         recordFields = record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
             final String root = rcdEntry.getName() + ".";
@@ -184,7 +180,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     public Object get() {
         if (hasDynamic) {
             try {
-                fields.get(dynamicColumn).set(instance, dynamic);
+                fields.get(dynamicColumn).set(instance, dynamic.getDynamic());
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
@@ -202,23 +198,23 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 .getAllEntries()
                 .filter(entry -> (!fields.containsKey(entry.getName())) || dynamicColumn.equals(entry.getName()))
                 .forEach(entry -> {
-                    dynamic.metadatas.add(generateMetadata(entry));
-                    dynamic.addColumnValue(null);
+                    dynamic.getDynamic().metadatas.add(generateMetadata(entry).getDynamicMetadata());
+                    dynamic.getDynamic().addColumnValue(null);
                 });
     }
 
-    private DynamicMetadata generateMetadata(final Entry entry) {
-        final DynamicMetadata metadata = new DynamicMetadata();
-        metadata
+    private DynamicMetadataWrapper generateMetadata(final Entry entry) {
+        final DynamicMetadataWrapper metadata = new DynamicMetadataWrapper();
+        metadata.getDynamicMetadata()
                 .setName(recordFields
                         .stream()
                         .filter(f -> f.endsWith("." + entry.getName()))
                         .findFirst()
                         .orElse(entry.getName()));
-        metadata.setDbName(entry.getOriginalFieldName());
-        metadata.setNullable(entry.isNullable());
-        metadata.setDescription(entry.getComment());
-        metadata.setSourceType(sourceTypes.unknown);
+        metadata.getDynamicMetadata().setDbName(entry.getOriginalFieldName());
+        metadata.getDynamicMetadata().setNullable(entry.isNullable());
+        metadata.getDynamicMetadata().setDescription(entry.getComment());
+        metadata.initSourceType();
 
         final Boolean isKey = ofNullable(entry.getProp(IS_KEY))
                 .filter(l -> !l.isEmpty())
@@ -237,21 +233,21 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 .orElse(dynamicColumnPattern);
         final String studioType = entry.getProps()
                 .getOrDefault(STUDIO_TYPE, StudioTypes.typeFromRecord(entry.getType()));
-        metadata.setKey(isKey);
-        metadata.setType(studioType);
+        metadata.getDynamicMetadata().setKey(isKey);
+        metadata.getDynamicMetadata().setType(studioType);
 
         if (length != null) {
-            metadata.setLength(length);
+            metadata.getDynamicMetadata().setLength(length);
         }
 
         if (precision != null) {
-            metadata.setPrecision(precision);
+            metadata.getDynamicMetadata().setPrecision(precision);
         }
 
         switch (studioType) {
         case StudioTypes.DATE:
-            metadata.setLogicalType("timestamp-millis");
-            metadata.setFormat(pattern);
+            metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
+            metadata.getDynamicMetadata().setFormat(pattern);
             break;
         default:
             // nop
@@ -268,23 +264,24 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     .filter(f -> f.endsWith("." + entry.getName()))
                     .findFirst()
                     .orElse(entry.getName());
-            int index = dynamic.getIndex(name);
-            final DynamicMetadata metadata;
+            int index = dynamic.getDynamic().getIndex(name);
+            final DynamicMetadataWrapper metadata;
             if (index < 0) {
                 metadata = generateMetadata(entry);
-                dynamic.metadatas.add(metadata);
-                index = dynamic.getIndex(name);
+                dynamic.getDynamic().metadatas.add(metadata.getDynamicMetadata());
+                index = dynamic.getDynamic().getIndex(name);
             } else {
-                metadata = dynamic.getColumnMetadata(index);
+                metadata = new DynamicMetadataWrapper(dynamic.getDynamic().getColumnMetadata(index));
             }
 
-            final Class<?> clazz = StudioTypes.classFromType(metadata.getType());
+            final Class<?> clazz = StudioTypes.classFromType(metadata.getDynamicMetadata().getType());
             if (clazz != null) {
-                dynamic.setColumnValue(index, MappingUtils.coerce(clazz, value, name));
+                dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(clazz, value, name));
             } else {
-                dynamic.setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
+                dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
             }
-            log.debug("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getType(), value);
+            log.debug("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(),
+                    value);
             return;
         }
         if (field == null) {

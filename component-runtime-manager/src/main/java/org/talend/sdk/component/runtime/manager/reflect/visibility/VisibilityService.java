@@ -1,12 +1,12 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
- * <p>
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,23 +15,33 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect.visibility;
 
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import org.talend.sdk.component.runtime.manager.ParameterMeta;
+import static java.util.Locale.ROOT;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static lombok.AccessLevel.PRIVATE;
 
 import javax.json.*;
 import javax.json.spi.JsonProvider;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.Locale.ROOT;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.*;
-import static lombok.AccessLevel.PRIVATE;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonPointer;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.spi.JsonProvider;
+
+import org.talend.sdk.component.runtime.manager.ParameterMeta;
+
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class VisibilityService {

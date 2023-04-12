@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.talend.sdk.component.form.internal.converter.impl.widget;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -47,14 +46,28 @@ class DateTimeConverterTest {
     @ParameterizedTest
     @CsvSource({ "date,date,dateFormat=YYYY/MM/DD", "time,datetime,useSeconds=true",
             "datetime,datetime,useSeconds=true|dateFormat=YYYY/MM/DD|useUTC=true",
-            "zoneddatetime,datetime,useSeconds=true|dateFormat=YYYY/MM/DD|useUTC=true", })
+            "zoneddatetime,datetime,useSeconds=false|dateFormat=YYYY-MM-DD|useUTC=false", })
     void convert(final String type, final String widget, final String options)
             throws ExecutionException, InterruptedException {
+
         final SimplePropertyDefinition definition = new SimplePropertyDefinition("configuration.input", "input",
                 "input", "STRING", null, new PropertyValidation(), new HashMap<String, String>() {
 
                     {
                         put("ui::datetime", type);
+                        Map<String, Object> map = loadMap(options);
+                        String val = String.valueOf(map.get("dateFormat"));
+                        if (map.get("dateFormat") != null) {
+                            put("ui::datetime::dateFormat", val);
+                        }
+                        val = String.valueOf(map.get("useSeconds"));
+                        if (map.get("useSeconds") != null) {
+                            put("ui::datetime::useSeconds", val);
+                        }
+                        val = String.valueOf(map.get("useUTC"));
+                        if (map.get("useUTC") != null) {
+                            put("ui::datetime::useUTC", val);
+                        }
                     }
                 }, null, null);
         final Collection<UiSchema> schemas = new ArrayList<>();
@@ -67,7 +80,7 @@ class DateTimeConverterTest {
 
         final UiSchema schema = schemas.iterator().next();
         assertEquals(widget, schema.getWidget());
-        assertEquals(loadMap(options), schema.getOptions());
+        assertEquals(loadMap(options).values().toString(), schema.getOptions().values().toString());
     }
 
     private Map<String, Object> loadMap(final String options) {

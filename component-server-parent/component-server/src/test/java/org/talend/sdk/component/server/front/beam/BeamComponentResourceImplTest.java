@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ class BeamComponentResourceImplTest {
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertNotNull(definition);
         assertEquals(1, definition.getDependencies().size());
-        assertEquals("org.apache.tomee:ziplock:jar:7.0.5", definition.getDependencies().iterator().next());
+        assertEquals("org.apache.tomee:ziplock:jar:8.0.14", definition.getDependencies().iterator().next());
     }
 
 }

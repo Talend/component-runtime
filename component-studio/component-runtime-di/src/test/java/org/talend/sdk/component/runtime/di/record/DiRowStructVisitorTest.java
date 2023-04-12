@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2022 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,15 @@ import lombok.Data;
 class DiRowStructVisitorTest extends VisitorsTest {
 
     private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value) {
+        createMetadata(dynamic, name, type, value, false);
+    }
+
+    private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
+            boolean isKey) {
         final DynamicMetadata meta = new DynamicMetadata();
         meta.setName(name);
         meta.setType(type);
+        meta.setKey(isKey);
         dynamic.metadatas.add(meta);
         dynamic.addColumnValue(value);
     }
@@ -81,7 +87,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.char0 = Character.MAX_VALUE;
         // dynamic
         final Dynamic dynamic = new Dynamic();
-        createMetadata(dynamic, "dynString", StudioTypes.STRING, "stringy");
+        createMetadata(dynamic, "dynString", StudioTypes.STRING, "stringy", true);
         createMetadata(dynamic, "dynInteger", StudioTypes.INTEGER, INT);
         createMetadata(dynamic, "dynDouble", StudioTypes.DOUBLE, DOUBLE);
         createMetadata(dynamic, "dynBytes", StudioTypes.BYTE_ARRAY, BYTES0);
@@ -131,6 +137,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals("true", schema.getEntry("dynString").getProp(IS_KEY));
         assertEquals(StudioTypes.STRING, schema.getEntry("dynString").getProp(STUDIO_TYPE));
         assertEquals("dYnAmIc", schema.getEntry("dynString").getComment());
+        assertEquals("false", schema.getEntry("dynDouble").getProp(IS_KEY));
         assertEquals(StudioTypes.DOUBLE, schema.getEntry("dynDouble").getProp(STUDIO_TYPE));
         assertEquals("30", schema.getEntry("dynDouble").getProp(SIZE));
         assertEquals("10", schema.getEntry("dynDouble").getProp(SCALE));
