@@ -58,8 +58,8 @@ pipeline {
     environment {
         MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
         BUILD_ARGS="-Dgpg.skip=true -Denforcer.skip=true"
-        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Denforcer.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2"
+        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
@@ -144,9 +144,8 @@ pipeline {
                     if (needQualify) {
                         // Qualified version have to be released on talend_repository
                         // Overwrite the DEPLOY_OPTS
-                        env.DEPLOY_OPTS = "$SKIP_OPTS --activate-profiles private_repository"
+                        env.DEPLOY_OPTS = "$SKIP_OPTS --activate-profiles private_repository -Denforcer.skip=true"
                     }
-
 
                     // By default the doc is skipped for standards branches
                     Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
