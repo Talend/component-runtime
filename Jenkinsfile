@@ -353,7 +353,7 @@ pipeline {
                             """
                             job_description_append("Only component-server docker images deployed:")
                         }
-                        job_description_append("As ${qualifiedVersion}${buildTimestamp} on [artifactory.datapwn.com](artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
+                        job_description_append("As ${qualifiedVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
                     }
 
                 }
