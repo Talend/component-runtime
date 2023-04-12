@@ -122,7 +122,20 @@ pipeline {
     stages {
         stage('Preliminary steps') {
             steps {
-
+                ///////////////////////////////////////////
+                // Login tasks
+                ///////////////////////////////////////////
+                script {
+                    withCredentials([gitCredentials]) {
+                        sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
+                    }
+                    withCredentials([dockerCredentials]) {
+                        sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
+                    }
+                    withCredentials([keyImportCredentials]) {
+                        sh """ bash .jenkins/scripts/setup_gpg.sh """
+                    }
+                }
                 ///////////////////////////////////////////
                 // asdf install
                 ///////////////////////////////////////////
@@ -130,7 +143,6 @@ pipeline {
                     println "asdf install the content of repository .tool-versions'\n"
                     sh 'bash .jenkins/scripts/asdf_install.sh'
                 }
-
                 ///////////////////////////////////////////
                 // Variables init
                 ///////////////////////////////////////////
@@ -152,7 +164,6 @@ pipeline {
                     extraBuildParams = assemblyExtraBuildParams(skip_documentation)
 
                 }
-
                 ///////////////////////////////////////////
                 // Pom version and Qualifier management
                 ///////////////////////////////////////////
@@ -250,20 +261,6 @@ pipeline {
                       Debug: $params.JENKINS_DEBUG
                       Extra build args: $extraBuildParams""".stripIndent()
                     job_description_append(description)
-                }
-                ///////////////////////////////////////////
-                // Login tasks
-                ///////////////////////////////////////////
-                script {
-                    withCredentials([gitCredentials]) {
-                        sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
-                    }
-                    withCredentials([dockerCredentials]) {
-                        sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
-                    }
-                    withCredentials([keyImportCredentials]) {
-                        sh """ bash .jenkins/scripts/setup_gpg.sh """
-                    }
                 }
             }
             post {
@@ -371,40 +368,37 @@ pipeline {
                 script {
                     configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
 
+                        String images_options = ''
                         if (isStdBranch){
                             // Build and push all images
-                            sh """
-                              bash .jenkins/scripts/docker_build.sh \
-                                ${finalVersion}${buildTimestamp}
-                            """
                             job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer")
-
                         }
                         else{
-                            // Build and push specific image
-                            sh """
-                              bash .jenkins/scripts/docker_build.sh \
-                                ${finalVersion}${buildTimestamp} \
-                                'false' \
-                                'component-server'
-                            """
+                            images_options = 'false component-server'
                             job_description_append("Only component-server docker images deployed:")
                         }
+
+                        // Build and push specific image
+                        sh """
+                              bash .jenkins/scripts/docker_build.sh \
+                                ${finalVersion}${buildTimestamp} \
+                                ${images_options}
+                            """
+
                         job_description_append("As ${finalVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
                     }
 
                 }
             }
         }
-        stage('Generate Doc') {
+        stage('Documentation') {
             when {
                 expression {
                   params.FORCE_DOC || (params.Action != 'RELEASE' && isMasterBranch)
                 }
             }
             steps {
-                withCredentials([ossrhCredentials,
-                                 gitCredentials]) {
+                withCredentials([ossrhCredentials, gitCredentials]) {
                     sh """\
                         #!/usr/bin/env bash 
                         set -xe                       
