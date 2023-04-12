@@ -43,7 +43,7 @@ String branch_description
 String pomVersion
 String qualifiedVersion
 String releaseVersion = ''
-Boolean deploy_oss = false
+Boolean deploy_maven_oss = false
 Boolean deploy_maven_private = false
 Boolean deploy_docker_private = false
 
@@ -82,15 +82,15 @@ pipeline {
           defaultValue: false,
           description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance branch are deploying on talend.oss.snapshots/releases
-                  dev branches are deploying on talend.snapshots''')
+            INFO: master/maintenance branch are deploying on <oss.sonatype.org>
+                  dev branches are deploying on <artifacts-zl.talend.com>''')
         booleanParam(
           name: 'DOCKER_DEPLOY',
           defaultValue: false,
           description: '''
             Force DOCKER deploy stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance branch are deploying on registry.hub.docker.com
-                  dev branches are deploying on artifactory''')
+            INFO: master/maintenance branch are deploying on <registry.hub.docker.com>
+                  dev branches are deploying on <artifactory.datapwn.com>''')
         string(
           name: 'VERSION_QUALIFIER',
           defaultValue: 'DEFAULT',
@@ -187,7 +187,7 @@ pipeline {
                     releaseVersion = pomVersion.split('-')[0]
                     println "releaseVersion: $releaseVersion"
 
-                    deploy_oss = isStdBranch && params.Action != 'RELEASE'
+                    deploy_maven_oss = isStdBranch && params.Action != 'RELEASE'
                     deploy_maven_private = !isStdBranch && params.MAVEN_DEPLOY
                     deploy_docker_private = !isStdBranch && params.DOCKER_DEPLOY
                 }
@@ -216,7 +216,7 @@ pipeline {
                     if ( user_name == null) { user_name = "auto" }
 
                     String deploy_info
-                    if (deploy_oss || deploy_maven_private){
+                    if (deploy_maven_oss || deploy_maven_private){
                         deploy_info = '+DEPLOY'
                     }
                     else{
@@ -280,43 +280,48 @@ pipeline {
                 }
             }
         }
-        stage('Maven deploy OSS') {
+        stage('Maven deploy') {
             when {
-                expression { deploy_oss }
+                anyOf {
+                    expression { deploy_maven_oss }
+                    expression { deploy_maven_private }
+                }
             }
             steps {
-                withCredentials([ossrhCredentials,
-                                 gpgCredentials]) {
-                    sh """\
+                script {
+                    // Manage extra arguments
+                    String extraArgs = ''
+                    if (deploy_maven_private) {
+                        extra_args = '--activate-profiles dev_branch'
+                    }
+
+                    // Deploy
+                    withCredentials([ossrhCredentials,
+                                     gpgCredentials,
+                                     nexusCredentials]) {
+                        sh """\
                         #!/usr/bin/env bash
                         set -xe
                         bash mvn deploy $DEPLOY_OPTS \
                                         $extraBuildParams \
-                                        --settings .jenkins/settings.xml
+                                        --settings .jenkins/settings.xml \
+                                        $extraArgs
                     """.stripIndent()
+                    }
                 }
-            }
-        }
-        stage('Maven deploy PRIVATE') {
-            when {
-                expression { deploy_maven_private }
-            }
-            steps {
-                withCredentials([ossrhCredentials,
-                                 nexusCredentials,
-                                 gpgCredentials]) {
-                    sh """\
-                        #!/usr/bin/env bash
-                        set -xe
-                        bash mvn deploy $DEPLOY_OPTS \
-                                        $extraBuildParams \
-                                        --activate-profiles dev_branch \
-                                        --settings .jenkins/settings.xml
-                    """.stripIndent()
+                // Add description to job
+                script {
+                    def repo
+                    if (deploy_maven_private) {
+                        repo = ['artifacts-zl.talend.com',
+                                'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
+                    } else {
+                        repo = ['oss.sonatype.org',
+                                'https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/']
+                    }
+
+                    job_description_append("Maven artefact deployed as ${qualifiedVersion} on [${repo[0]}](${repo[1]})")
                 }
-                job_description_append("""
-                  Maven artefact deployed as ${qualifiedVersion} on [artifacts-zl.talend.com](https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component)
-                  """.stripIndent() as String)
             }
         }
         stage('Docker images build') {
