@@ -45,7 +45,7 @@ String qualifiedVersion
 String releaseVersion = ''
 Boolean deploy_maven_oss = false
 Boolean deploy_maven_private = false
-Boolean deploy_docker_private = false
+Boolean docker_branch_push = false
 
 pipeline {
     agent {
@@ -85,12 +85,11 @@ pipeline {
             INFO: master/maintenance branch are deploying on <oss.sonatype.org>
                   dev branches are deploying on <artifacts-zl.talend.com>''')
         booleanParam(
-          name: 'DOCKER_DEPLOY',
+          name: 'DOCKER_PUSH',
           defaultValue: false,
           description: '''
-            Force DOCKER deploy stage for development branches. No effect on master and maintenance.
-            INFO: master/maintenance branch are deploying on <registry.hub.docker.com>
-                  dev branches are deploying on <artifactory.datapwn.com>''')
+            Force DOCKER push stage for development branches. No effect on master and maintenance.
+            INFO: master/maintenance and dev branches are deploying on <artifactory.datapwn.com>''')
         string(
           name: 'VERSION_QUALIFIER',
           defaultValue: 'DEFAULT',
@@ -189,7 +188,7 @@ pipeline {
 
                     deploy_maven_oss = isStdBranch && params.Action != 'RELEASE'
                     deploy_maven_private = !isStdBranch && params.MAVEN_DEPLOY
-                    deploy_docker_private = !isStdBranch && params.DOCKER_DEPLOY
+                    docker_branch_push = !isStdBranch && params.DOCKER_PUSH
                 }
                 script {
                     withCredentials([gitCredentials]) {
@@ -324,44 +323,38 @@ pipeline {
                 }
             }
         }
-        stage('Docker images build') {
+        stage('Docker build/push') {
             when {
                 anyOf {
                   expression { params.Action != 'RELEASE' && isStdBranch }
-                  expression { deploy_docker_private }
+                  expression { docker_branch_push }
                 }
             }
             steps {
                 script {
                     configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                        sh """
-                              bash .jenkins/scripts/docker_build.sh "component-server" ${qualifiedVersion}${buildTimestamp}
-                              bash .jenkins/scripts/docker_build.sh "component-starter-server" ${qualifiedVersion}${buildTimestamp}
-                              bash .jenkins/scripts/docker_build.sh "remote-engine-customizer" ${qualifiedVersion}${buildTimestamp}
-                            """.stripIndent()
-                    }
-                }
-            }
-        }
-        stage('Docker images PRIVATE deploy') {
-            when {
-                expression { deploy_docker_private }
-            }
-            steps {
-                script {
-                    withCredentials([dockerCredentials]) {
-                        configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
+
+                        if (isStdBranch){
+                            // Build and push all images
                             sh """
-                              bash .jenkins/scripts/docker_push.sh \
-                                "component-server" \
-                                ${qualifiedVersion}${buildTimestamp} \
-                                ${ARTIFACTORY_REGISTRY}
-                            """.stripIndent()
+                              bash .jenkins/scripts/docker_build.sh \
+                                ${qualifiedVersion}${buildTimestamp}
+                            """
+                            job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer")
+
                         }
+                        else{
+                            // Build and push specific image
+                            sh """
+                              bash .jenkins/scripts/docker_build.sh \
+                                ${qualifiedVersion}${buildTimestamp} \
+                                'false' \
+                                'component-server'
+                            """
+                            job_description_append("Only component-server docker images deployed:")
+                        }
+                        job_description_append("As ${qualifiedVersion}${buildTimestamp} on [artifactory.datapwn.com](artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
                     }
-                    job_description_append("""
-                      Component server docker image deployed as component-server:${qualifiedVersion}${buildTimestamp} on [artifactory.datapwn.com](artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server)
-                      """.stripIndent() as String)
 
                 }
             }
