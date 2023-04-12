@@ -189,6 +189,14 @@ pipeline {
                     stdBranch_buildOnly = isStdBranch && params.Action != 'RELEASE'
                     devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
                     devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
+
+                    // On development branches the connectors version shall be edited for deployment
+                    // Maven documentation about maven_version:
+                    // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
+                    println "Edit version on dev branches, new version is ${qualifiedVersion}"
+                    sh """
+                      mvn versions:set --define newVersion=${qualifiedVersion}
+                    """
                 }
                 script {
                     withCredentials([gitCredentials]) {
@@ -242,6 +250,12 @@ pipeline {
                     sh 'bash .jenkins/scripts/asdf_install.sh'
                 }
             }
+            post {
+                always {
+                    println "Artifact Poms files for analysis if needed"
+                    archiveArtifacts artifacts: '**/*pom.*', allowEmptyArchive: false, onlyIfSuccessful: false
+                }
+            }
         }
         stage('Post login') {
             steps {
@@ -276,6 +290,20 @@ pipeline {
                                           $extraBuildParams \
                                           --settings .jenkins/settings.xml
                         """.stripIndent()
+                }
+            }
+            post {
+                always {
+                    recordIssues(
+                      enabledForFailure: true,
+                      tools: [
+                        junitParser(
+                          id: 'unit-test',
+                          name: 'Unit Test',
+                          pattern: '**/target/surefire-reports/*.xml'
+                        )
+                      ]
+                    )
                 }
             }
         }
@@ -565,11 +593,6 @@ pipeline {
             recordIssues(
                 enabledForFailure: true,
                 tools: [
-                    junitParser(
-                      id: 'unit-test',
-                      name: 'Unit Test',
-                      pattern: '**/target/surefire-reports/*.xml'
-                    ),
                     taskScanner(
                         id: 'disabled',
                         name: '@Disabled',
