@@ -181,6 +181,15 @@ pipeline {
                           requested qualifier: $params.VERSION_QUALIFIER
                           with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description
                           Qualified Version = $qualifiedVersion"""
+
+                        // On development branches the connectors version shall be edited for deployment
+                        // Maven documentation about maven_version:
+                        // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
+                        println "Edit version on dev branches, new version is ${qualifiedVersion}"
+                        sh """\
+                          #!/usr/bin/env bash
+                          mvn versions:set --define newVersion=${qualifiedVersion}
+                        """.stripIndent()
                     }
 
                     releaseVersion = pomVersion.split('-')[0]
@@ -190,13 +199,6 @@ pipeline {
                     devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
                     devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
 
-                    // On development branches the connectors version shall be edited for deployment
-                    // Maven documentation about maven_version:
-                    // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
-                    println "Edit version on dev branches, new version is ${qualifiedVersion}"
-                    sh """
-                      mvn versions:set --define newVersion=${qualifiedVersion}
-                    """
                 }
                 script {
                     withCredentials([gitCredentials]) {
@@ -206,7 +208,7 @@ pipeline {
                         sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
                     }
                     withCredentials([keyImportCredentials]) {
-                        sh """ bash .jenkins/scripts/setup_gpg.sh"""
+                        sh """ bash .jenkins/scripts/setup_gpg.sh """
                     }
 
                     // By default the doc is skipped for standards branches
