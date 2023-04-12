@@ -214,12 +214,12 @@ pipeline {
                     String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
                     if ( user_name == null) { user_name = "auto" }
 
-                    String deploy_info
+                    String deploy_info = ''
                     if (deploy_maven_oss || deploy_maven_private){
-                        deploy_info = '+DEPLOY'
+                        deploy_info = deploy_info + '+DEPLOY'
                     }
-                    else{
-                        deploy_info = ''
+                    if (docker_branch_push){
+                        deploy_info = deploy_info + '+PUSH'
                     }
 
                     currentBuild.displayName = (
