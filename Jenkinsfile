@@ -57,8 +57,8 @@ pipeline {
     environment {
         MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
         BUILD_ARGS="-Dgpg.skip=true -Denforcer.skip=true"
-        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
+        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true -Denforcer.skip=true"
+        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
@@ -138,9 +138,13 @@ pipeline {
                     devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
                     devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
 
+                    if (devBranch_mavenDeploy || devBranch_dockerPush) {
+                        env.DEPLOY_OPTS = "$SKIP_OPTS --activate-profiles dev_branch"
+                    }
+
                     // By default the doc is skipped for standards branches
                     Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
-                    extraBuildParams = assemblyExtraBuildParams(skip_documentation, devBranch_mavenDeploy || devBranch_dockerPush)
+                    extraBuildParams = assemblyExtraBuildParams(skip_documentation)
 
                 }
 
@@ -649,7 +653,7 @@ private void job_description_append(String new_line) {
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams(Boolean skip_doc, Boolean use_dev_profile) {
+private String assemblyExtraBuildParams(Boolean skip_doc) {
     String extraBuildParams
 
     println 'Processing extraBuildParams'
@@ -664,11 +668,6 @@ private String assemblyExtraBuildParams(Boolean skip_doc, Boolean use_dev_profil
     if (skip_doc) {
         buildParamsAsArray.add('--projects !documentation')
         buildParamsAsArray.add('--define documentation.skip=true')
-    }
-
-    println 'Manage profile option'
-    if (use_dev_profile) {
-        buildParamsAsArray.add('--activate-profiles dev_branch')
     }
 
     println 'Construct final params content'
