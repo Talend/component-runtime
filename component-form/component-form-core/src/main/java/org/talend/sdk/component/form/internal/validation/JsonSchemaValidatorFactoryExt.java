@@ -48,8 +48,7 @@ public class JsonSchemaValidatorFactoryExt extends org.apache.johnzon.jsonschema
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.MaximumValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.RequiredValidation.class.isInstance(v))
                 .filter(v -> !org.apache.johnzon.jsonschema.spi.builtin.PatternValidation.class.isInstance(v))
-                .collect(Collectors.toList())
-                ;
+                .collect(Collectors.toList());
         validations.add(new TypeValidation());
         validations.add(new EnumValidationWithDefaultValue());
         validations.add(new MinimumValidation());
