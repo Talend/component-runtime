@@ -22,24 +22,23 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PRIVATE;
 
-import javax.json.*;
-import javax.json.spi.JsonProvider;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonPointer;
 import javax.json.JsonString;
 import javax.json.JsonValue;
-
+import javax.json.spi.JsonProvider;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 
 import lombok.NoArgsConstructor;
