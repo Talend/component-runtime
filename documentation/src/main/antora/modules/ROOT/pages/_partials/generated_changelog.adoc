@@ -1,5 +1,17 @@
 
 
+== Version 1.56.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2355[TCOMP-2355^]: Error on language support for xx_YY language files link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2405[TCOMP-2405^]: Upgrade snakeyaml to 2.0 link:search.html?query=build[build^,role='dockey']
+
 == Version 1.55.0
 
 === Bug
