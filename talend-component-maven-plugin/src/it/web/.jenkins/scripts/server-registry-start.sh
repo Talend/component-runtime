@@ -82,8 +82,6 @@ function start_server {
   # Go in the distribution directory
   cd "${_DISTRIBUTION_DIR}" || exit 1
 
-  # Force javahome # FIXME temp fix
-  export JAVA_HOME="$(dirname "$(dirname "$(asdf which java)")")"
   # Start the server
   bash -x ./bin/meecrowave.sh start
 

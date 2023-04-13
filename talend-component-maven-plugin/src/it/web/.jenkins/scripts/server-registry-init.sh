@@ -196,7 +196,7 @@ function copy_sample_connector {
 function download_all {
   printf '\n# Download ALL\n'
 
-  printf '\n## Download and unzip component-server\n'
+  printf '\n## Download and unzip component-server (meecrowave)\n'
   if [[ -z ${USE_LOCAL_M2}  ]]; then
     wget --timestamping \
          --directory-prefix "${_DOWNLOAD_DIR}" \
@@ -236,7 +236,8 @@ function download_all {
 function create_setenv_script {
   printf '# Create the setenv.sh script: %s\n' "${_SETENV_PATH}"
   {
-    echo "export JAVA_HOME=\"${JAVA_HOME}\""
+    # Force JAVA_HOME # FIXME temp fix
+    echo "export JAVA_HOME=\"\$(dirname \"\$(dirname \"\$(asdf which java)\")\")\""
     echo "export ENDORSED_PROP=\"ignored.endorsed.dir\""
     echo "export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT} \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\""
