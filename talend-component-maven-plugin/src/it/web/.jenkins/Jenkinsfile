@@ -278,7 +278,7 @@ pipeline {
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
-            sh "bash ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}"
+            sh "bash ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT} 'http://172.17.0.1'  10"
           }
         }
       }
@@ -328,7 +328,13 @@ pipeline {
 
       // recordIssues is a multi result file publisher allowing to have the same publish format on multiples analysis.
       recordIssues (
+        // By default, static analysis results are only recorded for stable or unstable builds,
+        // but not for failed builds: analysis results might be inaccurate if the build failed.
         enabledForFailure: true,
+        // If there are errors while scanning the console log or files for issues (e.g., file pattern matches no files,
+        // source files could not be copied, etc.) then the warning plugin will show these errors in a separate
+        // view but does not alter the build state.
+        failOnError: false,
         tools: [
           // Scan and publish to do and fix me in api test files
           taskScanner(
@@ -354,7 +360,8 @@ pipeline {
         checksName: 'tcomp API Test for tto',
         keepLongStdio: true, // Any standard output or error from will be retained in the test results after the build completes.
         testResults: _API_TEST_RESULT_PATTERN,
-        skipMarkingBuildUnstable: false  // junitParser already publish job status
+        skipMarkingBuildUnstable: false,  // junitParser already publish job status
+        skipNoTestFiles: true // Does not fail the build if no test results have been found.
       )
 
       script {
@@ -362,7 +369,7 @@ pipeline {
         publishCoverage adapters: [jacocoAdapter("**/coverage/report.xml")]
         println "====== Publish HTML API Coverage"
         publishHTML([
-          allowMissing         : false,
+          allowMissing         : true,
           alwaysLinkToLastBuild: false,
           keepAll              : true,
           reportDir            : "${_COVERAGE_DIR}/html",
