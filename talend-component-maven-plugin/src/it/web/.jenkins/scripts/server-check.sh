@@ -40,7 +40,7 @@ which curl || { usage 'curl is not present'; }
 
 main() (
 
-  printf 'Waiting server %s:%s for %s\n' "${_SERVER_ADDRESS} ${_SERVER_PORT} "${_TIMEOUT}"
+  printf 'Waiting server %s:%s for %s\n' "${_SERVER_ADDRESS}" "${_SERVER_PORT}" "${_TIMEOUT}"
 
   _CURL_OPTIONS="test"
   printf 'With the following cmd: curl %s\n' "${_CURL_OPTIONS}"
