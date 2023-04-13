@@ -1,3 +1,9 @@
+== Version 1.38.9
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2412[TCOMP-2412^]: Upgrade org.apache.tomcat:tomcat-catalina to 9.0.73
+
 == Version 1.38.8
 
 === Work Item
