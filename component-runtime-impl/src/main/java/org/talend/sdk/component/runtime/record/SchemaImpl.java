@@ -33,6 +33,7 @@ import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.SchemaProperty;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -339,7 +340,11 @@ public class SchemaImpl implements Schema {
         private EntryImpl(final EntryImpl.BuilderImpl builder) {
             this.name = builder.name;
             this.rawName = builder.rawName;
-            this.type = builder.type;
+            if (builder.type == null && builder.logicalType != null) {
+                this.type = builder.logicalType.storageType();
+            } else {
+                this.type = builder.type;
+            }
             this.nullable = builder.nullable;
             this.metadata = builder.metadata;
             this.defaultValue = builder.defaultValue;
@@ -475,6 +480,8 @@ public class SchemaImpl implements Schema {
 
             private String comment;
 
+            private SchemaProperty.LogicalType logicalType;
+
             private final Map<String, String> props = new LinkedHashMap<>(0);
 
             public BuilderImpl() {
@@ -511,6 +518,13 @@ public class SchemaImpl implements Schema {
             @Override
             public Builder withType(final Type type) {
                 this.type = type;
+                return this;
+            }
+
+            @Override
+            public Builder withLogicalType(final SchemaProperty.LogicalType logicalType) {
+                this.logicalType = logicalType;
+                this.props.put(SchemaProperty.LOGICAL_TYPE, logicalType.key());
                 return this;
             }
 

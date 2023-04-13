@@ -278,6 +278,14 @@ public interface Schema {
         }
 
         /**
+         *
+         * @return the logical type property
+         */
+        default String getLogicalType() {
+            return this.getProp(SchemaProperty.LOGICAL_TYPE);
+        }
+
+        /**
          * @return an {@link Entry.Builder} from this entry.
          */
         default Entry.Builder toBuilder() {
@@ -294,6 +302,14 @@ public interface Schema {
             Builder withRawName(String rawName);
 
             Builder withType(Type type);
+
+            default Builder withLogicalType(SchemaProperty.LogicalType logicalType) {
+                throw new UnsupportedOperationException("#withLogicalType is not implemented");
+            }
+
+            default Builder withLogicalType(String logicalType) {
+                throw new UnsupportedOperationException("#withLogicalType is not implemented");
+            }
 
             Builder withNullable(boolean nullable);
 

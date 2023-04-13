@@ -19,6 +19,8 @@ public interface SchemaProperty {
 
     String ORIGIN_TYPE = "field.origin.type";
 
+    String LOGICAL_TYPE = "field.logical.type";
+
     String SIZE = "field.size";
 
     String SCALE = "field.scale";
@@ -32,5 +34,33 @@ public interface SchemaProperty {
     String IS_FOREIGN_KEY = "field.foreign.key";
 
     String IS_UNIQUE = "field.unique";
+
+    enum LogicalType {
+
+        DATE("date"),
+        TIME("time"),
+        TIMESTAMP("timestamp"),
+        UUID("uuid") {
+
+            @Override
+            public Schema.Type storageType() {
+                return Schema.Type.STRING;
+            }
+        };
+
+        private String logicalType;
+
+        LogicalType(final String logicalType) {
+            this.logicalType = logicalType;
+        }
+
+        public String key() {
+            return this.logicalType;
+        }
+
+        public Schema.Type storageType() {
+            return Schema.Type.DATETIME;
+        }
+    }
 
 }

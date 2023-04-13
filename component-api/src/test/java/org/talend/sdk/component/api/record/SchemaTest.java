@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.api.record;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
@@ -193,6 +195,16 @@ class SchemaTest {
         assertThrows(UnsupportedOperationException.class, () -> builder.moveAfter(null, null));
         assertThrows(UnsupportedOperationException.class, () -> builder.moveBefore(null, null));
         assertThrows(UnsupportedOperationException.class, () -> builder.swap(null, null));
+    }
+
+    @Test
+    void logicalType() {
+        SchemaProperty.LogicalType logicalDate = SchemaProperty.LogicalType.valueOf("DATE");
+        assertNotNull(logicalDate);
+        assertEquals(SchemaProperty.LogicalType.DATE, logicalDate);
+        assertEquals("date", logicalDate.key());
+        assertEquals(Type.DATETIME, logicalDate.storageType());
+        assertThrows(IllegalArgumentException.class, () -> SchemaProperty.LogicalType.valueOf("TINYINT"));
     }
 
     @RequiredArgsConstructor
