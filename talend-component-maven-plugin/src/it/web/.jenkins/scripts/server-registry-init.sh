@@ -236,14 +236,17 @@ function download_all {
 function create_setenv_script {
   printf '# Create the setenv.sh script: %s\n' "${_SETENV_PATH}"
   {
-    # Force JAVA_HOME # FIXME temp fix
+    # Force JAVA_HOME, this is a fix to correct meecrowave that doesn't detect correctly java with asdf
     echo "export JAVA_HOME=\"\$(dirname \"\$(dirname \"\$(asdf which java)\")\")\""
+    # ENDORSED_PROP
     echo "export ENDORSED_PROP=\"ignored.endorsed.dir\""
+    # MEECROWAVE_OPTS
     echo "export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT} \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\""
+    echo "export MEECROWAVE_OPTS=\"--add-opens java.base/java.net=ALL-UNNAMED \${MEECROWAVE_OPTS}\""
 
     # TODO change default locale.mapping https://jira.talendforge.org/browse/TCOMP-2378
     # Default is en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de
