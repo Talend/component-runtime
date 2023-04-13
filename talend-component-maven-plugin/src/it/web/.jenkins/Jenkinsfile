@@ -43,13 +43,13 @@ final String _ARTIFACT_REGISTRY="**/${_SERVER_DIR}/conf/components-registry.prop
  */
 
 final def _NEXUS_CREDENTIALS = usernamePassword(
-    credentialsId: 'nexus-artifact-zl-credentials',
-    usernameVariable: 'NEXUS_USER',
-    passwordVariable: 'NEXUS_PASS')
+  credentialsId: 'nexus-artifact-zl-credentials',
+  usernameVariable: 'NEXUS_USER',
+  passwordVariable: 'NEXUS_PASS')
 
 final def _TENANT_ID_RD = string(
-    credentialsId: 'component-runtime-api-tenant-id-rd',
-    variable: 'componentRuntimeApiTenantId_Rd'
+  credentialsId: 'component-runtime-api-tenant-id-rd',
+  variable: 'componentRuntimeApiTenantId_Rd'
 )
 
 /**
@@ -143,18 +143,20 @@ pipeline {
     stage('Validate parameters') {
       steps {
         ///////////////////////////////////////////
+        // asdf install
+        ///////////////////////////////////////////
+        script {
+          println "asdf install the content of repository .tool-versions'\n"
+          sh 'bash .jenkins/scripts/asdf_install.sh'
+        }
+        ///////////////////////////////////////////
         // Validate parameters
         ///////////////////////////////////////////
         script {
 
-          println "Setup all script as executables in ${_SCRIPTS_PATH}\n"
-          sh """
-            find ${_SCRIPTS_PATH} -type f -iname "*.sh" -exec chmod +x {} \\;
-          """
-
           println "Get actual tck version from ${_ROOT_PATH}/pom.xml: \n"
           TCOMP_VERSION = sh (
-            script: "${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
+            script: "bash ${_SCRIPTS_PATH}/pom-get-version.sh ${_ROOT_PATH}/pom.xml",
             returnStdout: true
           ).trim()
 
@@ -189,25 +191,30 @@ pipeline {
         script {
 
           println("Job info:\n" +
-              " - Tenant instance: ${tenantInstance}\n" +
-              " - Runtime version: ${runtimeVersion}\n" +
-              " - Test file executed: ${fileToRun}" + ".json\n" +
-              " - API Tester used environment: ${apiTesterEnv}\n")
+            " - Tenant instance: ${tenantInstance}\n" +
+            " - Runtime version: ${runtimeVersion}\n" +
+            " - Test file executed: ${fileToRun}" + ".json\n" +
+            " - API Tester used environment: ${apiTesterEnv}\n")
 
           println("Talend Test Orchestrator info:\n" +
-              "PLATFORM: ${params.PLATFORM}\n" +
-              "ENVIRONMENT: ${params.ENVIRONMENT}\n" +
-              "FRAGMENT_URL: ${params.FRAGMENT_URL}\n" +
-              "DEPLOYMENT_UNIT: ${params.DEPLOYMENT_UNIT}\n" +
-              "CYCLE: ${params.CYCLE}\n" +
-              "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
+            "PLATFORM: ${params.PLATFORM}\n" +
+            "ENVIRONMENT: ${params.ENVIRONMENT}\n" +
+            "FRAGMENT_URL: ${params.FRAGMENT_URL}\n" +
+            "DEPLOYMENT_UNIT: ${params.DEPLOYMENT_UNIT}\n" +
+            "CYCLE: ${params.CYCLE}\n" +
+            "DEPLOYED_PRODUCTS: ${params.DEPLOYED_PRODUCTS}")
         }
         ///////////////////////////////////////////
         // Updating build displayName and description
         ///////////////////////////////////////////
         script {
 
-          job_name_creation(runtimeVersion)
+          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+          if ( user_name == null) { user_name = "auto" }
+
+          currentBuild.displayName = (
+            "#$currentBuild.number: $user_name - $runtimeVersion"
+          )
 
           // updating build description
           String description = """
@@ -217,22 +224,61 @@ pipeline {
         }
       }
     }
-    stage('Prepare Test') {
+    stage('Build component-runtime fast') {
+      when {
+        expression { runtimeVersion.contains('-SNAPSHOT') }
+      }
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
-            if (runtimeVersion.contains('-SNAPSHOT')) {
-              sh """ "${_SCRIPTS_PATH}/tcomp-build.sh" "${_ROOT_PATH}/pom.xml" """
-            }
-
-            // TODO: TCOMP-2253 move from "azure-dls-gen2" to local build of the demo connector
+            sh "bash ${_SCRIPTS_PATH}/tcomp-build-fast.sh ${_ROOT_PATH}/pom.xml"
+          }
+        }
+      }
+    }
+    stage('Prepare component-runtime server') {
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
             sh """
-              "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" \
-                                                         "${runtimeVersion}" \
-                                                         "1.36.0" "azure-dls-gen2" \
-                                                         "${_SERVER_PORT}"
-              "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
-            """
+              bash "${_SCRIPTS_PATH}/server-registry-init.sh" "${_DOWNLOAD_DIR}" \
+                                                              "${_INSTALL_DIR}" \
+                                                              "${_COVERAGE_DIR}" \
+                                                              "${runtimeVersion}" \
+                                                              '1.41.0' \
+                                                              '/root/.m2/repository' \
+                                                              "${_SERVER_PORT}"
+              """.stripIndent()
+          }
+        }
+      }
+      post {
+        always {
+          println "Artifact SETENV: ${_ARTIFACT_SETENV}\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_SETENV}", allowEmptyArchive: false, onlyIfSuccessful: false
+          println "Artifact REGISTRY: ${_ARTIFACT_REGISTRY}\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_REGISTRY}", allowEmptyArchive: false, onlyIfSuccessful: false
+        }
+      }
+    }
+    stage('Start component-runtime server') {
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
+            sh """
+              bash "${_SCRIPTS_PATH}/server-registry-start.sh" "${_INSTALL_DIR}" \
+                                                               "${_COVERAGE_DIR}" \
+                                                               "${_SERVER_PORT}"
+            """.stripIndent()
+          }
+        }
+      }
+    }
+    stage('Check component-runtime server') {
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
+            sh "bash ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}"
           }
         }
       }
@@ -240,18 +286,22 @@ pipeline {
     stage('Execute Test') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS, _TENANT_ID_RD]) {
-          sh """              
-             ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}
-
-             printf "======== Execute test\n"
-             cd ${_TESTS_PATH}
-             mvn clean test --settings="${MAVEN_SETTINGS}" \
-                            --define instance="${tenantInstance}" \
-                            --define accountId="${componentRuntimeApiTenantId_Rd}" \
-                            --define selectedEnvironment="${apiTesterEnv}" \
-                            --define stopOnFailure=false \
-                            --define file="${fileToRun}.json"
-             """
+          sh """
+            bash ${_SCRIPTS_PATH}/apitester-run.sh ${_TESTS_PATH}\
+                                                   ${MAVEN_SETTINGS}\
+                                                   ${tenantInstance}\
+                                                   ${componentRuntimeApiTenantId_Rd} \
+                                                   ${apiTesterEnv}\
+                                                   ${fileToRun}.json
+            """.stripIndent()
+        }
+      }
+      post {
+        always {
+          println "Artifact TEST_RESULTS: ${_ARTIFACT_TEST_RESULTS}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_TEST_RESULTS}", allowEmptyArchive: false, onlyIfSuccessful: false
+          println "Artifact COVERAGE: ${_ARTIFACT_COVERAGE}\\n"
+          archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: false, onlyIfSuccessful: false
         }
       }
     }
@@ -267,14 +317,12 @@ pipeline {
           sh """
             printf "======== Stop server\n"
             bash ${_SCRIPTS_PATH}/server-registry-stop.sh ${_INSTALL_DIR}
-
             printf "======== Generate jacoco report \n"
             bash ${_SCRIPTS_PATH}/jacoco-report.sh ${_INSTALL_DIR} ${_COVERAGE_DIR}
-
             printf "======== Generate Html reports\n"
             bash ${_SCRIPTS_PATH}/jacoco-html.sh ${_TESTS_PATH} ${MAVEN_SETTINGS}
           """
-        archiveJenkinsLog()
+          archiveJenkinsLog()
         }
       }
 
@@ -303,10 +351,10 @@ pipeline {
       // Talend Test Orchestrator only work with the basic junit plugin
       // TODO: TTO-562 - Implement recordIssues in TTO to stop using junit
       junit(
-          checksName: 'tcomp API Test for tto',
-          keepLongStdio: true, // Any standard output or error from will be retained in the test results after the build completes.
-          testResults: _API_TEST_RESULT_PATTERN,
-          skipMarkingBuildUnstable: false  // junitParser already publish job status
+        checksName: 'tcomp API Test for tto',
+        keepLongStdio: true, // Any standard output or error from will be retained in the test results after the build completes.
+        testResults: _API_TEST_RESULT_PATTERN,
+        skipMarkingBuildUnstable: false  // junitParser already publish job status
       )
 
       script {
@@ -314,13 +362,13 @@ pipeline {
         publishCoverage adapters: [jacocoAdapter("**/coverage/report.xml")]
         println "====== Publish HTML API Coverage"
         publishHTML([
-            allowMissing         : false,
-            alwaysLinkToLastBuild: false,
-            keepAll              : true,
-            reportDir            : "${_COVERAGE_DIR}/html",
-            reportFiles          : 'index.html',
-            reportName           : 'API Coverage',
-            reportTitles         : 'API Coverage'
+          allowMissing         : false,
+          alwaysLinkToLastBuild: false,
+          keepAll              : true,
+          reportDir            : "${_COVERAGE_DIR}/html",
+          reportFiles          : 'index.html',
+          reportName           : 'API Coverage',
+          reportTitles         : 'API Coverage'
         ])
       }
 
@@ -341,25 +389,7 @@ pipeline {
 
 /**
  * Append a new line to job description
- * REM This is MARKDOWN, do not forget double space at the end of line
- *
- * @param new line
- * @return void
- */
-private void job_name_creation(String extra) {
-  String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-  if (user_name == null) {
-    user_name = "auto"
-  }
-
-  currentBuild.displayName = (
-    "#$currentBuild.number-$extra-$user_name"
-  )
-}
-
-/**
- * Append a new line to job description
- * REM This is MARKDOWN, do not forget double space at the end of line
+ * This is MARKDOWN, do not forget double space at the end of line
  *
  * @param new line
  * @return void
@@ -374,7 +404,6 @@ private void job_description_append(String new_line) {
   }
 }
 
-
 /**
  * Implement a simple breakpoint to stop actual job
  * Use the method anywhere you need to stop
@@ -385,14 +414,14 @@ private void job_description_append(String new_line) {
  * @return void
  */
 private void jenkinsBreakpoint() {
-    // Backup the description
-    String job_description_backup = currentBuild.description
-    // updating build description
-    currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
-    // Request user action
-    input message: 'Finish the job?', ok: 'Yes'
-    // updating build description
-    currentBuild.description = "$job_description_backup"
+  // Backup the description
+  String job_description_backup = currentBuild.description
+  // updating build description
+  currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
+  // Request user action
+  input message: 'Finish the job?', ok: 'Yes'
+  // updating build description
+  currentBuild.description = "$job_description_backup"
 }
 
 /**
@@ -403,20 +432,19 @@ private void jenkinsBreakpoint() {
  */
 private void archiveJenkinsLog() {
 
-    println "Extract the jenkins log file"
-    String newLog = Jenkins.getInstance().getItemByFullName(env.JOB_NAME)
-      .getBuildByNumber(env.BUILD_NUMBER.toInteger())
-      .logFile.text
-    // copy the log in the job's own workspace
-    writeFile file: "raw_log.txt", text: newLog
+  println "Extract the jenkins log file"
+  String newLog = Jenkins.getInstance().getItemByFullName(env.JOB_NAME)
+    .getBuildByNumber(env.BUILD_NUMBER.toInteger())
+    .logFile.text
+  // copy the log in the job's own workspace
+  writeFile file: "raw_log.txt", text: newLog
 
-    // Clean jenkins log file, could do better with a "ansi2txt < raw_log.txt" instead of "cat raw_log.txt"
-    // https://en.wikipedia.org/wiki/ANSI_escape_code
-    // Also could be good to replace '8m0m' by '' when common lib will be in place
-    sh """
+  // Clean jenkins log file, could do better with a "ansi2txt < raw_log.txt" instead of "cat raw_log.txt"
+  // https://en.wikipedia.org/wiki/ANSI_escape_code
+  // Also could be good to replace '8m0m' by '' when common lib will be in place
+  sh """
       cat raw_log.txt | col -b | sed 's;ha:////[[:print:]]*AAAA[=]*;;g' > build_log.txt
     """
 
-    archiveArtifacts artifacts: '**/build_log.txt', allowEmptyArchive: true, onlyIfSuccessful: false
+  archiveArtifacts artifacts: '**/build_log.txt', allowEmptyArchive: true, onlyIfSuccessful: false
 }
-
