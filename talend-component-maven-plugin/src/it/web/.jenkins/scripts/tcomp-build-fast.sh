@@ -39,7 +39,7 @@ _MAVEN_TEST_SKIP="--define spotless.apply.skip=true \
                   --define skipTests \
                   --define maven.javadoc.skip=true \
                   --define invoker.skip=true"
-_MAVEN_FAST="--define maven.artifact.threads=25\
+_MAVEN_FAST="--define maven.artifact.threads=25 \
              --threads 4C"
 
 main() (

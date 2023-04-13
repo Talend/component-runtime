@@ -278,7 +278,7 @@ pipeline {
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
           script {
-            sh "bash ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT} 'http://localhost'  10"
+            sh "bash ${_SCRIPTS_PATH}/server-check.sh ${_SERVER_PORT}"
           }
         }
       }

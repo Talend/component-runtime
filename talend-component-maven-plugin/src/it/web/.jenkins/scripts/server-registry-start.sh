@@ -81,7 +81,6 @@ function start_server {
   printf '# Start server\n'
   # Go in the distribution directory
   cd "${_DISTRIBUTION_DIR}" || exit 1
-
   # Start the server
   bash -x ./bin/meecrowave.sh start
 
