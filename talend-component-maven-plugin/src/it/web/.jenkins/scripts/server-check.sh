@@ -46,8 +46,8 @@ main() (
   printf 'With the following cmd: curl %s\n' "${_CURL_OPTIONS}"
 
   i=0
-
-  while ! curl --output /dev/null --silent --head --fail "${_SERVER_ADDRESS}":"${_SERVER_PORT}"; do
+  # FIXME --silent
+  while ! curl --output /dev/null --head --fail "${_SERVER_ADDRESS}":"${_SERVER_PORT}"; do
     sleep 1
     ((i = i + 1))
     printf '.'
