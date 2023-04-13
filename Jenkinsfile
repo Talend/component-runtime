@@ -47,6 +47,11 @@ Boolean stdBranch_buildOnly = false
 Boolean devBranch_mavenDeploy = false
 Boolean devBranch_dockerPush = false
 
+
+String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
+String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
+
+
 pipeline {
     agent {
         kubernetes {
@@ -58,8 +63,6 @@ pipeline {
     environment {
         MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
         BUILD_ARGS="-Dgpg.skip=true -Denforcer.skip=true"
-        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
@@ -155,8 +158,8 @@ pipeline {
 
                     if (needQualify) {
                         // Qualified version have to be released on talend_repository
-                        // Overwrite the DEPLOY_OPTS
-                        env.DEPLOY_OPTS = "$SKIP_OPTS --activate-profiles private_repository -Denforcer.skip=true"
+                        // Overwrite the deployOptions
+                        deployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
                     }
 
                     // By default the doc is skipped for standards branches
@@ -336,7 +339,7 @@ pipeline {
                         sh """\
                         #!/usr/bin/env bash
                         set -xe
-                        bash mvn deploy $DEPLOY_OPTS \
+                        bash mvn deploy $deployOptions \
                                         $extraBuildParams \
                                         --settings .jenkins/settings.xml
                     """.stripIndent()
@@ -406,7 +409,7 @@ pipeline {
                                             --settings .jenkins/settings.xml \
                                             --activate-profiles gh-pages \
                                             --define gpg.skip=true \
-                                            $SKIP_OPTS \
+                                            $skipOptions \
                                             $extraBuildParams 
 
                     """.stripIndent()
