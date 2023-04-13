@@ -246,20 +246,8 @@ function create_setenv_script {
     echo "export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\""
-    echo "export MEECROWAVE_OPTS=\"--add-modules=ALL-SYSTEM \
-                                   --add-opens java.base/java.io=ALL-UNNAMED \
-                                   --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
-                                   --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
-                                   --add-opens java.base/java.lang=ALL-UNNAMED \
-                                   --add-opens java.base/java.net=ALL-UNNAMED \
-                                   --add-opens java.base/java.nio=ALL-UNNAMED \
-                                   --add-opens java.base/java.util=ALL-UNNAMED \
-                                   --add-opens java.base/java.util.concurrent=ALL-UNNAMED \
-                                   --add-opens java.base/sun.nio.ch=ALL-UNNAMED \
-                                   --add-opens java.base/sun.nio.cs=ALL-UNNAMED \
-                                   --add-opens java.base/sun.security.action=ALL-UNNAMED \
-                                   --add-opens java.base/sun.security.x509=ALL-UNNAMED \
-                                   --add-opens java.base/sun.util.calendar=ALL-UNNAMED \${MEECROWAVE_OPTS}\""
+    # JDK not recognized automatically on our system
+    echo "export MEECROWAVE_OPTS=\"--activate-profiles java9 \${MEECROWAVE_OPTS}\""
 
     # TODO change default locale.mapping https://jira.talendforge.org/browse/TCOMP-2378
     # Default is en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de
