@@ -15,7 +15,7 @@ spec:
         { name: efs-jenkins-connectors-asdf, mountPath: /root/.asdf/installs, subPath: installs },
         { name: efs-jenkins-component-runtime-download, mountPath: /tmp/download },
       ]
-      resources: {requests: {memory: 6G, cpu: '4'}, limits: {memory: 8G, cpu: '5'}}
+      resources: {requests: {memory: 6G, cpu: '8'}, limits: {memory: 8G, cpu: '8'}}
       env:
         - name: DOCKER_HOST
           value: tcp://localhost:2375
