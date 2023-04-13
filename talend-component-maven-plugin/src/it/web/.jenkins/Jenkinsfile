@@ -358,10 +358,10 @@ pipeline {
       // TODO: TTO-562 - Implement recordIssues in TTO to stop using junit
       junit(
         checksName: 'tcomp API Test for tto',
-        keepLongStdio: true, // Any standard output or error from will be retained in the test results after the build completes.
+        keepLongStdio: true, // Standard output/error will be retained in the test results after the build completes.
         testResults: _API_TEST_RESULT_PATTERN,
-        skipMarkingBuildUnstable: false,  // junitParser already publish job status
-        skipNoTestFiles: true // Does not fail the build if no test results have been found.
+        skipMarkingBuildUnstable: false,  // junitParser already publish job status.
+        allowEmptyResults: true, // Do not fail a build on missing test result files or empty test results.
       )
 
       script {
