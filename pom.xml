@@ -1747,6 +1747,19 @@
 
   <profiles>
     <profile>
+      <id>private_repository</id>
+      <!--
+        This profile is used by the CI or for development branch deployment.
+        Its overwrite the snapshotRepository with a private one.
+      -->
+      <distributionManagement>
+        <snapshotRepository>
+          <id>talend.snapshots</id>
+          <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+    <profile>
       <id>travis</id>
       <properties>
         <org.slf4j.simpleLogger.showThreadName>true</org.slf4j.simpleLogger.showThreadName>
