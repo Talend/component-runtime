@@ -390,7 +390,7 @@ pipeline {
                                 ${images_options}
                             """
 
-                        job_description_append("docker run artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${finalVersion}${buildTimestamp}")
+                        job_description_append("docker pull artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${finalVersion}${buildTimestamp}")
                     }
 
                 }
