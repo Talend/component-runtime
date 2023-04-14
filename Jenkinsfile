@@ -250,7 +250,7 @@ pipeline {
                         deploy_info = deploy_info + '+DEPLOY'
                     }
                     if (devBranch_dockerPush){
-                        deploy_info = deploy_info + '+PUSH'
+                        deploy_info = deploy_info + '+DOCKER'
                     }
 
                     currentBuild.displayName = (
@@ -378,7 +378,9 @@ pipeline {
                         }
                         else{
                             images_options = 'false component-server'
-                            job_description_append("Only component-server docker images deployed:")
+                            job_description_append("Docker images deployed: component-server")
+                            job_description_append("As ${finalVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
+
                         }
 
                         // Build and push specific image
@@ -388,7 +390,7 @@ pipeline {
                                 ${images_options}
                             """
 
-                        job_description_append("As ${finalVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
+                        job_description_append("docker run artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${finalVersion}${buildTimestamp}")
                     }
 
                 }
