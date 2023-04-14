@@ -247,7 +247,7 @@ function create_setenv_script {
     echo "export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\""
     # FIXME JDK not recognized automatically on our system
-    echo "export MEECROWAVE_OPTS=\"--add-modules=ALL-SYSTEM \
+    echo "export JAVA_SDK_OPTIONS=\"--add-modules=ALL-SYSTEM \
                                    --add-opens java.base/java.io=ALL-UNNAMED \
                                    --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
                                    --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
@@ -260,7 +260,7 @@ function create_setenv_script {
                                    --add-opens java.base/sun.nio.cs=ALL-UNNAMED \
                                    --add-opens java.base/sun.security.action=ALL-UNNAMED \
                                    --add-opens java.base/sun.security.x509=ALL-UNNAMED \
-                                   --add-opens java.base/sun.util.calendar=ALL-UNNAMED \${MEECROWAVE_OPTS}\""
+                                   --add-opens java.base/sun.util.calendar=ALL-UNNAMED \${JAVA_SDK_OPTIONS}\""
     # FIXME USING PROFILE failed
     # echo "export MEECROWAVE_OPTS=\"--activate-profiles java9 \${MEECROWAVE_OPTS}\""
 
