@@ -1,5 +1,17 @@
 
 
+== Version 1.56.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2355[TCOMP-2355^]: Error on language support for xx_YY language files link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2405[TCOMP-2405^]: Upgrade snakeyaml to 2.0 link:search.html?query=build[build^,role='dockey']
+
 == Version 1.55.0
 
 === Bug
@@ -702,6 +714,14 @@
 
 
 
+
+
+
+== Version 1.38.9
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2412[TCOMP-2412^]: Upgrade tomcat to 9.0.69 link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.38.8
 
@@ -1482,12 +1502,6 @@
 
 
 
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
-
 == Version 1.1.15
 
 === Bug
@@ -1520,6 +1534,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
+
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
