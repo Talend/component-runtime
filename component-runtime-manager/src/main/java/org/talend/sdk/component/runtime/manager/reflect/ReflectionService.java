@@ -35,6 +35,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -208,17 +209,27 @@ public class ReflectionService {
 
         return config -> {
             final Map<String, String> notNullConfig = ofNullable(config).orElseGet(Collections::emptyMap);
-            final PayloadValidator visitor = new PayloadValidator();
-            if (!visitor.skip) {
-                visitor.globalPayload = new PayloadMapper((a, b) -> {
-                }).visitAndMap(metas, notNullConfig);
-                final PayloadMapper payloadMapper = new PayloadMapper(visitor);
-                payloadMapper.setGlobalPayload(visitor.globalPayload);
-                payloadMapper.visitAndMap(metas, notNullConfig);
-                visitor.throwIfFailed();
-            }
+            checkPayload(metas, notNullConfig);
             return factories.stream().map(f -> f.apply(notNullConfig)).toArray(Object[]::new);
         };
+    }
+
+    public static void checkPayload(final List<ParameterMeta> metas, final Map<String, String> notNullConfig) {
+        JsonObject globalPayload = new PayloadMapper((a, b) -> {
+        }).visitAndMap(metas, notNullConfig);
+        checkWithPayload(metas, notNullConfig, globalPayload);
+    }
+
+    public static void checkWithPayload(final List<ParameterMeta> metas, final Map<String, String> notNullConfig,
+            final JsonObject payload) {
+        final PayloadValidator visitor = new PayloadValidator();
+        if (!visitor.skip) {
+            visitor.globalPayload = payload;
+            final PayloadMapper payloadMapper = new PayloadMapper(visitor);
+            payloadMapper.setGlobalPayload(payload);
+            payloadMapper.visitAndMap(metas, notNullConfig);
+            visitor.throwIfFailed();
+        }
     }
 
     public Function<Supplier<Object>, Object> createContextualSupplier(final ClassLoader loader) {
@@ -319,7 +330,7 @@ public class ReflectionService {
             final String configName = String.format("%s[%d]", name, paramIdx);
             if (!config.containsKey(configName)) {
                 if (config.keySet().stream().anyMatch(k -> k.startsWith(configName + "."))) { // object
-                                                                                              // mapping
+                    // mapping
                     if (paramIdx == 0) {
                         args = findArgsName(itemClass);
                     }
@@ -887,6 +898,8 @@ public class ReflectionService {
         String uniqueItems(String property);
 
         String pattern(String property, String pattern);
+
+        String enumValues(String property, String enums, String val);
     }
 
     @RequiredArgsConstructor
@@ -908,7 +921,6 @@ public class ReflectionService {
             if (!VISIBILITY_SERVICE.build(meta).isVisible(globalPayload)) {
                 return;
             }
-
             if (Boolean.parseBoolean(meta.getMetadata().get("tcomp::validation::required"))
                     && value == JsonValue.NULL) {
                 errors.add(MESSAGES.required(meta.getPath()));
@@ -996,6 +1008,20 @@ public class ReflectionService {
                     }
                 }
             }
+            {
+                final String enumValues = metadata.get("tcomp::validation::enumValues");
+                if (enumValues != null) {// value = null or not in enumValues: add error
+                    if (value == null) {
+                        errors.add(MESSAGES.enumValues(meta.getPath(), enumValues, null));
+                    } else {
+                        final String val = JsonValue.class.cast(value).toString().replace("\"", "");
+                        String[] enums = enumValues.substring(1, enumValues.length() - 1).split(",");
+                        if (Arrays.stream(enums).noneMatch(s -> s.trim().equalsIgnoreCase(val))) {
+                            errors.add(MESSAGES.enumValues(meta.getPath(), enumValues, val));
+                        }
+                    }
+                }
+            }
         }
 
         private void throwIfFailed() {
@@ -1007,7 +1033,7 @@ public class ReflectionService {
 
     /**
      * Helper function for creating an instance from a configuration map.
-     * 
+     *
      * @param clazz Class of the wanted instance.
      * @param <T> Type managed
      * @return function that generate the wanted instance when calling

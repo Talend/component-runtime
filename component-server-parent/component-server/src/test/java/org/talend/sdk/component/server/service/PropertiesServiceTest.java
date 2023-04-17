@@ -15,24 +15,7 @@
  */
 package org.talend.sdk.component.server.service;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
+import lombok.Data;
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
@@ -42,15 +25,37 @@ import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.BaseParameterEnricher;
 import org.talend.sdk.component.runtime.manager.service.LocalConfigurationService;
+import org.talend.sdk.component.server.front.model.ConfigTypeNode;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import lombok.Data;
+import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
+import javax.ws.rs.client.WebTarget;
+import java.util.*;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.*;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @MonoMeecrowaveConfig
 class PropertiesServiceTest {
 
     @Inject
     private PropertiesService propertiesService;
+
+    @Inject
+    private WebTarget base;
+
+    private ConfigTypeNode connection;
 
     private static void gridLayout(@Option final WithLayout layout) {
         // no-op
@@ -157,7 +162,8 @@ class PropertiesServiceTest {
         assertEquals("User Name FR", props.get(4).getDisplayName());
     }
 
-    @Test // the class BaseConfig don't contains attribute
+    @Test
+    // the class BaseConfig don't contains attribute
     void validateProp() {
         assertThrows(IllegalArgumentException.class, () -> {
             ParameterMeta attribute = new ParameterMeta(null, BadConfig.class, ParameterMeta.Type.STRING,
@@ -170,6 +176,234 @@ class PropertiesServiceTest {
                     .buildProperties(singletonList(config), getClass().getClassLoader(), Locale.ROOT, null)
                     .forEach(Objects::nonNull);
         });
+    }
+
+    @Test
+    // the class BaseConfig don't contains attribute
+    void validateConfigNode() {
+        final JsonBuilderFactory factory = Json.createBuilderFactory(emptyMap());
+        final List<String> uniques = Arrays.asList("one", "two", "three");
+        final List<String> notUniques = Arrays.asList("one", "two", "three", "one");
+
+        String activeIfsError = "- Property 'configuration.connection.activedIfs' is required.";
+        String connectionError = "- Property 'configuration.connection' is required.";
+        String passwordError = "- Property 'configuration.connection.password' is required.";
+        String url1Required = "- Property 'configuration.connection.url1' is required.";
+        String url0Error = "- 'configuration.connection.url0' does not match '^https?://.*'.";
+        String url1Error = "- 'configuration.connection.url1' does not match '^https?://.*'.";
+        String usernameError = "- Property 'configuration.connection.username' is required.";
+        String minError = "- Property 'configuration.limit' should be > 100, got 99.";
+        String maxError = "- Property 'configuration.limit' should be < 150, got 200.";
+        String ValueEvalError =
+                "- Invalid value for Property 'configuration.connection.valueEval' expected: '[VALUE_1, VALUE_2, VALUE_3]', got null.";
+
+        connection = base
+                .path("configurationtype/details")
+                .queryParam("identifiers", "Y29tcG9uZW50LXdpdGgtdXNlci1qYXJzI2N1c3RvbSNkYXRhc2V0I2RhdGFzZXQ")
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ConfigTypeNodes.class)
+                .getNodes()
+                .values()
+                .iterator()
+                .next();
+
+        JsonObject payload;
+
+        /**
+         * min/max
+         **/
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("url0", "http://t")
+                                .add("username", "abc")
+                                .add("password", "aaa")
+                                .build())
+                        .add("limit", 110))
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Required));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("url0", "https://t")
+                                .add("url1", "https://t")
+                                .add("username", "abc")
+                                .add("password", "aaa")
+                                .build())
+                        .add("limit", 99))
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, minError));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abc")
+                                .add("password", "abc")
+                                .add("url0", "https://t")
+                                .add("url1", "https://t")
+                                .build())
+                        .add("limit", 200))
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, maxError));
+
+        /*
+         * url0 pattern
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abc")
+                                .add("password", "abc")
+                                .add("url0", "https://www.talend.com")
+                                .build()))
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Required));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abc")
+                                .add("password", "abc")
+                                .add("url0", "mailto://toto@titi.org")
+                                .build()))
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url0Error, url1Required));
+
+        /*
+         * url1 pattern
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abc")
+                                .add("password", "abc")
+                                .add("url1", "mailto://toto@titi.org")
+                                .build()))
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Error));
+
+        /*
+         * uniqVals
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("url0", JsonValue.NULL)
+                                .add("url1", JsonValue.NULL)
+                                .add("username", "abc")
+                                .add("password", JsonValue.NULL)
+                                .add("uniqVals", factory.createArrayBuilder(notUniques).build())
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("checkbox2", JsonValue.TRUE)
+                                .build())
+                        .add("limit", 100))
+                .build();
+        checkErrors(payload, Arrays.asList(activeIfsError, connectionError, url1Required, ValueEvalError));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("url0", JsonValue.NULL)
+                                .add("url1", JsonValue.NULL)
+                                .add("username", JsonValue.NULL)
+                                .add("password", JsonValue.NULL)
+                                .add("uniqVals", factory.createArrayBuilder(uniques).build())
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("checkbox2", JsonValue.TRUE)
+                                .build())
+                        .add("limit", 100))
+                .build();
+
+        checkErrors(payload,
+                Arrays.asList(activeIfsError, connectionError, url1Required, usernameError, ValueEvalError));
+
+        /*
+         * password : @ActiveIf(target = "username", evaluationStrategy = ActiveIf.EvaluationStrategy.CONTAINS, value =
+         * "undx")
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "undx")
+                                .add("password", JsonValue.NULL)
+                                .build())
+                        .build())
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, passwordError, url1Required));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
+                                .add("password", JsonValue.NULL)
+                                .build())
+                        .build())
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Required));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "undx")
+                                .add("password", "abc")
+                                .build())
+                        .build())
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Required));
+
+        /*
+         * valueEval @ActiveIf(target = "checkbox1", value = "true")
+         */
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("valueEval", JsonValue.NULL)
+                                .build())
+                        .build())
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Required, ValueEvalError));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
+                                .add("checkbox1", JsonValue.FALSE)
+                                .add("valueEval", JsonValue.NULL)
+                                .build())
+                        .build())
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Required));
+
+        payload = factory.createObjectBuilder()
+                .add("configuration", factory.createObjectBuilder()
+                        .add("connection", factory.createObjectBuilder()
+                                .add("username", "abcd")
+                                .add("checkbox1", JsonValue.TRUE)
+                                .add("valueEval", "VALUE_2")
+                                .build())
+                        .build())
+                .build();
+        checkErrors(payload, Arrays.asList(connectionError, url1Required));
+    }
+
+    private void checkErrors(JsonObject payload, List<String> expected) {
+        try {
+            propertiesService.validate(connection, payload);
+            if (expected != null && expected.size() > 0) {
+                fail("There should be errors: " + expected);
+            }
+        } catch (Exception errors) {
+            StringBuffer expectedBuffer = new StringBuffer();
+            expected.stream().forEach(e -> {
+                expectedBuffer.append(e).append("\n");
+            });
+            expectedBuffer.delete(expectedBuffer.lastIndexOf("\n"), expectedBuffer.length());
+            assertEquals(expectedBuffer.toString(), errors.getMessage());
+        }
     }
 
     @Data

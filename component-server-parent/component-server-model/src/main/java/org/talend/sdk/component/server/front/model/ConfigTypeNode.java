@@ -48,4 +48,7 @@ public class ConfigTypeNode {
 
     private Collection<ActionReference> actions;
 
+    public void visibility(final SimplePropertyDefinition spd) {
+        // no-op
+    }
 }

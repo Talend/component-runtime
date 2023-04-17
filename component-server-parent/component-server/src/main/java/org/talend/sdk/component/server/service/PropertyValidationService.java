@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -34,6 +35,8 @@ import org.talend.sdk.component.server.front.model.PropertyValidation;
 public class PropertyValidationService {
 
     private Function<Map<String, String>, PropertyValidation> propertyValidationCreator;
+
+    private Function<PropertyValidation, Map<String, String>> propertyMetaCreator;
 
     @PostConstruct
     private void initMapper() {
@@ -75,9 +78,36 @@ public class PropertyValidationService {
             }
             return validation;
         };
+
     }
 
     public PropertyValidation map(final Map<String, String> meta) {
         return propertyValidationCreator.apply(meta);
+    }
+
+    public Map<String, String> mapMeta(final PropertyValidation propertyValidation) {
+        final Map<String, String> metaMap = new HashMap<>();
+
+        Stream.of(PropertyValidation.class.getDeclaredFields()).filter(field -> {
+            try {
+                field.setAccessible(true);
+                return field.get(propertyValidation) != null;
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        })
+                .forEach(field -> {
+                    field.setAccessible(true);
+                    try {
+                        Object value = field.get(propertyValidation);
+                        if (value != null) {
+                            metaMap.put(ValidationParameterEnricher.META_PREFIX + field.getName(),
+                                    String.valueOf(value));// f.get(instance).toString());
+                        }
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        return metaMap;
     }
 }
