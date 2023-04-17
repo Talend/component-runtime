@@ -19,6 +19,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collection;
@@ -132,6 +134,11 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
         @Override
         public void onDatetime(final Schema.Entry entry, final Optional<ZonedDateTime> dateTime) {
             dateTime.ifPresent(v -> builder.add(entry.getName(), singer.formatDate(v)));
+        }
+
+        @Override
+        public void onInstant(final Schema.Entry entry, final Optional<Instant> dateTime) {
+            dateTime.ifPresent(v -> builder.add(entry.getName(), singer.formatDate(ZonedDateTime.ofInstant(v, ZoneId.of("UTC")))));
         }
 
         @Override

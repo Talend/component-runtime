@@ -18,6 +18,7 @@ package org.talend.sdk.component.api.record;
 import static java.util.Optional.ofNullable;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Comparator;
@@ -169,6 +170,16 @@ public interface Record {
         return get(ZonedDateTime.class, name);
     }
 
+    /**
+     * See {@link Record#get(Class, String)}.
+     *
+     * @param name entry name.
+     * @return the value of the entry in this record.
+     */
+    default Instant getInstant(final String name) {
+        return get(Instant.class, name);
+    }
+
     default BigDecimal getDecimal(final String name) {
         return get(BigDecimal.class, name);
     }
@@ -194,6 +205,16 @@ public interface Record {
      */
     default Optional<ZonedDateTime> getOptionalDateTime(final String name) {
         return ofNullable(get(ZonedDateTime.class, name));
+    }
+
+    /**
+     * See {@link Record#get(Class, String)}.
+     *
+     * @param name entry name.
+     * @return the value of the entry in this record.
+     */
+    default Optional<Instant> getOptionalInstant(final String name) {
+        return ofNullable(get(Instant.class, name));
     }
 
     /**
@@ -386,6 +407,13 @@ public interface Record {
 
         Builder withTimestamp(Schema.Entry entry, long value);
 
+        default Builder withInstant(String name, Instant value) {
+            throw new UnsupportedOperationException("#withInstant");
+        }
+
+        default Builder withInstant(Schema.Entry entry, Instant value) {
+            throw new UnsupportedOperationException("#withInstant");
+        }
         Builder withInt(String name, int value);
 
         Builder withInt(Schema.Entry entry, int value);
