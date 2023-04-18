@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Imports
+import java.time.LocalDateTime
+import java.util.regex.Matcher
+
 // Credentials
 final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
+final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
 final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
 final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
 final def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
@@ -28,14 +33,24 @@ final String slackChannel = 'components-ci'
 final Boolean isMasterBranch = env.BRANCH_NAME == "master"
 final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
-final Boolean hasExtraBuildArgs = params.EXTRA_BUILD_ARGS != ""
-final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', java.time.LocalDateTime.now())
+final String extraBuildParams = ""
+final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDateTime.now())
 
-// Files and folder definition
-final String _COVERAGE_REPORT_PATH = '**/jacoco-aggregate/jacoco.xml'
+// Job variables declaration
+String branch_user
+String branch_ticket
+String branch_description
+String pomVersion
+String finalVersion
+Boolean needQualify
+Boolean stdBranch_buildOnly = false
+Boolean devBranch_mavenDeploy = false
+Boolean devBranch_dockerPush = false
 
-// Artifacts paths
-final String _ARTIFACT_COVERAGE = '**/jacoco-aggregate/**/*.*'
+
+String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
+String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
+
 
 pipeline {
     agent {
@@ -48,8 +63,6 @@ pipeline {
     environment {
         MAVEN_OPTS="-Dformatter.skip=true -Dmaven.artifact.threads=256"
         BUILD_ARGS="-Dgpg.skip=true -Denforcer.skip=true"
-        SKIP_OPTS="-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-        DEPLOY_OPTS="$SKIP_OPTS -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
         ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
         VERACODE_APP_NAME = 'Talend Component Kit'
         VERACODE_SANDBOX = 'component-runtime'
@@ -68,11 +81,27 @@ pipeline {
           choices: ['STANDARD', 'RELEASE'],
           description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
         booleanParam(
-          name: 'FORCE_SONAR',
+          name: 'MAVEN_DEPLOY',
           defaultValue: false,
-          description: 'Force Sonar analysis')
+          description: '''
+            Force MAVEN deploy stage for development branches. No effect on master and maintenance.
+            INFO: master/maintenance branch are deploying on <oss.sonatype.org>
+                  dev branches are deploying on <artifacts-zl.talend.com>''')
+        booleanParam(
+          name: 'DOCKER_PUSH',
+          defaultValue: false,
+          description: '''
+            Force DOCKER push stage for development branches. No effect on master and maintenance.
+            INFO: master/maintenance and dev branches are deploying on <artifactory.datapwn.com>''')
         string(
-          name: 'EXTRA_BUILD_ARGS',
+          name: 'VERSION_QUALIFIER',
+          defaultValue: 'DEFAULT',
+          description: '''
+            Deploy jars with the given version qualifier. No effect on master and maintenance.
+             - DEFAULT means the qualifier will be the Jira id extracted from the branch name.
+            From "user/JIRA-12345_some_information" the qualifier will be JIRA-12345.''')
+        string(
+          name: 'EXTRA_BUILD_PARAMS',
           defaultValue: '',
           description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
         string(
@@ -80,7 +109,15 @@ pipeline {
           defaultValue: '',
           description: 'Execute a shell command after login. Useful for maintenance.')
         booleanParam(
-          name: 'DEBUG_BEFORE_EXITING',
+          name: 'FORCE_SONAR',
+          defaultValue: false,
+          description: 'Force Sonar analysis')
+        booleanParam(
+          name: 'FORCE_DOC',
+          defaultValue: false,
+          description: 'Force documentation stage for development branches. No effect on master and maintenance.')
+        booleanParam(
+          name: 'JENKINS_DEBUG',
           defaultValue: false,
           description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
     }
@@ -88,6 +125,9 @@ pipeline {
     stages {
         stage('Preliminary steps') {
             steps {
+                ///////////////////////////////////////////
+                // Login tasks
+                ///////////////////////////////////////////
                 script {
                     withCredentials([gitCredentials]) {
                         sh """ bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}" """
@@ -96,34 +136,8 @@ pipeline {
                         sh """ bash .jenkins/scripts/docker_login.sh "${ARTIFACTORY_REGISTRY}" "\${DOCKER_USER}" "\${DOCKER_PASS}" """
                     }
                     withCredentials([keyImportCredentials]) {
-                        sh """ bash .jenkins/scripts/setup_gpg.sh"""
+                        sh """ bash .jenkins/scripts/setup_gpg.sh """
                     }
-
-                    def pom = readMavenPom file: 'pom.xml'
-                    env.PROJECT_VERSION = pom.version
-                    try {
-                        EXTRA_BUILD_ARGS = params.EXTRA_BUILD_ARGS
-                    } catch (ignored) {
-                        EXTRA_BUILD_ARGS = ""
-                    }
-                }
-                ///////////////////////////////////////////
-                // Updating build displayName and description
-                ///////////////////////////////////////////
-                script {
-                    String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-                    if ( user_name == null) { user_name = "auto" }
-
-                    currentBuild.displayName = (
-                      "#$currentBuild.number-$params.Action: $user_name"
-                    )
-
-                    // updating build description
-                    currentBuild.description = ("""
-                       User: $user_name - $params.Action Build
-                       Sonar: $params.FORCE_SONAR - Script: $hasPostLoginScript
-                       Extra args: $hasExtraBuildArgs - Debug: $params.DEBUG_BEFORE_EXITING""".stripIndent()
-                    )
                 }
                 ///////////////////////////////////////////
                 // asdf install
@@ -132,11 +146,141 @@ pipeline {
                     println "asdf install the content of repository .tool-versions'\n"
                     sh 'bash .jenkins/scripts/asdf_install.sh'
                 }
+                ///////////////////////////////////////////
+                // Variables init
+                ///////////////////////////////////////////
+                script {
+                    stdBranch_buildOnly = isStdBranch && params.Action != 'RELEASE'
+                    devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
+                    devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
+
+                    needQualify = devBranch_mavenDeploy || devBranch_dockerPush
+
+                    if (needQualify) {
+                        // Qualified version have to be released on talend_repository
+                        // Overwrite the deployOptions
+                        deployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
+                    }
+
+                    // By default the doc is skipped for standards branches
+                    Boolean skip_documentation = !( params.FORCE_DOC || isStdBranch )
+                    extraBuildParams = assemblyExtraBuildParams(skip_documentation)
+
+                }
+                ///////////////////////////////////////////
+                // Pom version and Qualifier management
+                ///////////////////////////////////////////
+                script{
+                    final def pom = readMavenPom file: 'pom.xml'
+                    pomVersion = pom.version
+
+                    echo 'Manage the version qualifier'
+                    if (!needQualify) {
+                        println """
+                             No need to add qualifier in followings cases:
+                             - We are on Master or Maintenance branch
+                             - We do not want to deploy on dev branch
+                             """.stripIndent()
+                        finalVersion = pomVersion
+                    }
+                    else {
+                        branch_user = ""
+                        branch_ticket = ""
+                        branch_description = ""
+                        if (params.VERSION_QUALIFIER != ("DEFAULT")) {
+                            // If the qualifier is given, use it
+                            println """
+                             No need to add qualifier, use the given one: "$params.VERSION_QUALIFIER"
+                             """.stripIndent()
+                        }
+                        else {
+                            echo "Validate the branch name"
+                            (branch_user,
+                            branch_ticket,
+                            branch_description) = extract_branch_info("$env.BRANCH_NAME")
+
+                            // Check only branch_user, because if there is an error all three params are empty.
+                            if (branch_user == ("")) {
+                                println """
+                                ERROR: The branch name doesn't comply with the format: user/JIRA-1234-Description
+                                It is MANDATORY for artifact management.
+                                You have few options:
+                                - You do not need to deploy, uncheck MAVEN_DEPLOY checkbox
+                                - Change the VERSION_QUALIFIER text box to a personal qualifier, BUT you need to do it on ALL se/ee and cloud-components build
+                                - Rename your branch
+                                """.stripIndent()
+                                currentBuild.description = ("ERROR: The branch name is not correct")
+                                sh """exit 1"""
+                            }
+                        }
+
+                        echo "Insert a qualifier in pom version..."
+                        finalVersion = add_qualifier_to_version(
+                          pomVersion,
+                          branch_ticket,
+                          "$params.VERSION_QUALIFIER" as String)
+
+                        echo """
+                          Configure the version qualifier for the curent branche: $env.BRANCH_NAME
+                          requested qualifier: $params.VERSION_QUALIFIER
+                          with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description
+                          Qualified Version = $finalVersion"""
+
+                        // On development branches the connectors version shall be edited for deployment
+                        // Maven documentation about maven_version:
+                        // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
+                        println "Edit version on dev branches, new version is ${finalVersion}"
+                        sh """\
+                          #!/usr/bin/env bash
+                          mvn versions:set --define newVersion=${finalVersion}
+                          mvn versions:set --file bom/pom.xml --define newVersion=${finalVersion}
+                        """.stripIndent()
+                    }
+
+                }
+                ///////////////////////////////////////////
+                // Updating build displayName and description
+                ///////////////////////////////////////////
+                script {
+                    String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
+                    if ( user_name == null) { user_name = "auto" }
+
+                    String deploy_info = ''
+                    if (stdBranch_buildOnly || devBranch_mavenDeploy){
+                        deploy_info = deploy_info + '+DEPLOY'
+                    }
+                    if (devBranch_dockerPush){
+                        deploy_info = deploy_info + '+DOCKER'
+                    }
+
+                    currentBuild.displayName = (
+                      "#$currentBuild.number-$params.Action" + deploy_info + ": $user_name"
+                    )
+
+                    // updating build description
+                    String description = """
+                      Version = $finalVersion - $params.Action Build
+                      Sonar forced: $params.FORCE_SONAR - Script: $hasPostLoginScript
+                      Debug: $params.JENKINS_DEBUG
+                      Extra build args: $extraBuildParams""".stripIndent()
+                    job_description_append(description)
+                }
+            }
+            post {
+                always {
+                    println "Artifact Poms files for analysis if needed"
+                    archiveArtifacts artifacts: '**/*pom.*', allowEmptyArchive: false, onlyIfSuccessful: false
+                }
             }
         }
         stage('Post login') {
             steps {
-                withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
+                withCredentials([gitCredentials,
+                                 dockerCredentials,
+                                 ossrhCredentials,
+                                 jetbrainsCredentials,
+                                 jiraCredentials,
+                                 gpgCredentials]) {
                     script {
                         try {
                             sh """\
@@ -151,68 +295,130 @@ pipeline {
                 }
             }
         }
-        stage('Standard maven build') {
+        stage('Maven validate to install') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
                 withCredentials([ossrhCredentials]) {
                     sh """\
                         #!/usr/bin/env bash
-                        mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        set -xe
+                        mvn clean install --file bom/pom.xml
+                        mvn clean install $BUILD_ARGS \
+                                          $extraBuildParams \
+                                          --settings .jenkins/settings.xml
                         """.stripIndent()
                 }
             }
+            post {
+                always {
+                    recordIssues(
+                      enabledForFailure: true,
+                      tools: [
+                        junitParser(
+                          id: 'unit-test',
+                          name: 'Unit Test',
+                          pattern: '**/target/surefire-reports/*.xml'
+                        )
+                      ]
+                    )
+                }
+            }
         }
-        stage('Deploy artifacts') {
+        stage('Maven deploy') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isStdBranch }
+                anyOf {
+                    expression { stdBranch_buildOnly }
+                    expression { devBranch_mavenDeploy }
                 }
             }
             steps {
-                withCredentials([ossrhCredentials, gpgCredentials]) {
-                    sh """\
+                script {
+                    withCredentials([ossrhCredentials,
+                                     gpgCredentials,
+                                     nexusCredentials]) {
+                        sh """\
                         #!/usr/bin/env bash
-                        bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        set -xe
+                        bash mvn deploy $deployOptions \
+                                        $extraBuildParams \
+                                        --settings .jenkins/settings.xml
                     """.stripIndent()
+                    }
+                }
+                // Add description to job
+                script {
+                    def repo
+                    if (devBranch_mavenDeploy) {
+                        repo = ['artifacts-zl.talend.com',
+                                'https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/org/talend/sdk/component']
+                    } else {
+                        repo = ['oss.sonatype.org',
+                                'https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/']
+                    }
+
+                    job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})")
                 }
             }
         }
-        stage('Docker images') {
+        stage('Docker build/push') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isStdBranch }
+                anyOf {
+                  expression { stdBranch_buildOnly }
+                  expression { devBranch_dockerPush }
                 }
             }
             steps {
                 script {
                     configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                        sh """\
-                            #!/usr/bin/env bash 
-                            bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}${buildTimestamp}
-                            """.stripIndent()
+
+                        String images_options = ''
+                        if (isStdBranch){
+                            // Build and push all images
+                            job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer")
+                        }
+                        else{
+                            images_options = 'false component-server'
+                            job_description_append("Docker images deployed: component-server")
+                            job_description_append("As ${finalVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
+
+                        }
+
+                        // Build and push specific image
+                        sh """
+                              bash .jenkins/scripts/docker_build.sh \
+                                ${finalVersion}${buildTimestamp} \
+                                ${images_options}
+                            """
+
+                        job_description_append("docker pull artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${finalVersion}${buildTimestamp}")
                     }
+
                 }
             }
         }
         stage('Documentation') {
             when {
-                allOf {
-                    expression { params.Action != 'RELEASE' }
-                    expression { isMasterBranch }
+                expression {
+                  params.FORCE_DOC || (params.Action != 'RELEASE' && isMasterBranch)
                 }
             }
             steps {
                 withCredentials([ossrhCredentials, gitCredentials]) {
                     sh """\
                         #!/usr/bin/env bash 
-                        cd documentation && mvn verify pre-site -Pgh-pages -Dgpg.skip=true $SKIP_OPTS $EXTRA_BUILD_ARGS -s ../.jenkins/settings.xml && cd -
+                        set -xe                       
+                        mvn verify pre-site --file documentation/pom.xml \
+                                            --settings .jenkins/settings.xml \
+                                            --activate-profiles gh-pages \
+                                            --define gpg.skip=true \
+                                            $skipOptions \
+                                            $extraBuildParams 
+
                     """.stripIndent()
                 }
             }
         }
-        stage('Master Post Build Tasks') {
+        stage('OSS security analysis') {
             when {
                 expression { params.Action != 'RELEASE' }
                 branch 'master'
@@ -222,59 +428,100 @@ pipeline {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         sh """\
                             #!/usr/bin/env bash 
-                            mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
-                            mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
+                            set -xe
+                            mvn ossindex:audit-aggregate -pl '!bom' \
+                                                         --define ossindex.fail=false \
+                                                         --define ossindex.reportFile=target/audit.txt \
+                                                         --settings .jenkins/settings.xml
                            """.stripIndent()
-                    }
-                }
-                withCredentials([sonarCredentials]) {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
-                        sh """\
-                            #!/usr/bin/env bash 
-                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED' mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} -Dsonar.analysisCache.enabled=false sonar:sonar
-                        """.stripIndent()
                     }
                 }
             }
             post {
                 always {
                     publishHTML(
-                            target: [
-                                    allowMissing         : true,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'target/',
-                                    reportFiles          : 'audit.txt',
-                                    reportName           : "security::audit"
-                            ])
+                      target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'target/',
+                        reportFiles          : 'audit.txt',
+                        reportName           : "security::audit"
+                      ])
+                }
+            }
+        }
+        stage('Deps report') {
+            when {
+                expression { params.Action != 'RELEASE' }
+                branch 'master'
+            }
+            steps {
+                withCredentials([ossrhCredentials]) {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        sh """\
+                            #!/usr/bin/env bash 
+                            set -xe
+                            mvn versions:dependency-updates-report versions:plugin-updates-report \
+                                                                   versions:property-updates-report \
+                                                                   -pl '!bom'
+                           """.stripIndent()
+                    }
+                }
+            }
+            post {
+                always {
                     publishHTML(
-                            target: [
-                                    allowMissing         : true,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'target/site/',
-                                    reportFiles          : 'property-updates-report.html',
-                                    reportName           : "outdated::property"
-                            ])
+                      target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'target/site/',
+                        reportFiles          : 'property-updates-report.html',
+                        reportName           : "outdated::property"
+                      ])
                     publishHTML(
-                            target: [
-                                    allowMissing         : true,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'target/site/',
-                                    reportFiles          : 'dependency-updates-report.html',
-                                    reportName           : "outdated::dependency"
-                            ])
+                      target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'target/site/',
+                        reportFiles          : 'dependency-updates-report.html',
+                        reportName           : "outdated::dependency"
+                      ])
                     publishHTML(
-                            target: [
-                                    allowMissing         : true,
-                                    alwaysLinkToLastBuild: false,
-                                    keepAll              : true,
-                                    reportDir            : 'target/site/',
-                                    reportFiles          : 'plugin-updates-report.html',
-                                    reportName           : "outdated::plugins"
-                            ])
+                      target: [
+                        allowMissing         : true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll              : true,
+                        reportDir            : 'target/site/',
+                        reportFiles          : 'plugin-updates-report.html',
+                        reportName           : "outdated::plugins"
+                      ])
+                }
+            }
+        }
+        stage('Sonar') {
+            when {
+                expression { params.Action != 'RELEASE' }
+                branch 'master'
+            }
+            steps {
+                withCredentials([sonarCredentials]) {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
+                        sh """\
+                            #!/usr/bin/env bash 
+                            set -xe
+                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED'
+                            mvn sonar:sonar \
+                                --define sonar.host.url=https://sonar-eks.datapwn.com \
+                                --define sonar.login='$SONAR_USER' \
+                                --define sonar.password='$SONAR_PASS' \
+                                --define sonar.branch.name=${env.BRANCH_NAME} \
+                                --define sonar.analysisCache.enabled=false
+                        """.stripIndent()
+                    }
                 }
             }
         }
@@ -291,16 +538,12 @@ pipeline {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """\
                                #!/usr/bin/env bash
-                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${env.PROJECT_VERSION} 
+                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${finalVersion} 
                                """.stripIndent()
                         }
                     }
                 }
             }
-        }
-        stage('Debug') {
-            when { expression { return params.DEBUG_BEFORE_EXITING } }
-            steps { script { input message: 'Finish the job?', ok: 'Yes' } }
         }
     }
     post {
@@ -337,7 +580,7 @@ pipeline {
                 //Only post results to Slack for Master and Maintenance branches
                 if (isStdBranch) {
                     //if previous build was a success, ping channel in the Slack message
-                    if ("SUCCESS".equals(currentBuild.previousBuild.result)) {
+                    if ("SUCCESS" == currentBuild.previousBuild.result) {
                         slackSend(
                             color: '#FF0000',
                             message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
@@ -358,11 +601,6 @@ pipeline {
             recordIssues(
                 enabledForFailure: true,
                 tools: [
-                    junitParser(
-                      id: 'unit-test',
-                      name: 'Unit Test',
-                      pattern: '**/target/surefire-reports/*.xml'
-                    ),
                     taskScanner(
                         id: 'disabled',
                         name: '@Disabled',
@@ -381,10 +619,142 @@ pipeline {
                 ]
             )
             script {
-                println '====== Archive artifacts'
-                println "Artifact 1: ${_ARTIFACT_COVERAGE}"
-                archiveArtifacts artifacts: "${_ARTIFACT_COVERAGE}", allowEmptyArchive: true, onlyIfSuccessful: false
+                println '====== Archive jacoco reports artifacts'
+                archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
+            }
+
+            script {
+                if (params.JENKINS_DEBUG) {
+                    jenkinsBreakpoint()
+                }
             }
         }
     }
+}
+
+
+/**
+ * Append a new line to job description
+ * This is MARKDOWN, do not forget double space at the end of line
+ *
+ * @param new line
+ * @return void
+ */
+private void job_description_append(String new_line) {
+    if (currentBuild.description == null) {
+        println "Create the job description with: \n$new_line"
+        currentBuild.description = new_line
+    } else {
+        println "Edit the job description adding: $new_line"
+        currentBuild.description = currentBuild.description + '\n' + new_line
+    }
+}
+
+/**
+ * Assembly all needed items to put inside extraBuildParams
+ *
+ * @param Boolean skip_doc, if set to true documentation build will be skipped
+ *
+ * @return extraBuildParams as a string ready for mvn cmd
+ */
+private String assemblyExtraBuildParams(Boolean skip_doc) {
+    String extraBuildParams
+
+    println 'Processing extraBuildParams'
+    final List<String> buildParamsAsArray = []
+
+    println 'Manage user params'
+    if ( params.EXTRA_BUILD_PARAMS ) {
+        buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
+    }
+
+    println 'Manage the skip_doc option'
+    if (skip_doc) {
+        buildParamsAsArray.add('--projects !documentation')
+        buildParamsAsArray.add('--define documentation.skip=true')
+    }
+
+    println 'Construct final params content'
+    extraBuildParams = buildParamsAsArray.join(' ')
+    println "extraBuildParams: $extraBuildParams"
+
+    return extraBuildParams
+}
+
+/**
+ * Implement a simple breakpoint to stop actual job
+ * Use the method anywhere you need to stop
+ * The first usage is to keep the pod alive on post stage.
+ * Change and restore the job description to be more visible
+ *
+ * @param none
+ * @return void
+ */
+private void jenkinsBreakpoint() {
+    // Backup the description
+    String job_description_backup = currentBuild.description
+    // updating build description
+    currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
+    // Request user action
+    input message: 'Finish the job?', ok: 'Yes'
+    // updating build description
+    currentBuild.description = "$job_description_backup"
+}
+
+/**
+ * create a new version from actual one and given jira ticket or user qualifier
+ * Priority to user qualifier
+ *
+ * The branch name has comply with the format: user/JIRA-1234-Description
+ * It is MANDATORY for artifact management.
+ *
+ * @param String version actual version to edit
+ * @param GString ticket
+ * @param GString user_qualifier to be checked as priority qualifier
+ *
+ * @return String new_version with added qualifier
+ */
+private static String add_qualifier_to_version(String version, String ticket, String user_qualifier) {
+    String new_version
+
+    if (user_qualifier.contains("DEFAULT")) {
+        if (version.contains("-SNAPSHOT")) {
+            new_version = version.replace("-SNAPSHOT", "-$ticket-SNAPSHOT" as String)
+        } else {
+            new_version = "$version-$ticket".toString()
+        }
+    } else {
+        new_version = version.replace("-SNAPSHOT", "-$user_qualifier-SNAPSHOT" as String)
+    }
+    return new_version
+}
+
+/**
+ * extract given branch information
+ *
+ * The branch name has comply with the format: user/JIRA-1234-Description
+ * It is MANDATORY for artifact management.
+ *
+ * @param branch_name row name of the branch
+ *
+ * @return A list containing the extracted: [user, ticket, description]
+ * The method also raise an assert exception in case of wrong branch name
+ */
+private static ArrayList<String> extract_branch_info(GString branch_name) {
+
+    String branchRegex = /^(?<user>.*)\/(?<ticket>[A-Z]{2,8}-\d{1,6})[_-](?<description>.*)/
+    Matcher branchMatcher = branch_name =~ branchRegex
+
+    try {
+        assert branchMatcher.matches()
+    }
+    catch (AssertionError ignored) {
+        return ["", "", ""]
+    }
+
+    String user = branchMatcher.group("user")
+    String ticket = branchMatcher.group("ticket")
+    String description = branchMatcher.group("description")
+
+    return [user, ticket, description]
 }

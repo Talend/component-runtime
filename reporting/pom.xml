@@ -29,6 +29,13 @@
 
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>
+    <!--
+     documentation.skip is false by default
+     It is useful in case you want to build the whole project without the documentation.
+     Example: The CI is using it on developers branches.
+     If set to false, the "documentation" maven profile will not be used.
+     -->
+    <documentation.skip>false</documentation.skip>
   </properties>
 
   <dependencies>
@@ -189,11 +196,6 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>documentation</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
       <artifactId>talend-component-kit-intellij-plugin</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -241,4 +243,28 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>documentation</id>
+      <!--
+      This profile can be controlled with "documentation.skip" property in case you want to build
+       the whole project with/without the documentation.
+      -->
+      <activation>
+        <property>
+          <name>documentation.skip</name>
+          <value>false</value>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.talend.sdk.component</groupId>
+          <artifactId>documentation</artifactId>
+          <version>${project.version}</version>
+          <optional>${documentation.skip}</optional>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
