@@ -414,6 +414,7 @@ public interface Record {
         default Builder withInstant(Schema.Entry entry, Instant value) {
             throw new UnsupportedOperationException("#withInstant");
         }
+
         Builder withInt(String name, int value);
 
         Builder withInt(Schema.Entry entry, int value);

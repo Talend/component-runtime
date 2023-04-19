@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":695,
+    "commits":698,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -50,7 +50,7 @@
     "name":"ypiel"
   },
   {
-    "commits":28,
+    "commits":29,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -226,7 +226,7 @@
   },
   {
     "commits":1,
-    "description":"Senior Application Security Engineer",
+    "description":"Principal Security Engineer",
     "gravatar":"https://avatars.githubusercontent.com/u/6706472?v=4",
     "id":"Gby56",
     "name":"Gabriel Marquet"
