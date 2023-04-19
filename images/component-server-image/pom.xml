@@ -47,6 +47,10 @@
       <artifactId>jakarta.activation-api</artifactId>
       <version>1.2.2</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
 
     <!-- beam support -->
     <dependency>
@@ -231,7 +235,7 @@
                   <TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY>${TALEND_HOME}/connectors</TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY>
                   <TALEND_VAULT_CACHE_VAULT_DECRYPT_ENDPOINT>v1/tenants-keyrings/decrypt/{x-talend-tenant-id}</TALEND_VAULT_CACHE_VAULT_DECRYPT_ENDPOINT>
                   <CLASSPATH>${docker.talend.dir.base}component-kit/custom/*:${docker.talend.dir.base}custom/*:${TALEND_HOME}/extensions/*:${docker.talend.dir.app}resources:${docker.talend.dir.app}classes</CLASSPATH>
-                  <JDK_JAVA_OPTIONS>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.net.nio=ALL-UNNAMED -Dlog4j.configurationFile=${docker.talend.dir.app}conf/log4j2-component-server-TEXT.xml</JDK_JAVA_OPTIONS>
+                  <JDK_JAVA_OPTIONS>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.net=ALL-UNNAMED -Dlog4j.configurationFile=${docker.talend.dir.app}conf/log4j2-component-server-TEXT.xml</JDK_JAVA_OPTIONS>
                 </environment>
                 <labels>
                   <com.talend.docker.cmd>docker run -d -p ${docker.image.port}:${docker.image.port} ${docker.image.to}</com.talend.docker.cmd>

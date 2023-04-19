@@ -57,6 +57,7 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
             final String initialConfig = System.getProperty("log4j.configurationFile", "default.properties");
             final String newConfig = String.format("%s/conf/log4j2-component-server-%s.xml", appHome, log4jLayout);
             if (!newConfig.equals(initialConfig)) {
+                System.err.println("[PropertiesSetup#accept] log4j-reconfigure.");
                 System.setProperty("log4j.configurationFile", newConfig);
                 LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
                 ctx.setConfigLocation(new File(newConfig).toURI());

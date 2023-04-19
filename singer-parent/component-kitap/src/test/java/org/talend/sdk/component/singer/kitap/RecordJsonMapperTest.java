@@ -69,9 +69,9 @@ class RecordJsonMapperTest {
                                 .withInstant("instant", INSTANT)
                                 .build());
         assertEquals("{" + "\"name\":\"hello\"," + "\"age\":1," + "\"toggle\":true,"
-                        + "\"date\":\"2019-08-23T16:31:00.000000Z\"," + "\"lg\":2," + "\"bytes\":\"dGVzdA==\","
-                        + "\"array\":[\"value-from-array\"]," + "\"instant\":\"2019-08-23T16:31:12.000123Z\","
-                        + "\"nested\":{\"value\":\"set\",\"nested2\":{\"l2\":2}}}",
+                + "\"date\":\"2019-08-23T16:31:00.000000Z\"," + "\"lg\":2," + "\"bytes\":\"dGVzdA==\","
+                + "\"array\":[\"value-from-array\"]," + "\"instant\":\"2019-08-23T16:31:12.000123Z\","
+                + "\"nested\":{\"value\":\"set\",\"nested2\":{\"l2\":2}}}",
                 object.toString());
     }
 }
