@@ -47,10 +47,6 @@
       <artifactId>jakarta.activation-api</artifactId>
       <version>1.2.2</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
 
     <!-- beam support -->
     <dependency>
