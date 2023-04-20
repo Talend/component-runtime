@@ -196,7 +196,7 @@ function copy_sample_connector {
 function download_all {
   printf '\n# Download ALL\n'
 
-  printf '\n## Download and unzip component-server\n'
+  printf '\n## Download and unzip component-server (meecrowave)\n'
   if [[ -z ${USE_LOCAL_M2}  ]]; then
     wget --timestamping \
          --directory-prefix "${_DOWNLOAD_DIR}" \
@@ -236,13 +236,31 @@ function download_all {
 function create_setenv_script {
   printf '# Create the setenv.sh script: %s\n' "${_SETENV_PATH}"
   {
-    echo "export JAVA_HOME=\"${JAVA_HOME}\""
+    # Force JAVA_HOME, this is a fix to correct meecrowave that doesn't detect correctly java with asdf
+    echo "export JAVA_HOME=\"\$(dirname \"\$(dirname \"\$(asdf which java)\")\")\""
+    # ENDORSED_PROP
     echo "export ENDORSED_PROP=\"ignored.endorsed.dir\""
+    # MEECROWAVE_OPTS
     echo "export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT} \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-D_talend.studio.version=7.4.1 \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.vault.cache.vault.url=none \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.component.server.component.registry=conf/components-registry.properties \${MEECROWAVE_OPTS}\""
+    # JDK not recognized automatically on our system
+    echo "export JDK_JAVA_OPTIONS=\"--add-modules=ALL-SYSTEM \
+                                   --add-opens java.base/java.io=ALL-UNNAMED \
+                                   --add-opens java.base/java.lang.invoke=ALL-UNNAMED \
+                                   --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
+                                   --add-opens java.base/java.lang=ALL-UNNAMED \
+                                   --add-opens java.base/java.net=ALL-UNNAMED \
+                                   --add-opens java.base/java.nio=ALL-UNNAMED \
+                                   --add-opens java.base/java.util=ALL-UNNAMED \
+                                   --add-opens java.base/java.util.concurrent=ALL-UNNAMED \
+                                   --add-opens java.base/sun.nio.ch=ALL-UNNAMED \
+                                   --add-opens java.base/sun.nio.cs=ALL-UNNAMED \
+                                   --add-opens java.base/sun.security.action=ALL-UNNAMED \
+                                   --add-opens java.base/sun.security.x509=ALL-UNNAMED \
+                                   --add-opens java.base/sun.util.calendar=ALL-UNNAMED \${JDK_JAVA_OPTIONS}\""
 
     # TODO change default locale.mapping https://jira.talendforge.org/browse/TCOMP-2378
     # Default is en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de

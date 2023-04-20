@@ -82,7 +82,7 @@ function start_server {
   # Go in the distribution directory
   cd "${_DISTRIBUTION_DIR}" || exit 1
   # Start the server
-  ./bin/meecrowave.sh start
+  bash -x ./bin/meecrowave.sh start
 
   if grep -q 'Exception in thread' "${_MEECROWAVE_LOG_PATH}"; then
       printf '\n'
