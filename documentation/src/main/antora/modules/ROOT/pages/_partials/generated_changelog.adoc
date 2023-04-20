@@ -4,7 +4,17 @@
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-2293[TCOMP-2293^]: Add Instant parameter type to withTimestamp method to avoid ms precision loss link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2355[TCOMP-2355^]: Error on language support for xx_YY language files link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2383[TCOMP-2383^]: Guess schema - Can't find component name Client link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2389[TCOMP-2389^]: There is no response when use guess schema for tNetSuiteV2019Input link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2414[TCOMP-2414^]: Need add-opens for Pulsar Connector running with Java 17 link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2343[TCOMP-2343^]: Guesschema - Improve error message link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 

@@ -21,7 +21,7 @@ final def veracodeCredentials = usernamePassword(
 final def nexusCredentials = usernamePassword(
   credentialsId: 'nexus-artifact-zl-credentials',
   usernameVariable: 'NEXUS_USER',
-  passwordVariable: 'NEXUS_PASSWORD')
+  passwordVariable: 'NEXUS_PASS')
 
 String git_branch_name = ""
 

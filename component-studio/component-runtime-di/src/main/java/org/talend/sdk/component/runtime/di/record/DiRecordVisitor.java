@@ -29,6 +29,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -339,7 +340,13 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     @Override
     public void onDatetime(final Entry entry, final Optional<ZonedDateTime> dateTime) {
         log.debug("[onDatetime] visiting {}.", entry.getName());
-        dateTime.ifPresent(value -> setField(entry, value.toInstant().toEpochMilli()));
+        dateTime.ifPresent(value -> setField(entry, value.toInstant()));
+    }
+
+    @Override
+    public void onInstant(final Schema.Entry entry, final Optional<Instant> dateTime) {
+        log.debug("[onInstant] visiting {}.", entry.getName());
+        dateTime.ifPresent(value -> setField(entry, value));
     }
 
     @Override
