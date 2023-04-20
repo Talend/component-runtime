@@ -20,20 +20,32 @@ set -xe
 # Parameters:
 # $1: docker tag version
 # $2: should tag as latest
+# $3: requested image, if not given, all will be pushed
 
-tag="${1?Missing tag}"
-latest="${2:-false}"
+_TAG="${1?Missing tag}"
+_IS_LATEST="${2-'false'}"
+_ONLY_ONE_IMAGE="${3-''}"
 
 dockerBuild() {
-  echo ">> Building and pushing $1:${tag}"
-  cd "images/${1}-image"
-  mvn package jib:build@build -Ddocker.talend.image.tag=${tag}
-  if [[ ${latest} == 'true' ]]; then
-    mvn package jib:build@build -Ddocker.talend.image.tag=latest
+  _IMAGE="${1}"
+  echo ">> Building and push $_IMAGE:${_TAG}"
+
+  mvn package jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define docker.talend.image.tag="${_TAG}"
+
+  if [[ ${_IS_LATEST} == 'true' ]]; then
+    mvn package jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define docker.talend.image.tag=latest
   fi
-  cd ../..
 }
 
-dockerBuild "component-server"
-dockerBuild "component-starter-server"
-dockerBuild "remote-engine-customizer"
+if [[ -n "${_ONLY_ONE_IMAGE}" ]]; then
+  dockerBuild "${_ONLY_ONE_IMAGE}"
+else
+  dockerBuild "component-server"
+  dockerBuild "component-starter-server"
+  dockerBuild "remote-engine-customizer"
+fi
+
