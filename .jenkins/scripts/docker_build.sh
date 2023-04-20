@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 # Parameters:
 # $1: docker tag version
@@ -24,7 +24,7 @@
 
 _TAG="${1?Missing tag}"
 _IS_LATEST="${2-false}"
-_ONLY_ONE_IMAGE="${3}" # Default is empty
+_ONLY_ONE_IMAGE="${3}"
 
 dockerBuild() {
   _IMAGE="${1}"
