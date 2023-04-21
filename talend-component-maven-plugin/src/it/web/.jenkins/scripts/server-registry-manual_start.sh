@@ -60,7 +60,8 @@ printf "INSTALL_DIR = %s\n" "${_INSTALL_DIR}"
 printf "COVERAGE_DIR = %s\n" "${_COVERAGE_DIR}"
 printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
 
-"${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}"
+# TODO The stop does not work everytime and is executed even if no server is running#
+# "${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}"
 
 "${_SCRIPT_PATH}"/server-registry-init.sh "${_DOWNLOAD_DIR}" \
                                           "${_INSTALL_DIR}" \
