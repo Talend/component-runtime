@@ -36,8 +36,7 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <!-- override until we upgrade meecrowave -->
+    <dependency><!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
     </dependency>
@@ -282,8 +281,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <!-- frontend build (nodejs), generated at prepare-package to be there for tests -->
+      <plugin><!-- frontend build (nodejs), generated at prepare-package to be there for tests -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
