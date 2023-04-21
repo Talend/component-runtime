@@ -1588,241 +1588,231 @@
           "children": [
             {
               "entity": {
-                "type": "Scenario",
-                "description": "Api documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "85ee79dd-ffba-490f-8b29-544764ab905c",
-                "name": "bulk"
-              },
-              "children": [
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "requestBody": true,
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
-                      "name": "POST"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text",
-                      "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"/api/v1/component/index\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": []
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/bulk"
-                    },
-                    "description": "Do a bulk request with only one request inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "f8c1fb44-b727-4ee9-8181-2bf08170b678",
-                    "name": "1-bulk: one component index",
-                    "headers": [
-                      {
-                        "enabled": true,
-                        "name": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "enabled": true,
-                        "name": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Exists",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses[0].headers",
-                        "value": "Name: The Mapper 1 -en"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses",
-                        "value": "1"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses[0].response.components",
-                        "value": "2"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses[0].status",
-                        "value": "200"
-                      }
-                    ]
-                  }
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
                 },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "requestBody": true,
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
-                      "name": "POST"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text",
-                      "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"/api/v1/component/index\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/configurationtype/index\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": []
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/bulk"
-                    },
-                    "description": "Do a bulk request with two request inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "facc68ab-dcc5-44e5-8adc-020afe9ef93f",
-                    "name": "2-bulk: two index (component, configurationtype)",
-                    "headers": [
-                      {
-                        "enabled": true,
-                        "name": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "enabled": true,
-                        "name": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses",
-                        "value": "2"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses[0].response.components",
-                        "value": "2"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses[0].response.nodes",
-                        "value": "2"
-                      }
-                    ]
-                  }
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"/api/v1/component/index\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
                 },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "requestBody": true,
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
-                      "name": "POST"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text",
-                      "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/component/details?identifiers=${\"mapper_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/component/details?identifiers=${\"output_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/configurationtype/details?identifiers=${\"dataset_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": []
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/bulk"
-                    },
-                    "description": "Do a bulk request with three requests inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "6257cfad-c3d6-491e-85ca-bcdde8446830",
-                    "name": "3-bulk: three details",
-                    "headers": [
-                      {
-                        "enabled": true,
-                        "name": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "enabled": true,
-                        "name": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "LengthGreaterThanOrEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses",
-                        "value": "2"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses[0].response.details..displayName",
-                        "value": "Name: The Mapper 1 -en"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses[1].response.details..displayName",
-                        "value": "Name: The Output 1 -en"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.responses[2].response.details..displayName",
-                        "value": "Name: Sample dataset -en"
-                      }
-                    ]
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/bulk"
+                },
+                "description": "Do a bulk request with only one request inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "id": "f8c1fb44-b727-4ee9-8181-2bf08170b678",
+                "name": "1-bulk: one component index",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "Accept",
+                    "value": "application/json"
                   }
-                }
-              ]
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses[0].headers",
+                    "value": "Name: The Mapper 1 -en"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses",
+                    "value": "1"
+                  },
+                  {
+                    "comparison": "LengthGreaterThanOrEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses[0].response.components",
+                    "value": "2"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses[0].status",
+                    "value": "200"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"/api/v1/component/index\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/configurationtype/index\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/bulk"
+                },
+                "description": "Do a bulk request with two request inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "id": "facc68ab-dcc5-44e5-8adc-020afe9ef93f",
+                "name": "2-bulk: two index (component, configurationtype)",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses",
+                    "value": "2"
+                  },
+                  {
+                    "comparison": "LengthGreaterThanOrEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses[0].response.components",
+                    "value": "2"
+                  },
+                  {
+                    "comparison": "LengthGreaterThanOrEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses[0].response.nodes",
+                    "value": "2"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/component/details?identifiers=${\"mapper_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/component/details?identifiers=${\"output_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/configurationtype/details?identifiers=${\"dataset_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/bulk"
+                },
+                "description": "Do a bulk request with three requests inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "id": "6257cfad-c3d6-491e-85ca-bcdde8446830",
+                "name": "3-bulk: three details",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "LengthGreaterThanOrEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses",
+                    "value": "2"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses[0].response.details..displayName",
+                    "value": "Name: The Mapper 1 -en"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses[1].response.details..displayName",
+                    "value": "Name: The Output 1 -en"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.responses[2].response.details..displayName",
+                    "value": "Name: Sample dataset -en"
+                  }
+                ]
+              }
             }
           ]
         },
