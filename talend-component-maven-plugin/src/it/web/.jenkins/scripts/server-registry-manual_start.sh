@@ -71,4 +71,4 @@ printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
                                           "${_SERVER_PORT}" \
                                           "${_JAVA_DEBUG_PORT}"
 
-"${_SCRIPT_PATH}"/server-registry-start.sh "${_INSTALL_DIR}" "${_COVERAGE_DIR}" "${_SERVER_PORT}"
+"${_SCRIPT_PATH}"/server-registry-start.sh "${_INSTALL_DIR}" "no_coverage" "${_SERVER_PORT}"
