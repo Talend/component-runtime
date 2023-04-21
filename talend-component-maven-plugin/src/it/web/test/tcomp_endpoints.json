@@ -1637,6 +1637,38 @@
                         "name": "Accept",
                         "value": "application/json"
                       }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "Exists",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses[0].headers",
+                        "value": "Name: The Mapper 1 -en"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses",
+                        "value": "1"
+                      },
+                      {
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses[0].response.components",
+                        "value": "2"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses[0].status",
+                        "value": "200"
+                      }
                     ]
                   }
                 },
@@ -1683,6 +1715,32 @@
                         "name": "Accept",
                         "value": "application/json"
                       }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses",
+                        "value": "2"
+                      },
+                      {
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses[0].response.components",
+                        "value": "2"
+                      },
+                      {
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses[0].response.nodes",
+                        "value": "2"
+                      }
                     ]
                   }
                 },
@@ -1701,7 +1759,7 @@
                         "items": []
                       },
                       "bodyType": "Text",
-                      "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/component/details?identifiers=${\"mapper_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/component/details?identifiers=${\"mapper_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/configurationtype/details?identifiers=${\"dataset_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
+                      "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/component/details?identifiers=${\"mapper_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/component/details?identifiers=${\"output_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"http://${\"server-ip\"}:${\"server-port\"}/api/v1/configurationtype/details?identifiers=${\"dataset_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
                     },
                     "uri": {
                       "query": {
@@ -1728,6 +1786,38 @@
                         "enabled": true,
                         "name": "Accept",
                         "value": "application/json"
+                      }
+                    ],
+                    "assertions": [
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseStatus",
+                        "path": "code",
+                        "value": "200"
+                      },
+                      {
+                        "comparison": "LengthGreaterThanOrEqual",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses",
+                        "value": "2"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses[0].response.details..displayName",
+                        "value": "Name: The Mapper 1 -en"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses[1].response.details..displayName",
+                        "value": "Name: The Output 1 -en"
+                      },
+                      {
+                        "comparison": "Equals",
+                        "subject": "ResponseJsonBody",
+                        "path": "$.responses[2].response.details..displayName",
+                        "value": "Name: Sample dataset -en"
                       }
                     ]
                   }
