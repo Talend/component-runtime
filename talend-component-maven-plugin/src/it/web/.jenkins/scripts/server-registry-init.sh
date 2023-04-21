@@ -234,12 +234,20 @@ function download_all {
 }
 
 function create_setenv_script {
+
+  # Detect if java is under asdf
+  use_asdf_java=$(which asdf) || printf 'asdf is not present, we are not on the CI\n'
+
   printf '# Create the setenv.sh script: %s\n' "${_SETENV_PATH}"
   {
+    if [[ -n ${use_asdf_java} ]]; then
     # Force JAVA_HOME, this is a fix to correct meecrowave that doesn't detect correctly java with asdf
-    echo "export JAVA_HOME=\"\$(dirname \"\$(dirname \"\$(asdf which java)\")\")\""
+      echo "export JAVA_HOME=\"\$(dirname \"\$(dirname \"\$(asdf which java)\")\")\""
+    fi
+
     # ENDORSED_PROP
     echo "export ENDORSED_PROP=\"ignored.endorsed.dir\""
+
     # MEECROWAVE_OPTS
     echo "export MEECROWAVE_OPTS=\"-Dhttp=${_SERVER_PORT} \${MEECROWAVE_OPTS}\""
     echo "export MEECROWAVE_OPTS=\"-Dtalend.component.manager.m2.repository=m2 \${MEECROWAVE_OPTS}\""
