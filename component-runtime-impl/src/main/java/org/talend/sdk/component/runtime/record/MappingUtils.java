@@ -90,6 +90,8 @@ public class MappingUtils {
                     return ZonedDateTime.ofInstant((Instant) value, UTC);
                 } else if (java.util.Date.class == expectedType) {
                     return java.sql.Timestamp.from((Instant) value);
+                } else if (Long.class == expectedType) {
+                    return ((Instant) value).toEpochMilli();
                 }
             }
             if (Timestamp.class.isInstance(value)
