@@ -241,8 +241,6 @@
     <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
     <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
     <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
-    <plexus-utils.version>3.5.1</plexus-utils.version>
-    <plexus-sec-dispatcher.version>2.0</plexus-sec-dispatcher.version>
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>5.10.0.202012080955-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
@@ -496,18 +494,6 @@
         <artifactId>maven-settings</artifactId>
         <version>${mvn.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
-        <version>${plexus-utils.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-sec-dispatcher</artifactId>
-        <version>${plexus-sec-dispatcher.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-settings-builder</artifactId>
