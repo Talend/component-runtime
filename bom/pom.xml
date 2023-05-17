@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.56.1</version>
+  <version>1.56.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
