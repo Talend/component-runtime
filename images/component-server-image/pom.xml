@@ -209,11 +209,24 @@
               <extraDirectories>
                 <paths>
                   <path>${docker.image.extra.files}</path>
+                  <path>src/main/jib</path>
                 </paths>
+                <permissions>
+                  <permission>
+                    <file>/entrypoint.sh</file>
+                    <mode>755</mode>
+                  </permission>
+                </permissions>
               </extraDirectories>
               <container>
                 <user>talend:talend</user>
+                <entrypoint>/entrypoint.sh</entrypoint>
                 <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
+                <args>
+                  <arg>java</arg>
+                  <arg>org.apache.meecrowave.runner.Cli</arg>
+                </args>
+                <expandClasspathDependencies>true</expandClasspathDependencies>
                 <extraClasspath>${docker.talend.dir.app}custom/*</extraClasspath>
                 <environment>
                   <MEECROWAVE_HOME>${docker.talend.dir.app}</MEECROWAVE_HOME>
