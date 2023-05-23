@@ -1,5 +1,42 @@
 
 
+== Version 1.57.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2426[TCOMP-2426^]: Missing Instant conversion to Long link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2435[TCOMP-2435^]: Port not assigned correctly on CE link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2407[TCOMP-2407^]: Allow to deploy specific branch qualified artifacts link:search.html?query=build[build^,role='dockey'] link:search.html?query=testing[testing^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2391[TCOMP-2391^]: Phase out layerspector and migrate to JIB for TCK Api Test script link:search.html?query=build[build^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=remote-engine-customizer[remote-engine-customizer^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2423[TCOMP-2423^]: Upgrade netty to 4.1.92.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2424[TCOMP-2424^]: Upgrade jackson to 2.15.0 link:search.html?query=beam[beam^,role='dockey']
+
+
+
+== Version 1.56.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2435[TCOMP-2435^]: Port not assigned correctly on CE link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.56.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2426[TCOMP-2426^]: Missing Instant conversion to Long link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
 == Version 1.56.0
 
 === Bug
@@ -1512,6 +1549,12 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.15
 
 === Bug
@@ -1544,12 +1587,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
