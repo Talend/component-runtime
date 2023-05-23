@@ -106,22 +106,22 @@ class BulkReadResourceImplTest {
         assertEquals(520, results.get(4).getStatus());
         results.forEach(it -> assertEquals(singletonList("application/json"), it.getHeaders().get("Content-Type")));
         assertEquals("{\n  \"value\":\"V1\"\n}",
-                new String(results.get(3).getResponse(), StandardCharsets.UTF_8).trim());
+                results.get(3).getResponse().trim());
         assertEquals(
                 "{\n  \"code\":\"ACTION_ERROR\",\n"
                         + "  \"description\":\"Action execution failed with: this action failed intentionally\"\n}",
-                new String(results.get(4).getResponse(), StandardCharsets.UTF_8).trim());
+                results.get(4).getResponse().trim());
 
-        assertTrue(new String(results.get(0).getResponse(), StandardCharsets.UTF_8)
+        assertTrue(results.get(0).getResponse()
                 .contains("\"pluginLocation\":\"org.talend.comp:jdbc-component:jar:0.0.1:compile\""));
         assertEquals(
                 "{\n  \"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\",\n"
                         + "  \"type\":\"asciidoc\"\n" + "}",
-                new String(results.get(1).getResponse(), StandardCharsets.UTF_8));
+                results.get(1).getResponse());
         assertEquals(
                 "{\n  \"code\":\"COMPONENT_MISSING\",\n"
                         + "  \"description\":\"No component 'dGhlLXRlc3QtY29tcG9uZW50I2NoYWluI2xpc3Q'\"\n" + "}",
-                new String(results.get(2).getResponse(), StandardCharsets.UTF_8));
+                results.get(2).getResponse());
     }
 
     @Test
