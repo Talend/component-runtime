@@ -227,10 +227,10 @@
                   <arg>org.apache.meecrowave.runner.Cli</arg>
                 </args>
                 <expandClasspathDependencies>true</expandClasspathDependencies>
-                <extraClasspath>${docker.talend.dir.app}custom/*</extraClasspath>
+                <extraClasspath>${docker.talend.dir.app}classes,${docker.talend.dir.app}custom/*,${docker.talend.dir.app}extensions/*,${docker.talend.dir.app}resources,${docker.talend.dir.base}classes,${docker.talend.dir.base}custom/*,${docker.talend.dir.base}extensions/*,${docker.talend.dir.base}resources</extraClasspath>
                 <environment>
-                  <MEECROWAVE_HOME>${docker.talend.dir.app}</MEECROWAVE_HOME>
-                  <MEECROWAVE_BASE>${docker.talend.dir.app}</MEECROWAVE_BASE>
+                  <MEECROWAVE_HOME>${docker.talend.dir.base}</MEECROWAVE_HOME>
+                  <MEECROWAVE_BASE>${docker.talend.dir.base}</MEECROWAVE_BASE>
                   <MEECROWAVE_PID>${docker.talend.dir.app}conf/server.pid</MEECROWAVE_PID>
                   <MEECROWAVE-PROPERTIES>${docker.talend.dir.app}conf/meecrowave.properties</MEECROWAVE-PROPERTIES>
                   <JAVA_IO_TMPDIR>${docker.talend.dir.app}temp</JAVA_IO_TMPDIR>
@@ -239,11 +239,11 @@
                   <LOG4J_CONFIGURATIONFILE>${docker.talend.dir.app}conf/log4j2-component-server-${LOGGING_LAYOUT}.xml</LOG4J_CONFIGURATIONFILE>
                   <TRACING_SAMPLING_RATE>1</TRACING_SAMPLING_RATE>
                   <TALEND_JDK_SERIAL_FILTER>oracle.sql.**;!*</TALEND_JDK_SERIAL_FILTER>
-                  <TALEND_COMPONENT_SERVER_COMPONENT_REGISTRY>${TALEND_HOME}/connectors/component-registry.properties</TALEND_COMPONENT_SERVER_COMPONENT_REGISTRY>
-                  <TALEND_COMPONENT_SERVER_USER_EXTENSIONS_LOCATION>${TALEND_HOME}/extensions</TALEND_COMPONENT_SERVER_USER_EXTENSIONS_LOCATION>
-                  <TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY>${TALEND_HOME}/connectors</TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY>
+                  <TALEND_COMPONENT_SERVER_COMPONENT_REGISTRY>${docker.talend.dir.base}connectors/component-registry.properties</TALEND_COMPONENT_SERVER_COMPONENT_REGISTRY>
+                  <TALEND_COMPONENT_SERVER_USER_EXTENSIONS_LOCATION>${docker.talend.dir.base}extensions</TALEND_COMPONENT_SERVER_USER_EXTENSIONS_LOCATION>
+                  <TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY>${docker.talend.dir.base}connectors</TALEND_COMPONENT_SERVER_MAVEN_REPOSITORY>
                   <TALEND_VAULT_CACHE_VAULT_DECRYPT_ENDPOINT>v1/tenants-keyrings/decrypt/{x-talend-tenant-id}</TALEND_VAULT_CACHE_VAULT_DECRYPT_ENDPOINT>
-                  <CLASSPATH>${docker.talend.dir.base}component-kit/custom/*:${docker.talend.dir.base}custom/*:${TALEND_HOME}/extensions/*:${docker.talend.dir.app}resources:${docker.talend.dir.app}classes</CLASSPATH>
+                  <CLASSPATH>${docker.talend.dir.app}classes,${docker.talend.dir.app}custom/*,${docker.talend.dir.app}extensions/*,${docker.talend.dir.app}resources,${docker.talend.dir.base}classes,${docker.talend.dir.base}custom/*,${docker.talend.dir.base}extensions/*,${docker.talend.dir.base}resources</CLASSPATH>
                   <JDK_JAVA_OPTIONS>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.net=ALL-UNNAMED -Dlog4j.configurationFile=${docker.talend.dir.app}conf/log4j2-component-server-TEXT.xml</JDK_JAVA_OPTIONS>
                 </environment>
                 <labels>
