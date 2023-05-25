@@ -109,19 +109,14 @@ public class BulkReadResourceImpl implements BulkReadResource {
 
     private final BulkResponses.Result forbiddenInBulkModeResponse =
             new BulkResponses.Result(Response.Status.FORBIDDEN.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNAUTHORIZED\",\"description\":\"Forbidden endpoint in bulk mode.\"}"
-                            .getBytes(StandardCharsets.UTF_8),
                     "{\"code\":\"UNAUTHORIZED\",\"description\":\"Forbidden endpoint in bulk mode.\"}");
 
     private final BulkResponses.Result forbiddenResponse =
             new BulkResponses.Result(Response.Status.FORBIDDEN.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNAUTHORIZED\",\"description\":\"Secured endpoint, ensure to pass the right token.\"}"
-                            .getBytes(StandardCharsets.UTF_8),
                     "{\"code\":\"UNAUTHORIZED\",\"description\":\"Secured endpoint, ensure to pass the right token.\"}");
 
     private final BulkResponses.Result invalidResponse =
             new BulkResponses.Result(Response.Status.BAD_REQUEST.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNEXPECTED\",\"description\":\"unknownEndpoint.\"}".getBytes(StandardCharsets.UTF_8),
                     "{\"code\":\"UNEXPECTED\",\"description\":\"unknownEndpoint.\"}");
 
     @PostConstruct
@@ -197,8 +192,8 @@ public class BulkReadResourceImpl implements BulkReadResource {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
         final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
-            result.setResponse(outputStream.toByteArray());
-            result.setResponseString(new String(outputStream.toByteArray()));
+            result.setResponse(defaultMapper
+                    .toJson(outputStream.toString()));
             promise.complete(result);
         }, bytes -> {
             try {
@@ -218,8 +213,7 @@ public class BulkReadResourceImpl implements BulkReadResource {
             result.setStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
             result
                     .setResponse(defaultMapper
-                            .toJson(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
-                            .getBytes(StandardCharsets.UTF_8));
+                            .toJson(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage())));
             promise.complete(result);
             throw new IllegalStateException(e);
         }

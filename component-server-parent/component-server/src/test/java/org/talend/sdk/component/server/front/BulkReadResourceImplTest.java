@@ -32,6 +32,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.WebTarget;
@@ -41,6 +42,8 @@ import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.BulkRequests;
 import org.talend.sdk.component.server.front.model.BulkResponses;
+import org.talend.sdk.component.server.service.JsonbFactory;
+import org.talend.sdk.component.server.service.qualifier.ComponentServer;
 import org.talend.sdk.component.server.test.ComponentClient;
 
 @MonoMeecrowaveConfig
@@ -51,6 +54,10 @@ class BulkReadResourceImplTest {
 
     @Inject
     private ComponentClient client;
+
+    @Inject
+    @ComponentServer
+    private Jsonb defaultMapper;
 
     @Test
     void valid() {
@@ -105,23 +112,24 @@ class BulkReadResourceImplTest {
         assertEquals(HttpServletResponse.SC_NOT_FOUND, results.get(2).getStatus());
         assertEquals(520, results.get(4).getStatus());
         results.forEach(it -> assertEquals(singletonList("application/json"), it.getHeaders().get("Content-Type")));
-        assertEquals("{\n  \"value\":\"V1\"\n}",
-                new String(results.get(3).getResponse(), StandardCharsets.UTF_8).trim());
+        assertEquals(defaultMapper.toJson("{\n  \"value\":\"V1\"\n}"),
+                results.get(3).getResponse().trim());
         assertEquals(
-                "{\n  \"code\":\"ACTION_ERROR\",\n"
-                        + "  \"description\":\"Action execution failed with: this action failed intentionally\"\n}",
-                new String(results.get(4).getResponse(), StandardCharsets.UTF_8).trim());
+                defaultMapper.toJson("{\n  \"code\":\"ACTION_ERROR\",\n"
+                        + "  \"description\":\"Action execution failed with: this action failed intentionally\"\n}"),
+                results.get(4).getResponse().trim());
 
-        assertTrue(new String(results.get(0).getResponse(), StandardCharsets.UTF_8)
-                .contains("\"pluginLocation\":\"org.talend.comp:jdbc-component:jar:0.0.1:compile\""));
+         assertTrue(results.get(0).getResponse()
+         .contains("org.talend.comp:jdbc-component:jar:0.0.1:compile"));
+
         assertEquals(
-                "{\n  \"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\",\n"
-                        + "  \"type\":\"asciidoc\"\n" + "}",
-                new String(results.get(1).getResponse(), StandardCharsets.UTF_8));
+                defaultMapper.toJson("{\n  \"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\",\n"
+                        + "  \"type\":\"asciidoc\"\n" + "}"),
+                results.get(1).getResponse());
         assertEquals(
-                "{\n  \"code\":\"COMPONENT_MISSING\",\n"
-                        + "  \"description\":\"No component 'dGhlLXRlc3QtY29tcG9uZW50I2NoYWluI2xpc3Q'\"\n" + "}",
-                new String(results.get(2).getResponse(), StandardCharsets.UTF_8));
+                defaultMapper.toJson("{\n  \"code\":\"COMPONENT_MISSING\",\n"
+                        + "  \"description\":\"No component 'dGhlLXRlc3QtY29tcG9uZW50I2NoYWluI2xpc3Q'\"\n" + "}"),
+                results.get(2).getResponse());
     }
 
     @Test
