@@ -1,5 +1,19 @@
 
 
+== Version 1.58.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.57.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
+
 == Version 1.57.0
 
 === Bug
@@ -22,6 +36,14 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2424[TCOMP-2424^]: Upgrade jackson to 2.15.0 link:search.html?query=beam[beam^,role='dockey']
 
 
+
+
+
+== Version 1.56.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.56.2
 
