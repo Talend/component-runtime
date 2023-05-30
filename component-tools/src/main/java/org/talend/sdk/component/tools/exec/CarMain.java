@@ -65,6 +65,12 @@ import org.xml.sax.SAXException;
 // IMPORTANT: this class MUST not have ANY dependency, not even slf4j!
 public class CarMain {
 
+    public static final String COMPONENT_JAVA_COORDINATES = "component.java.coordinates";
+
+    public static final String COMPONENT_COORDINATES = "component_coordinates";
+
+    public static final String COMPONENT_SERVER_EXTENSIONS = "component.server.extensions";
+
     private CarMain() {
         // no-op
     }
@@ -159,7 +165,7 @@ public class CarMain {
         if (!m2File.exists()) {
             throw new IllegalArgumentException(m2 + " doesn't exist");
         }
-        final String component = installJars(m2File, forceOverwrite);
+        final String component = installJars(m2File, forceOverwrite).getProperty(COMPONENT_COORDINATES);
         System.out
                 .println("Installed " + jarLocation(CarMain.class).getName() + " in " + m2 + ", "
                         + "you can now register '" + component + "' component in your application.");
@@ -229,16 +235,20 @@ public class CarMain {
         }
 
         // install jars
-        final String mainGav = installJars(m2Root, forceOverwrite);
+        final Properties carProperties = installJars(m2Root, forceOverwrite);
+        final String mainGav = carProperties.getProperty(COMPONENT_COORDINATES);
+        final String type = carProperties.getProperty("type", "connector");
 
-        // register the component
-        final String components = configuration.getProperty("component.java.coordinates");
+        // register the component/extension
+        final String key =
+                "extension".equalsIgnoreCase(type) ? COMPONENT_SERVER_EXTENSIONS : COMPONENT_JAVA_COORDINATES;
+        final String components = configuration.getProperty(key);
         try {
             final List<String> configLines = Files.readAllLines(config.toPath());
             if (components == null) {
                 final String original = configLines.stream().collect(joining("\n"));
                 try (final Writer writer = new FileWriter(config)) {
-                    writer.write(original + "\ncomponent.java.coordinates = " + mainGav);
+                    writer.write(original + "\n" + key + " = " + mainGav);
                 }
             } else {
                 // backup
@@ -252,7 +262,7 @@ public class CarMain {
                 boolean skip = false;
                 try (final Writer writer = new FileWriter(config)) {
                     for (final String line : configLines) {
-                        if (line.trim().startsWith("component.java.coordinates")) {
+                        if (line.trim().startsWith(key)) {
                             skip = true;
                             continue;
                         } else if (skip && line.trim().contains("=")) {
@@ -267,7 +277,7 @@ public class CarMain {
                             .limit(2)
                             .collect(Collectors.joining(":", "", ":"));
                     writer
-                            .write("component.java.coordinates = " + Stream
+                            .write(key + " = " + Stream
                                     .concat(Stream.of(mainGav),
                                             Stream
                                                     .of(components.trim().split(","))
@@ -276,16 +286,17 @@ public class CarMain {
                                                     .filter(it -> !it.startsWith(toFilter)))
                                     .collect(joining(",")));
                 }
-                System.out.println("Connector registered.");
+                System.out.println(type + " registered.");
             }
         } catch (final IOException ioe) {
             throw new IllegalStateException(ioe);
         }
-        System.out.println("Connector deployed successfully.");
+        System.out.println(type + " deployed successfully.");
     }
 
-    private static String installJars(final File m2Root, final boolean forceOverwrite) {
+    private static Properties installJars(final File m2Root, final boolean forceOverwrite) {
         String mainGav = null;
+        final Properties properties = new Properties();
         try (final JarInputStream jar =
                 new JarInputStream(new BufferedInputStream(new FileInputStream(jarLocation(CarMain.class))))) {
             JarEntry entry;
@@ -305,9 +316,8 @@ public class CarMain {
                     }
                 } else if ("TALEND-INF/metadata.properties".equals(entry.getName())) {
                     // mainGav
-                    final Properties properties = new Properties();
                     properties.load(jar);
-                    mainGav = properties.getProperty("component_coordinates");
+                    mainGav = properties.getProperty(COMPONENT_COORDINATES);
                 }
             }
         } catch (final IOException e) {
@@ -317,7 +327,7 @@ public class CarMain {
             throw new IllegalArgumentException("Didn't find the component coordinates");
         }
         System.out.println(String.format("Connector %s and dependencies jars installed to %s.", mainGav, m2Root));
-        return mainGav;
+        return properties;
     }
 
     private static Properties readProperties(final File config) {
@@ -461,7 +471,7 @@ public class CarMain {
                     // mainGav
                     final Properties properties = new Properties();
                     properties.load(jar.getInputStream(entry));
-                    mainGav = properties.getProperty("component_coordinates");
+                    mainGav = properties.getProperty(COMPONENT_COORDINATES);
                 }
             }
             if (mainGav == null || mainGav.trim().isEmpty()) {
