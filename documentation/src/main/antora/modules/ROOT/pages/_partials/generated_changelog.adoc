@@ -8,6 +8,14 @@
 
 
 
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2440[TCOMP-2440^]: Upgrade tomcat to 9.0.75 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2441[TCOMP-2441^]: Upgrade johnzon to 1.2.20 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2442[TCOMP-2442^]: Upgrade jib-core to 0.24.0 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=remote-engine-customizer[remote-engine-customizer^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+
+
+
 == Version 1.57.1
 
 === Bug
@@ -34,6 +42,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2391[TCOMP-2391^]: Phase out layerspector and migrate to JIB for TCK Api Test script link:search.html?query=build[build^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=remote-engine-customizer[remote-engine-customizer^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2423[TCOMP-2423^]: Upgrade netty to 4.1.92.Final link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2424[TCOMP-2424^]: Upgrade jackson to 2.15.0 link:search.html?query=beam[beam^,role='dockey']
+
+
+
+
 
 
 
