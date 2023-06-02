@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Collection;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
@@ -51,6 +53,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.cxf.transport.servlet.ServletController;
 import org.apache.cxf.transport.servlet.servicelist.ServiceListGeneratorServlet;
@@ -192,7 +195,11 @@ public class BulkReadResourceImpl implements BulkReadResource {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
         final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
-            result.setResponse(outputStream.toString());
+            try {
+                result.setResponse(outputStream.toString(StandardCharsets.UTF_8.name()));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
             promise.complete(result);
         }, bytes -> {
             try {

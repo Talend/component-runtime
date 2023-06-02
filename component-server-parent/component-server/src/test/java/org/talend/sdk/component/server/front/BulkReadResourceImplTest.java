@@ -90,6 +90,7 @@ class BulkReadResourceImplTest {
                                                 "/api/v1/action/execute", new HashMap<String, List<String>>() {
 
                                                     {
+                                                        put("language", singletonList("fr"));
                                                         put("type", singletonList("user"));
                                                         put("family", singletonList("jdbc"));
                                                         put("action", singletonList("custom"));
