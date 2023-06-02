@@ -26,20 +26,24 @@ function usage(){
   exit 1
 }
 
+
+DEFAULT_RUNTIME_VERSION="1.57.0-SNAPSHOT"
+DEFAULT_CONNECTORS_VERSION="1.41.0"
+
 # To debug the component server java, you can uncomment the following line
 # _JAVA_DEBUG_PORT="5005"
 
-[ -z ${1+x} ] && printf 'Parameter "server_dir" not given use the default value: "/tmp/test_tck_server"\n'
-[ -z ${2+x} ] && printf 'Parameter "runtime_version" not given use default value\n'
+[ -z ${1+x} ] && printf 'Parameter "runtime_version" not given use default value: %s\n' $DEFAULT_RUNTIME_VERSION
+[ -z ${2+x} ] && printf 'Parameter "connectors_version" not given use default value: %s\n' $DEFAULT_CONNECTORS_VERSION
 [ -z ${3+x} ] && printf 'Parameter "server_port" not given use default value: 8081\n'
-[ -z ${4+x} ] && printf 'Parameter "connectors_version" not given use default value: off\n'
+[ -z ${4+x} ] && printf 'Parameter "server_dir" not given use the default value: "/tmp/test_tck_server"\n'
 
 # Parameters:
 _USER_PATH=~
-_LOCAL_SERVER_TEST_PATH=${1:-"/tmp/test_tck_server"}
-_RUNTIME_VERSION=${2:-"1.56.0-SNAPSHOT"}
+_RUNTIME_VERSION=${1:-"${DEFAULT_RUNTIME_VERSION}"}
+_CONNECTORS_VERSION=${2:-"${DEFAULT_CONNECTORS_VERSION}"}
 _SERVER_PORT=${3:-"8081"}
-_CONNECTORS_VERSION=${4:-"1.41.0"}
+_LOCAL_SERVER_TEST_PATH=${4:-"/tmp/test_tck_server"}
 
 _DOWNLOAD_DIR="${_LOCAL_SERVER_TEST_PATH}/download"
 _INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/install"
@@ -60,8 +64,8 @@ printf "INSTALL_DIR = %s\n" "${_INSTALL_DIR}"
 printf "COVERAGE_DIR = %s\n" "${_COVERAGE_DIR}"
 printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
 
-# TODO The stop does not work everytime and is executed even if no server is running#
-# "${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}"
+
+"${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}" || : #  "|| :" Avoid error if no server is running
 
 "${_SCRIPT_PATH}"/server-registry-init.sh "${_DOWNLOAD_DIR}" \
                                           "${_INSTALL_DIR}" \

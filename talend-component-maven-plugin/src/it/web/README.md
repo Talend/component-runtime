@@ -20,29 +20,40 @@ If you want to run the test with maven, you will need the followings:
 
 ### Start local server
 The execution with maven plugin is done in several steps as follows:
+- Build with Maven a first time the whole project
 - Go into the sample connector folder and build it with Maven.
+  - You can now only build it to test it, no need to rebuild component-runtime if you work only on the connector.
 - Start the component server using the provided `\talend-component-maven-plugin\src\it\web\.jenkins\scripts\server-registry-manual_start.sh`
   - Default test environment is (https://localhost:8081).
 - Go to the test location folder.
-- Run the tests from with Maven  with your Talend instance and account ID.
+- Run the tests from with Maven  with your Talend instance and account ID and test name.
+  - Your Account ID here is in Talend Management Console Subscription page
   - Tests are in `/talend-component-maven-plugin/src/it/web/test`.
-  - You run them with `mvn clean test` on the pom file.
-  - The script will load needed components for actuals tests as configured in: `server-registry-init.sh`
-
-### Debugging server during test
-In `server-registry-manual_start.sh` you can uncomment `# _JAVA_DEBUG="YES"` to enable java remote debugging on port 5005
-# _JAVA_DEBUG="YES"
+  - We provide a pre-filled `apitester-manual-run.sh` script to start the test campaign
+  - The script will load needed components for tests as configured in: `server-registry-init.sh`
 
 sample:
 ```bash
+# From component-runtime root folder
+
+# Quick component runtime build for api test purpose.
+bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/tcomp-build-fast.sh pom.xml
+
+# Sample connector build, if you edit is, do it every time.
 mvn clean install --file "sample-parent/sample-connector/pom.xml"
-bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh
-mvn clean test --file talend-component-maven-plugin/src/it/web/test/pom.xml \
-               --define instance='YOUR_TENANT_INSTANCE'\
-               --define accountId='YOUR_ID'\
-               --define selectedEnvironment='localhost'\
-               --define file='tcomp-approved.json'
+
+# Component server manual start (defining server and connectors version
+bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh \
+            "1.57.0-SNAPSHOT" \
+            "1.41.0"
+
+# You can now test with api tester on your local machine,
+# Or execute tests with maven (You need your ACCOUNT_ID)
+bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/apitester-manual-run.sh ACCOUNT_ID tcomp_endpoints
 ```
+
+### Debugging server during test
+In `server-registry-manual_start.sh` you can uncomment `# _JAVA_DEBUG_PORT="5005"` to enable java remote debugging on port 5005
 
 ## To edit the tests
 ### Requirements
