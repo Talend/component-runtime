@@ -192,8 +192,7 @@ public class BulkReadResourceImpl implements BulkReadResource {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
         final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
-            result.setResponse(defaultMapper
-                    .toJson(outputStream.toString()));
+            result.setResponse(outputStream.toString());
             promise.complete(result);
         }, bytes -> {
             try {
