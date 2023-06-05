@@ -195,8 +195,9 @@ public class BulkReadResourceImpl implements BulkReadResource {
         final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
             try {
                 result.setResponse(defaultMapper
-                        .toJson(org.apache.commons.text.StringEscapeUtils
-                                .unescapeJson(outputStream.toString(StandardCharsets.UTF_8.name()))));
+                        .toJson(org.apache.commons.text.StringEscapeUtils.unescapeJson(
+                                org.apache.commons.text.StringEscapeUtils.unescapeJson(
+                                        outputStream.toString(StandardCharsets.UTF_8.name())))));
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
