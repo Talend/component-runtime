@@ -19,7 +19,7 @@ set -xe
 
 function usage(){
   printf 'Start TCK Web tester using registry\n'
-  printf 'Usage : %s <install_dir> <coverage_dir> [server_port]\n' "${0}"
+  printf 'Usage : %s <install_dir> [coverage_dir] [server_port]\n' "${0}"
   printf '\n'
   printf "%s\n" "${1}"
   printf '\n'
@@ -29,11 +29,11 @@ function usage(){
 # Start a server in registry mode
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "install_dir" is needed.'
-[ -z ${2+x} ] && usage 'Parameter "coverage_dir" is needed.'
+[ -z ${2+x} ] && printf 'Parameter "coverage_dir" not given or equal to "no_coverage", jacoco coverage will be skipped\n'
 [ -z ${3+x} ] && printf 'Parameter "server_port" use the default value: 8080\n'
 
 _INSTALL_DIR=${1}
-_COVERAGE_DIR=${2}
+_COVERAGE_DIR=${2:-'no_coverage'}
 _PORT=${3:-"8080"}
 
 # Constants
@@ -51,7 +51,10 @@ main() (
   printf 'Start tcomp web server\n'
   printf '##############################################\n'
 
-  jacoco_instrument
+  if [ "$_COVERAGE_DIR" != "no_coverage" ]; then
+    jacoco_instrument
+  fi
+
   start_server
 )
 

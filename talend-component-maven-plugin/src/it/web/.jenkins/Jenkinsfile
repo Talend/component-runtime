@@ -31,7 +31,7 @@ final String _COVERAGE_DIR="coverage"
 final String _DOWNLOAD_DIR="/tmp/download" // volume mounted on the podConfiguration, if you edit it, change it in the pod file
 final String _SERVER_DIR="${_INSTALL_DIR}/component-server-distribution"
 // Local artifact definition
-final String _ARTIFACT_TEST_RESULTS="**/src/it/web/test/target/**/*"
+final String _ARTIFACT_TEST_RESULTS="**/src/it/web/test/**/*"
 final String _ARTIFACT_COVERAGE="**/${_COVERAGE_DIR}/**/*"
 final String _ARTIFACT_LOGS_COMPONENT_SERVER="**/${_SERVER_DIR}/logs/component-server*"
 final String _ARTIFACT_LOGS_MEECROWAVE="**/${_SERVER_DIR}/logs/meecrowave*"
@@ -55,7 +55,7 @@ final def _TENANT_ID_RD = string(
 /**
  * Options
  */
-String _API_TEST_RESULT_PATTERN = '**/src/it/web/test/target/surefire-reports/**/*.xml'
+String _API_TEST_RESULT_PATTERN = '**/target/surefire-reports/**/*.xml'
 String _API_TEST_FILES_PATTERN = '**/src/it/web/test/**/*.json'
 
 // Default value for parameters
