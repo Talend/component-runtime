@@ -22,8 +22,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>tck-bulk-api-test</module>
         <module>tck-general-api-test</module>
+        <module>tck-bulk-api-test</module>
+        <module>tck-security-api-test</module>
     </modules>
 
     <build>
