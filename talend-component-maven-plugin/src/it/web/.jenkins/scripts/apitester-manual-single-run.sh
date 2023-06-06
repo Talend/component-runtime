@@ -18,7 +18,7 @@
 set -xe
 
 function usage(){
-  printf 'Run an apitester campaign with default parameters\n'
+  printf 'Manually run an apitester campaign on a single test project with default parameters\n'
   printf 'Usage : %s <account_id>' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
@@ -29,8 +29,6 @@ function usage(){
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "account_id" is needed.'
 [ -z ${1+x} ] && usage 'Parameter "sub_test" is needed.'
-
-
 
 ACCOUNT_ID=${1}
 FILE_TO_RUN=${2}

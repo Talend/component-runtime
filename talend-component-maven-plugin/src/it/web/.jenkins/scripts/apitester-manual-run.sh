@@ -18,7 +18,7 @@
 set -xe
 
 function usage(){
-  printf 'Run an apitester campaign with default parameters\n'
+  printf 'Manually run an apitester campaign with default parameters\n'
   printf 'Usage : %s <account_id>' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
