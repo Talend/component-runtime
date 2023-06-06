@@ -28,6 +28,7 @@ function usage(){
 
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "account_id" is needed.'
+[ -z ${1+x} ] && usage 'Parameter "sub_test" is needed.'
 
 
 
@@ -53,12 +54,12 @@ function test_run {
 
   cd "${path}/../../test"
 
-  mvn test --settings="${path}/../settings.xml" \
-           --define instance="eu" \
-           --define accountId="${ACCOUNT_ID}" \
-           --define selectedEnvironment="component_runtime_ci" \
-           --define stopOnFailure=false \
-           --fail-at-end
+  mvn clean test --file="./$FILE_TO_RUN/pom.xml" \
+                 --settings="${path}/../settings.xml" \
+                 --define instance="eu" \
+                 --define accountId="${ACCOUNT_ID}" \
+                 --define selectedEnvironment="component_runtime_ci" \
+                 --define stopOnFailure=false
 }
 
 main "$@"

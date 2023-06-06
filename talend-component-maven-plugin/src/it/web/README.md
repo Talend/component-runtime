@@ -47,9 +47,11 @@ bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-m
             "1.57.0-SNAPSHOT" \
             "1.41.0"
 
-# You can now test with api tester on your local machine,
+# You can now test with api tester on your local machine
 # Or execute tests with maven (You need your ACCOUNT_ID)
-bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/apitester-manual-run.sh ACCOUNT_ID tcomp_endpoints
+bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/apitester-manual-run.sh ACCOUNT_ID
+# Or only one test (You need your ACCOUNT_ID and test name)
+bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/apitester-manual-single-run.sh ACCOUNT_ID tck-bulk-api-test
 ```
 
 ### Debugging server during test
