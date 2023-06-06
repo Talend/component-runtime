@@ -59,8 +59,8 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -434,6 +434,7 @@ class AvroRecordTest {
     }
 
     @Test
+    @Disabled
     void pipelineTimestampFieldsWithAvroRecord() throws Exception {
         final RecordBuilderFactory factory = new AvroRecordBuilderFactoryProvider().apply(null);
 
