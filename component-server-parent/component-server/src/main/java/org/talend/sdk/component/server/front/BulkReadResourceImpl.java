@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
@@ -53,7 +52,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.cxf.transport.servlet.ServletController;
 import org.apache.cxf.transport.servlet.servicelist.ServiceListGeneratorServlet;
@@ -196,7 +194,10 @@ public class BulkReadResourceImpl implements BulkReadResource {
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
         final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
             try {
-                result.setResponse(outputStream.toString(StandardCharsets.UTF_8.name()));
+                result.setResponse(defaultMapper
+                        .toJson(org.apache.commons.text.StringEscapeUtils.unescapeJson(
+                                org.apache.commons.text.StringEscapeUtils.unescapeJson(
+                                        outputStream.toString(StandardCharsets.UTF_8.name())))));
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }

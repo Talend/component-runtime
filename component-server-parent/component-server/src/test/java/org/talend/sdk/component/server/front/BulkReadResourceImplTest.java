@@ -55,6 +55,10 @@ class BulkReadResourceImplTest {
     @Inject
     private ComponentClient client;
 
+    @Inject
+    @ComponentServer
+    private Jsonb defaultMapper;
+
     @Test
     void valid() {
         final BulkRequests.Request okTrigger = new BulkRequests.Request(HttpMethod.POST, "{\"enum\":\"V1\"}",
@@ -90,7 +94,6 @@ class BulkReadResourceImplTest {
                                                 "/api/v1/action/execute", new HashMap<String, List<String>>() {
 
                                                     {
-                                                        put("language", singletonList("fr"));
                                                         put("type", singletonList("user"));
                                                         put("family", singletonList("jdbc"));
                                                         put("action", singletonList("custom"));
@@ -109,20 +112,25 @@ class BulkReadResourceImplTest {
         assertEquals(HttpServletResponse.SC_NOT_FOUND, results.get(2).getStatus());
         assertEquals(520, results.get(4).getStatus());
         results.forEach(it -> assertEquals(singletonList("application/json"), it.getHeaders().get("Content-Type")));
-        assertEquals("{\n  \"value\":\"V1\"\n}",
+
+        assertEquals(defaultMapper.toJson("{\n  \"value\":\"V1\"\n}"),
                 results.get(3).getResponse().trim());
-        assertEquals("{\n  \"code\":\"ACTION_ERROR\",\n"
-                        + "  \"description\":\"Action execution failed with: this action failed intentionally\"\n}",
+        assertEquals(
+                defaultMapper.toJson("{\n  \"code\":\"ACTION_ERROR\",\n"
+                        + "  \"description\":\"Action execution failed with: this action failed intentionally\"\n}"),
                 results.get(4).getResponse().trim());
 
-         assertTrue(results.get(0).getResponse()
-         .contains("org.talend.comp:jdbc-component:jar:0.0.1:compile"));
+        assertTrue(results.get(0)
+                .getResponse()
+                .contains("org.talend.comp:jdbc-component:jar:0.0.1:compile"));
 
-        assertEquals("{\n  \"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\",\n"
-                        + "  \"type\":\"asciidoc\"\n" + "}",
+        assertEquals(
+                defaultMapper.toJson("{\n  \"source\":\"== input\n\ndesc\n\n=== Configuration\n\nSomething1\",\n"
+                        + "  \"type\":\"asciidoc\"\n" + "}"),
                 results.get(1).getResponse());
-        assertEquals("{\n  \"code\":\"COMPONENT_MISSING\",\n"
-                        + "  \"description\":\"No component 'dGhlLXRlc3QtY29tcG9uZW50I2NoYWluI2xpc3Q'\"\n" + "}",
+        assertEquals(
+                defaultMapper.toJson("{\n  \"code\":\"COMPONENT_MISSING\",\n"
+                        + "  \"description\":\"No component 'dGhlLXRlc3QtY29tcG9uZW50I2NoYWluI2xpc3Q'\"\n" + "}"),
                 results.get(2).getResponse());
     }
 

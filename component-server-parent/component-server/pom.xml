@@ -84,6 +84,11 @@
       <artifactId>johnzon-jsonb</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons-text.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-core</artifactId>
       <version>${meecrowave.version}</version>
@@ -192,6 +197,7 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <build>
