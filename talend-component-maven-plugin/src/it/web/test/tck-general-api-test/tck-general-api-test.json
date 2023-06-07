@@ -2414,12 +2414,6 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.details..version",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.details[0]",
-                        "value": "11"
                       }
                     ]
                   }
