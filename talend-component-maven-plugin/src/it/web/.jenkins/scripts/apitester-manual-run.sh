@@ -18,8 +18,8 @@
 set -xe
 
 function usage(){
-  printf 'Run an apitester campaign\n'
-  printf 'Usage : %s <tests_path> <maven_settings> <instance> <account_id> <environment>\n' "${0}"
+  printf 'Manually run an apitester campaign with default parameters\n'
+  printf 'Usage : %s <account_id>' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
@@ -27,35 +27,37 @@ function usage(){
 }
 
 # Parameters:
-[ -z ${1+x} ] && usage 'Parameter "tests_path" is needed.'
-[ -z ${2+x} ] && usage 'Parameter "maven_settings" is needed.'
-[ -z ${3+x} ] && usage 'Parameter "instance" is needed.'
-[ -z ${4+x} ] && usage 'Parameter "account_id" is needed.'
-[ -z ${5+x} ] && usage 'Parameter "environment" is needed.'
+[ -z ${1+x} ] && usage 'Parameter "account_id" is needed.'
 
-_TESTS_PATH=${1}
-_MAVEN_SETTINGS=${2}
-_INSTANCE=${3}
-_ACCOUNT_ID=${4}
-_ENVIRONMENT=${5}
+
+
+ACCOUNT_ID=${1}
+
+path=$(dirname -- "$( readlink -f -- "$0"; )";)
 
 main() (
   printf '##############################################\n'
   printf 'Api Tester run\n'
+  printf 'from %s\n' "${path}"
   printf '##############################################\n'
 
   test_run
 )
 
+# CI account id is stored in 31e17fe5-9718-4a80-a8b2-593c73a5bcfc at
+# https://vault-vaas.service.cd.datapwn.com/ui/vault/secrets/secret/show/component/jenkins-connectors
+
+
 function test_run {
 
-  cd "${_TESTS_PATH}"
-  mvn clean test --settings="${_MAVEN_SETTINGS}" \
-                 --define instance="${_INSTANCE}" \
-                 --define accountId="${_ACCOUNT_ID}" \
-                 --define selectedEnvironment="${_ENVIRONMENT}" \
-                 --define stopOnFailure=false \
-                 --fail-at-end
+  cd "${path}/../../test"
+
+  mvn test --settings="${path}/../settings.xml" \
+           --define instance="eu" \
+           --define accountId="${ACCOUNT_ID}" \
+           --define selectedEnvironment="component_runtime_ci" \
+           --define stopOnFailure=false \
+           --fail-at-end
 }
 
 main "$@"

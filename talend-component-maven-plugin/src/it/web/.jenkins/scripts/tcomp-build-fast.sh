@@ -51,9 +51,11 @@ main() (
   --file "${_POM_FILE_PATH}" \
   --settings .jenkins/settings.xml \
   --projects component-server-parent/component-server \
+  --projects talend-component-maven-plugin \
   --also-make \
   ${_MAVEN_TEST_SKIP} \
   ${_MAVEN_FAST}
+
 )
 
 main "$@"
