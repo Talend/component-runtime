@@ -21,30 +21,31 @@ If you want to run the test with maven, you will need the followings:
 ### Start local server
 The execution with maven plugin is done in several steps as follows:
 - Build with Maven a first time the whole project
-- Go into the sample connector folder and build it with Maven.
-  - You can now only build it to test it, no need to rebuild component-runtime if you work only on the connector.
-- Start the component server using the provided `\talend-component-maven-plugin\src\it\web\.jenkins\scripts\server-registry-manual_start.sh`
+- Do not forget to build the bom
+- Build demo connector with Maven.
+  - No need to rebuild component-runtime if you work only on the connector.
+- Start the component server using the provided script `\talend-component-maven-plugin\src\it\web\.jenkins\scripts\server-registry-manual_start.sh`
   - Default test environment is (https://localhost:8081).
-- Go to the test location folder.
 - Run the tests from with Maven  with your Talend instance and account ID and test name.
   - Your Account ID here is in Talend Management Console Subscription page
   - Tests are in `/talend-component-maven-plugin/src/it/web/test`.
   - We provide a pre-filled `apitester-manual-run.sh` script to start the test campaign
   - The script will load needed components for tests as configured in: `server-registry-init.sh`
 
-sample:
+Example:
 ```bash
 # From component-runtime root folder
 
 # Quick component runtime build for api test purpose.
 bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/tcomp-build-fast.sh pom.xml
+mvn instal --file "bom/pom.xml"
 
 # Sample connector build, if you edit is, do it every time.
-mvn clean install --file "sample-parent/sample-connector/pom.xml"
+mvn install --file "sample-parent/sample-connector/pom.xml"
 
 # Component server manual start (defining server and connectors version
 bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh \
-            "1.57.0-SNAPSHOT" \
+            "1.58.0-SNAPSHOT" \
             "1.41.0"
 
 # You can now test with api tester on your local machine
