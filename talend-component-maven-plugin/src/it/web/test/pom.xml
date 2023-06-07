@@ -13,33 +13,48 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.talend.ci.api-tester</groupId>
-    <artifactId>component_runtime</artifactId>
+    <artifactId>tck-endpoints-api-test</artifactId>
     <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>tck-general-api-test</module>
+        <module>tck-bulk-api-test</module>
+        <module>tck-security-api-test</module>
+    </modules>
+
     <build>
-        <plugins>
-            <plugin>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.0.0-M5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.talend.ci</groupId>
+                    <artifactId>tck-endpoints-api-test</artifactId>
+                    <version>1.10.2</version>
 
-                <!-- The Talend maven plugin -->
-                <groupId>org.talend.ci</groupId>
-                <artifactId>api-tester-maven-plugin</artifactId>
-                <version>1.10.1</version>
-
-                <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+                    <executions>
+                        <execution>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <!-- Set by cmd line -->
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
     <pluginRepositories>
         <pluginRepository>
