@@ -38,7 +38,6 @@ Example:
 
 # Quick component runtime build for api test purpose.
 bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/tcomp-build-fast.sh pom.xml
-mvn instal --file "bom/pom.xml"
 
 # Sample connector build, if you edit is, do it every time.
 mvn install --file "sample-parent/sample-connector/pom.xml"
