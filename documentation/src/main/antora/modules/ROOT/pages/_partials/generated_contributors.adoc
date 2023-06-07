@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":699,
+    "commits":708,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -64,18 +64,18 @@
     "name":"Chao MENG"
   },
   {
+    "commits":18,
+    "description":"QA Automation @ Talend Nantes",
+    "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
+    "id":"acatoire",
+    "name":"Axel CATOIRE"
+  },
+  {
     "commits":17,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",
     "name":"wang wei"
-  },
-  {
-    "commits":15,
-    "description":"QA Automation @ Talend Nantes",
-    "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
-    "id":"acatoire",
-    "name":"Axel CATOIRE"
   },
   {
     "commits":10,
@@ -184,7 +184,7 @@
   },
   {
     "commits":1,
-    "description":"Focused on Big Data technologies. I contribute to open source projects.\r\nI'm an Apache Beam committer and PMC member and an Apache Software Foundation member\n\nBlog: https://echauchot.blogspot.com/",
+    "description":"Focused on Big Data. Open Source contributor. I'm an Apache Beam and Flink committer and Beam PMC member. I'm also an Apache Software Foundation member\n\nBlog: https://echauchot.blogspot.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/8821084?v=4",
     "id":"echauchot",
     "name":"Etienne Chauchot"

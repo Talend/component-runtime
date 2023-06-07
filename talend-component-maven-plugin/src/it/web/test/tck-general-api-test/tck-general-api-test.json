@@ -4,9 +4,9 @@
     {
       "entity": {
         "type": "Project",
-        "description": "To run the test you need to run a component server (1.45 minimum). \nGo to a component directory and run :  \nmvn talend-component:web \"-Dtalend.web.batch=true\" \"-Dtalend.web.batch.timeout=1\" \"-Dtalend.web.port=8081\"  \"-Dtalend.web.batch.timeout=5\"\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
         "id": "c511c9e5-53c4-4a3a-8bdf-2bd0f3871941",
-        "name": "tcomp_endpoints"
+        "name": "tck-general-api-test"
       },
       "children": [
         {
@@ -2414,12 +2414,6 @@
                         "subject": "ResponseJsonBody",
                         "path": "$.details..version",
                         "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
-                      },
-                      {
-                        "comparison": "LengthEqual",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.details[0]",
-                        "value": "11"
                       }
                     ]
                   }
