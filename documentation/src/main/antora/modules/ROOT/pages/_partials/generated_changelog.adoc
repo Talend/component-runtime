@@ -4,7 +4,8 @@
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server force link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2447[TCOMP-2447^]: Revert datetime instant management changes on AvroSchema link:search.html?query=beam[beam^,role='dockey']
 
 
 
@@ -16,11 +17,19 @@
 
 
 
+== Version 1.57.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2447[TCOMP-2447^]: Revert datetime instant management changes on AvroSchema link:search.html?query=beam[beam^,role='dockey']
+
+
+
 == Version 1.57.1
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server force link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.57.0
 
@@ -51,11 +60,13 @@
 
 
 
+
+
 == Version 1.56.3
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server force link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.56.2
 
