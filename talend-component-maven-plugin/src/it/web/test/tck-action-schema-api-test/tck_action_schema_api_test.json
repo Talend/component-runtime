@@ -5,121 +5,10 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schema)",
-        "id": "c511c9e5-53c4-4a3a-8bdf-2bd0f3871941",
+        "id": "8b226110-623e-45dd-ad0e-87377f2e30d7",
         "name": "tck-action-schema-api-test"
       },
       "children": [
-        {
-          "entity": {
-            "type": "Request",
-            "method": {
-              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-              "name": "GET"
-            },
-            "body": {
-              "formBody": {
-                "overrideContentType": true,
-                "encoding": "application/x-www-form-urlencoded",
-                "items": []
-              },
-              "bodyType": "Text"
-            },
-            "uri": {
-              "query": {
-                "delimiter": "&",
-                "items": [
-                  {
-                    "name": "type",
-                    "value": ""
-                  },
-                  {
-                    "name": "family",
-                    "value": ""
-                  },
-                  {
-                    "name": "language",
-                    "value": ""
-                  }
-                ]
-              },
-              "scheme": {
-                "name": "http",
-                "version": "V11"
-              },
-              "host": "${\"server-ip\"}:${\"server-port\"}",
-              "path": "/api/v1/action/index"
-            },
-            "description": "TODO improve language test  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
-            "id": "996f6ef5-5ae4-4f48-bd12-1cb7a831b462",
-            "name": "0. action/index - default",
-            "headers": [],
-            "assertions": [
-              {
-                "comparison": "Equals",
-                "subject": "ResponseStatus",
-                "enabled": true,
-                "path": "code",
-                "value": "200"
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseBody",
-                "enabled": true,
-                "path": "content",
-                "value": "200"
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseJsonBody",
-                "enabled": true,
-                "path": "$.items",
-                "value": "^{\"items\":\\[{\"component\":\""
-              },
-              {
-                "comparison": "LengthEqual",
-                "subject": "ResponseJsonBody",
-                "path": "$.items",
-                "value": "9"
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseJsonBody",
-                "path": "$.items[0].component",
-                "value": "\"displayName\":\"Account Name\""
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseJsonBody",
-                "path": "$.items[0].name",
-                "value": "\"displayName\":\"Account Name\""
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseJsonBody",
-                "path": "$.items[0].properties",
-                "value": "\"displayName\":\"Account Name\""
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseJsonBody",
-                "path": "$.items[0].type",
-                "value": "\"displayName\":\"Account Name\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.items..displayName[62]",
-                "value": "-en"
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.items..displayName[63]",
-                "value": "-en"
-              }
-            ]
-          }
-        },
         {
           "entity": {
             "type": "Request",
@@ -154,7 +43,7 @@
                   {
                     "enabled": true,
                     "name": "action",
-                    "value": "action_SCHEMA"
+                    "value": "action_DISCOVER_SCHEMA"
                   },
                   {
                     "name": "language",
@@ -170,7 +59,7 @@
               "path": "/api/v1/action/execute"
             },
             "description": "TODO test default language\nFIXME finish it",
-            "id": "0e9f51a7-f6e3-427c-8529-bab7eea384b5",
+            "id": "020146a2-6e5d-4171-b42f-1caef89076e7",
             "name": "1. action.execute - schema - default",
             "headers": [
               {
@@ -188,99 +77,58 @@
                 "value": "200"
               },
               {
-                "comparison": "Equals",
+                "comparison": "Exists",
                 "subject": "ResponseJsonBody",
-                "path": "$.stringOption1",
+                "path": "$.entries",
                 "value": "\"set by service : null -en\""
               },
               {
-                "comparison": "Equals",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.stringOption2",
-                "value": "\"set by service : null -en\""
-              }
-            ]
-          }
-        },
-        {
-          "entity": {
-            "type": "Request",
-            "method": {
-              "requestBody": true,
-              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
-              "name": "POST"
-            },
-            "body": {
-              "formBody": {
-                "overrideContentType": true,
-                "encoding": "application/x-www-form-urlencoded",
-                "items": []
-              },
-              "bodyType": "Text",
-              "textBody": "{}"
-            },
-            "uri": {
-              "query": {
-                "delimiter": "&",
-                "items": [
-                  {
-                    "enabled": true,
-                    "name": "family",
-                    "value": "the_family"
-                  },
-                  {
-                    "enabled": true,
-                    "name": "type",
-                    "value": "schema"
-                  },
-                  {
-                    "enabled": true,
-                    "name": "action",
-                    "value": "action_SCHEMA"
-                  },
-                  {
-                    "enabled": true,
-                    "name": "lang",
-                    "value": "fr"
-                  }
-                ]
-              },
-              "scheme": {
-                "name": "http",
-                "version": "V11"
-              },
-              "host": "${\"server-ip\"}:${\"server-port\"}",
-              "path": "/api/v1/action/execute"
-            },
-            "description": "TODO: language is failing  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
-            "id": "f7e17b88-743f-4ad1-b582-1a3669cd3a88",
-            "name": "2. action.execute - schema - language",
-            "headers": [
-              {
-                "enabled": true,
-                "name": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "assertions": [
-              {
-                "comparison": "Equals",
-                "subject": "ResponseStatus",
-                "enabled": true,
-                "path": "code",
-                "value": "200"
+                "path": "$.entries..type",
+                "value": "\"STRING\""
               },
               {
-                "comparison": "Equals",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.stringOption1",
-                "value": "\"set by service : null -fr\""
+                "path": "$.entries..type",
+                "value": "\"INT\""
               },
               {
-                "comparison": "Equals",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.stringOption2",
-                "value": "\"set by service : null -fr\""
+                "path": "$.entries..type",
+                "value": "\"FLOAT\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..type",
+                "value": "\"BOOLEAN\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
+                "value": "\"entry_string\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
+                "value": "\"entry_int\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
+                "value": "\"entry_float\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
+                "value": "\"entry_bool\""
               }
             ]
           }

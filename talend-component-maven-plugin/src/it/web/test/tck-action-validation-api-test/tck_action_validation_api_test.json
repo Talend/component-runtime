@@ -5,79 +5,10 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/ref-actions.html#_validation)",
-        "id": "c511c9e5-53c4-4a3a-8bdf-2bd0f3871941",
+        "id": "4096fd56-d689-40ce-9934-7c20359bf2e5",
         "name": "tck-action-validation-api-test"
       },
       "children": [
-        {
-          "entity": {
-            "type": "Request",
-            "method": {
-              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-              "name": "GET"
-            },
-            "body": {
-              "formBody": {
-                "overrideContentType": true,
-                "encoding": "application/x-www-form-urlencoded",
-                "items": []
-              },
-              "bodyType": "Text"
-            },
-            "uri": {
-              "query": {
-                "delimiter": "&",
-                "items": [
-                  {
-                    "name": "type",
-                    "value": ""
-                  },
-                  {
-                    "name": "family",
-                    "value": ""
-                  },
-                  {
-                    "name": "language",
-                    "value": ""
-                  }
-                ]
-              },
-              "scheme": {
-                "name": "http",
-                "version": "V11"
-              },
-              "host": "${\"server-ip\"}:${\"server-port\"}",
-              "path": "/api/v1/action/index"
-            },
-            "description": "TODO improve language test  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
-            "id": "996f6ef5-5ae4-4f48-bd12-1cb7a831b462",
-            "name": "0. action/index - default",
-            "headers": [],
-            "assertions": [
-              {
-                "comparison": "Equals",
-                "subject": "ResponseStatus",
-                "enabled": true,
-                "path": "code",
-                "value": "200"
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseBody",
-                "enabled": true,
-                "path": "content",
-                "value": "200"
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseJsonBody",
-                "enabled": true,
-                "path": "$.items",
-                "value": "^{\"items\":\\[{\"component\":\""
-              }
-            ]
-          }
-        },
         {
           "entity": {
             "type": "Request",
@@ -128,7 +59,7 @@
               "path": "/api/v1/action/execute"
             },
             "description": "",
-            "id": "04e67c59-aa39-4bce-ba0e-3d10d2e47267",
+            "id": "270914da-860a-4d79-87c1-b3419b4f2303",
             "name": "1. action.execute - validation - default",
             "headers": [
               {
@@ -211,7 +142,7 @@
               "path": "/api/v1/action/execute"
             },
             "description": "TODO: language is failing  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
-            "id": "a7c29b30-0de0-41c3-84ec-6f49f040c0f1",
+            "id": "b1579ca3-38b5-430b-af25-3ab4b0463f07",
             "name": "2. action.execute - validation - language",
             "headers": [
               {

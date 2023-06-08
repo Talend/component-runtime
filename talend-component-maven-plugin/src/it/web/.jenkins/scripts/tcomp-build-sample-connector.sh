@@ -49,7 +49,6 @@ main() (
 
   mvn install \
   --file "${_POM_FILE_PATH}" \
-  --projects sample-parent/sample-connector \
   --also-make \
   ${_MAVEN_TEST_SKIP} \
   ${_MAVEN_FAST}

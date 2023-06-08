@@ -24,6 +24,7 @@
 
     <modules>
         <module>tck-action-errors-api-test</module>
+        <module>tck-action-index-api-test</module>
         <module>tck-action-schema-api-test</module>
         <module>tck-action-suggestion-api-test</module>
         <module>tck-action-validation-api-test</module>

@@ -19,6 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Builder;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
 import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
@@ -29,10 +33,7 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.test.connectors.config.NestedConfig;
-
-import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.api.record.Schema.Builder;
-import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.test.connectors.config.TheDataset;
 
 @Service
 public class UIService {
@@ -60,8 +61,11 @@ public class UIService {
      */
 
     public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
+
     public final static String UPDATE_CONFIG = "action_UPDATE";
+
     public final static String VALIDATION = "action_VALIDATION";
+
     public final static String DISCOVER_SCHEMA = "action_DISCOVER_SCHEMA";
 
     @Service
@@ -129,11 +133,27 @@ public class UIService {
     private RecordBuilderFactory recordFactory;
 
     @DiscoverSchema(DISCOVER_SCHEMA)
-    public Schema discoverSchema() {
+    public Schema discoverSchema(@Option final TheDataset dataset) {
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
-                .withName("entry1")
+                .withName("entry_string")
                 .withType(Type.STRING)
+                .build());
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry_int")
+                .withType(Type.INT)
+                .build());
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry_float")
+                .withType(Type.FLOAT)
+                .build());
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry_bool")
+                .withType(Type.BOOLEAN)
                 .build());
 
         return schemaBuilder.build();
