@@ -219,6 +219,32 @@ class ComponentResourceImplTest {
         assertEquals("true", migrated.get("migrated"));
     }
 
+    @Test
+    void migrateWithEncrypted() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 1)
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.url", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                        put("configuration.username", "username0");
+                        put("configuration.connection.password",
+                                "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(4, migrated.size());
+        assertEquals("true", migrated.get("migrated"));
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", migrated.get("configuration.url"));
+        assertEquals("username0", migrated.get("configuration.username"));
+        // should not be deciphered
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", migrated.get("configuration.connection.password"));
+    }
+
     @RepeatedTest(2) // this also checks the cache and queries usage
     void getDetails() {
         final ComponentDetailList details = base
