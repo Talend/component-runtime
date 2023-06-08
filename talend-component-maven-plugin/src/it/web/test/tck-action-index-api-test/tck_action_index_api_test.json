@@ -76,10 +76,10 @@
                 "value": "^{\"items\":\\[{\"component\":\""
               },
               {
-                "comparison": "LengthEqual",
+                "comparison": "Greater",
                 "subject": "ResponseJsonBody",
                 "path": "$.items",
-                "value": "9"
+                "value": "3"
               },
               {
                 "comparison": "Exists",
@@ -161,7 +161,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/action/index"
             },
-            "description": "",
+            "description": "TODO how to test this without breaking on future action added?",
             "id": "a36f4ceb-b306-4d4b-acf3-8e672e5292b3",
             "name": "action/index - family",
             "headers": [],
