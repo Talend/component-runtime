@@ -59,8 +59,7 @@
         <version>${project.version}</version>
       </dependency>
 
-      <dependency>
-        <!-- needed by tomcat-websocket -->
+      <dependency><!-- needed by tomcat-websocket -->
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-api</artifactId>
         <version>${tomcat.version}</version>

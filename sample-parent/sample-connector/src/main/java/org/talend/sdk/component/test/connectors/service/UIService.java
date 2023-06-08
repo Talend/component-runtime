@@ -25,8 +25,14 @@ import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
 import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.SuggestionValues.Item;
 import org.talend.sdk.component.api.service.completion.Suggestions;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.test.connectors.config.NestedConfig;
+
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Builder;
+import org.talend.sdk.component.api.record.Schema.Type;
 
 @Service
 public class UIService {
@@ -39,6 +45,7 @@ public class UIService {
      * - Suggestions https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
      * - Update https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
      * - Validation https://talend.github.io/component-runtime/main/latest/services-actions.html#_validation
+     * - DiscoverSchema https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schema
      *
      * Todo:
      * - Close Connection https://talend.github.io/component-runtime/main/latest/services-actions.html#_close_connection
@@ -53,10 +60,9 @@ public class UIService {
      */
 
     public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
-
     public final static String UPDATE_CONFIG = "action_UPDATE";
-
     public final static String VALIDATION = "action_VALIDATION";
+    public final static String DISCOVER_SCHEMA = "action_DISCOVER_SCHEMA";
 
     @Service
     private I18n i18n;
@@ -67,8 +73,7 @@ public class UIService {
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
      *
      * Returned type: org.talend.sdk.component.api.service.completion.SuggestionValues
-     * 
-     * @return
+     *
      */
     @Suggestions(LIST_ENTITIES)
     public SuggestionValues getListEntities() {
@@ -87,7 +92,6 @@ public class UIService {
      *
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
      *
-     * @return
      */
     @Update(UPDATE_CONFIG)
     public NestedConfig retrieveFeedback(final NestedConfig source) throws Exception {
@@ -103,8 +107,7 @@ public class UIService {
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
      *
      * Returned type: org.talend.sdk.component.api.service.asyncvalidation.ValidationResult
-     * 
-     * @return
+     *
      */
     @AsyncValidation(VALIDATION)
     public ValidationResult retrieveValidation() throws Exception {
@@ -113,6 +116,27 @@ public class UIService {
         result.setStatus(ValidationResult.Status.OK);
         result.setComment(i18n.validationComment());
         return result;
+    }
+
+    /**
+     * Discover Schema action
+     *
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema
+     *
+     */
+
+    @Service
+    private RecordBuilderFactory recordFactory;
+
+    @DiscoverSchema(DISCOVER_SCHEMA)
+    public Schema discoverSchema() {
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry1")
+                .withType(Type.STRING)
+                .build());
+
+        return schemaBuilder.build();
     }
 
 }
