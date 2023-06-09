@@ -194,9 +194,8 @@ public class BulkReadResourceImpl implements BulkReadResource {
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
         final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
             try {
-                result.setResponse(defaultMapper
+                result.setResponse(org.apache.commons.text.StringEscapeUtils.unescapeJson(defaultMapper
                         .toJson(org.apache.commons.text.StringEscapeUtils.unescapeJson(
-                                org.apache.commons.text.StringEscapeUtils.unescapeJson(
                                         outputStream.toString(StandardCharsets.UTF_8.name())))));
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
