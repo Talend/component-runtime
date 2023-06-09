@@ -19,7 +19,7 @@ set -xe
 
 function usage(){
   printf 'Run an apitester campaign\n'
-  printf 'Usage : %s <tests_path> <maven_settings> <instance> <account_id> <environment> <file_to_run>\n' "${0}"
+  printf 'Usage : %s <tests_path> <maven_settings> <instance> <account_id> <environment>\n' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
@@ -32,19 +32,16 @@ function usage(){
 [ -z ${3+x} ] && usage 'Parameter "instance" is needed.'
 [ -z ${4+x} ] && usage 'Parameter "account_id" is needed.'
 [ -z ${5+x} ] && usage 'Parameter "environment" is needed.'
-[ -z ${6+x} ] && usage 'Parameter "file_to_run" is needed.'
 
 _TESTS_PATH=${1}
 _MAVEN_SETTINGS=${2}
 _INSTANCE=${3}
 _ACCOUNT_ID=${4}
 _ENVIRONMENT=${5}
-_FILE_TO_RUN=${6}
 
 main() (
   printf '##############################################\n'
   printf 'Api Tester run\n'
-  printf 'on file %s\n' "${_FILE_TO_RUN}"
   printf '##############################################\n'
 
   test_run
@@ -58,7 +55,7 @@ function test_run {
                  --define accountId="${_ACCOUNT_ID}" \
                  --define selectedEnvironment="${_ENVIRONMENT}" \
                  --define stopOnFailure=false \
-                 --define file="${_FILE_TO_RUN}"
+                 --fail-at-end
 }
 
 main "$@"
