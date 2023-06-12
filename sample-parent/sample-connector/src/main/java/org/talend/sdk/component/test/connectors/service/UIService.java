@@ -68,9 +68,11 @@ public class UIService {
 
     public final static String VALIDATION = "action_VALIDATION";
 
-    public final static String DISCOVER_SCHEMA = "action_DISCOVER_SCHEMA";
+    public final static String DISCOVER_SCHEMA_STATIC = "action_DISCOVER_SCHEMA_static";
+    public final static String DISCOVER_SCHEMA_DYNAMIC = "action_DISCOVER_SCHEMA_dynamic";
 
-    public final static String DISCOVER_SCHEMA_EXTENDED = "action_DISCOVER_SCHEMA_EXTENDED";
+    public final static String DISCOVER_SCHEMA_EXTENDED_STATIC = "action_DISCOVER_SCHEMA_EXT_static";
+    public final static String DISCOVER_SCHEMA_EXTENDED_DYNAMIC = "action_DISCOVER_SCHEMA_EXT_dynamic";
 
     @Service
     private I18n i18n;
@@ -144,8 +146,8 @@ public class UIService {
      * Returned type: org.talend.sdk.component.api.record.Schema
      *
      */
-    @DiscoverSchema(DISCOVER_SCHEMA)
-    public Schema discoverSchema(@Option final TheDataset dataset) {
+    @DiscoverSchema(DISCOVER_SCHEMA_STATIC)
+    public Schema discoverSchemaStatic(@Option final TheDataset dataset) {
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
 
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
@@ -171,6 +173,18 @@ public class UIService {
         return schemaBuilder.build();
     }
 
+    @DiscoverSchema(DISCOVER_SCHEMA_DYNAMIC)
+    public Schema discoverSchemaDynamic(@Option final TheDataset dataset) {
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("dynamic_entry_".concat(dataset.DATASET_INFO))
+                .withType(Type.STRING)
+                .build());
+
+        return schemaBuilder.build();
+    }
+
     /**
      * Schema Extended action
      *
@@ -179,12 +193,13 @@ public class UIService {
      * API: @org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended
      *
      * Returned type: org.talend.sdk.component.api.record.Schema
+     * todo use parameters
      *
      */
-    @DiscoverSchema(DISCOVER_SCHEMA_EXTENDED)
-    public Schema discoverSchemaExtended(@Option final TheDataset dataset) {
+    @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_STATIC)
+    public Schema discoverSchemaExtendedStatic(@Option final String unused,
+                                               String branch) {
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
-
 
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
                 .withName("entry_float")
@@ -209,6 +224,19 @@ public class UIService {
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
                 .withName("entry_decimal")
                 .withType(Type.DECIMAL)
+                .build());
+
+        return schemaBuilder.build();
+    }
+
+    @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_DYNAMIC)
+    public Schema discoverSchemaExtendedDynamic(@Option final String incommingString,
+                                                String branch) {
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("dynamic_entry-".concat(incommingString))
+                .withType(Type.STRING)
                 .build());
 
         return schemaBuilder.build();

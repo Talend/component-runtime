@@ -11,263 +11,680 @@
       "children": [
         {
           "entity": {
-            "type": "Request",
-            "method": {
-              "requestBody": true,
-              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
-              "name": "POST"
-            },
-            "body": {
-              "formBody": {
-                "overrideContentType": true,
-                "encoding": "application/x-www-form-urlencoded",
-                "items": []
-              },
-              "bodyType": "Text",
-              "textBody": "{}"
-            },
-            "uri": {
-              "query": {
-                "delimiter": "&",
-                "items": [
+            "type": "Service",
+            "id": "444aaa11-5980-4392-b634-2c4a63508643",
+            "name": "action.execute - schema"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "family",
+                        "value": "the_family"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "type",
+                        "value": "schema"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "action",
+                        "value": "action_DISCOVER_SCHEMA_static"
+                      },
+                      {
+                        "name": "language",
+                        "value": "fr"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/execute"
+                },
+                "description": "TODO test default language\nFIXME finish it",
+                "id": "3a7ffabe-bd60-48c5-9276-0ce1b6c6f041",
+                "name": "1. action.execute - schema - content",
+                "headers": [
                   {
                     "enabled": true,
-                    "name": "family",
-                    "value": "the_family"
-                  },
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
                   {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
                     "enabled": true,
-                    "name": "type",
-                    "value": "schema"
+                    "path": "code",
+                    "value": "200"
                   },
                   {
-                    "enabled": true,
-                    "name": "action",
-                    "value": "action_DISCOVER_SCHEMA"
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries",
+                    "value": "\"set by service : null -en\""
                   },
                   {
-                    "name": "language",
-                    "value": "fr"
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].metadata",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].name",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].nullable",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].props",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].type",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.metadata",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.props",
+                    "value": "\"talend.fields.order\""
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.type",
+                    "value": "RECORD"
                   }
                 ]
-              },
-              "scheme": {
-                "name": "http",
-                "version": "V11"
-              },
-              "host": "${\"server-ip\"}:${\"server-port\"}",
-              "path": "/api/v1/action/execute"
+              }
             },
-            "description": "TODO test default language\nFIXME finish it",
-            "id": "020146a2-6e5d-4171-b42f-1caef89076e7",
-            "name": "1. action.execute - schema - default",
-            "headers": [
-              {
-                "enabled": true,
-                "name": "Content-Type",
-                "value": "application/json"
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "family",
+                        "value": "the_family"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "type",
+                        "value": "schema"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "action",
+                        "value": "action_DISCOVER_SCHEMA_static"
+                      },
+                      {
+                        "name": "language",
+                        "value": "fr"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/execute"
+                },
+                "description": "TODO test default language\nFIXME finish it",
+                "id": "020146a2-6e5d-4171-b42f-1caef89076e7",
+                "name": "2. action.execute - schema - static values",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"STRING\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"BYTES\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"INT\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"LONG\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_string\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_bytes\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_int\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_long\""
+                  }
+                ]
               }
-            ],
-            "assertions": [
-              {
-                "comparison": "Equals",
-                "subject": "ResponseStatus",
-                "enabled": true,
-                "path": "code",
-                "value": "200"
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries",
-                "value": "\"set by service : null -en\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"STRING\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"BYTES\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"INT\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"LONG\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_string\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_bytes\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_int\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_long\""
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "family",
+                        "value": "the_family"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "type",
+                        "value": "schema"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "action",
+                        "value": "action_DISCOVER_SCHEMA_dynamic"
+                      },
+                      {
+                        "name": "language",
+                        "value": "fr"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/execute"
+                },
+                "description": "The response is dynamic going throw name sanitize",
+                "id": "bd9f091f-c6d3-4570-85fb-708ce0b2a92e",
+                "name": "3. action.execute - schema - dynamic values",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"dynamic_entry_info_to_sanitize\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..rawName",
+                    "value": "\"dynamic_entry_info-to-sanitize\""
+                  }
+                ]
               }
-            ]
-          }
+            }
+          ]
         },
         {
           "entity": {
-            "type": "Request",
-            "method": {
-              "requestBody": true,
-              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
-              "name": "POST"
-            },
-            "body": {
-              "formBody": {
-                "overrideContentType": true,
-                "encoding": "application/x-www-form-urlencoded",
-                "items": []
-              },
-              "bodyType": "Text",
-              "textBody": "{}"
-            },
-            "uri": {
-              "query": {
-                "delimiter": "&",
-                "items": [
+            "type": "Service",
+            "id": "54acd3de-8860-48a7-bee9-a6cf6fe14e43",
+            "name": "action.execute - schemaExtended"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "family",
+                        "value": "the_family"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "type",
+                        "value": "schema_extended"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "action",
+                        "value": "action_DISCOVER_SCHEMA_EXT_static"
+                      },
+                      {
+                        "name": "language",
+                        "value": "fr"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/execute"
+                },
+                "description": "TODO test default language\nFIXME finish it",
+                "id": "e2d2925e-1fba-40d6-9b29-1b1bcc5a7431",
+                "name": "1. action.execute - schemaExtended - content",
+                "headers": [
                   {
                     "enabled": true,
-                    "name": "family",
-                    "value": "the_family"
-                  },
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
                   {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
                     "enabled": true,
-                    "name": "type",
-                    "value": "schema"
+                    "path": "code",
+                    "value": "200"
                   },
                   {
-                    "enabled": true,
-                    "name": "action",
-                    "value": "action_DISCOVER_SCHEMA_EXTENDED"
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries",
+                    "value": "\"set by service : null -en\""
                   },
                   {
-                    "name": "language",
-                    "value": "fr"
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].metadata",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].name",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].nullable",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].props",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries[0].type",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.metadata",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.props",
+                    "value": "\"talend.fields.order\""
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.type",
+                    "value": "RECORD"
                   }
                 ]
-              },
-              "scheme": {
-                "name": "http",
-                "version": "V11"
-              },
-              "host": "${\"server-ip\"}:${\"server-port\"}",
-              "path": "/api/v1/action/execute"
+              }
             },
-            "description": "TODO test default language\nFIXME finish it",
-            "id": "f3be5788-ecf6-4daf-ab27-33d0343dae41",
-            "name": "2. action.execute - schemaExtended - default",
-            "headers": [
-              {
-                "enabled": true,
-                "name": "Content-Type",
-                "value": "application/json"
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "family",
+                        "value": "the_family"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "type",
+                        "value": "schema_extended"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "action",
+                        "value": "action_DISCOVER_SCHEMA_EXT_static"
+                      },
+                      {
+                        "name": "language",
+                        "value": "fr"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/execute"
+                },
+                "description": "TODO test default language\nFIXME finish it",
+                "id": "f3be5788-ecf6-4daf-ab27-33d0343dae41",
+                "name": "2. action.execute - schemaExtended - static values",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"FLOAT\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"DOUBLE\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"BOOLEAN\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"DATETIME\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..type",
+                    "value": "\"DECIMAL\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_float\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_double\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_boolean\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_datetime\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "\"entry_decimal\""
+                  }
+                ]
               }
-            ],
-            "assertions": [
-              {
-                "comparison": "Equals",
-                "subject": "ResponseStatus",
-                "enabled": true,
-                "path": "code",
-                "value": "200"
-              },
-              {
-                "comparison": "Exists",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries",
-                "value": "\"set by service : null -en\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"FLOAT\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"DOUBLE\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"BOOLEAN\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"DATETIME\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"DECIMAL\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_float\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_double\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_boolean\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_datetime\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..name",
-                "value": "\"entry_decimal\""
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text",
+                  "textBody": "{\n  \"incommingString\": \"test-string\",\n  \"branch\": \"BRANCH\"\n}"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "family",
+                        "value": "the_family"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "type",
+                        "value": "schema_extended"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "action",
+                        "value": "action_DISCOVER_SCHEMA_EXT_dynamic"
+                      },
+                      {
+                        "name": "language",
+                        "value": "fr"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/execute"
+                },
+                "description": "TODO test default language\nFIXME finish it",
+                "id": "b02d99a5-86b0-48ba-ae3c-939337d25317",
+                "name": "3. action.execute - schemaExtended - dynamic values",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Exists",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries",
+                    "value": "\"set by service : null -en\""
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "dynamic_entry_test_string"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..rawName",
+                    "value": "dynamic_entry-test-string"
+                  }
+                ]
               }
-            ]
-          }
+            }
+          ]
         }
       ]
     }
