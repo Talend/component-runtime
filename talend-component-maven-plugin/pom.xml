@@ -51,7 +51,8 @@
       <artifactId>component-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency><!-- extends runtime manager with design time data -->
+    <dependency>
+      <!-- extends runtime manager with design time data -->
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-design-extension</artifactId>
       <version>${project.version}</version>

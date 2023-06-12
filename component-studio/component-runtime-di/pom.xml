@@ -65,7 +65,8 @@
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency><!-- for now the multiple inputs/outputs is handled this way -->
+    <dependency>
+      <!-- for now the multiple inputs/outputs is handled this way -->
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-design-extension</artifactId>
       <version>${project.version}</version>
