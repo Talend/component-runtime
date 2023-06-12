@@ -16,6 +16,7 @@
 package org.talend.sdk.component.test.connectors.service;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ import org.talend.sdk.component.api.service.completion.SuggestionValues.Item;
 import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.test.connectors.config.NestedConfig;
 import org.talend.sdk.component.test.connectors.config.TheDataset;
@@ -67,6 +69,8 @@ public class UIService {
     public final static String VALIDATION = "action_VALIDATION";
 
     public final static String DISCOVER_SCHEMA = "action_DISCOVER_SCHEMA";
+
+    public final static String DISCOVER_SCHEMA_EXTENDED = "action_DISCOVER_SCHEMA_EXTENDED";
 
     @Service
     private I18n i18n;
@@ -123,15 +127,23 @@ public class UIService {
     }
 
     /**
-     * Discover Schema action
-     *
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema
-     *
+     * Schema actions needed elements
      */
 
     @Service
     private RecordBuilderFactory recordFactory;
 
+
+    /**
+     * Schema action
+     *
+     * Documentation: https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schema
+     * Type: schema
+     * API: @org.talend.sdk.component.api.service.schema.DiscoverSchema
+     *
+     * Returned type: org.talend.sdk.component.api.record.Schema
+     *
+     */
     @DiscoverSchema(DISCOVER_SCHEMA)
     public Schema discoverSchema(@Option final TheDataset dataset) {
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
@@ -142,9 +154,37 @@ public class UIService {
                 .build());
 
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry_bytes")
+                .withType(Type.BYTES)
+                .build());
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
                 .withName("entry_int")
                 .withType(Type.INT)
                 .build());
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry_long")
+                .withType(Type.LONG)
+                .build());
+
+        return schemaBuilder.build();
+    }
+
+    /**
+     * Schema Extended action
+     *
+     * Documentation: https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schema_extended
+     * Type: schema_extended
+     * API: @org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended
+     *
+     * Returned type: org.talend.sdk.component.api.record.Schema
+     *
+     */
+    @DiscoverSchema(DISCOVER_SCHEMA_EXTENDED)
+    public Schema discoverSchemaExtended(@Option final TheDataset dataset) {
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+
 
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
                 .withName("entry_float")
@@ -152,8 +192,23 @@ public class UIService {
                 .build());
 
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
-                .withName("entry_bool")
+                .withName("entry_double")
+                .withType(Type.DOUBLE)
+                .build());
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry_boolean")
                 .withType(Type.BOOLEAN)
+                .build());
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry_datetime")
+                .withType(Type.DATETIME)
+                .build());
+
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
+                .withName("entry_decimal")
+                .withType(Type.DECIMAL)
                 .build());
 
         return schemaBuilder.build();

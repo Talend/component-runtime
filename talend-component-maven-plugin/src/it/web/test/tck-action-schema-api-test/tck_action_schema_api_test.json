@@ -92,19 +92,19 @@
                 "comparison": "Contains",
                 "subject": "ResponseJsonBody",
                 "path": "$.entries..type",
+                "value": "\"BYTES\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..type",
                 "value": "\"INT\""
               },
               {
                 "comparison": "Contains",
                 "subject": "ResponseJsonBody",
                 "path": "$.entries..type",
-                "value": "\"FLOAT\""
-              },
-              {
-                "comparison": "Contains",
-                "subject": "ResponseJsonBody",
-                "path": "$.entries..type",
-                "value": "\"BOOLEAN\""
+                "value": "\"LONG\""
               },
               {
                 "comparison": "Contains",
@@ -116,7 +116,125 @@
                 "comparison": "Contains",
                 "subject": "ResponseJsonBody",
                 "path": "$.entries..name",
+                "value": "\"entry_bytes\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
                 "value": "\"entry_int\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
+                "value": "\"entry_long\""
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{}"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "the_family"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "type",
+                    "value": "schema"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "action",
+                    "value": "action_DISCOVER_SCHEMA_EXTENDED"
+                  },
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/execute"
+            },
+            "description": "TODO test default language\nFIXME finish it",
+            "id": "f3be5788-ecf6-4daf-ab27-33d0343dae41",
+            "name": "2. action.execute - schemaExtended - default",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "enabled": true,
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries",
+                "value": "\"set by service : null -en\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..type",
+                "value": "\"FLOAT\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..type",
+                "value": "\"DOUBLE\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..type",
+                "value": "\"BOOLEAN\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..type",
+                "value": "\"DATETIME\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..type",
+                "value": "\"DECIMAL\""
               },
               {
                 "comparison": "Contains",
@@ -128,7 +246,25 @@
                 "comparison": "Contains",
                 "subject": "ResponseJsonBody",
                 "path": "$.entries..name",
-                "value": "\"entry_bool\""
+                "value": "\"entry_double\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
+                "value": "\"entry_boolean\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
+                "value": "\"entry_datetime\""
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.entries..name",
+                "value": "\"entry_decimal\""
               }
             ]
           }
