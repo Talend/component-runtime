@@ -15,11 +15,13 @@
  */
 package org.talend.sdk.component.test.connectors.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
@@ -193,12 +195,10 @@ public class UIService {
      * API: @org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended
      *
      * Returned type: org.talend.sdk.component.api.record.Schema
-     * todo use parameters
      *
      */
     @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_STATIC)
-    public Schema discoverSchemaExtendedStatic(@Option final String unused,
-                                               String branch) {
+    public Schema discoverSchemaExtendedStatic(final @Option("configuration") NestedConfig unused) {
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
 
         schemaBuilder.withEntry(recordFactory.newEntryBuilder()
@@ -229,17 +229,59 @@ public class UIService {
         return schemaBuilder.build();
     }
 
-    @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_DYNAMIC)
-    public Schema discoverSchemaExtendedDynamic(@Option final String incommingString,
-                                                String branch) {
-        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+    /**
+     * Schema Extended action
+     * Type of schema extended method test, using all parameters capabilities.
+     *
+     * discoverSchemaExtendedFull: all possibles parameters (option + schema + branch)
+     * discoverSchemaExtendedSch: One option and Schema
+     * discoverSchemaExtendedBranch: One option and a branch
+     * discoverSchemaExtendedMinimal: only one @option
+     *
+     * Returned type: org.talend.sdk.component.api.record.Schema
+     *
+     */
 
-        schemaBuilder.withEntry(recordFactory.newEntryBuilder()
-                .withName("dynamic_entry-".concat(incommingString))
-                .withType(Type.STRING)
-                .build());
+    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_full")
+    public Schema discoverSchemaExtendedFull(final @Option("configuration") NestedConfig incomingConfig,
+                                             final Schema incomingSchema,
+                                             final String branch) {
 
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(incomingSchema);
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
+                .withType(Type.STRING).build());
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(branch)
+                .withType(Type.STRING).build());
         return schemaBuilder.build();
     }
 
+    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_branch")
+    public Schema discoverSchemaExtendedBranch(final @Option("configuration") NestedConfig incomingConfig,
+                                               final String branch) {
+
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
+                .withType(Type.STRING).build());
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(branch)
+                .withType(Type.STRING).build());
+        return schemaBuilder.build();
+    }
+
+    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_incoming_schema")
+    public Schema discoverSchemaExtendedSch(final @Option("configuration") NestedConfig incomingConfig,
+                                            final Schema incomingSchema) {
+
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(incomingSchema);
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
+                .withType(Type.STRING).build());
+        return schemaBuilder.build();
+    }
+
+    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_minimal")
+    public Schema discoverSchemaExtendedMinimal(final @Option("configuration") NestedConfig incomingConfig) {
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
+                .withType(Type.STRING).build());
+        return schemaBuilder.build();
+    }
 }
