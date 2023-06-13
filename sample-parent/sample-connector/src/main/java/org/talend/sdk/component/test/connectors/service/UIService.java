@@ -124,16 +124,18 @@ public class UIService {
 
 
     /**
-     * Discover Healthcheck action
+     * Healthcheck action
      *
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
+     * Documentation: https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
+     * Type: healthcheck
+     * API: @org.talend.sdk.component.api.service.healthcheck.HealthCheck
      *
+     * Returned type: org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus
      */
     @HealthCheck(HEALTH_CHECK)
     public HealthCheckStatus discoverHealthcheck(@Option final TheDatastore datastore) {
         try {
-            TheDatastore datastore1 = new TheDatastore();
-            datastore1.setUrl(i18n.setByService(datastore.getUrl()));
+            datastore.setUrl(i18n.setByService(datastore.getUrl()));
             return new HealthCheckStatus(Status.OK, "HealthCheck Success");
         } catch (Exception e) {
             return new HealthCheckStatus(Status.KO, "HealthCheck Failed");
