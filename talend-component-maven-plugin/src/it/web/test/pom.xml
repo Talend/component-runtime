@@ -26,6 +26,7 @@
         <module>tck-general-api-test</module>
         <module>tck-bulk-api-test</module>
         <module>tck-security-api-test</module>
+        <module>tck-action-healthcheck-api-test</module>
     </modules>
 
     <build>
