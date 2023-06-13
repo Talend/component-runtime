@@ -242,8 +242,38 @@ public class UIService {
      *
      */
 
+    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_minimal")
+    public Schema discoverSchemaExtendedMinimal(final @Option("configurationMinimal") NestedConfig incomingConfig) {
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
+                .withType(Type.STRING).build());
+        return schemaBuilder.build();
+    }
+
+    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_schema")
+    public Schema discoverSchemaExtendedSch(final @Option("configurationSchema") NestedConfig incomingConfig,
+                                            final Schema incomingSchema) {
+
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(incomingSchema);
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
+                .withType(Type.STRING).build());
+        return schemaBuilder.build();
+    }
+
+    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_branch")
+    public Schema discoverSchemaExtendedBranch(final @Option("configurationBranch") NestedConfig incomingConfig,
+                                               final String branch) {
+
+        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
+                .withType(Type.STRING).build());
+        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(branch)
+                .withType(Type.STRING).build());
+        return schemaBuilder.build();
+    }
+
     @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_full")
-    public Schema discoverSchemaExtendedFull(final @Option("configuration") NestedConfig incomingConfig,
+    public Schema discoverSchemaExtendedFull(final @Option("configurationFull") NestedConfig incomingConfig,
                                              final Schema incomingSchema,
                                              final String branch) {
 
@@ -255,33 +285,5 @@ public class UIService {
         return schemaBuilder.build();
     }
 
-    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_branch")
-    public Schema discoverSchemaExtendedBranch(final @Option("configuration") NestedConfig incomingConfig,
-                                               final String branch) {
 
-        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
-        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
-                .withType(Type.STRING).build());
-        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(branch)
-                .withType(Type.STRING).build());
-        return schemaBuilder.build();
-    }
-
-    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_incoming_schema")
-    public Schema discoverSchemaExtendedSch(final @Option("configuration") NestedConfig incomingConfig,
-                                            final Schema incomingSchema) {
-
-        final Builder schemaBuilder = recordFactory.newSchemaBuilder(incomingSchema);
-        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
-                .withType(Type.STRING).build());
-        return schemaBuilder.build();
-    }
-
-    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_minimal")
-    public Schema discoverSchemaExtendedMinimal(final @Option("configuration") NestedConfig incomingConfig) {
-        final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
-        schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
-                .withType(Type.STRING).build());
-        return schemaBuilder.build();
-    }
 }

@@ -21,7 +21,6 @@ If you want to run the test with maven, you will need the followings:
 ### Start local server
 The execution with maven plugin is done in several steps as follows:
 - Build with Maven a first time the whole project
-- Do not forget to build the bom
 - Build demo connector with Maven.
   - No need to rebuild component-runtime if you work only on the connector.
 - Start the component server using the provided script `\talend-component-maven-plugin\src\it\web\.jenkins\scripts\server-registry-manual_start.sh`
