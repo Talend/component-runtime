@@ -1,0 +1,163 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck)",
+        "id": "3c0f5dd4-8574-493f-8b0e-675413be8e4d",
+        "name": "tck-action-healthcheck-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Service",
+            "id": "6e6465a7-b852-4b65-a2f2-af18783ae227",
+            "name": "action.execute - healthcheck"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "requestBody": true,
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+                  "name": "POST"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "family",
+                        "value": "the_family"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "type",
+                        "value": "healthcheck"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "action",
+                        "value": "action_HEALTH_CHECK"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/action/execute"
+                },
+                "id": "dd0ed100-62b0-4cac-826c-1b7f976237eb",
+                "name": "1. action.execute - healthcheck",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.status",
+                    "value": "OK"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.comment",
+                    "value": "HealthCheck Success"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "d7975106-9ad9-41fd-8900-ab5520885d2c",
+      "name": "component_runtime_ci",
+      "variables": {
+        "c1225ec7-1a42-4bbb-9550-08cef2fa6f3b": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-06-13T09:28:30.216Z",
+          "private": false
+        },
+        "22461752-1b38-49ee-9546-10b46a404f7e": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-06-13T09:28:30.216Z",
+          "private": false
+        },
+        "0c3197c8-9d0c-4089-a234-435e94253c9b": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-06-13T09:28:30.216Z",
+          "private": false
+        },
+        "cc1e3605-814a-408f-a105-e55205711432": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-06-13T09:28:30.216Z",
+          "private": false
+        },
+        "5a9c043b-f9a2-43e9-954e-44dd6b19a2f2": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-06-13T09:28:30.216Z",
+          "private": false
+        },
+        "bbe6c58b-cb12-4715-956c-3ccbd0cf3357": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-06-13T09:28:30.216Z",
+          "private": false
+        },
+        "f65a7571-7839-4f48-a0e9-1f22666fbe83": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-06-13T09:28:30.216Z",
+          "private": false
+        },
+        "fc4a058f-096a-4b76-96b6-0e0d6bf37fa0": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-06-13T09:28:30.216Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}
