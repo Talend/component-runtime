@@ -19,14 +19,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
 import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
 import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.SuggestionValues.Item;
 import org.talend.sdk.component.api.service.completion.Suggestions;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus.Status;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.test.connectors.config.NestedConfig;
+import org.talend.sdk.component.test.connectors.config.TheDatastore;
 
 @Service
 public class UIService {
@@ -57,6 +62,8 @@ public class UIService {
     public final static String UPDATE_CONFIG = "action_UPDATE";
 
     public final static String VALIDATION = "action_VALIDATION";
+
+    public final static String HEALTH_CHECK = "action_HEALTH_CHECK";
 
     @Service
     private I18n i18n;
@@ -113,6 +120,24 @@ public class UIService {
         result.setStatus(ValidationResult.Status.OK);
         result.setComment(i18n.validationComment());
         return result;
+    }
+
+
+    /**
+     * Discover Healthcheck action
+     *
+     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
+     *
+     */
+    @HealthCheck(HEALTH_CHECK)
+    public HealthCheckStatus discoverHealthcheck(@Option final TheDatastore datastore) {
+        try {
+            TheDatastore datastore1 = new TheDatastore();
+            datastore1.setUrl(i18n.setByService(datastore.getUrl()));
+            return new HealthCheckStatus(Status.OK, "HealthCheck Success");
+        } catch (Exception e) {
+            return new HealthCheckStatus(Status.KO, "HealthCheck Failed");
+        }
     }
 
 }
