@@ -15,131 +15,48 @@
  */
 package org.talend.sdk.component.test.connectors.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import lombok.Getter;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
-import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
-import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
-import org.talend.sdk.component.api.service.completion.SuggestionValues;
-import org.talend.sdk.component.api.service.completion.SuggestionValues.Item;
-import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
-import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.test.connectors.config.NestedConfig;
 import org.talend.sdk.component.test.connectors.config.TheDataset;
 
 @Service
-public class UIService {
+public class SchemaServices {
 
     /**
-     * In this service sample class we will implement every existing particular actions to check their API usages.
+     * In this service sample class we will implement every existing particular actions related to schema.
+     *
      * Services actions are listed here: https://talend.github.io/component-runtime/main/latest/services-actions.html
      *
      * Implemented:
-     * - Suggestions https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
-     * - Update https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
-     * - Validation https://talend.github.io/component-runtime/main/latest/services-actions.html#_validation
      * - DiscoverSchema https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schema
+     * - DiscoverSchemaExtended https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schemaExtended
      *
-     * Todo:
-     * - Close Connection https://talend.github.io/component-runtime/main/latest/services-actions.html#_close_connection
-     * - Create Connection
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_create_connection
-     * - Discoverdataset https://talend.github.io/component-runtime/main/latest/services-actions.html#_discoverdataset
-     * - Dynamic Values https://talend.github.io/component-runtime/main/latest/services-actions.html#_dynamic_values
-     * - Healthcheck https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
-     * - User https://talend.github.io/component-runtime/main/latest/services-actions.html#_user
-     * - built_in_suggestable
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_built_in_suggestable
      */
-
-    public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
-
-    public final static String UPDATE_CONFIG = "action_UPDATE";
-
-    public final static String VALIDATION = "action_VALIDATION";
 
     public final static String DISCOVER_SCHEMA_STATIC = "action_DISCOVER_SCHEMA_static";
     public final static String DISCOVER_SCHEMA_DYNAMIC = "action_DISCOVER_SCHEMA_dynamic";
-
     public final static String DISCOVER_SCHEMA_EXTENDED_STATIC = "action_DISCOVER_SCHEMA_EXT_static";
-    public final static String DISCOVER_SCHEMA_EXTENDED_DYNAMIC = "action_DISCOVER_SCHEMA_EXT_dynamic";
-
-    @Service
-    private I18n i18n;
-
-    /**
-     * Suggestions action
-     *
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
-     *
-     * Returned type: org.talend.sdk.component.api.service.completion.SuggestionValues
-     *
-     */
-    @Suggestions(LIST_ENTITIES)
-    public SuggestionValues getListEntities() {
-
-        List<Item> entities = Arrays.asList(1, 2, 3, 4)
-                .stream()
-                .map(i -> String.valueOf(i))
-                .map(i -> new Item(i, i18n.entityName(i)))
-                .collect(Collectors.toList());
-
-        return new SuggestionValues(true, entities);
-    }
+    public final static String DISCOVER_SCHEMA_EXTENDED_MINIMAL = "action_DISCOVER_SCHEMA_EXT_minimal";
+    public final static String DISCOVER_SCHEMA_EXTENDED_SCHEMA = "action_DISCOVER_SCHEMA_EXT_schema";
+    public final static String DISCOVER_SCHEMA_EXTENDED_BRANCH = "action_DISCOVER_SCHEMA_EXT_branch";
+    public final static String DISCOVER_SCHEMA_EXTENDED_FULL = "action_DISCOVER_SCHEMA_EXT_full";
 
     /**
-     * Update action
-     *
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
-     *
+     * Schema needed elements
      */
-    @Update(UPDATE_CONFIG)
-    public NestedConfig retrieveFeedback(final NestedConfig source) throws Exception {
-        NestedConfig dest = new NestedConfig();
-        dest.setStringOption1(i18n.setByService(source.getStringOption1()));
-        dest.setStringOption2(i18n.setByService(source.getStringOption2()));
-        return dest;
-    }
-
-    /**
-     * Validation action
-     *
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
-     *
-     * Returned type: org.talend.sdk.component.api.service.asyncvalidation.ValidationResult
-     *
-     */
-    @AsyncValidation(VALIDATION)
-    public ValidationResult retrieveValidation() throws Exception {
-        ValidationResult result = new ValidationResult();
-
-        result.setStatus(ValidationResult.Status.OK);
-        result.setComment(i18n.validationComment());
-        return result;
-    }
-
-    /**
-     * Schema actions needed elements
-     */
-
     @Service
     private RecordBuilderFactory recordFactory;
 
-
     /**
      * Schema action
+     * Methode to test DiscoverSchema with a static fix response
      *
      * Documentation: https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schema
      * Type: schema
@@ -175,6 +92,17 @@ public class UIService {
         return schemaBuilder.build();
     }
 
+    /**
+     * Schema action
+     * Methode to test DiscoverSchema with a variable response from dataset element
+     *
+     * Documentation: https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schema
+     * Type: schema
+     * API: @org.talend.sdk.component.api.service.schema.DiscoverSchema
+     *
+     * Returned type: org.talend.sdk.component.api.record.Schema
+     *
+     */
     @DiscoverSchema(DISCOVER_SCHEMA_DYNAMIC)
     public Schema discoverSchemaDynamic(@Option final TheDataset dataset) {
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
@@ -189,6 +117,7 @@ public class UIService {
 
     /**
      * Schema Extended action
+     * Test DiscoverSchemaExtended with a static fix response
      *
      * Documentation: https://talend.github.io/component-runtime/main/latest/ref-actions.html#_schema_extended
      * Type: schema_extended
@@ -231,7 +160,8 @@ public class UIService {
 
     /**
      * Schema Extended action
-     * Type of schema extended method test, using all parameters capabilities.
+     * Methode to test DiscoverSchemaExtended with a variable response depending on parameters value.
+     * Multiples methods using all parameters capabilities.
      *
      * discoverSchemaExtendedFull: all possibles parameters (option + schema + branch)
      * discoverSchemaExtendedSch: One option and Schema
@@ -242,7 +172,7 @@ public class UIService {
      *
      */
 
-    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_minimal")
+    @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_MINIMAL)
     public Schema discoverSchemaExtendedMinimal(final @Option("configurationMinimal") NestedConfig incomingConfig) {
         final Builder schemaBuilder = recordFactory.newSchemaBuilder(Type.RECORD);
         schemaBuilder.withEntry(recordFactory.newEntryBuilder().withName(incomingConfig.getStringOption1())
@@ -250,7 +180,7 @@ public class UIService {
         return schemaBuilder.build();
     }
 
-    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_schema")
+    @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_SCHEMA)
     public Schema discoverSchemaExtendedSch(final @Option("configurationSchema") NestedConfig incomingConfig,
                                             final Schema incomingSchema) {
 
@@ -260,7 +190,7 @@ public class UIService {
         return schemaBuilder.build();
     }
 
-    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_branch")
+    @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_BRANCH)
     public Schema discoverSchemaExtendedBranch(final @Option("configurationBranch") NestedConfig incomingConfig,
                                                final String branch) {
 
@@ -272,7 +202,7 @@ public class UIService {
         return schemaBuilder.build();
     }
 
-    @DiscoverSchemaExtended("action_DISCOVER_SCHEMA_EXT_full")
+    @DiscoverSchemaExtended(DISCOVER_SCHEMA_EXTENDED_FULL)
     public Schema discoverSchemaExtendedFull(final @Option("configurationFull") NestedConfig incomingConfig,
                                              final Schema incomingSchema,
                                              final String branch) {
@@ -284,6 +214,4 @@ public class UIService {
                 .withType(Type.STRING).build());
         return schemaBuilder.build();
     }
-
-
 }

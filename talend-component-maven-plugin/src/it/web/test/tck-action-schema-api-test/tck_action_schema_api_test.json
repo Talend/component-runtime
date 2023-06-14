@@ -699,7 +699,7 @@
                     "items": []
                   },
                   "bodyType": "Text",
-                  "textBody": "{\n  \"configurationSchema.stringOption1\":\"new-entry\",\n  \"configurationSchema.stringOption2\":\"unused\",\n  \"incomingSchema.entry[0].metadata\": \"false\",\n  \"incomingSchema.entries[0].name\": \"entry_bytes\",\n  \"incomingSchema.entries[0].nullable\": \"false\",\n  \"incomingSchema.entries[0].type\": \"BYTES\",\n  \"incomingSchema.props.talend.fields.order\": \"entry_bytes\",\n  \"incomingSchema.type\": \"RECORD\"\n}"
+                  "textBody": "{\n  \"configurationSchema.stringOption1\":\"new-entry\",\n  \"configurationSchema.stringOption2\":\"unused\",\n  \"incomingSchema\":\"{\\\"entries\\\":[{\\\"metadata\\\":false,\\\"name\\\":\\\"entry-incommingSchema\\\",\\\"nullable\\\":false,\\\"props\\\":{},\\\"type\\\":\\\"BYTES\\\"}],\\\"metadata\\\":[ ],\\\"props\\\":{\\\"talend.fields.order\\\":\\\"entry_bytes\\\" },\\\"type\\\":\\\"RECORD\\\"}\"\n}"
                 },
                 "uri": {
                   "query": {
@@ -734,7 +734,7 @@
                   "path": "/api/v1/action/execute"
                 },
                 "description": "TODO test default language\nFIXME finish it",
-                "id": "17f881fe-13d0-4495-a555-d127c8e94210",
+                "id": "baf10957-80ac-4df3-8183-efc9ffdbbf44",
                 "name": "4. action.execute - schemaExtended - schema",
                 "headers": [
                   {
@@ -761,6 +761,12 @@
                     "comparison": "Contains",
                     "subject": "ResponseJsonBody",
                     "path": "$.entries..name",
+                    "value": "entry_incommingSchema"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
                     "value": "new_entry"
                   },
                   {
@@ -768,6 +774,12 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.entries..rawName",
                     "value": "new-entry"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..rawName",
+                    "value": "entry-incommingSchema"
                   }
                 ]
               }
@@ -881,7 +893,7 @@
                     "items": []
                   },
                   "bodyType": "Text",
-                  "textBody": "{\n  \"incomingConfig.stringOption1\": \"new-entry\",\n  \"incomingConfig.stringOption2\": \"unused\",\n  \"branch\": \"BRANCH\",\n  \"incomingSchema.entries[0].metadata\": false,\n  \"incomingSchema.entries[0].name\": \"entry_bytes\",\n  \"incomingSchema.entries[0].nullable\": false,\n  \"incomingSchema.entries[0].props\": {},\n  \"incomingSchema.entries[0].type\": \"BYTES\",\n  \"incomingSchema.metadata\": [],\n  \"incomingSchema.props.talend.fields.order\": \"entry_bytes\",\n  \"incomingSchema.type\": \"RECORD\"\n}\n"
+                  "textBody": "{\n  \"configurationFull.stringOption1\":\"new-entry\",\n  \"configurationFull.stringOption2\":\"unused\",\n  \"branch\":\"BRANCH\",\n  \"incomingSchema\":\"{\\\"entries\\\":[{\\\"metadata\\\":false,\\\"name\\\":\\\"entry-incommingSchema\\\",\\\"nullable\\\":false,\\\"props\\\":{},\\\"type\\\":\\\"BYTES\\\"}],\\\"metadata\\\":[ ],\\\"props\\\":{\\\"talend.fields.order\\\":\\\"entry_bytes\\\" },\\\"type\\\":\\\"RECORD\\\"}\"\n\n}\n"
                 },
                 "uri": {
                   "query": {
@@ -948,8 +960,26 @@
                   {
                     "comparison": "Contains",
                     "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "BRANCH"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..name",
+                    "value": "entry_incommingSchema"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
                     "path": "$.entries..rawName",
                     "value": "new-entry"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.entries..rawName",
+                    "value": "entry-incommingSchema"
                   }
                 ]
               }
