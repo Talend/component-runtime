@@ -4,7 +4,7 @@
     {
       "entity": {
         "type": "Project",
-        "description": "Set of tests to check API errors management  \nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/ref-actions.html)",
+        "description": "Set of tests to check API errors management  \nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for action](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Action/getActionIndex)  \nAction documentation is [here](https://talend.github.io/component-runtime/main/latest/ref-actions.html)",
         "id": "c511c9e5-53c4-4a3a-8bdf-2bd0f3871941",
         "name": "tck-action-errors-api-test"
       },
