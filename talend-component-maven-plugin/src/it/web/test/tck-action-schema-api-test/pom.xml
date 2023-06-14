@@ -30,6 +30,7 @@
             <plugin>
                 <groupId>org.talend.ci</groupId>
                 <artifactId>api-tester-maven-plugin</artifactId>
+                <version>${api-tester.version}</version>
 
                 <executions>
                     <execution>
