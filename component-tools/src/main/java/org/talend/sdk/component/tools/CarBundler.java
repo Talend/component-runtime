@@ -74,6 +74,7 @@ public class CarBundler implements Runnable {
         metadata
                 .put("component_coordinates", ofNullable(configuration.mainGav)
                         .orElseThrow(() -> new IllegalArgumentException("No component coordinates specified")));
+        metadata.put("type", ofNullable(configuration.type).orElse("connector"));
         if (configuration.getCustomMetadata() != null) {
             configuration.getCustomMetadata().forEach(metadata::setProperty);
         }
@@ -168,5 +169,7 @@ public class CarBundler implements Runnable {
         private Map<String, String> customMetadata;
 
         private File output;
+
+        private String type;
     }
 }

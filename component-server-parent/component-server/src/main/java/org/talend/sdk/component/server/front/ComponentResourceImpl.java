@@ -413,13 +413,6 @@ public class ComponentResourceImpl implements ComponentResource {
             }
             return e;
         }).collect(toMap(Entry::getKey, Entry::getValue));
-        String tenant;
-        try {
-            tenant = headers.getHeaderString("x-talend-tenant-id");
-        } catch (Exception e) {
-            log.debug("[migrate] context not applicable: {}", e.getMessage());
-            tenant = null;
-        }
         if (virtualComponents.isExtensionEntity(id)) {
             return config;
         }
@@ -428,8 +421,6 @@ public class ComponentResourceImpl implements ComponentResource {
                         .status(Status.NOT_FOUND)
                         .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find component " + id))
                         .build()));
-        final Map<String, String> decrypted = secUtils.decrypt(comp.getParameterMetas().get(), configuration, tenant);
-
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
@@ -437,7 +428,7 @@ public class ComponentResourceImpl implements ComponentResource {
                         .build()))
                 .getMigrationHandler()
                 .get()
-                .migrate(version, decrypted);
+                .migrate(version, config);
     }
 
     @Override // TODO: max ids.length

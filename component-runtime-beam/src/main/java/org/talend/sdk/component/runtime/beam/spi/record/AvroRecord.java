@@ -115,10 +115,6 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (value instanceof Date) {
             return Date.class.cast(value).getTime();
         }
-        if (value instanceof Instant) {
-            // TCOMP-2293 support Instant with nano second
-            return new long[] { Instant.class.cast(value).getEpochSecond(), Instant.class.cast(value).getNano() };
-        }
         if (value instanceof byte[]) {
             return ByteBuffer.wrap(byte[].class.cast(value));
         }

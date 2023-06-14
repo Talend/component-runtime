@@ -21,22 +21,33 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import org.talend.sdk.component.api.configuration.dependency.ConnectorReference;
+import org.talend.sdk.component.api.configuration.dependency.ConnectorRef;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DependencyParameterEnricher extends BaseParameterEnricher {
 
+    public static final String TCOMP_DEPENDENCIES_CONNECTOR_KEY = "tcomp::dependencies::connector";
+
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName,
             final Type parameterType,
             final Annotation annotation) {
 
+        // mark class type as the one that carry dependencies
         if (this.isConnectorReference(parameterType)
                 || this.isCollectionConnectorReference(parameterType)) {
-            return Collections.singletonMap("tcomp::dependencies::connector", "family");
+            return Collections.singletonMap(TCOMP_DEPENDENCIES_CONNECTOR_KEY, "family");
+        }
+
+        // mark relevant fields with metadata
+        if (String.class.equals(parameterType) && annotation != null
+                && ConnectorRef.class.equals(annotation.annotationType())) {
+            return Collections.singletonMap(TCOMP_DEPENDENCIES_CONNECTOR_KEY,
+                    ((ConnectorRef) annotation).value().getRefValue());
         }
 
         return Collections.emptyMap();
@@ -66,8 +77,10 @@ public class DependencyParameterEnricher extends BaseParameterEnricher {
         return this.isConnectorReference(argument);
     }
 
-    // Check if paramter is of type or subtype of ConnectorReference
+    // Check if parameter is of type or subtype of ConnectorReference
     private boolean isConnectorReference(final Type parameterType) {
-        return parameterType instanceof Class && ConnectorReference.class.isAssignableFrom((Class) parameterType);
+        return parameterType instanceof Class
+                && Stream.of(((Class<?>) parameterType).getDeclaredFields())
+                        .anyMatch(field -> field.isAnnotationPresent(ConnectorRef.class));
     }
 }
