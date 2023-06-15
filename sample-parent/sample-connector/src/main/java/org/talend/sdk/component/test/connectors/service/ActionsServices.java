@@ -30,6 +30,16 @@ import org.talend.sdk.component.test.connectors.config.NestedConfig;
 
 @Service
 public class ActionsServices {
+    /**
+     * In this service sample class we will implement existing particular actions to check their API usages.
+     * Services actions are listed here: https://talend.github.io/component-runtime/main/latest/services-actions.html
+     *
+     * Implemented:
+     * - Suggestions https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
+     * - Update https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
+     * - Validation https://talend.github.io/component-runtime/main/latest/services-actions.html#_validation
+     *
+     */
 
     public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
     public final static String UPDATE_CONFIG = "action_UPDATE";
@@ -40,9 +50,9 @@ public class ActionsServices {
 
     /**
      * Suggestions action
-     * <p>
+     *
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
-     * <p>
+     *
      * Returned type: org.talend.sdk.component.api.service.completion.SuggestionValues
      */
     @Suggestions(LIST_ENTITIES)
@@ -59,7 +69,7 @@ public class ActionsServices {
 
     /**
      * Update action
-     * <p>
+     *
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
      */
     @Update(UPDATE_CONFIG)
@@ -72,9 +82,9 @@ public class ActionsServices {
 
     /**
      * Validation action
-     * <p>
+     *
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
-     * <p>
+     *
      * Returned type: org.talend.sdk.component.api.service.asyncvalidation.ValidationResult
      */
     @AsyncValidation(VALIDATION)

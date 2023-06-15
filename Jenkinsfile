@@ -75,6 +75,10 @@ pipeline {
         skipStagesAfterUnstable()
     }
 
+    triggers {
+        cron(env.BRANCH_NAME == "master" ? "0 12 * * *" : "")
+    }
+
     parameters {
         choice(
           name: 'Action',

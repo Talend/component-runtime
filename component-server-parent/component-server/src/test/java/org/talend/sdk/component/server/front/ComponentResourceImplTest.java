@@ -241,7 +241,9 @@ class ComponentResourceImplTest {
         assertEquals("true", migrated.get("migrated"));
         assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", migrated.get("configuration.url"));
         assertEquals("username0", migrated.get("configuration.username"));
-        assertEquals("test", migrated.get("configuration.connection.password"));
+        // should not be deciphered
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==",
+                migrated.get("configuration.connection.password"));
     }
 
     @RepeatedTest(2) // this also checks the cache and queries usage

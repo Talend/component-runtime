@@ -163,14 +163,6 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
-        String tenant;
-        try {
-            tenant = headers.getHeaderString("x-talend-tenant-id");
-        } catch (Exception e) {
-            log.debug("[migrate] context not applicable: {}", e.getMessage());
-            tenant = null;
-        }
-
         if (virtualComponents.isExtensionEntity(id)) {
             return config;
         }
@@ -180,9 +172,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                         .entity(new ErrorPayload(ErrorDictionary.CONFIGURATION_MISSING,
                                 "Didn't find configuration " + id))
                         .build()));
-        final Map<String, String> decrypted = secUtils.decrypt(singletonList(configuration.getMeta()), config, tenant);
-
-        final Map<String, String> configToMigrate = new HashMap<>(decrypted);
+        final Map<String, String> configToMigrate = new HashMap<>(config);
         final String versionKey = configuration.getMeta().getPath() + ".__version";
         final boolean addedVersion = configToMigrate.putIfAbsent(versionKey, Integer.toString(version)) == null;
         try {

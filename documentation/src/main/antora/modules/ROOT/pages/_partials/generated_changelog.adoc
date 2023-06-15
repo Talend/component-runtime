@@ -4,15 +4,33 @@
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for CE link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2447[TCOMP-2447^]: Revert datetime instant management changes on AvroSchema link:search.html?query=beam[beam^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2406[TCOMP-2406^]: Error logs when kill kafka streaming job link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2443[TCOMP-2443^]: Allow component-manager extensions for Studio link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2428[TCOMP-2428^]: Stop deciphering vault secrets during migration process link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=vault-client[vault-client^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2440[TCOMP-2440^]: Upgrade tomcat to 9.0.75 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2441[TCOMP-2441^]: Upgrade johnzon to 1.2.20 link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2442[TCOMP-2442^]: Upgrade jib-core to 0.24.0 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=remote-engine-customizer[remote-engine-customizer^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2451[TCOMP-2451^]: Rework dependencies on config link:search.html?query=studio[studio^,role='dockey']
+
+
+
+== Version 1.57.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2447[TCOMP-2447^]: Revert datetime instant management changes on AvroSchema link:search.html?query=beam[beam^,role='dockey']
 
 
 
@@ -20,7 +38,7 @@
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for CE link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.57.0
 
@@ -51,11 +69,15 @@
 
 
 
+
+
+
+
 == Version 1.56.3
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for ce link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for CE link:search.html?query=component-server[component-server^,role='dockey']
 
 == Version 1.56.2
 

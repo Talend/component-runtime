@@ -19,7 +19,7 @@ set -xe
 
 function usage(){
   printf 'Manually run an apitester campaign on a single test project with default parameters\n'
-  printf 'Usage : %s <account_id>' "${0}"
+  printf 'Usage : %s <account_id> <test_project>' "${0}"
   printf '\n'
   printf '%s\n' "${1}"
   printf '\n'
@@ -28,8 +28,11 @@ function usage(){
 
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "account_id" is needed.'
-[ -z ${1+x} ] && usage 'Parameter "sub_test" is needed.'
+[ -z ${1+x} ] && usage 'Parameter "test_project" is needed.'
 
+# CI account id is stored in component-runtime-api-tenant-id-rd at
+# https://vault-vaas.service.cd.datapwn.com/ui/vault/secrets/secret/show/component/jenkins-connectors
+# You can find your Account ID in the Talend Cloud Management Console Subscription page.
 ACCOUNT_ID=${1}
 FILE_TO_RUN=${2}
 
@@ -43,10 +46,6 @@ main() (
 
   test_run
 )
-
-# CI account id is stored in 31e17fe5-9718-4a80-a8b2-593c73a5bcfc at
-# https://vault-vaas.service.cd.datapwn.com/ui/vault/secrets/secret/show/component/jenkins-connectors
-
 
 function test_run {
 
