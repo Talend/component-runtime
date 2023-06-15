@@ -18,7 +18,7 @@
 set -xe
 
 function usage(){
-  printf 'Quick tcomp build without any test and facultative modules (documentation...)\n'
+  printf 'Quick tcomp build only for the sample connector\n'
   printf 'Usage : %s <pom_file_path>\n' "${0}"
   printf '\n'
   printf "%s\n" "${1}"
@@ -49,11 +49,6 @@ main() (
 
   mvn install \
   --file "${_POM_FILE_PATH}" \
-  --settings .jenkins/settings.xml \
-  --projects component-server-parent/component-server \
-  --projects talend-component-maven-plugin \
-  --projects sample-parent \
-  --projects bom \
   --also-make \
   ${_MAVEN_TEST_SKIP} \
   ${_MAVEN_FAST}

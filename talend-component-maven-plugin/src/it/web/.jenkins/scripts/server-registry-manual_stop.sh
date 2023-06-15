@@ -41,4 +41,4 @@ printf "USER_PATH = %s\n" "${_USER_PATH}"
 printf "LOCAL_SERVER_TEST_PATH = %s\n" "${_LOCAL_SERVER_TEST_PATH}"
 printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
 
-"${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}"
+bash "${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}"

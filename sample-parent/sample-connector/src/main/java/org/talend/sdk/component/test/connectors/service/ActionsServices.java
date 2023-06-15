@@ -29,10 +29,9 @@ import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.test.connectors.config.NestedConfig;
 
 @Service
-public class UIService {
-
+public class ActionsServices {
     /**
-     * In this service sample class we will implement every existing particular actions to check their API usages.
+     * In this service sample class we will implement existing particular actions to check their API usages.
      * Services actions are listed here: https://talend.github.io/component-runtime/main/latest/services-actions.html
      *
      * Implemented:
@@ -40,22 +39,10 @@ public class UIService {
      * - Update https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
      * - Validation https://talend.github.io/component-runtime/main/latest/services-actions.html#_validation
      *
-     * Todo:
-     * - Close Connection https://talend.github.io/component-runtime/main/latest/services-actions.html#_close_connection
-     * - Create Connection
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_create_connection
-     * - Discoverdataset https://talend.github.io/component-runtime/main/latest/services-actions.html#_discoverdataset
-     * - Dynamic Values https://talend.github.io/component-runtime/main/latest/services-actions.html#_dynamic_values
-     * - Healthcheck https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
-     * - User https://talend.github.io/component-runtime/main/latest/services-actions.html#_user
-     * - built_in_suggestable
-     * https://talend.github.io/component-runtime/main/latest/services-actions.html#_built_in_suggestable
      */
 
     public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
-
     public final static String UPDATE_CONFIG = "action_UPDATE";
-
     public final static String VALIDATION = "action_VALIDATION";
 
     @Service
@@ -67,8 +54,6 @@ public class UIService {
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_suggestions
      *
      * Returned type: org.talend.sdk.component.api.service.completion.SuggestionValues
-     * 
-     * @return
      */
     @Suggestions(LIST_ENTITIES)
     public SuggestionValues getListEntities() {
@@ -86,8 +71,6 @@ public class UIService {
      * Update action
      *
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
-     *
-     * @return
      */
     @Update(UPDATE_CONFIG)
     public NestedConfig retrieveFeedback(final NestedConfig source) throws Exception {
@@ -103,8 +86,6 @@ public class UIService {
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
      *
      * Returned type: org.talend.sdk.component.api.service.asyncvalidation.ValidationResult
-     * 
-     * @return
      */
     @AsyncValidation(VALIDATION)
     public ValidationResult retrieveValidation() throws Exception {
@@ -114,5 +95,4 @@ public class UIService {
         result.setComment(i18n.validationComment());
         return result;
     }
-
 }
