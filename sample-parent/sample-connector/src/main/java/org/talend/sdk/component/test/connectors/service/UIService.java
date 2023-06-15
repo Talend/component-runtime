@@ -63,7 +63,8 @@ public class UIService {
 
     public final static String VALIDATION = "action_VALIDATION";
 
-    public final static String HEALTH_CHECK = "action_HEALTH_CHECK";
+    public final static String HEALTH_CHECK_OK = "action_HEALTH_CHECK_OK";
+    public final static String HEALTH_CHECK_KO = "action_HEALTH_CHECK_KO";
 
     @Service
     private I18n i18n;
@@ -123,7 +124,7 @@ public class UIService {
     }
 
     /**
-     * Healthcheck action
+     * Healthcheck action OK
      *
      * Documentation: https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
      * Type: healthcheck
@@ -131,13 +132,27 @@ public class UIService {
      *
      * Returned type: org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus
      */
-    @HealthCheck(HEALTH_CHECK)
-    public HealthCheckStatus discoverHealthcheck(@Option final TheDatastore unused) {
+    @HealthCheck(HEALTH_CHECK_OK)
+    public HealthCheckStatus discoverHealthcheckOk(@Option final TheDatastore unused) {
         try {
             return new HealthCheckStatus(Status.OK, "HealthCheck Success");
         } catch (Exception e) {
             return new HealthCheckStatus(Status.KO, "HealthCheck Failed");
         }
+    }
+
+    /**
+     * Healthcheck action KO
+     *
+     * Documentation: https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
+     * Type: healthcheck
+     * API: @org.talend.sdk.component.api.service.healthcheck.HealthCheck
+     *
+     * Returned type: org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus
+     */
+    @HealthCheck(HEALTH_CHECK_KO)
+    public HealthCheckStatus discoverHealthcheckKo(@Option final TheDatastore unused) {
+        return new HealthCheckStatus(Status.KO, "HealthCheck Failed");
     }
 
 }
