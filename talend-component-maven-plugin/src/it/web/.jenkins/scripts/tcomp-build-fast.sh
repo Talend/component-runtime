@@ -47,11 +47,13 @@ main() (
   printf 'Maven fast build\n'
   printf '##############################################\n'
 
-  mvn clean install \
+  mvn install \
   --file "${_POM_FILE_PATH}" \
   --settings .jenkins/settings.xml \
   --projects component-server-parent/component-server \
   --projects talend-component-maven-plugin \
+  --projects sample-parent \
+  --projects bom \
   --also-make \
   ${_MAVEN_TEST_SKIP} \
   ${_MAVEN_FAST}
