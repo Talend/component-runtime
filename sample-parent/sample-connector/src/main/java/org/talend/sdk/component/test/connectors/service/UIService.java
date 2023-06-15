@@ -64,6 +64,7 @@ public class UIService {
     public final static String VALIDATION = "action_VALIDATION";
 
     public final static String HEALTH_CHECK_OK = "action_HEALTH_CHECK_OK";
+
     public final static String HEALTH_CHECK_KO = "action_HEALTH_CHECK_KO";
 
     @Service
