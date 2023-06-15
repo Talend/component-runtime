@@ -65,9 +65,9 @@ printf "COVERAGE_DIR = %s\n" "${_COVERAGE_DIR}"
 printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
 
 
-"${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}" || : #  "|| :" Avoid error if no server is running
+bash "${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}" || : #  "|| :" Avoid error if no server is running
 
-"${_SCRIPT_PATH}"/server-registry-init.sh "${_DOWNLOAD_DIR}" \
+bash "${_SCRIPT_PATH}"/server-registry-init.sh "${_DOWNLOAD_DIR}" \
                                           "${_INSTALL_DIR}" \
                                           "${_COVERAGE_DIR}" \
                                           "${_RUNTIME_VERSION}" \
@@ -76,4 +76,4 @@ printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
                                           "${_SERVER_PORT}" \
                                           "${_JAVA_DEBUG_PORT}"
 
-"${_SCRIPT_PATH}"/server-registry-start.sh "${_INSTALL_DIR}" "no_coverage" "${_SERVER_PORT}"
+bash "${_SCRIPT_PATH}"/server-registry-start.sh "${_INSTALL_DIR}" "no_coverage" "${_SERVER_PORT}"

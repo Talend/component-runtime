@@ -4,7 +4,7 @@
     {
       "entity": {
         "type": "Project",
-        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for bulk](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Bulk/bulk)",
         "id": "eed1a59b-929d-4ace-9c71-a1eaf8307816",
         "name": "tck-bulk-api-test"
       },

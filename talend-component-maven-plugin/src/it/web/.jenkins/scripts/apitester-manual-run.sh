@@ -29,8 +29,9 @@ function usage(){
 # Parameters:
 [ -z ${1+x} ] && usage 'Parameter "account_id" is needed.'
 
-
-
+# CI account id is stored in component-runtime-api-tenant-id-rd at
+# https://vault-vaas.service.cd.datapwn.com/ui/vault/secrets/secret/show/component/jenkins-connectors
+# You can find your Account ID in the Talend Cloud Management Console Subscription page.
 ACCOUNT_ID=${1}
 
 path=$(dirname -- "$( readlink -f -- "$0"; )";)
@@ -43,10 +44,6 @@ main() (
 
   test_run
 )
-
-# CI account id is stored in 31e17fe5-9718-4a80-a8b2-593c73a5bcfc at
-# https://vault-vaas.service.cd.datapwn.com/ui/vault/secrets/secret/show/component/jenkins-connectors
-
 
 function test_run {
 
