@@ -19,22 +19,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
 import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
 import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.SuggestionValues.Item;
 import org.talend.sdk.component.api.service.completion.Suggestions;
-import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
-import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
-import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus.Status;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.test.connectors.config.NestedConfig;
-import org.talend.sdk.component.test.connectors.config.TheDatastore;
 
 @Service
 public class ActionsServices {
+
     /**
      * In this service sample class we will implement existing particular actions to check their API usages.
      * Services actions are listed here: https://talend.github.io/component-runtime/main/latest/services-actions.html
@@ -51,10 +47,6 @@ public class ActionsServices {
     public final static String UPDATE_CONFIG = "action_UPDATE";
 
     public final static String VALIDATION = "action_VALIDATION";
-
-    public final static String HEALTH_CHECK_OK = "action_HEALTH_CHECK_OK";
-
-    public final static String HEALTH_CHECK_KO = "action_HEALTH_CHECK_KO";
 
     @Service
     private I18n i18n;
@@ -105,38 +97,6 @@ public class ActionsServices {
         result.setStatus(ValidationResult.Status.OK);
         result.setComment(i18n.validationComment());
         return result;
-    }
-
-    /**
-     * Healthcheck action OK
-     *
-     * Documentation: https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
-     * Type: healthcheck
-     * API: @org.talend.sdk.component.api.service.healthcheck.HealthCheck
-     *
-     * Returned type: org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus
-     */
-    @HealthCheck(HEALTH_CHECK_OK)
-    public HealthCheckStatus discoverHealthcheckOk(@Option final TheDatastore unused) {
-        try {
-            return new HealthCheckStatus(Status.OK, "HealthCheck Success");
-        } catch (Exception e) {
-            return new HealthCheckStatus(Status.KO, "HealthCheck Failed");
-        }
-    }
-
-    /**
-     * Healthcheck action KO
-     *
-     * Documentation: https://talend.github.io/component-runtime/main/latest/services-actions.html#_healthcheck
-     * Type: healthcheck
-     * API: @org.talend.sdk.component.api.service.healthcheck.HealthCheck
-     *
-     * Returned type: org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus
-     */
-    @HealthCheck(HEALTH_CHECK_KO)
-    public HealthCheckStatus discoverHealthcheckKo(@Option final TheDatastore unused) {
-        return new HealthCheckStatus(Status.KO, "HealthCheck Failed");
     }
 
 }
