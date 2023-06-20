@@ -45,6 +45,7 @@ import lombok.Data;
 public class TheDataset implements Serializable {
 
     public final static int DATASET_VERSION = 5;
+
     public final static String DATASET_INFO = "info-to-sanitize";
 
     @Option
