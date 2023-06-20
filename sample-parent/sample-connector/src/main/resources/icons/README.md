@@ -6,3 +6,8 @@ Need to be svg or png with:
  - renamed as _iconXX.png at the end
 
 Better to provide both with svg2png
+
+For test purpose:
+ - family and has PNG and SVG
+ - mapper has only SVG
+ - output has only PNG
