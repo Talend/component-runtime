@@ -30,6 +30,7 @@ import org.talend.sdk.component.test.connectors.config.NestedConfig;
 
 @Service
 public class ActionsServices {
+
     /**
      * In this service sample class we will implement existing particular actions to check their API usages.
      * Services actions are listed here: https://talend.github.io/component-runtime/main/latest/services-actions.html
@@ -42,7 +43,9 @@ public class ActionsServices {
      */
 
     public final static String LIST_ENTITIES = "action_LIST_ENTITIES";
+
     public final static String UPDATE_CONFIG = "action_UPDATE";
+
     public final static String VALIDATION = "action_VALIDATION";
 
     @Service
@@ -95,4 +98,5 @@ public class ActionsServices {
         result.setComment(i18n.validationComment());
         return result;
     }
+
 }
