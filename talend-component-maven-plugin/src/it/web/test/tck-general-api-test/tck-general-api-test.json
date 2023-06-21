@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "This test project contains all common tests. It will be deleted when the split will be finished.\nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-        "id": "178573ba-ce2a-4a4c-a922-e0b0cf74f4fc",
+        "id": "22274c86-eeb4-4557-884b-53e14def7fea",
         "name": "tck-general-api-test"
       },
       "children": [
@@ -13,7 +13,7 @@
           "entity": {
             "type": "Service",
             "description": "component endpoint  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "6bc27a0b-9843-4777-85ec-45e54872bdf2",
+            "id": "43f9d9b3-36b4-4655-908a-3bc898e20b45",
             "name": "component"
           },
           "children": [
@@ -21,7 +21,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP component/index endpoint.  \nTODO: avoid usage of table id https://jira.talendforge.org/browse/TCOMP-2351\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "44e59cb3-5d90-439a-9954-e94b4e2ba4c6",
+                "id": "624ccffb-e2c6-4a8b-ae33-7d4a60f9004e",
                 "name": "1-component.index"
               },
               "children": [
@@ -66,7 +66,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "The default call, without any parameter, should be in English with all elements.",
-                    "id": "65f42a45-d046-4f30-b8e1-3989b8abcb06",
+                    "id": "00d331d7-94ba-4f0d-bad7-e43d7c63dbc6",
                     "name": "component/index - default",
                     "headers": [],
                     "assertions": [
@@ -145,7 +145,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Call of the endpoint with \"q\" parameter, the list length should be affected by the query.   \nTODO do we need to test more query? https://jira.talendforge.org/browse/TCOMP-2352",
-                    "id": "ce3f16ec-eb35-40cb-b060-bdb9bb7c666b",
+                    "id": "7835e6cb-7cb0-4b6b-9ca6-62dedb610091",
                     "name": "component/index - query - filtered answer",
                     "headers": [],
                     "assertions": [
@@ -205,7 +205,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Check the givens properties inside a components of the received list  \nRelated to bugs: TCOMP-2171",
-                    "id": "d112fc66-fa98-4b0b-b040-417a2721cd30",
+                    "id": "674a5ba1-0a5a-4a6c-82aa-db4ce3616dcd",
                     "name": "component/index - content",
                     "headers": [],
                     "assertions": [
@@ -308,7 +308,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Call of the endpoint with \"includeIconContent\" parameter set to false, the response should not contain any icons files.",
-                    "id": "e5187bcc-ae3c-4763-a6c6-a4eecc2e29ef",
+                    "id": "ebbc026b-8849-431c-8408-b3cca4d84fc8",
                     "name": "component/index - includeIconContent - false",
                     "headers": [],
                     "assertions": [
@@ -369,7 +369,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Call of the endpoint with \"includeIconContent\" parameter set to false, the response should contain any icons files.",
-                    "id": "1f752646-4ebd-41a0-bb69-4087ac64c172",
+                    "id": "aa103315-0970-4c8c-ba4e-c10f7f2825d2",
                     "name": "component/index - includeIconContent - true",
                     "headers": [],
                     "assertions": [
@@ -430,7 +430,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Expected: default answer (false)  \nCall of the endpoint with \"includeIconContent\" parameter set to a wrong value, the response should not contain any icons files.",
-                    "id": "f7d3c11a-e447-49db-a8b7-b5cf4b8a9ff2",
+                    "id": "e7a955ee-56af-4c4e-8319-937769a2aad8",
                     "name": "component/index - includeIconContent - wrong value",
                     "headers": [],
                     "assertions": [
@@ -497,7 +497,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Call of the endpoint with \"language\" parameter set to \"fr\", the response should contain French words.",
-                    "id": "dbe1ab9e-4cd4-44e6-b2a5-845c9dd9a75d",
+                    "id": "d1e33297-890a-4583-b057-fd5fa26fb024",
                     "name": "component/index - language",
                     "headers": [],
                     "assertions": [
@@ -528,7 +528,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP component/detail endpoint.\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "503ca369-5ce5-42d8-9c45-d888087ccf7a",
+                "id": "a75d9436-a92f-4792-9919-2307749e0317",
                 "name": "2-component.details"
               },
               "children": [
@@ -569,7 +569,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "Expected:empty answer  \nThe error call, with a no \"identifier\" parameter, should return a 200 status with a empty content",
-                    "id": "f3e734e7-2449-4d4d-a01d-a13372ca0a8b",
+                    "id": "2bb47183-6117-429b-8041-e07c61fc235d",
                     "name": "component/details - missing identifier",
                     "headers": [],
                     "assertions": [
@@ -626,7 +626,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "The correct call, with one correct \"identifiers\" parameter, should be in English with one component.",
-                    "id": "60098524-f488-41ee-82e0-dc632c17e7a0",
+                    "id": "85a4ba94-b42f-4a2f-af7d-6f46ed9480bc",
                     "name": "component/details - identifiers (one)",
                     "headers": [],
                     "assertions": [
@@ -700,7 +700,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "The correct call, with two correct \"identifiers\" parameter, should be in English with two component.",
-                    "id": "28e7a7f8-b06c-4b47-9384-55a2658d0972",
+                    "id": "6cceec10-d97e-47f2-a1ef-fa2519bdfa8f",
                     "name": "component/details - identifiers (two)",
                     "headers": [],
                     "assertions": [
@@ -769,7 +769,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "Check the properties inside the components details  \nRelated to bugs: TCOMP-2171",
-                    "id": "c5336761-a791-4c37-9c5c-a93ba929e402",
+                    "id": "91083779-ae80-4174-a593-fb9563f7efa1",
                     "name": "component/details - content",
                     "headers": [],
                     "assertions": [
@@ -886,7 +886,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "Expected: 400  \nThe error call, with a wrong \"identifier\" parameter, should return a 400 status with a json content",
-                    "id": "090344ea-4824-4f93-a636-7223a70de42e",
+                    "id": "97b5629e-30d6-44ec-bf58-b100b4d24747",
                     "name": "component/details - wrong identifier",
                     "headers": [],
                     "assertions": [
@@ -944,7 +944,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "Call of the endpoint with \"language\" parameter set to \"fr\", the response should contain French words.",
-                    "id": "bdb0bc33-da80-4523-b894-cfdcb7c5b1e2",
+                    "id": "673e5164-47f4-4c23-bbc3-6179a3f351d4",
                     "name": "component/details - language",
                     "headers": [],
                     "assertions": [
@@ -981,7 +981,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP component/dependencies and component/dependency endpoints.\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "fd0f7ac6-3292-4943-b8b7-28d68c08ba71",
+                "id": "8613794e-7a81-4600-91f4-82c619536750",
                 "name": "3-component.dependencies"
               },
               "children": [
@@ -1018,7 +1018,7 @@
                       "path": "/api/v1/component/dependencies"
                     },
                     "description": "Expected: empty answer  \nError call, without \"identifier\" parameter, should return a 200 status with an empty dependencies list",
-                    "id": "19aff456-a26a-4caf-b74d-a89c426a2572",
+                    "id": "e084ce03-2d75-43c9-846a-f03652db104e",
                     "name": "component/dependencies - missing identifier",
                     "headers": [],
                     "assertions": [
@@ -1077,7 +1077,7 @@
                       "path": "/api/v1/component/dependencies"
                     },
                     "description": "Default call, with one correct \"identifier\" parameter, should return a 200 status with a content including more than one dependencies",
-                    "id": "5af444f4-85bd-484a-8131-c15eee0261fb",
+                    "id": "774d7dd1-6cc1-4a2c-97b3-26768c44c669",
                     "name": "component/dependencies - identifier (one)",
                     "headers": [],
                     "assertions": [
@@ -1147,7 +1147,7 @@
                       "path": "/api/v1/component/dependencies"
                     },
                     "description": "Default call, with two correct \"identifier\" from the same plugin,  \nshould return a 200 status with a two components including the same dependencies  \nTODO, get dependencies of 2 different plugins connectors",
-                    "id": "01cde583-ccf2-4803-bcdb-277e32fe40ec",
+                    "id": "d9e71942-a03c-4b35-a6a8-a19ca2ef027c",
                     "name": "component/dependencies - identifier (two)",
                     "headers": [],
                     "assertions": [
@@ -1230,7 +1230,7 @@
                       "path": "/api/v1/component/dependencies"
                     },
                     "description": "Expected: error 500  \nCall using a wrong id  \nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2194",
-                    "id": "42e98b47-d973-42a1-87db-b0d619bb33d6",
+                    "id": "f5cc57bb-6fb6-47ee-af9d-b394c2a028df",
                     "name": "component/dependencies - wrong identifier",
                     "headers": [],
                     "assertions": [
@@ -1261,7 +1261,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP component/dependencies and component/dependency endpoints.\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "285ffef9-b2bc-4a9b-bac2-0871b8a29bfa",
+                "id": "46bdeb87-d83a-4d98-a8f4-eea05b603ce2",
                 "name": "4-component.dependency"
               },
               "children": [
@@ -1293,7 +1293,7 @@
                       "path": "/api/v1/component/dependency/${\"output_id\"}"
                     },
                     "description": "Call using a component id\nTODO should we check dependency size or annother way",
-                    "id": "faa9c2de-e6ab-4917-856e-8b83756d0c5b",
+                    "id": "9295f59a-8eae-426e-b8c8-b9d01bc2db98",
                     "name": "component/dependency - component",
                     "headers": [],
                     "assertions": [
@@ -1358,7 +1358,7 @@
                       "path": "/api/v1/component/dependency"
                     },
                     "description": "Expected: error 404\nCall missing the id",
-                    "id": "ebec0979-434d-4b9b-a83d-08a851f44a15",
+                    "id": "40ce06ba-0af9-4746-8447-00d695aad161",
                     "name": "component/dependency - missing id",
                     "headers": [],
                     "assertions": [
@@ -1415,7 +1415,7 @@
                       "path": "/api/v1/component/dependency/unknow_id"
                     },
                     "description": "Expected: error 404  \nCall using a wrong id",
-                    "id": "ceded78d-13dd-414f-a4de-63cec9d3f5a5",
+                    "id": "2f73fb7c-5a58-43f7-8531-2496905006c1",
                     "name": "component/dependency - wrong id",
                     "headers": [],
                     "assertions": [
@@ -1468,7 +1468,7 @@
                       "path": "/api/v1/component/dependency/org.apache.commons:commons-lang3:jar:3.12.0"
                     },
                     "description": "Call using a maven coordinate as id",
-                    "id": "6671a3eb-ad9b-44af-825b-d06d048f8047",
+                    "id": "63916be1-f9e1-4fca-b23d-1ea576a43390",
                     "name": "component/dependency - maven coordinat",
                     "headers": [],
                     "assertions": [
@@ -1516,304 +1516,8 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "This scenario will test all basic interaction with TCOMP component/icon and component/icon/family endpoints   \nTODO test png in addition to svg?   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "7357e996-64a4-4fe3-8e78-64196d7d7346",
-                "name": "5-component.icon_and_icon.family"
-              },
-              "children": [
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": []
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/${\"mapper_id\"}"
-                    },
-                    "description": "The default call",
-                    "id": "20ba0361-66e2-4675-a0b9-8ec5fc71977e",
-                    "name": "component/icon",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "1025"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseHeader",
-                        "path": "Content-Type",
-                        "value": "image/png"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/wrong_id"
-                    },
-                    "description": "Expected:error 404 with body  \nThe call with wrong id parameter",
-                    "id": "5a20b303-4526-4bd4-9d7c-46eb971acf2e",
-                    "name": "component/icon - wrong id",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "404"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.code",
-                        "value": "COMPONENT_MISSING"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon"
-                    },
-                    "description": "Expected: error 404 without body  \nThe call without providing id parameter",
-                    "id": "fbf37495-8547-4827-9569-7224f90f343c",
-                    "name": "component/icon - missing id",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "404"
-                      },
-                      {
-                        "comparison": "DoesNotExist",
-                        "subject": "ResponseBody",
-                        "path": "content",
-                        "value": "{\"code\":\"COMPONENT_MISSING\",\"description\":\"No component for identifier: wrong_id\"}"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": []
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/family/${\"family_id\"}"
-                    },
-                    "description": "The default call",
-                    "id": "ebba930d-87a4-4c7d-89b8-92e7914930c0",
-                    "name": "component/icon/family - default",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "200"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseHeader",
-                        "path": "Content-Type",
-                        "value": "image/png"
-                      },
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "928"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": []
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/family/unknow_identifier"
-                    },
-                    "description": "Expected: error 404 with body  \nThe call with wrong id parameter",
-                    "id": "e8c39d97-5f44-4915-a977-86447537e32e",
-                    "name": "component/icon/family - wrong id",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "404"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.code",
-                        "value": "FAMILY_MISSING"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "entity": {
-                    "type": "Request",
-                    "method": {
-                      "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                      "name": "GET"
-                    },
-                    "body": {
-                      "formBody": {
-                        "overrideContentType": true,
-                        "encoding": "application/x-www-form-urlencoded",
-                        "items": []
-                      },
-                      "bodyType": "Text"
-                    },
-                    "uri": {
-                      "query": {
-                        "delimiter": "&",
-                        "items": []
-                      },
-                      "scheme": {
-                        "name": "http",
-                        "version": "V11"
-                      },
-                      "host": "${\"server-ip\"}:${\"server-port\"}",
-                      "path": "/api/v1/component/icon/family"
-                    },
-                    "description": "Expected: error 404 with body  \nThe call without providing id parameter",
-                    "id": "24d0b1b8-df7c-4693-8e21-d5aa93b2a193",
-                    "name": "component/icon/family - missing id",
-                    "headers": [],
-                    "assertions": [
-                      {
-                        "comparison": "Equals",
-                        "subject": "ResponseStatus",
-                        "path": "code",
-                        "value": "404"
-                      },
-                      {
-                        "comparison": "Contains",
-                        "subject": "ResponseJsonBody",
-                        "path": "$.code",
-                        "value": "COMPONENT_MISSING"
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "entity": {
-                "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP component/migrate endpoint  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "63717ac3-f48a-4156-bad3-118748e5669f",
+                "id": "ef0c18e4-1142-4a62-881c-80ed139ddb01",
                 "name": "6-component.migrate"
               },
               "children": [
@@ -1847,7 +1551,7 @@
                       "path": "/api/v1/component/migrate/${\"maper_id\"}/4"
                     },
                     "description": "Expected: 400",
-                    "id": "d5077472-fffd-4e6b-b58d-718d3bd24779",
+                    "id": "ed8cd6a4-6ca4-4913-aef8-28badedab9a5",
                     "name": "component/migrate/id/configurationVersion - empty body",
                     "headers": [
                       {
@@ -1896,7 +1600,7 @@
                       "path": "/api/v1/component/migrate/wrong_id/4"
                     },
                     "description": "Expected: 400",
-                    "id": "89ebf2e2-0b9a-4b1e-9359-3910f6b2dfb8",
+                    "id": "eee84e09-43c2-4ed5-8f1f-e4050431de1e",
                     "name": "component/migrate/id/configurationVersion - wrong id",
                     "headers": [
                       {
@@ -1946,7 +1650,7 @@
                       "path": "/api/v1/component/migrate/${\"mapper_id\"}/2"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "6bd253a0-ca1e-44c3-a114-d8ebc6bbd93c",
+                    "id": "4b20c370-e7b9-41c3-9e47-49a35ba41f09",
                     "name": "component/migrate/id/configurationVersion - with demo mapper",
                     "headers": [
                       {
@@ -2020,7 +1724,7 @@
                       "path": "/api/v1/component/migrate/${\"output_id\"}/1"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "7b03e27b-49a0-4ec9-b270-85e7de64befe",
+                    "id": "b2e785f0-2777-4d09-aefb-f715d5abd0e4",
                     "name": "component/migrate/id/configurationVersion - with demo output",
                     "headers": [
                       {
@@ -2093,7 +1797,7 @@
                       "path": "/api/v1/component/migrate/${\"mapper_id\"}/10"
                     },
                     "description": "TODO: Is the comportment normal? https://jira.talendforge.org/browse/TCOMP-2359\n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "ff0653aa-f09e-4646-966c-ccedb901f528",
+                    "id": "71cba91c-94b5-42e6-8c50-4c6b61c0bc1d",
                     "name": "component/migrate/id/configurationVersion - invalid migration version",
                     "headers": [
                       {
@@ -2144,7 +1848,7 @@
           "entity": {
             "type": "Service",
             "description": "configurationType endpoint  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "d3d4b180-b0fe-4746-b519-de5166168c2d",
+            "id": "c7b07b30-4931-44b4-a180-cf469250b886",
             "name": "configurationType"
           },
           "children": [
@@ -2152,7 +1856,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP configurationtype/index endpoint.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "0637b6c6-d372-40ed-907c-deb8a4d1ac72",
+                "id": "0cc79125-e96b-4c20-82a3-05f740e45388",
                 "name": "1 - configurationtype.index"
               },
               "children": [
@@ -2197,7 +1901,7 @@
                       "path": "/api/v1/configurationtype/index"
                     },
                     "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.  \nTODO why famillys appears in configuration types?\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "58035e48-9fac-42a9-81d6-3b8b0dbf953a",
+                    "id": "8566b4c9-0193-4f7c-beaf-b13e08558114",
                     "name": "configurationtype/index - default",
                     "headers": [],
                     "assertions": [
@@ -2268,7 +1972,7 @@
                       "path": "/api/v1/configurationtype/index"
                     },
                     "description": "Call, with query parameter, should be in English with one elements in light payload mode.  \nTODO: see why I can't filter on configurationType (see un selected parameter)  \nTODO: should we test others query\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)  ",
-                    "id": "ea1f64c3-6c59-467d-b9d1-a8181ec26bba",
+                    "id": "8d157468-abae-4dd7-bea1-2e72e3b0bb70",
                     "name": "configurationtype/index - query - filtered answer",
                     "headers": [],
                     "assertions": [
@@ -2329,7 +2033,7 @@
                       "path": "/api/v1/configurationtype/index"
                     },
                     "description": "The default call, with lightPayload parameter set to false.  \nTODO: what is the best test to compare light and non-light payload?  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "0137a0a9-702c-4642-a22b-01212876e2e4",
+                    "id": "2497f880-cb28-4314-b208-2c76f293412a",
                     "name": "configurationtype/index - lightPayload set to false",
                     "headers": [],
                     "assertions": [
@@ -2396,7 +2100,7 @@
                       "path": "/api/v1/configurationtype/index"
                     },
                     "description": "The default call, with lightPayload parameter set to true.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "f6aa0a4f-77d1-4428-a2ca-0cba70ca4de3",
+                    "id": "772f4531-eb8e-4f32-bbca-e74b32900fcd",
                     "name": "configurationtype/index - lightPayload set to true",
                     "headers": [],
                     "assertions": [
@@ -2463,7 +2167,7 @@
                       "path": "/api/v1/configurationtype/index"
                     },
                     "description": "The default call, with lightPayload parameter set to wrong value.  \nTODO: Check if normal than wrong_value = true  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "7c09a1ed-4b3c-4281-8a7c-dac5ac3e36fd",
+                    "id": "481b4bf6-20d2-4309-a443-f22603b0d555",
                     "name": "configurationtype/index - lightPayload set to a wrong value",
                     "headers": [],
                     "assertions": [
@@ -2530,7 +2234,7 @@
                       "path": "/api/v1/configurationtype/index"
                     },
                     "description": "  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "6721098d-29c2-4f5e-904a-1ac3082753cb",
+                    "id": "97c3aa80-fbd8-44f8-8af0-31515204e9ae",
                     "name": "configurationtype/index - language",
                     "headers": [],
                     "assertions": [
@@ -2555,7 +2259,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP configurationtype/details endpoint.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "0c381a16-4287-4057-a99b-9323135614f0",
+                "id": "af618134-1033-491d-8d0d-aab011c96c39",
                 "name": "2 - configurationtype.details"
               },
               "children": [
@@ -2596,7 +2300,7 @@
                       "path": "/api/v1/configurationtype/details"
                     },
                     "description": "Expected: empty body answer  \nThe default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "bff3f885-0b64-46bb-ad8d-f2ea1e7f9f06",
+                    "id": "f7bb869c-57ae-4cd7-8332-095032db1ec1",
                     "name": "configurationtype/details - default",
                     "headers": [],
                     "assertions": [
@@ -2653,7 +2357,7 @@
                       "path": "/api/v1/configurationtype/details"
                     },
                     "description": "Expected: empty body answer  \nThe default call, with a given identifiers parameter unknown.   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "fa4e5557-8a8c-4b30-9fa7-b98dc5add6cb",
+                    "id": "6135ebcc-f75e-4eb7-a1df-66d6dd230109",
                     "name": "configurationtype/details - unknow identifier",
                     "headers": [],
                     "assertions": [
@@ -2710,7 +2414,7 @@
                       "path": "/api/v1/configurationtype/details"
                     },
                     "description": "The default call, with a one identifiers parameter.   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "066ef851-f554-4d4c-bcda-0bde536e2e85",
+                    "id": "72f2db43-3941-470d-bdc3-ba41569a08ff",
                     "name": "configurationtype/details - identifiers (one)",
                     "headers": [],
                     "assertions": [
@@ -2780,7 +2484,7 @@
                       "path": "/api/v1/configurationtype/details"
                     },
                     "description": "The default call, with a one identifiers parameter.   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "ea3d0c3b-6a69-48a4-be6f-01fbead0f001",
+                    "id": "c02b5a5e-eca8-4a06-b9e3-fed2c1b79b68",
                     "name": "configurationtype/details - language",
                     "headers": [],
                     "assertions": [
@@ -2850,7 +2554,7 @@
                       "path": "/api/v1/configurationtype/details"
                     },
                     "description": "The default call, with a one identifiers parameter using the duplication of \"identifiers\" to create a table.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "05a55bdc-bbf1-4f34-9fc3-e262ce5b8668",
+                    "id": "917bd572-8ab8-4a54-9c2c-f2e960762f2c",
                     "name": "configurationtype/details - identifiers (two)",
                     "headers": [
                       {
@@ -2909,7 +2613,7 @@
                       "path": "/api/v1/configurationtype/details"
                     },
                     "description": "The default call, with a one identifiers parameter using the \"identifiers\" as a table.  \nOpened ticket: https://jira.talendforge.org/browse/TCOMP-2197  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "36d4f043-284f-44cf-a89a-3b2db09ac9b2",
+                    "id": "d33148df-7776-4968-96f0-d6f2dcfedd05",
                     "name": "configurationtype/details - identifiers (two) bis",
                     "headers": [
                       {
@@ -2940,7 +2644,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP configurationtype/migrate endpoint.  \n",
-                "id": "c68f1c82-1ce6-44b4-bbcd-3fa901269c69",
+                "id": "06d2daaa-042a-46ea-976e-5e4cae5322f9",
                 "name": "3 - configurationtype.migrate"
               },
               "children": [
@@ -2974,7 +2678,7 @@
                       "path": "/api/v1/configurationtype/migrate/${\"dataset_id\"}/4"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "24917d0c-4fbd-4cdb-8e56-8da1ac74e922",
+                    "id": "0e3f722b-cef4-412c-aa85-2e9f9d33e3bf",
                     "name": "configurationtype/migrate/id/configurationVersion - default on demo dataset",
                     "headers": [
                       {
@@ -3047,7 +2751,7 @@
                       "path": "/api/v1/configurationtype/migrate/${\"dataset_id\"}/4"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "1a9d9a1e-834e-49a0-9c62-8f7f3b5e6216",
+                    "id": "2f1400ab-286e-40c4-9ed2-a9ee800adb66",
                     "name": "configurationtype/migrate/id/configurationVersion - with data on demo dataset",
                     "headers": [
                       {
@@ -3126,7 +2830,7 @@
                       "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/1"
                     },
                     "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "2605dc0f-b8ad-43a8-bf52-a24d8c68af9b",
+                    "id": "1323ac76-2ba1-4c96-83ea-55ddc8942392",
                     "name": "configurationtype/migrate/id/configurationVersion - with data on demo datastore",
                     "headers": [
                       {
@@ -3205,7 +2909,7 @@
                       "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/2"
                     },
                     "description": "Migration from 2 to 3 is not possible because 2 doesn't know 3  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "5cc3b11e-f8c3-496b-a2f1-687c0d4b6d6f",
+                    "id": "c11acd79-9e6c-4c3e-9a56-3402c289f082",
                     "name": "configurationtype/migrate/id/configurationVersion - impossible migration (same version)",
                     "headers": [
                       {
@@ -3284,7 +2988,7 @@
                       "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/3"
                     },
                     "description": "Migration from 2 to 3 is not possible because 2 doesn't know 3  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "d94728a4-d9e7-4b2f-94a3-23d7cbdd4c48",
+                    "id": "543b8183-7b18-4e6a-9fbe-931f04d2ff3b",
                     "name": "configurationtype/migrate/id/configurationVersion - impossible migration (higher version)",
                     "headers": [
                       {
@@ -3341,7 +3045,7 @@
           "entity": {
             "type": "Service",
             "description": "documentation endpoint  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "f7a3ef35-06f1-4036-857a-f9ef44b7a36e",
+            "id": "b598dd55-8ad4-466c-b305-1d74b521125c",
             "name": "documentation"
           },
           "children": [
@@ -3349,7 +3053,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP documentation/component endpoint.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "9923518b-29da-4a12-8d6a-5f8d81b171cb",
+                "id": "e47252f6-b7db-49ba-b51a-20cfedc0469f",
                 "name": "1 - documentation.component"
               },
               "children": [
@@ -3390,7 +3094,7 @@
                       "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "The default call, without any parameter.  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "f3f66c03-ade1-4d32-a359-d5068b0263f8",
+                    "id": "2c3b3647-fda0-4520-a0c6-7e58107b0070",
                     "name": "documentation/component - default",
                     "headers": [],
                     "assertions": [
@@ -3471,7 +3175,7 @@
                       "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Call with a \"ALL\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "307366b0-438b-49be-b398-980589a68adb",
+                    "id": "90b13c6f-42d0-4f02-ac0d-d6d951a0ad7d",
                     "name": "documentation/component - segment default - ALL",
                     "headers": [],
                     "assertions": [
@@ -3558,7 +3262,7 @@
                       "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Call with a \"DESCRIPTION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "5252071d-6fea-41ee-9cfd-e594b18e57f1",
+                    "id": "a38b04a5-139e-4ad0-9dea-c21e437fe993",
                     "name": "documentation/component - segment - DESCRIPTION",
                     "headers": [],
                     "assertions": [
@@ -3645,7 +3349,7 @@
                       "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Call with a \"CONFIGURATION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "ac3f2146-7cc4-47f1-9569-ceb4f2b5c64e",
+                    "id": "d5963840-43f5-4417-b05b-df8af088bf63",
                     "name": "documentation/component - segment - CONFIGURATION",
                     "headers": [],
                     "assertions": [
@@ -3726,7 +3430,7 @@
                       "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Expected: error 404 empty  \nCall with a given unknow segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "a38514dc-8761-4fd3-b872-e15e4d6f705c",
+                    "id": "9b7fa1fd-61e2-4682-9bed-5bb8342a4dd4",
                     "name": "documentation/component - segment - unknow",
                     "headers": [],
                     "assertions": [
@@ -3783,7 +3487,7 @@
                       "path": "/api/v1/documentation/component/${\"output_id\"}"
                     },
                     "description": "Call with a given language parameter to \"fr\".  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "6bb4de8a-d432-4606-bff8-1d85a2095f2e",
+                    "id": "3706bc0a-0b86-4713-9b94-bd3ac10b8caa",
                     "name": "documentation/component - language - fr",
                     "headers": [],
                     "assertions": [
@@ -3851,7 +3555,7 @@
                       "path": "/api/v1/documentation/component/"
                     },
                     "description": "Expected: error 404  \nThe default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "86518465-a19b-4937-b63b-8f7946b4cc13",
+                    "id": "5404a86a-846e-4daf-aac0-9aafe482436c",
                     "name": "documentation/component - id missing",
                     "headers": [],
                     "assertions": [
@@ -3907,7 +3611,7 @@
                       "path": "/api/v1/documentation/component/unknow_id"
                     },
                     "description": "Expected: error 404  \nThe default call, without any parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                    "id": "b1bf53fb-68e9-4f10-af91-40d1ca8e6bc7",
+                    "id": "a81e327c-5667-4dc0-a948-69b882f30227",
                     "name": "documentation/component - id unknow",
                     "headers": [],
                     "assertions": [
@@ -3934,7 +3638,7 @@
           "entity": {
             "type": "Service",
             "description": "environment endpoint  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "783b45b6-052e-467b-9639-c4ba5e274755",
+            "id": "d7ceb22d-e530-4072-bfcc-1035ba51b8ba",
             "name": "environment"
           },
           "children": [
@@ -3942,7 +3646,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "This scenario will test all basic interaction with TCOMP environment endpoint.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "27fefa01-2e7c-4090-9969-1aa69eae14f5",
+                "id": "ec8a35f2-a1b3-4856-805b-b85ec1102657",
                 "name": "1 - environment"
               },
               "children": [
@@ -3970,7 +3674,7 @@
                       "path": "/api/v1/environment"
                     },
                     "description": "Default endpoint call.",
-                    "id": "98ba477b-5ecd-40db-a9f2-dfafe9b6fdc4",
+                    "id": "c683c9e1-5288-4d49-b8b3-543c15ffe12a",
                     "name": "environment - default",
                     "headers": [],
                     "assertions": [
@@ -4061,7 +3765,7 @@
                       "path": "/api/v1/environment"
                     },
                     "description": "Default endpoint call.",
-                    "id": "67b65e9f-0eea-4fd6-9105-29af18c9df63",
+                    "id": "f31423ec-7672-47fe-a284-bbdd4c9e620e",
                     "name": "environment - check plugins",
                     "headers": [],
                     "assertions": [
@@ -4112,7 +3816,7 @@
           "entity": {
             "type": "Service",
             "description": "Folder of languages specifics tests  \nThe fall back and default language should be English (en),  \nFor now only the following languages are supported in most of the connectors:\n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)\n\nThe demo connector have the following:\n - Default (en)\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)\n - Chinees(zh)\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "66b88470-ff85-44d3-8e17-9be1f314cfd4",
+            "id": "6a0bce1c-defe-402f-b323-7c171b6b5da3",
             "name": "languages"
           },
           "children": [
@@ -4120,7 +3824,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "Check the component language support for the endpoint component/list\n",
-                "id": "c74fb12a-ad86-4ab7-a60d-b1377eb9dcf4",
+                "id": "9d63044c-3049-40d0-8ace-b6e28f90d2fa",
                 "name": "1 - languages - component/index"
               },
               "children": [
@@ -4165,7 +3869,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Expected: English  \nA non given language fall back to English",
-                    "id": "a2c70d9b-c6e1-41b7-a161-e0853208f16d",
+                    "id": "fce6407f-1ec1-4f30-aa71-85b5312cc0ad",
                     "name": "component/index - default language",
                     "headers": [],
                     "assertions": [
@@ -4244,7 +3948,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Expected: English fall back  \nAn unknown language fall back to English",
-                    "id": "f05871c1-b13f-4465-8274-7f950469a87c",
+                    "id": "c564047d-d64c-4f3d-9d9e-9c317b7c83d0",
                     "name": "component/index - non i18n language id",
                     "headers": [],
                     "assertions": [
@@ -4317,7 +4021,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Expected: English fall back  \nAn unknown language fall back to English",
-                    "id": "640cea37-3db4-4e42-bf75-26d26b1f288a",
+                    "id": "a2c45897-c17e-4f60-bf9e-a8b66ea69265",
                     "name": "component/index - unimplemented i18n language",
                     "headers": [],
                     "assertions": [
@@ -4390,7 +4094,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test the English request",
-                    "id": "a94f74c4-9909-4b71-8871-c6ff48c2d741",
+                    "id": "8484b0b0-daf4-4487-b873-be82eb1195db",
                     "name": "component/index - en",
                     "headers": [],
                     "assertions": [
@@ -4457,7 +4161,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test the English request with region  ",
-                    "id": "a13d6852-fb3a-42d9-94f0-e062c1bf96c6",
+                    "id": "f211b849-c4c8-4e32-a4a8-b7cc62dd66b4",
                     "name": "component/index - en_US",
                     "headers": [],
                     "assertions": [
@@ -4524,7 +4228,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test the French request",
-                    "id": "1717fad2-3544-4d3f-9eeb-831355d51f0d",
+                    "id": "6482818b-0276-4e26-ab35-ba5a15426c1f",
                     "name": "component/index - fr",
                     "headers": [],
                     "assertions": [
@@ -4598,7 +4302,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test the French request with region",
-                    "id": "af326368-e2bf-4020-919e-072c9a2ef1fa",
+                    "id": "f1744b53-3171-4e3d-b1b9-0acea5e7b6e3",
                     "name": "component/index - fr_CA",
                     "headers": [],
                     "assertions": [
@@ -4672,7 +4376,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test the Japanese request",
-                    "id": "b76b85b1-04bf-4f95-853d-2294264ce245",
+                    "id": "d6e794d3-3cee-4eaf-ac44-c5f425900f67",
                     "name": "component/index - ja",
                     "headers": [
                       {
@@ -4753,7 +4457,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test the Chinese request   ",
-                    "id": "7a9e0f86-272e-424f-a25d-4b576d9f38c8",
+                    "id": "565547b0-ba2b-4c4d-94e6-81759deafbd5",
                     "name": "component/index - zh",
                     "headers": [
                       {
@@ -4834,7 +4538,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test the Chinese request with region  ",
-                    "id": "f890b196-8bee-44a7-817e-c63524a5cb25",
+                    "id": "6aa6c0dd-f7b7-42fb-b80a-fb2e01848ae6",
                     "name": "component/index - zh_ZONE",
                     "headers": [
                       {
@@ -4915,7 +4619,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test the Ukrainian request   \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378  ",
-                    "id": "293beb29-b011-4ab9-ac9a-b723b28bf6d1",
+                    "id": "d331c9ef-2291-4f93-ba9c-53213d15bc7f",
                     "name": "component/index - uk*",
                     "headers": [],
                     "assertions": [
@@ -4952,7 +4656,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "Check the component language support.  \nThe fall back and default language should be English (en),\nFor now only the following languages are supported in most of the connectors:  \n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)  \nThe demo connector have the following:\n - Default (en),\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)  \n - Chinees(zh) \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "bf427299-d002-4ba8-acc3-474445194c2b",
+                "id": "55c87b91-5240-4cb7-8ea8-50160aa9e312",
                 "name": "2 - languages - component/details"
               },
               "children": [
@@ -4994,7 +4698,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "A non given language fall back to English",
-                    "id": "06d07cd1-a532-4c37-ae6b-36187f4fba94",
+                    "id": "e5cdf0f9-0dda-4bb4-9e53-7c1627f425ce",
                     "name": "component details - default language",
                     "headers": [],
                     "assertions": [
@@ -5058,7 +4762,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "Request for English",
-                    "id": "819fbedb-d7c9-491e-9fc4-ea15ab8bcf08",
+                    "id": "69e7da8b-3071-4fd3-ac30-3c78c590dd98",
                     "name": "component details - English",
                     "headers": [],
                     "assertions": [
@@ -5122,7 +4826,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "Request for French",
-                    "id": "822a949c-6523-4628-a04e-acb8a35dca72",
+                    "id": "c19efddf-31c5-4f5d-acf4-1f1ed0c09310",
                     "name": "component details - French",
                     "headers": [],
                     "assertions": [
@@ -5192,7 +4896,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "Request for Chinese  ",
-                    "id": "90f75a6c-04cd-46ab-a6aa-b6541364ba0e",
+                    "id": "f1d8f0d7-efef-47e4-97fd-9d2d5f961874",
                     "name": "component details - Chinese",
                     "headers": [],
                     "assertions": [
@@ -5262,7 +4966,7 @@
                       "path": "/api/v1/component/details"
                     },
                     "description": "Request for Ukrainian  \nTODO: clarify the language configuration https://jira.talendforge.org/browse/TCOMP-2378",
-                    "id": "f50352e7-32b0-4ef0-afe6-907d68efe1e9",
+                    "id": "074bc19a-0f05-4caf-8e21-05f782d214b5",
                     "name": "component details - Ukrainian",
                     "headers": [],
                     "assertions": [
@@ -5299,7 +5003,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "Check the component language support.  \nThe fall back and default language should be English (en),\nFor now only the following languages are supported in most of the connectors:  \n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)  \nThe demo connector have the following:\n - Default (en),\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)  \n - Chinees(zh) \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "4900d729-66a0-418d-af1d-ea4d6baaf1f1",
+                "id": "87cb9a1e-3209-47a2-b524-986f0ddf3589",
                 "name": "3 - specials characters"
               },
               "children": [
@@ -5346,7 +5050,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test some French accents",
-                    "id": "4c94a1be-0c6c-483b-ae35-15c7b0f64f4e",
+                    "id": "ee30ce47-f768-400a-a66a-fa4fc0df165e",
                     "name": "French",
                     "headers": [],
                     "assertions": [
@@ -5409,7 +5113,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test some Japanes characters",
-                    "id": "3a94900f-93df-4536-9a92-ceed7e662fb6",
+                    "id": "d51ce2a0-7ef6-4eab-a2e5-ce58e81564a9",
                     "name": "Japanese",
                     "headers": [
                       {
@@ -5479,7 +5183,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test some Chinese characters  ",
-                    "id": "e01bde79-f992-4ce1-bf4f-6beb8c264dbc",
+                    "id": "e4a2cc13-5548-4c12-941d-ff3bda4a61f5",
                     "name": "Chinese",
                     "headers": [
                       {
@@ -5549,7 +5253,7 @@
                       "path": "/api/v1/component/index"
                     },
                     "description": "Test some cyrillic Ukranians charcters  \nTODO: clarify the language config https://jira.talendforge.org/browse/TCOMP-2378",
-                    "id": "e1d6de7d-8d33-4a71-84d1-9c931267d3fa",
+                    "id": "5462ea80-18cd-4f06-9957-a8a95eb425fd",
                     "name": "Ukranian",
                     "headers": [],
                     "assertions": [
@@ -5576,7 +5280,7 @@
           "entity": {
             "type": "Service",
             "description": "Tests around security on any endpoints  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "e873357f-26d4-4193-a942-1ca2f381ec1b",
+            "id": "f6c0d289-045b-4878-ad21-fd4035a66711",
             "name": "security"
           },
           "children": [
@@ -5584,7 +5288,7 @@
               "entity": {
                 "type": "Scenario",
                 "description": "Test here comportment related with security.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-                "id": "1e08de9c-dc0a-4ffd-bac2-50dab6295257",
+                "id": "da1c0c8b-e86e-4205-baf6-e479fa3a340f",
                 "name": "1 - Errors"
               },
               "children": [
@@ -5616,7 +5320,7 @@
                       "path": "/api/v1/unknow"
                     },
                     "description": "Call with an unknown endpoint.",
-                    "id": "b8ee50db-4dfd-4331-9726-4a5573da0d42",
+                    "id": "4b4dc81c-5a07-4735-8e61-9676b1313f24",
                     "name": "Wrong endpoint",
                     "headers": [],
                     "assertions": [
