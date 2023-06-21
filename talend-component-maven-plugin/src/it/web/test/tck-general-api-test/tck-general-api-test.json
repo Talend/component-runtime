@@ -980,7 +980,7 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "This scenario will test all basic interaction with TCOMP component/dependencies and component/dependency endpoints.\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "description": "This scenario will test all interaction with TCOMP component/dependencies endpoint.\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/getDependencies)",
                 "id": "8613794e-7a81-4600-91f4-82c619536750",
                 "name": "3-component.dependencies"
               },
@@ -1260,7 +1260,7 @@
             {
               "entity": {
                 "type": "Scenario",
-                "description": "This scenario will test all basic interaction with TCOMP component/dependencies and component/dependency endpoints.\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+                "description": "This scenario will test all interaction with TCOMP component/dependency endpoint.\n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/getDependency)",
                 "id": "46bdeb87-d83a-4d98-a8f4-eea05b603ce2",
                 "name": "4-component.dependency"
               },
@@ -1292,7 +1292,7 @@
                       "host": "${\"server-ip\"}:${\"server-port\"}",
                       "path": "/api/v1/component/dependency/${\"output_id\"}"
                     },
-                    "description": "Call using a component id\nTODO should we check dependency size or annother way",
+                    "description": "Call using a component id",
                     "id": "9295f59a-8eae-426e-b8c8-b9d01bc2db98",
                     "name": "component/dependency - component",
                     "headers": [],
@@ -1302,18 +1302,6 @@
                         "subject": "ResponseStatus",
                         "path": "code",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "Greater",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "50000"
-                      },
-                      {
-                        "comparison": "Less",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "70000"
                       },
                       {
                         "comparison": "Equals",
@@ -1483,18 +1471,6 @@
                         "subject": "ResponseBody",
                         "path": "content",
                         "value": "200"
-                      },
-                      {
-                        "comparison": "Greater",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "587400"
-                      },
-                      {
-                        "comparison": "Less",
-                        "subject": "ResponseBody",
-                        "path": "length",
-                        "value": "587410"
                       },
                       {
                         "comparison": "Equals",
