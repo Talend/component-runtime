@@ -23,15 +23,17 @@
     <packaging>pom</packaging>
 
     <modules>
+        <!-- All test cases in alphabeticl order -->
         <module>tck-action-errors-api-test</module>
         <module>tck-action-index-api-test</module>
         <module>tck-action-schema-api-test</module>
         <module>tck-action-suggestion-api-test</module>
         <module>tck-action-validation-api-test</module>
+        <module>tck-action-healthcheck-api-test</module>
         <module>tck-bulk-api-test</module>
+        <module>tck-component-icon-api-test</module>
         <module>tck-general-api-test</module>
         <module>tck-security-api-test</module>
-        <module>tck-action-healthcheck-api-test</module>
     </modules>
 
     <properties>
