@@ -29,6 +29,9 @@
         <module>tck-action-suggestion-api-test</module>
         <module>tck-action-validation-api-test</module>
         <module>tck-bulk-api-test</module>
+        <module>tck-configurationtype-details-api-test</module>
+        <module>tck-configurationtype-index-api-test</module>
+        <module>tck-configurationType-migration-api-test</module>
         <module>tck-general-api-test</module>
         <module>tck-security-api-test</module>
         <module>tck-action-healthcheck-api-test</module>
