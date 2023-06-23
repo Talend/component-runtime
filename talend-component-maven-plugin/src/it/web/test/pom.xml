@@ -29,6 +29,11 @@
         <module>tck-action-suggestion-api-test</module>
         <module>tck-action-validation-api-test</module>
         <module>tck-bulk-api-test</module>
+        <module>tck-component-dependencies-api-test</module>
+        <module>tck-component-dependency-api-test</module>
+        <module>tck-component-details-api-test</module>
+        <module>tck-component-index-api-test</module>
+        <module>tck-component-migrate-api-test</module>
         <module>tck-general-api-test</module>
         <module>tck-security-api-test</module>
         <module>tck-action-healthcheck-api-test</module>
