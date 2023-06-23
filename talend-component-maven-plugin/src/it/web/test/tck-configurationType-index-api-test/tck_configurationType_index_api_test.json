@@ -4,7 +4,7 @@
     {
       "entity": {
         "type": "Project",
-        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [component/icon](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/icon) [component/icon/family](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/familyIcon) \nAction documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema)",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [configurationType/index](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/getRepositoryModel)  ",
         "id": "f0cc6b51-67c9-46b3-93df-bc5279b36563",
         "name": "tck-configurationType-index-api-test"
       },

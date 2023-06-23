@@ -4,9 +4,9 @@
     {
       "entity": {
         "type": "Project",
-        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [component/icon](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/icon) [component/icon/family](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/familyIcon) \nAction documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema)",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [configurationType/migrate](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)  ",
         "id": "ce2f7083-6b9a-465c-b0d1-ea0f830686c3",
-        "name": "tck-configurationtype-migrate-api-test"
+        "name": "tck-configurationType-migrate-api-test"
       },
       "children": [
         {
@@ -38,7 +38,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/configurationtype/migrate/${\"dataset_id\"}/4"
             },
-            "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)",
             "id": "0e3f722b-cef4-412c-aa85-2e9f9d33e3bf",
             "name": "configurationtype/migrate/id/configurationVersion - default on demo dataset",
             "headers": [
@@ -111,7 +111,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/configurationtype/migrate/${\"dataset_id\"}/4"
             },
-            "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "Migration from 2 to 3 is not possible because 2 doesn't know 3.  \nIt is normal to have a non migrated response.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)",
             "id": "2f1400ab-286e-40c4-9ed2-a9ee800adb66",
             "name": "configurationtype/migrate/id/configurationVersion - impossible migration (higher version)",
             "headers": [
@@ -190,7 +190,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/2"
             },
-            "description": "Migration from 2 to 3 is not possible because 2 doesn't know 3  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "Migration from 2 to 2 is not possible.  \nIt is normal to have a non migrated response.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)",
             "id": "c11acd79-9e6c-4c3e-9a56-3402c289f082",
             "name": "configurationtype/migrate/id/configurationVersion - impossible migration (same version)",
             "headers": [
@@ -269,7 +269,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/1"
             },
-            "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)",
             "id": "1323ac76-2ba1-4c96-83ea-55ddc8942392",
             "name": "configurationtype/migrate/id/configurationVersion - with data on demo datastore",
             "headers": [

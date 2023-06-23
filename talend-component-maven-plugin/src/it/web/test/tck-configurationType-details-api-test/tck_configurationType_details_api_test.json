@@ -4,9 +4,9 @@
     {
       "entity": {
         "type": "Project",
-        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [component/icon](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/icon) [component/icon/family](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/familyIcon) \nAction documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema)",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [configurationType/details](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/getConfigurationDetail)  ",
         "id": "d21f0bb4-7380-40ff-93d8-8be471fc9501",
-        "name": "tck-configurationtype-details-api-test"
+        "name": "tck-configurationType-details-api-test"
       },
       "children": [
         {
@@ -106,65 +106,6 @@
             "description": "The default call, with a one identifiers parameter using the duplication of \"identifiers\" to create a table.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "917bd572-8ab8-4a54-9c2c-f2e960762f2c",
             "name": "configurationtype/details - identifiers (two)",
-            "headers": [
-              {
-                "enabled": true,
-                "name": "",
-                "value": ""
-              }
-            ],
-            "assertions": [
-              {
-                "comparison": "Equals",
-                "subject": "ResponseStatus",
-                "path": "code",
-                "value": "200"
-              },
-              {
-                "comparison": "LengthEqual",
-                "subject": "ResponseJsonBody",
-                "path": "$.nodes",
-                "value": "2"
-              }
-            ]
-          }
-        },
-        {
-          "entity": {
-            "type": "Request",
-            "method": {
-              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-              "name": "GET"
-            },
-            "body": {
-              "formBody": {
-                "overrideContentType": true,
-                "encoding": "application/x-www-form-urlencoded",
-                "items": []
-              },
-              "bodyType": "Text"
-            },
-            "uri": {
-              "query": {
-                "delimiter": "&",
-                "items": [
-                  {
-                    "enabled": true,
-                    "name": "identifiers",
-                    "value": "${\"dataset_id\"},${\"datastore_id\"}"
-                  }
-                ]
-              },
-              "scheme": {
-                "name": "http",
-                "version": "V11"
-              },
-              "host": "${\"server-ip\"}:${\"server-port\"}",
-              "path": "/api/v1/configurationtype/details"
-            },
-            "description": "The default call, with a one identifiers parameter using the \"identifiers\" as a table.  \nOpened ticket: https://jira.talendforge.org/browse/TCOMP-2197  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "d33148df-7776-4968-96f0-d6f2dcfedd05",
-            "name": "configurationtype/details - identifiers (two) bis",
             "headers": [
               {
                 "enabled": true,
