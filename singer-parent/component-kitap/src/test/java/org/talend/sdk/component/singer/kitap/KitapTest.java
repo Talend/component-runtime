@@ -124,16 +124,16 @@ class KitapTest {
             final List<String> actuals = reader.lines().collect(toList());
             assertLinesMatch(asList(
                     "{\"type\":\"SCHEMA\",\"stream\":\"default\",\"schema\":{\"type\":[\"null\",\"object\"],\"additionalProperties\":false,\"properties\":{\"record_number\":{\"type\":[\"integer\"]}}},\"key_properties\":[],\"bookmark_properties\":[]}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":1}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":2}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":3}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":4}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":5}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":6}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":7}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":8}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":9}}",
-                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000Z\",\"record\":{\"record_number\":10}}"),
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":1}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":2}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":3}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":4}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":5}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":6}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":7}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":8}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":9}}",
+                    "{\"type\":\"RECORD\",\"stream\":\"default\",\"time_extracted\":\"2019-08-23T15:11:00.000000Z\",\"record\":{\"record_number\":10}}"),
                     actuals, actuals::toString);
         }
         try (final BufferedReader reader = new BufferedReader(new StringReader(stderr.toString("UTF-8")))) {

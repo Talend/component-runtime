@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-# set -xe
+set -xe
 
 function usage(){
   printf 'Check if the server is running on the giving port\n'
@@ -40,7 +40,7 @@ which curl || { usage 'curl is not present'; }
 
 main() (
 
-  printf 'Waiting server maximum %ss for %s\n' "${_TIMEOUT}" "${_SERVER_ADDRESS}:${_SERVER_PORT}"
+  printf 'Waiting server %s:%s for %ss\n' "${_SERVER_ADDRESS}" "${_SERVER_PORT}" "${_TIMEOUT}"
 
   _CURL_OPTIONS="test"
   printf 'With the following cmd: curl %s\n' "${_CURL_OPTIONS}"

@@ -70,6 +70,7 @@ import org.talend.sdk.component.server.dao.ComponentFamilyDao;
 import org.talend.sdk.component.server.dao.ConfigurationDao;
 import org.talend.sdk.component.server.front.model.Connectors;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
+import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -127,6 +128,9 @@ public class ComponentManagerService {
     private Long latestPluginUpdate;
 
     private ScheduledExecutorService scheduledExecutorService;
+
+    @Inject
+    private FrontCacheResolver cacheResolver;
 
     public void startupLoad(@Observes @Initialized(ApplicationScoped.class) final Object start) {
         // no-op
@@ -240,6 +244,8 @@ public class ComponentManagerService {
         log.info("Plugins deployed.");
         // reset connectors' version
         synchronizeConnectors();
+        // reset caches
+        cacheResolver.clearCaches();
 
         return null;
     }
@@ -301,7 +307,12 @@ public class ComponentManagerService {
                     try (final InputStream is = Files.newInputStream(registry)) {
                         properties.load(is);
                     } catch (final IOException e) {
-                        throw new IllegalArgumentException(e);
+                        // when using plugin reloading, main registry file may be not available at startup.
+                        if (configuration.getPluginsReloadActive()) {
+                            log.warn("[deployPlugins] registry file {} is unavailable.", registry);
+                        } else {
+                            throw new IllegalArgumentException(e);
+                        }
                     }
                     properties
                             .stringPropertyNames()

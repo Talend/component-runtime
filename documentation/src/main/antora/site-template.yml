@@ -50,6 +50,7 @@ content:
       - '!component-runtime-1.38.5'
       - '!component-runtime-1.38.6'
       - '!component-runtime-1.38.7'
+      - '!component-runtime-1.38.8'
       - '!component-runtime-1.39.0'
       - '!component-runtime-1.39.1'
       - '!component-runtime-1.39.2'
@@ -70,6 +71,10 @@ content:
       - '!component-runtime-1.50.3'
       - '!component-runtime-1.51.0'
       - '!component-runtime-1.51.1'
+      - '!component-runtime-1.52.0'
+      - '!component-runtime-1.52.1'
+      - '!component-runtime-1.53.0'
+      - '!component-runtime-1.54.0'
     branches:
       - HEAD
     start_path: documentation/src/main/antora

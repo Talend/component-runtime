@@ -23,10 +23,13 @@ import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -238,6 +241,16 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
 
         if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
+            if (ZonedDateTime.class == expectedType) {
+                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
+                return expectedType.cast(ZonedDateTime.ofInstant(instant, UTC));
+            }
+            if (Instant.class == expectedType) {
+                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
+                return expectedType.cast(instant);
+            }
             final Class<?> itemType = expectedType == Collection.class ? Object.class : expectedType;
             return expectedType
                     .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));

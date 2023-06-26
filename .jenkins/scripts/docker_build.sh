@@ -19,44 +19,36 @@ set -xe
 
 # Parameters:
 # $1: docker tag version
-main() {
-  local tag="${1?Missing tag}"
-  local latest="${2:-false}"
+# $2: should tag as latest (true/false) default is false
+# $3: requested image, if not given, all will be pushed
 
-  echo ">> Building and pushing component-server:${tag}"
-  cd images/component-server-image
-  mvn verify dockerfile:build -P ci-tsbi -Dimage.tag=${tag}
-  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server"
-  docker tag "talend/common/tacokit/component-server:${tag}" "${registry_srv}:${tag}"
-  docker push "${registry_srv}:${tag}"
-  if [[ ${latest} == 'true' ]]; then
-    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
-    docker push "${registry_srv}:latest"
+_TAG="${1?Missing tag}"
+_IS_LATEST="${2-false}"
+_ONLY_ONE_IMAGE="${3}"
+
+dockerBuild() {
+  _IMAGE="${1}"
+  printf ">> Building and push %s:%s\n" "{$_IMAGE}" "${_TAG}"
+  if [[ ${_IS_LATEST} == 'true' ]]; then
+    printf ">>THe image will be tagged as LATEST\n"
   fi
-  
-  echo ">> Building and pushing component-starter-server:${tag}"
-  cd ../..
-  cd images/component-starter-server-image
-  mvn verify dockerfile:build -P ci-tsbi -Dimage.tag=${tag}
-  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-starter-server"
-  docker tag "talend/common/tacokit/component-starter-server:${tag}" "${registry_srv}:${tag}"
-  docker push "${registry_srv}:${tag}"
-  if [[ ${latest} == 'true' ]]; then
-    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
-    docker push "${registry_srv}:latest"
-  fi
-  
-  echo ">> Building and pushing remote-engine-customizer:${tag}"
-  cd ../..
-  cd images/remote-engine-customizer-image
-  mvn package jib:dockerBuild -Dimage.currentVersion=${tag}
-  local registry_srv="artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/remote-engine-customizer"
-  docker tag "tacokit/remote-engine-customizer:${tag}" "${registry_srv}:${tag}"
-  docker push "${registry_srv}:${tag}"
-  if [[ ${latest} == 'true' ]]; then
-    docker tag  "${registry_srv}:${tag}" "${registry_srv}:latest"
-    docker push "${registry_srv}:latest"
+
+  mvn package jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define docker.talend.image.tag="${_TAG}"
+
+  if [[ ${_IS_LATEST} == 'true' ]]; then
+    mvn package jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define docker.talend.image.tag=latest
   fi
 }
 
-main "$@"
+if [[ -n "${_ONLY_ONE_IMAGE}" ]]; then
+  dockerBuild "${_ONLY_ONE_IMAGE}"
+else
+  dockerBuild "component-server"
+  dockerBuild "component-starter-server"
+  dockerBuild "remote-engine-customizer"
+fi
+

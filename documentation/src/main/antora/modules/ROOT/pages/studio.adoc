@@ -40,6 +40,7 @@ The following parameters are available:
 | component.java.coordinates | A list of comma-separated GAV (groupId:artifactId:version) of components to register | -
 | component.java.registry | A properties file with values matching component GAV (groupId:artifactId:version) registered at startup. Only use slashes (even on windows) in the path. | -
 | component.java.port | Sets the port to use for the server | random
+| component.server.extensions| A comma separated list of gav to locate the extensions. | -
 | components.server.beam.active | Active, if set to true, Beam support (_Experimental_). It requires Beam SDK Java core dependencies to be available. | false
 
 | component.server.jul.forceConsole

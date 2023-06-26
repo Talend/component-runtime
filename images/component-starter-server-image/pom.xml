@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.53.0-SNAPSHOT</version>
+    <version>1.59.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-starter-server-image</artifactId>
@@ -27,15 +27,13 @@
   <name>Component Runtime :: Images :: Starter</name>
 
   <properties>
-    <additionalDockerFiles>${project.build.outputDirectory}/docker/additional</additionalDockerFiles>
-    <image.currentVersion>${project.version}_${maven.build.timestamp}</image.currentVersion>
-    <image.tag>${project.version}</image.tag>
-    <image.target>talend/common/tacokit/component-starter-server</image.target>
-    <imageWorkDir>${baseImageDir}/component-kit</imageWorkDir>
-    <talend.server.image.name>${talend.server.image.registry}tacokit/component-starter-server:${talend.image.version}</talend.server.image.name>
     <talend.build.name>${talend.build.name.base}.starter.image</talend.build.name>
-    <tsbi.product>component-kit</tsbi.product>
-    <tsbi.service>component-starter-server</tsbi.service>
+    <!-- mandatory module docker properties -->
+    <docker.talend.app.name>component-starter-server</docker.talend.app.name>
+    <docker.talend.app.product>component-kit</docker.talend.app.product>
+    <docker.talend.app.description>Talend Component Kit Starter Server</docker.talend.app.description>
+    <!-- custom starter parameters -->
+    <docker.image.port>8080</docker.image.port>
   </properties>
 
   <dependencies>
@@ -49,35 +47,59 @@
   <build>
     <plugins>
       <plugin>
-        <!--
-        mvn clean verify dockerfile:build -P dev-tsbi -Ddockerfile.build.pullNewerImage=false
-        docker tag talend/common/tacokit/component-start-server:${release} artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-start-server:${release}
-        docker push artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-start-server:${release}
-        -->
-        <groupId>com.spotify</groupId>
-        <artifactId>dockerfile-maven-plugin</artifactId>
-        <configuration>
-          <repository>${image.target}</repository>
-          <tag>${image.tag}</tag>
-          <dockerfile>Dockerfile</dockerfile>
-          <buildArgs>
-            <PROJECT_VERSION>${project.version}</PROJECT_VERSION>
-            <TIMESTAMP>${maven.build.timestamp}</TIMESTAMP>
-            <DOCKER_REGISTRY_HOST>${docker.registryHost}</DOCKER_REGISTRY_HOST>
-            <TSBI_IMAGE_PATH>${docker.tsbiPath}</TSBI_IMAGE_PATH>
-            <TSBI_VERSION>${docker.tsbiVersion}</TSBI_VERSION>
-            <GIT_BRANCH>${git.branch}</GIT_BRANCH>
-            <GIT_COMMIT>${git.commit.id}</GIT_COMMIT>
-          </buildArgs>
-          <skip>${disable.dockerBuild}</skip>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
-            <id>default</id>
+            <id>copy-resources</id>
             <goals>
-              <goal>build</goal>
+              <goal>copy-resources</goal>
             </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+              <outputDirectory>${docker.image.extra.files}/opt/talend/component-kit/conf</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/src/main/resources</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build</id>
             <phase>none</phase>
+            <configuration>
+              <extraDirectories>
+                <paths>
+                  <path>${docker.image.extra.files}</path>
+                </paths>
+              </extraDirectories>
+              <container>
+                <user>root</user>
+                <mainClass>org.apache.meecrowave.runner.Cli</mainClass>
+                <environment>
+                  <MEECROWAVE_HOME>${docker.talend.dir.app}</MEECROWAVE_HOME>
+                  <MEECROWAVE_BASE>${docker.talend.dir.app}</MEECROWAVE_BASE>
+                  <MEECROWAVE_PID>${docker.talend.dir.app}conf/server.pid</MEECROWAVE_PID>
+                  <MEECROWAVE-PROPERTIES>${docker.talend.dir.app}conf/meecrowave.properties</MEECROWAVE-PROPERTIES>
+                  <TALEND_JDK_SERIAL_FILTER>oracle.sql.**;!*</TALEND_JDK_SERIAL_FILTER>
+                  <CLASSPATH>${docker.talend.dir.app}lib/*:${docker.talend.dir.app}custom/*:${docker.talend.dir.base}extensions/*:${docker.talend.dir.app}resources:${docker.talend.dir.app}classes</CLASSPATH>
+                  <JDK_JAVA_OPTIONS>-Djdk.serialFilter=${TALEND_JDK_SERIAL_FILTER} -agentlib:jdwp=server=y,transport=dt_socket,suspend=y,address=*:5005 -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=${docker.talend.dir.app}temp -Dhttp=${docker.image.port} -Dmeecrowave.home=${docker.talend.dir.app} -Dmeecrowave.base=${docker.talend.dir.app} -Dmeecrowave-properties=${docker.talend.dir.app}conf/meecrowave.properties -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Dlog4j.configurationFile=${docker.talend.dir.app}conf/log4j2.xml --add-opens java.base/java.util=ALL-UNNAMED</JDK_JAVA_OPTIONS>
+                </environment>
+                <labels>
+                  <com.talend.docker.cmd>docker run -d -p ${docker.image.port}:${docker.image.port} ${docker.image.to}</com.talend.docker.cmd>
+                  <com.talend.docker.healthcheck>curl --fail http://localhost:${docker.image.port}/api/v1/environment</com.talend.docker.healthcheck>
+                  <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc)&gt;</com.talend.docker.params>
+                </labels>
+              </container>
+            </configuration>
           </execution>
         </executions>
       </plugin>

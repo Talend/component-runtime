@@ -103,7 +103,7 @@ class ComponentResourceImplTest {
         final DependencyDefinition definition = dependencies.getDependencies().get(compId);
         assertNotNull(definition);
         assertEquals(1, definition.getDependencies().size());
-        assertEquals("org.apache.tomee:ziplock:jar:7.0.5", definition.getDependencies().iterator().next());
+        assertEquals("org.apache.tomee:ziplock:jar:8.0.14", definition.getDependencies().iterator().next());
     }
 
     @RepeatedTest(2) // this also checks the cache and queries usage
@@ -132,7 +132,7 @@ class ComponentResourceImplTest {
             }
         };
 
-        final File zipLock = download.apply("org.apache.tomee:ziplock:jar:7.0.5");
+        final File zipLock = download.apply("org.apache.tomee:ziplock:jar:8.0.14");
         jarValidator.accept(zipLock);
 
         final File component = download.apply(client.getJdbcId());
@@ -241,7 +241,9 @@ class ComponentResourceImplTest {
         assertEquals("true", migrated.get("migrated"));
         assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", migrated.get("configuration.url"));
         assertEquals("username0", migrated.get("configuration.username"));
-        assertEquals("test", migrated.get("configuration.connection.password"));
+        // should not be deciphered
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==",
+                migrated.get("configuration.connection.password"));
     }
 
     @RepeatedTest(2) // this also checks the cache and queries usage

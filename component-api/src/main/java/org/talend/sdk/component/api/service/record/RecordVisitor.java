@@ -16,6 +16,7 @@
 package org.talend.sdk.component.api.service.record;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -87,6 +88,10 @@ public interface RecordVisitor<T> extends Supplier<T>, BinaryOperator<T> {
     }
 
     default void onDatetime(final Schema.Entry entry, final Optional<ZonedDateTime> dateTime) {
+        // no-op
+    }
+
+    default void onInstant(final Schema.Entry entry, final Optional<Instant> dateTime) {
         // no-op
     }
 

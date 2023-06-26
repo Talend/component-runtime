@@ -173,7 +173,7 @@ public class ComponentServerConfiguration {
             + "`talend.component.server.plugins.reloading.marker` variable, otherwise we inspect the content of the "
             + "`CONNECTORS_VERSION` file. Accepted values: `timestamp`, anything else defaults to `connectors`.")
     @ConfigProperty(name = "talend.component.server.plugins.reloading.method", defaultValue = "timestamp")
-    private Boolean pluginsReloadMethod;
+    private String pluginsReloadMethod;
 
     @Inject
     @Documentation("Interval in seconds between each check if plugins re-loading is enabled.")

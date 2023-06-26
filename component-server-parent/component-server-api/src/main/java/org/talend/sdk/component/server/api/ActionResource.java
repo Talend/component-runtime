@@ -75,7 +75,7 @@ public interface ActionResource {
                     description = "the type of action") String type,
             @QueryParam("action") @Parameter(name = "action", required = true, in = QUERY,
                     description = "the action name") String action,
-            @QueryParam("lang") @DefaultValue("en") @Parameter(name = "language", in = QUERY,
+            @QueryParam("lang") @DefaultValue("en") @Parameter(name = "lang", in = QUERY,
                     description = "the requested language (as in a Locale) if supported by the action",
                     schema = @Schema(defaultValue = "en", type = STRING)) String lang,
             @RequestBody(description = "the action parameters as a flat map of strings", required = true,
