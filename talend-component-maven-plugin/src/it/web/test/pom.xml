@@ -32,6 +32,7 @@
         <module>tck-general-api-test</module>
         <module>tck-security-api-test</module>
         <module>tck-action-healthcheck-api-test</module>
+        <module>tck-action-close-connection-api-test</module>
     </modules>
 
     <properties>
