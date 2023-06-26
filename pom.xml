@@ -221,6 +221,7 @@
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
     <beam.version>2.37.0</beam.version>
+    <snappy.version>1.1.10.1</snappy.version>
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.10</joda.time.version>
 
@@ -367,6 +368,11 @@
             <artifactId>antlr4</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.xerial.snappy</groupId>
+        <artifactId>snappy-java</artifactId>
+        <version>${snappy.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
