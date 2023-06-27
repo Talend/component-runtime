@@ -15,6 +15,15 @@
  */
 package org.talend.sdk.component.runtime.beam.spi;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.beam.runners.direct.DirectOptions;
 import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.sdk.Pipeline;
@@ -25,8 +34,6 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-
-import lombok.extern.slf4j.Slf4j;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.source.ProducerFinder;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -36,26 +43,20 @@ import org.talend.sdk.component.runtime.manager.service.ProducerFinderImpl;
 import org.talend.sdk.component.runtime.manager.service.api.ComponentInstantiator;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BeamProducerFinder extends ProducerFinderImpl {
 
-    static final int CAPACITY = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "100000"));
+    private static final int QUEUE_SIZE = 200;
 
-    private static List<Queue<Record>> QUEUE = new ArrayList<>();
+    private static final int BEAM_PARALLELISM = 10;
+
+    private static final Map<UUID, Queue<Record>> QUEUE = new ConcurrentHashMap<>();
 
     @Override
     public Iterator<Record> find(final String familyName, final String inputName, final int version,
-                                 final Map<String, String> configuration) {
+            final Map<String, String> configuration) {
         final ComponentInstantiator instantiator = getInstantiator(familyName, inputName);
         final Mapper mapper = findMapper(instantiator, version, configuration);
         try {
@@ -65,8 +66,10 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             log.warn("Component Kit Mapper instantiation failed, trying to wrap native beam mapper...");
             final Object delegate = Delegated.class.cast(mapper).getDelegate();
             if (PTransform.class.isInstance(delegate)) {
-                QUEUE.add(new ArrayBlockingQueue<>(7, true));
-                return new QueueInput(delegate, familyName, inputName, familyName, PTransform.class.cast(delegate), QUEUE.size() - 1);
+                final UUID uuid = UUID.randomUUID();
+                QUEUE.put(uuid, new ArrayBlockingQueue<>(QUEUE_SIZE, true));
+                return new QueueInput(delegate, familyName, inputName, familyName, PTransform.class.cast(delegate),
+                        uuid);
             }
             throw new IllegalStateException(e);
         }
@@ -76,7 +79,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         return new SerializableService(plugin, ProducerFinder.class.getName());
     }
 
-    static class QueueInput  implements Iterator<Record>, Serializable {
+    static class QueueInput implements Iterator<Record>, Serializable {
 
         private final PTransform<PBegin, PCollection<Record>> transform;
 
@@ -88,21 +91,15 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
         private Record next;
 
-        private final int queueIndex;
+        private final UUID queueId;
 
         private Thread th;
 
         public QueueInput(final Object delegate, final String rootName, final String name, final String plugin,
-                          final PTransform<PBegin, PCollection<Record>> transform, int queueIndex) {
-            //super(delegate, rootName, name, plugin);
-            System.out.println("QueueInput constructor thread:" + Thread.currentThread().getId());
+                final PTransform<PBegin, PCollection<Record>> transform, final UUID queueId) {
             this.transform = transform;
-            this.queueIndex = queueIndex;
+            this.queueId = queueId;
             result = runDataReadingPipeline();
-
-//            System.out.println("result " + result.getState().name() );
-            System.out.println("QUEUE " + QUEUE.get(this.queueIndex).size());
-            System.out.flush();
         }
 
         @Override
@@ -110,6 +107,9 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             if (next == null && !started) {
                 next = findNext();
                 started = true;
+            }
+            if (next == null) {
+                QUEUE.remove(this.queueId);
             }
             return next != null;
         }
@@ -125,20 +125,21 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         }
 
         private Record findNext() {
-            System.out.println("Find Next, Thread " + Thread.currentThread().getId() +"; Queue size " + QUEUE.size());
-            System.out.flush();
-            Record record = QUEUE.get(this.queueIndex).poll();
+            final Queue<Record> recordQueue = QUEUE.get(this.queueId);
+
+            Record record = recordQueue.poll();
             int index = 0;
             while (record == null && (!end)) {
                 end = result != null && result.getState() != PipelineResult.State.RUNNING;
                 if (!end && index > 10) {
                     result.waitUntilFinish();
+                } else {
+                    index++;
+                    log.debug("findNext NULL, retry : end={}; size:{}", end, recordQueue.size());
+                    sleep();
                 }
-                index++;
-                System.out.println("findNext NULL, retry : end=" + end + "; size:" + QUEUE.get(this.queueIndex).size());
-                sleep();
 
-                record = QUEUE.get(this.queueIndex).poll();
+                record = recordQueue.poll();
             }
             return record;
         }
@@ -173,9 +174,9 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                 Thread.currentThread().setContextClassLoader(beamAwareClassLoader);
                 DirectOptions options = PipelineOptionsFactory.as(DirectOptions.class);
                 options.setRunner(DirectRunner.class);
-                options.setTargetParallelism(10);
+                options.setTargetParallelism(BEAM_PARALLELISM);
                 options.setBlockOnRun(false);
-                MyDoFn pushRecord = new MyDoFn(queueIndex);
+                MyDoFn pushRecord = new MyDoFn(this.queueId);
                 ParDo.SingleOutput<Record, Void> of = ParDo.of(pushRecord);
                 Pipeline p = Pipeline.create(options);
                 p.apply(transform).apply(of);
@@ -185,9 +186,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                     result[0] = p.run();
                 });
                 this.th.start();
-                System.out.println("Run pipeline");
                 while (result[0] == null) {
-                    System.out.println("WAIT RESULT");
                     sleep();
                 }
                 return result[0];
@@ -198,7 +197,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
         private void sleep() {
             try {
-                Thread.sleep(100L);
+                Thread.sleep(30L);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -207,41 +206,34 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
     static class MyDoFn extends DoFn<Record, Void> {
 
-        private final int queueIndex;
+        private final UUID queueId;
 
-        public MyDoFn(final int queueIndex) {
-            this.queueIndex = queueIndex;
+        public MyDoFn(final UUID queueId) {
+            this.queueId = queueId;
         }
 
         @ProcessElement
-        public void processElement(ProcessContext context) {
+        public void processElement(final ProcessContext context) {
 
-            boolean ok = QUEUE.get(this.queueIndex).offer(context.element());
-            System.out.println("queue injected " + QUEUE.get(this.queueIndex).size() + "; ok=" + ok + "; thread:"+ Thread.currentThread().getId());
-            System.out.flush();
+            final Queue<Record> recordQueue = QUEUE.get(this.queueId);
+            boolean ok = recordQueue.offer(context.element());
+            log.debug("queue injected {}; ok={}; thread:{}", recordQueue.size(), ok, Thread.currentThread().getId());
+
             while (!ok) {
-                if (QUEUE.get(this.queueIndex).size() >= CAPACITY) {
-                    System.out.println("######### ERROR #######");
-                    final String msg = String.format(
-                            "Wrapper queue if full (capacity: %d). Consider increasing it according data with talend.beam.wrapper.capacity property.",
-                            CAPACITY);
-                    log.error("[processElement] {}", msg);
-                    throw new IllegalStateException(msg);
-                }
                 sleep();
-                ok = QUEUE.get(this.queueIndex).offer(context.element());
-                System.out.println("\tqueue injected retry " + QUEUE.get(this.queueIndex).size() + "; ok=" + ok + "; thread:"+ Thread.currentThread().getId());
+                ok = recordQueue.offer(context.element());
+                log.debug("\tqueue injected retry {}; ok={}; thread:{}", recordQueue.size(), ok,
+                        Thread.currentThread().getId());
             }
         }
 
         private void sleep() {
             try {
-                Thread.sleep(100L);
+                Thread.sleep(20L);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-
     }
 
 }

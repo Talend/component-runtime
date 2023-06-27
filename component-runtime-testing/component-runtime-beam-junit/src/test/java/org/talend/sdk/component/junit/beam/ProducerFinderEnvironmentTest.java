@@ -72,6 +72,8 @@ import org.talend.sdk.component.runtime.manager.chain.Job;
 @WithComponents("org.talend.sdk.component.junit.beam.test")
 public class ProducerFinderEnvironmentTest implements Serializable {
 
+    private static final int RECORD_NBR = 5000;
+
     @Injected
     private BaseComponentsHandler handler;
 
@@ -100,7 +102,13 @@ public class ProducerFinderEnvironmentTest implements Serializable {
     @Test
     void finderWithBeamFamily() {
         final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "BeamFamily");
-        recordIterator.forEachRemaining(Assertions::assertNotNull);
+        final int[] total = new int[1];
+        total[0] = 0;
+        recordIterator.forEachRemaining((Record rec) ->  {
+            Assertions.assertNotNull(rec);
+            total[0]++;
+        });
+        Assertions.assertEquals(RECORD_NBR, total[0], "did not consume all records");
     }
 
     @EnvironmentalTest
@@ -148,7 +156,8 @@ public class ProducerFinderEnvironmentTest implements Serializable {
                 .getServices()
                 .get(ProducerFinder.class);
         assertNotNull(finder);
-        final Iterator<Record> recordIterator = finder.find(family, "from", 1, singletonMap("count", "10"));
+        final Iterator<Record> recordIterator = finder.find(family, "from", 1,
+            singletonMap("count", Integer.toString(RECORD_NBR)));
         assertNotNull(recordIterator);
         return recordIterator;
     }
