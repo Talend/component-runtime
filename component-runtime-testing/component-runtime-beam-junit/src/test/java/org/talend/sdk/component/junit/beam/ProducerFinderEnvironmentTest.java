@@ -72,7 +72,6 @@ import org.talend.sdk.component.runtime.manager.chain.Job;
 @WithComponents("org.talend.sdk.component.junit.beam.test")
 public class ProducerFinderEnvironmentTest implements Serializable {
 
-    private static final int RECORD_NBR = 5000;
 
     @Injected
     private BaseComponentsHandler handler;
@@ -92,7 +91,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
      +     * 10000  ~ 7min55 52sec
      +     * 100000 1h34min  25min
      +     */
-    private final Integer recordCount = 1000; // 10 100 1000 10000 100000
+    private final Integer recordCount = 5000; // 10 100 1000 10000 100000
 
     @BeforeAll
     static void forceManagerInit() {
@@ -107,20 +106,20 @@ public class ProducerFinderEnvironmentTest implements Serializable {
 
     @Test
     void finderWithTacokitFamily() {
-        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "TckFamily", RECORD_NBR);
+        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "TckFamily", recordCount);
         recordIterator.forEachRemaining(Assertions::assertNotNull);
     }
 
     @Test
     void finderWithBeamFamily() {
-        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "BeamFamily", RECORD_NBR);
+        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "BeamFamily", recordCount);
         final int[] total = new int[1];
         total[0] = 0;
-        recordIterator.forEachRemaining((Record rec) ->  {
+        recordIterator.forEachRemaining((Record rec) -> {
             Assertions.assertNotNull(rec);
             total[0]++;
         });
-        Assertions.assertEquals(RECORD_NBR, total[0], "did not consume all records");
+        Assertions.assertEquals(recordCount, total[0], "did not consume all records");
     }
 
     @EnvironmentalTest
@@ -162,16 +161,14 @@ public class ProducerFinderEnvironmentTest implements Serializable {
         runJob(handler.asManager(), "BeamFamily");
     }
 
-    private Iterator<Record> getFinder(final ComponentManager manager,
-        final String family,
-        int expectedNumber) {
+    private Iterator<Record> getFinder(final ComponentManager manager, final String family, final int expectedNumber) {
         final Container container = manager.findPlugin("test-classes").get();
         ProducerFinder finder = (ProducerFinder) container.get(AllServices.class)
                 .getServices()
                 .get(ProducerFinder.class);
         assertNotNull(finder);
         final Iterator<Record> recordIterator = finder.find(family, "from", 1,
-            singletonMap("count", Integer.toString(expectedNumber)));
+                singletonMap("count", Integer.toString(expectedNumber)));
         assertNotNull(recordIterator);
         return recordIterator;
     }
