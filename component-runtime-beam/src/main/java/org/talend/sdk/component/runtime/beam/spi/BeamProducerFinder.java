@@ -15,6 +15,15 @@
  */
 package org.talend.sdk.component.runtime.beam.spi;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import org.apache.beam.runners.direct.DirectOptions;
 import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.sdk.Pipeline;
@@ -25,8 +34,6 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-
-import lombok.extern.slf4j.Slf4j;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.source.ProducerFinder;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -36,26 +43,18 @@ import org.talend.sdk.component.runtime.manager.service.ProducerFinderImpl;
 import org.talend.sdk.component.runtime.manager.service.api.ComponentInstantiator;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BeamProducerFinder extends ProducerFinderImpl {
 
     static final int CAPACITY = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "100000"));
 
-    private static List<Queue<Record>> QUEUE = new ArrayList<>();
+    private static List<Queue<Record>> queue = new ArrayList<>();
 
     @Override
     public Iterator<Record> find(final String familyName, final String inputName, final int version,
-                                 final Map<String, String> configuration) {
+            final Map<String, String> configuration) {
         final ComponentInstantiator instantiator = getInstantiator(familyName, inputName);
         final Mapper mapper = findMapper(instantiator, version, configuration);
         try {
@@ -65,8 +64,9 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             log.warn("Component Kit Mapper instantiation failed, trying to wrap native beam mapper...");
             final Object delegate = Delegated.class.cast(mapper).getDelegate();
             if (PTransform.class.isInstance(delegate)) {
-                QUEUE.add(new ArrayBlockingQueue<>(7, true));
-                return new QueueInput(delegate, familyName, inputName, familyName, PTransform.class.cast(delegate), QUEUE.size() - 1);
+                queue.add(new ArrayBlockingQueue<>(CAPACITY, true));
+                return new QueueInput(delegate, familyName, inputName, familyName, PTransform.class.cast(delegate),
+                        queue.size() - 1);
             }
             throw new IllegalStateException(e);
         }
@@ -76,7 +76,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         return new SerializableService(plugin, ProducerFinder.class.getName());
     }
 
-    static class QueueInput  implements Iterator<Record>, Serializable {
+    static class QueueInput implements Iterator<Record>, Serializable {
 
         private final PTransform<PBegin, PCollection<Record>> transform;
 
@@ -93,15 +93,15 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         private Thread th;
 
         public QueueInput(final Object delegate, final String rootName, final String name, final String plugin,
-                          final PTransform<PBegin, PCollection<Record>> transform, int queueIndex) {
-            //super(delegate, rootName, name, plugin);
+                final PTransform<PBegin, PCollection<Record>> transform, final int queueIndex) {
+            // super(delegate, rootName, name, plugin);
             System.out.println("QueueInput constructor thread:" + Thread.currentThread().getId());
             this.transform = transform;
             this.queueIndex = queueIndex;
             result = runDataReadingPipeline();
 
-//            System.out.println("result " + result.getState().name() );
-            System.out.println("QUEUE " + QUEUE.get(this.queueIndex).size());
+            // System.out.println("result " + result.getState().name() );
+            System.out.println("QUEUE " + queue.get(this.queueIndex).size());
             System.out.flush();
         }
 
@@ -125,9 +125,9 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         }
 
         private Record findNext() {
-            System.out.println("Find Next, Thread " + Thread.currentThread().getId() +"; Queue size " + QUEUE.size());
+            System.out.println("Find Next, Thread " + Thread.currentThread().getId() + "; Queue size " + queue.size());
             System.out.flush();
-            Record record = QUEUE.get(this.queueIndex).poll();
+            Record record = queue.get(this.queueIndex).poll();
             int index = 0;
             while (record == null && (!end)) {
                 end = result != null && result.getState() != PipelineResult.State.RUNNING;
@@ -135,10 +135,10 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                     result.waitUntilFinish();
                 }
                 index++;
-                System.out.println("findNext NULL, retry : end=" + end + "; size:" + QUEUE.get(this.queueIndex).size());
+                System.out.println("findNext NULL, retry : end=" + end + "; size:" + queue.get(this.queueIndex).size());
                 sleep();
 
-                record = QUEUE.get(this.queueIndex).poll();
+                record = queue.get(this.queueIndex).poll();
             }
             return record;
         }
@@ -214,13 +214,14 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         }
 
         @ProcessElement
-        public void processElement(ProcessContext context) {
+        public void processElement(final ProcessContext context) {
 
-            boolean ok = QUEUE.get(this.queueIndex).offer(context.element());
-            System.out.println("queue injected " + QUEUE.get(this.queueIndex).size() + "; ok=" + ok + "; thread:"+ Thread.currentThread().getId());
+            boolean ok = queue.get(this.queueIndex).offer(context.element());
+            System.out.println("queue injected " + queue.get(this.queueIndex).size() + "; ok=" + ok + "; thread:"
+                    + Thread.currentThread().getId());
             System.out.flush();
             while (!ok) {
-                if (QUEUE.get(this.queueIndex).size() >= CAPACITY) {
+                if (queue.get(this.queueIndex).size() >= CAPACITY) {
                     System.out.println("######### ERROR #######");
                     final String msg = String.format(
                             "Wrapper queue if full (capacity: %d). Consider increasing it according data with talend.beam.wrapper.capacity property.",
@@ -229,8 +230,9 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                     throw new IllegalStateException(msg);
                 }
                 sleep();
-                ok = QUEUE.get(this.queueIndex).offer(context.element());
-                System.out.println("\tqueue injected retry " + QUEUE.get(this.queueIndex).size() + "; ok=" + ok + "; thread:"+ Thread.currentThread().getId());
+                ok = queue.get(this.queueIndex).offer(context.element());
+                System.out.println("\tqueue injected retry " + queue.get(this.queueIndex).size() + "; ok=" + ok
+                        + "; thread:" + Thread.currentThread().getId());
             }
         }
 
