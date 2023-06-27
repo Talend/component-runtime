@@ -128,6 +128,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             final Queue<Record> recordQueue = QUEUE.get(this.queueId);
 
             Record record = recordQueue.poll();
+
             int index = 0;
             while (record == null && (!end)) {
                 end = result != null && result.getState() != PipelineResult.State.RUNNING;
@@ -138,7 +139,6 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                     log.debug("findNext NULL, retry : end={}; size:{}", end, recordQueue.size());
                     sleep();
                 }
-
                 record = recordQueue.poll();
             }
             return record;
@@ -214,7 +214,6 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
         @ProcessElement
         public void processElement(final ProcessContext context) {
-
             final Queue<Record> recordQueue = QUEUE.get(this.queueId);
             boolean ok = recordQueue.offer(context.element());
             log.debug("queue injected {}; ok={}; thread:{}", recordQueue.size(), ok, Thread.currentThread().getId());
