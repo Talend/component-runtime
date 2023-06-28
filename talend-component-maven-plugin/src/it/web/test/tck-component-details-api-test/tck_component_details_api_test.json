@@ -4,7 +4,7 @@
     {
       "entity": {
         "type": "Project",
-        "description": "This test project contains all common tests. It will be deleted when the split will be finished.\nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
         "id": "8b9134f3-0043-4582-95df-1a847d33c3d7",
         "name": "tck-component-details-api-test"
       },

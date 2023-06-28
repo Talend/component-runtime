@@ -4,7 +4,7 @@
     {
       "entity": {
         "type": "Project",
-        "description": "This test project contains all common tests. It will be deleted when the split will be finished.\nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
         "id": "d31b11d8-a706-4a35-9a5c-01bb2e631770",
         "name": "tck-component-migrate-api-test"
       },
@@ -87,7 +87,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/component/migrate/${\"mapper_id\"}/10"
             },
-            "description": "TODO: Is the comportment normal? https://jira.talendforge.org/browse/TCOMP-2359\n   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "TODO: Is the comportment normal?  \nWe have an executed migration from 10 to 3  \nhttps://jira.talendforge.org/browse/TCOMP-2359   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "e0a1a84c-d097-4405-8fca-db3973f02ec6",
             "name": "component/migrate/id/configurationVersion - invalid migration version",
             "headers": [
