@@ -25,7 +25,7 @@ import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler.DatasetMigrationHandler;
-import org.talend.sdk.component.test.connectors.service.UIService;
+import org.talend.sdk.component.test.connectors.service.ActionsServices;
 
 import lombok.Data;
 
@@ -46,13 +46,15 @@ public class TheDataset implements Serializable {
 
     public final static int DATASET_VERSION = 5;
 
+    public final static String DATASET_INFO = "info-to-sanitize";
+
     @Option
     @Documentation("Doc: default datastore documentation without Internationalization.")
     private TheDatastore datastore;
 
     @Option
     @Documentation("Doc: default entity documentation without Internationalization.")
-    @Suggestable(value = UIService.LIST_ENTITIES)
+    @Suggestable(value = ActionsServices.LIST_ENTITIES)
     private String entity;
 
     @Option
@@ -65,7 +67,7 @@ public class TheDataset implements Serializable {
 
     @Option
     @Documentation("Doc: default nestedConfigDest documentation without Internationalization.")
-    @Updatable(value = UIService.UPDATE_CONFIG, parameters = { "nestedConfigSrc" }, after = "nestedConfigDest")
+    @Updatable(value = ActionsServices.UPDATE_CONFIG, parameters = { "nestedConfigSrc" }, after = "nestedConfigDest")
     private NestedConfig nestedConfigDest;
 
 }

@@ -23,10 +23,21 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>tck-general-api-test</module>
+        <module>tck-action-errors-api-test</module>
+        <module>tck-action-index-api-test</module>
+        <module>tck-action-schema-api-test</module>
+        <module>tck-action-suggestion-api-test</module>
+        <module>tck-action-validation-api-test</module>
         <module>tck-bulk-api-test</module>
+        <module>tck-general-api-test</module>
         <module>tck-security-api-test</module>
+        <module>tck-action-healthcheck-api-test</module>
     </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <api-tester.version>1.10.2</api-tester.version>
+    </properties>
 
     <build>
         <pluginManagement>

@@ -219,6 +219,18 @@ pipeline {
         }
       }
     }
+    stage('Build the sample connector') {
+      when {
+        expression { runtimeVersion.contains('-SNAPSHOT') }
+      }
+      steps {
+        withCredentials([_NEXUS_CREDENTIALS]) {
+          script {
+            sh "bash ${_SCRIPTS_PATH}/tcomp-build-sample-connector.sh ${_ROOT_PATH}/sample-parent/sample-connector/pom.xml"
+          }
+        }
+      }
+    }
     stage('Prepare component-runtime server') {
       steps {
         withCredentials([_NEXUS_CREDENTIALS]) {
