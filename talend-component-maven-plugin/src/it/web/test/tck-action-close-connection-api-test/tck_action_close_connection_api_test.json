@@ -4,6 +4,7 @@
     {
       "entity": {
         "type": "Project",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi doc is [here for action execute](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Action/execute)  \nAction documentation is [here for close_connection](https://talend.github.io/component-runtime/main/latest/ref-actions.html#_close_connection)",
         "id": "99f72ca1-31e0-4735-a38c-0c26e37af61f",
         "name": "tck-action-close-connection-api-test"
       },
@@ -144,60 +145,60 @@
       "id": "d7975106-9ad9-41fd-8900-ab5520885d2c",
       "name": "component_runtime_ci",
       "variables": {
-        "2abfb8ed-b9f0-41bc-a52d-216b275ee7ca": {
+        "01f8fceb-5d04-48e6-8c3e-60cf6eed3062": {
           "name": "mapper_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
           "enabled": true,
-          "createdAt": "2023-06-25T03:25:03.151Z",
+          "createdAt": "2023-06-28T02:13:23.074Z",
           "private": false
         },
-        "4bbb2f4c-42b2-47eb-9ed9-756e81e28197": {
-          "name": "datastore_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
-          "enabled": true,
-          "createdAt": "2023-06-25T03:25:03.151Z",
-          "private": false
-        },
-        "d612f91c-2db0-41e5-bffe-65c96004e75e": {
-          "name": "family_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
-          "enabled": true,
-          "createdAt": "2023-06-25T03:25:03.151Z",
-          "private": false
-        },
-        "8e4f0197-6ca0-4843-8fac-2a1b3ad179ee": {
+        "36c61402-f959-49a2-8c84-6c90ed7154ef": {
           "name": "output_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
           "enabled": true,
-          "createdAt": "2023-06-25T03:25:03.151Z",
+          "createdAt": "2023-06-28T02:13:23.074Z",
           "private": false
         },
-        "9ec67729-030f-4fad-9cf0-aea09bafb063": {
+        "97f7431d-6d42-4306-aff1-3468a254b6f5": {
           "name": "dataset_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
           "enabled": true,
-          "createdAt": "2023-06-25T03:25:03.151Z",
+          "createdAt": "2023-06-28T02:13:23.074Z",
           "private": false
         },
-        "3350fe0e-fca6-414e-a4eb-7756350c6c94": {
-          "name": "server-port",
-          "value": "8081",
-          "enabled": true,
-          "createdAt": "2023-06-25T03:25:03.151Z",
-          "private": false
-        },
-        "a86e773e-5117-4117-820f-573eaa9b1f2d": {
+        "f4da056e-6c0d-4460-8146-76dbb448491c": {
           "name": "httpbin_addr",
           "value": "tal-rd22.talend.lan:8084",
           "enabled": true,
-          "createdAt": "2023-06-25T03:25:03.151Z",
+          "createdAt": "2023-06-28T02:13:23.074Z",
           "private": false
         },
-        "7d923f79-34c9-44c0-91d0-ef075805fb98": {
+        "8061cfd4-ee24-449c-81b7-3bdd10274871": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "65726998-8cb1-4005-b749-6d750cdeb14b": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "6fc0915d-46b9-48ae-ac50-eb6634322420": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "ce1ab3fb-26bf-44ae-ad56-27457bf13f51": {
           "name": "server-ip",
           "value": "localhost",
           "enabled": true,
-          "createdAt": "2023-06-25T03:25:03.151Z",
+          "createdAt": "2023-06-28T02:13:23.074Z",
           "private": false
         }
       }
