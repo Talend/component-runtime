@@ -19,16 +19,19 @@ set -xe
 
 # Parameters:
 # $1: docker tag version
-# $2: should tag as latest
+# $2: should tag as latest (true/false) default is false
 # $3: requested image, if not given, all will be pushed
 
 _TAG="${1?Missing tag}"
-_IS_LATEST="${2-'false'}"
-_ONLY_ONE_IMAGE="${3-''}"
+_IS_LATEST="${2-false}"
+_ONLY_ONE_IMAGE="${3}"
 
 dockerBuild() {
   _IMAGE="${1}"
-  echo ">> Building and push $_IMAGE:${_TAG}"
+  printf ">> Building and push %s:%s\n" "{$_IMAGE}" "${_TAG}"
+  if [[ ${_IS_LATEST} == 'true' ]]; then
+    printf ">>THe image will be tagged as LATEST\n"
+  fi
 
   mvn package jib:build@build \
     --file "images/${_IMAGE}-image/pom.xml" \

@@ -39,20 +39,25 @@ _MAVEN_TEST_SKIP="--define spotless.apply.skip=true \
                   --define skipTests \
                   --define maven.javadoc.skip=true \
                   --define invoker.skip=true"
-_MAVEN_FAST="--define maven.artifact.threads=25"
+_MAVEN_FAST="--define maven.artifact.threads=25 \
+             --threads 4C"
 
 main() (
   printf '##############################################\n'
   printf 'Maven fast build\n'
   printf '##############################################\n'
 
-  mvn clean install \
+  mvn install \
   --file "${_POM_FILE_PATH}" \
   --settings .jenkins/settings.xml \
   --projects component-server-parent/component-server \
+  --projects talend-component-maven-plugin \
+  --projects sample-parent \
+  --projects bom \
   --also-make \
   ${_MAVEN_TEST_SKIP} \
   ${_MAVEN_FAST}
+
 )
 
 main "$@"

@@ -68,6 +68,12 @@ public class CarMojo extends DependencyAwareMojo {
     @Parameter(defaultValue = "false", property = "talend.car.skip")
     private boolean skip;
 
+    /**
+     * Is it a `connector' or an `extension' bundled?
+     */
+    @Parameter(defaultValue = "connector", property = "talend.car.type")
+    private String type;
+
     @Component
     private MavenProjectHelper helper;
 
@@ -86,6 +92,7 @@ public class CarMojo extends DependencyAwareMojo {
         configuration.setOutput(output);
         configuration.setArtifacts(artifacts());
         configuration.setVersion(project.getVersion());
+        configuration.setType(type);
         configuration.setCustomMetadata(metadata);
         new CarBundler(configuration, getLog()).run();
         if (attach) {

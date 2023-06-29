@@ -181,6 +181,7 @@ public class TaCoKitGuessSchema {
             }
         } catch (Exception e) {
             log.error("Can't guess processor schema through action.", e);
+            throw new Exception(e.getMessage());
         }
 
         log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema.");

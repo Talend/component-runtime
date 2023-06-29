@@ -1,10 +1,113 @@
 
 
+== Version 1.58.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for CE link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2447[TCOMP-2447^]: Revert datetime instant management changes on AvroSchema link:search.html?query=beam[beam^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2406[TCOMP-2406^]: Error logs when kill kafka streaming job link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2443[TCOMP-2443^]: Allow component-manager extensions for Studio link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2428[TCOMP-2428^]: Stop deciphering vault secrets during migration process link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=vault-client[vault-client^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2440[TCOMP-2440^]: Upgrade tomcat to 9.0.75 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2441[TCOMP-2441^]: Upgrade johnzon to 1.2.20 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2442[TCOMP-2442^]: Upgrade jib-core to 0.24.0 link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=remote-engine-customizer[remote-engine-customizer^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2451[TCOMP-2451^]: Rework dependencies on config link:search.html?query=studio[studio^,role='dockey']
+
+
+
+== Version 1.57.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2447[TCOMP-2447^]: Revert datetime instant management changes on AvroSchema link:search.html?query=beam[beam^,role='dockey']
+
+
+
+== Version 1.57.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for CE link:search.html?query=component-server[component-server^,role='dockey']
+
+== Version 1.57.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2426[TCOMP-2426^]: Missing Instant conversion to Long link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2435[TCOMP-2435^]: Port not assigned correctly on CE link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2407[TCOMP-2407^]: Allow to deploy specific branch qualified artifacts link:search.html?query=build[build^,role='dockey'] link:search.html?query=testing[testing^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2391[TCOMP-2391^]: Phase out layerspector and migrate to JIB for TCK Api Test script link:search.html?query=build[build^,role='dockey'] link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=remote-engine-customizer[remote-engine-customizer^,role='dockey'] link:search.html?query=starter[starter^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2423[TCOMP-2423^]: Upgrade netty to 4.1.92.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2424[TCOMP-2424^]: Upgrade jackson to 2.15.0 link:search.html?query=beam[beam^,role='dockey']
+
+
+
+
+
+
+
+
+
+
+
+
+
+== Version 1.56.3
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2437[TCOMP-2437^]: Missing classpath elements on component-server for CE link:search.html?query=component-server[component-server^,role='dockey']
+
+== Version 1.56.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2435[TCOMP-2435^]: Port not assigned correctly on CE link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.56.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2426[TCOMP-2426^]: Missing Instant conversion to Long link:search.html?query=component-manager[component-manager^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
 == Version 1.56.0
 
 === Bug
 
+- link:https://jira.talendforge.org/browse/TCOMP-2293[TCOMP-2293^]: Add Instant parameter type to withTimestamp method to avoid ms precision loss link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2355[TCOMP-2355^]: Error on language support for xx_YY language files link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2383[TCOMP-2383^]: Guess schema - Can't find component name Client link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2389[TCOMP-2389^]: There is no response when use guess schema for tNetSuiteV2019Input link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2414[TCOMP-2414^]: Need add-opens for Pulsar Connector running with Java 17 link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2343[TCOMP-2343^]: Guesschema - Improve error message link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
@@ -1502,6 +1605,12 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.15
 
 === Bug
@@ -1534,12 +1643,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 

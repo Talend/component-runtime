@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.talend.sdk.component.api.configuration.dependency.ConnectorRef;
+import org.talend.sdk.component.api.configuration.dependency.ConnectorRef.ConnectorRefValue;
 import org.talend.sdk.component.api.configuration.dependency.ConnectorReference;
 
 class DependencyParameterEnricherTest {
@@ -30,20 +32,64 @@ class DependencyParameterEnricherTest {
     private final DependencyParameterEnricher enricher = new DependencyParameterEnricher();
 
     @Test
-    void onParameterAnnotation() throws ReflectiveOperationException {
-        final Field field = MyConfig.class.getDeclaredField("reference");
-        final Map<String, String> value = enricher.onParameterAnnotation("value", field.getGenericType(), null);
-        Assertions.assertNotNull(value);
-        Assertions.assertNotNull(value.get("tcomp::dependencies::connector"));
+    void validateConnectorReference() throws ReflectiveOperationException {
+        final Field family = ConnectorReference.class.getDeclaredField("family");
+        final Map<String, String> familyValue = enricher
+                .onParameterAnnotation("value", family.getType(), family.getAnnotation(ConnectorRef.class));
+        Assertions.assertNotNull(familyValue);
+        Assertions.assertEquals(ConnectorRefValue.FAMILY.getRefValue(),
+                familyValue.get("tcomp::dependencies::connector"));
 
-        final Field fieldRef = MyConfig.class.getDeclaredField("references");
-        final Map<String, String> value2 = enricher.onParameterAnnotation("value", fieldRef.getGenericType(), null);
-        Assertions.assertNotNull(value2);
-        Assertions.assertNotNull(value2.get("tcomp::dependencies::connector"));
+        final Field name = ConnectorReference.class.getDeclaredField("name");
+        final Map<String, String> nameValue = enricher
+                .onParameterAnnotation("value", name.getType(), name.getAnnotation(ConnectorRef.class));
+        Assertions.assertNotNull(nameValue);
+        Assertions.assertEquals(ConnectorRefValue.NAME.getRefValue(), nameValue.get("tcomp::dependencies::connector"));
+
+        final Field mavenReference = ConnectorReference.class.getDeclaredField("mavenReferences");
+        final Map<String, String> mavenReferenceValue = enricher
+                .onParameterAnnotation("value", mavenReference.getType(),
+                        mavenReference.getAnnotation(ConnectorRef.class));
+        Assertions.assertNotNull(mavenReferenceValue);
+        Assertions.assertEquals(ConnectorRefValue.MAVEN_REFERENCE.getRefValue(),
+                mavenReferenceValue.get("tcomp::dependencies::connector"));
+    }
+
+    @Test
+    void validateCustomReference() throws ReflectiveOperationException {
+        final Field family = CustomReference.class.getDeclaredField("foo2");
+        final Map<String, String> familyValue = enricher
+                .onParameterAnnotation("value", family.getType(), family.getAnnotation(ConnectorRef.class));
+        Assertions.assertNotNull(familyValue);
+        Assertions.assertEquals(ConnectorRefValue.FAMILY.getRefValue(),
+                familyValue.get("tcomp::dependencies::connector"));
+
+        final Field name = CustomReference.class.getDeclaredField("foo1");
+        final Map<String, String> nameValue = enricher
+                .onParameterAnnotation("value", name.getType(), name.getAnnotation(ConnectorRef.class));
+        Assertions.assertNotNull(nameValue);
+        Assertions.assertEquals(ConnectorRefValue.NAME.getRefValue(), nameValue.get("tcomp::dependencies::connector"));
+
+        final Field mavenReference = CustomReference.class.getDeclaredField("foo3");
+        final Map<String, String> mavenReferenceValue = enricher
+                .onParameterAnnotation("value", mavenReference.getType(),
+                        mavenReference.getAnnotation(ConnectorRef.class));
+        Assertions.assertNotNull(mavenReferenceValue);
+        Assertions.assertEquals(ConnectorRefValue.MAVEN_REFERENCE.getRefValue(),
+                mavenReferenceValue.get("tcomp::dependencies::connector"));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { /* "wrongColl", "wrongColl2", */ "wrongColl3" })
+    @ValueSource(strings = { "reference", "references", "customReference" })
+    void onParameterAnnotation(final String fieldName) throws ReflectiveOperationException {
+        final Field field = MyConfig.class.getDeclaredField(fieldName);
+        final Map<String, String> value = enricher.onParameterAnnotation("value", field.getGenericType(), null);
+        Assertions.assertNotNull(value);
+        Assertions.assertNotNull(value.get("tcomp::dependencies::connector"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "wrongColl", "wrongColl2", "wrongColl3" })
     void testWrong(final String args) throws ReflectiveOperationException {
         final Field fieldErr = MyConfig.class.getDeclaredField(args);
         final Map<String, String> value3 = enricher.onParameterAnnotation("value", fieldErr.getGenericType(), null);
@@ -61,6 +107,20 @@ class DependencyParameterEnricherTest {
 
         private String wrongColl2;
 
+        private CustomReference customReference;
+
         private Map<String, ConnectorReference> wrongColl3;
+    }
+
+    static class CustomReference {
+
+        @ConnectorRef(ConnectorRefValue.NAME)
+        private String foo1;
+
+        @ConnectorRef(ConnectorRefValue.FAMILY)
+        private String foo2;
+
+        @ConnectorRef(ConnectorRefValue.MAVEN_REFERENCE)
+        private String foo3;
     }
 }

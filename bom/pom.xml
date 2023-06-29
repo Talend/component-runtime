@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.56.0-SNAPSHOT</version>
+  <version>1.59.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
@@ -78,15 +78,15 @@
     <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
 
     <slf4j.version>1.7.34</slf4j.version>
-    <johnzon.version>1.2.19</johnzon.version>
+    <johnzon.version>1.2.20</johnzon.version>
     <log4j2.version>2.20.0</log4j2.version>
 
     <commons-codec.version>1.15</commons-codec.version>
     <commons-compress.version>1.21</commons-compress.version>
     <commons-lang3.version>3.11</commons-lang3.version>
 
-    <jackson.version>2.13.4</jackson.version>
-    <jackson-databind.version>2.13.4.2</jackson-databind.version>
+    <jackson.version>2.15.0</jackson.version>
+    <jackson-databind.version>2.15.0</jackson-databind.version>
 
     <bouncycastle.version>1.70</bouncycastle.version>
     <commons-io.version>2.9.0</commons-io.version>
