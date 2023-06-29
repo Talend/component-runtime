@@ -39,8 +39,8 @@ public abstract class AbstractMigrationHandler implements MigrationHandler {
 
         Map<String, String> migrated = new HashMap<>(incomingData);
         migrated.put("level", this.getLevel());
-        migrated.put("incomingVersion", "" + incomingVersion);
-        migrated.put("currentVersion", "" + this.getCurrentVersion());
+        migrated.put("incomingVersion", String.valueOf(incomingVersion));
+        migrated.put("currentVersion", String.valueOf(this.getCurrentVersion()));
 
         return migrated;
     }
