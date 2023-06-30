@@ -19,6 +19,6 @@ public class FlinkRunnerEnvironment extends BeamEnvironment {
 
     @Override
     protected String rootDependencyBase() {
-        return "org.apache.beam:beam-runners-flink-1.12";
+        return "org.apache.beam:beam-runners-flink-1.14";
     }
 }
