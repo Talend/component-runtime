@@ -1,0 +1,243 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi doc is [here for action execute](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Action/execute)  \nAction documentation is [here for create_connection](https://talend.github.io/component-runtime/main/latest/ref-actions.html#_create_connection)",
+        "id": "c4342f8c-94e6-41ff-a290-e6c4f56e2009",
+        "name": "tck-action-create-connection-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{}"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "the_family"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "type",
+                    "value": "create_connection"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "action",
+                    "value": "action_CREATE_CONNECTION"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/execute"
+            },
+            "id": "e22c1839-0cf0-45c5-b3a2-a813656515fb",
+            "name": "1. action.execute - create connection check",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.family",
+                "value": "my_family"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.value",
+                "value": "Create Connection"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.connection_create_status",
+                "value": "successful"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{}"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "the_family"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "type",
+                    "value": "create_connection"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "action",
+                    "value": "action_CREATE_CONNECTION_DEFAULT"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/execute"
+            },
+            "id": "94bf6938-448f-4d8c-bef3-6f318a3e3da2",
+            "name": "2. action.execute - create connection check - Default",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.family",
+                "value": ""
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.value",
+                "value": "default"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.connection_create_status",
+                "value": "successful"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "d7975106-9ad9-41fd-8900-ab5520885d2c",
+      "name": "component_runtime_ci",
+      "variables": {
+        "01f8fceb-5d04-48e6-8c3e-60cf6eed3062": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "36c61402-f959-49a2-8c84-6c90ed7154ef": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "97f7431d-6d42-4306-aff1-3468a254b6f5": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "f4da056e-6c0d-4460-8146-76dbb448491c": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "8061cfd4-ee24-449c-81b7-3bdd10274871": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "65726998-8cb1-4005-b749-6d750cdeb14b": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "6fc0915d-46b9-48ae-ac50-eb6634322420": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        },
+        "ce1ab3fb-26bf-44ae-ad56-27457bf13f51": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-06-28T02:13:23.074Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}
