@@ -44,7 +44,7 @@ public class CreateConnectionServices {
      *
      */
 
-    CreateConnection annotation;
+    CreateConnection anno;
 
     @CreateConnection(family = "my_family", value = "Create Connection")
     public class Connection {
@@ -54,9 +54,9 @@ public class CreateConnectionServices {
     @CreateConnection(CREATE_CONNECTION)
     public Object createConnection() {
         Class<Connection> clazz = Connection.class;
-        annotation = clazz.getAnnotation(CreateConnection.class);
+        anno = clazz.getAnnotation(CreateConnection.class);
         return String.format("{\"family\":\"%s\", \"value\":\"%s\", \"connection_create_status\":\"successful\"}",
-                annotation.family(), annotation.value());
+                anno.family(), anno.value());
     }
 
     @CreateConnection()
@@ -67,9 +67,9 @@ public class CreateConnectionServices {
     @CreateConnection(CREATE_CONNECTION_DEFAULT)
     public Object createConnectionDefault() {
         Class<ConnectionDefault> clazz = ConnectionDefault.class;
-        annotation = clazz.getAnnotation(CreateConnection.class);
+        anno = clazz.getAnnotation(CreateConnection.class);
         return String.format("{\"family\":\"%s\", \"value\":\"%s\", \"connection_create_status\":\"successful\"}",
-                annotation.family(), annotation.value());
+                anno.family(), anno.value());
     }
 
 }
