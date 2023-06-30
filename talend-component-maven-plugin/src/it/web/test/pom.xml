@@ -23,7 +23,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!-- All test cases in alphabeticl order -->
+        <!-- All test cases in alphabetical order -->
+        <module>tck-action-close-connection-api-test</module>
         <module>tck-action-create-connection-api-test</module>
         <module>tck-action-errors-api-test</module>
         <module>tck-action-index-api-test</module>
@@ -33,6 +34,14 @@
         <module>tck-action-healthcheck-api-test</module>
         <module>tck-bulk-api-test</module>
         <module>tck-component-icon-api-test</module>
+        <module>tck-component-dependencies-api-test</module>
+        <module>tck-component-dependency-api-test</module>
+        <module>tck-component-details-api-test</module>
+        <module>tck-component-index-api-test</module>
+        <module>tck-component-migrate-api-test</module>
+        <module>tck-configurationType-details-api-test</module>
+        <module>tck-configurationType-index-api-test</module>
+        <module>tck-configurationType-migrate-api-test</module>
         <module>tck-general-api-test</module>
         <module>tck-security-api-test</module>
     </modules>
