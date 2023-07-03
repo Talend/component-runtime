@@ -33,7 +33,6 @@ public class CreateConnectionServices {
 
     public final static String CREATE_CONNECTION = "action_CREATE_CONNECTION";
 
-
     /**
      * Create Connection action
      *
