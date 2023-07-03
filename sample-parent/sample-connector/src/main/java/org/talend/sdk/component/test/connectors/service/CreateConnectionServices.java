@@ -33,7 +33,7 @@ public class CreateConnectionServices {
 
     public final static String CREATE_CONNECTION = "action_CREATE_CONNECTION";
 
-    public final static String CREATE_CONNECTION_DEFAULT = "action_CREATE_CONNECTION_DEFAULT";
+//    public final static String CREATE_CONNECTION_DEFAULT = "action_CREATE_CONNECTION_DEFAULT";
 
     /**
      * Create Connection action
@@ -44,32 +44,33 @@ public class CreateConnectionServices {
      *
      */
 
-    CreateConnection anno;
-
-    @CreateConnection(family = "my_family", value = "Create Connection")
-    public class Connection {
-
-    }
+//    CreateConnection anno;
+//
+//    @CreateConnection(family = "my_family", value = "Create Connection")
+//    public class Connection {
+//
+//    }
 
     @CreateConnection(CREATE_CONNECTION)
     public Object createConnection() {
-        Class<Connection> clazz = Connection.class;
-        anno = clazz.getAnnotation(CreateConnection.class);
+//        Class<Connection> clazz = Connection.class;
+//        anno = clazz.getAnnotation(CreateConnection.class);
+//        return String.format("{\"family\":\"%s\", \"value\":\"%s\", \"connection_create_status\":\"successful\"}",
         return String.format("{\"family\":\"%s\", \"value\":\"%s\", \"connection_create_status\":\"successful\"}",
-                anno.family(), anno.value());
+                "my_family", "default");
     }
 
-    @CreateConnection()
-    public class ConnectionDefault {
-
-    }
-
-    @CreateConnection(CREATE_CONNECTION_DEFAULT)
-    public Object createConnectionDefault() {
-        Class<ConnectionDefault> clazz = ConnectionDefault.class;
-        anno = clazz.getAnnotation(CreateConnection.class);
-        return String.format("{\"family\":\"%s\", \"value\":\"%s\", \"connection_create_status\":\"successful\"}",
-                anno.family(), anno.value());
-    }
+//    @CreateConnection()
+//    public class ConnectionDefault {
+//
+//    }
+//
+//    @CreateConnection(CREATE_CONNECTION_DEFAULT)
+//    public Object createConnectionDefault() {
+//        Class<ConnectionDefault> clazz = ConnectionDefault.class;
+//        anno = clazz.getAnnotation(CreateConnection.class);
+//        return String.format("{\"family\":\"%s\", \"value\":\"%s\", \"connection_create_status\":\"successful\"}",
+//                anno.family(), anno.value());
+//    }
 
 }
