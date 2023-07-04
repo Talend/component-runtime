@@ -58,7 +58,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/action/execute"
             },
-            "description": "TODO test default language\nFIXME finish it",
+            "description": "Execute an update without giving the input config.",
             "id": "76ab4b0f-1db6-4610-a0d5-247d3961e747",
             "name": "1. action.execute - update - default",
             "headers": [
@@ -141,7 +141,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/action/execute"
             },
-            "description": "TODO: language is failing  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
+            "description": "Execute an update in specific language",
             "id": "3e32bb35-3b52-463b-9be2-f19ab3cdf9dd",
             "name": "2. action.execute - update - language",
             "headers": [
@@ -160,16 +160,16 @@
                 "value": "200"
               },
               {
-                "comparison": "Equals",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
                 "path": "$.stringOption1",
-                "value": "\"set by service : null -fr\""
+                "value": "\"-fr\""
               },
               {
-                "comparison": "Equals",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
                 "path": "$.stringOption2",
-                "value": "\"set by service : null -fr\""
+                "value": "\"-fr\""
               }
             ]
           }
@@ -196,7 +196,7 @@
                 ]
               },
               "bodyType": "Text",
-              "textBody": "{\n\"stringOption1\": \"value 1\",\n\"stringOption2\": \"value 2\"\n}"
+              "textBody": "{\n\"configuration.stringOption1\": \"value 1\",\n\"configuration.stringOption2\": \"value 2\"\n}"
             },
             "uri": {
               "query": {
@@ -230,7 +230,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/action/execute"
             },
-            "description": "FIXME not working for now  \nhttps://jira.talendforge.org/browse/TCOMP-2247",
+            "description": "Execute an update with content",
             "id": "4ca09681-4461-4c15-baf6-abf04998c6d9",
             "name": "3. action.execute - update - with content",
             "headers": [

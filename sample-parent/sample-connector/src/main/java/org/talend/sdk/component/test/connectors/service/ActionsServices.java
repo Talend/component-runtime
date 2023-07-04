@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
 import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
@@ -76,7 +77,7 @@ public class ActionsServices {
      * https://talend.github.io/component-runtime/main/latest/services-actions.html#_update
      */
     @Update(UPDATE_CONFIG)
-    public NestedConfig retrieveFeedback(final NestedConfig source) throws Exception {
+    public NestedConfig retrieveFeedback(final @Option("configuration") NestedConfig source) throws Exception {
         NestedConfig dest = new NestedConfig();
         dest.setStringOption1(i18n.setByService(source.getStringOption1()));
         dest.setStringOption2(i18n.setByService(source.getStringOption2()));
