@@ -150,7 +150,7 @@ public interface ComponentResource {
                     schema = @Schema(type = OBJECT, implementation = SampleErrorForBulk.class)))
     ComponentDetailList getDetail(
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.",
+                    description = "The language for display names.",
                     in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("identifiers") @Parameter(name = "identifiers",
