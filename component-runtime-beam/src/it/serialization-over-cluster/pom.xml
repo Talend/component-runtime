@@ -200,7 +200,7 @@
           <trimStackTrace>false</trimStackTrace>
           <systemPropertyVariables>
             <spark-scala.version>@spark-scala.version@</spark-scala.version>
-            <spark.version>3.0.1</spark.version>
+            <spark.version>3.2.2</spark.version>
           </systemPropertyVariables>
           <classpathDependencyExcludes> <!-- shaded and would lead to logging errors -->
             <classpathDependencyExclude>org.slf4j:slf4j-api</classpathDependencyExclude>
