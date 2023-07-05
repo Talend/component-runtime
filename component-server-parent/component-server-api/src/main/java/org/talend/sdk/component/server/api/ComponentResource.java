@@ -62,7 +62,8 @@ public interface ComponentResource {
     @APIResponse(responseCode = "200", description = "The list of dependencies per component",
             content = @Content(mediaType = APPLICATION_JSON))
     Dependencies getDependencies(@QueryParam("identifier") @Parameter(name = "identifier",
-            description = "the list of component identifiers to find the dependencies for.", in = QUERY) String[] ids);
+            description = "The identifier id to request. Repeat this parameter to request more than one element.",
+            in = QUERY) String[] ids);
 
     @GET
     @Path("dependency/{id}")
@@ -149,10 +150,14 @@ public interface ComponentResource {
                     schema = @Schema(type = OBJECT, implementation = SampleErrorForBulk.class)))
     ComponentDetailList getDetail(
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.", in = QUERY,
+                    description = "The language for display names.",
+                    in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("identifiers") @Parameter(name = "identifiers",
-                    description = "the component identifiers to request.", in = QUERY) String[] ids);
+                    description = "The identifier id to request. " +
+                            "Repeat this parameter to request more than one element.",
+
+                    in = QUERY) String[] ids);
 
     // @Unused, only for sample
     class SampleErrorForBulk {
