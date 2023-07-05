@@ -43,6 +43,32 @@ public interface BulkReadResource {
             + "in a normalized HTTP response representation.")
     @APIResponse(responseCode = "200", description = "The request payloads.",
             content = @Content(mediaType = APPLICATION_JSON))
-    CompletionStage<BulkResponses> bulk(@RequestBody(description = "the action parameters as a flat map of strings",
-            required = true, content = @Content(mediaType = APPLICATION_JSON)) final BulkRequests requests);
+    CompletionStage<BulkResponses> bulk(@RequestBody(
+            description = "The requests list as json objects containing a list of request objects.",
+            //example = " " +
+            //"{" +
+            //"\"requests\":[\n" +
+            //  "{\n" +
+            //  "  \"path\": \"/api/v1/component/index\",\n" +
+            //  "  \"verb\" : \"GET\",\n" +
+            //  "  \"headers\" :\n" +
+            //  "  {\n" +
+            //  "    \"accept\": [\"application/json\"],\n" +
+            //  "    \"content-Type\": [\"application/json\"]\n" +
+            //  "  }\n" +
+            //  "},\n" +
+            //  "{\n" +
+            //  "  \"path\": \"/api/v1/configurationtype/index\",\n" +
+            //  "  \"verb\" : \"GET\",\n" +
+            //  "  \"headers\" :\n" +
+            //  "    {\n" +
+            //  "    \"accept\": [\"application/json\"],\n" +
+            //  "    \"content-Type\": [\"application/json\"]\n" +
+            //  "    }\n" +
+            //  "}\n" +
+            //  "]\n" +
+            //"}",
+            required = true,
+            content = @Content(mediaType = APPLICATION_JSON)
+    ) final BulkRequests requests);
 }
