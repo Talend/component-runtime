@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for bulk](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Bulk/bulk)",
-        "id": "4f5736ee-f474-43df-8650-d75d97667f87",
+        "id": "2c5e9ed0-5aa3-43e2-9435-0711dedcf3eb",
         "name": "tck-bulk-api-test"
       },
       "children": [
@@ -40,7 +40,7 @@
               "path": "/api/v1/bulk"
             },
             "description": "Do a bulk request with only one request inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "dffc65d1-42d3-4228-8127-4326fc358694",
+            "id": "67883b73-3fce-4dd7-bcc2-a55a2d07fb84",
             "name": "1-bulk: one component index",
             "headers": [
               {
@@ -118,7 +118,7 @@
               "path": "/api/v1/bulk"
             },
             "description": "Do a bulk request with two request inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "795b32f7-178d-4d62-8498-2b4b5efd75ad",
+            "id": "47ed9d9d-1664-4712-8650-2372d9bb7052",
             "name": "2-bulk: two index (component, configurationtype)",
             "headers": [
               {
@@ -188,7 +188,7 @@
               },
               "bodyType": "Text",
               "textBodyEditorHeight": 560,
-              "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"/api/v1/component/details?identifiers=${\"mapper_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/component/details?identifiers=${\"output_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/configurationtype/details?identifiers=${\"dataset_id\"}\",\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
+              "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"/api/v1/component/details\",\n      \"queryParameters\" :\n      {\n     \t\"identifiers\" : [\"${\"mapper_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\" : [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\" : \"/api/v1/component/details\",\n      \"queryParameters\" :\n      {\n     \t\"identifiers\" : [\"${\"output_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/configurationtype/details\",\n      \"queryParameters\" :\n      {\n     \t\"identifiers\" : [\"${\"dataset_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\": [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
             },
             "uri": {
               "query": {
@@ -203,7 +203,7 @@
               "path": "/api/v1/bulk"
             },
             "description": "Do a bulk request with three requests inside  \n\nApi documentation is [here for bulk](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Bulk/bulk)",
-            "id": "5551fe3f-971b-4782-8af8-1fed4b08c842",
+            "id": "cf3fbd5a-5f7d-42af-a1f1-56b3e7c55eac",
             "name": "3-bulk: three details",
             "headers": [
               {
@@ -231,21 +231,21 @@
                 "value": "2"
               },
               {
-                "comparison": "Equals",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.responses[0].response.details..displayName",
+                "path": "$.responses[0].response.details.displayName",
                 "value": "Name: The Mapper 1 -en"
               },
               {
-                "comparison": "Equals",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.responses[1].response.details..displayName",
+                "path": "$.responses[1].response.details.displayName",
                 "value": "Name: The Output 1 -en"
               },
               {
-                "comparison": "Equals",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.responses[2].response.details..displayName",
+                "path": "$.responses[2].response.nodes.c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA.displayName",
                 "value": "Name: Sample dataset -en"
               }
             ]
