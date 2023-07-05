@@ -83,12 +83,13 @@ public interface ConfigurationTypeResource {
             content = @Content(mediaType = APPLICATION_JSON))
     ConfigTypeNodes getDetail(
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.",
+                    description = "The language for display names.",
                     in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("identifiers") @Parameter(name = "identifiers",
-                    description = "the identifiers id to request." +
-                            "Use this parameter multiple times to request more than one element",
+                    description = "The identifier id to request. " +
+                            "Repeat this parameter to request more than one element.",
+
                     in = QUERY) String[] ids);
 
     @POST
