@@ -32,12 +32,14 @@
   </properties>
 
   <dependencies>
-    <dependency><!-- just to show a specific dependency usage, not that required for that sample by itself -->
+    <dependency>
+      <!-- just to show a specific dependency usage, not that required for that sample by itself -->
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
 
-    <dependency><!-- not for components, just for the Main sample, a real component would use scope test or not use it at all -->
+    <dependency>
+      <!-- not for components, just for the Main sample, a real component would use scope test or not use it at all -->
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
