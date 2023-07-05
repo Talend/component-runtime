@@ -25,6 +25,7 @@
     <modules>
         <!-- All test cases in alphabetical order -->
         <module>tck-action-close-connection-api-test</module>
+        <module>tck-action-create-connection-api-test</module>
         <module>tck-action-errors-api-test</module>
         <module>tck-action-index-api-test</module>
         <module>tck-action-schema-api-test</module>
