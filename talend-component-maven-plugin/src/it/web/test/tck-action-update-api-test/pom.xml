@@ -17,11 +17,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>tck-action-healthcheck-api-test</artifactId>
+    <artifactId>tck-action-update-api-test</artifactId>
 
     <parent>
         <groupId>org.talend.ci.api-tester</groupId>
-        <artifactId>tck-action-update-api-test</artifactId>
+        <artifactId>tck-endpoints-api-test</artifactId>
         <version>1.0.0</version>
     </parent>
 
