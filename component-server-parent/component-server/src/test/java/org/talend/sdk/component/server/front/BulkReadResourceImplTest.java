@@ -25,11 +25,9 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.json.bind.Jsonb;
@@ -42,7 +40,6 @@ import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.front.model.BulkRequests;
 import org.talend.sdk.component.server.front.model.BulkResponses;
-import org.talend.sdk.component.server.service.JsonbFactory;
 import org.talend.sdk.component.server.service.qualifier.ComponentServer;
 import org.talend.sdk.component.server.test.ComponentClient;
 
@@ -113,22 +110,22 @@ class BulkReadResourceImplTest {
         assertEquals(520, results.get(4).getStatus());
         results.forEach(it -> assertEquals(singletonList("application/json"), it.getHeaders().get("Content-Type")));
 
-        assertEquals("\"{\n  \"value\":\"V1\"\n}\"",
-                results.get(3).getResponse());
-        assertEquals("\"{\n  \"code\":\"ACTION_ERROR\",\n"
-                        + "  \"description\":\"Action execution failed with: this action failed intentionally\"\n}\"",
-                results.get(4).getResponse());
+        assertEquals("{\"value\":\"V1\"}", results.get(3).getResponse().toString());
+        assertEquals(
+                "{\"code\":\"ACTION_ERROR\",\"description\":\"Action execution failed with: this action failed intentionally\"}",
+                results.get(4).getResponse().toString());
 
         assertTrue(results.get(0)
                 .getResponse()
+                .asJsonObject()
+                .toString()
                 .contains("org.talend.comp:jdbc-component:jar:0.0.1:compile"));
 
-        assertEquals("\"{\n  \"source\":\"== input\n\ndesc\n\n=== Configuration\n\nSomething1\",\n"
-                        + "  \"type\":\"asciidoc\"\n" + "}\"",
-                results.get(1).getResponse());
-        assertEquals("\"{\n  \"code\":\"COMPONENT_MISSING\",\n"
-                        + "  \"description\":\"No component 'dGhlLXRlc3QtY29tcG9uZW50I2NoYWluI2xpc3Q'\"\n" + "}\"",
-                results.get(2).getResponse());
+        assertEquals("{\"source\":\"== input\\n\\ndesc\\n\\n=== Configuration\\n\\nSomething1\",\"type\":\"asciidoc\"}",
+                results.get(1).getResponse().toString());
+        assertEquals(
+                "{\"code\":\"COMPONENT_MISSING\",\"description\":\"No component 'dGhlLXRlc3QtY29tcG9uZW50I2NoYWluI2xpc3Q'\"}",
+                results.get(2).getResponse().toString());
     }
 
     @Test
