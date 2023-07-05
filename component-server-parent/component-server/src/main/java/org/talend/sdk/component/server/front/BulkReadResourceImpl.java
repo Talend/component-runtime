@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
@@ -41,6 +42,8 @@ import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -110,15 +113,15 @@ public class BulkReadResourceImpl implements BulkReadResource {
 
     private final BulkResponses.Result forbiddenInBulkModeResponse =
             new BulkResponses.Result(Response.Status.FORBIDDEN.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNAUTHORIZED\",\"description\":\"Forbidden endpoint in bulk mode.\"}");
+                    Json.createReader(new StringReader("{\"code\":\"UNAUTHORIZED\",\"description\":\"Forbidden endpoint in bulk mode.\"}")).readObject().asJsonArray());
 
     private final BulkResponses.Result forbiddenResponse =
             new BulkResponses.Result(Response.Status.FORBIDDEN.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNAUTHORIZED\",\"description\":\"Secured endpoint, ensure to pass the right token.\"}");
+                    Json.createReader(new StringReader("{\"code\":\"UNAUTHORIZED\",\"description\":\"Secured endpoint, ensure to pass the right token.\"}")).readObject().asJsonArray());
 
     private final BulkResponses.Result invalidResponse =
             new BulkResponses.Result(Response.Status.BAD_REQUEST.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNEXPECTED\",\"description\":\"unknownEndpoint.\"}");
+                    Json.createReader(new StringReader("{\"code\":\"UNEXPECTED\",\"description\":\"unknownEndpoint.\"}")).readObject().asJsonArray());
 
     @PostConstruct
     private void init() {
@@ -194,9 +197,11 @@ public class BulkReadResourceImpl implements BulkReadResource {
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
         final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
             try {
-                result.setResponse(org.apache.commons.text.StringEscapeUtils.unescapeJson(defaultMapper
+                JsonObject jsonObject = Json.createReader(new StringReader(defaultMapper
                         .toJson(org.apache.commons.text.StringEscapeUtils.unescapeJson(
-                                        outputStream.toString(StandardCharsets.UTF_8.name())))));
+                                outputStream.toString(StandardCharsets.UTF_8.name()))))).readObject();
+
+                result.setResponse(jsonObject.asJsonArray());
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
@@ -218,8 +223,8 @@ public class BulkReadResourceImpl implements BulkReadResource {
         } catch (final ServletException e) {
             result.setStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
             result
-                    .setResponse(defaultMapper
-                            .toJson(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage())));
+                    .setResponse(Json.createReader(new StringReader(defaultMapper
+                            .toJson(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage())))).readObject().asJsonArray());
             promise.complete(result);
             throw new IllegalStateException(e);
         }

@@ -114,10 +114,10 @@ class BulkReadResourceImplTest {
         results.forEach(it -> assertEquals(singletonList("application/json"), it.getHeaders().get("Content-Type")));
 
         assertEquals("\"{\n  \"value\":\"V1\"\n}\"",
-                results.get(3).getResponse().trim());
+                results.get(3).getResponse());
         assertEquals("\"{\n  \"code\":\"ACTION_ERROR\",\n"
                         + "  \"description\":\"Action execution failed with: this action failed intentionally\"\n}\"",
-                results.get(4).getResponse().trim());
+                results.get(4).getResponse());
 
         assertTrue(results.get(0)
                 .getResponse()

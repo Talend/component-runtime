@@ -22,6 +22,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,6 +41,6 @@ public class BulkResponses {
 
         private Map<String, List<String>> headers;
 
-        private String response;
+        private JsonArray response = Json.createArrayBuilder().build();
     }
 }
