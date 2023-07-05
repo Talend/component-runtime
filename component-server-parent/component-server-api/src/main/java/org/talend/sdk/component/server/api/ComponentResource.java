@@ -62,8 +62,7 @@ public interface ComponentResource {
     @APIResponse(responseCode = "200", description = "The list of dependencies per component",
             content = @Content(mediaType = APPLICATION_JSON))
     Dependencies getDependencies(@QueryParam("identifier") @Parameter(name = "identifier",
-            description = "The identifiers id to request." +
-                    "Use this parameter multiple times to request more than one element",
+            description = "The identifier id to request. Repeat this parameter to request more than one element.",
             in = QUERY) String[] ids);
 
     @GET
