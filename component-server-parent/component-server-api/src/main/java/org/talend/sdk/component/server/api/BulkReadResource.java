@@ -45,7 +45,7 @@ public interface BulkReadResource {
             content = @Content(mediaType = APPLICATION_JSON))
     CompletionStage<BulkResponses> bulk(@RequestBody(
             description = "The requests list as json objects containing a list of request objects." +
-                          "If yur request contains multiple identifiers, you must use a list of string" +
+                          "If your request contains multiple identifiers, you must use a list of string" +
                           "example :" +
                           "`{" +
                           "\"requests\" : [\n" +
