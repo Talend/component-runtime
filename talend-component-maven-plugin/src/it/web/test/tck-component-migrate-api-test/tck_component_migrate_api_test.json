@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-        "id": "d31b11d8-a706-4a35-9a5c-01bb2e631770",
+        "id": "752c0a55-71fa-4767-af35-92e5e502d4b3",
         "name": "tck-component-migrate-api-test"
       },
       "children": [
@@ -39,7 +39,7 @@
               "path": "/api/v1/component/migrate/${\"maper_id\"}/4"
             },
             "description": "Expected: 400",
-            "id": "a0422cbf-025b-4f01-b0e4-64f1ceff9c82",
+            "id": "88069cff-1af4-4c23-9961-4d9df05b872f",
             "name": "component/migrate/id/configurationVersion - empty body",
             "headers": [
               {
@@ -87,8 +87,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/component/migrate/${\"mapper_id\"}/10"
             },
-            "description": "TODO: Is the comportment normal?  \nWe have an executed migration from 10 to 3  \nhttps://jira.talendforge.org/browse/TCOMP-2359   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "e0a1a84c-d097-4405-8fca-db3973f02ec6",
+            "description": "We have an executed migration from 10 to 3  \nTODO https://jira.talendforge.org/browse/TCOMP-2359   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "b5913ed5-35c9-4ff6-b19c-c3f36ce75ff0",
             "name": "component/migrate/id/configurationVersion - invalid migration version",
             "headers": [
               {
@@ -162,7 +162,7 @@
               "path": "/api/v1/component/migrate/${\"mapper_id\"}/2"
             },
             "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "8445f0fd-3f60-4851-9221-8d5a2236b947",
+            "id": "cbc2af93-2693-4d18-bb53-a9086154d5b2",
             "name": "component/migrate/id/configurationVersion - with demo mapper",
             "headers": [
               {
@@ -236,7 +236,7 @@
               "path": "/api/v1/component/migrate/${\"output_id\"}/1"
             },
             "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "0cdf8f4a-ce81-4283-9aae-184e2dbd6476",
+            "id": "0801c25e-bcf4-4f84-82c8-7e2f887474c8",
             "name": "component/migrate/id/configurationVersion - with demo output",
             "headers": [
               {
@@ -309,7 +309,7 @@
               "path": "/api/v1/component/migrate/wrong_id/4"
             },
             "description": "Expected: 400",
-            "id": "4f59165a-251a-4d69-897c-104293d0620a",
+            "id": "027f22b3-77b6-4742-9017-8f2ad7375db8",
             "name": "component/migrate/id/configurationVersion - wrong id",
             "headers": [
               {
