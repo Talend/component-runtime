@@ -44,20 +44,20 @@ public interface BulkReadResource {
     @APIResponse(responseCode = "200", description = "The request payloads.",
             content = @Content(mediaType = APPLICATION_JSON))
     CompletionStage<BulkResponses> bulk(@RequestBody(
-            description = "The requests list as json objects containing a list of request objects." +
-                    "If your request contains multiple identifiers, you must use a list of string" +
-                    "example :" +
-                    "`{" +
-                    "\"requests\" : [\n" +
-                    "{\n" +
-                    "  \"path\" : \"/api/v1/component/index\",\n" +
-                    "  \"queryParameters\" : {\"identifiers\" : [\"12345\", \"6789A\"]},\n" +
-                    "  \"verb\" : \"GET\",\n" +
-                    "  \"headers\" : {...},\n" +
-                    "},\n" +
-                    "{ [...]}\n" +
-                    "]\n" +
-                    "}`",
+            description = "The requests list as json objects containing a list of request objects.  \n" +
+                    "If your request contains multiple identifiers, you must use a list of string  \n" +
+                    "example :  \n" +
+                    "`{  \n" +
+                    "\"requests\" : [  \n" +
+                    "{  \n" +
+                    "  \"path\" : \"/api/v1/component/index\",  \n" +
+                    "  \"queryParameters\" : {\"identifiers\" : [\"12345\", \"6789A\"]},  \n" +
+                    "  \"verb\" : \"GET\",  \n" +
+                    "  \"headers\" : {...},  \n" +
+                    "},  \n" +
+                    "{ [...]}  \n" +
+                    "]  \n" +
+                    "}`  ",
             required = true,
             content = @Content(mediaType = APPLICATION_JSON)) final BulkRequests requests);
 }
