@@ -31,6 +31,7 @@
         <module>tck-action-schema-api-test</module>
         <module>tck-action-suggestion-api-test</module>
         <module>tck-action-update-api-test</module>
+        <module>tck-action-user-api-test</module>
         <module>tck-action-validation-api-test</module>
         <module>tck-action-healthcheck-api-test</module>
         <module>tck-bulk-api-test</module>
