@@ -35,6 +35,14 @@
     <talend.build.name>${talend.build.name.base}.server.model</talend.build.name>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-json_1.1_spec</artifactId>
+      <version>${geronimo-json.version}</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
