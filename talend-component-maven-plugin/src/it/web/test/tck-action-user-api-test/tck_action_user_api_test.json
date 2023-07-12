@@ -1,0 +1,155 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi doc is [here for action execute](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Action/execute)  \nAction documentation is [here for user action](https://talend.github.io/component-runtime/main/latest/services-actions.html#_user)",
+        "id": "6c28fa92-59a7-47a6-818b-0e5de4314d58",
+        "name": "tck-action-user-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{}"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "the_family"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "type",
+                    "value": "user"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "action",
+                    "value": "action_USER"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/execute"
+            },
+            "id": "2da7e306-dc62-4af1-8a9d-caca22c40f87",
+            "name": "1. action.execute - user action check",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.username",
+                "value": "talend"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.password",
+                "value": "\"123456\""
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "d7975106-9ad9-41fd-8900-ab5520885d2c",
+      "name": "component_runtime_ci",
+      "variables": {
+        "231ba370-70a4-4aed-a585-1510698b0ea1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-07T01:46:10.213Z",
+          "private": false
+        },
+        "620142b8-0190-4631-823f-5525d1ccccf0": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-07T01:46:10.213Z",
+          "private": false
+        },
+        "8fa9a27d-5ba2-4eb5-b757-dc8f64b68d9a": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-07-07T01:46:10.213Z",
+          "private": false
+        },
+        "d40c2752-685c-4a4e-9940-42add0ddee37": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-07T01:46:10.213Z",
+          "private": false
+        },
+        "8caeadfc-90d8-4108-b4bb-3bf5212a7c01": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-07-07T01:46:10.213Z",
+          "private": false
+        },
+        "ee0e3282-7de4-4cb3-bff6-ce7013a3507c": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-07-07T01:46:10.213Z",
+          "private": false
+        },
+        "bfe0e838-6d9a-4be3-ba58-869c20db796b": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-07T01:46:10.213Z",
+          "private": false
+        },
+        "24cf99d0-c499-422e-be92-7502a064b5e9": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-07-07T01:46:10.213Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}
