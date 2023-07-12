@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for bulk](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Bulk/bulk)",
-        "id": "2c5e9ed0-5aa3-43e2-9435-0711dedcf3eb",
+        "id": "a5216792-a515-4f62-a3bd-d8131b2409d5",
         "name": "tck-bulk-api-test"
       },
       "children": [
@@ -40,7 +40,7 @@
               "path": "/api/v1/bulk"
             },
             "description": "Do a bulk request with only one request inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "67883b73-3fce-4dd7-bcc2-a55a2d07fb84",
+            "id": "ba8dce1c-2b75-4854-b505-24bc5d4c537a",
             "name": "1-bulk: one index endpoint usage (component)",
             "headers": [
               {
@@ -118,7 +118,7 @@
               "path": "/api/v1/bulk"
             },
             "description": "Do a bulk request with two request inside  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "47ed9d9d-1664-4712-8650-2372d9bb7052",
+            "id": "71ab4e85-2ebb-4b24-b478-9f1c93290a0e",
             "name": "2-bulk: two index endpoint usage (component, configurationtype)",
             "headers": [
               {
@@ -203,7 +203,7 @@
               "path": "/api/v1/bulk"
             },
             "description": "Do a bulk request with three requests inside  \n\nApi documentation is [here for bulk](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Bulk/bulk)",
-            "id": "cf3fbd5a-5f7d-42af-a1f1-56b3e7c55eac",
+            "id": "82e10262-a04d-41f5-95b0-600161c65843",r
             "name": "3-bulk: three component details endpoint usage",
             "headers": [
               {
@@ -267,7 +267,7 @@
               },
               "bodyType": "Text",
               "textBodyEditorHeight": 560,
-              "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"/api/v1/component/details\",\n      \"queryParameters\" :\n      {\n     \t\"identifiers\" : [\"${\"mapper_id\"}\"],\n     \t\"identifiers\" : [\"${\"output_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\" : [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/configurationtype/details\",\n      \"queryParameters\" :\n      {\n     \t\"identifiers\" : [\"${\"datastore_id\"}\"],\n     \t\"identifiers\" : [\"${\"dataset_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\" : [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/component/dependencies\",\n      \"queryParameters\" :\n      {\n     \t\"identifier\" : [\"${\"mapper_id\"}\"],\n     \t\"identifier\" : [\"${\"output_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\" : [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
+              "textBody": "{\n  \"requests\": \n  [\n\t{\n      \"path\": \"/api/v1/component/details\",\n      \"queryParameters\" :\n      {\n     \t\"identifiers\" : [\"${\"mapper_id\"}\", \"${\"output_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\" : [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/configurationtype/details\",\n      \"queryParameters\" :\n      {\n     \t\"identifiers\" : [\"${\"datastore_id\"}\", \"${\"dataset_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\" : [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t},\n\t{\n      \"path\": \"/api/v1/component/dependencies\",\n      \"queryParameters\" :\n      {\n     \t\"identifier\" : [\"${\"mapper_id\"}\", \"${\"output_id\"}\"]\n  \t  },\n \t  \"verb\" : \"GET\",\n \t  \"headers\" :\n      {\n     \t\"accept\" : [\"application/json\"],\n     \t\"content-Type\": [\"application/json\"]\n  \t  }\n \t}\n  ]\n}"
             },
             "uri": {
               "query": {
@@ -282,7 +282,7 @@
               "path": "/api/v1/bulk"
             },
             "description": "Do a bulk request with three requests inside  \n\nApi documentation is [here for bulk](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Bulk/bulk)",
-            "id": "08283ebd-b7f0-45b7-8c66-9c0449379c79",
+            "id": "8136cb55-4e18-4967-949e-184cd359fb6e",
             "name": "4-bulk: three multiple id requests",
             "headers": [
               {
