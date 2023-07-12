@@ -80,7 +80,7 @@
                 "comparison": "Equals",
                 "subject": "ResponseJsonBody",
                 "path": "$.password",
-                "value": "123456"
+                "value": "\"123456\""
               }
             ]
           }
