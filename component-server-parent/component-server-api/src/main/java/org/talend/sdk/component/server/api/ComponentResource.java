@@ -150,7 +150,8 @@ public interface ComponentResource {
             @PathParam("id") @Parameter(name = "id",
                     description = "Component identifier.", in = PATH) String id,
             @PathParam("configurationVersion") @Parameter(name = "configurationVersion",
-                    description = "Configuration version sent, corresponding to the body content.", in = PATH) int version,
+                    description = "Configuration version sent, corresponding to the body content.",
+                    in = PATH) int version,
             @RequestBody(description = "Actual configuration in key/value json form.", required = true,
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(type = OBJECT))) Map<String, String> config);
