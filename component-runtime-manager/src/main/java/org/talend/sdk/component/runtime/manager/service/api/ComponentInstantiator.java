@@ -68,8 +68,7 @@ public interface ComponentInstantiator {
             return registries
                     .map((ContainerComponentRegistry registry) -> registry.findComponentFamily(sanitizedFamilyName))
                     .filter(Objects::nonNull)
-                    .peek((ComponentFamilyMeta cm) -> log.debug("Family found {} plugin {}", sanitizedFamilyName,
-                            cm.getPlugin()))
+                    .peek((ComponentFamilyMeta cm) -> log.debug("Family found {} plugin {}", sanitizedFamilyName, cm.getPlugin()))
                     .map(componentType::findMeta)
                     .map((Map<String, ? extends ComponentFamilyMeta.BaseMeta> map) -> finder.filter(map))
                     .filter(Optional::isPresent)

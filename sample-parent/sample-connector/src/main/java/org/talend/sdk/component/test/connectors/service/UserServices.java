@@ -45,6 +45,7 @@ public class UserServices {
      *
      */
 
+
     @Action(USER)
     public JsonObject userAction() {
         JsonObject jsonObject = Json.createObjectBuilder().add("username", "talend").add("password", "123456").build();
