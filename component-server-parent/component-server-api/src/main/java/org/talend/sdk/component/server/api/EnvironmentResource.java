@@ -32,8 +32,10 @@ public interface EnvironmentResource {
 
     @GET
     @Operation(operationId = "getEnvironment",
-            description = "Returns the environment of this instance. Useful to check the version or configure a healthcheck for the server.")
-    @APIResponse(responseCode = "200", description = "Current environment representation.",
+            description = "Returns the environment information of this instance. " +
+                    "Useful to check the version or configure a healthcheck for the server.")
+    @APIResponse(responseCode = "200",
+            description = "Current environment representation.",
             content = @Content(mediaType = APPLICATION_JSON))
     Environment get();
 }
