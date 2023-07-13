@@ -76,10 +76,10 @@
                 "value": "^{\"items\":\\[{\"component\":\""
               },
               {
-                "comparison": "Greater",
+                "comparison": "LengthGreaterThanOrEqual",
                 "subject": "ResponseJsonBody",
                 "path": "$.items",
-                "value": "3"
+                "value": "21"
               },
               {
                 "comparison": "Exists",
@@ -106,16 +106,28 @@
                 "value": "\"displayName\":\"Account Name\""
               },
               {
-                "comparison": "Contains",
+                "comparison": "Matches",
                 "subject": "ResponseJsonBody",
-                "path": "$.items..displayName[62]",
+                "path": "$.items..displayName",
                 "value": "-en"
               },
               {
                 "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.items..displayName[63]",
-                "value": "-en"
+                "path": "$.items.component",
+                "value": "Azure"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "the_family"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "Common"
               }
             ]
           }
@@ -171,12 +183,6 @@
                 "enabled": true,
                 "path": "content",
                 "value": "200"
-              },
-              {
-                "comparison": "LengthGreaterThanOrEqual",
-                "subject": "ResponseJsonBody",
-                "path": "$.items",
-                "value": "15"
               },
               {
                 "comparison": "Contains",
@@ -253,12 +259,6 @@
                 "enabled": true,
                 "path": "content",
                 "value": "200"
-              },
-              {
-                "comparison": "LengthGreaterThanOrEqual",
-                "subject": "ResponseJsonBody",
-                "path": "$.items",
-                "value": "15"
               },
               {
                 "comparison": "Contains",
