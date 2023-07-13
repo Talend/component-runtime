@@ -478,7 +478,7 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/documentation/component/${\"output_id\"}"
             },
-            "description": "Call with a \"ALL\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "description": "Call without segment, should be default = \"ALL\".  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
             "id": "12d83b8b-bcf8-40a4-8e1f-737c40313d5b",
             "name": "documentation/component - segments default - ALL",
             "headers": [],
