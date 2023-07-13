@@ -143,14 +143,6 @@
                     "enabled": true,
                     "name": "family",
                     "value": "the_family"
-                  },
-                  {
-                    "name": "type",
-                    "value": ""
-                  },
-                  {
-                    "name": "language",
-                    "value": ""
                   }
                 ]
               },
@@ -163,7 +155,7 @@
             },
             "description": "",
             "id": "09510584-900a-43fd-8223-9c121b8babde",
-            "name": "action/index - family",
+            "name": "action/index - family one",
             "headers": [],
             "assertions": [
               {
@@ -185,6 +177,100 @@
                 "subject": "ResponseJsonBody",
                 "path": "$.items",
                 "value": "15"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "the_family"
+              },
+              {
+                "comparison": "DoesNotContain",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "Azure"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "the_family"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "Azure"
+                  },
+                  {
+                    "name": "language",
+                    "value": ""
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/index"
+            },
+            "description": "",
+            "id": "13ee4bfe-27a6-4124-b3bd-1b1769e74fc0",
+            "name": "action/index - family two",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "enabled": true,
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "enabled": true,
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "LengthGreaterThanOrEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.items",
+                "value": "15"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "the_family"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "Azure"
               }
             ]
           }
