@@ -95,6 +95,11 @@
       <artifactId>geronimo-opentracing</artifactId>
       <version>${geronimo-opentracing.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-opentracing-common</artifactId>
+      <version>${geronimo-opentracing.version}</version>
+    </dependency>
     <!-- specific deps -->
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
