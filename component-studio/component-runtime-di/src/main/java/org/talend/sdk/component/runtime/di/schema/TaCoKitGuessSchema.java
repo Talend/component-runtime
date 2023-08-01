@@ -27,6 +27,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.json.JsonNumber;
@@ -45,8 +47,13 @@ import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -621,6 +628,40 @@ public class TaCoKitGuessSchema {
         }
 
         return originalSize != columns.size();
+    }
+
+    public void fromOutputEmitterPojo(final Processor processor, final String outBranchName) {
+        Object o = processor;
+        while (Delegated.class.isInstance(o)) {
+            o = Delegated.class.cast(o).getDelegate();
+        }
+        final ClassLoader classLoader = o.getClass().getClassLoader();
+        final Thread thread = Thread.currentThread();
+        final ClassLoader old = thread.getContextClassLoader();
+        thread.setContextClassLoader(classLoader);
+        try {
+            final Optional<java.lang.reflect.Type> type = Stream
+                    .of(o.getClass().getMethods())
+                    .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                    .flatMap(m -> IntStream
+                            .range(0, m.getParameterCount())
+                            .filter(i -> m.getParameters()[i].isAnnotationPresent(Output.class)
+                                    && outBranchName.equals(m.getParameters()[i].getAnnotation(Output.class).value()))
+                            .mapToObj(i -> m.getGenericParameterTypes()[i])
+                            .filter(t -> ParameterizedType.class.isInstance(t)
+                                    && ParameterizedType.class.cast(t).getRawType() == OutputEmitter.class
+                                    && ParameterizedType.class.cast(t).getActualTypeArguments().length == 1)
+                            .map(p -> ParameterizedType.class.cast(p).getActualTypeArguments()[0]))
+                    .findFirst();
+            if (type.isPresent() && Class.class.isInstance(type.get())) {
+                final Class<?> clazz = Class.class.cast(type.get());
+                if (clazz != JsonObject.class) {
+                    guessSchemaThroughResultClass(clazz);
+                }
+            }
+        } finally {
+            thread.setContextClassLoader(old);
+        }
     }
 
     /**
