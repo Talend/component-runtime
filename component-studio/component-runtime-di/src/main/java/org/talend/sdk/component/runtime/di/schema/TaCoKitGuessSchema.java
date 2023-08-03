@@ -163,7 +163,7 @@ public class TaCoKitGuessSchema {
             }
             if (e instanceof DiscoverSchemaException) {
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
-                    System.out.println(jsonb.toJson(x));
+                    System.out.println(jsonb.toJson(e));
                 }
                 log.error("Can't guess processor schema through action.", e);
                 throw e;
