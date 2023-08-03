@@ -47,6 +47,8 @@ import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
@@ -151,6 +153,21 @@ public class TaCoKitGuessSchema {
                 return;
             }
         } catch (Exception e) {
+            if (e instanceof ComponentException) {
+                DiscoverSchemaException x = new DiscoverSchemaException(((ComponentException) e).getOriginalMessage(), e.getCause());
+                try (final Jsonb jsonb = JsonbBuilder.create()) {
+                    System.out.println(jsonb.toJson(x));
+                }
+                log.error("Can't guess processor schema through action.", x);
+                throw x;
+            }
+            if (e instanceof DiscoverSchemaException) {
+                try (final Jsonb jsonb = JsonbBuilder.create()) {
+                    System.out.println(jsonb.toJson(x));
+                }
+                log.error("Can't guess processor schema through action.", e);
+                throw e;
+            }
             log.error("Can't guess schema through action.", e);
         }
         if (guessInputComponentSchemaThroughResult()) {
@@ -187,6 +204,21 @@ public class TaCoKitGuessSchema {
                 return;
             }
         } catch (Exception e) {
+            if (e instanceof ComponentException) {
+                DiscoverSchemaException x = new DiscoverSchemaException(((ComponentException) e).getOriginalMessage(), e.getCause());
+                try (final Jsonb jsonb = JsonbBuilder.create()) {
+                    System.out.println(jsonb.toJson(x));
+                }
+                log.error("Can't guess processor schema through action.", x);
+                throw x;
+            }
+            if (e instanceof DiscoverSchemaException) {
+                try (final Jsonb jsonb = JsonbBuilder.create()) {
+                    System.out.println(jsonb.toJson(x));
+                }
+                log.error("Can't guess processor schema through action.", e);
+                throw e;
+            }
             log.error("Can't guess processor schema through action.", e);
             throw new Exception(e.getMessage());
         }
