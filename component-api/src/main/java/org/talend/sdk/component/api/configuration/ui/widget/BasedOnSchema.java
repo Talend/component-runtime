@@ -26,8 +26,8 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
-@Documentation("Mark a table column is filled by component schema auto, only for studio")
+@Documentation("Mark a table column filled by component's schema auto. Only for studio.")
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })
-public @interface BaseOnSchema {
+public @interface BasedOnSchema {
 }

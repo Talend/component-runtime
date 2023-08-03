@@ -26,11 +26,17 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
-@Documentation("Mark a ui option's suggestion values are filled by current component schema or pre connection line's schema auto, only for studio")
+@Documentation("Mark an UI suggestion value referencing a column from the current component schema or previous flow's schema. Only for studio.")
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })
 public @interface ColumnList {
 
-    String value() default "curr";// or "pre"
+    Type value() default Type.CURRENT;
+
+    public static enum Type {
+        CURRENT,
+
+        PREVIOUS
+    }
 
 }
