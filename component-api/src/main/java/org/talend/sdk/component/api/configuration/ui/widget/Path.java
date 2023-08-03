@@ -26,10 +26,16 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
-@Documentation("Mark a option as being represented by file or directory widget, only for studio")
+@Documentation("Mark a option as being represented by file or directory widget. Only for studio.")
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })
 public @interface Path {
 
-    String value() default "file";// directory, file
+    Type value() default Type.FILE;
+
+    public static enum Type {
+        FILE,
+
+        DIRECTORY
+    }
 }
