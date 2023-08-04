@@ -73,42 +73,44 @@ public class AvroSchemaBuilder implements Schema.Builder {
             new AvroSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN));
 
     private static final AvroSchema BYTES_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
-            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BYTES))));
+            .createUnion(asList(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BYTES), NULL_SCHEMA)));
 
     private static final AvroSchema INT_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
-            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT))));
+            .createUnion(asList(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT), NULL_SCHEMA)));
 
     private static final AvroSchema LONG_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
-            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG))));
+            .createUnion(asList(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG), NULL_SCHEMA)));
 
     private static final AvroSchema DATETIME_SCHEMA_NULLABLE =
-            new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
+            new AvroSchema(org.apache.avro.Schema.createUnion(asList(new AvroPropertyMapper() {
             }
                     .setProp(
                             LogicalTypes
                                     .timestampMillis()
                                     .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
-                            Schema.Type.DATETIME.name(), "true"))));
+                            Schema.Type.DATETIME.name(), "true"),
+                    NULL_SCHEMA)));
 
     private static final AvroSchema STRING_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
-            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING))));
+            .createUnion(asList(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING), NULL_SCHEMA)));
 
     private static final AvroSchema DOUBLE_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
-            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.DOUBLE))));
+            .createUnion(asList(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.DOUBLE), NULL_SCHEMA)));
 
     private static final AvroSchema FLOAT_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
-            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.FLOAT))));
+            .createUnion(asList(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.FLOAT), NULL_SCHEMA)));
 
     private static final AvroSchema BOOLEAN_SCHEMA_NULLABLE = new AvroSchema(org.apache.avro.Schema
-            .createUnion(asList(NULL_SCHEMA, org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN))));
+            .createUnion(asList(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.BOOLEAN), NULL_SCHEMA)));
 
     private static final AvroSchema DECIMAL_SCHEMA_NULLABLE =
-            new AvroSchema(org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, new AvroPropertyMapper() {
+            new AvroSchema(org.apache.avro.Schema.createUnion(asList(new AvroPropertyMapper() {
             }
                     .setProp(
                             Decimal.logicalType()
                                     .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.STRING)),
-                            Schema.Type.DECIMAL.name(), "true"))));
+                            Schema.Type.DECIMAL.name(), "true"),
+                    NULL_SCHEMA)));
 
     private static final AvroSchema DECIMAL_SCHEMA = new AvroSchema(
             new AvroPropertyMapper() {
@@ -393,7 +395,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
         public static Field toField(final org.apache.avro.Schema schema, final Schema.Entry entry) {
             final Field field = new Field(sanitizeConnectionName(entry.getName()),
                     entry.isNullable() && schema.getType() != Type.UNION
-                            ? org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema))
+                            ? org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA))
                             : schema,
                     entry.getComment(), (Object) entry.getDefaultValue());
             if (entry.isMetadata()) {
