@@ -53,7 +53,7 @@ public class AvroSchemaConverter {
     private org.apache.avro.Schema toSchema(final Schema.Entry entry) {
         final org.apache.avro.Schema schema = doToSchema(entry);
         if (entry.isNullable() && schema.getType() != UNION) {
-            return org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema));
+            return org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA));
         }
         if (!entry.isNullable() && schema.getType() == UNION) {
             return org.apache.avro.Schema
