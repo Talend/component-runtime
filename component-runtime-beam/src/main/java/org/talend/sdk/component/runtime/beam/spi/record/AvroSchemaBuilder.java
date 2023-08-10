@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.avro.AvroTypeException;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
@@ -393,18 +394,29 @@ public class AvroSchemaBuilder implements Schema.Builder {
     public static class AvroHelper {
 
         public static Field toField(final org.apache.avro.Schema schema, final Schema.Entry entry) {
-            final Field field = new Field(sanitizeConnectionName(entry.getName()),
-                    entry.isNullable() && schema.getType() != Type.UNION
-                            ? org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA))
-                            : schema,
-                    entry.getComment(), (Object) entry.getDefaultValue());
+            Field field = null;
+            try {
+                field = new Field(sanitizeConnectionName(entry.getName()),
+                        entry.isNullable() && schema.getType() != Type.UNION
+                                ? org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA))
+                                : schema,
+                        entry.getComment(), (Object) entry.getDefaultValue());
+            } catch (AvroTypeException e) {
+                field = new Field(sanitizeConnectionName(entry.getName()),
+                        entry.isNullable() && schema.getType() != Type.UNION
+                                ? org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA))
+                                : schema,
+                        entry.getComment());
+            }
             if (entry.isMetadata()) {
                 field.addAlias(KeysForAvroProperty.METADATA_ALIAS_NAME);
             }
             if (entry.getRawName() != null) {
                 field.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
             }
-            entry.getProps().forEach((k, v) -> field.addProp(k, v));
+            for (Map.Entry<String, String> e : entry.getProps().entrySet()) {
+                field.addProp(e.getKey(), e.getValue());
+            }
 
             return field;
         }
