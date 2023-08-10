@@ -38,51 +38,46 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-    containers:
-        -
-            name: main
-            image: '${tsbiImage}'
-            command: [cat]
-            tty: true
-            volumeMounts: [
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-            env:
-                - name: DOCKER_HOST
-                  value: tcp://localhost:2375
-        -
-            name: jdk17
-            image: '${jdk17Image}'
-            command: [cat]
-            tty: true
-            volumeMounts: [ 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
-            env:
-                - name: DOCKER_HOST
-                  value: tcp://localhost:2375
-        - 
-            name: docker-daemon
-            image: artifactory.datapwn.com/docker-io-remote/docker:23.0.6-dind
-            env:
-                - name: DOCKER_TLS_CERTDIR
-                  value: ""
-            securityContext:
-                privileged: true   
-    volumes:
-        -
-            name: efs-jenkins-component-runtime-m2
-            persistentVolumeClaim: 
-                claimName: efs-jenkins-component-runtime-m2
-        -
-            name: dockercache
-            hostPath: {path: /tmp/jenkins/component-runtime/docker}
-    imagePullSecrets:
-        - name: talend-registry
+  containers:
+    - name: main
+      image: '${tsbiImage}'
+      command: [cat]
+      tty: true
+      volumeMounts: [
+        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+        { name: dockercache, mountPath: /root/.dockercache}
+      ]
+      resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+      env:
+        - name: DOCKER_HOST
+          value: tcp://localhost:2375
+    - name: jdk17
+      image: '${jdk17Image}'
+      command: [cat]
+      tty: true
+      volumeMounts: [ 
+        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+        { name: dockercache, mountPath: /root/.dockercache}
+      ]
+      resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
+      env:
+        - name: DOCKER_HOST
+          value: tcp://localhost:2375
+    - name: docker-daemon
+      image: artifactory.datapwn.com/docker-io-remote/docker:23.0.6-dind
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ""
+      securityContext:
+        privileged: true   
+  volumes:
+    - name: efs-jenkins-component-runtime-m2
+      persistentVolumeClaim: 
+        claimName: efs-jenkins-component-runtime-m2
+    - name: dockercache
+      hostPath: {path: /tmp/jenkins/component-runtime/docker}
+  imagePullSecrets:
+      - name: talend-registry
 """
         }
     }
