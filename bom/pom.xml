@@ -85,8 +85,8 @@
     <commons-compress.version>1.23.0</commons-compress.version>
     <commons-lang3.version>3.11</commons-lang3.version>
 
-    <jackson.version>2.15.0</jackson.version>
-    <jackson-databind.version>2.15.0</jackson-databind.version>
+    <jackson.version>2.15.2</jackson.version>
+    <jackson-databind.version>2.15.2</jackson-databind.version>
 
     <bouncycastle.version>1.70</bouncycastle.version>
     <commons-io.version>2.13.0</commons-io.version>
