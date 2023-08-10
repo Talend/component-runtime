@@ -274,7 +274,7 @@
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
     <jaxb.version>2.3.1</jaxb.version>
-    <java11.jaxb.version>2.3.5</java11.jaxb.version>
+    <java11.jaxb.version>2.3.8</java11.jaxb.version>
     <!-- minimal code coverage ratio -->
     <coverage.min>0.75</coverage.min>
     <coverage.fail>false</coverage.fail>
