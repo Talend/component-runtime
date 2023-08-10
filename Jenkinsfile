@@ -39,6 +39,13 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
+    - name: docker-daemon
+      image: artifactory.datapwn.com/docker-io-remote/docker:23.0.6-dind
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ""
+      securityContext:
+        privileged: true
     - name: main
       image: '${tsbiImage}'
       command: [cat]
@@ -63,13 +70,6 @@ spec:
       env:
         - name: DOCKER_HOST
           value: tcp://localhost:2375
-    - name: docker-daemon
-      image: artifactory.datapwn.com/docker-io-remote/docker:23.0.6-dind
-      env:
-        - name: DOCKER_TLS_CERTDIR
-          value: ""
-      securityContext:
-        privileged: true   
   volumes:
     - name: efs-jenkins-component-runtime-m2
       persistentVolumeClaim: 
