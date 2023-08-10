@@ -173,7 +173,7 @@
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
     <tomcat.version>9.0.75</tomcat.version>
-    <cxf.version>3.5.5</cxf.version>
+    <cxf.version>3.5.6</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
 
@@ -230,7 +230,7 @@
 
     <gradle.version>6.9.1</gradle.version>
     <groovy.version>3.0.9</groovy.version>
-    <gmavenplus.version>1.13.0</gmavenplus.version>
+    <gmavenplus.version>1.13.1</gmavenplus.version>
     <dependency-plugin.version>3.3.0</dependency-plugin.version>
     <assembly-plugin.version>3.3.0</assembly-plugin.version>
     <javadoc-plugin.version>3.3.2</javadoc-plugin.version>
@@ -280,8 +280,8 @@
     <coverage.fail>false</coverage.fail>
 
     <johnzon.version>1.2.20</johnzon.version>
-    <commons-io.version>2.9.0</commons-io.version>
-    <commons-compress.version>1.21</commons-compress.version>
+    <commons-io.version>2.13.0</commons-io.version>
+    <commons-compress.version>1.23.0</commons-compress.version>
     <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
