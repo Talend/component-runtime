@@ -117,24 +117,11 @@ spec:
         stage('Preliminary steps') {
             steps {
                 container('main') {
-                    // wait for docker to be ready
-                    echo 'Checking docker daemon status...'
-                    script {
-                        Integer status = 1
-                        timeout(time: 2, unit: 'MINUTES') {  // timeout for the 'running' period
-                            while (status != 0) {
-                                sleep time: 1, unit: 'SECONDS'  // sleep between iterations
-                                status = sh script: 'docker version', returnStatus: true
-                            }
-                        }
-                        if(status != 0){
-                            error "Failed to connect to docker daemon after 2 minutes"
-                        }else{
-                            echo 'Docker daemon is ready'
-                        }
-                    }
 
                     script {
+
+                        wait_for_docker_to_be_ready()
+
                         withCredentials([gitCredentials]) {
                             sh """
                                bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
@@ -356,5 +343,21 @@ spec:
         failure {
             slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
         }
+    }
+}
+
+private void wait_for_docker_to_be_ready(Integer max_wait = 2) {
+    echo 'Checking docker daemon status...'
+    Integer status = 1
+    timeout(time: 2, unit: 'MINUTES') {  // timeout for the 'running' period
+        while (status != 0) {
+            sleep time: 1, unit: 'SECONDS'  // sleep between iterations
+            status = sh script: 'docker version', returnStatus: true
+        }
+    }
+    if (status != 0) {
+        error "Failed to connect to docker daemon after 2 minutes"
+    } else {
+        echo 'Docker daemon is ready'
     }
 }
