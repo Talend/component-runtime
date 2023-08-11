@@ -38,42 +38,46 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-    containers:
-        -
-            name: main
-            image: '${tsbiImage}'
-            command: [cat]
-            tty: true
-            volumeMounts: [
-                { name: docker, mountPath: /var/run/docker.sock }, 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-        -
-            name: jdk17
-            image: '${jdk17Image}'
-            command: [cat]
-            tty: true
-            volumeMounts: [
-                { name: docker, mountPath: /var/run/docker.sock }, 
-                { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-                { name: dockercache, mountPath: /root/.dockercache}
-            ]
-            resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
-    volumes:
-        -
-            name: docker
-            hostPath: {path: /var/run/docker.sock}
-        -
-            name: efs-jenkins-component-runtime-m2
-            persistentVolumeClaim: 
-                claimName: efs-jenkins-component-runtime-m2
-        -
-            name: dockercache
-            hostPath: {path: /tmp/jenkins/component-runtime/docker}
-    imagePullSecrets:
-        - name: talend-registry
+  containers:
+    - name: docker-daemon
+      image: artifactory.datapwn.com/docker-io-remote/docker:23.0.6-dind
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ""
+      securityContext:
+        privileged: true
+    - name: main
+      image: '${tsbiImage}'
+      command: [cat]
+      tty: true
+      volumeMounts: [
+        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+        { name: dockercache, mountPath: /root/.dockercache}
+      ]
+      resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+      env:
+        - name: DOCKER_HOST
+          value: tcp://localhost:2375
+    - name: jdk17
+      image: '${jdk17Image}'
+      command: [cat]
+      tty: true
+      volumeMounts: [ 
+        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
+        { name: dockercache, mountPath: /root/.dockercache}
+      ]
+      resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
+      env:
+        - name: DOCKER_HOST
+          value: tcp://localhost:2375
+  volumes:
+    - name: efs-jenkins-component-runtime-m2
+      persistentVolumeClaim: 
+        claimName: efs-jenkins-component-runtime-m2
+    - name: dockercache
+      hostPath: {path: /tmp/jenkins/component-runtime/docker}
+  imagePullSecrets:
+      - name: talend-registry
 """
         }
     }
@@ -113,7 +117,11 @@ spec:
         stage('Preliminary steps') {
             steps {
                 container('main') {
+
                     script {
+
+                        wait_for_docker_to_be_ready()
+
                         withCredentials([gitCredentials]) {
                             sh """
                                bash .jenkins/scripts/git_login.sh "\${GITHUB_USER}" "\${GITHUB_PASS}"
@@ -335,5 +343,21 @@ spec:
         failure {
             slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", channel: "${slackChannel}")
         }
+    }
+}
+
+private void wait_for_docker_to_be_ready(Integer max_wait_mn = 2) {
+    echo 'Checking docker daemon status...'
+    Integer status = 1
+    timeout(time: max_wait_mn, unit: 'MINUTES') {  // timeout for the 'running' period
+        while (status != 0) {
+            sleep time: 1, unit: 'SECONDS'  // sleep between iterations
+            status = sh script: 'docker version', returnStatus: true
+        }
+    }
+    if (status != 0) {
+        error "Failed to connect to docker daemon after 2 minutes"
+    } else {
+        echo 'Docker daemon is ready'
     }
 }
