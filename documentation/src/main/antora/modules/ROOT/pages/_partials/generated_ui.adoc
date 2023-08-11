@@ -116,6 +116,22 @@ Put on a configuration class it notifies the UI a vertical layout is preferred.
 ----
 
 
+= @BasedOnSchema
+
+Mark a table column filled by component's schema auto. Only for studio.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.BasedOnSchema`
+
+== Snippets
+
+[source,js]
+----
+{
+  "ui::basedonschema":"true"
+}
+----
+
+
 = @Code
 
 Mark a field as being represented by some code widget (vs textarea for instance).
