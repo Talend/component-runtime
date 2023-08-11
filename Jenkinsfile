@@ -346,10 +346,10 @@ spec:
     }
 }
 
-private void wait_for_docker_to_be_ready(Integer max_wait = 2) {
+private void wait_for_docker_to_be_ready(Integer max_wait_mn = 2) {
     echo 'Checking docker daemon status...'
     Integer status = 1
-    timeout(time: 2, unit: 'MINUTES') {  // timeout for the 'running' period
+    timeout(time: max_wait_mn, unit: 'MINUTES') {  // timeout for the 'running' period
         while (status != 0) {
             sleep time: 1, unit: 'SECONDS'  // sleep between iterations
             status = sh script: 'docker version', returnStatus: true
