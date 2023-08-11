@@ -120,19 +120,7 @@ spec:
 
                     script {
 
-                        echo 'Checking docker daemon status...'
-                        Integer status = 1
-                        timeout(time: max_wait_mn, unit: 'MINUTES') {  // timeout for the 'running' period
-                            while (status != 0) {
-                                sleep time: 1, unit: 'SECONDS'  // sleep between iterations
-                                status = sh script: 'docker version', returnStatus: true
-                            }
-                        }
-                        if (status != 0) {
-                            error "Failed to connect to docker daemon after 2 minutes"
-                        } else {
-                            echo 'Docker daemon is ready'
-                        }
+                        wait_for_docker_to_be_ready()
 
                         withCredentials([gitCredentials]) {
                             sh """
