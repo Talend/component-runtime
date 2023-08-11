@@ -117,6 +117,23 @@ spec:
         stage('Preliminary steps') {
             steps {
                 container('main') {
+                    // wait for docker to be ready
+                    echo 'Checking docker daemon status...'
+                    script {
+                        Integer status = 1
+                        timeout(time: 2, unit: 'MINUTES') {  // timeout for the 'running' period
+                            while (status != 0) {
+                                sleep time: 1, unit: 'SECONDS'  // sleep between iterations
+                                status = sh script: 'docker version', returnStatus: true
+                            }
+                        }
+                        if(status != 0){
+                            error "Failed to connect to docker daemon after 2 minutes"
+                        }else{
+                            echo 'Docker daemon is ready'
+                        }
+                    }
+
                     script {
                         withCredentials([gitCredentials]) {
                             sh """
