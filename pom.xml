@@ -172,7 +172,7 @@
     <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.75</tomcat.version>
+    <tomcat.version>9.0.78</tomcat.version>
     <cxf.version>3.5.6</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
@@ -245,7 +245,7 @@
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>5.10.0.202012080955-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
-    <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+    <surefire-plugin.version>3.0.0</surefire-plugin.version>
     <jacoco.version>0.8.10</jacoco.version>
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
     <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
