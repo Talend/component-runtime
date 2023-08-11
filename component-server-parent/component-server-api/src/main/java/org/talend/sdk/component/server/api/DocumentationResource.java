@@ -55,16 +55,17 @@ public interface DocumentationResource {
             description = "If the component is not found in the server," +
                     " response will be an ErrorPayload with the code COMPONENT_MISSING.",
             content = @Content(mediaType = APPLICATION_JSON,
-            schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
+                    schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     DocumentationContent getDocumentation(
-            @PathParam("id") @Parameter( name = "id",
+            @PathParam("id") @Parameter(name = "id",
                     description = "The component identifier.", in = PATH) String id,
-            @QueryParam("language") @DefaultValue("en") @Parameter( name = "language",
+            @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
                     description = "The language requested.", in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
-            @QueryParam("segment") @DefaultValue("ALL") @Parameter( name = "segment",
+            @QueryParam("segment") @DefaultValue("ALL") @Parameter(name = "segment",
                     description = "The documentation part to extract. Available parts are: " +
-                            "`ALL` (default), `DESCRIPTION`, `CONFIGURATION`", in = QUERY,
+                            "`ALL` (default), `DESCRIPTION`, `CONFIGURATION`",
+                    in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "ALL")) DocumentationSegment segment);
 
     enum DocumentationSegment {
