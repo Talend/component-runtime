@@ -15,21 +15,6 @@
  */
 package org.talend.sdk.component.runtime.di.record;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
-import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
-import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
-import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
-import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
-
-import routines.system.Dynamic;
-import routines.system.DynamicMetadata;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
@@ -44,6 +29,20 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
 import lombok.Data;
+import routines.system.Dynamic;
+import routines.system.DynamicMetadata;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
+import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
+import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 class DiRowStructVisitorTest extends VisitorsTest {
 
@@ -53,10 +52,16 @@ class DiRowStructVisitorTest extends VisitorsTest {
 
     private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
             boolean isKey) {
+        createMetadata(dynamic, name, type, value, null, isKey);
+    }
+
+    private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
+            final String datePattern, boolean isKey) {
         final DynamicMetadata meta = new DynamicMetadata();
         meta.setName(name);
         meta.setType(type);
         meta.setKey(isKey);
+        meta.setFormat(datePattern);
         dynamic.metadatas.add(meta);
         dynamic.addColumnValue(value);
     }
@@ -109,13 +114,15 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "RECORDS", StudioTypes.LIST, RECORDS);
         createMetadata(dynamic, "BIG_DECIMALS", StudioTypes.LIST, BIG_DECIMALS);
         createMetadata(dynamic, "dynDate", StudioTypes.DATE, DATE);
+        createMetadata(dynamic, "dynStringDate", StudioTypes.STRING,
+                "2010-01-31", "yyyy-MM-dd", false);
         rowStruct.dynamic = dynamic;
         //
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(48, schema.getEntries().size());
+        assertEquals(49, schema.getEntries().size());
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
         assertEquals("true", schema.getEntry("id").getProp(IS_KEY));
@@ -149,6 +156,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals("10", schema.getEntry("dynBigDecimal").getProp(SCALE));
         assertEquals(StudioTypes.DATE, schema.getEntry("dynDate").getProp(STUDIO_TYPE));
         assertEquals("YYYY-mm-ddTHH:MM", schema.getEntry("dynDate").getProp(PATTERN));
+        assertEquals(StudioTypes.STRING, schema.getEntry("dynStringDate").getProp(STUDIO_TYPE));
+        assertEquals("yyyy-MM-dd", schema.getEntry("dynStringDate").getProp(PATTERN));
         // asserts Record
         assertEquals(":testing:", record.getString("id"));
         assertEquals(NAME, record.getString("name"));
