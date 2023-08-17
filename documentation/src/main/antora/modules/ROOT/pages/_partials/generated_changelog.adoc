@@ -15,6 +15,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2515[TCOMP-2515^]: Upgrade junit5 to 5.9.3 
 - link:https://jira.talendforge.org/browse/TCOMP-2516[TCOMP-2516^]: Upgrade mvn to 3.8.8 
 - link:https://jira.talendforge.org/browse/TCOMP-2517[TCOMP-2517^]: Upgrade surefire-plugin to 3.0.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2518[TCOMP-2518^]: Upgrade tomcat to 9.0.78
 
 == Version 1.59.0
 
