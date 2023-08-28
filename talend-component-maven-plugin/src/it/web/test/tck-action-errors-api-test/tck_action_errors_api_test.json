@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "Set of tests to check API errors management  \nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for action](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Action/getActionIndex)  \nAction documentation is [here](https://talend.github.io/component-runtime/main/latest/ref-actions.html)",
-        "id": "c511c9e5-53c4-4a3a-8bdf-2bd0f3871941",
+        "id": "445b78e3-553d-43ec-931d-4f13dd704b64",
         "name": "tck-action-errors-api-test"
       },
       "children": [
@@ -56,7 +56,7 @@
               "path": "/api/v1/action/execute"
             },
             "description": "Expected:  400 with message",
-            "id": "47ea67ac-55c0-4705-accb-44f80a02c40f",
+            "id": "0166daed-7c91-4ea1-a716-a00c5f637a93",
             "name": "1. action.execute - none of the required parameters",
             "headers": [
               {
@@ -137,7 +137,7 @@
               "path": "/api/v1/action/execute"
             },
             "description": "Expected: 404 with message",
-            "id": "4b6bfb6b-6acd-4be1-8877-791bbec28325",
+            "id": "ee554c41-c29e-42a2-a150-1d30a009cb89",
             "name": "2. action.execute - unknown action",
             "headers": [
               {
@@ -225,7 +225,7 @@
               "path": "/api/v1/action/execute"
             },
             "description": "Expected: 400 with message",
-            "id": "0644617d-9faa-48c0-ad58-7b2669f98a3d",
+            "id": "fcce1a24-6a2e-41df-bf7d-dfd589f0cc5e",
             "name": "3. action:execute - no action",
             "headers": [
               {
@@ -305,7 +305,7 @@
               "path": "/api/v1/action/execute"
             },
             "description": "Expected: 400 with message  \nTODO Error Message should be, \"missing type\"  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
-            "id": "5d8f87f2-6377-4ac7-bc76-eee39a1c235f",
+            "id": "5a4af8e0-1173-484d-9b77-c52a58fe65fd",
             "name": "4. action:execute - no type",
             "headers": [
               {
@@ -385,7 +385,7 @@
               "path": "/api/v1/action/execute"
             },
             "description": "Expected: 400 with message\nTODO error Message should be, \"missing family\"  \nhttps://jira.talendforge.org/browse/TCOMP-2246  ",
-            "id": "737b04bf-4712-4e0f-a5c5-a53fd2058837",
+            "id": "7c2771b1-748b-4a1d-a720-84b2feda705b",
             "name": "5. action:execute - no family",
             "headers": [
               {
@@ -415,69 +415,154 @@
               }
             ]
           }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{}"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "the_family"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "type",
+                    "value": "create_connection"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "action",
+                    "value": "action_CREATE_CONNECTION_ERROR"
+                  },
+                  {
+                    "name": "action",
+                    "value": ""
+                  },
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/execute"
+            },
+            "description": "Expected: 400 with message",
+            "id": "44270ea1-30a3-4676-b920-a81be93d6da8",
+            "name": "6. action:execute - action execution failed",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "520"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.code",
+                "value": "ACTION_ERROR"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.description",
+                "value": "Action execution failed with: / by zero"
+              }
+            ]
+          }
         }
       ]
     }
   ],
   "environments": [
     {
-      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "id": "d7975106-9ad9-41fd-8900-ab5520885d2c",
       "name": "component_runtime_ci",
       "variables": {
-        "56f6cb1b-e758-42d2-bfd2-b8b5464654b5": {
+        "32139a5d-57e2-4342-9c68-29352d78b513": {
           "name": "output_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-08-10T02:16:30.587Z",
           "private": false
         },
-        "f7314dca-1c04-496c-ad19-44a4c8009360": {
-          "name": "mapper_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f0e9a692-6866-4c95-8b76-5f5d363e3ed1": {
-          "name": "dataset_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "1266d066-8fd3-47f6-ad74-260e39b9d472": {
-          "name": "server-ip",
-          "value": "localhost",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f05e4bab-fee2-4637-869f-bb228225d2ea": {
-          "name": "server-port",
-          "value": "8081",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "ec6e694a-f4a6-4558-a788-eb3e36ee893e": {
+        "98915cac-d4de-4864-8ac1-2c49574b550c": {
           "name": "datastore_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-08-10T02:16:30.587Z",
           "private": false
         },
-        "c803040f-9503-4201-a576-aee684b93510": {
-          "name": "family_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "1f9780cc-c7b0-43f1-ac1d-c3dc34ee7a7e": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-08-10T02:16:30.587Z",
           "private": false
         },
-        "838469ba-346a-4f73-b769-031f529306f0": {
+        "d8d510f8-9dc8-45e1-b325-2a2b460d6dcb": {
           "name": "httpbin_addr",
           "value": "tal-rd22.talend.lan:8084",
           "enabled": true,
-          "createdAt": "2023-05-24T07:29:46.274Z",
+          "createdAt": "2023-08-10T02:16:30.587Z",
+          "private": false
+        },
+        "d8fd546a-3c26-4b26-98a5-56fc5f4c1f5c": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-08-10T02:16:30.587Z",
+          "private": false
+        },
+        "dab18074-4f22-4509-9628-9e18231501d1": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-08-10T02:16:30.587Z",
+          "private": false
+        },
+        "e84d1c64-c192-4dfe-88ab-0590948c1525": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-08-10T02:16:30.587Z",
+          "private": false
+        },
+        "f608f7fa-629f-4c68-809d-8ad862b89a4e": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-08-10T02:16:30.587Z",
           "private": false
         }
       }
