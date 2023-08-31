@@ -74,6 +74,10 @@ public interface Schema {
      */
     Stream<Entry> getAllEntries();
 
+    default Map<String, Entry> getEntryMap() {
+        throw new UnsupportedOperationException("#getEntryMap is not implemented");
+    }
+
     /**
      * Get a Builder from the current schema.
      *
@@ -115,10 +119,7 @@ public interface Schema {
     }
 
     default Entry getEntry(final String name) {
-        return getAllEntries() //
-                .filter((Entry e) -> Objects.equals(e.getName(), name)) //
-                .findFirst() //
-                .orElse(null);
+        return getEntryMap().get(name);
     }
 
     /**

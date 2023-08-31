@@ -85,7 +85,7 @@ class SchemaImplTest {
                 .suppress(Warning.STRICT_HASHCODE) // Supress test hashcode use all fields used by equals (for legacy)
                 .forClass(SchemaImpl.class)
                 .withPrefabValues(Schema.Entry.class, first, second)
-                .withIgnoredFields("entriesOrder")
+                .withIgnoredFields("entriesOrder", "entryMap")
                 .withPrefabValues(EntriesOrder.class, EntriesOrder.of("First"), EntriesOrder.of("Second"))
                 .verify();
     }

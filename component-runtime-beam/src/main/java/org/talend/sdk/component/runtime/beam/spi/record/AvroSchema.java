@@ -23,6 +23,7 @@ import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -62,6 +63,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     private AvroSchema elementSchema;
 
     private List<Entry> entries;
+
+    private Map<String, Entry> entryMap;
 
     @JsonbTransient
     private List<Entry> metadataEntries;
@@ -160,6 +163,16 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     @JsonbTransient
     public Stream<Entry> getAllEntries() {
         return Stream.concat(this.getEntries().stream(), this.getMetadata().stream());
+    }
+
+    @Override
+    @JsonbTransient
+    public Map<String, Entry> getEntryMap() {
+        if (entryMap == null) {
+            entryMap = new HashMap<>();
+            getAllEntries().forEach(e -> entryMap.put(e.getName(), e));
+        }
+        return entryMap;
     }
 
     @Override
