@@ -34,7 +34,7 @@ public class BuiltInSuggestableServices {
      *
      */
 
-    public final static String BUILTINSUGGESTABLE = "action_BUILTINSUGGESTABLE";
+    public final static String BUILTIN_SUGGESTABLE = "action_BUILTIN_SUGGESTABLE";
 
     /**
      * BuiltInSuggestable action
@@ -42,9 +42,12 @@ public class BuiltInSuggestableServices {
      * Documentation: https://talend.github.io/component-runtime/main/latest/ref-actions.html#_built_in_suggestable
      * API: @org.talend.sdk.component.api.configuration.action.BuiltInSuggestable
      *
+     * REMARK: THis implementation only validate the endpoint / action process,
+     * it is not using the application execution side of BuiltInSuggestable
+     *
      */
 
-    @CreateConnection(BUILTINSUGGESTABLE)
+    @CreateConnection(BUILTIN_SUGGESTABLE)
     public Object createConnection() throws IllegalAccessException {
         class Inner {
 

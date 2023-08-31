@@ -43,7 +43,7 @@
                   {
                     "enabled": true,
                     "name": "action",
-                    "value": "action_BUILTINSUGGESTABLE"
+                    "value": "action_BUILTIN_SUGGESTABLE"
                   }
                 ]
               },
