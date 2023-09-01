@@ -64,6 +64,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     private List<Entry> entries;
 
+    @JsonbTransient
     private Map<String, Entry> entryMap;
 
     @JsonbTransient
