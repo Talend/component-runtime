@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for action index](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Action/getActionIndex)",
-        "id": "5d39ef45-27ac-4d57-983b-80117fb549b7",
+        "id": "0f716fa6-a56d-4321-9937-3aa6f3a66f10",
         "name": "tck-action-index-api-test"
       },
       "children": [
@@ -50,7 +50,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "TODO improve language test  \nhttps://jira.talendforge.org/browse/TCOMP-2246",
-            "id": "f323b5aa-ff3c-46b0-a8fa-8ac66dff12ca",
+            "id": "fd16a9a4-c458-4d5b-b16e-ced085fa0919",
             "name": "action/index - default",
             "headers": [],
             "assertions": [
@@ -76,10 +76,10 @@
                 "value": "^{\"items\":\\[{\"component\":\""
               },
               {
-                "comparison": "Greater",
+                "comparison": "LengthGreaterThanOrEqual",
                 "subject": "ResponseJsonBody",
                 "path": "$.items",
-                "value": "3"
+                "value": "21"
               },
               {
                 "comparison": "Exists",
@@ -106,16 +106,95 @@
                 "value": "\"displayName\":\"Account Name\""
               },
               {
-                "comparison": "Contains",
+                "comparison": "Matches",
                 "subject": "ResponseJsonBody",
-                "path": "$.items..displayName[62]",
+                "path": "$.items..displayName",
                 "value": "-en"
               },
               {
                 "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.items..displayName[63]",
-                "value": "-en"
+                "path": "$.items.component",
+                "value": "Azure"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "the_family"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "Common"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "the_family"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/index"
+            },
+            "description": "",
+            "id": "09510584-900a-43fd-8223-9c121b8babde",
+            "name": "action/index - family one",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "enabled": true,
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "enabled": true,
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "the_family"
+              },
+              {
+                "comparison": "DoesNotContain",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "Azure"
               }
             ]
           }
@@ -145,8 +224,9 @@
                     "value": "the_family"
                   },
                   {
-                    "name": "type",
-                    "value": ""
+                    "enabled": true,
+                    "name": "family",
+                    "value": "Azure"
                   },
                   {
                     "name": "language",
@@ -161,9 +241,9 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/action/index"
             },
-            "description": "TODO how to test this without breaking on future action added?",
-            "id": "a36f4ceb-b306-4d4b-acf3-8e672e5292b3",
-            "name": "action/index - family",
+            "description": "",
+            "id": "13ee4bfe-27a6-4124-b3bd-1b1769e74fc0",
+            "name": "action/index - family two",
             "headers": [],
             "assertions": [
               {
@@ -181,10 +261,16 @@
                 "value": "200"
               },
               {
-                "comparison": "Less",
+                "comparison": "Contains",
                 "subject": "ResponseJsonBody",
-                "path": "$.items",
-                "value": "3${getEntityById(\"f323b5aa-ff3c-46b0-a8fa-8ac66dff12ca\").\"response\".\"body\".jsonPath(\"$.items\").length()}"
+                "path": "$.items.component",
+                "value": "the_family"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items.component",
+                "value": "Azure"
               }
             ]
           }
@@ -231,7 +317,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "Expected:  empty item list",
-            "id": "77a53d64-40b2-42ca-aaa4-5ade534af785",
+            "id": "59e1ff3b-68ee-495e-9997-f347587923c1",
             "name": "action/index - family unknown",
             "headers": [],
             "assertions": [
@@ -301,7 +387,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "",
-            "id": "91322368-686b-4a8f-ad6d-8c77d67bc5d1",
+            "id": "93874854-8083-46a7-935c-3579fac0f39c",
             "name": "action/index - language",
             "headers": [],
             "assertions": [
@@ -359,10 +445,6 @@
                     "value": "suggestions"
                   },
                   {
-                    "name": "family",
-                    "value": ""
-                  },
-                  {
                     "name": "language",
                     "value": ""
                   }
@@ -376,8 +458,8 @@
               "path": "/api/v1/action/index"
             },
             "description": "",
-            "id": "d13822e2-25e6-42ba-91db-cabd83e9e144",
-            "name": "action/index - type",
+            "id": "f795e10b-daf3-42ea-9231-e9206f1f93cc",
+            "name": "action/index - type one",
             "headers": [],
             "assertions": [
               {
@@ -405,6 +487,88 @@
                 "subject": "ResponseJsonBody",
                 "path": "$.items..name",
                 "value": "action_LIST_ENTITIES"
+              },
+              {
+                "comparison": "DoesNotContain",
+                "subject": "ResponseJsonBody",
+                "path": "$.items..name",
+                "value": "action_VALIDATION"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "type",
+                    "value": "suggestions"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "type",
+                    "value": "validation"
+                  },
+                  {
+                    "name": "language",
+                    "value": ""
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/index"
+            },
+            "description": "",
+            "id": "3d036f5b-a35f-4d96-aae2-6930a99224f1",
+            "name": "action/index - type two",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "enabled": true,
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "enabled": true,
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items..name",
+                "value": "action_LIST_ENTITIES"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.items..name",
+                "value": "action_VALIDATION"
               }
             ]
           }
@@ -451,7 +615,7 @@
               "path": "/api/v1/action/index"
             },
             "description": "Expected:  empty item list",
-            "id": "58d04cd3-a5b2-450f-8b92-669193c926a1",
+            "id": "227d7df9-127f-4dbb-82ab-de05f08cece5",
             "name": "action/index - type unknown",
             "headers": [],
             "assertions": [
