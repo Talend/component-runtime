@@ -225,6 +225,22 @@ Mark a string field as being represented by selected module list widget, only fo
 ----
 
 
+= @Path
+
+Mark a option as being represented by file or directory widget. Only for studio.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.Path`
+
+== Snippets
+
+[source,js]
+----
+{
+  "ui::path::value":"null"
+}
+----
+
+
 = @Structure
 
 Mark a List<String> or List<Object> field as being represented as the component data selector.
