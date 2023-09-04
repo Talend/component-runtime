@@ -15,6 +15,21 @@
  */
 package org.talend.sdk.component.runtime.di.record;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
+import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
+import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
+import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
+
+import routines.system.Dynamic;
+import routines.system.DynamicMetadata;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
@@ -29,20 +44,6 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
 import lombok.Data;
-import routines.system.Dynamic;
-import routines.system.DynamicMetadata;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
-import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
-import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
-import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
-import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 class DiRowStructVisitorTest extends VisitorsTest {
 
