@@ -140,19 +140,6 @@ public final class RecordImpl implements Record {
                 this.orderState = new OrderState(Collections.emptyList());
             } else {
                 this.entries = null;
-                /*
-                 * String orderList = this.providedSchema.getProp(SchemaImpl.ENTRIES_ORDER_PROP);
-                 * if (orderList != null) {
-                 * // the method name is naturalOrder(), but why is decided by a var from ENTRIES_ORDER_PROP key?
-                 * // for safe, we init it at once if ENTRIES_ORDER_PROP exists, as if ENTRIES_ORDER_PROP not exists,
-                 * // we can promise the fields in OrderState is the same with schema.getEntryMap()
-                 * final List<Entry> fields = this.providedSchema.naturalOrder()
-                 * .getFieldsOrder()
-                 * .map(this.providedSchema::getEntry)
-                 * .collect(Collectors.toList());
-                 * this.orderState = new OrderState(fields);
-                 * }
-                 */
             }
         }
 
@@ -258,8 +245,6 @@ public final class RecordImpl implements Record {
                 }
                 this.entries.replace(name, schemaEntry);
 
-                // not adjust here for TCOMP-2375 as orderState is final field before TCOMP-2375, mean can't reassign,
-                // so safe
                 if (this.orderState != null) {
                     this.orderState.orderedEntries.replace(name, schemaEntry);
                 }
