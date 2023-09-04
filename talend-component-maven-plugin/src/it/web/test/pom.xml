@@ -24,6 +24,7 @@
 
     <modules>
         <!-- All test cases in alphabetical order -->
+        <module>tck-action-builtinsuggestable-api-test</module>
         <module>tck-action-close-connection-api-test</module>
         <module>tck-action-create-connection-api-test</module>
         <module>tck-action-discoverdataset-api-test</module>

@@ -41,7 +41,8 @@ public interface BulkReadResource {
     @POST
     @Operation(description = "Takes a request aggregating N other endpoint requests and responds all results "
             + "in a normalized HTTP response representation.")
-    @APIResponse(responseCode = "200", description = "The request payloads.",
+    @APIResponse(responseCode = "200",
+            description = "The request payloads.",
             content = @Content(mediaType = APPLICATION_JSON))
     CompletionStage<BulkResponses> bulk(@RequestBody(
             description = "The requests list as json objects containing a list of request objects.  \n" +
@@ -57,7 +58,7 @@ public interface BulkReadResource {
                     "},  \n" +
                     "{ [...]}  \n" +
                     "]  \n" +
-                    "}`  ",
+                    "}`",
             required = true,
             content = @Content(mediaType = APPLICATION_JSON)) final BulkRequests requests);
 }
