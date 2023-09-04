@@ -13,6 +13,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2525[TCOMP-2525^]: Upgrade netty to 4.1.97.Final 
 - link:https://jira.talendforge.org/browse/TCOMP-2526[TCOMP-2526^]: Upgrade guava to 32.1.2-jre 
 - link:https://jira.talendforge.org/browse/TCOMP-2527[TCOMP-2527^]: Upgrade tomcat to 9.0.80 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2529[TCOMP-2529^]: Upgrade batik to 1.17 
 
 == Version 1.60.0
 
