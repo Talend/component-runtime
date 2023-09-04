@@ -1,5 +1,38 @@
 
 
+== Version 1.60.0
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2507[TCOMP-2507^]: Upgrade commons-compress to 1.23.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2508[TCOMP-2508^]: Upgrade commons-io to 2.13.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2509[TCOMP-2509^]: Upgrade cxf to 3.5.6 
+- link:https://jira.talendforge.org/browse/TCOMP-2510[TCOMP-2510^]: Upgrade gmavenplus to 1.13.1 
+- link:https://jira.talendforge.org/browse/TCOMP-2511[TCOMP-2511^]: Upgrade groovy to 3.0.18 
+- link:https://jira.talendforge.org/browse/TCOMP-2512[TCOMP-2512^]: Upgrade jackson-databind/jackson to 2.15.2 
+- link:https://jira.talendforge.org/browse/TCOMP-2513[TCOMP-2513^]: Upgrade jacoco to 0.8.10 
+- link:https://jira.talendforge.org/browse/TCOMP-2514[TCOMP-2514^]: Upgrade java11.jaxb to 2.3.8 
+- link:https://jira.talendforge.org/browse/TCOMP-2515[TCOMP-2515^]: Upgrade junit5 to 5.9.3 
+- link:https://jira.talendforge.org/browse/TCOMP-2516[TCOMP-2516^]: Upgrade mvn to 3.8.8 
+- link:https://jira.talendforge.org/browse/TCOMP-2517[TCOMP-2517^]: Upgrade surefire-plugin to 3.0.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2518[TCOMP-2518^]: Upgrade tomcat to 9.0.78
+
+== Version 1.59.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-1897[TCOMP-1897^]: Bulk API returns byte[] instead of a json link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2468[TCOMP-2468^]: Can't resolve component name when plugins have equal family name link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2479[TCOMP-2479^]: Error message for Min & Max annotation isn't correct link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2307[TCOMP-2307^]: Upgrade beam to 2.46.0, Spark to 3.2.2 and Flink to 1.14 link:search.html?query=beam[beam^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2473[TCOMP-2473^]: Upgrade netty to 4.1.94.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2474[TCOMP-2474^]: Upgrade snappy to 1.1.10.1 link:search.html?query=beam[beam^,role='dockey']
+
 == Version 1.58.0
 
 === Bug

@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Collection;
@@ -40,6 +41,8 @@ import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -109,17 +112,21 @@ public class BulkReadResourceImpl implements BulkReadResource {
 
     private final BulkResponses.Result forbiddenInBulkModeResponse =
             new BulkResponses.Result(Response.Status.FORBIDDEN.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNAUTHORIZED\",\"description\":\"Forbidden endpoint in bulk mode.\"}"
-                            .getBytes(StandardCharsets.UTF_8));
+                    Json.createReader(new StringReader(
+                            "{\"code\":\"UNAUTHORIZED\",\"description\":\"Forbidden endpoint in bulk mode.\"}"))
+                            .readObject());
 
     private final BulkResponses.Result forbiddenResponse =
             new BulkResponses.Result(Response.Status.FORBIDDEN.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNAUTHORIZED\",\"description\":\"Secured endpoint, ensure to pass the right token.\"}"
-                            .getBytes(StandardCharsets.UTF_8));
+                    Json.createReader(new StringReader(
+                            "{\"code\":\"UNAUTHORIZED\",\"description\":\"Secured endpoint, ensure to pass the right token.\"}"))
+                            .readObject());
 
     private final BulkResponses.Result invalidResponse =
             new BulkResponses.Result(Response.Status.BAD_REQUEST.getStatusCode(), emptyMap(),
-                    "{\"code\":\"UNEXPECTED\",\"description\":\"unknownEndpoint.\"}".getBytes(StandardCharsets.UTF_8));
+                    Json.createReader(
+                            new StringReader("{\"code\":\"UNEXPECTED\",\"description\":\"unknownEndpoint.\"}"))
+                            .readObject());
 
     @PostConstruct
     private void init() {
@@ -169,7 +176,8 @@ public class BulkReadResourceImpl implements BulkReadResource {
                 ofNullable(inputRequest.getHeaders()).orElseGet(Collections::emptyMap);
         final String path = ofNullable(inputRequest.getPath()).map(it -> it.substring(appPrefix.length())).orElse("/");
 
-        // theorically we should encode these params but should be ok this way for now - due to the param we can accept
+        // theoretically we should encode these params but should be ok this way for now - due to the param we can
+        // accept
         final String queryString = ofNullable(inputRequest.getQueryParameters())
                 .map(Map::entrySet)
                 .map(Collection::stream)
@@ -194,7 +202,12 @@ public class BulkReadResourceImpl implements BulkReadResource {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CompletableFuture<BulkResponses.Result> promise = new CompletableFuture<>();
         final InMemoryResponse response = new InMemoryResponse(() -> true, () -> {
-            result.setResponse(outputStream.toByteArray());
+            try {
+                JsonObject jsonObject = Json.createReader(new StringReader(outputStream.toString())).readObject();
+                result.setResponse(jsonObject);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             promise.complete(result);
         }, bytes -> {
             try {
@@ -212,10 +225,9 @@ public class BulkReadResourceImpl implements BulkReadResource {
             controller.invoke(request, response);
         } catch (final ServletException e) {
             result.setStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
-            result
-                    .setResponse(defaultMapper
-                            .toJson(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
-                            .getBytes(StandardCharsets.UTF_8));
+            result.setResponse(Json.createReader(new StringReader(defaultMapper
+                    .toJson(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))))
+                    .readObject());
             promise.complete(result);
             throw new IllegalStateException(e);
         }

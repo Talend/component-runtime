@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.59.0-SNAPSHOT</version>
+  <version>1.61.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -172,8 +172,8 @@
     <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.75</tomcat.version>
-    <cxf.version>3.5.5</cxf.version>
+    <tomcat.version>9.0.78</tomcat.version>
+    <cxf.version>3.5.6</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
 
@@ -202,11 +202,11 @@
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-opentracing.version>1.0.2</geronimo-opentracing.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
-    <junit5.version>5.9.2</junit5.version>
+    <junit5.version>5.9.3</junit5.version>
     <mockito4.version>4.8.1</mockito4.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <jackson.version>2.15.0</jackson.version>
-    <jackson-databind.version>2.15.0</jackson-databind.version>
+    <jackson.version>2.15.2</jackson.version>
+    <jackson-databind.version>2.15.2</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
     <avro.version>1.8.2</avro.version>
     <jsoup.version>1.15.3</jsoup.version>
@@ -216,21 +216,21 @@
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <mvn.version>3.8.7</mvn.version>
+    <mvn.version>3.8.8</mvn.version>
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
-    <beam.version>2.37.0</beam.version>
+    <beam.version>2.46.0</beam.version>
     <snappy.version>1.1.10.1</snappy.version>
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.10</joda.time.version>
 
-    <spark.version>3.2.0</spark.version>
+    <spark.version>3.2.2</spark.version>
     <spark-scala.version>2.12</spark-scala.version>
 
     <gradle.version>6.9.1</gradle.version>
-    <groovy.version>3.0.9</groovy.version>
-    <gmavenplus.version>1.13.0</gmavenplus.version>
+    <groovy.version>3.0.18</groovy.version>
+    <gmavenplus.version>1.13.1</gmavenplus.version>
     <dependency-plugin.version>3.3.0</dependency-plugin.version>
     <assembly-plugin.version>3.3.0</assembly-plugin.version>
     <javadoc-plugin.version>3.3.2</javadoc-plugin.version>
@@ -245,8 +245,8 @@
     <common-plugin.version>1.0.7</common-plugin.version>
     <jgit.version>5.10.0.202012080955-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
-    <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <jacoco.version>0.8.7</jacoco.version>
+    <surefire-plugin.version>3.0.0</surefire-plugin.version>
+    <jacoco.version>0.8.10</jacoco.version>
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
     <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
     <spotless.version>2.17.3</spotless.version>
@@ -274,14 +274,14 @@
     <!-- for manual testing only, not required -->
     <talend.component.server.component.coordinates.samples>org.talend.components:servicenow:0.0.1-SNAPSHOT</talend.component.server.component.coordinates.samples>
     <jaxb.version>2.3.1</jaxb.version>
-    <java11.jaxb.version>2.3.5</java11.jaxb.version>
+    <java11.jaxb.version>2.3.8</java11.jaxb.version>
     <!-- minimal code coverage ratio -->
     <coverage.min>0.75</coverage.min>
     <coverage.fail>false</coverage.fail>
 
     <johnzon.version>1.2.20</johnzon.version>
-    <commons-io.version>2.9.0</commons-io.version>
-    <commons-compress.version>1.21</commons-compress.version>
+    <commons-io.version>2.13.0</commons-io.version>
+    <commons-compress.version>1.23.0</commons-compress.version>
     <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>

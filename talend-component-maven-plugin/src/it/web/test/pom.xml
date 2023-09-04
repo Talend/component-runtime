@@ -24,11 +24,16 @@
 
     <modules>
         <!-- All test cases in alphabetical order -->
+        <module>tck-action-builtinsuggestable-api-test</module>
         <module>tck-action-close-connection-api-test</module>
+        <module>tck-action-create-connection-api-test</module>
+        <module>tck-action-discoverdataset-api-test</module>
         <module>tck-action-errors-api-test</module>
         <module>tck-action-index-api-test</module>
         <module>tck-action-schema-api-test</module>
         <module>tck-action-suggestion-api-test</module>
+        <module>tck-action-update-api-test</module>
+        <module>tck-action-user-api-test</module>
         <module>tck-action-validation-api-test</module>
         <module>tck-action-healthcheck-api-test</module>
         <module>tck-bulk-api-test</module>
@@ -41,6 +46,8 @@
         <module>tck-configurationType-details-api-test</module>
         <module>tck-configurationType-index-api-test</module>
         <module>tck-configurationType-migrate-api-test</module>
+        <module>tck-documentation-api-test</module>
+        <module>tck-language-api-test</module>
         <module>tck-general-api-test</module>
         <module>tck-security-api-test</module>
     </modules>

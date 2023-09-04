@@ -53,6 +53,48 @@ class ComponentInstantiatorTest {
         Assertions.assertTrue(lifecycle instanceof FakeMapper, lifecycle.getClass().getName());
     }
 
+    @Test
+    void instantiateWhenEqualFamilyName() {
+        final ComponentFamilyMeta familyMeta =
+                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "name", "packageName");
+        ComponentFamilyMeta.PartitionMapperMeta meta = new FakeMapperMeta(familyMeta);
+        familyMeta.getPartitionMappers().put("name", meta);
+
+        final ComponentFamilyMeta familyMeta2 =
+                new ComponentFamilyMeta("pluginId", Arrays.asList("dog1", "dog2"), "theIcon", "foo", "packageName");
+        ComponentFamilyMeta.PartitionMapperMeta meta2 = new FakeMapperMeta(familyMeta2);
+        familyMeta2.getPartitionMappers().put("foo", meta2);
+
+        final ContainerComponentRegistry registry = new ContainerComponentRegistry();
+        registry.getComponents().put("pluginId", familyMeta);
+
+        final ContainerComponentRegistry registry2 = new ContainerComponentRegistry();
+        registry2.getComponents().put("pluginId", familyMeta2);
+
+        ComponentInstantiator.BuilderDefault builder =
+                new ComponentInstantiator.BuilderDefault(() -> Stream.of(registry, registry2));
+
+        ComponentInstantiator.MetaFinder finder = new ComponentInstantiator.ComponentNameFinder("name");
+
+        final ComponentInstantiator instanciator =
+                builder.build("pluginId", finder, ComponentManager.ComponentType.MAPPER);
+        Assertions.assertNotNull(instanciator, "lifecycle is null");
+        final Lifecycle lifecycle = instanciator.instantiate(Collections.emptyMap(), 2);
+
+        Assertions.assertNotNull(lifecycle, "lifecycle is null");
+        Assertions.assertTrue(lifecycle instanceof FakeMapper, lifecycle.getClass().getName());
+
+        ComponentInstantiator.MetaFinder finder2 = new ComponentInstantiator.ComponentNameFinder("foo");
+
+        final ComponentInstantiator instanciator2 =
+                builder.build("pluginId", finder2, ComponentManager.ComponentType.MAPPER);
+        Assertions.assertNotNull(instanciator2, "lifecycle is null");
+        final Lifecycle lifecycle2 = instanciator2.instantiate(Collections.emptyMap(), 2);
+
+        Assertions.assertNotNull(lifecycle2, "lifecycle is null");
+        Assertions.assertTrue(lifecycle2 instanceof FakeMapper, lifecycle2.getClass().getName());
+    }
+
     static class FakeMapperMeta extends ComponentFamilyMeta.PartitionMapperMeta {
 
         public FakeMapperMeta(final ComponentFamilyMeta familyMeta) {

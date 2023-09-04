@@ -54,7 +54,8 @@ public interface ActionResource {
             description = "This endpoint will execute any UI action and serialize the response as a JSON (pojo model). "
                     + "It takes as input the family, type and name of the related action to identify it and its configuration "
                     + "as a flat key value set using the same kind of mapping than for components (option path as key).")
-    @APIResponse(responseCode = "200", description = "The action payload serialized in JSON.",
+    @APIResponse(responseCode = "200",
+            description = "The action payload serialized in JSON.",
             content = @Content(mediaType = APPLICATION_JSON))
     @APIResponse(responseCode = "400",
             description = "If the action is not set, payload will be an ErrorPayload with the code ACTION_MISSING.",
@@ -70,15 +71,15 @@ public interface ActionResource {
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     CompletionStage<Response> execute(
             @QueryParam("family") @Parameter(name = "family", required = true, in = QUERY,
-                    description = "the component family") String family,
+                    description = "Component family.") String family,
             @QueryParam("type") @Parameter(name = "type", required = true, in = QUERY,
-                    description = "the type of action") String type,
+                    description = "Type of action.") String type,
             @QueryParam("action") @Parameter(name = "action", required = true, in = QUERY,
-                    description = "the action name") String action,
+                    description = "Action name.") String action,
             @QueryParam("lang") @DefaultValue("en") @Parameter(name = "lang", in = QUERY,
-                    description = "the requested language (as in a Locale) if supported by the action",
+                    description = "Requested language (as in a Locale) if supported by the action.",
                     schema = @Schema(defaultValue = "en", type = STRING)) String lang,
-            @RequestBody(description = "the action parameters as a flat map of strings", required = true,
+            @RequestBody(description = "Action parameters in key/value flat json form.", required = true,
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(type = OBJECT))) Map<String, String> params);
 
@@ -87,13 +88,17 @@ public interface ActionResource {
     @Operation(operationId = "getActionIndex",
             description = "This endpoint returns the list of available actions for a certain family and potentially filters the "
                     + "output limiting it to some families and types of actions.")
-    @APIResponse(responseCode = "200", description = "The action index.",
+    @APIResponse(responseCode = "200",
+            description = "The action index.",
             content = @Content(mediaType = APPLICATION_JSON))
     ActionList getIndex(
             @QueryParam("type") @Parameter(name = "type", in = QUERY,
-                    description = "the types of actions") String[] types,
+                    description = "Filter the response by type." +
+                            "Repeat this parameter to request more than one type.") String[] types,
             @QueryParam("family") @Parameter(name = "family", in = QUERY,
-                    description = "the families") String[] families,
-            @QueryParam("language") @Parameter(name = "language", description = "the language to use", in = QUERY,
+                    description = "Filter the response by family." +
+                            "Repeat this parameter to request more than one family.") String[] families,
+            @QueryParam("language") @Parameter(name = "language",
+                    description = "Response language in i18n format.", in = QUERY,
                     schema = @Schema(defaultValue = "en", type = STRING)) @DefaultValue("en") String language);
 }

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime-testing</artifactId>
-    <version>1.59.0-SNAPSHOT</version>
+    <version>1.61.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-http-junit</artifactId>
@@ -28,7 +28,7 @@
   <description>JUnit integration to simplify the HTTP API testing/mocking.</description>
 
   <properties>
-    <netty.version>4.1.94.Final</netty.version>
+    <netty.version>4.1.97.Final</netty.version>
     <talend.build.name>${talend.build.name.base}.junit.http</talend.build.name>
   </properties>
 
