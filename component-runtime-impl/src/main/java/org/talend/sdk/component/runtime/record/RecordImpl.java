@@ -127,7 +127,7 @@ public final class RecordImpl implements Record {
 
         private final Schema providedSchema;
 
-        private final OrderState orderState;
+        private OrderState orderState;
 
         public BuilderImpl() {
             this(null);
@@ -140,11 +140,33 @@ public final class RecordImpl implements Record {
                 this.orderState = new OrderState(Collections.emptyList());
             } else {
                 this.entries = null;
-                final List<Entry> fields = providedSchema.naturalOrder()
-                        .getFieldsOrder()
-                        .map(providedSchema::getEntry)
-                        .collect(Collectors.toList());
-                this.orderState = new OrderState(fields);
+                /*
+                 * String orderList = this.providedSchema.getProp(SchemaImpl.ENTRIES_ORDER_PROP);
+                 * if (orderList != null) {
+                 * // the method name is naturalOrder(), but why is decided by a var from ENTRIES_ORDER_PROP key?
+                 * // for safe, we init it at once if ENTRIES_ORDER_PROP exists, as if ENTRIES_ORDER_PROP not exists,
+                 * // we can promise the fields in OrderState is the same with schema.getEntryMap()
+                 * final List<Entry> fields = this.providedSchema.naturalOrder()
+                 * .getFieldsOrder()
+                 * .map(this.providedSchema::getEntry)
+                 * .collect(Collectors.toList());
+                 * this.orderState = new OrderState(fields);
+                 * }
+                 */
+            }
+        }
+
+        private void initOrderState() {
+            if (orderState == null) {
+                if (this.providedSchema == null) {
+                    this.orderState = new OrderState(Collections.emptyList());
+                } else {
+                    final List<Entry> fields = this.providedSchema.naturalOrder()
+                            .getFieldsOrder()
+                            .map(this.providedSchema::getEntry)
+                            .collect(Collectors.toList());
+                    this.orderState = new OrderState(fields);
+                }
             }
         }
 
@@ -236,6 +258,8 @@ public final class RecordImpl implements Record {
                 }
                 this.entries.replace(name, schemaEntry);
 
+                // not adjust here for TCOMP-2375 as orderState is final field before TCOMP-2375, mean can't reassign,
+                // so safe
                 if (this.orderState != null) {
                     this.orderState.orderedEntries.replace(name, schemaEntry);
                 }
@@ -261,12 +285,14 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder before(final String entryName) {
+            initOrderState();
             orderState.before(entryName);
             return this;
         }
 
         @Override
         public Builder after(final String entryName) {
+            initOrderState();
             orderState.after(entryName);
             return this;
         }
@@ -323,7 +349,7 @@ public final class RecordImpl implements Record {
                 if (!missing.isEmpty()) {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
-                if (orderState.isOverride()) {
+                if (orderState != null && orderState.isOverride()) {
                     currentSchema = this.providedSchema.toBuilder().build(this.orderState.buildComparator());
                 } else {
                     currentSchema = this.providedSchema;
@@ -331,6 +357,7 @@ public final class RecordImpl implements Record {
             } else {
                 final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
                 this.entries.forEachValue(builder::withEntry);
+                initOrderState();
                 currentSchema = builder.build(orderState.buildComparator());
             }
             return new RecordImpl(unmodifiableMap(values), currentSchema);
@@ -528,7 +555,17 @@ public final class RecordImpl implements Record {
             if (this.entries != null) {
                 this.entries.addValue(realEntry);
             }
-            orderState.update(realEntry);
+            if (orderState == null) {
+                if (this.providedSchema != null && this.providedSchema.getEntryMap().containsKey(realEntry.getName())) {
+                    // no need orderState, delay init it for performance, this is 99% cases for
+                    // RecordBuilderFactoryImpl.newRecordBuilder(schema) usage
+                } else {
+                    initOrderState();
+                    orderState.update(realEntry);
+                }
+            } else {
+                orderState.update(realEntry);
+            }
             return this;
         }
 

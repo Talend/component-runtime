@@ -144,7 +144,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             dynamic.getDynamic().metadatas.clear();
             dynamic.getDynamic().clearColumnValues();
         }
-        if (recordFields == null) {
+        if (hasDynamic && (recordFields == null)) {
             recordFields =
                     record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
                         final String root = rcdEntry.getName() + ".";
