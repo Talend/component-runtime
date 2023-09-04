@@ -14,6 +14,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2526[TCOMP-2526^]: Upgrade guava to 32.1.2-jre 
 - link:https://jira.talendforge.org/browse/TCOMP-2527[TCOMP-2527^]: Upgrade tomcat to 9.0.80 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2529[TCOMP-2529^]: Upgrade batik to 1.17 
+- link:https://jira.talendforge.org/browse/TCOMP-2530[TCOMP-2530^]: Upgrade ivy to 2.5.2 
 
 == Version 1.60.0
 
