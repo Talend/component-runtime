@@ -167,7 +167,7 @@
     <ziplock.version>8.0.4</ziplock.version>
     <ziplock.test.version>7.0.5</ziplock.test.version> <!-- do not update without updating test-->
     <johnzon.version>1.2.10</johnzon.version>
-    <meecrowave.version>1.2.12</meecrowave.version>
+    <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.23</owb.version>
     <tomcat.version>9.0.80</tomcat.version>
     <cxf.version>3.4.10</cxf.version>
@@ -1655,6 +1655,37 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>java8</id>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+      <properties>
+        <extraJvmFlags/>
+      </properties>
+    </profile>
+    <profile>
+      <id>java9</id>
+      <activation>
+        <jdk>[1.9,)</jdk>
+      </activation>
+      <properties>
+        <extraJvmFlags>--add-modules=ALL-SYSTEM
+          --add-opens java.base/java.io=ALL-UNNAMED
+          --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+          --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+          --add-opens java.base/java.lang=ALL-UNNAMED
+          --add-opens java.base/java.net=ALL-UNNAMED
+          --add-opens java.base/java.nio=ALL-UNNAMED
+          --add-opens java.base/java.util=ALL-UNNAMED
+          --add-opens java.base/java.util.concurrent=ALL-UNNAMED
+          --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+          --add-opens java.base/sun.nio.cs=ALL-UNNAMED
+          --add-opens java.base/sun.security.action=ALL-UNNAMED
+          --add-opens java.base/sun.security.x509=ALL-UNNAMED
+          --add-opens java.base/sun.util.calendar=ALL-UNNAMED</extraJvmFlags>
+      </properties>
     </profile>
   </profiles>
 </project>
