@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":721,
+    "commits":724,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -43,7 +43,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":41,
+    "commits":44,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -57,7 +57,7 @@
     "name":"ypiel"
   },
   {
-    "commits":35,
+    "commits":36,
     "description":"QA Automation @ Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
@@ -71,7 +71,7 @@
     "name":"Chao MENG"
   },
   {
-    "commits":17,
+    "commits":19,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",
@@ -108,6 +108,13 @@
   {
     "commits":8,
     "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
+    "id":"lxia-talend",
+    "name":"lxia-talend"
+  },
+  {
+    "commits":8,
+    "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
     "id":"fdesiles",
     "name":"Fabien Désiles"
@@ -118,13 +125,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/39268?v=4",
     "id":"anicolas",
     "name":"Antoine Nicolas"
-  },
-  {
-    "commits":6,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
-    "id":"lxia-talend",
-    "name":"lxia-talend"
   },
   {
     "commits":4,
