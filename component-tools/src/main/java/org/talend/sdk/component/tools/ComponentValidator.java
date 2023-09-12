@@ -258,5 +258,9 @@ public class ComponentValidator extends BaseTask {
         private boolean validateExceptions;
 
         private boolean failOnValidateExceptions;
+
+        private boolean validateRecord;
+
+        private boolean validateSchema;
     }
 }
