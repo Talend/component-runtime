@@ -162,6 +162,18 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean failOnValidateExceptions;
 
     /**
+     * Should the record be validated.
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.record")
+    private boolean validateRecord;
+
+    /**
+     * Should the schema be validated.
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.schema")
+    private boolean validateSchema;
+
+    /**
      * Should the option names be validated.
      */
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.pluginId")
