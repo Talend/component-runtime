@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,10 @@ public class SchemaImpl implements Schema {
     @JsonbTransient
     private final EntriesOrder entriesOrder;
 
+    @Getter
+    @JsonbTransient
+    private Map<String, Entry> entryMap = new HashMap<>();
+
     public static final String ENTRIES_ORDER_PROP = "talend.fields.order";
 
     SchemaImpl(final SchemaImpl.BuilderImpl builder) {
@@ -68,6 +73,7 @@ public class SchemaImpl implements Schema {
         this.metadataEntries = unmodifiableList(builder.metadataEntries.streams().collect(toList()));
         this.props = builder.props;
         entriesOrder = EntriesOrder.of(getFieldsOrder());
+        getAllEntries().forEach(e -> entryMap.put(e.getName(), e));
     }
 
     /**

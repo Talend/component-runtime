@@ -33,6 +33,8 @@ public class CreateConnectionServices {
 
     public final static String CREATE_CONNECTION = "action_CREATE_CONNECTION";
 
+    public final static String CREATE_CONNECTION_ERROR = "action_CREATE_CONNECTION_ERROR";
+
     /**
      * Create Connection action
      *
@@ -47,4 +49,11 @@ public class CreateConnectionServices {
         return "{\"connection_create_status\":\"successful\"}";
     }
 
+    // CREATE_CONNECTION_ERROR for test TCOMP-2503 Cover error 520 for action execute
+    @CreateConnection(CREATE_CONNECTION_ERROR)
+    public Object createConnectionError() {
+        int a = 1;
+        int b = 0;
+        return a / b;
+    }
 }

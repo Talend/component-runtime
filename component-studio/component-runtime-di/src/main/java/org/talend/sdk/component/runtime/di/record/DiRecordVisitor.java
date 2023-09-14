@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.api.record.SchemaProperty.ALLOW_SPECIAL_NAME;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -131,6 +132,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
     }
 
+    private boolean allowSpecialName;
+
     public Object visit(final Record record) {
         arrayOfRecordPrefix = "";
         recordPrefix = "";
@@ -144,32 +147,41 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             dynamic.getDynamic().metadatas.clear();
             dynamic.getDynamic().clearColumnValues();
         }
-        recordFields = record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
-            final String root = rcdEntry.getName() + ".";
-            final List<String> names = new ArrayList<>();
-            rcdEntry.getElementSchema().getAllEntries().filter(e -> e.getType().equals(Type.RECORD)).map(sr -> {
-                final String sub = root + sr.getName() + ".";
-                return sr
-                        .getElementSchema()
-                        .getAllEntries()
-                        .map(entry -> sub + entry.getName())
-                        .collect(Collectors.toList());
-            }).forEach(l -> l.stream().forEach(m -> names.add(m)));
-            rcdEntry
-                    .getElementSchema()
-                    .getAllEntries()
-                    .filter(e -> !e.getType().equals(Type.RECORD))
-                    .map(entry -> root + entry.getName())
-                    .forEach(sre -> names.add(sre));
-            return names;
-        }).flatMap(liststream -> liststream.stream()).collect(Collectors.toSet());
-        recordFields
-                .addAll(record
-                        .getSchema()
-                        .getAllEntries()
-                        .filter(t -> !t.getType().equals(Type.RECORD))
-                        .map(entry -> entry.getName())
-                        .collect(Collectors.toSet()));
+        if (hasDynamic && (recordFields == null)) {
+            allowSpecialName = Boolean.parseBoolean(record.getSchema().getProp(ALLOW_SPECIAL_NAME));
+
+            recordFields =
+                    record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
+                        final String root = rcdEntry.getName() + ".";
+                        final List<String> names = new ArrayList<>();
+                        rcdEntry.getElementSchema()
+                                .getAllEntries()
+                                .filter(e -> e.getType().equals(Type.RECORD))
+                                .map(sr -> {
+                                    final String sub = root + sr.getName() + ".";
+                                    return sr
+                                            .getElementSchema()
+                                            .getAllEntries()
+                                            .map(entry -> sub + entry.getName())
+                                            .collect(Collectors.toList());
+                                })
+                                .forEach(l -> l.stream().forEach(m -> names.add(m)));
+                        rcdEntry
+                                .getElementSchema()
+                                .getAllEntries()
+                                .filter(e -> !e.getType().equals(Type.RECORD))
+                                .map(entry -> root + entry.getName())
+                                .forEach(sre -> names.add(sre));
+                        return names;
+                    }).flatMap(liststream -> liststream.stream()).collect(Collectors.toSet());
+            recordFields
+                    .addAll(record
+                            .getSchema()
+                            .getAllEntries()
+                            .filter(t -> !t.getType().equals(Type.RECORD))
+                            .map(entry -> entry.getName())
+                            .collect(Collectors.toSet()));
+        }
         if (hasDynamic) {
             prefillDynamic(record.getSchema());
         }
@@ -206,12 +218,19 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private DynamicMetadataWrapper generateMetadata(final Entry entry) {
         final DynamicMetadataWrapper metadata = new DynamicMetadataWrapper();
-        metadata.getDynamicMetadata()
-                .setName(recordFields
-                        .stream()
-                        .filter(f -> f.endsWith("." + entry.getName()))
-                        .findFirst()
-                        .orElse(entry.getName()));
+        // now ALLOW_SPECIAL_NAME not conflict with the supported nested record as only jdbc connector use it and jdbc
+        // connector never support nested record
+        if (allowSpecialName) {
+            metadata.getDynamicMetadata()
+                    .setName(entry.getOriginalFieldName());
+        } else {
+            metadata.getDynamicMetadata()
+                    .setName(recordFields
+                            .stream()
+                            .filter(f -> f.endsWith("." + entry.getName()))
+                            .findFirst()
+                            .orElse(entry.getName()));
+        }
         metadata.getDynamicMetadata().setDbName(entry.getOriginalFieldName());
         metadata.getDynamicMetadata().setNullable(entry.isNullable());
         metadata.getDynamicMetadata().setDescription(entry.getComment());
@@ -260,11 +279,16 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private void setField(final Entry entry, final Object value) {
         final Field field = fields.get(entry.getName());
         if (hasDynamic && (field == null || dynamicColumn.equals(entry.getName()))) {
-            final String name = recordFields
-                    .stream()
-                    .filter(f -> f.endsWith("." + entry.getName()))
-                    .findFirst()
-                    .orElse(entry.getName());
+            final String name;
+            if (allowSpecialName) {
+                name = entry.getOriginalFieldName();
+            } else {
+                name = recordFields
+                        .stream()
+                        .filter(f -> f.endsWith("." + entry.getName()))
+                        .findFirst()
+                        .orElse(entry.getName());
+            }
             int index = dynamic.getDynamic().getIndex(name);
             final DynamicMetadataWrapper metadata;
             if (index < 0) {
