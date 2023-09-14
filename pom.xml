@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.61.0-SNAPSHOT</version>
+  <version>1.61.0</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -133,7 +133,7 @@
   <scm>
     <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
     <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>component-runtime-1.61.0</tag>
     <url>https://github.com/talend/component-runtime</url>
   </scm>
   <distributionManagement>
