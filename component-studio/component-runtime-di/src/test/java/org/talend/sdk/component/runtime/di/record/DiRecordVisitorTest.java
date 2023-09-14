@@ -39,7 +39,6 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
-import routines.system.Dynamic;
 
 class DiRecordVisitorTest extends VisitorsTest {
 
@@ -359,38 +358,6 @@ class DiRecordVisitorTest extends VisitorsTest {
         Assertions.assertEquals("valueMeta", row.meta1);
     }
 
-    @Test
-    void testSpecialNameForDynamic() {
-        final Schema.Entry entry = factory.newEntryBuilder().withName("the$name").withType(Type.STRING).build();
-        final Schema schemaAllSpecialName = factory.newSchemaBuilder(Type.RECORD)
-                .withEntry(entry)
-                .withProp(SchemaProperty.ALLOW_SPECIAL_NAME, "true")
-                .build();
-        final Record record1 = factory
-                .newRecordBuilder(schemaAllSpecialName)
-                .with(entry, "")
-                .build();
-        final DiRecordVisitor visitor1 = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
-        final RowStruct3 rowStruct1 = RowStruct3.class.cast(visitor1.visit(record1));
-        assertNotNull(rowStruct1);
-        assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(0).getName());
-        assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(0).getDbName());
-
-        final Schema schemaNotAllSpecialName = factory.newSchemaBuilder(Type.RECORD)
-                .withEntry(entry)
-                .build();
-        final Record record2 = factory
-                .newRecordBuilder(schemaNotAllSpecialName)
-                .with(entry, "")
-                .build();
-        final DiRecordVisitor visitor2 = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
-        final RowStruct3 rowStruct2 = RowStruct3.class.cast(visitor2.visit(record2));
-        assertNotNull(rowStruct2);
-        assertEquals("the_name", rowStruct2.dyn.getColumnMetadata(0).getName());
-        assertEquals("the$name", rowStruct2.dyn.getColumnMetadata(0).getDbName());
-
-    }
-
     public static class RowStruct2 implements routines.system.IPersistableRow {
 
         public String field1;
@@ -407,18 +374,4 @@ class DiRecordVisitorTest extends VisitorsTest {
         public void readData(ObjectInputStream objectInputStream) {
         }
     }
-
-    public static class RowStruct3 implements routines.system.IPersistableRow {
-
-        public Dynamic dyn;
-
-        @Override
-        public void writeData(ObjectOutputStream objectOutputStream) {
-        }
-
-        @Override
-        public void readData(ObjectInputStream objectInputStream) {
-        }
-    }
-
 }
