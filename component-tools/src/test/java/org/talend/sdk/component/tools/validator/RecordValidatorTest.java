@@ -24,20 +24,21 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
 
 public class RecordValidatorTest {
 
     @Test
     void validateErrors() {
         final RecordValidator validator = new RecordValidator();
-        boolean isR = Record.class.isAssignableFrom(MyRecord.class);
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(MyRecord.class));
         final Stream<String> errors =
                 validator.validate(finder, Arrays.asList(MyRecord.class));
-        assertEquals(1, errors.count());
+        assertEquals(2, errors.count());
     }
 
     @Test
@@ -70,8 +71,14 @@ public class RecordValidatorTest {
             return null;
         }
 
-        public void notInclude() {
-
+        @Override
+        public Builder withNewSchema(final Schema newSchema) {
+            return null;
         }
+
+        public Record.Builder newRecordBuilder(final Schema schema) {
+            return null;
+        }
+
     }
 }

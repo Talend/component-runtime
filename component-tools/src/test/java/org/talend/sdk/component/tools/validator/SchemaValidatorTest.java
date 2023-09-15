@@ -18,13 +18,14 @@ package org.talend.sdk.component.tools.validator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 public class SchemaValidatorTest {
@@ -32,10 +33,10 @@ public class SchemaValidatorTest {
     @Test
     void validateErrors() {
         final SchemaValidator validator = new SchemaValidator();
-        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ProcessorImpl.class));
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(MySchema.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(ProcessorImpl.class));
-        assertEquals(26, noerrors.count());
+                validator.validate(finder, Arrays.asList(MySchema.class));
+        assertEquals(1, noerrors.count());
     }
 
     @Test
@@ -56,4 +57,44 @@ public class SchemaValidatorTest {
         assertEquals(0, noerrors.count());
     }
 
+    class MySchema implements Schema {
+        @Override
+        public Builder toBuilder() {
+            return null;
+        }
+        @Override
+        public Type getType() {
+            return null;
+        }
+
+        @Override
+        public Schema getElementSchema() {
+            return null;
+        }
+
+        @Override
+        public List<Entry> getEntries() {
+            return null;
+        }
+
+        @Override
+        public List<Entry> getMetadata() {
+            return null;
+        }
+
+        @Override
+        public Stream<Entry> getAllEntries() {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getProps() {
+            return null;
+        }
+
+        @Override
+        public String getProp(String property) {
+            return null;
+        }
+    }
 }

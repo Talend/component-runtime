@@ -18,6 +18,8 @@ package org.talend.sdk.component.tools.validator;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
+import static org.talend.sdk.component.tools.validator.RecordValidator.getFullName;
+import static org.talend.sdk.component.tools.validator.RecordValidator.isProducing;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -36,64 +38,70 @@ public class SchemaValidator implements Validator {
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
         final List<String> messages = new ArrayList<>();
         components.stream()
-                .filter(c -> Schema.class.isInstance(c))
                 .forEach(component -> {
-                    messages.addAll(this.validateMethods(component.getDeclaredMethods()));
+                    messages.addAll(this.validateMethods(component.getDeclaredMethods(), Schema.Builder.class));
+                    messages.addAll(this.validateMethods(component.getDeclaredMethods(), Schema.Entry.Builder.class));
                 });
         return messages.stream();
     }
 
-    private List<String> validateMethods(final Method[] methods) {
+    private List<String> validateMethods(final Method[] methods, Class checkClass) {
         final List<String> messages = new ArrayList<>();
+
         Arrays.stream(methods)
-                .filter(SchemaValidator::isNotSafeSchemaBuilderProvider)
                 .forEach(method -> {
-                    final String errorMessage = join("\n", asList(
-                            format("Method %s calls unsafe Builder creator. This either means:",
-                                    method.getName()),
-                            "  * That the TCK method is safe and should belong to WHITE_LIST_TCK_SCHEMA_BUILDER_PROVIDER"));
-                    messages.add(errorMessage);
+                    if (isProducing(method, checkClass) && !isSafeEntryBuilderProvider(method)) {
+                        final String errorMessage = join("\n", asList(
+                                format("Method %s calls unsafe Builder creator. This either means:",
+                                        getFullName(method)),
+                                "  * That the TCK method is safe and should belong to WHITE_LIST_TCK_SCHEMA_BUILDER_PROVIDER"));
+                        System.err.println("--" + getFullName(method));
+                        messages.add(errorMessage);
+                    }
                 });
         return messages;
     }
 
-    private static String getFullName(final Method method) {
-        return method.getDeclaringClass().getPackage().getName() + "." + method.getName();
-    }
-
-    private static boolean isNotSafeSchemaBuilderProvider(final Method method) {
-        return !WHITE_LIST_TCK_SCHEMA_BUILDER_PROVIDER.contains(getFullName(method));
+    private static boolean isSafeEntryBuilderProvider(final Method method) {
+        return WHITE_LIST_TCK_SCHEMA_BUILDER_PROVIDER.contains(getFullName(method));
     }
 
     private static final Set<String> WHITE_LIST_TCK_SCHEMA_BUILDER_PROVIDER = new HashSet<>(asList(
-            "org.talend.sdk.component.runtime.record.getFieldsOrder",
-            "org.talend.sdk.component.runtime.record.getAllEntries",
-            "org.talend.sdk.component.runtime.record.getMetadata",
-            "org.talend.sdk.component.runtime.record.canEqual",
-            "org.talend.sdk.component.runtime.record.getEntriesOrdered",
-            "org.talend.sdk.component.runtime.record.getProp",
-            "org.talend.sdk.component.runtime.record.getElementSchema",
-            "org.talend.sdk.component.runtime.record.getProps",
-            "org.talend.sdk.component.runtime.record.toBuilder",
-            "org.talend.sdk.component.runtime.record.equals",
-            "org.talend.sdk.component.runtime.record.toString",
-            "org.talend.sdk.component.runtime.record.hashCode",
-            "org.talend.sdk.component.runtime.record.getType",
-            "org.talend.sdk.component.runtime.record.getEntries",
-            "org.talend.sdk.component.runtime.record.naturalOrder",
-            "org.talend.sdk.component.api.service.record.newEntryBuilder",
-            "org.talend.sdk.component.api.service.record.newRecordBuilder",
-            "org.talend.sdk.component.api.service.record.newSchemaBuilder",
-            "org.talend.sdk.component.api.record.withEntryBefore",
-            "org.talend.sdk.component.api.record.moveAfter",
-            "org.talend.sdk.component.api.record.withEntryAfter",
-            "org.talend.sdk.component.api.record.moveBefore",
-            "org.talend.sdk.component.api.record.withProp",
-            "org.talend.sdk.component.api.record.withElementSchema",
-            "org.talend.sdk.component.api.record.withProps",
-            "org.talend.sdk.component.api.record.withType",
-            "org.talend.sdk.component.api.record.withEntry",
-            "org.talend.sdk.component.api.record.remove",
-            "org.talend.sdk.component.api.record.build",
-            "org.talend.sdk.component.api.record.swap"));
+            "org.talend.sdk.component.runtime.record.SchemaImpl.toBuilder()",
+            "org.talend.sdk.component.runtime.record.Schemas.moveBefore(java.lang.String, java.lang.String)",
+            "org.talend.sdk.component.runtime.record.Schemas.withType(org.talend.sdk.component.api.record.Schema$Type)",
+            "org.talend.sdk.component.runtime.record.Schemas.withEntry(org.talend.sdk.component.api.record.Schema$Entry)",
+            "org.talend.sdk.component.runtime.record.Schemas.withElementSchema(org.talend.sdk.component.api.record.Schema)",
+            "org.talend.sdk.component.api.record.Schema$Entry.toBuilder()",
+            "org.talend.sdk.component.api.record.Schema$Entry$Builder.withNullable(boolean)",
+            "org.talend.sdk.component.api.record.Schema$Entry$Builder.withMetadata(boolean)",
+            "org.talend.sdk.component.api.record.Schema$Entry$Builder.withProps(java.util.Map)",
+            "org.talend.sdk.component.api.record.Schema$Entry$Builder.withName(java.lang.String)",
+            "org.talend.sdk.component.api.record.Schema$Entry$Builder.withRawName(java.lang.String)",
+            "org.talend.sdk.component.api.record.Schema$Entry$Builder.withType(org.talend.sdk.component.api.record.Schema$Type)",
+            "org.talend.sdk.component.api.record.Schema$Builder.remove(java.lang.String)",
+            "org.talend.sdk.component.api.record.Schema$Builder.remove(org.talend.sdk.component.api.record.Schema$Entry)",
+            "org.talend.sdk.component.api.record.Schema$Builder.swap(java.lang.String, java.lang.String)",
+            "org.talend.sdk.component.api.record.Schema$Builder.withEntryBefore(java.lang.String, org.talend.sdk.component.api.record.Schema$Entry)",
+            "org.talend.sdk.component.api.record.Schema$Builder.moveBefore(java.lang.String, java.lang.String)",
+            "org.talend.sdk.component.api.record.Schema$Builder.moveAfter(java.lang.String, java.lang.String)",
+            "org.talend.sdk.component.api.record.Schema$Builder.withEntryAfter(java.lang.String, org.talend.sdk.component.api.record.Schema$Entry)",
+            "org.talend.sdk.component.api.record.Schema$Builder.withType(org.talend.sdk.component.api.record.Schema$Type)",
+            "org.talend.sdk.component.api.record.Schema$Builder.withProp(java.lang.String, java.lang.String)",
+            "org.talend.sdk.component.api.record.Schema$Builder.withEntry(org.talend.sdk.component.api.record.Schema$Entry)",
+            "org.talend.sdk.component.api.record.Schema$Builder.withProps(java.util.Map)",
+            "org.talend.sdk.component.api.record.Schema$Builder.withElementSchema(org.talend.sdk.component.api.record.Schema)",
+            "org.talend.sdk.component.api.service.schema.Schema$Entry.toBuilder()",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl.toBuilder()",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withNullable(boolean)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withMetadata(boolean)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withProps(java.util.Map)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withName(java.lang.String)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withRawName(java.lang.String)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withComment(java.lang.String)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withDefaultValue(java.lang.Object)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withProp(java.lang.String, java.lang.String)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withType(org.talend.sdk.component.api.record.Schema$Type)",
+            "org.talend.sdk.component.runtime.record.SchemaImpl$EntryImpl$BuilderImpl.withElementSchema(org.talend.sdk.component.api.record.Schema)"));
+
 }
