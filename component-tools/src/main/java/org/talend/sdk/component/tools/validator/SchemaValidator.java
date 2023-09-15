@@ -45,7 +45,7 @@ public class SchemaValidator implements Validator {
         return messages.stream();
     }
 
-    private List<String> validateMethods(final Method[] methods, Class checkClass) {
+    private List<String> validateMethods(final Method[] methods, final Class checkClass) {
         final List<String> messages = new ArrayList<>();
 
         Arrays.stream(methods)

@@ -77,11 +77,11 @@ public class RecordValidator implements Validator {
         return formatMethod(method.getDeclaringClass().getName(), method.getName(), namesOf(method.getParameters()));
     }
 
-    private static String formatMethod(String ownerName, String methodName, String parameters) {
+    private static String formatMethod(final String ownerName, final String methodName, final String parameters) {
         return ownerName + "." + methodName + "(" + parameters + ")";
     }
 
-    private static String namesOf(Parameter[] parameters) {
+    private static String namesOf(final Parameter[] parameters) {
         return Arrays.stream(parameters).map(type -> type.getType().getName()).collect(Collectors.joining(", "));
     }
 
