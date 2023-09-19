@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.38.11-SNAPSHOT</version>
+    <version>1.38.11</version>
   </parent>
 
   <artifactId>component-server-image</artifactId>
