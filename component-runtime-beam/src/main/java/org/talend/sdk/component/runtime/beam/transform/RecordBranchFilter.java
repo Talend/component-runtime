@@ -29,13 +29,10 @@ import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.transform.service.ServiceLookup;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Filters a record by branch, output is a record containing only the selected branch
  * or no record is emitted if the branch is missing.
  */
-@Slf4j
 public class RecordBranchFilter extends DoFn<Record, Record> {
 
     private RecordBuilderFactory factory;
@@ -57,13 +54,6 @@ public class RecordBranchFilter extends DoFn<Record, Record> {
         final Collection<Record> branchValue = aggregate.getArray(Record.class, branch);
         if (branchValue != null) {
             final Schema.Entry entry = aggregate.getSchema().getEntry(branch);
-            if (entry == null) {
-                log.warn("[onElement] entry is null for branch: {}. value: {}", branch, branchValue);
-                log.warn("[onElement] aggregate: {} ", aggregate);
-                log.warn("[onElement] aggregate schema: {}", aggregate.getSchema());
-            } else {
-                log.info("[onElement] branch: {}; entry: {}; schema: {}", branch, entry, aggregate.getSchema());
-            }
             context.output(factory.newRecordBuilder().withArray(entry, branchValue).build());
         }
     }

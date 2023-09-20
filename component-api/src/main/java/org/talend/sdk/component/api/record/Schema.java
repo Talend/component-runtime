@@ -119,10 +119,6 @@ public interface Schema {
     }
 
     default Entry getEntry(final String name) {
-        final Entry entry = getEntryMap().get(name);
-        if (entry == null){
-            System.err.println("[getEntry] null for name: "+name + " -- map: "+getEntryMap());
-        }
         return getEntryMap().get(name);
     }
 
