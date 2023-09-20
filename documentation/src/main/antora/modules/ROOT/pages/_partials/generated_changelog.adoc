@@ -5,11 +5,13 @@
 === Bug
 
 - link:https://jira.talendforge.org/browse/TCOMP-2203[TCOMP-2203^]: API documentation correction and improvements link:search.html?query=documentation[documentation^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2520[TCOMP-2520^]: Date column read as Dynamic from File goes as Record:Schema.Type.STRING and no field.pattern passed to connector runtime class link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2375[TCOMP-2375^]: Improve performance on Schema/Record link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2525[TCOMP-2525^]: Upgrade netty to 4.1.97.Final 
 - link:https://jira.talendforge.org/browse/TCOMP-2526[TCOMP-2526^]: Upgrade guava to 32.1.2-jre 
 - link:https://jira.talendforge.org/browse/TCOMP-2527[TCOMP-2527^]: Upgrade tomcat to 9.0.80 link:search.html?query=component-server[component-server^,role='dockey']
@@ -829,6 +831,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2042[TCOMP-2042^]: Return a key related to version of connector services and its content
 - link:https://jira.talendforge.org/browse/TCOMP-2043[TCOMP-2043^]: Upgrade spotless to 2.17.3 and talend-java-formatter to 0.2.2
 - link:https://jira.talendforge.org/browse/TCOMP-2044[TCOMP-2044^]: Upgrade TSBI to 2.9.2-20211106085418
+
+
 
 
 
