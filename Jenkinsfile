@@ -316,7 +316,7 @@ pipeline {
             post {
                 always {
                     recordIssues(
-                      enabledForFailure: true,
+                      enabledForFailure: false,
                       tools: [
                         junitParser(
                           id: 'unit-test',
@@ -603,7 +603,7 @@ pipeline {
         }
         always {
             recordIssues(
-                enabledForFailure: true,
+                enabledForFailure: false,
                 tools: [
                     taskScanner(
                         id: 'disabled',
