@@ -32,16 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -90,6 +81,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private String arrayOfRecordPrefix = "";
 
     private Set<String> recordFields;
+
+    private Map<String, String> recordFieldsMap;
+
+    private boolean initDynamicMetadata = true;
 
     private static final RecordService RECORD_SERVICE = RecordService.class
             .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
@@ -144,11 +139,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             throw new IllegalStateException(e);
         }
         if (hasDynamic) {
-            dynamic.getDynamic().metadatas.clear();
             dynamic.getDynamic().clearColumnValues();
         }
         if (hasDynamic && (recordFields == null)) {
             allowSpecialName = Boolean.parseBoolean(record.getSchema().getProp(ALLOW_SPECIAL_NAME));
+
+            recordFieldsMap = new HashMap<>();
 
             recordFields =
                     record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
@@ -182,8 +178,9 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                             .map(entry -> entry.getName())
                             .collect(Collectors.toSet()));
         }
-        if (hasDynamic) {
+        if (hasDynamic && initDynamicMetadata) {
             prefillDynamic(record.getSchema());
+            initDynamicMetadata = false;
         }
 
         return RECORD_SERVICE.visit(this, record);
@@ -224,12 +221,13 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             metadata.getDynamicMetadata()
                     .setName(entry.getOriginalFieldName());
         } else {
+            String name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
+                    .stream()
+                    .filter(f -> f.endsWith("." + key))
+                    .findFirst()
+                    .orElse(key));
             metadata.getDynamicMetadata()
-                    .setName(recordFields
-                            .stream()
-                            .filter(f -> f.endsWith("." + entry.getName()))
-                            .findFirst()
-                            .orElse(entry.getName()));
+                    .setName(name);
         }
         metadata.getDynamicMetadata().setDbName(entry.getOriginalFieldName());
         metadata.getDynamicMetadata().setNullable(entry.isNullable());
@@ -283,11 +281,11 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             if (allowSpecialName) {
                 name = entry.getOriginalFieldName();
             } else {
-                name = recordFields
+                name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
                         .stream()
-                        .filter(f -> f.endsWith("." + entry.getName()))
+                        .filter(f -> f.endsWith("." + key))
                         .findFirst()
-                        .orElse(entry.getName());
+                        .orElse(key));
             }
             int index = dynamic.getDynamic().getIndex(name);
             final DynamicMetadataWrapper metadata;
