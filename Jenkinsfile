@@ -209,22 +209,9 @@ pipeline {
                         else {
                             println "Validate the branch name"
 
-                            GString used_branch_name
-
-                            if ( "${env.BRANCH_NAME}".startsWith("PR-"))
-                            {
-                                println "Use branch name in PR execution"
-                                used_branch_name = "$env.CHANGE_BRANCH"
-                            }
-                            else
-                            {
-                                println "Use branch name in branch execution"
-                                used_branch_name = "$env.BRANCH_NAME"
-                            }
-
                             (branch_user,
                             branch_ticket,
-                            branch_description) = extract_branch_info(used_branch_name)
+                            branch_description) = extract_branch_info("${env.BRANCH_NAME}", "${env.CHANGE_BRANCH}")
 
                             // Check only branch_user, because if there is an error all three params are empty.
                             if (branch_user == ("")) {
@@ -761,16 +748,31 @@ private static String add_qualifier_to_version(String version, String ticket, St
  *
  * The branch name has comply with the format: user/JIRA-1234-Description
  * It is MANDATORY for artifact management.
+ * In PR environment, the branch name is not valid and should be swap.
  *
  * @param branch_name row name of the branch
+ * @param pr_name row name of the pr
  *
  * @return A list containing the extracted: [user, ticket, description]
  * The method also raise an assert exception in case of wrong branch name
  */
-private static ArrayList<String> extract_branch_info(GString branch_name) {
+private static ArrayList<String> extract_branch_info(GString branch_name, GString pr_name) {
+
+    GString used_branch_name
+
+    if ( branch_name.startsWith("PR-"))
+    {
+        println "Use branch name in PR execution"
+        used_branch_name = pr_name
+    }
+    else
+    {
+        println "Use branch name in branch execution"
+        used_branch_name = branch_name
+    }
 
     String branchRegex = /^(?<user>.*)\/(?<ticket>[A-Z]{2,8}-\d{1,6})[_-](?<description>.*)/
-    Matcher branchMatcher = branch_name =~ branchRegex
+    Matcher branchMatcher = used_branch_name =~ branchRegex
 
     try {
         assert branchMatcher.matches()
