@@ -30,8 +30,10 @@ final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gp
 
 // Job config
 final String slackChannel = 'components-ci'
-final Boolean isMasterBranch = env.BRANCH_NAME == "master"
-final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+  // In PR environment, the branch name is not valid and should be swap with pr name.
+final String branch_name = env.BRANCH_NAME.startsWith("PR-") ? env.CHANGE_BRANCH : env.BRANCH_NAME
+final Boolean isMasterBranch = branch_name == "master"
+final Boolean isStdBranch = (branch_name == "master" || branch_name.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDateTime.now())
@@ -70,13 +72,13 @@ pipeline {
     }
 
     options {
-        buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '15' : '10'))
+        buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branch_name == 'master' ? '15' : '10'))
         timeout(time: 180, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
 
     triggers {
-        cron(env.BRANCH_NAME == "master" ? "0 12 * * *" : "")
+        cron(branch_name == "master" ? "0 12 * * *" : "")
     }
 
     parameters {
@@ -136,7 +138,7 @@ pipeline {
                         - pullrequest.branch=${env.CHANGE_BRANCH}
                         - pullrequest.base=${env.CHANGE_TARGET}
                         - pullrequest.key=${env.CHANGE_ID}
-                        - branch.name=${env.BRANCH_NAME}"""
+                        - branch.name=$branch_name"""
 
                 ///////////////////////////////////////////
                 // Login tasks
@@ -211,7 +213,7 @@ pipeline {
 
                             (branch_user,
                             branch_ticket,
-                            branch_description) = extract_branch_info("${env.BRANCH_NAME}", "${env.CHANGE_BRANCH}")
+                            branch_description) = extract_branch_info(branch_name)
 
                             // Check only branch_user, because if there is an error all three params are empty.
                             if (branch_user == ("")) {
@@ -235,7 +237,7 @@ pipeline {
                           "$params.VERSION_QUALIFIER" as String)
 
                         echo """
-                          Configure the version qualifier for the curent branche: $env.BRANCH_NAME
+                          Configure the version qualifier for the curent branche: $branch_name
                           requested qualifier: $params.VERSION_QUALIFIER
                           with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description
                           Qualified Version = $finalVersion"""
@@ -532,7 +534,7 @@ pipeline {
                                 --define sonar.host.url=https://sonar-eks.datapwn.com \
                                 --define sonar.login='$SONAR_USER' \
                                 --define sonar.password='$SONAR_PASS' \
-                                --define sonar.branch.name=${env.BRANCH_NAME} \
+                                --define sonar.branch.name=$branch_name \
                                 --define sonar.analysisCache.enabled=false
                         """.stripIndent()
                     }
@@ -552,7 +554,7 @@ pipeline {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """\
                                #!/usr/bin/env bash
-                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${finalVersion} 
+                               bash .jenkins/scripts/release.sh $branch_name $finalVersion
                                """.stripIndent()
                         }
                     }
@@ -748,31 +750,16 @@ private static String add_qualifier_to_version(String version, String ticket, St
  *
  * The branch name has comply with the format: user/JIRA-1234-Description
  * It is MANDATORY for artifact management.
- * In PR environment, the branch name is not valid and should be swap.
  *
  * @param branch_name row name of the branch
- * @param pr_name row name of the pr
  *
  * @return A list containing the extracted: [user, ticket, description]
  * The method also raise an assert exception in case of wrong branch name
  */
-private static ArrayList<String> extract_branch_info(GString branch_name, GString pr_name) {
-
-    GString used_branch_name
-
-    if ( branch_name.startsWith("PR-"))
-    {
-        println "Use branch name in PR execution"
-        used_branch_name = pr_name
-    }
-    else
-    {
-        println "Use branch name in branch execution"
-        used_branch_name = branch_name
-    }
+private static ArrayList<String> extract_branch_info(String branch_name) {
 
     String branchRegex = /^(?<user>.*)\/(?<ticket>[A-Z]{2,8}-\d{1,6})[_-](?<description>.*)/
-    Matcher branchMatcher = used_branch_name =~ branchRegex
+    Matcher branchMatcher = branch_name =~ branchRegex
 
     try {
         assert branchMatcher.matches()
