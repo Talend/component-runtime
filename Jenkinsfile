@@ -207,10 +207,24 @@ pipeline {
                              """.stripIndent()
                         }
                         else {
-                            echo "Validate the branch name"
+                            println "Validate the branch name"
+
+                            GString used_branch_name
+
+                            if ( "${env.BRANCH_NAME}".startsWith("PR-"))
+                            {
+                                println "Use branch name in PR execution"
+                                used_branch_name = "$env.CHANGE_BRANCH"
+                            }
+                            else
+                            {
+                                println "Use branch name in branch execution"
+                                used_branch_name = "$env.BRANCH_NAME"
+                            }
+
                             (branch_user,
                             branch_ticket,
-                            branch_description) = extract_branch_info("$env.BRANCH_NAME")
+                            branch_description) = extract_branch_info(used_branch_name)
 
                             // Check only branch_user, because if there is an error all three params are empty.
                             if (branch_user == ("")) {

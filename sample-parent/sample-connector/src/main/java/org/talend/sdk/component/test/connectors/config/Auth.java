@@ -32,7 +32,6 @@ import lombok.Data;
         names = GridLayout.FormType.ADVANCED,
         value = { @GridLayout.Row({ "nbAuthRetry" }) })
 public class Auth implements Serializable {
-    //TEMP TEST
 
     @Option
     @Documentation("Doc: default login documentation without Internationalization.")
