@@ -209,11 +209,9 @@ pipeline {
                         else {
                             println "Validate the branch name"
 
-                            GString used_branch_name
-
                             (branch_user,
                             branch_ticket,
-                            branch_description) = extract_branch_info("$env.BRANCH_NAME", "$env.CHANGE_BRANCH")
+                            branch_description) = extract_branch_info("${env.BRANCH_NAME}", "${env.CHANGE_BRANCH}")
 
                             // Check only branch_user, because if there is an error all three params are empty.
                             if (branch_user == ("")) {
@@ -758,6 +756,7 @@ private static String add_qualifier_to_version(String version, String ticket, St
  */
 private static ArrayList<String> extract_branch_info(GString branch_name, GString pr_name) {
 
+    GString used_branch_name
 
     if ( branch_name.startsWith("PR-"))
     {
