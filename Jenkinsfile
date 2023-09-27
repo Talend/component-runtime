@@ -28,10 +28,11 @@ final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials
 final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
 final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
 
+// In PR environment, the branch name is not valid and should be swap with pr name.
+final String pull_request_id = env.CHANGE_ID
+final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
+
 // Job config
-final String slackChannel = 'components-ci'
-  // In PR environment, the branch name is not valid and should be swap with pr name.
-final String branch_name = env.BRANCH_NAME.startsWith("PR-") ? env.CHANGE_BRANCH : env.BRANCH_NAME
 final Boolean isMasterBranch = branch_name == "master"
 final Boolean isStdBranch = (branch_name == "master" || branch_name.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
@@ -520,23 +521,29 @@ pipeline {
         stage('Sonar') {
             when {
                 expression { params.Action != 'RELEASE' }
-                branch 'master'
             }
             steps {
-                withCredentials([sonarCredentials]) {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
-                        sh """\
-                            #!/usr/bin/env bash 
-                            set -xe
-                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED'
-                            mvn sonar:sonar \
-                                --define sonar.host.url=https://sonar-eks.datapwn.com \
-                                --define sonar.login='$SONAR_USER' \
-                                --define sonar.password='$SONAR_PASS' \
-                                --define sonar.branch.name=$branch_name \
-                                --define sonar.analysisCache.enabled=false
-                        """.stripIndent()
+                script {
+                    withCredentials([sonarCredentials]) {
+
+                        if (pull_request_id != null) {
+
+                            println 'Run analysis for PR'
+                            sh """\
+                            bash .jenkins/scripts/mvn_sonar_pr.sh \
+                                '${branch_name}' \
+                                '${env.CHANGE_TARGET}' \
+                                '${pull_request_id}' \
+                                ${extraBuildParams}
+                            """.stripIndent()
+                        } else {
+                            echo 'Run analysis for branch'
+                            sh """\
+                            bash .jenkins/scripts/mvn_sonar_branch.sh \
+                            '${branch_name}' \
+                            ${extraBuildParams}
+                            """.stripIndent()
+                        }
                     }
                 }
             }
