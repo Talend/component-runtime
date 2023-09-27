@@ -132,14 +132,6 @@ pipeline {
     stages {
         stage('Preliminary steps') {
             steps {
-                ///////////////////////////////////////////
-                // Context execution print
-                ///////////////////////////////////////////
-                println """Context execution:
-                        - pullrequest.branch=${env.CHANGE_BRANCH}
-                        - pullrequest.base=${env.CHANGE_TARGET}
-                        - pullrequest.key=${env.CHANGE_ID}
-                        - branch.name=$branch_name"""
 
                 ///////////////////////////////////////////
                 // Login tasks
