@@ -39,7 +39,7 @@ public @interface PartitionMapper {
      * If the @Producer method of the underlying {@link Emitter} can return null before the data
      * are completely read - i.e. infinite flow case - then you should set true to prevent the
      * execution to complete when null is encountered.
-     *
+     * <p>
      * Default cases matches a batch case whereas when set to true it matches a stream case.
      *
      * @return true if the underlying input can be used as a stream and not in batch context.
@@ -49,7 +49,7 @@ public @interface PartitionMapper {
     /**
      * Allow to provide an UI to customize a set of conditions to stop the infinite loop.
      * Only valid when {@code infinite()} returns true. So affects only streaming PartitionMappers.
-     *
+     * <p>
      * Caution:
      * Some records may be lost according the connector's Emitter implementation.
      * For instance, suppose that the connector maintains a queue with a size of 10 records, and we have in the stop
@@ -59,4 +59,12 @@ public @interface PartitionMapper {
      * @return true if the underlying input can customize a stop strategy.
      */
     boolean stoppable() default false;
+
+    /**
+     * In Studio and some use-cases with some input connectors, we may need to ignore outgoing row.
+     * As mentioned above, this is a Studio only feature.
+     *
+     * @return true if the underlying input is allowed to ignore mandatory output row.
+     */
+    boolean optionalRow() default false;
 }
