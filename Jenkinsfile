@@ -516,7 +516,8 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([sonarCredentials]) {
+                    withCredentials([nexusCredentials,
+                                     sonarCredentials]) {
 
                         if (pull_request_id != null) {
 
