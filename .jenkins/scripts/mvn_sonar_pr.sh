@@ -42,7 +42,6 @@ main() (
       --define "sonar.pullrequest.branch=${branch}" \
       --define "sonar.pullrequest.base=${target_branch}" \
       --define "sonar.pullrequest.key=${pull_request_id}" \
-      --activate-profiles SONAR \
       "${extraBuildParams[@]}"
 
 

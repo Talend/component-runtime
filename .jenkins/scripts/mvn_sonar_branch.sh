@@ -36,7 +36,6 @@ main() (
       --define "sonar.branch.name=${branch}" \
       --define "sonar.coverage.jacoco.xmlReportPaths='${LIST_FILE}'" \
       --define "sonar.analysisCache.enabled=false" \
-      --activate-profiles SONAR \
       "${extraBuildParams[@]}"
 )
 
