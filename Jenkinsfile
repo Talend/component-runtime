@@ -116,9 +116,9 @@ pipeline {
           defaultValue: '',
           description: 'Execute a shell command after login. Useful for maintenance.')
         booleanParam(
-          name: 'FORCE_SONAR',
+          name: 'DISABLE_SONAR',
           defaultValue: false,
-          description: 'Force Sonar analysis')
+          description: 'Cancel the Sonar analysis stage execution')
         booleanParam(
           name: 'FORCE_DOC',
           defaultValue: false,
@@ -277,7 +277,7 @@ pipeline {
                     // updating build description
                     String description = """
                       Version = $finalVersion - $params.Action Build
-                      Sonar forced: $params.FORCE_SONAR - Script: $hasPostLoginScript
+                      Disable Sonar: $params.DISABLE_SONAR - Script: $hasPostLoginScript
                       Debug: $params.JENKINS_DEBUG
                       Extra build args: $extraBuildParams""".stripIndent()
                     job_description_append(description)
@@ -520,7 +520,7 @@ pipeline {
         }
         stage('Sonar') {
             when {
-                expression { params.Action != 'RELEASE' }
+                expression { (params.Action != 'RELEASE') && !params.DISABLE_SONAR}
             }
             steps {
                 script {
