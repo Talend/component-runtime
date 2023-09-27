@@ -18,15 +18,41 @@ import java.time.LocalDateTime
 import java.util.regex.Matcher
 
 // Credentials
-final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
-final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
-final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
-final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
-final def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
-final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datapwn-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
-final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
-final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
-final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
+final def ossrhCredentials = usernamePassword(
+        credentialsId: 'ossrh-credentials',
+        usernameVariable: 'OSSRH_USER',
+        passwordVariable: 'OSSRH_PASS')
+final def nexusCredentials = usernamePassword(
+        credentialsId: 'nexus-artifact-zl-credentials',
+        usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
+final def jetbrainsCredentials = usernamePassword(
+        credentialsId: 'jetbrains-credentials',
+        usernameVariable: 'JETBRAINS_USER',
+        passwordVariable: 'JETBRAINS_PASS')
+final def jiraCredentials = usernamePassword(
+        credentialsId: 'jira-credentials',
+        usernameVariable: 'JIRA_USER',
+        passwordVariable: 'JIRA_PASS')
+final def gitCredentials = usernamePassword(
+        credentialsId: 'github-credentials',
+        usernameVariable: 'GITHUB_USER',
+        passwordVariable: 'GITHUB_PASS')
+final def dockerCredentials = usernamePassword(
+        credentialsId: 'artifactory-datapwn-credentials',
+        usernameVariable: 'DOCKER_USER',
+        passwordVariable: 'DOCKER_PASS')
+final def sonarCredentials = usernamePassword(
+        credentialsId: 'sonar-credentials',
+        usernameVariable: 'SONAR_LOGIN',
+        passwordVariable: 'SONAR_PASSWORD')
+final def keyImportCredentials = usernamePassword(
+        credentialsId: 'component-runtime-import-key-credentials',
+        usernameVariable: 'KEY_USER',
+        passwordVariable: 'KEY_PASS')
+final def gpgCredentials = usernamePassword(
+        credentialsId: 'component-runtime-gpg-credentials',
+        usernameVariable: 'GPG_KEYNAME',
+        passwordVariable: 'GPG_PASSPHRASE')
 
 // In PR environment, the branch name is not valid and should be swap with pr name.
 final String pull_request_id = env.CHANGE_ID
