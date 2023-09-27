@@ -596,7 +596,7 @@ pipeline {
                     slackSend(
                         color: '#00FF00',
                         message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-                        channel: "${slackChannel}"
+                        channel: "${env.SLACK_CI_CHANNEL}"
                     )
                 }
             }
@@ -626,14 +626,14 @@ pipeline {
                         slackSend(
                             color: '#FF0000',
                             message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-                            channel: "${slackChannel}"
+                            channel: "${env.SLACK_CI_CHANNEL}"
                         )
                     } else {
                         //else send notification without pinging channel
                         slackSend(
                             color: '#FF0000',
                             message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-                            channel: "${slackChannel}"
+                            channel: "${env.SLACK_CI_CHANNEL}"
                         )
                     }
                 }
