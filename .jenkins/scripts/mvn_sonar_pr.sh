@@ -31,6 +31,9 @@ main() (
   declare -a LIST_FILE_ARRAY=( $(find $(pwd) -type f -name 'jacoco.xml') )
   LIST_FILE=$(IFS=, ; echo "${LIST_FILE_ARRAY[*]}")
 
+  # Fetch target branch for Sonar diff purpose
+  git fetch origin "${target_branch}":"${target_branch}"
+
   # Why sonar plugin is not declared in pom.xml: https://blog.sonarsource.com/we-had-a-dream-mvn-sonarsonar
   # TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
   mvn sonar:sonar \

@@ -543,7 +543,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([nexusCredentials,
-                                     sonarCredentials]) {
+                                     sonarCredentials,
+                                     gitCredentials]) {
 
                         if (pull_request_id != null) {
 
