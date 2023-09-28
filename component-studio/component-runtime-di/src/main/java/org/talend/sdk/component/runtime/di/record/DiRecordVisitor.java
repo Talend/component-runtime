@@ -32,7 +32,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -140,8 +150,13 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
         if (hasDynamic) {
             dynamic.getDynamic().clearColumnValues();
+            int count = dynamic.getDynamic().getColumnCount();
+            for (int i = 0; i < count; i++) {
+                dynamic.getDynamic().addColumnValue(null);
+            }
         }
-        if (hasDynamic && (recordFields == null)) {
+
+        if (hasDynamic && initDynamicMetadata) {
             allowSpecialName = Boolean.parseBoolean(record.getSchema().getProp(ALLOW_SPECIAL_NAME));
 
             recordFieldsMap = new HashMap<>();
@@ -177,8 +192,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                             .filter(t -> !t.getType().equals(Type.RECORD))
                             .map(entry -> entry.getName())
                             .collect(Collectors.toSet()));
-        }
-        if (hasDynamic && initDynamicMetadata) {
+
             prefillDynamic(record.getSchema());
             initDynamicMetadata = false;
         }
