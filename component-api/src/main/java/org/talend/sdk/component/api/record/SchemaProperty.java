@@ -37,21 +37,17 @@ public interface SchemaProperty {
 
     enum LogicalType {
 
-        DATE("date"),
-        TIME("time"),
-        TIMESTAMP("timestamp"),
-        UUID("uuid") {
-
-            @Override
-            public Schema.Type storageType() {
-                return Schema.Type.STRING;
-            }
-        };
+        DATE("date", Schema.Type.DATETIME),
+        TIME("time", Schema.Type.DATETIME),
+        TIMESTAMP("timestamp", Schema.Type.DATETIME),
+        UUID("uuid", Schema.Type.STRING);
 
         private String logicalType;
+        private Schema.Type type;
 
-        LogicalType(final String logicalType) {
+        LogicalType(final String logicalType, final Schema.Type type) {
             this.logicalType = logicalType;
+            this.type = type;
         }
 
         public String key() {
@@ -59,7 +55,7 @@ public interface SchemaProperty {
         }
 
         public Schema.Type storageType() {
-            return Schema.Type.DATETIME;
+            return this.type;
         }
     }
 
