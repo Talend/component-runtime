@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.56.0-SNAPSHOT</version>
+    <version>1.62.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server</artifactId>
@@ -82,6 +82,11 @@
     <dependency>
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons-text.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.meecrowave</groupId>
@@ -192,6 +197,7 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <build>

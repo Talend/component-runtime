@@ -5,24 +5,33 @@ spec:
     - name: talend-registry
   containers:
     - name: main
-      image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/jdk11-svc-springboot-builder:2.9.18-2.4-20220104141654'
+      # '3.0.9-20220930152032 is the last root version of custom builder
+      image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/custom-builder:3.0.9-20220930152032'
       command: [ cat ]
       tty: true
       volumeMounts: [
-        { name: docker, mountPath: /var/run/docker.sock },
-        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository },
+        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository},
+        { name: efs-jenkins-connectors-asdf, mountPath: /root/.asdf/installs, subPath: installs },
         { name: efs-jenkins-component-runtime-download, mountPath: /tmp/download },
-        { name: dockercache, mountPath: /root/.dockercache }
       ]
-      resources: { requests: { memory: 3G, cpu: '2' }, limits: { memory: 8G, cpu: '2' }}
+      resources: {requests: {memory: 4G, cpu: '4'}, limits: {memory: 8G, cpu: '8'}}
+      env:
+        - name: DOCKER_HOST
+          value: tcp://localhost:2375
+    - name: docker-daemon
+      image: artifactory.datapwn.com/docker-io-remote/docker:19.03.1-dind
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ""
+      securityContext:
+        privileged: true
   volumes:
-    - name: docker
-      hostPath: { path: /var/run/docker.sock }
-    - name: dockercache
-      hostPath: { path: /tmp/jenkins/tdi/docker }
     - name: efs-jenkins-component-runtime-m2
       persistentVolumeClaim:
         claimName: efs-jenkins-component-runtime-m2
+    - name: efs-jenkins-connectors-asdf
+      persistentVolumeClaim:
+        claimName: efs-jenkins-connectors-asdf
     - name: efs-jenkins-component-runtime-download
       persistentVolumeClaim:
         claimName: efs-jenkins-component-runtime-download

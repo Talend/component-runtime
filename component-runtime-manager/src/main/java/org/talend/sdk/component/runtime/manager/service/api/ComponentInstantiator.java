@@ -68,10 +68,13 @@ public interface ComponentInstantiator {
             return registries
                     .map((ContainerComponentRegistry registry) -> registry.findComponentFamily(sanitizedFamilyName))
                     .filter(Objects::nonNull)
-                    .peek((ComponentFamilyMeta cm) -> log.debug("Family found {}", sanitizedFamilyName))
-                    .findFirst()
+                    .peek((ComponentFamilyMeta cm) -> log.debug("Family found {} plugin {}", sanitizedFamilyName,
+                            cm.getPlugin()))
                     .map(componentType::findMeta)
-                    .flatMap((Map<String, ? extends ComponentFamilyMeta.BaseMeta> map) -> finder.filter(map))
+                    .map((Map<String, ? extends ComponentFamilyMeta.BaseMeta> map) -> finder.filter(map))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .findFirst()
                     .map((ComponentFamilyMeta.BaseMeta c) -> (ComponentInstantiator) c::instantiate)
                     .orElse(null);
         }
@@ -90,7 +93,7 @@ public interface ComponentInstantiator {
         public Optional<? extends ComponentFamilyMeta.BaseMeta>
                 filter(final Map<String, ? extends ComponentFamilyMeta.BaseMeta> source) {
             if (!source.containsKey(this.componentName)) {
-                log.warn("Can't find component name {}", this.componentName);
+                log.debug("Can't find component name {}", this.componentName);
             }
             return Optional.ofNullable(source.get(this.componentName));
         }

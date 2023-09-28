@@ -29,6 +29,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,32 +144,39 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             dynamic.getDynamic().metadatas.clear();
             dynamic.getDynamic().clearColumnValues();
         }
-        recordFields = record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
-            final String root = rcdEntry.getName() + ".";
-            final List<String> names = new ArrayList<>();
-            rcdEntry.getElementSchema().getAllEntries().filter(e -> e.getType().equals(Type.RECORD)).map(sr -> {
-                final String sub = root + sr.getName() + ".";
-                return sr
-                        .getElementSchema()
-                        .getAllEntries()
-                        .map(entry -> sub + entry.getName())
-                        .collect(Collectors.toList());
-            }).forEach(l -> l.stream().forEach(m -> names.add(m)));
-            rcdEntry
-                    .getElementSchema()
-                    .getAllEntries()
-                    .filter(e -> !e.getType().equals(Type.RECORD))
-                    .map(entry -> root + entry.getName())
-                    .forEach(sre -> names.add(sre));
-            return names;
-        }).flatMap(liststream -> liststream.stream()).collect(Collectors.toSet());
-        recordFields
-                .addAll(record
-                        .getSchema()
-                        .getAllEntries()
-                        .filter(t -> !t.getType().equals(Type.RECORD))
-                        .map(entry -> entry.getName())
-                        .collect(Collectors.toSet()));
+        if (hasDynamic && (recordFields == null)) {
+            recordFields =
+                    record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
+                        final String root = rcdEntry.getName() + ".";
+                        final List<String> names = new ArrayList<>();
+                        rcdEntry.getElementSchema()
+                                .getAllEntries()
+                                .filter(e -> e.getType().equals(Type.RECORD))
+                                .map(sr -> {
+                                    final String sub = root + sr.getName() + ".";
+                                    return sr
+                                            .getElementSchema()
+                                            .getAllEntries()
+                                            .map(entry -> sub + entry.getName())
+                                            .collect(Collectors.toList());
+                                })
+                                .forEach(l -> l.stream().forEach(m -> names.add(m)));
+                        rcdEntry
+                                .getElementSchema()
+                                .getAllEntries()
+                                .filter(e -> !e.getType().equals(Type.RECORD))
+                                .map(entry -> root + entry.getName())
+                                .forEach(sre -> names.add(sre));
+                        return names;
+                    }).flatMap(liststream -> liststream.stream()).collect(Collectors.toSet());
+            recordFields
+                    .addAll(record
+                            .getSchema()
+                            .getAllEntries()
+                            .filter(t -> !t.getType().equals(Type.RECORD))
+                            .map(entry -> entry.getName())
+                            .collect(Collectors.toSet()));
+        }
         if (hasDynamic) {
             prefillDynamic(record.getSchema());
         }
@@ -339,7 +347,13 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     @Override
     public void onDatetime(final Entry entry, final Optional<ZonedDateTime> dateTime) {
         log.debug("[onDatetime] visiting {}.", entry.getName());
-        dateTime.ifPresent(value -> setField(entry, value.toInstant().toEpochMilli()));
+        dateTime.ifPresent(value -> setField(entry, value.toInstant()));
+    }
+
+    @Override
+    public void onInstant(final Schema.Entry entry, final Optional<Instant> dateTime) {
+        log.debug("[onInstant] visiting {}.", entry.getName());
+        dateTime.ifPresent(value -> setField(entry, value));
     }
 
     @Override

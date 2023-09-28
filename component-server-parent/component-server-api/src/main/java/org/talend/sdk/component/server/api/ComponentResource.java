@@ -59,65 +59,80 @@ public interface ComponentResource {
     @Operation(description = "Returns a list of dependencies for the given components. "
             + "IMPORTANT: don't forget to add the component itself since it will not be part of the dependencies."
             + "Then you can use /dependency/{id} to download the binary.")
-    @APIResponse(responseCode = "200", description = "The list of dependencies per component",
+    @APIResponse(responseCode = "200",
+            description = "The list of dependencies per component.",
             content = @Content(mediaType = APPLICATION_JSON))
     Dependencies getDependencies(@QueryParam("identifier") @Parameter(name = "identifier",
-            description = "the list of component identifiers to find the dependencies for.", in = QUERY) String[] ids);
+            description = "The identifier id to request. Repeat this parameter to request more than one element.",
+            in = QUERY) String[] ids);
 
     @GET
     @Path("dependency/{id}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Operation(description = "Return a binary of the dependency represented by `id`. "
             + "It can be maven coordinates for dependencies or a component id.")
-    @APIResponse(responseCode = "200", description = "The dependency binary (jar).",
+    @APIResponse(responseCode = "200",
+            description = "The dependency binary (jar).",
             content = @Content(mediaType = APPLICATION_OCTET_STREAM))
     @APIResponse(responseCode = "404",
             description = "If the plugin is missing, payload will be an ErrorPayload with the code PLUGIN_MISSING.",
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
-    StreamingOutput getDependency(@PathParam("id") @Parameter(name = "id", description = "the dependency binary (jar).",
+    StreamingOutput getDependency(@PathParam("id") @Parameter(name = "id",
+            description = "Dependency identifier for component/configurationType or maven coordinate.  \n" +
+                    "Example: `/api/v1/component/dependency/org.apache.commons:commons-lang3:jar:3.12.0`.",
             in = PATH) String id);
 
     @GET
     @Path("index")
-    @Operation(operationId = "getComponentIndex", description = "Returns the list of available components.")
-    @APIResponse(responseCode = "200", description = "The index of available components.",
+    @Operation(operationId = "getComponentIndex",
+            description = "Returns the list of available components.")
+    @APIResponse(responseCode = "200",
+            description = "The index of available components.",
             content = @Content(mediaType = APPLICATION_OCTET_STREAM))
     ComponentIndices getIndex(
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.", in = QUERY,
+                    description = "Response language in i18n format.", in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("includeIconContent") @DefaultValue("false") @Parameter(name = "includeIconContent",
-                    description = "should the icon binary format be included in the payload.", in = QUERY,
+                    description = "Should the icon binary format be included in the payload.  " +
+                            "Default is `false`.",
+                    in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) boolean includeIconContent,
             @QueryParam("q") @Parameter(name = "q",
                     description = "Query in simple query language to filter components. "
                             + "It provides access to the component `plugin`, `name`, `id` and `metadata` of the first configuration property. "
                             + "Ex: `(id = AYETAE658349453) AND (metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) AND "
-                            + "(name = input)`",
+                            + "(name = input)`.",
                     in = QUERY, schema = @Schema(type = STRING)) String query);
 
     @GET
     @Path("icon/family/{id}")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     @Operation(description = "Returns the icon for a family.")
-    @APIResponse(responseCode = "200", description = "Returns a particular family icon in raw bytes.",
+    @APIResponse(responseCode = "200",
+            description = "Returns a particular family icon in raw bytes.",
             content = @Content(mediaType = APPLICATION_OCTET_STREAM))
-    @APIResponse(responseCode = "404", description = "The family or icon is not found",
+    @APIResponse(responseCode = "404",
+            description = "The family or icon is not found.",
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     Response familyIcon(
-            @PathParam("id") @Parameter(name = "id", description = "the family identifier", in = PATH) String id);
+            @PathParam("id") @Parameter(name = "id",
+                    description = "Family identifier.", in = PATH) String id);
 
     @GET
     @Path("icon/{id}")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     @Operation(description = "Returns a particular component icon in raw bytes.")
-    @APIResponse(responseCode = "200", description = "The component icon in binary form.",
+    @APIResponse(responseCode = "200",
+            description = "The component icon in binary form.",
             content = @Content(mediaType = APPLICATION_OCTET_STREAM))
-    @APIResponse(responseCode = "404", description = "The family or icon is not found",
+    @APIResponse(responseCode = "404",
+            description = "The family or icon is not found.",
             content = @Content(mediaType = APPLICATION_JSON))
-    Response icon(@PathParam("id") @Parameter(name = "id", description = "the component icon identifier",
+    Response icon(@PathParam("id") @Parameter(name = "id",
+            description = "Component icon identifier.",
             in = PATH) String id);
 
     @POST
@@ -125,34 +140,43 @@ public interface ComponentResource {
     @Operation(operationId = "migrateComponent",
             description = "Allows to migrate a component configuration without calling any component execution.")
     @APIResponse(responseCode = "200",
-            description = "the new configuration for that component (or the same if no migration was needed).",
+            description = "New configuration for that component (or the same if no migration was needed).",
             content = @Content(mediaType = APPLICATION_JSON))
-    @APIResponse(responseCode = "404", description = "The component is not found",
+    @APIResponse(responseCode = "404",
+            description = "The component is not found.",
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     Map<String, String> migrate(
-            @PathParam("id") @Parameter(name = "id", description = "the component identifier", in = PATH) String id,
+            @PathParam("id") @Parameter(name = "id",
+                    description = "Component identifier.", in = PATH) String id,
             @PathParam("configurationVersion") @Parameter(name = "configurationVersion",
-                    description = "the configuration version you send", in = PATH) int version,
-            @RequestBody(description = "the actual configuration in key/value form.", required = true,
+                    description = "Configuration version sent, corresponding to the body content.",
+                    in = PATH) int version,
+            @RequestBody(description = "Actual configuration in key/value json form.", required = true,
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(type = OBJECT))) Map<String, String> config);
 
     @GET
-    @Path("details") // bulk mode to avoid to fetch components one by one when reloading a pipeline/job
+    @Path("details")
     @Operation(operationId = "getComponentDetail",
-            description = "Returns the set of metadata about a few components identified by their 'id'.")
-    @APIResponse(responseCode = "200", description = "the list of details for the requested components.",
+            description = "Returns the set of metadata about one or multiples components identified by their 'id'.")
+    @APIResponse(responseCode = "200",
+            description = "List of details for the requested components.",
             content = @Content(mediaType = APPLICATION_JSON))
-    @APIResponse(responseCode = "400", description = "Some identifiers were not valid.",
+    @APIResponse(responseCode = "400",
+            description = "Some identifiers were not valid.",
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = SampleErrorForBulk.class)))
     ComponentDetailList getDetail(
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.", in = QUERY,
+                    description = "Response language in i18n format.",
+                    in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("identifiers") @Parameter(name = "identifiers",
-                    description = "the component identifiers to request.", in = QUERY) String[] ids);
+                    description = "The identifier id to request. " +
+                            "Repeat this parameter to request more than one element.",
+
+                    in = QUERY) String[] ids);
 
     // @Unused, only for sample
     class SampleErrorForBulk {

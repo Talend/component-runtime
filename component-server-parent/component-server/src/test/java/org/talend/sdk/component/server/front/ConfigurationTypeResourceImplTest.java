@@ -151,7 +151,9 @@ class ConfigurationTypeResourceImplTest {
         assertEquals("5", config.get("configuration.size"));
         assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==", config.get("configuration.url"));
         assertEquals("username0", config.get("configuration.username"));
-        assertEquals("test", config.get("configuration.connection.password"));
+        // should not be deciphered
+        assertEquals("vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==",
+                config.get("configuration.connection.password"));
     }
 
     @Test

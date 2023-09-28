@@ -62,3 +62,6 @@ documentation/rebuildpdf.bat
 # release process
 .build/
 .build_source/
+# direnv
+.envrc
+.env

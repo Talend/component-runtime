@@ -45,11 +45,12 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
         System.setProperty("geronimo.opentracing.client.filter.request.skip", "true");
         System.setProperty("geronimo.opentracing.filter.skippedTracing.urls", ".*/login$,.*/decrypt/.*");
         System.setProperty("geronimo.opentracing.filter.skippedTracing.matcherType", "regex");
-        // environment dft ordinal 400
-        final String httpPort = System.getenv("TALEND_COMPONENT_SERVER_PORT");
-        if (httpPort != null) {
-            System.setProperty("http", httpPort);
-            configuration.setHttpPort(Integer.parseInt(httpPort));
+        // listening port order: `meecrowave cli --http=x` > `-Dhttp=x` > `-e TALEND_COMPONENT_SERVER_PORT=x`
+        final String port = System.getProperty("http") != null ? System.getProperty("http")
+                : System.getenv("TALEND_COMPONENT_SERVER_PORT");
+        if (port != null) {
+            System.setProperty("http", port);
+            configuration.setHttpPort(Integer.parseInt(port));
         }
         final String log4jLayout = System.getenv("LOGGING_LAYOUT");
         final String appHome = System.getenv("TALEND_APP_HOME");

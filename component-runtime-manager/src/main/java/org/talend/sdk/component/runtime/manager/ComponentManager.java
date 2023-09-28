@@ -240,7 +240,11 @@ public class ComponentManager implements AutoCloseable {
                 }
             };
 
-            Runtime.getRuntime().addShutdownHook(shutdownHook);
+            try {
+                Runtime.getRuntime().addShutdownHook(shutdownHook);
+            } catch (IllegalStateException e) {
+                log.warn("addShutdownHook: Shutdown already in progress.");
+            }
             componentManager.info("Created the contextual ComponentManager instance " + getIdentifiers());
             if (!CONTEXTUAL_INSTANCE.compareAndSet(null, componentManager)) { // unlikely it fails in a synch block
                 componentManager = CONTEXTUAL_INSTANCE.get();

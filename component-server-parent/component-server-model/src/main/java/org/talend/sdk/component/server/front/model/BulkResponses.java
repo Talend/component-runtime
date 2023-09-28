@@ -18,6 +18,8 @@ package org.talend.sdk.component.server.front.model;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.JsonObject;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +40,6 @@ public class BulkResponses {
 
         private Map<String, List<String>> headers;
 
-        private byte[] response;
+        private JsonObject response;
     }
 }

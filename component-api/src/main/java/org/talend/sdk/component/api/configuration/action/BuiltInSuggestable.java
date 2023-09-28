@@ -48,6 +48,8 @@ public @interface BuiltInSuggestable {
 
     enum Name {
         CUSTOM,
-        INCOMING_SCHEMA_ENTRY_NAMES
+        INCOMING_SCHEMA_ENTRY_NAMES,
+
+        CURRENT_SCHEMA_ENTRY_NAMES // studio only
     }
 }

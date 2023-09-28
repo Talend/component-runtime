@@ -31,6 +31,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
@@ -126,7 +127,7 @@ public final class RecordImpl implements Record {
 
         private final Schema providedSchema;
 
-        private final OrderState orderState;
+        private OrderState orderState;
 
         public BuilderImpl() {
             this(null);
@@ -139,11 +140,20 @@ public final class RecordImpl implements Record {
                 this.orderState = new OrderState(Collections.emptyList());
             } else {
                 this.entries = null;
-                final List<Entry> fields = providedSchema.naturalOrder()
-                        .getFieldsOrder()
-                        .map(providedSchema::getEntry)
-                        .collect(Collectors.toList());
-                this.orderState = new OrderState(fields);
+            }
+        }
+
+        private void initOrderState() {
+            if (orderState == null) {
+                if (this.providedSchema == null) {
+                    this.orderState = new OrderState(Collections.emptyList());
+                } else {
+                    final List<Entry> fields = this.providedSchema.naturalOrder()
+                            .getFieldsOrder()
+                            .map(this.providedSchema::getEntry)
+                            .collect(Collectors.toList());
+                    this.orderState = new OrderState(fields);
+                }
             }
         }
 
@@ -177,6 +187,8 @@ public final class RecordImpl implements Record {
                     withDateTime(entry, (Date) value);
                 } else if (value instanceof ZonedDateTime) {
                     withDateTime(entry, (ZonedDateTime) value);
+                } else if (value instanceof Instant) {
+                    withInstant(entry, (Instant) value);
                 } else if (value instanceof Temporal) {
                     withTimestamp(entry, ((Temporal) value).get(ChronoField.INSTANT_SECONDS) * 1000L);
                 }
@@ -258,12 +270,14 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder before(final String entryName) {
+            initOrderState();
             orderState.before(entryName);
             return this;
         }
 
         @Override
         public Builder after(final String entryName) {
+            initOrderState();
             orderState.after(entryName);
             return this;
         }
@@ -320,7 +334,7 @@ public final class RecordImpl implements Record {
                 if (!missing.isEmpty()) {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
-                if (orderState.isOverride()) {
+                if (orderState != null && orderState.isOverride()) {
                     currentSchema = this.providedSchema.toBuilder().build(this.orderState.buildComparator());
                 } else {
                     currentSchema = this.providedSchema;
@@ -328,6 +342,7 @@ public final class RecordImpl implements Record {
             } else {
                 final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
                 this.entries.forEachValue(builder::withEntry);
+                initOrderState();
                 currentSchema = builder.build(orderState.buildComparator());
             }
             return new RecordImpl(unmodifiableMap(values), currentSchema);
@@ -396,6 +411,17 @@ public final class RecordImpl implements Record {
         }
 
         public Builder withTimestamp(final Schema.Entry entry, final long value) {
+            assertType(entry.getType(), DATETIME);
+            validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
+            return append(entry, value);
+        }
+
+        public Builder withInstant(final String name, final Instant value) {
+            final Schema.Entry entry = this.findOrBuildEntry(name, DATETIME, false);
+            return withInstant(entry, value);
+        }
+
+        public Builder withInstant(final Schema.Entry entry, final Instant value) {
             assertType(entry.getType(), DATETIME);
             validateTypeAgainstProvidedSchema(entry.getName(), DATETIME, value);
             return append(entry, value);
@@ -514,7 +540,17 @@ public final class RecordImpl implements Record {
             if (this.entries != null) {
                 this.entries.addValue(realEntry);
             }
-            orderState.update(realEntry);
+            if (orderState == null) {
+                if (this.providedSchema != null && this.providedSchema.getEntryMap().containsKey(realEntry.getName())) {
+                    // no need orderState, delay init it for performance, this is 99% cases for
+                    // RecordBuilderFactoryImpl.newRecordBuilder(schema) usage
+                } else {
+                    initOrderState();
+                    orderState.update(realEntry);
+                }
+            } else {
+                orderState.update(realEntry);
+            }
             return this;
         }
 

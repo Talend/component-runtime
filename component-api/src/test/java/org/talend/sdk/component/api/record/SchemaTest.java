@@ -215,6 +215,15 @@ class SchemaTest {
         private final Map<String, String> props;
 
         @Override
+        public Map<String, Entry> getEntryMap() {
+            Map<String, Entry> m = new HashMap<>();
+            if (entries != null) {
+                entries.stream().forEach(e -> m.put(e.getName(), e));
+            }
+            return m;
+        }
+
+        @Override
         public Type getType() {
             return Type.RECORD;
         }

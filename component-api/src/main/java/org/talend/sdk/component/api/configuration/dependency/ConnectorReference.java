@@ -18,9 +18,14 @@ package org.talend.sdk.component.api.configuration.dependency;
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.dependency.ConnectorRef.ConnectorRefValue;
 
 import lombok.Data;
 
+/**
+ * @deprecated since 1.58.0, use {@link ConnectorRef} instead
+ */
+@Deprecated
 @Data
 public class ConnectorReference implements Serializable {
 
@@ -28,18 +33,21 @@ public class ConnectorReference implements Serializable {
      * Family of referenced connector.
      */
     @Option
+    @ConnectorRef(ConnectorRefValue.FAMILY)
     private String family;
 
     /**
      * Name of referenced connector.
      */
     @Option
+    @ConnectorRef(ConnectorRefValue.NAME)
     private String name;
 
     /**
      * maven reference of referenced connector (as gav).
-     * exemple : org.talend.components:rest:1.29.0
+     * example : org.talend.components:rest:1.29.0
      */
     @Option
+    @ConnectorRef(ConnectorRefValue.MAVEN_REFERENCE)
     private String mavenReferences;
 }
