@@ -169,9 +169,13 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     @Override
     @JsonbTransient
     public Map<String, Entry> getEntryMap() {
-        if (entryMap == null) {
-            entryMap = new HashMap<>();
-            getAllEntries().forEach(e -> entryMap.put(e.getName(), e));
+        synchronized (this) {
+            if (entryMap == null || entryMap.isEmpty()) {
+                if (entryMap == null) {
+                    entryMap = new HashMap<>();
+                }
+                getAllEntries().forEach(e -> entryMap.put(e.getName(), e));
+            }
         }
         return entryMap;
     }
