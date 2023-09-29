@@ -216,6 +216,8 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setPluginId(pluginId);
         configuration.setValidateExceptions(validateExceptions);
         configuration.setFailOnValidateExceptions(failOnValidateExceptions);
+        configuration.setValidateSchema(validateSchema);
+        configuration.setValidateRecord(validateRecord);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
         new ComponentValidator(configuration, new File[] { classes }, getLog()) {
