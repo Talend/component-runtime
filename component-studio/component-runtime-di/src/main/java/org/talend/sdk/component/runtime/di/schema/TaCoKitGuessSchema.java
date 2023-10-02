@@ -154,7 +154,8 @@ public class TaCoKitGuessSchema {
             }
         } catch (Exception e) {
             if (e instanceof ComponentException) {
-                DiscoverSchemaException x = new DiscoverSchemaException(((ComponentException) e).getOriginalMessage(), e.getCause());
+                DiscoverSchemaException x =
+                        new DiscoverSchemaException(((ComponentException) e).getOriginalMessage(), e.getCause());
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
                     System.out.println(jsonb.toJson(x));
                 }
@@ -205,7 +206,8 @@ public class TaCoKitGuessSchema {
             }
         } catch (Exception e) {
             if (e instanceof ComponentException) {
-                DiscoverSchemaException x = new DiscoverSchemaException(((ComponentException) e).getOriginalMessage(), e.getCause());
+                DiscoverSchemaException x =
+                        new DiscoverSchemaException(((ComponentException) e).getOriginalMessage(), e.getCause());
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
                     System.out.println(jsonb.toJson(x));
                 }
@@ -214,7 +216,7 @@ public class TaCoKitGuessSchema {
             }
             if (e instanceof DiscoverSchemaException) {
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
-                    System.out.println(jsonb.toJson(x));
+                    System.out.println(jsonb.toJson(e));
                 }
                 log.error("Can't guess processor schema through action.", e);
                 throw e;

@@ -23,7 +23,6 @@ public class DiscoverSchemaException extends RuntimeException {
         super(exception.getOriginalMessage(), exception.getCause());
     }
 
-
     public DiscoverSchemaException(final String message) {
         super(message);
     }
