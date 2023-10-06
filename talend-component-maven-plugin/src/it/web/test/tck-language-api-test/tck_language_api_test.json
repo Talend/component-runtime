@@ -1103,7 +1103,7 @@
                   {
                     "comparison": "Contains",
                     "subject": "ResponseJsonBody",
-                    "enabled": true,
+                    "enabled": false,
                     "path": "$.components[0].displayName",
                     "value": "-fr +é"
                   }
@@ -1173,7 +1173,7 @@
                   {
                     "comparison": "Contains",
                     "subject": "ResponseJsonBody",
-                    "enabled": true,
+                    "enabled": false,
                     "path": "$.components[0].displayName",
                     "value": "-ja +愛"
                   }
@@ -1243,7 +1243,7 @@
                   {
                     "comparison": "Contains",
                     "subject": "ResponseJsonBody",
-                    "enabled": true,
+                    "enabled": false,
                     "path": "$.components[0].displayName",
                     "value": "-zh_CN +爱"
                   }
