@@ -130,10 +130,10 @@ public class ActionResourceImpl implements ActionResource {
     private CompletableFuture<Response> doExecuteLocalAction(final String family, final String type,
             final String action, final String lang, final Map<String, String> params) {
         return CompletableFuture.supplyAsync(() -> {
-            if (family == null) {
+            if (action == null) {
                 throw new WebApplicationException(Response
                         .status(Response.Status.BAD_REQUEST)
-                        .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "Family can't be null"))
+                        .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "Action can't be null"))
                         .build());
             }
             if (type == null) {
@@ -142,10 +142,10 @@ public class ActionResourceImpl implements ActionResource {
                         .entity(new ErrorPayload(ErrorDictionary.TYPE_MISSING, "Type can't be null"))
                         .build());
             }
-            if (action == null) {
+            if (family == null) {
                 throw new WebApplicationException(Response
                         .status(Response.Status.BAD_REQUEST)
-                        .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "Action can't be null"))
+                        .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "Family can't be null"))
                         .build());
             }
             final ServiceMeta.ActionMeta actionMeta = actionDao.findBy(family, type, action);

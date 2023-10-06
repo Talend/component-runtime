@@ -27,11 +27,11 @@ function usage(){
 }
 
 
-DEFAULT_RUNTIME_VERSION="1.57.0-SNAPSHOT"
+DEFAULT_RUNTIME_VERSION="1.62.0-SNAPSHOT"
 DEFAULT_CONNECTORS_VERSION="1.41.0"
 
 # To debug the component server java, you can uncomment the following line
-# _JAVA_DEBUG_PORT="5005"
+_JAVA_DEBUG_PORT="5005"
 
 [ -z ${1+x} ] && printf 'Parameter "runtime_version" not given use default value: %s\n' $DEFAULT_RUNTIME_VERSION
 [ -z ${2+x} ] && printf 'Parameter "connectors_version" not given use default value: %s\n' $DEFAULT_CONNECTORS_VERSION
