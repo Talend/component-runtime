@@ -345,7 +345,7 @@ public class DiRowStructVisitor {
                         case StudioTypes.STRING:
                         case StudioTypes.CHARACTER:
                             schema.withEntry(toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
-                                    metaIsKey, null, null, defaultValue, null, metaStudioType));
+                                    metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
                             break;
                         case StudioTypes.BIGDECIMAL:
                             schema.withEntry(toEntry(metaName, DECIMAL, metaOriginalName, metaIsNullable, comment,
