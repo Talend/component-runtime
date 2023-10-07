@@ -497,24 +497,13 @@ pipeline {
                         sh """\
                             #!/usr/bin/env bash 
                             set -xe
-                            mvn versions:dependency-updates-report versions:plugin-updates-report \
-                                                                   versions:property-updates-report \
-                                                                   -pl '!bom'
+                            mvn versions:dependency-updates-report versions:plugin-updates-report -pl '!bom'
                            """.stripIndent()
                     }
                 }
             }
             post {
                 always {
-                    publishHTML(
-                      target: [
-                        allowMissing         : true,
-                        alwaysLinkToLastBuild: false,
-                        keepAll              : true,
-                        reportDir            : 'target/site/',
-                        reportFiles          : 'property-updates-report.html',
-                        reportName           : "outdated::property"
-                      ])
                     publishHTML(
                       target: [
                         allowMissing         : true,
@@ -543,7 +532,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([nexusCredentials,
-                                     sonarCredentials]) {
+                                     sonarCredentials,
+                                     gitCredentials]) {
 
                         if (pull_request_id != null) {
 
