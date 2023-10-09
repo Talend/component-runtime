@@ -15,23 +15,42 @@
  */
 package org.talend.sdk.component.api.exception;
 
+import javax.json.bind.annotation.JsonbCreator;
+
+import lombok.Data;
+
+/**
+ * This class is dedicated to Studio's guess schema feature.
+ * It has the same goal as ComponentException except that you can specify an action to execute in some cases.
+ *
+ * If you don't need such feature, just use ComponentException.
+ *
+ * See me TCOMP-2342 for more details.
+ */
+@Data
 public class DiscoverSchemaException extends RuntimeException {
 
     private String possibleHandleErrorWith = "exception";
 
-    public DiscoverSchemaException(final ComponentException exception) {
-        super(exception.getOriginalMessage(), exception.getCause());
+    public DiscoverSchemaException(final ComponentException e) {
+        super(e.getOriginalMessage(), e.getCause());
     }
 
-    public DiscoverSchemaException(final String message) {
+    public DiscoverSchemaException(final ComponentException e, final String handling) {
+        super(e.getOriginalMessage(), e.getCause());
+        setPossibleHandleErrorWith(handling);
+    }
+
+    public DiscoverSchemaException(final String message, final String handling) {
         super(message);
+        setPossibleHandleErrorWith(handling);
     }
 
-    public DiscoverSchemaException(final String message, final Throwable cause) {
-        super(message, cause);
+    @JsonbCreator
+    public DiscoverSchemaException(final String message, final StackTraceElement[] stackTrace, final String handling) {
+        super(message);
+        setStackTrace(stackTrace);
+        setPossibleHandleErrorWith(handling);
     }
 
-    public DiscoverSchemaException(final Throwable cause) {
-        super(cause);
-    }
 }

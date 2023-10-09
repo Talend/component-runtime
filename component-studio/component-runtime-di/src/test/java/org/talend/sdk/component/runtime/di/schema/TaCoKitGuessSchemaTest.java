@@ -17,8 +17,10 @@ package org.talend.sdk.component.runtime.di.schema;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -37,6 +39,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
 import org.apache.beam.sdk.options.Description;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -48,6 +53,7 @@ import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -110,13 +116,13 @@ class TaCoKitGuessSchemaTest {
             guessSchema.guessInputComponentSchema(null);
             guessSchema.close();
 
-            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
+            assertTrue(byteArrayOutputStream.size() > 0);
 
             final String content = byteArrayOutputStream.toString();
-            Assertions.assertTrue(content.contains("\"length\":10"));
-            Assertions.assertTrue(content.contains("\"precision\":2"));
-            Assertions.assertTrue(!content.contains("\"length\":0"));
-            Assertions.assertTrue(!content.contains("\"precision\":0"));
+            assertTrue(content.contains("\"length\":10"));
+            assertTrue(content.contains("\"precision\":2"));
+            assertTrue(!content.contains("\"length\":0"));
+            assertTrue(!content.contains("\"precision\":0"));
         }
     }
 
@@ -209,7 +215,7 @@ class TaCoKitGuessSchemaTest {
             final String expected =
                     "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
             assertEquals(expected, lines);
-            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
+            assertTrue(byteArrayOutputStream.size() > 0);
         }
     }
 
@@ -353,7 +359,38 @@ class TaCoKitGuessSchemaTest {
             final String expected =
                     "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"hjk;ljkkj\",\"key\":true,\"label\":\"id\",\"length\":10,\"nullable\":false,\"originalDbColumnName\":\"id\",\"precision\":0,\"talendType\":\"id_Integer\"},{\"comment\":\"hljkjhlk\",\"label\":\"name\",\"length\":20,\"nullable\":true,\"originalDbColumnName\":\"name\",\"precision\":0,\"talendType\":\"id_String\"},{\"label\":\"flag\",\"length\":4,\"nullable\":true,\"originalDbColumnName\":\"flag\",\"precision\":0,\"talendType\":\"id_Character\"},{\"label\":\"female\",\"length\":1,\"nullable\":true,\"originalDbColumnName\":\"female\",\"precision\":0,\"talendType\":\"id_Boolean\"},{\"comment\":\"hhhh\",\"label\":\"num1\",\"length\":3,\"nullable\":true,\"originalDbColumnName\":\"num1\",\"precision\":0,\"talendType\":\"id_byte[]\"},{\"label\":\"num2\",\"length\":5,\"nullable\":true,\"originalDbColumnName\":\"num2\",\"precision\":0,\"talendType\":\"id_Short\"},{\"label\":\"age\",\"length\":19,\"nullable\":true,\"originalDbColumnName\":\"age\",\"precision\":0,\"talendType\":\"id_Long\"},{\"label\":\"bonus\",\"length\":12,\"nullable\":true,\"originalDbColumnName\":\"bonus\",\"precision\":2,\"talendType\":\"id_Float\"},{\"label\":\"salary\",\"length\":22,\"nullable\":true,\"originalDbColumnName\":\"salary\",\"precision\":2,\"talendType\":\"id_Double\"},{\"label\":\"play\",\"length\":10,\"nullable\":true,\"originalDbColumnName\":\"play\",\"precision\":2,\"talendType\":\"id_String\"},{\"label\":\"startdate\",\"nullable\":true,\"originalDbColumnName\":\"startdate\",\"pattern\":\"\\\"yyyy-MM-dd\\\"\",\"talendType\":\"id_Date\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
             assertEquals(expected, lines);
-            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
+            assertTrue(byteArrayOutputStream.size() > 0);
+        }
+    }
+
+    @Test
+    void serializeDiscoverSchemaException() throws Exception {
+        final String serialized =
+                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"retry\"}";
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            DiscoverSchemaException e = new DiscoverSchemaException("Unknown error. Retry!", "retry");
+            String json = jsonb.toJson(e);
+            assertTrue(json.contains("\"message\":\"Unknown error. Retry!\""));
+            assertTrue(json.contains("\"possibleHandleErrorWith\":\"retry\""));
+        }
+    }
+
+    @Test
+    void deserializeDiscoverSchemaException() throws Exception {
+        final String flattened =
+                "{\"message\":\"Not allowed to execute the HTTP call to retrieve the schema.\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"exception\"}";
+        final String serialized =
+                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"retry\"}";
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            DiscoverSchemaException e = jsonb.fromJson(flattened, DiscoverSchemaException.class);
+            assertFalse("execute".equals(e.getPossibleHandleErrorWith()));
+            assertEquals("exception", e.getPossibleHandleErrorWith());
+            assertEquals("Not allowed to execute the HTTP call to retrieve the schema.", e.getMessage());
+            //
+            e = jsonb.fromJson(serialized, DiscoverSchemaException.class);
+            assertFalse("exception".equals(e.getPossibleHandleErrorWith()));
+            assertEquals("retry", e.getPossibleHandleErrorWith());
+            assertEquals("Unknown error. Retry!", e.getMessage());
         }
     }
 
