@@ -37,7 +37,9 @@ _MAVEN_TEST_SKIP="--define spotless.apply.skip=true \
                   --define checkstyle.skip=true \
                   --define rat.skip=true \
                   --define skipTests \
+                  --define maven.test.skip=true \
                   --define maven.javadoc.skip=true \
+                  --define enforcer.skip=true \
                   --define invoker.skip=true"
 _MAVEN_FAST="--define maven.artifact.threads=25 \
              --threads 4C"

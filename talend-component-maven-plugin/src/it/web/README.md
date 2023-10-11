@@ -42,7 +42,7 @@ bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/tcomp-build-fast.
 bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/tcomp-build-sample-connector.sh sample-parent/sample-connector/pom.xml
 
 # Component server manual start (defining server and connectors version
-bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh 1.60.0-SNAPSHOT 1.41.0
+bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh 1.61.0-SNAPSHOT 1.41.0
 
 # You can now test with api tester on your local machine
 # Or execute tests with maven (You need your ACCOUNT_ID)
