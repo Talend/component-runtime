@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":726,
+    "commits":732,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -43,7 +43,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":44,
+    "commits":47,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -57,7 +57,7 @@
     "name":"ypiel"
   },
   {
-    "commits":36,
+    "commits":37,
     "description":"QA Automation @ Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
@@ -100,24 +100,24 @@
   },
   {
     "commits":9,
-    "description":"Frontend Architect.\r\nThis is my Talend account. You can check out @jsomsanith for my personal account",
-    "gravatar":"https://avatars.githubusercontent.com/u/10761073?v=4",
-    "id":"jsomsanith-tlnd",
-    "name":"Jimmy Somsanith"
-  },
-  {
-    "commits":8,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
     "id":"lxia-talend",
     "name":"lxia-talend"
   },
   {
-    "commits":8,
+    "commits":9,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
     "id":"fdesiles",
     "name":"Fabien Désiles"
+  },
+  {
+    "commits":9,
+    "description":"Frontend Architect.\r\nThis is my Talend account. You can check out @jsomsanith for my personal account",
+    "gravatar":"https://avatars.githubusercontent.com/u/10761073?v=4",
+    "id":"jsomsanith-tlnd",
+    "name":"Jimmy Somsanith"
   },
   {
     "commits":6,
