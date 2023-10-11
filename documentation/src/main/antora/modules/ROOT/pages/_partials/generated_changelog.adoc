@@ -9,6 +9,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2543[TCOMP-2543^]: Upgrade TSBI to 4.0.1-20230911145727 link:search.html?query=build[build^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2544[TCOMP-2544^]: Upgrade snappy to 1.1.10.5 
 - link:https://jira.talendforge.org/browse/TCOMP-2545[TCOMP-2545^]: Upgrade tomcat to 9.0.81 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2547[TCOMP-2547^]: Upgrade netty to 4.1.99.Final link:search.html?query=testing[testing^,role='dockey']
 
 == Version 1.61.0
 
