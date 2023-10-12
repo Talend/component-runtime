@@ -27,7 +27,7 @@ function usage(){
 }
 
 
-DEFAULT_RUNTIME_VERSION="1.57.0-SNAPSHOT"
+DEFAULT_RUNTIME_VERSION="1.62.0-SNAPSHOT"
 DEFAULT_CONNECTORS_VERSION="1.41.0"
 
 # To debug the component server java, you can uncomment the following line
