@@ -79,6 +79,14 @@ public class TaCoKitGuessSchema {
 
     public static final String DATASET = "dataset";
 
+    public static final String ERROR_PROCESSOR_THROUGH_ACTION = "Can't guess processor schema through action.";
+
+    public static final String ERROR_THROUGH_ACTION = "Can't guess schema through action.";
+
+    public static final String ERROR_NO_AVAILABLE_SCHEMA_FOUND = "There is no available schema found.";
+
+    public static final String ERROR_INSTANCE_SCHEMA = "Result is not an instance of Talend Component Kit Schema.";
+
     private ComponentManager componentManager;
 
     private JavaTypesManager javaTypesManager;
@@ -158,22 +166,22 @@ public class TaCoKitGuessSchema {
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
                     jsonb.toJson(x, out);
                 }
-                log.error("Can't guess processor schema through action.", x);
+                log.error(ERROR_PROCESSOR_THROUGH_ACTION, x);
                 throw x;
             }
             if (e instanceof DiscoverSchemaException) {
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
                     jsonb.toJson(e, out);
                 }
-                log.error("Can't guess processor schema through action.", e);
+                log.error(ERROR_PROCESSOR_THROUGH_ACTION, e);
                 throw e;
             }
-            log.error("Can't guess schema through action.", e);
+            log.error(ERROR_THROUGH_ACTION, e);
         }
         if (guessInputComponentSchemaThroughResult()) {
             return;
         }
-        throw new Exception("There is no available schema found.");
+        throw new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND);
     }
 
     public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch) throws Exception {
@@ -208,22 +216,22 @@ public class TaCoKitGuessSchema {
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
                     jsonb.toJson(x, out);
                 }
-                log.error("Can't guess processor schema through action.", x);
+                log.error(ERROR_PROCESSOR_THROUGH_ACTION, x);
                 throw x;
             }
             if (e instanceof DiscoverSchemaException) {
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
                     jsonb.toJson(e, out);
                 }
-                log.error("Can't guess processor schema through action.", e);
+                log.error(ERROR_PROCESSOR_THROUGH_ACTION, e);
                 throw e;
             }
-            log.error("Can't guess processor schema through action.", e);
+            log.error(ERROR_PROCESSOR_THROUGH_ACTION, e);
             throw new Exception(e.getMessage());
         }
 
-        log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema.");
-        throw new Exception("There is no available schema found.");
+        log.error(ERROR_INSTANCE_SCHEMA);
+        throw new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND);
     }
 
     private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
@@ -426,7 +434,7 @@ public class TaCoKitGuessSchema {
             return fromSchema(Schema.class.cast(schemaResult));
 
         } else {
-            log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema");
+            log.error(ERROR_INSTANCE_SCHEMA);
             return false;
         }
     }
