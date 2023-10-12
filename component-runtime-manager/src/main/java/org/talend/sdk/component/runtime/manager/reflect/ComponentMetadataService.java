@@ -43,6 +43,8 @@ public class ComponentMetadataService {
 
     public static final String MAPPER_INFINITE = "mapper::infinite";
 
+    public static final String MAPPER_OPTIONAL_ROW = "mapper::optionalRow";
+
     public ComponentMetadataService() {
         this.enrichers = StreamSupport
                 .stream(ServiceLoader.load(ComponentMetadataEnricher.class).spliterator(), false)
@@ -55,8 +57,14 @@ public class ComponentMetadataService {
         ofNullable(clazz.getAnnotation(Metadatas.class))
                 .ifPresent(m -> Arrays.stream(m.value()).forEach(meta -> metas.put(meta.key(), meta.value())));
         ofNullable(clazz.getAnnotation(PartitionMapper.class))
-                .ifPresent(pm -> metas.put(MAPPER_INFINITE, Boolean.toString(pm.infinite())));
-        ofNullable(clazz.getAnnotation(Emitter.class)).ifPresent(e -> metas.put(MAPPER_INFINITE, "false"));
+                .ifPresent(pm -> {
+                    metas.put(MAPPER_INFINITE, Boolean.toString(pm.infinite()));
+                    metas.put(MAPPER_OPTIONAL_ROW, Boolean.toString(pm.optionalRow()));
+                });
+        ofNullable(clazz.getAnnotation(Emitter.class)).ifPresent(e -> {
+            metas.put(MAPPER_INFINITE, "false");
+            metas.put(MAPPER_OPTIONAL_ROW,Boolean.toString(e.optionalRow()));
+        });
         // user defined spi
         enrichers
                 .stream()
