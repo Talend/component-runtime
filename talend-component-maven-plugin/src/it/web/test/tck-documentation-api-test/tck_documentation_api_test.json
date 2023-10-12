@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "This test project contains all common tests. It will be deleted when the split will be finished.\nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for documentation](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Documentation/getDocumentation)",
-        "id": "4f06b30e-2569-4554-9365-09c5c2277837",
+        "id": "9debdda0-8a0a-469a-bbad-51b251077af1",
         "name": "tck-documentation-api-test"
       },
       "children": [
@@ -45,8 +45,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/documentation/component/unknow_id"
             },
-            "description": "Expected: error 404  \nThe default call, with unknown component id.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "a7200f67-4791-4201-9c48-4b23ab61d893",
+            "description": "Expected: error 404  \nThe default call, with unknown component id.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "bd0104a2-ecdd-4d55-8913-fd08b7e6109b",
             "name": "documentation/component - id unknow",
             "headers": [],
             "assertions": [
@@ -67,6 +67,12 @@
                 "subject": "ResponseJsonBody",
                 "path": "$.description",
                 "value": "No component 'unknow_id'"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.",
+                "value": "2"
               }
             ]
           }
@@ -108,8 +114,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/documentation/component/${\"output_id\"}"
             },
-            "description": "Call with a given language parameter to \"fr\".  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "c8158f84-a856-439d-a302-36f4319907bd",
+            "description": "Call with a given language parameter to \"fr\".  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "35fe03e3-a72f-496c-979f-f1866480dcf9",
             "name": "documentation/component - language - fr",
             "headers": [],
             "assertions": [
@@ -127,8 +133,8 @@
               },
               {
                 "comparison": "Contains",
-                "subject": "ResponseBody",
-                "path": "content",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
                 "value": "-fr"
               },
               {
@@ -177,8 +183,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/documentation/component/${\"output_id\"}"
             },
-            "description": "Call with a \"CONFIGURATION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "d7e9f8cb-73e8-482f-abaa-af6a4d393f66",
+            "description": "Call with a \"CONFIGURATION\" as given segment parameter.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "f33a9501-3959-4e20-a1d7-43b07115dae7",
             "name": "documentation/component - segment - CONFIGURATION",
             "headers": [],
             "assertions": [
@@ -201,7 +207,7 @@
                 "value": "\\[cols=\\\"d,d,m,a,e,d\\\",[\\s\\S]+"
               },
               {
-                "comparison": "Matches",
+                "comparison": "Equals",
                 "subject": "ResponseJsonBody",
                 "path": "$.type",
                 "value": "asciidoc"
@@ -258,8 +264,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/documentation/component/${\"output_id\"}"
             },
-            "description": "Call with a \"DESCRIPTION\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "70695d59-3f85-42ae-a884-90fb91f22b24",
+            "description": "Call with a \"DESCRIPTION\" as given segment parameter.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "5155467f-3cda-4f46-bbea-c7c4624b003e",
             "name": "documentation/component - segment - DESCRIPTION",
             "headers": [],
             "assertions": [
@@ -345,8 +351,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/documentation/component/${\"output_id\"}"
             },
-            "description": "Expected: error 404 empty  \nCall with a given unknow segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "5a14001d-4f29-453a-b605-471b3d13a641",
+            "description": "Expected: error 404 empty  \nCall with a given unknow segment parameter.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "bf03704a-8d60-4458-b7c3-4078b24a0912",
             "name": "documentation/component - segment - unknow",
             "headers": [],
             "assertions": [
@@ -402,8 +408,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/documentation/component/${\"output_id\"}"
             },
-            "description": "Call with a \"ALL\" as given segment parameter.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "5d6f4eec-79d5-43ac-b29f-0afc17cc5312",
+            "description": "Call with a \"ALL\" as given segment parameter.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "731f684e-6668-4f1b-895f-cfdfa61b4058",
             "name": "documentation/component - segments all - ALL",
             "headers": [],
             "assertions": [
@@ -478,8 +484,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/documentation/component/${\"output_id\"}"
             },
-            "description": "Call without segment, should be default = \"ALL\".  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "12d83b8b-bcf8-40a4-8e1f-737c40313d5b",
+            "description": "Call without segment, should be default = \"ALL\".  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "ee906cc7-8791-482b-a96d-1b482c2fc673",
             "name": "documentation/component - segments default - ALL",
             "headers": [],
             "assertions": [
@@ -530,60 +536,60 @@
       "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
       "name": "component_runtime_ci",
       "variables": {
-        "56f6cb1b-e758-42d2-bfd2-b8b5464654b5": {
-          "name": "output_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f7314dca-1c04-496c-ad19-44a4c8009360": {
-          "name": "mapper_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f0e9a692-6866-4c95-8b76-5f5d363e3ed1": {
-          "name": "dataset_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "1266d066-8fd3-47f6-ad74-260e39b9d472": {
+        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
           "name": "server-ip",
           "value": "localhost",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "f05e4bab-fee2-4637-869f-bb228225d2ea": {
-          "name": "server-port",
-          "value": "8081",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "ec6e694a-f4a6-4558-a788-eb3e36ee893e": {
+        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
           "name": "datastore_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "c803040f-9503-4201-a576-aee684b93510": {
-          "name": "family_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+          "name": "server-port",
+          "value": "8081",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "838469ba-346a-4f73-b769-031f529306f0": {
+        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "52dc8012-b6f2-41d3-8e87-549e41251792": {
           "name": "httpbin_addr",
           "value": "tal-rd22.talend.lan:8084",
           "enabled": true,
-          "createdAt": "2023-05-24T07:29:46.274Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         }
       }

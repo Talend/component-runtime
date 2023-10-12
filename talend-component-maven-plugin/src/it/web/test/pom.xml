@@ -49,7 +49,7 @@
         <module>tck-configurationType-migrate-api-test</module>
         <module>tck-documentation-api-test</module>
         <module>tck-language-api-test</module>
-        <module>tck-general-api-test</module>
+        <module>tck-environment-api-test</module>
         <module>tck-security-api-test</module>
     </modules>
 
