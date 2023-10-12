@@ -172,7 +172,7 @@
     <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.80</tomcat.version>
+    <tomcat.version>9.0.81</tomcat.version>
     <cxf.version>3.5.6</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
@@ -221,7 +221,7 @@
     <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
 
     <beam.version>2.46.0</beam.version>
-    <snappy.version>1.1.10.1</snappy.version>
+    <snappy.version>1.1.10.5</snappy.version>
     <!-- should follow beam-sdk-java-core version -->
     <joda.time.version>2.10.10</joda.time.version>
 
@@ -243,7 +243,7 @@
     <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
     <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
     <common-plugin.version>1.0.7</common-plugin.version>
-    <jgit.version>5.13.2.202306221912-r</jgit.version>
+    <jgit.version>6.7.0.202309050840-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
     <jacoco.version>0.8.10</jacoco.version>

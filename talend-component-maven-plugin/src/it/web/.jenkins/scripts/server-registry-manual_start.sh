@@ -21,59 +21,60 @@ set -xe
 function usage(){
   printf 'Manual server starter, like ci would do.\n'
   printf 'For manual testing.\n'
-  printf 'Usage : %s [server_dir] [runtime_version] [server_port] [connectors_version]\n' "${0}"
+  printf 'Usage : %s [connectors_version] [server_port]  [server_dir] \n' "${0}"
   printf '\n'
   exit 1
 }
 
-
-DEFAULT_RUNTIME_VERSION="1.57.0-SNAPSHOT"
 DEFAULT_CONNECTORS_VERSION="1.41.0"
 
 # To debug the component server java, you can uncomment the following line
 # _JAVA_DEBUG_PORT="5005"
 
-[ -z ${1+x} ] && printf 'Parameter "runtime_version" not given use default value: %s\n' $DEFAULT_RUNTIME_VERSION
-[ -z ${2+x} ] && printf 'Parameter "connectors_version" not given use default value: %s\n' $DEFAULT_CONNECTORS_VERSION
-[ -z ${3+x} ] && printf 'Parameter "server_port" not given use default value: 8081\n'
-[ -z ${4+x} ] && printf 'Parameter "server_dir" not given use the default value: "/tmp/test_tck_server"\n'
+[ -z ${1+x} ] && printf 'Parameter "connectors_version" not given use default value: %s\n' $DEFAULT_CONNECTORS_VERSION
+[ -z ${2+x} ] && printf 'Parameter "server_port" not given use default value: 8081\n'
+[ -z ${3+x} ] && printf 'Parameter "server_dir" not given use the default value: "/tmp/test_tck_server"\n'
 
 # Parameters:
-_USER_PATH=~
-_RUNTIME_VERSION=${1:-"${DEFAULT_RUNTIME_VERSION}"}
-_CONNECTORS_VERSION=${2:-"${DEFAULT_CONNECTORS_VERSION}"}
-_SERVER_PORT=${3:-"8081"}
-_LOCAL_SERVER_TEST_PATH=${4:-"/tmp/test_tck_server"}
+USER_PATH=~
+CONNECTORS_VERSION=${1:-"${DEFAULT_CONNECTORS_VERSION}"}
+SERVER_PORT=${2:-"8081"}
+LOCAL_SERVER_TEST_PATH=${3:-"/tmp/test_tck_server"}
 
-_DOWNLOAD_DIR="${_LOCAL_SERVER_TEST_PATH}/download"
-_INSTALL_DIR="${_LOCAL_SERVER_TEST_PATH}/install"
-_COVERAGE_DIR="${_LOCAL_SERVER_TEST_PATH}/coverage"
+DOWNLOAD_DIR="${LOCAL_SERVER_TEST_PATH}/download"
+INSTALL_DIR="${LOCAL_SERVER_TEST_PATH}/install"
+COVERAGE_DIR="${LOCAL_SERVER_TEST_PATH}/coverage"
 
-_SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
+SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
+
+COMPONENT_RUNTIME_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate \
+                                --define expression=project.version \
+                                --quiet \
+                                --define forceStdout)
 
 printf '##############################################\n'
 printf 'Init parameters\n'
 printf '##############################################\n'
-printf "USER_PATH = %s\n" "${_USER_PATH}"
-printf "LOCAL_SERVER_TEST_PATH = %s\n" "${_LOCAL_SERVER_TEST_PATH}"
-printf "RUNTIME_VERSION = %s\n" "${_RUNTIME_VERSION}"
-printf "SERVER_PORT = %s\n" "${_SERVER_PORT}"
-printf "CONNECTORS_VERSION = %s\n" "${_CONNECTORS_VERSION}"
-printf "DOWNLOAD_DIR = %s\n" "${_DOWNLOAD_DIR}"
-printf "INSTALL_DIR = %s\n" "${_INSTALL_DIR}"
-printf "COVERAGE_DIR = %s\n" "${_COVERAGE_DIR}"
-printf "SCRIPT_PATH = %s\n" "${_SCRIPT_PATH}"
+printf "USER_PATH = %s\n" "${USER_PATH}"
+printf "LOCAL_SERVER_TEST_PATH = %s\n" "${LOCAL_SERVER_TEST_PATH}"
+printf "COMPONENT_RUNTIME_VERSION = %s\n" "${COMPONENT_RUNTIME_VERSION}"
+printf "SERVER_PORT = %s\n" "${SERVER_PORT}"
+printf "CONNECTORS_VERSION = %s\n" "${CONNECTORS_VERSION}"
+printf "DOWNLOAD_DIR = %s\n" "${DOWNLOAD_DIR}"
+printf "INSTALL_DIR = %s\n" "${INSTALL_DIR}"
+printf "COVERAGE_DIR = %s\n" "${COVERAGE_DIR}"
+printf "SCRIPT_PATH = %s\n" "${SCRIPT_PATH}"
 
 
-bash "${_SCRIPT_PATH}"/server-registry-stop.sh "${_INSTALL_DIR}" || : #  "|| :" Avoid error if no server is running
+bash "${SCRIPT_PATH}"/server-registry-stop.sh "${INSTALL_DIR}" || : #  "|| :" Avoid error if no server is running
 
-bash "${_SCRIPT_PATH}"/server-registry-init.sh "${_DOWNLOAD_DIR}" \
-                                          "${_INSTALL_DIR}" \
-                                          "${_COVERAGE_DIR}" \
-                                          "${_RUNTIME_VERSION}" \
-                                          "${_CONNECTORS_VERSION}" \
-                                          "${_USER_PATH}/.m2/repository" \
-                                          "${_SERVER_PORT}" \
-                                          "${_JAVA_DEBUG_PORT}"
+bash "${SCRIPT_PATH}"/server-registry-init.sh "${DOWNLOAD_DIR}" \
+                                          "${INSTALL_DIR}" \
+                                          "${COVERAGE_DIR}" \
+                                          "${COMPONENT_RUNTIME_VERSION}" \
+                                          "${CONNECTORS_VERSION}" \
+                                          "${USER_PATH}/.m2/repository" \
+                                          "${SERVER_PORT}" \
+                                          "${JAVA_DEBUG_PORT}"
 
-bash "${_SCRIPT_PATH}"/server-registry-start.sh "${_INSTALL_DIR}" "no_coverage" "${_SERVER_PORT}"
+bash "${SCRIPT_PATH}"/server-registry-start.sh "${INSTALL_DIR}" "no_coverage" "${SERVER_PORT}"

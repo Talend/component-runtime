@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [configurationType/index](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/getRepositoryModel)  ",
-        "id": "f0cc6b51-67c9-46b3-93df-bc5279b36563",
+        "id": "9437fa87-7a35-441f-8102-3fb7b77e8ab7",
         "name": "tck-configurationType-index-api-test"
       },
       "children": [
@@ -49,8 +49,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/configurationtype/index"
             },
-            "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nTODO: Read the language with the demo connector.  \nTODO why famillys appears in configuration types?\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "8566b4c9-0193-4f7c-beaf-b13e08558114",
+            "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nWe check the presence of managed demo elements.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "8179e9e8-635c-40e5-b5cc-4f369cbb41f9",
             "name": "configurationtype/index - default",
             "headers": [],
             "assertions": [
@@ -65,6 +65,30 @@
                 "subject": "ResponseJsonBody",
                 "path": "$.nodes",
                 "value": "9"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..displayName",
+                "value": "-en"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..name",
+                "value": "the_family"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..name",
+                "value": "TheDataset"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..name",
+                "value": "TheConnection"
               },
               {
                 "comparison": "Less",
@@ -116,8 +140,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/configurationtype/index"
             },
-            "description": "  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "97c3aa80-fbd8-44f8-8af0-31515204e9ae",
+            "description": "Test the language parameter usage.  \n    \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "8db1053d-fcb0-49ab-a0d2-9b31bf5f89c5",
             "name": "configurationtype/index - language",
             "headers": [],
             "assertions": [
@@ -178,7 +202,7 @@
               "path": "/api/v1/configurationtype/index"
             },
             "description": "The default call, with lightPayload parameter set to wrong value.  \nTODO: Check if normal than wrong_value = true  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "481b4bf6-20d2-4309-a443-f22603b0d555",
+            "id": "b90aa342-8d76-467b-95ef-1e4f479b1c06",
             "name": "configurationtype/index - lightPayload set to a wrong value",
             "headers": [],
             "assertions": [
@@ -244,8 +268,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/configurationtype/index"
             },
-            "description": "The default call, with lightPayload parameter set to false.  \nTODO: what is the best test to compare light and non-light payload?  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "2497f880-cb28-4314-b208-2c76f293412a",
+            "description": "The default call, with lightPayload parameter set to false.  \nTODO: what is the best test to compare light and non-light payload? [TCOMP-2194](https://jira.talendforge.org/browse/TCOMP-2194)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "b7211217-efe7-49c3-a7e7-aeacec2639b0",
             "name": "configurationtype/index - lightPayload set to false",
             "headers": [],
             "assertions": [
@@ -256,10 +280,16 @@
                 "value": "200"
               },
               {
-                "comparison": "Matches",
-                "subject": "ResponseBody",
-                "path": "content",
-                "value": "{\"nodes\":{.+}}"
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.nodes",
+                "value": "5"
+              },
+              {
+                "comparison": "LengthGreaterThanOrEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.nodes",
+                "value": "1"
               },
               {
                 "comparison": "Greater",
@@ -312,7 +342,7 @@
               "path": "/api/v1/configurationtype/index"
             },
             "description": "The default call, with lightPayload parameter set to true.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "772f4531-eb8e-4f32-bbca-e74b32900fcd",
+            "id": "cc149741-2748-4161-ac92-0474d50666fe",
             "name": "configurationtype/index - lightPayload set to true",
             "headers": [],
             "assertions": [
@@ -323,9 +353,9 @@
                 "value": "200"
               },
               {
-                "comparison": "Matches",
-                "subject": "ResponseBody",
-                "path": "content",
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.nodes",
                 "value": "{\"nodes\":{.+}}"
               },
               {
@@ -362,7 +392,7 @@
                   },
                   {
                     "name": "lightPayload",
-                    "value": "true"
+                    "value": "false"
                   },
                   {
                     "enabled": true,
@@ -382,8 +412,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/configurationtype/index"
             },
-            "description": "Call, with query parameter, should be in English with one elements in light payload mode.  \nTODO: see why I can't filter on configurationType (see un selected parameter)  \nTODO: should we test others query\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)  ",
-            "id": "8d157468-abae-4dd7-bea1-2e72e3b0bb70",
+            "description": "Call, with query parameter, should be in English with one elements in light payload mode.  \nTODO: others query [TCOMP-2352](https://jira.talendforge.org/browse/TCOMP-2352)  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)  ",
+            "id": "c8d6baf7-bfec-4adf-9401-53fea74af258",
             "name": "configurationtype/index - query - filtered answer",
             "headers": [],
             "assertions": [
@@ -398,6 +428,12 @@
                 "subject": "ResponseJsonBody",
                 "path": "$.nodes",
                 "value": "1"
+              },
+              {
+                "comparison": "Less",
+                "subject": "ResponseBody",
+                "path": "length",
+                "value": "1000"
               }
             ]
           }
@@ -410,60 +446,60 @@
       "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
       "name": "component_runtime_ci",
       "variables": {
-        "56f6cb1b-e758-42d2-bfd2-b8b5464654b5": {
-          "name": "output_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f7314dca-1c04-496c-ad19-44a4c8009360": {
-          "name": "mapper_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f0e9a692-6866-4c95-8b76-5f5d363e3ed1": {
-          "name": "dataset_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "1266d066-8fd3-47f6-ad74-260e39b9d472": {
+        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
           "name": "server-ip",
           "value": "localhost",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "f05e4bab-fee2-4637-869f-bb228225d2ea": {
-          "name": "server-port",
-          "value": "8081",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "ec6e694a-f4a6-4558-a788-eb3e36ee893e": {
+        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
           "name": "datastore_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "c803040f-9503-4201-a576-aee684b93510": {
-          "name": "family_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+          "name": "server-port",
+          "value": "8081",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "838469ba-346a-4f73-b769-031f529306f0": {
+        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "52dc8012-b6f2-41d3-8e87-549e41251792": {
           "name": "httpbin_addr",
           "value": "tal-rd22.talend.lan:8084",
           "enabled": true,
-          "createdAt": "2023-05-24T07:29:46.274Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         }
       }

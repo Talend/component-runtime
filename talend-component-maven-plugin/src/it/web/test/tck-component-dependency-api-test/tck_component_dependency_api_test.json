@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-        "id": "0c977f89-e6b8-4530-9234-eb401a36bdbd",
+        "id": "9ab6956c-adc4-449e-91cb-b6bbf10ddddc",
         "name": "tck-component-dependency-api-test"
       },
       "children": [
@@ -37,7 +37,7 @@
               "path": "/api/v1/component/dependency/${\"output_id\"}"
             },
             "description": "Call using a component id",
-            "id": "f3bff05f-9cdb-4d05-922d-88e3b349f5b6",
+            "id": "5b5607b1-a9f4-46b3-a987-f517289bde57",
             "name": "component/dependency - component",
             "headers": [],
             "assertions": [
@@ -90,7 +90,7 @@
               "path": "/api/v1/component/dependency/org.apache.commons:commons-lang3:jar:3.12.0"
             },
             "description": "Call using a maven coordinate as id",
-            "id": "c61e8164-97e0-4659-8a8c-13c1bca833c7",
+            "id": "bf2d61ec-73bc-4bab-bdda-3aea33176431",
             "name": "component/dependency - maven coordinat",
             "headers": [],
             "assertions": [
@@ -149,7 +149,7 @@
               "path": "/api/v1/component/dependency"
             },
             "description": "Expected: error 404\nCall missing the id",
-            "id": "083f6938-e79e-4083-96ad-2f2e52f4ecd4",
+            "id": "9932b86d-9921-4116-87b6-2f5fa8411f3b",
             "name": "component/dependency - missing id",
             "headers": [],
             "assertions": [
@@ -206,7 +206,7 @@
               "path": "/api/v1/component/dependency/unknow_id"
             },
             "description": "Expected: error 404  \nCall using a wrong id",
-            "id": "76e5c8b8-45ff-476c-9df7-b998ea729ae0",
+            "id": "1d2e6bc8-da76-4ff1-829a-a5172f6a57aa",
             "name": "component/dependency - wrong id",
             "headers": [],
             "assertions": [
@@ -221,6 +221,18 @@
                 "subject": "ResponseJsonBody",
                 "path": "$.code",
                 "value": "PLUGIN_MISSING"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.description",
+                "value": "No file found for: unknow_id"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.",
+                "value": "2"
               },
               {
                 "comparison": "Equals",
@@ -239,60 +251,60 @@
       "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
       "name": "component_runtime_ci",
       "variables": {
-        "56f6cb1b-e758-42d2-bfd2-b8b5464654b5": {
-          "name": "output_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f7314dca-1c04-496c-ad19-44a4c8009360": {
-          "name": "mapper_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f0e9a692-6866-4c95-8b76-5f5d363e3ed1": {
-          "name": "dataset_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "1266d066-8fd3-47f6-ad74-260e39b9d472": {
+        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
           "name": "server-ip",
           "value": "localhost",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "f05e4bab-fee2-4637-869f-bb228225d2ea": {
-          "name": "server-port",
-          "value": "8081",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "ec6e694a-f4a6-4558-a788-eb3e36ee893e": {
+        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
           "name": "datastore_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "c803040f-9503-4201-a576-aee684b93510": {
-          "name": "family_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+          "name": "server-port",
+          "value": "8081",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "838469ba-346a-4f73-b769-031f529306f0": {
+        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "52dc8012-b6f2-41d3-8e87-549e41251792": {
           "name": "httpbin_addr",
           "value": "tal-rd22.talend.lan:8084",
           "enabled": true,
-          "createdAt": "2023-05-24T07:29:46.274Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         }
       }
