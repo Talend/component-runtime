@@ -18,20 +18,49 @@ import java.time.LocalDateTime
 import java.util.regex.Matcher
 
 // Credentials
-final def ossrhCredentials = usernamePassword(credentialsId: 'ossrh-credentials', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS')
-final def nexusCredentials = usernamePassword(credentialsId: 'nexus-artifact-zl-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
-final def jetbrainsCredentials = usernamePassword(credentialsId: 'jetbrains-credentials', usernameVariable: 'JETBRAINS_USER', passwordVariable: 'JETBRAINS_PASS')
-final def jiraCredentials = usernamePassword(credentialsId: 'jira-credentials', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASS')
-final def gitCredentials = usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PASS')
-final def dockerCredentials = usernamePassword(credentialsId: 'artifactory-datapwn-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
-final def sonarCredentials = usernamePassword( credentialsId: 'sonar-credentials', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASS')
-final def keyImportCredentials = usernamePassword(credentialsId: 'component-runtime-import-key-credentials', usernameVariable: 'KEY_USER', passwordVariable: 'KEY_PASS')
-final def gpgCredentials = usernamePassword(credentialsId: 'component-runtime-gpg-credentials', usernameVariable: 'GPG_KEYNAME', passwordVariable: 'GPG_PASSPHRASE')
+final def ossrhCredentials = usernamePassword(
+        credentialsId: 'ossrh-credentials',
+        usernameVariable: 'OSSRH_USER',
+        passwordVariable: 'OSSRH_PASS')
+final def nexusCredentials = usernamePassword(
+        credentialsId: 'nexus-artifact-zl-credentials',
+        usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
+final def jetbrainsCredentials = usernamePassword(
+        credentialsId: 'jetbrains-credentials',
+        usernameVariable: 'JETBRAINS_USER',
+        passwordVariable: 'JETBRAINS_PASS')
+final def jiraCredentials = usernamePassword(
+        credentialsId: 'jira-credentials',
+        usernameVariable: 'JIRA_USER',
+        passwordVariable: 'JIRA_PASS')
+final def gitCredentials = usernamePassword(
+        credentialsId: 'github-credentials',
+        usernameVariable: 'GITHUB_USER',
+        passwordVariable: 'GITHUB_PASS')
+final def dockerCredentials = usernamePassword(
+        credentialsId: 'artifactory-datapwn-credentials',
+        usernameVariable: 'DOCKER_USER',
+        passwordVariable: 'DOCKER_PASS')
+final def sonarCredentials = usernamePassword(
+        credentialsId: 'sonar-credentials',
+        usernameVariable: 'SONAR_LOGIN',
+        passwordVariable: 'SONAR_PASSWORD')
+final def keyImportCredentials = usernamePassword(
+        credentialsId: 'component-runtime-import-key-credentials',
+        usernameVariable: 'KEY_USER',
+        passwordVariable: 'KEY_PASS')
+final def gpgCredentials = usernamePassword(
+        credentialsId: 'component-runtime-gpg-credentials',
+        usernameVariable: 'GPG_KEYNAME',
+        passwordVariable: 'GPG_PASSPHRASE')
+
+// In PR environment, the branch name is not valid and should be swap with pr name.
+final String pull_request_id = env.CHANGE_ID
+final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
 
 // Job config
-final String slackChannel = 'components-ci'
-final Boolean isMasterBranch = env.BRANCH_NAME == "master"
-final Boolean isStdBranch = (env.BRANCH_NAME == "master" || env.BRANCH_NAME.startsWith("maintenance/"))
+final Boolean isMasterBranch = branch_name == "master"
+final Boolean isStdBranch = (branch_name == "master" || branch_name.startsWith("maintenance/"))
 final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDateTime.now())
@@ -70,13 +99,13 @@ pipeline {
     }
 
     options {
-        buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: env.BRANCH_NAME == 'master' ? '15' : '10'))
+        buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branch_name == 'master' ? '15' : '10'))
         timeout(time: 180, unit: 'MINUTES')
         skipStagesAfterUnstable()
     }
 
     triggers {
-        cron(env.BRANCH_NAME == "master" ? "0 12 * * *" : "")
+        cron(branch_name == "master" ? "0 12 * * *" : "")
     }
 
     parameters {
@@ -113,9 +142,9 @@ pipeline {
           defaultValue: '',
           description: 'Execute a shell command after login. Useful for maintenance.')
         booleanParam(
-          name: 'FORCE_SONAR',
+          name: 'DISABLE_SONAR',
           defaultValue: false,
-          description: 'Force Sonar analysis')
+          description: 'Cancel the Sonar analysis stage execution')
         booleanParam(
           name: 'FORCE_DOC',
           defaultValue: false,
@@ -129,6 +158,7 @@ pipeline {
     stages {
         stage('Preliminary steps') {
             steps {
+
                 ///////////////////////////////////////////
                 // Login tasks
                 ///////////////////////////////////////////
@@ -198,10 +228,11 @@ pipeline {
                              """.stripIndent()
                         }
                         else {
-                            echo "Validate the branch name"
+                            println "Validate the branch name"
+
                             (branch_user,
                             branch_ticket,
-                            branch_description) = extract_branch_info("$env.BRANCH_NAME")
+                            branch_description) = extract_branch_info(branch_name)
 
                             // Check only branch_user, because if there is an error all three params are empty.
                             if (branch_user == ("")) {
@@ -225,7 +256,7 @@ pipeline {
                           "$params.VERSION_QUALIFIER" as String)
 
                         echo """
-                          Configure the version qualifier for the curent branche: $env.BRANCH_NAME
+                          Configure the version qualifier for the curent branche: $branch_name
                           requested qualifier: $params.VERSION_QUALIFIER
                           with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description
                           Qualified Version = $finalVersion"""
@@ -264,7 +295,7 @@ pipeline {
                     // updating build description
                     String description = """
                       Version = $finalVersion - $params.Action Build
-                      Sonar forced: $params.FORCE_SONAR - Script: $hasPostLoginScript
+                      Disable Sonar: $params.DISABLE_SONAR - Script: $hasPostLoginScript
                       Debug: $params.JENKINS_DEBUG
                       Extra build args: $extraBuildParams""".stripIndent()
                     job_description_append(description)
@@ -316,7 +347,7 @@ pipeline {
             post {
                 always {
                     recordIssues(
-                      enabledForFailure: true,
+                      enabledForFailure: false,
                       tools: [
                         junitParser(
                           id: 'unit-test',
@@ -466,24 +497,13 @@ pipeline {
                         sh """\
                             #!/usr/bin/env bash 
                             set -xe
-                            mvn versions:dependency-updates-report versions:plugin-updates-report \
-                                                                   versions:property-updates-report \
-                                                                   -pl '!bom'
+                            mvn versions:dependency-updates-report versions:plugin-updates-report -pl '!bom'
                            """.stripIndent()
                     }
                 }
             }
             post {
                 always {
-                    publishHTML(
-                      target: [
-                        allowMissing         : true,
-                        alwaysLinkToLastBuild: false,
-                        keepAll              : true,
-                        reportDir            : 'target/site/',
-                        reportFiles          : 'property-updates-report.html',
-                        reportName           : "outdated::property"
-                      ])
                     publishHTML(
                       target: [
                         allowMissing         : true,
@@ -507,24 +527,32 @@ pipeline {
         }
         stage('Sonar') {
             when {
-                expression { params.Action != 'RELEASE' }
-                branch 'master'
+                expression { (params.Action != 'RELEASE') && !params.DISABLE_SONAR}
             }
             steps {
-                withCredentials([sonarCredentials]) {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        // TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
-                        sh """\
-                            #!/usr/bin/env bash 
-                            set -xe
-                            _JAVA_OPTIONS='--add-opens=java.base/java.lang=ALL-UNNAMED'
-                            mvn sonar:sonar \
-                                --define sonar.host.url=https://sonar-eks.datapwn.com \
-                                --define sonar.login='$SONAR_USER' \
-                                --define sonar.password='$SONAR_PASS' \
-                                --define sonar.branch.name=${env.BRANCH_NAME} \
-                                --define sonar.analysisCache.enabled=false
-                        """.stripIndent()
+                script {
+                    withCredentials([nexusCredentials,
+                                     sonarCredentials,
+                                     gitCredentials]) {
+
+                        if (pull_request_id != null) {
+
+                            println 'Run analysis for PR'
+                            sh """\
+                            bash .jenkins/scripts/mvn_sonar_pr.sh \
+                                '${branch_name}' \
+                                '${env.CHANGE_TARGET}' \
+                                '${pull_request_id}' \
+                                ${extraBuildParams}
+                            """.stripIndent()
+                        } else {
+                            echo 'Run analysis for branch'
+                            sh """\
+                            bash .jenkins/scripts/mvn_sonar_branch.sh \
+                            '${branch_name}' \
+                            ${extraBuildParams}
+                            """.stripIndent()
+                        }
                     }
                 }
             }
@@ -542,7 +570,7 @@ pipeline {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """\
                                #!/usr/bin/env bash
-                               bash .jenkins/scripts/release.sh ${env.BRANCH_NAME} ${finalVersion} 
+                               bash .jenkins/scripts/release.sh $branch_name $finalVersion
                                """.stripIndent()
                         }
                     }
@@ -558,7 +586,7 @@ pipeline {
                     slackSend(
                         color: '#00FF00',
                         message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-                        channel: "${slackChannel}"
+                        channel: "${env.SLACK_CI_CHANNEL}"
                     )
                 }
             }
@@ -588,14 +616,14 @@ pipeline {
                         slackSend(
                             color: '#FF0000',
                             message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-                            channel: "${slackChannel}"
+                            channel: "${env.SLACK_CI_CHANNEL}"
                         )
                     } else {
                         //else send notification without pinging channel
                         slackSend(
                             color: '#FF0000',
                             message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-                            channel: "${slackChannel}"
+                            channel: "${env.SLACK_CI_CHANNEL}"
                         )
                     }
                 }
@@ -603,7 +631,7 @@ pipeline {
         }
         always {
             recordIssues(
-                enabledForFailure: true,
+                enabledForFailure: false,
                 tools: [
                     taskScanner(
                         id: 'disabled',
@@ -744,7 +772,7 @@ private static String add_qualifier_to_version(String version, String ticket, St
  * @return A list containing the extracted: [user, ticket, description]
  * The method also raise an assert exception in case of wrong branch name
  */
-private static ArrayList<String> extract_branch_info(GString branch_name) {
+private static ArrayList<String> extract_branch_info(String branch_name) {
 
     String branchRegex = /^(?<user>.*)\/(?<ticket>[A-Z]{2,8}-\d{1,6})[_-](?<description>.*)/
     Matcher branchMatcher = branch_name =~ branchRegex
