@@ -208,7 +208,7 @@
     <jackson.version>2.15.2</jackson.version>
     <jackson-databind.version>2.15.2</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
-    <avro.version>1.8.2</avro.version>
+    <avro.version>1.11.2</avro.version>
     <jsoup.version>1.15.3</jsoup.version>
 
     <!-- deprecated after -->
@@ -367,6 +367,10 @@
             <groupId>org.antlr</groupId>
             <artifactId>antlr4</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -388,6 +392,11 @@
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>${jackson-databind.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.avro</groupId>
+        <artifactId>avro</artifactId>
+        <version>${avro.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>

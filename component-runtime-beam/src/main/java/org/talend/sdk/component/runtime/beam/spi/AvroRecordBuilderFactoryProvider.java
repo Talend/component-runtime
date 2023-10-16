@@ -61,7 +61,7 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
         try {
             final ClassLoader cl = ofNullable(Thread.currentThread().getContextClassLoader())
                     .orElseGet(ClassLoader::getSystemClassLoader);
-            final Class<?> c1 = cl.loadClass("org.codehaus.jackson.node.TextNode");
+            final Class<?> c1 = cl.loadClass("com.fasterxml.jackson.databind.node.TextNode");
             final Class<?> c2 = cl.loadClass("org.talend.sdk.component.runtime.beam.spi.record.AvroSchema");
             return c1.getClassLoader().equals(c2.getClassLoader());
         } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
