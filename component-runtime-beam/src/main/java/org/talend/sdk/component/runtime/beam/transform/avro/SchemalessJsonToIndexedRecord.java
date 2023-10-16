@@ -59,7 +59,7 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
         private static final Schema INT = Schema.create(Schema.Type.INT);
 
         private static final Schema STRING =
-                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)));
+                Schema.createUnion(asList(Schema.create(Schema.Type.STRING), Schema.create(Schema.Type.NULL)));
 
         private final String rootRecordName;
 
