@@ -63,7 +63,7 @@ public class ComponentMetadataService {
                 });
         ofNullable(clazz.getAnnotation(Emitter.class)).ifPresent(e -> {
             metas.put(MAPPER_INFINITE, "false");
-            metas.put(MAPPER_OPTIONAL_ROW,Boolean.toString(e.optionalRow()));
+            metas.put(MAPPER_OPTIONAL_ROW, Boolean.toString(e.optionalRow()));
         });
         // user defined spi
         enrichers
