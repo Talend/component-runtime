@@ -361,6 +361,48 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     @CacheResult
+    public Response icon(final String familyId, final String iconKey) {
+        if (virtualComponents.isExtensionEntity(familyId)) { // todo or just use front bundle?
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + familyId))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+
+        // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
+        final ComponentFamilyMeta meta = componentFamilyDao.findById(familyId);
+        if (meta == null) {
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + familyId))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+        final Optional<Container> plugin = manager.findPlugin(meta.getPlugin());
+        if (!plugin.isPresent()) {
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(PLUGIN_MISSING,
+                            "No plugin '" + meta.getPlugin() + "' for family identifier: " + familyId))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), iconKey);
+        if (iconContent == null) {
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for icon key: " + iconKey))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+
+        return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
+    }
+
+    @Override
+    @CacheResult
     public Response icon(final String id) {
         if (virtualComponents.isExtensionEntity(id)) { // todo if the front bundle is not sufficient
             return Response
