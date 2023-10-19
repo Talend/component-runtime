@@ -136,7 +136,7 @@ public interface ComponentResource {
             in = PATH) String id);
 
     @GET
-    @Path("icon/{familyId}/{iconKey}")
+    @Path("searchIcon/{familyId}/{iconKey}")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     @Operation(description = "Returns a particular key icon in raw bytes.")
     @APIResponse(responseCode = "200",
@@ -147,9 +147,10 @@ public interface ComponentResource {
             content = @Content(mediaType = APPLICATION_JSON))
     Response icon(@PathParam("familyId") @Parameter(name = "familyId",
             description = "family identifier.",
-            in = PATH) String familyId, @PathParam("iconKey") @Parameter(name = "iconKey",
-            description = "icon key.",
-            in = PATH) String iconKey);
+            in = PATH) String familyId,
+            @PathParam("iconKey") @Parameter(name = "iconKey",
+                    description = "icon key.",
+                    in = PATH) String iconKey);
 
     @POST
     @Path("migrate/{id}/{configurationVersion}")
