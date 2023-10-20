@@ -59,4 +59,12 @@ public @interface PartitionMapper {
      * @return true if the underlying input can customize a stop strategy.
      */
     boolean stoppable() default false;
+
+    /**
+     * In Studio and some use-cases with some input connectors, we may need to ignore outgoing row.
+     * As mentioned above, this is a Studio only feature.
+     *
+     * @return true if the underlying input is allowed to ignore mandatory output row.
+     */
+    boolean optionalRow() default false;
 }

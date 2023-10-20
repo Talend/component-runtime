@@ -33,4 +33,6 @@ public interface SchemaProperty {
 
     String IS_UNIQUE = "field.unique";
 
+    String ALLOW_SPECIAL_NAME = "field.special.name";
+
 }

@@ -1,5 +1,49 @@
 
 
+== Version 1.62.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2464[TCOMP-2464^]: API action/execute error message not correct link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2540[TCOMP-2540^]: Synchronize entryMap feeding link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2541[TCOMP-2541^]: Improve performance on dynamic column link:search.html?query=studio-integration[studio-integration^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2535[TCOMP-2535^]: Allow optional outgoing row on Input connectors link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2374[TCOMP-2374^]: DIRecordVisitor to fill Studio Dynamic object's column name by tck Schema.Entry.getName which must follow tck name rule link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2506[TCOMP-2506^]: upgrade avro to 1.11.x for component-runtime link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2538[TCOMP-2538^]: Upgrade commons-compress to 1.24.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2539[TCOMP-2539^]: Upgrade jgit to 6.7.0.202309050840-r 
+- link:https://jira.talendforge.org/browse/TCOMP-2543[TCOMP-2543^]: Upgrade TSBI to 4.0.1-20230911145727 link:search.html?query=build[build^,role='dockey'] link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2544[TCOMP-2544^]: Upgrade snappy to 1.1.10.5 
+- link:https://jira.talendforge.org/browse/TCOMP-2545[TCOMP-2545^]: Upgrade tomcat to 9.0.81 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2547[TCOMP-2547^]: Upgrade netty to 4.1.100.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2548[TCOMP-2548^]: Upgrade tomcat to 9.0.82 link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.61.2
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2540[TCOMP-2540^]: Synchronize entryMap feeding link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=testing[testing^,role='dockey']
+
+
+
+== Version 1.61.1
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2506[TCOMP-2506^]: upgrade avro to 1.11.x for component-runtime link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+
 == Version 1.61.0
 
 === Bug
@@ -1651,6 +1695,12 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.15
 
 === Bug
@@ -1683,12 +1733,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
