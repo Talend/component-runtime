@@ -136,6 +136,18 @@ public class ActionResourceImpl implements ActionResource {
                         .entity(new ErrorPayload(ErrorDictionary.ACTION_MISSING, "Action can't be null"))
                         .build());
             }
+            if (type == null) {
+                throw new WebApplicationException(Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .entity(new ErrorPayload(ErrorDictionary.TYPE_MISSING, "Type can't be null"))
+                        .build());
+            }
+            if (family == null) {
+                throw new WebApplicationException(Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "Family can't be null"))
+                        .build());
+            }
             final ServiceMeta.ActionMeta actionMeta = actionDao.findBy(family, type, action);
             if (actionMeta == null) {
                 throw new WebApplicationException(Response

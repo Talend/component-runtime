@@ -269,6 +269,7 @@ class ComponentResourceImplTest {
         assertEquals("list", detail.getId().getName());
         assertEquals("The List Component", detail.getDisplayName());
         assertEquals("false", detail.getMetadata().get("mapper::infinite"));
+        assertEquals("false", detail.getMetadata().get("mapper::optionalRow"));
         IntStream.of(0, 5).forEach(i -> assertEquals(String.valueOf(i), detail.getMetadata().get("testing::v" + i)));
 
         final Collection<ActionReference> remoteActions = detail.getActions();
