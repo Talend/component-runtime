@@ -129,6 +129,11 @@
       <artifactId>geronimo-opentracing</artifactId>
       <version>${geronimo-opentracing.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-opentracing-common</artifactId>
+      <version>${geronimo-opentracing.version}</version>
+    </dependency>
     <!-- ecs logging layout -->
     <dependency>
       <groupId>org.talend.daikon</groupId>
