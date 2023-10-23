@@ -21,7 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.beam.spi.record.AvroRecord;
 import org.talend.sdk.component.runtime.record.RecordImpl;
+import org.talend.sdk.component.tools.TestRecord;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -39,6 +41,44 @@ public class RecordValidatorTest {
         final Stream<String> errors =
                 validator.validate(finder, Arrays.asList(MyRecord.class));
         assertEquals(2, errors.count());
+    }
+
+    /**
+     * The result got 3 errors:
+     * Method org.talend.sdk.component.tools.TestRecord.withNewSchema(org.talend.sdk.component.api.record.Schema, org.talend.sdk.component.api.record.Record) calls unsafe Builder creator. This either means:
+     *   * That the TCK method is safe and should belong to WHITE_LIST_TCK_RECORD_BUILDER_PROVIDER
+     * Method org.talend.sdk.component.tools.TestRecord.withNewSchema(org.talend.sdk.component.api.record.Schema) calls unsafe Builder creator. This either means:
+     *   * That the TCK method is safe and should belong to WHITE_LIST_TCK_RECORD_BUILDER_PROVIDER
+     * Method org.talend.sdk.component.tools.TestRecord.withTestSchema(org.talend.sdk.component.api.record.Schema) calls unsafe Builder creator. This either means:
+     *   * That the TCK method is safe and should belong to WHITE_LIST_TCK_RECORD_BUILDER_PROVIDER
+     */
+    @Test
+    void validateTestRecord() {
+        final RecordValidator validator = new RecordValidator();
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(TestRecord.class));
+        final Stream<String> errors =
+                validator.validate(finder, Arrays.asList(TestRecord.class));
+        errors.forEach( s -> {
+            System.err.println(s);
+        });
+        assertEquals(3, errors.count());
+    }
+
+    /**
+     * The result got one error:
+     * Method org.talend.sdk.component.runtime.beam.spi.record.AvroRecord.withNewSchema(org.talend.sdk.component.api.record.Schema) calls unsafe Builder creator. This either means:
+     *   * That the TCK method is safe and should belong to WHITE_LIST_TCK_RECORD_BUILDER_PROVIDER
+     */
+    @Test
+    void validateAvroRecord() {
+        final RecordValidator validator = new RecordValidator();
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(AvroRecord.class));
+        final Stream<String> errors =
+                validator.validate(finder, Arrays.asList(AvroRecord.class));
+//        errors.forEach( s -> {
+//            System.err.println(s);
+//        });
+        assertEquals(0, errors.count());
     }
 
     @Test
