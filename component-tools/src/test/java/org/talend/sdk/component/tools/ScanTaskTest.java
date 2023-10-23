@@ -50,7 +50,7 @@ class ScanTaskTest {
                 + "org.talend.test.valid.localconfiguration.MyComponent,"
                 + "org.talend.test.valid.nestedconfigtypes.WithNestedConfigTypes,"
                 + "org.talend.test.valid.nesteddataset.MyComponent,"
-                + "org.talend.test.valid.record.MyRecord,"
+                + "org.talend.test.valid.record.MyTestRecord,"
                 + "org.talend.test.valid.schema.MySchema,"
                 + "org.talend.test.valid.structure.MyComponentWithStructure,"
                 + "org.talend.test.valid.update.Comp,org.talend.test.valid.wording.MyComponent",
