@@ -58,9 +58,9 @@ public class RecordValidatorTest {
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(TestRecord.class));
         final Stream<String> errors =
                 validator.validate(finder, Arrays.asList(TestRecord.class));
-        errors.forEach( s -> {
-            System.err.println(s);
-        });
+//        errors.forEach( s -> {
+//            System.err.println(s);
+//        });
         assertEquals(3, errors.count());
     }
 

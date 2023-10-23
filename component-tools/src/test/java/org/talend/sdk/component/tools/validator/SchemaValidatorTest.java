@@ -26,7 +26,9 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.runtime.beam.spi.record.AvroSchema;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.tools.spi.TestSchema;
 
 public class SchemaValidatorTest {
 
@@ -34,9 +36,40 @@ public class SchemaValidatorTest {
     void validateErrors() {
         final SchemaValidator validator = new SchemaValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(MySchema.class));
-        final Stream<String> noerrors =
+        final Stream<String> errors =
                 validator.validate(finder, Arrays.asList(MySchema.class));
-        assertEquals(1, noerrors.count());
+        assertEquals(1, errors.count());
+    }
+
+    /**
+     * one error:
+     * --org.talend.sdk.component.tools.spi.TestSchema.toBuilder(java.lang.String)
+     * Method org.talend.sdk.component.tools.spi.TestSchema.toBuilder(java.lang.String) calls unsafe Builder creator. This either means:
+     *   * That the TCK method is safe and should belong to WHITE_LIST_TCK_SCHEMA_BUILDER_PROVIDER
+     */
+    @Test
+    void validateTestErrors() {
+        final SchemaValidator validator = new SchemaValidator();
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(TestSchema.class));
+        final Stream<String> errors =
+                validator.validate(finder, Arrays.asList(TestSchema.class));
+
+        assertEquals(1, errors.count());
+    }
+
+    /**
+     * One error:
+     * Method org.talend.sdk.component.runtime.beam.spi.record.AvroSchema.toBuilder() calls unsafe Builder creator. This either means:
+     *   * That the TCK method is safe and should belong to WHITE_LIST_TCK_SCHEMA_BUILDER_PROVIDER
+     */
+    @Test
+    void validateAvro() {
+        final SchemaValidator validator = new SchemaValidator();
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(AvroSchema.class));
+        final Stream<String> errors =
+                validator.validate(finder, Arrays.asList(AvroSchema.class));
+
+        assertEquals(1, errors.count());
     }
 
     @Test
@@ -58,10 +91,12 @@ public class SchemaValidatorTest {
     }
 
     class MySchema implements Schema {
+
         @Override
         public Builder toBuilder() {
             return null;
         }
+
         @Override
         public Type getType() {
             return null;
