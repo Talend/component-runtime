@@ -208,7 +208,7 @@
     <jackson.version>2.15.2</jackson.version>
     <jackson-databind.version>2.15.2</jackson-databind.version>
     <avro-jackson.version>1.9.13</avro-jackson.version>
-    <avro.version>1.11.2</avro.version>
+    <avro.version>1.11.3</avro.version>
     <jsoup.version>1.15.3</jsoup.version>
 
     <!-- deprecated after -->
