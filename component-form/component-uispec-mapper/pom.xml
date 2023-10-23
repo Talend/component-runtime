@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-form</artifactId>
-    <version>1.38.12-SNAPSHOT</version>
+    <version>1.38.12</version>
   </parent>
 
   <artifactId>component-uispec-mapper</artifactId>
