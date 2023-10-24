@@ -570,7 +570,7 @@ pipeline {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """\
                                #!/usr/bin/env bash
-                               bash .jenkins/scripts/release.sh $branch_name $finalVersion
+                               bash .jenkins/scripts/release.sh $branch_name $finalVersion $extraBuildParams
                                """.stripIndent()
                         }
                     }

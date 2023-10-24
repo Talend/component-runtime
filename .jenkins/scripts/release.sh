@@ -20,9 +20,13 @@ set -xe
 # Parameters:
 # $1: Branch
 # $2: current version
+# $3: extra build args for all mvn cmd
 main() {
   local branch="${1?Missing branch}"
   local currentVersion="${2?Missing project version}"
+  local extraBuildParams="${3}"
+
+
   local release="${currentVersion/-SNAPSHOT/}"
   local tag=component-runtime-"${release}"
   # bump
@@ -58,7 +62,7 @@ main() {
     --define developmentVersion="${dev_version}" \
     --define arguments="-DskipTests -DskipITs" \
     --activate-profiles ossrh,release,gpg2 \
-    ${EXTRA_BUILD_ARGS} \
+    ${extraBuildParams} \
     --settings .jenkins/settings.xml
   echo ">> Maven perform release $release"
   mvn release:perform \
@@ -66,7 +70,7 @@ main() {
     --errors \
     --define arguments="-DskipTests -DskipITs" \
     --activate-profiles ossrh,release,gpg2 \
-    ${EXTRA_BUILD_ARGS} \
+    ${extraBuildParams} \
     --settings .jenkins/settings.xml
   ###
   echo ">> Reset repo"
@@ -84,7 +88,7 @@ main() {
   echo ">> Rebuilding ${branch} and updating it (doc) for next iteration"
   git reset --hard
   git checkout "${branch}"
-  mvn clean install -DskipTests -Dinvoker.skip=true ${EXTRA_BUILD_ARGS} || true
+  mvn clean install -DskipTests -Dinvoker.skip=true ${extraBuildParams} || true
   git commit -a -m ">> Updating doc for next iteration" || true
   git push -u origin "${branch}" || true
   ###
