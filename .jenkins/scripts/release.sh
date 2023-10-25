@@ -25,8 +25,6 @@ main() {
   local branch="${1?Missing branch}"
   local currentVersion="${2?Missing project version}"
   local extraBuildParams="${3}"
-
-
   local release="${currentVersion/-SNAPSHOT/}"
   local tag=component-runtime-"${release}"
   # bump
