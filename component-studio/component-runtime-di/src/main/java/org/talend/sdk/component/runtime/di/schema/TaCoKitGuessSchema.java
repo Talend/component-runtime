@@ -52,7 +52,6 @@ import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
-import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -65,6 +64,7 @@ import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
+import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.extern.slf4j.Slf4j;
 
