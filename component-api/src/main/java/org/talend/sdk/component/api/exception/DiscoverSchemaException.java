@@ -30,7 +30,7 @@ import lombok.Data;
 @Data
 public class DiscoverSchemaException extends RuntimeException {
 
-    public static enum HandleErrorWith {
+    public enum HandleErrorWith {
         EXCEPTION,
         SILENT,
         RETRY,
