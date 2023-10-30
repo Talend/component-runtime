@@ -30,24 +30,32 @@ import lombok.Data;
 @Data
 public class DiscoverSchemaException extends RuntimeException {
 
-    private String possibleHandleErrorWith = "exception";
+    public static enum HandleErrorWith {
+        EXCEPTION,
+        SILENT,
+        RETRY,
+        EXECUTE_MOCK_JOB;
+    }
+
+    private HandleErrorWith possibleHandleErrorWith = HandleErrorWith.EXCEPTION;
 
     public DiscoverSchemaException(final ComponentException e) {
         super(e.getOriginalMessage(), e.getCause());
     }
 
-    public DiscoverSchemaException(final ComponentException e, final String handling) {
+    public DiscoverSchemaException(final ComponentException e, final HandleErrorWith handling) {
         super(e.getOriginalMessage(), e.getCause());
         setPossibleHandleErrorWith(handling);
     }
 
-    public DiscoverSchemaException(final String message, final String handling) {
+    public DiscoverSchemaException(final String message, final HandleErrorWith handling) {
         super(message);
         setPossibleHandleErrorWith(handling);
     }
 
     @JsonbCreator
-    public DiscoverSchemaException(final String message, final StackTraceElement[] stackTrace, final String handling) {
+    public DiscoverSchemaException(final String message, final StackTraceElement[] stackTrace,
+            final HandleErrorWith handling) {
         super(message);
         setStackTrace(stackTrace);
         setPossibleHandleErrorWith(handling);

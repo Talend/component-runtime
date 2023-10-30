@@ -366,30 +366,31 @@ class TaCoKitGuessSchemaTest {
     @Test
     void serializeDiscoverSchemaException() throws Exception {
         final String serialized =
-                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"retry\"}";
+                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"RETRY\"}";
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            DiscoverSchemaException e = new DiscoverSchemaException("Unknown error. Retry!", "retry");
+            DiscoverSchemaException e =
+                    new DiscoverSchemaException("Unknown error. Retry!", DiscoverSchemaException.HandleErrorWith.RETRY);
             String json = jsonb.toJson(e);
             assertTrue(json.contains("\"message\":\"Unknown error. Retry!\""));
-            assertTrue(json.contains("\"possibleHandleErrorWith\":\"retry\""));
+            assertTrue(json.contains("\"possibleHandleErrorWith\":\"RETRY\""));
         }
     }
 
     @Test
     void deserializeDiscoverSchemaException() throws Exception {
         final String flattened =
-                "{\"message\":\"Not allowed to execute the HTTP call to retrieve the schema.\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"exception\"}";
+                "{\"message\":\"Not allowed to execute the HTTP call to retrieve the schema.\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"EXCEPTION\"}";
         final String serialized =
-                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"retry\"}";
+                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"RETRY\"}";
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             DiscoverSchemaException e = jsonb.fromJson(flattened, DiscoverSchemaException.class);
-            assertFalse("execute".equals(e.getPossibleHandleErrorWith()));
-            assertEquals("exception", e.getPossibleHandleErrorWith());
+            assertFalse("EXECUTE_MOCK_JOB".equals(e.getPossibleHandleErrorWith().name()));
+            assertEquals("EXCEPTION", e.getPossibleHandleErrorWith().name());
             assertEquals("Not allowed to execute the HTTP call to retrieve the schema.", e.getMessage());
             //
             e = jsonb.fromJson(serialized, DiscoverSchemaException.class);
-            assertFalse("exception".equals(e.getPossibleHandleErrorWith()));
-            assertEquals("retry", e.getPossibleHandleErrorWith());
+            assertFalse("EXCEPTION".equals(e.getPossibleHandleErrorWith()));
+            assertEquals("RETRY", e.getPossibleHandleErrorWith().name());
             assertEquals("Unknown error. Retry!", e.getMessage());
         }
     }
