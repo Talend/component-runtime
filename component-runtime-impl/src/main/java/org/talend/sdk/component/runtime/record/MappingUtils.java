@@ -46,7 +46,7 @@ public class MappingUtils {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     public static <T> Object coerce(final Class<T> expectedType, final Object value, final String name) {
-        log.debug("[coerce] expectedType={}, value={}, name={}.", expectedType, value, name);
+        log.trace("[coerce] expectedType={}, value={}, name={}.", expectedType, value, name);
         // null is null, la la la la la... guess which song is it ;-)
         if (value == null) {
             return null;
