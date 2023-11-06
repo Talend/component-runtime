@@ -181,7 +181,7 @@ class ComponentResourceImplTest {
 
     @Test
     void searchIcon() {
-        assertNotNull(base.path("component/searchIcon/{familyId}/{iconKey}")
+        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}")
                 .resolveTemplate("familyId", client.getFamilyId("jdbc"))
                 .resolveTemplate("iconKey", "logo")
                 .request(APPLICATION_OCTET_STREAM_TYPE)

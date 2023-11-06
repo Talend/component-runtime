@@ -136,7 +136,7 @@ public interface ComponentResource {
             in = PATH) String id);
 
     @GET
-    @Path("searchIcon/{familyId}/{iconKey}")
+    @Path("icon/custom/{familyId}/{iconKey}")
     @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
     @Operation(description = "Returns a particular key icon in raw bytes.")
     @APIResponse(responseCode = "200",
