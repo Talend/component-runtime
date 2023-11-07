@@ -180,6 +180,16 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void searchIcon() {
+        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}")
+                .resolveTemplate("familyId", client.getFamilyId("jdbc"))
+                .resolveTemplate("iconKey", "logo")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class));
+    }
+
+    @Test
     void migrateFromStudio() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")

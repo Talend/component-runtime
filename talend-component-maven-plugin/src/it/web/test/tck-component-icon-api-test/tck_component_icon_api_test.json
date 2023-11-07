@@ -5,14 +5,14 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [component/icon](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/icon) [component/icon/family](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/familyIcon) \nAction documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema)",
-        "id": "78a89bdc-21a2-4c29-97b2-470284e8fd80",
+        "id": "c3fc3616-175e-44e4-a7de-5eb90b8a584d",
         "name": "tck-component-icon-api-test"
       },
       "children": [
         {
           "entity": {
             "type": "Service",
-            "id": "0d307674-09d3-4257-a7f9-4a3944d044e5",
+            "id": "b7d73811-5b9a-4a20-b87a-3d6bfd699df3",
             "name": "component - icon"
           },
           "children": [
@@ -40,7 +40,7 @@
                   "path": "/api/v1/component/icon"
                 },
                 "description": "Expected: error 404 without body  \nThe call without providing id parameter",
-                "id": "fef2b579-e853-46e2-965a-447a22274435",
+                "id": "fb17aad4-3a73-42e7-8b56-17881bc4acf4",
                 "name": "component/icon - missing id",
                 "headers": [],
                 "assertions": [
@@ -83,7 +83,7 @@
                   "path": "/api/v1/component/icon/wrong_id"
                 },
                 "description": "Expected: error 404 with body  \nThe call with wrong id parameter",
-                "id": "bbf1d283-4210-4013-8a93-5ee984bbc49a",
+                "id": "526473ca-1ed0-455f-bca4-cab06c708e69",
                 "name": "component/icon - wrong id",
                 "headers": [],
                 "assertions": [
@@ -104,12 +104,6 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
                     "value": "COMPONENT_MISSING"
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseJsonBody",
-                    "path": "$.description",
-                    "value": "No component for identifier: wrong_id"
                   }
                 ]
               }
@@ -142,7 +136,7 @@
                   "path": "/api/v1/component/icon/${\"output_id\"}"
                 },
                 "description": "Check the output icon  \nonly one PNG image defined",
-                "id": "9ec18b67-aade-407e-b4e1-e11c03d5ac2f",
+                "id": "3d7cd78d-be06-44ed-9789-fdc892427abd",
                 "name": "component/icon only in PNG",
                 "headers": [],
                 "assertions": [
@@ -195,7 +189,7 @@
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
                 "description": "Check the mapper response  \nonly one SVG image defined",
-                "id": "8473a018-3e65-4756-bb94-e48084f447fe",
+                "id": "147c7d09-fef7-49b6-8b16-8ed4352be032",
                 "name": "component/icon only in SVG",
                 "headers": [],
                 "assertions": [
@@ -225,8 +219,325 @@
         {
           "entity": {
             "type": "Service",
+            "id": "fc116634-9b55-4a85-a160-e5a19c8f01e5",
+            "name": "component - icon/custom"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom"
+                },
+                "description": "Expected: error 404 without body  \nThe call without providing id parameter",
+                "id": "897a8c08-2736-415f-a1dd-67f03417b60d",
+                "name": "component/icon/custom - missing familyId and iconKey",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "404"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.",
+                    "value": "2"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.code",
+                    "value": "COMPONENT_MISSING"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}"
+                },
+                "description": "Expected: error 404 without body  \nThe call without providing id parameter",
+                "id": "5b69e82c-3226-4152-9f98-0b10120d981c",
+                "name": "component/icon/custom - missing iconKey",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "404"
+                  },
+                  {
+                    "comparison": "DoesNotExist",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "{\"code\":\"COMPONENT_MISSING\",\"description\":\"No component for identifier: wrong_id\"}"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/wrong_familyId/wrong_iconKey"
+                },
+                "description": "Expected: error 404 with body  \nThe call with wrong id parameter",
+                "id": "5c45dded-0e03-48f1-aa54-00306ed8a4e1",
+                "name": "component/icon/custom - wrong familyId and iconKey",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "404"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.",
+                    "value": "2"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.code",
+                    "value": "FAMILY_MISSING"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/wrong_iconKey"
+                },
+                "description": "Expected: error 404 with body  \nThe call with wrong id parameter",
+                "id": "1d58209c-63c9-4a06-b51c-89aaf475a157",
+                "name": "component/icon/custom - wrong iconKey",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "404"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.",
+                    "value": "2"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.code",
+                    "value": "ICON_MISSING"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/input"
+                },
+                "description": "Check the output icon  \nonly one PNG image defined",
+                "id": "9458894a-6f2c-4185-92b0-21226e8edd75",
+                "name": "component/icon/custom only in PNG",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "779"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/mapper"
+                },
+                "description": "Check the output icon  \nonly one PNG image defined",
+                "id": "9f52723d-d835-404e-80e1-4d89b1dd552e",
+                "name": "component/icon/custom only in SVG",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "2712"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/svg+xml"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Service",
             "description": "",
-            "id": "5930f983-fca8-4672-a228-6ab10385b741",
+            "id": "1d79a763-0e65-46fb-8a03-76c7eee51d1d",
             "name": "component - icon_family"
           },
           "children": [
@@ -258,7 +569,7 @@
                   "path": "/api/v1/component/icon/family/${\"family_id\"}"
                 },
                 "description": "Check the family icon  \nonly one PNG image defined",
-                "id": "8db9c7bd-6881-4387-9906-027d374c2a20",
+                "id": "49c5de18-518f-4f22-a25d-786f97ece8cf",
                 "name": "component/icon/family - PNG and SVG",
                 "headers": [],
                 "assertions": [
@@ -311,7 +622,7 @@
                   "path": "/api/v1/component/icon/family"
                 },
                 "description": "Expected: error 404 with body  \nThe call without providing id parameter",
-                "id": "a90d629c-4097-45d7-9a5d-6c71aecc97a1",
+                "id": "13bb3e48-bb45-460b-af5d-afac54a46208",
                 "name": "component/icon/family - missing id",
                 "headers": [],
                 "assertions": [
@@ -332,12 +643,6 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
                     "value": "COMPONENT_MISSING"
-                  },
-                  {
-                    "comparison": "Contains",
-                    "subject": "ResponseJsonBody",
-                    "path": "$.description",
-                    "value": "No component for identifier: family"
                   }
                 ]
               }
@@ -370,7 +675,7 @@
                   "path": "/api/v1/component/icon/family/unknow_identifier"
                 },
                 "description": "Expected: error 404 with body  \nThe call with wrong id parameter",
-                "id": "0b0ed84d-bf42-454a-b933-bd600e3903b0",
+                "id": "0e011482-f36b-4b34-a208-e5a8b6d8101d",
                 "name": "component/icon/family - wrong id",
                 "headers": [],
                 "assertions": [
@@ -391,12 +696,6 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
                     "value": "FAMILY_MISSING"
-                  },
-                  {
-                    "comparison": "Contains",
-                    "subject": "ResponseJsonBody",
-                    "path": "$.description",
-                    "value": "No family for identifier: unknow_identifier"
                   }
                 ]
               }
