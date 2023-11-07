@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":743,
+    "commits":748,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -64,18 +64,18 @@
     "name":"ypiel"
   },
   {
+    "commits":24,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
+    "id":"wwang-talend",
+    "name":"wang wei"
+  },
+  {
     "commits":23,
     "description":"R&D",
     "gravatar":"https://avatars.githubusercontent.com/u/7741480?v=4",
     "id":"cmeng-talend",
     "name":"Chao MENG"
-  },
-  {
-    "commits":22,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
-    "id":"wwang-talend",
-    "name":"wang wei"
   },
   {
     "commits":13,

@@ -72,7 +72,6 @@ import org.talend.sdk.component.runtime.manager.chain.Job;
 @WithComponents("org.talend.sdk.component.junit.beam.test")
 public class ProducerFinderEnvironmentTest implements Serializable {
 
-
     @Injected
     private BaseComponentsHandler handler;
 
@@ -82,15 +81,16 @@ public class ProducerFinderEnvironmentTest implements Serializable {
     private RecordBuilderFactory factory;
 
     /**
-     +     * arrayblocking queue capacity
-     +     *          7 fixed CAPACITY variable
-     +     * recordCount value
-     +     * 10       11sec  13sec
-     +     * 100      16sec  13sec
-     +     * 1000     57sec  16sec
-     +     * 10000  ~ 7min55 52sec
-     +     * 100000 1h34min  25min
-     +     */
+     * + * arrayblocking queue capacity
+     * + * 7 fixed CAPACITY variable
+     * + * recordCount value
+     * + * 10 11sec 13sec
+     * + * 100 16sec 13sec
+     * + * 1000 57sec 16sec
+     * + * 10000 ~ 7min55 52sec
+     * + * 100000 1h34min 25min
+     * +
+     */
     private final Integer recordCount = 5000; // 10 100 1000 10000 100000
 
     @BeforeAll
@@ -124,7 +124,8 @@ public class ProducerFinderEnvironmentTest implements Serializable {
 
     @EnvironmentalTest
     void runPipelineBeam() {
-        Mapper mapper = manager.findMapper("BeamFamily", "from", 1, singletonMap("count", recordCount.toString())).get();
+        Mapper mapper =
+                manager.findMapper("BeamFamily", "from", 1, singletonMap("count", recordCount.toString())).get();
         assertNotNull(mapper);
         final Object delegate = Delegated.class.cast(mapper).getDelegate();
         assertNotNull(delegate);
