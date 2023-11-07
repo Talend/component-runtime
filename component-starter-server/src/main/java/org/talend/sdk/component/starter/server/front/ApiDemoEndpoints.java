@@ -74,6 +74,18 @@ public class ApiDemoEndpoints {
 
     private static final String PATH_CONFIGURATIONTYPE_MIGRATE = "/api/v1/configurationtype/migrate";
 
+    public static final String HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+
+    public static final String HEADER_ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+
+    public static final String HEADER_ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+
+    public static final String VALUE_ACCESS_CONTROL_ALLOW_HEADERS = "Content-Type, api_key, Authorization";
+
+    public static final String VALUE_ACCESS_CONTROL_ALLOW_ORIGIN = "*";
+
+    public static final String VALUE_ACCESS_CONTROL_ALLOW_METHODS = "GET, POST, DELETE, PUT, PATCH, OPTIONS";
+
     private final byte[] ENVIRONMENT;
 
     private final Object ACTION_INDEX;
@@ -147,9 +159,9 @@ public class ApiDemoEndpoints {
                 .build();
         return Response
                 .ok(env)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -161,9 +173,9 @@ public class ApiDemoEndpoints {
             @QueryParam("family") final String[] families, @QueryParam("language") final String lang) {
         return Response
                 .ok(ACTION_INDEX)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -176,9 +188,9 @@ public class ApiDemoEndpoints {
             @QueryParam("lang") final String lang) {
         return Response
                 .ok(ACTION_EXECUTE)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -192,9 +204,9 @@ public class ApiDemoEndpoints {
             @QueryParam("q") final String query) {
         return Response
                 .ok(COMPONENT_INDEX)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -207,9 +219,9 @@ public class ApiDemoEndpoints {
             @QueryParam("identifiers") final String[] ids) {
         return Response
                 .ok(COMPONENT_DETAILS)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -221,9 +233,9 @@ public class ApiDemoEndpoints {
             @QueryParam("identifier") final String[] ids) {
         return Response
                 .ok(COMPONENT_DEPENDENCIES)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -234,9 +246,9 @@ public class ApiDemoEndpoints {
     public Response componentDependency(@PathParam("version") final String version, @PathParam("id") final String id) {
         return Response
                 .ok(COMPONENT_DEPENDENCIES)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_OCTET_STREAM_TYPE)
                 .build();
     }
@@ -247,9 +259,9 @@ public class ApiDemoEndpoints {
     public Response componentIcon(@PathParam("version") final String version, @PathParam("id") final String id) {
         return Response
                 .ok(COMPONENT_ICON)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_OCTET_STREAM_TYPE)
                 .build();
     }
@@ -260,9 +272,9 @@ public class ApiDemoEndpoints {
     public Response componentIconFamily(@PathParam("version") final String version, @PathParam("id") final String id) {
         return Response
                 .ok(COMPONENT_ICON_FAMILY)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_OCTET_STREAM_TYPE)
                 .build();
     }
@@ -274,9 +286,9 @@ public class ApiDemoEndpoints {
             @PathParam("configurationVersion") final int migrateVersion, final Map<String, String> config) {
         return Response
                 .ok(COMPONENT_MIGRATE)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -290,9 +302,9 @@ public class ApiDemoEndpoints {
             @QueryParam("q") final String query) {
         return Response
                 .ok(CONFIGURATIONTYPE_INDEX)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -305,9 +317,9 @@ public class ApiDemoEndpoints {
             @QueryParam("identifiers") final String[] ids) {
         return Response
                 .ok(CONFIGURATIONTYPE_DETAILS)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
@@ -320,9 +332,9 @@ public class ApiDemoEndpoints {
             final Map<String, String> config) {
         return Response
                 .ok(CONFIGURATIONTYPE_MIGRATE)
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
-                .header("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
     }
