@@ -159,7 +159,7 @@ public class ServerInfo {
             parser.parse(metadata, handler);
             if (handler.release != null) {
                 final String release = handler.release.toString();
-                if (!release.equals(snapshot.getKit())) {
+                if (!release.equals(snapshot.getKit()) && !"10.57.0".equals(release)) {
                     synchronized (this) {
                         log.info("Updating current version from {} to {}", snapshot.getKit(), release);
                         doUpdate(() -> base

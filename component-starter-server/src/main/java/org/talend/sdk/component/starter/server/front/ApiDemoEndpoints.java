@@ -74,6 +74,18 @@ public class ApiDemoEndpoints {
 
     private static final String PATH_CONFIGURATIONTYPE_MIGRATE = "/api/v1/configurationtype/migrate";
 
+    public static final String HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+
+    public static final String HEADER_ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+
+    public static final String HEADER_ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+
+    public static final String VALUE_ACCESS_CONTROL_ALLOW_HEADERS = "Content-Type, api_key, Authorization";
+
+    public static final String VALUE_ACCESS_CONTROL_ALLOW_ORIGIN = "*";
+
+    public static final String VALUE_ACCESS_CONTROL_ALLOW_METHODS = "GET, POST, DELETE, PUT, PATCH, OPTIONS";
+
     private final byte[] ENVIRONMENT;
 
     private final Object ACTION_INDEX;
@@ -145,7 +157,13 @@ public class ApiDemoEndpoints {
                 .add("time", ZonedDateTime.now().toString())
                 .add("version", version)
                 .build();
-        return Response.ok(env).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(env)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @GET
@@ -153,7 +171,13 @@ public class ApiDemoEndpoints {
     @Produces({ APPLICATION_JSON })
     public Response actionIndex(@PathParam("version") final String version, @QueryParam("type") final String[] types,
             @QueryParam("family") final String[] families, @QueryParam("language") final String lang) {
-        return Response.ok(ACTION_INDEX).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(ACTION_INDEX)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @POST
@@ -162,7 +186,13 @@ public class ApiDemoEndpoints {
     public Response actionExecute(@PathParam("version") final String version, @QueryParam("family") final String family,
             @QueryParam("type") final String type, @QueryParam("action") final String action,
             @QueryParam("lang") final String lang) {
-        return Response.ok(ACTION_EXECUTE).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(ACTION_EXECUTE)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @GET
@@ -172,7 +202,13 @@ public class ApiDemoEndpoints {
             @QueryParam("language") @DefaultValue("en") final String language,
             @QueryParam("includeIconContent") @DefaultValue("false") final boolean includeIconContent,
             @QueryParam("q") final String query) {
-        return Response.ok(COMPONENT_INDEX).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(COMPONENT_INDEX)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @GET
@@ -181,7 +217,13 @@ public class ApiDemoEndpoints {
     public Response componentDetails(@PathParam("version") final String version,
             @QueryParam("language") @DefaultValue("en") final String language,
             @QueryParam("identifiers") final String[] ids) {
-        return Response.ok(COMPONENT_DETAILS).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(COMPONENT_DETAILS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @GET
@@ -189,28 +231,52 @@ public class ApiDemoEndpoints {
     @Produces({ APPLICATION_JSON })
     public Response componentDependencies(@PathParam("version") final String version,
             @QueryParam("identifier") final String[] ids) {
-        return Response.ok(COMPONENT_DEPENDENCIES).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(COMPONENT_DEPENDENCIES)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @GET
     @Path(RES_VERSION + PATH_COMPONENT_DEPENDENCY + "/{id}")
     @Produces({ APPLICATION_OCTET_STREAM })
     public Response componentDependency(@PathParam("version") final String version, @PathParam("id") final String id) {
-        return Response.ok(COMPONENT_DEPENDENCIES).type(APPLICATION_OCTET_STREAM_TYPE).build();
+        return Response
+                .ok(COMPONENT_DEPENDENCIES)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_OCTET_STREAM_TYPE)
+                .build();
     }
 
     @GET
     @Path(RES_VERSION + PATH_COMPONENT_ICON + "/{id}")
     @Produces({ APPLICATION_OCTET_STREAM })
     public Response componentIcon(@PathParam("version") final String version, @PathParam("id") final String id) {
-        return Response.ok(COMPONENT_ICON).type(APPLICATION_OCTET_STREAM_TYPE).build();
+        return Response
+                .ok(COMPONENT_ICON)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_OCTET_STREAM_TYPE)
+                .build();
     }
 
     @GET
     @Path(RES_VERSION + PATH_COMPONENT_ICON_FAMILY + "/{id}")
     @Produces({ APPLICATION_OCTET_STREAM })
     public Response componentIconFamily(@PathParam("version") final String version, @PathParam("id") final String id) {
-        return Response.ok(COMPONENT_ICON_FAMILY).type(APPLICATION_OCTET_STREAM_TYPE).build();
+        return Response
+                .ok(COMPONENT_ICON_FAMILY)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_OCTET_STREAM_TYPE)
+                .build();
     }
 
     @POST
@@ -218,7 +284,13 @@ public class ApiDemoEndpoints {
     @Produces({ APPLICATION_JSON })
     public Response componentMigrate(@PathParam("version") final String version, @PathParam("id") final String id,
             @PathParam("configurationVersion") final int migrateVersion, final Map<String, String> config) {
-        return Response.ok(COMPONENT_MIGRATE).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(COMPONENT_MIGRATE)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @GET
@@ -228,7 +300,13 @@ public class ApiDemoEndpoints {
             @QueryParam("language") @DefaultValue("en") final String language,
             @QueryParam("lightPayload") @DefaultValue("true") final boolean lightPayload,
             @QueryParam("q") final String query) {
-        return Response.ok(CONFIGURATIONTYPE_INDEX).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(CONFIGURATIONTYPE_INDEX)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @GET
@@ -237,7 +315,13 @@ public class ApiDemoEndpoints {
     public Response configurationtypeDetails(@PathParam("version") final String version,
             @QueryParam("language") @DefaultValue("en") final String language,
             @QueryParam("identifiers") final String[] ids) {
-        return Response.ok(CONFIGURATIONTYPE_DETAILS).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(CONFIGURATIONTYPE_DETAILS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @POST
@@ -246,6 +330,12 @@ public class ApiDemoEndpoints {
     public Response configurationtypeMigrate(@PathParam("version") final String version,
             @PathParam("id") final String id, @PathParam("configurationVersion") final int migrateVersion,
             final Map<String, String> config) {
-        return Response.ok(CONFIGURATIONTYPE_MIGRATE).type(APPLICATION_JSON_TYPE).build();
+        return Response
+                .ok(CONFIGURATIONTYPE_MIGRATE)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, VALUE_ACCESS_CONTROL_ALLOW_ORIGIN)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_METHODS, VALUE_ACCESS_CONTROL_ALLOW_METHODS)
+                .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
+                .type(APPLICATION_JSON_TYPE)
+                .build();
     }
 }
