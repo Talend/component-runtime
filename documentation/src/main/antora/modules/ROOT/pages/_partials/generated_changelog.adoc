@@ -1,5 +1,35 @@
 
 
+== Version 1.63.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2564[TCOMP-2564^]: component-starter image issues link:search.html?query=tsbi[tsbi^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2533[TCOMP-2533^]: consider to remove the verbose debug log for DIRowStructVisitor and DIRecordVisitor and MappingUtils link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2552[TCOMP-2552^]: support custom connection/close component icon for tck connector in studio link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.62.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2564[TCOMP-2564^]: component-starter image issues link:search.html?query=tsbi[tsbi^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2533[TCOMP-2533^]: consider to remove the verbose debug log for DIRowStructVisitor and DIRecordVisitor and MappingUtils link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2552[TCOMP-2552^]: support custom connection/close component icon for tck connector in studio link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
 == Version 1.62.0
 
 === Bug
@@ -902,6 +932,22 @@
 
 
 
+
+
+
+== Version 1.38.12
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2548[TCOMP-2548^]: Upgrade tomcat to 9.0.82 link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.38.11
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2263[TCOMP-2263^]: Upgrade openwebbeans-se to 2.0.27 link:search.html?query=component-manager[component-manager^,role='dockey']
 
 == Version 1.38.10
 
