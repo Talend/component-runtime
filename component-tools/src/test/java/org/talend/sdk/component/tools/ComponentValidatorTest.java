@@ -85,6 +85,10 @@ class ComponentValidatorTest {
 
         boolean failOnValidateExceptions() default true;
 
+        boolean validateRecord() default true;
+
+        boolean validateSchema() default true;
+
         String sourceRoot() default "";
     }
 
@@ -154,6 +158,8 @@ class ComponentValidatorTest {
             cfg.setValidatePlaceholder(true);
             cfg.setValidateSvg(config.validateSvg());
             cfg.setValidateNoFinalOption(true);
+            cfg.setValidateRecord(true);
+            cfg.setValidateSchema(true);
             cfg.setValidateDocumentation(config.validateDocumentation());
             cfg.setValidateWording(config.validateWording());
             cfg.setValidateExceptions(config.validateExceptions());
@@ -589,6 +595,18 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage(value = "org.talend.test.valid.update", success = true, validateDataSet = false)
     void testValidUpdate() {
+        // no-op
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.record", success = true, validateRecord = true)
+    void testValidRecord() {
+        // no-op
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.schema", success = true, validateSchema = true)
+    void testValidSchema() {
         // no-op
     }
 
