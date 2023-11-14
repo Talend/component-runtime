@@ -412,8 +412,9 @@ public class WebSocketBroadcastSetup implements ServletContextListener {
                 return -1;
             }
             if (previous != Integer.MAX_VALUE) {
+                int result = previous;
                 previous = Integer.MAX_VALUE;
-                return previous;
+                return result;
             }
             final int read = delegate().read();
             if (read == '^') {

@@ -167,7 +167,7 @@ class ConfigurationTypeResourceImplTest {
                 .add("configuration.url", fakeUrl)
                 .add("configuration.username", "username0")
                 .add("configuration.password", "fake")
-                .add("configuration.connection.password", "test")
+                .add("configuration.connection.password", "te^st")
                 .add("configuration.fake", fakeString)
                 .build();
 
@@ -179,7 +179,7 @@ class ConfigurationTypeResourceImplTest {
         assertEquals("6", config.get("configuration.size"));
         assertEquals(fakeUrl, config.get("configuration.url"));
         assertEquals("username0", config.get("configuration.username"));
-        assertEquals("test", config.get("configuration.connection.password"));
+        assertEquals("te^st", config.get("configuration.connection.password"));
         assertEquals(fakeString, config.get("configuration.fake"));
     }
 
