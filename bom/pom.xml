@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.62.0-SNAPSHOT</version>
+  <version>1.63.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
@@ -140,7 +140,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>32.1.2-jre</version>
+        <version>32.1.3-jre</version>
       </dependency>
       <dependency>
         <groupId>org.talend.sdk.component</groupId>

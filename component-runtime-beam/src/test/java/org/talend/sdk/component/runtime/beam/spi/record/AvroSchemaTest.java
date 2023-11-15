@@ -176,8 +176,8 @@ class AvroSchemaTest {
             final Schema schema = avro.getFields().iterator().next().schema();
             assertEquals(2, schema.getTypes().size());
             final Iterator<Schema> types = schema.getTypes().iterator();
-            assertEquals(Schema.Type.NULL, types.next().getType());
             assertEquals(Schema.Type.STRING, types.next().getType());
+            assertEquals(Schema.Type.NULL, types.next().getType());
             assertTrue(sdkSchema.getEntries().iterator().next().isNullable());
         }
         { // nullable = false

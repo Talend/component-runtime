@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.api.record.SchemaProperty.ALLOW_SPECIAL_NAME;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -34,6 +35,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -90,6 +92,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private Set<String> recordFields;
 
+    private Map<String, String> recordFieldsMap;
+
+    private boolean initDynamicMetadata = true;
+
     private static final RecordService RECORD_SERVICE = RecordService.class
             .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
@@ -120,7 +126,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 dynamic = null;
             }
             log
-                    .debug("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
+                    .trace("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
                             metadata);
             dynamicColumnLength = Integer.valueOf(metadata.getOrDefault(SIZE, "-1"));
             dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault(SCALE, "-1"));
@@ -130,6 +136,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             throw new IllegalStateException(e);
         }
     }
+
+    private boolean allowSpecialName;
 
     public Object visit(final Record record) {
         arrayOfRecordPrefix = "";
@@ -141,10 +149,18 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             throw new IllegalStateException(e);
         }
         if (hasDynamic) {
-            dynamic.getDynamic().metadatas.clear();
             dynamic.getDynamic().clearColumnValues();
+            int count = dynamic.getDynamic().getColumnCount();
+            for (int i = 0; i < count; i++) {
+                dynamic.getDynamic().addColumnValue(null);
+            }
         }
-        if (hasDynamic && (recordFields == null)) {
+
+        if (hasDynamic && initDynamicMetadata) {
+            allowSpecialName = Boolean.parseBoolean(record.getSchema().getProp(ALLOW_SPECIAL_NAME));
+
+            recordFieldsMap = new HashMap<>();
+
             recordFields =
                     record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
                         final String root = rcdEntry.getName() + ".";
@@ -176,9 +192,9 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                             .filter(t -> !t.getType().equals(Type.RECORD))
                             .map(entry -> entry.getName())
                             .collect(Collectors.toSet()));
-        }
-        if (hasDynamic) {
+
             prefillDynamic(record.getSchema());
+            initDynamicMetadata = false;
         }
 
         return RECORD_SERVICE.visit(this, record);
@@ -213,12 +229,20 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private DynamicMetadataWrapper generateMetadata(final Entry entry) {
         final DynamicMetadataWrapper metadata = new DynamicMetadataWrapper();
-        metadata.getDynamicMetadata()
-                .setName(recordFields
-                        .stream()
-                        .filter(f -> f.endsWith("." + entry.getName()))
-                        .findFirst()
-                        .orElse(entry.getName()));
+        // now ALLOW_SPECIAL_NAME not conflict with the supported nested record as only jdbc connector use it and jdbc
+        // connector never support nested record
+        if (allowSpecialName) {
+            metadata.getDynamicMetadata()
+                    .setName(entry.getOriginalFieldName());
+        } else {
+            String name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
+                    .stream()
+                    .filter(f -> f.endsWith("." + key))
+                    .findFirst()
+                    .orElse(key));
+            metadata.getDynamicMetadata()
+                    .setName(name);
+        }
         metadata.getDynamicMetadata().setDbName(entry.getOriginalFieldName());
         metadata.getDynamicMetadata().setNullable(entry.isNullable());
         metadata.getDynamicMetadata().setDescription(entry.getComment());
@@ -267,11 +291,16 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private void setField(final Entry entry, final Object value) {
         final Field field = fields.get(entry.getName());
         if (hasDynamic && (field == null || dynamicColumn.equals(entry.getName()))) {
-            final String name = recordFields
-                    .stream()
-                    .filter(f -> f.endsWith("." + entry.getName()))
-                    .findFirst()
-                    .orElse(entry.getName());
+            final String name;
+            if (allowSpecialName) {
+                name = entry.getOriginalFieldName();
+            } else {
+                name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
+                        .stream()
+                        .filter(f -> f.endsWith("." + key))
+                        .findFirst()
+                        .orElse(key));
+            }
             int index = dynamic.getDynamic().getIndex(name);
             final DynamicMetadataWrapper metadata;
             if (index < 0) {
@@ -288,7 +317,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             } else {
                 dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
             }
-            log.debug("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(),
+            log.trace("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(),
                     value);
             return;
         }
@@ -304,127 +333,127 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     @Override
     public void onInt(final Entry entry, final OptionalInt optionalInt) {
-        log.debug("[onInt] visiting {}.", entry.getName());
+        log.trace("[onInt] visiting {}.", entry.getName());
         optionalInt.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onLong(final Entry entry, final OptionalLong optionalLong) {
-        log.debug("[onLong] visiting {}.", entry.getName());
+        log.trace("[onLong] visiting {}.", entry.getName());
         optionalLong.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onFloat(final Entry entry, final OptionalDouble optionalFloat) {
-        log.debug("[onFloat] visiting {}.", entry.getName());
+        log.trace("[onFloat] visiting {}.", entry.getName());
         optionalFloat.ifPresent(value -> setField(entry, (float) value));
     }
 
     @Override
     public void onDouble(final Entry entry, final OptionalDouble optionalDouble) {
-        log.debug("[onDouble] visiting {}.", entry.getName());
+        log.trace("[onDouble] visiting {}.", entry.getName());
         optionalDouble.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onBoolean(final Entry entry, final Optional<Boolean> optionalBoolean) {
-        log.debug("[onBoolean] visiting {}.", entry.getName());
+        log.trace("[onBoolean] visiting {}.", entry.getName());
         optionalBoolean.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onString(final Entry entry, final Optional<String> string) {
-        log.debug("[onString] visiting {}.", entry.getName());
+        log.trace("[onString] visiting {}.", entry.getName());
         string.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onObject(final Entry entry, final Optional<Object> object) {
-        log.debug("[onObject] visiting {}.", entry.getName());
+        log.trace("[onObject] visiting {}.", entry.getName());
         object.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onDatetime(final Entry entry, final Optional<ZonedDateTime> dateTime) {
-        log.debug("[onDatetime] visiting {}.", entry.getName());
+        log.trace("[onDatetime] visiting {}.", entry.getName());
         dateTime.ifPresent(value -> setField(entry, value.toInstant()));
     }
 
     @Override
     public void onInstant(final Schema.Entry entry, final Optional<Instant> dateTime) {
-        log.debug("[onInstant] visiting {}.", entry.getName());
+        log.trace("[onInstant] visiting {}.", entry.getName());
         dateTime.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onDecimal(final Entry entry, final Optional<BigDecimal> decimal) {
-        log.debug("[onDecimal] visiting {}.", entry.getName());
+        log.trace("[onDecimal] visiting {}.", entry.getName());
         decimal.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onBytes(final Entry entry, final Optional<byte[]> bytes) {
-        log.debug("[onBytes] visiting {}.", entry.getName());
+        log.trace("[onBytes] visiting {}.", entry.getName());
         bytes.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onIntArray(final Entry entry, final Optional<Collection<Integer>> array) {
-        log.debug("[onIntArray] visiting {}.", entry.getName());
+        log.trace("[onIntArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onLongArray(final Entry entry, final Optional<Collection<Long>> array) {
-        log.debug("[onLongArray] visiting {}.", entry.getName());
+        log.trace("[onLongArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onFloatArray(final Entry entry, final Optional<Collection<Float>> array) {
-        log.debug("[onFloatArray] visiting {}.", entry.getName());
+        log.trace("[onFloatArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onDoubleArray(final Entry entry, final Optional<Collection<Double>> array) {
-        log.debug("[onDoubleArray] visiting {}.", entry.getName());
+        log.trace("[onDoubleArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onBooleanArray(final Entry entry, final Optional<Collection<Boolean>> array) {
-        log.debug("[onBooleanArray] visiting {}.", entry.getName());
+        log.trace("[onBooleanArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onStringArray(final Entry entry, final Optional<Collection<String>> array) {
-        log.debug("[onStringArray] visiting {}.", entry.getName());
+        log.trace("[onStringArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onDatetimeArray(final Entry entry, final Optional<Collection<ZonedDateTime>> array) {
-        log.debug("[onDatetimeArray] visiting {}.", entry.getName());
+        log.trace("[onDatetimeArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onDecimalArray(final Entry entry, final Optional<Collection<BigDecimal>> array) {
-        log.debug("[onDecimalArray] visiting {}.", entry.getName());
+        log.trace("[onDecimalArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public void onBytesArray(final Entry entry, final Optional<Collection<byte[]>> array) {
-        log.debug("[onBytesArray] visiting {}.", entry.getName());
+        log.trace("[onBytesArray] visiting {}.", entry.getName());
         array.ifPresent(value -> setField(entry, value));
     }
 
     @Override
     public RecordVisitor<Object> onRecordArray(final Entry entry, final Optional<Collection<Record>> array) {
-        log.debug("[onRecordArray] visiting {}.", entry.getName());
+        log.trace("[onRecordArray] visiting {}.", entry.getName());
         arrayOfRecordPrefix = entry.getName() + ".";
         array.ifPresent(value -> setField(entry, value));
         return this;
@@ -432,7 +461,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     @Override
     public RecordVisitor<Object> onRecord(final Entry entry, final Optional<Record> record) {
-        log.debug("[onRecord] visiting {}.", entry.getName());
+        log.trace("[onRecord] visiting {}.", entry.getName());
         recordPrefix = entry.getName() + ".";
         record.ifPresent(value -> setField(entry, value));
         return this;

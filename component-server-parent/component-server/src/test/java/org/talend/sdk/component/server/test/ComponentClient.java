@@ -49,6 +49,17 @@ public class ComponentClient {
                 .getId();
     }
 
+    public String getFamilyId(final String family) {
+        return fetchIndex()
+                .getComponents()
+                .stream()
+                .filter(c -> c.getId().getFamily().equals(family))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("no " + family))
+                .getId()
+                .getFamilyId();
+    }
+
     public String getJdbcId() {
         return getComponentId("jdbc", "input");
     }

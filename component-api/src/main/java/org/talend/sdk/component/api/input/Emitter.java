@@ -39,4 +39,12 @@ public @interface Emitter {
      * @return the value of the input.
      */
     String name() default "";
+
+    /**
+     * In Studio and some use-cases with some input connectors, we may need to ignore outgoing row.
+     * As mentioned above, this is a Studio only feature.
+     *
+     * @return true if the underlying input is allowed to ignore mandatory output row.
+     */
+    boolean optionalRow() default false;
 }

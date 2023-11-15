@@ -59,4 +59,6 @@ public interface SchemaProperty {
         }
     }
 
+    String ALLOW_SPECIAL_NAME = "field.special.name";
+
 }

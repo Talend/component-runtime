@@ -180,6 +180,16 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void searchIcon() {
+        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}")
+                .resolveTemplate("familyId", client.getFamilyId("jdbc"))
+                .resolveTemplate("iconKey", "logo")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class));
+    }
+
+    @Test
     void migrateFromStudio() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
@@ -269,6 +279,7 @@ class ComponentResourceImplTest {
         assertEquals("list", detail.getId().getName());
         assertEquals("The List Component", detail.getDisplayName());
         assertEquals("false", detail.getMetadata().get("mapper::infinite"));
+        assertEquals("false", detail.getMetadata().get("mapper::optionalRow"));
         IntStream.of(0, 5).forEach(i -> assertEquals(String.valueOf(i), detail.getMetadata().get("testing::v" + i)));
 
         final Collection<ActionReference> remoteActions = detail.getActions();

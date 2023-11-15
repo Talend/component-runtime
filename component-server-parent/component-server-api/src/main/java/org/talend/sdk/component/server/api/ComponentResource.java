@@ -135,6 +135,23 @@ public interface ComponentResource {
             description = "Component icon identifier.",
             in = PATH) String id);
 
+    @GET
+    @Path("icon/custom/{familyId}/{iconKey}")
+    @Produces({ APPLICATION_JSON, APPLICATION_OCTET_STREAM })
+    @Operation(description = "Returns a particular key icon in raw bytes.")
+    @APIResponse(responseCode = "200",
+            description = "The icon in binary form.",
+            content = @Content(mediaType = APPLICATION_OCTET_STREAM))
+    @APIResponse(responseCode = "404",
+            description = "The family or icon is not found.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    Response icon(@PathParam("familyId") @Parameter(name = "familyId",
+            description = "family identifier.",
+            in = PATH) String familyId,
+            @PathParam("iconKey") @Parameter(name = "iconKey",
+                    description = "icon key.",
+                    in = PATH) String iconKey);
+
     @POST
     @Path("migrate/{id}/{configurationVersion}")
     @Operation(operationId = "migrateComponent",
