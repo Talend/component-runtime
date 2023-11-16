@@ -213,7 +213,7 @@
 
     <!-- deprecated after -->
     <talend-icon.version>3.8.0</talend-icon.version>
-    <talend-ui.version>5.23.0</talend-ui.version>
+    <talend-ui.version>6.32.0</talend-ui.version>
 
     <!-- for the starter -->
     <mvn.version>3.8.8</mvn.version>
