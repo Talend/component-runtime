@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,26 +19,27 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.35.0-SNAPSHOT</version>
+    <version>1.63.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-starter-server</artifactId>
 
   <name>Component Runtime :: Starter Server</name>
-  <description>Web application allowing to generate maven or gradle project skeleton to speed up component
-    development.
-  </description>
+  <description>Web application allowing to generate maven or gradle project skeleton to speed up component development.</description>
 
   <properties>
+    <!--TODO: bump node/npm when issue TCOMP-2059 Update talend/ui to 6.x will be done-->
+    <node.version>v12.13.0</node.version>
+    <npm.version>6.12.0</npm.version>
     <talend.build.name>${talend.build.name.base}.starter</talend.build.name>
     <rat.numUnapprovedLicenses>10</rat.numUnapprovedLicenses>
   </properties>
 
   <dependencies>
-    <dependency><!-- override until we upgrade meecrowave -->
+    <dependency>
+      <!-- override until we upgrade meecrowave -->
       <groupId>org.apache.johnzon</groupId>
       <artifactId>johnzon-jsonb</artifactId>
-      <version>${johnzon.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.meecrowave</groupId>
@@ -114,7 +115,11 @@
       <version>${meecrowave.version}</version>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-activation_1.1_spec</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-junit-base</artifactId>
@@ -138,8 +143,8 @@
   <build>
     <resources>
       <resource>
-        <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <directory>src/main/resources</directory>
         <includes>
           <include>starter-versions.properties</include>
         </includes>
@@ -159,13 +164,31 @@
         <executions>
           <execution>
             <id>clean-frontend</id>
-            <phase>clean</phase>
             <goals>
               <goal>clean</goal>
             </goals>
+            <phase>clean</phase>
             <configuration>
               <directory>${project.basedir}/src/main/frontend/dist</directory>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>${git-commit-id-plugin.version}</version>
+        <configuration>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <generateGitPropertiesFilename>${project.build.outputDirectory}/TALEND-INF/git.properties</generateGitPropertiesFilename>
+        </configuration>
+        <executions>
+          <execution>
+            <id>generate-the-git-infos</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>generate-resources</phase>
           </execution>
         </executions>
       </plugin>
@@ -188,18 +211,6 @@
         <groupId>org.apache.meecrowave</groupId>
         <artifactId>meecrowave-maven-plugin</artifactId>
         <version>${meecrowave.version}</version>
-        <executions>
-          <execution>
-            <id>bundle</id>
-            <phase>package</phase>
-            <goals>
-              <goal>bundle</goal>
-            </goals>
-            <configuration>
-              <attach>true</attach>
-            </configuration>
-          </execution>
-        </executions>
         <configuration>
           <httpPort>8080</httpPort>
           <webapp>${project.basedir}/src/main/frontend/dist</webapp>
@@ -235,6 +246,18 @@
             <version>${log4j2.version}</version>
           </dependency>
         </dependencies>
+        <executions>
+          <execution>
+            <id>bundle</id>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <attach>true</attach>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -243,10 +266,10 @@
         <executions>
           <execution>
             <id>attach-artifacts</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>attach-artifact</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <artifacts>
                 <artifact>
@@ -259,17 +282,22 @@
           </execution>
         </executions>
       </plugin>
-      <plugin><!-- frontend build (nodejs), generated at prepare-package to be there for tests -->
+      <plugin>
+        <!-- frontend build (nodejs), generated at prepare-package to be there for tests -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
+        <configuration>
+          <installDirectory>${project.basedir}/.node</installDirectory>
+          <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
+        </configuration>
         <executions>
           <execution>
             <id>install-node-and-npm</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>install-node-and-npm</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
               <npmVersion>${npm.version}</npmVersion>
@@ -277,20 +305,20 @@
           </execution>
           <execution>
             <id>npm-install</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>npm</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <arguments>install</arguments>
             </configuration>
           </execution>
           <execution>
             <id>npm-build</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>npm</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <arguments>run build</arguments>
               <skip>${component.starter.front.build.skip}</skip>
@@ -301,12 +329,13 @@
               </environmentVariables>
             </configuration>
           </execution>
-          <execution> <!-- mvn frontend:npm@watch -->
+          <execution>
+            <!-- mvn frontend:npm@watch -->
             <id>watch</id>
-            <phase />
             <goals>
               <goal>npm</goal>
             </goals>
+            <phase/>
             <configuration>
               <arguments>start</arguments>
               <environmentVariables>
@@ -317,22 +346,17 @@
             </configuration>
           </execution>
         </executions>
-        <configuration>
-          <installDirectory>${project.basedir}/.node</installDirectory>
-          <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven-resources-plugin.version}</version>
         <executions>
           <execution>
             <id>copy-web-resources</id>
-            <phase>prepare-package</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
+            <phase>prepare-package</phase>
             <configuration>
               <outputDirectory>${project.build.outputDirectory}/META-INF/resources</outputDirectory>
               <resources>
@@ -352,10 +376,10 @@
         <executions>
           <execution>
             <id>download-gradle</id>
-            <phase>generate-resources</phase>
             <goals>
               <goal>wget</goal>
             </goals>
+            <phase>generate-resources</phase>
             <configuration>
               <url>https://services.gradle.org/distributions/gradle-${gradle.version}-bin.zip</url>
               <outputFileName>gradle-${gradle.version}.zip</outputFileName>
@@ -370,15 +394,6 @@
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>${gmavenplus.version}</version>
-        <executions>
-          <execution>
-            <id>grab-gradle-wrapper</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <allowSystemExits>true</allowSystemExits>
           <scripts>
@@ -403,6 +418,15 @@
             </exclusions>
           </dependency>
         </dependencies>
+        <executions>
+          <execution>
+            <id>grab-gradle-wrapper</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>process-resources</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

@@ -3,12 +3,11 @@
 :page-talend_skipindexation:
 
 [#landing-teaser]
-= Talend Component Kit
 
 Customize your connectivity and integrate with thousands of components harmlessly
 to get the best of your data quickly!
 
-= Create your first component
+== Create your first component
 :page-partial:
 
 [role="col-sm-6 landing-curl-text"]
@@ -44,7 +43,7 @@ $ chmod +x mvnw && ./mvnw install talend-component:web
 
 
 [#landing-doc-link]
-= What's next?
+== What's next?
 
 icon:book-open[role="col-sm-offset-1 col-sm-2 fa-5x documentationindex-icon"]
 

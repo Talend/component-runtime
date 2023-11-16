@@ -1,4 +1,4 @@
-#  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,24 +17,67 @@ site:
   url: https://talend.github.io/component-runtime
   keys:
     google_analytics: GTM-PSBN
+urls:
+  latest_version_segment: latest
+  redirect_facility: static
 content:
   sources:
   - url: https://github.com/Talend/component-runtime.git
     tags:
+      # we will keep only latest revision, past revisions will still be present. May speed a bit antora process...
       - component-runtime-*
-      - '!component-runtime-0.*'
-      - '!component-runtime-1.0.0'
-      - '!component-runtime-1.1.15.*'
-      - '!component-runtime-1.29.*'
-      - '!component-runtime-1.30.*'
+      - '!component-runtime-1.1.15'
+      - '!component-runtime-1.1.15.1'
+      - '!component-runtime-1.28.0'
+      - '!component-runtime-1.28.1'
+      - '!component-runtime-1.29.0'
+      - '!component-runtime-1.29.1'
+      - '!component-runtime-1.31.0'
+      - '!component-runtime-1.31.1'
+      - '!component-runtime-1.32.0'
+      - '!component-runtime-1.32.1'
+      - '!component-runtime-1.33.0'
+      - '!component-runtime-1.33.1'
+      - '!component-runtime-1.34.0'
+      - '!component-runtime-1.35.0'
+      - '!component-runtime-1.36.0'
+      - '!component-runtime-1.37.0'
+      - '!component-runtime-1.38.0'
+      - '!component-runtime-1.38.1'
+      - '!component-runtime-1.38.2'
+      - '!component-runtime-1.38.3'
+      - '!component-runtime-1.38.4'
+      - '!component-runtime-1.38.5'
+      - '!component-runtime-1.38.6'
+      - '!component-runtime-1.38.7'
+      - '!component-runtime-1.38.8'
+      - '!component-runtime-1.39.0'
+      - '!component-runtime-1.39.1'
+      - '!component-runtime-1.39.2'
+      - '!component-runtime-1.41.0'
+      - '!component-runtime-1.43.0'
+      - '!component-runtime-1.44.0'
+      - '!component-runtime-1.44.1'
+      - '!component-runtime-1.44.2'
+      - '!component-runtime-1.45.0'
+      - '!component-runtime-1.45.1'
+      - '!component-runtime-1.46.0'
+      - '!component-runtime-1.47.0'
+      - '!component-runtime-1.48.0'
+      - '!component-runtime-1.49.0'
+      - '!component-runtime-1.50.0'
+      - '!component-runtime-1.50.1'
+      - '!component-runtime-1.50.2'
+      - '!component-runtime-1.50.3'
+      - '!component-runtime-1.51.0'
+      - '!component-runtime-1.51.1'
+      - '!component-runtime-1.52.0'
+      - '!component-runtime-1.52.1'
+      - '!component-runtime-1.53.0'
+      - '!component-runtime-1.54.0'
     branches:
-      - master
-      - component-runtime-*
+      - HEAD
     start_path: documentation/src/main/antora
-  - url: https://github.com/Talend/component-runtime.git
-    branches:
-      - master
-    start_path: documentation/src/main/blog
 ui:
   bundle:
     url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/master/raw/build/ui-bundle.zip?job=bundle-stable

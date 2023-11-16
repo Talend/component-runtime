@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.starter.server.configuration.StarterConfiguration;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXNotRecognizedException;
@@ -67,6 +68,22 @@ public class ServerInfo {
     @Inject
     @Getter(NONE)
     private StarterConfiguration configuration;
+
+    @Inject
+    @ConfigProperty(name = "git.build.version")
+    private String release;
+
+    @Inject
+    @ConfigProperty(name = "git.branch")
+    private String branch;
+
+    @Inject
+    @ConfigProperty(name = "git.commit.id")
+    private String commit;
+
+    @Inject
+    @ConfigProperty(name = "git.build.time")
+    private String buildTime;
 
     private ScheduledExecutorService thread;
 
@@ -142,7 +159,7 @@ public class ServerInfo {
             parser.parse(metadata, handler);
             if (handler.release != null) {
                 final String release = handler.release.toString();
-                if (!release.equals(snapshot.getKit())) {
+                if (!release.equals(snapshot.getKit()) && !"10.57.0".equals(release)) {
                     synchronized (this) {
                         log.info("Updating current version from {} to {}", snapshot.getKit(), release);
                         doUpdate(() -> base

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
 package org.talend.sdk.component.runtime.base;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -73,6 +77,34 @@ class LifecycleImplTest {
         assertEquals(2, delegate.counter);
     }
 
+    @Test
+    void startWithArgumentError() {
+        final StartOnlyWithArguments delegate = new StartOnlyWithArguments();
+        final Lifecycle impl = new LifecycleImpl(delegate, "Root", "Test", "Plugin");
+        assertThrows(IllegalArgumentException.class, impl::start);
+    }
+
+    @Test
+    void startWithArgument() {
+        final String argument = "foo";
+        final StartOnlyWithArguments delegate = new StartOnlyWithArguments();
+        final Lifecycle impl = new LifecycleImpl(delegate, "Root", "Test", "Plugin") {
+
+            @Override
+            protected Object[] evaluateParameters(final Class<? extends Annotation> marker, final Method method) {
+                return new Object[] { argument };
+            }
+        };
+        assertEquals(0, delegate.counter);
+        assertNull(delegate.argAsField);
+        impl.start();
+        assertEquals(1, delegate.counter);
+        assertEquals(argument, delegate.argAsField);
+        impl.stop();
+        assertEquals(1, delegate.counter);
+        assertEquals(argument, delegate.argAsField);
+    }
+
     public static class NoLifecycle implements Serializable {
     }
 
@@ -110,4 +142,18 @@ class LifecycleImplTest {
             counter++;
         }
     }
+
+    public static class StartOnlyWithArguments implements Serializable {
+
+        private int counter;
+
+        private String argAsField;
+
+        @PostConstruct
+        public void start(String arg0) {
+            argAsField = arg0;
+            counter++;
+        }
+    }
+
 }

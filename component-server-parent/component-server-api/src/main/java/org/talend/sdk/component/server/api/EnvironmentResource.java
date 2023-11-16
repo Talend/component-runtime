@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,10 @@ public interface EnvironmentResource {
 
     @GET
     @Operation(operationId = "getEnvironment",
-            description = "Returns the environment of this instance. Useful to check the version or configure a healthcheck for the server.")
-    @APIResponse(responseCode = "200", description = "Current environment representation.",
+            description = "Returns the environment information of this instance. " +
+                    "Useful to check the version or configure a healthcheck for the server.")
+    @APIResponse(responseCode = "200",
+            description = "Current environment representation.",
             content = @Content(mediaType = APPLICATION_JSON))
     Environment get();
 }

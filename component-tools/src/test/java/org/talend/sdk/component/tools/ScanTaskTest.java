@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,8 @@ class ScanTaskTest {
                 + "org.talend.test.valid.localconfiguration.MyComponent,"
                 + "org.talend.test.valid.nestedconfigtypes.WithNestedConfigTypes,"
                 + "org.talend.test.valid.nesteddataset.MyComponent,"
+                + "org.talend.test.valid.record.MyRecord,"
+                + "org.talend.test.valid.schema.MySchema,"
                 + "org.talend.test.valid.structure.MyComponentWithStructure,"
                 + "org.talend.test.valid.update.Comp,org.talend.test.valid.wording.MyComponent",
                 properties.getProperty("classes.list"));

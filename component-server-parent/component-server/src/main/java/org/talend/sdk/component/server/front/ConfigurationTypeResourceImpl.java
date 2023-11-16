@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
+import org.talend.sdk.component.server.front.security.SecurityUtils;
 import org.talend.sdk.component.server.lang.MapCache;
 import org.talend.sdk.component.server.service.ActionsService;
 import org.talend.sdk.component.server.service.ExtensionComponentMetadataManager;
@@ -69,7 +70,6 @@ import org.talend.sdk.component.server.service.SimpleQueryLanguageCompiler;
 import org.talend.sdk.component.server.service.event.DeployedComponent;
 import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
 import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
-import org.talend.sdk.components.vault.client.VaultClient;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -112,7 +112,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
     private HttpHeaders headers;
 
     @Inject
-    private VaultClient vault;
+    private SecurityUtils secUtils;
 
     private final Map<String, Function<ConfigTypeNode, Object>> configNodeEvaluators = new HashMap<>();
 
@@ -163,9 +163,8 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
 
     @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
-        final Map<String, String> decrypted = vault.decrypt(config, headers.getHeaderString("x-talend-tenant-id"));
         if (virtualComponents.isExtensionEntity(id)) {
-            return decrypted;
+            return config;
         }
         final Config configuration = ofNullable(configurations.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
@@ -173,7 +172,7 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
                         .entity(new ErrorPayload(ErrorDictionary.CONFIGURATION_MISSING,
                                 "Didn't find configuration " + id))
                         .build()));
-        final Map<String, String> configToMigrate = new HashMap<>(decrypted);
+        final Map<String, String> configToMigrate = new HashMap<>(config);
         final String versionKey = configuration.getMeta().getPath() + ".__version";
         final boolean addedVersion = configToMigrate.putIfAbsent(versionKey, Integer.toString(version)) == null;
         try {

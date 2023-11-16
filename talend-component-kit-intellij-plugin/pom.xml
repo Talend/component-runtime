@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.35.0-SNAPSHOT</version>
+    <version>1.63.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>talend-component-kit-intellij-plugin</artifactId>
@@ -32,42 +32,27 @@
 
     <idea.unpacked.folder>${project.basedir}/.cache/idea/</idea.unpacked.folder>
     <idea.build.version>2019.3.3</idea.build.version>
-    <idea.source>
-      https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.build.version}/ideaIC-${idea.build.version}.zip
-    </idea.source>
+    <idea.source>https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/${idea.build.version}/ideaIC-${idea.build.version}.zip</idea.source>
 
     <!-- for publish script -->
     <idea.intellij.public.url>https://plugins.jetbrains.com</idea.intellij.public.url>
     <idea.intellij.channel>default</idea.intellij.channel>
     <idea.plugin.id>10558</idea.plugin.id>
-    <plugin-repository-rest-client.version>2.0.7</plugin-repository-rest-client.version>
+    <plugin-repository-rest-client.version>2.0.20</plugin-repository-rest-client.version>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>intellij-client</id>
-      <url>https://dl.bintray.com/jetbrains/intellij-plugin-service/</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>intellij-client</id>
-      <url>https://dl.bintray.com/jetbrains/intellij-plugin-service/</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <build>
     <resources>
       <resource>
-        <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <directory>src/main/resources</directory>
         <excludes>
           <exclude>**/*.png</exclude>
         </excludes>
       </resource>
       <resource>
-        <directory>src/main/resources</directory>
         <filtering>false</filtering>
+        <directory>src/main/resources</directory>
         <includes>
           <include>**/*.png</include>
         </includes>
@@ -78,30 +63,37 @@
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <version>${git-commit-id-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>get-the-git-infos-in-m2-properties</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
         </configuration>
+        <executions>
+          <execution>
+            <id>get-the-git-infos-in-m2-properties</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+            <phase>initialize</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>${gmavenplus.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.jetbrains.intellij</groupId>
+            <artifactId>plugin-repository-rest-client</artifactId>
+            <version>${plugin-repository-rest-client.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>setup-deps</id>
-            <phase>initialize</phase>
             <goals>
               <goal>execute</goal>
             </goals>
+            <phase>initialize</phase>
             <configuration>
               <allowSystemExits>true</allowSystemExits>
               <scripts>
@@ -110,25 +102,17 @@
             </configuration>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.jetbrains.intellij</groupId>
-            <artifactId>plugin-repository-rest-client</artifactId>
-            <version>${plugin-repository-rest-client.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.1.1</version>
         <executions>
           <execution>
             <id>package-plugin</id>
-            <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
+            <phase>package</phase>
             <configuration>
               <descriptors>
                 <descriptor>src/assembly/plugin.xml</descriptor>
@@ -177,21 +161,6 @@
             <groupId>org.codehaus.gmavenplus</groupId>
             <artifactId>gmavenplus-plugin</artifactId>
             <version>${gmavenplus.version}</version>
-            <executions>
-              <execution>
-                <id>deploy-plugin</id>
-                <phase>deploy</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-                <configuration>
-                  <allowSystemExits>true</allowSystemExits>
-                  <scripts>
-                    <script>${project.basedir}/src/build/IntelliJPublish.groovy</script>
-                  </scripts>
-                </configuration>
-              </execution>
-            </executions>
             <dependencies>
               <dependency>
                 <groupId>org.codehaus.groovy</groupId>
@@ -203,7 +172,28 @@
                 <artifactId>plugin-repository-rest-client</artifactId>
                 <version>${plugin-repository-rest-client.version}</version>
               </dependency>
+              <!-- transitive dep not fetch by plugin deps -->
+              <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
+              </dependency>
             </dependencies>
+            <executions>
+              <execution>
+                <id>deploy-plugin</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <allowSystemExits>true</allowSystemExits>
+                  <scripts>
+                    <script>${project.basedir}/src/build/IntelliJPublish.groovy</script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
@@ -211,13 +201,6 @@
 
     <profile>
       <id>ide</id>
-
-      <repositories>
-        <repository>
-          <id>idea-local</id>
-          <url>file:${project.basedir}${file.separator}.cache${file.separator}m2${file.separator}localrepository</url>
-        </repository>
-      </repositories>
 
       <dependencies>
         <dependency>
@@ -323,6 +306,13 @@
           <scope>provided</scope>
         </dependency>
       </dependencies>
+
+      <repositories>
+        <repository>
+          <id>idea-local</id>
+          <url>file:${project.basedir}${file.separator}.cache${file.separator}m2${file.separator}localrepository</url>
+        </repository>
+      </repositories>
     </profile>
   </profiles>
 </project>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ class ConfigurableClassLoaderTest {
         try (final ConfigurableClassLoader loader =
                 new ConfigurableClassLoader("",
                         new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
-                                "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar").toURI().toURL() },
+                                "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar").toURI().toURL() },
                         parent, name -> true, name -> false, null, new String[0])) {
             final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
             assertNotNull(pck);
@@ -85,7 +85,7 @@ class ConfigurableClassLoaderTest {
             final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
             try (final ConfigurableClassLoader loader = new ConfigurableClassLoader("",
                     new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
-                            "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar").toURI().toURL() },
+                            "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar").toURI().toURL() },
                     parent, name -> true, name -> parentFirst, null, new String[0])) {
                 try {
                     loader.loadClass("org.apache.ziplock.JarLocation");
@@ -126,12 +126,12 @@ class ConfigurableClassLoaderTest {
 
     @Test
     void nestedPackageDefinition(@TempDir final File temporaryFolder) throws Exception {
-        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
+        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:8.0.14");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader =
                         new ConfigurableClassLoader("", new URL[0], parent, name -> true, name -> true,
-                                new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" }, new String[0])) {
+                                new String[] { "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar" }, new String[0])) {
             final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
             assertNotNull(pck);
             assertEquals("org.apache.ziplock", pck.getName());
@@ -145,12 +145,12 @@ class ConfigurableClassLoaderTest {
 
     @Test
     void findContainedResources(@TempDir final File temporaryFolder) throws Exception {
-        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
+        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:8.0.14");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader =
                         new ConfigurableClassLoader("", new URL[0], parent, name -> true, name -> true,
-                                new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" }, new String[0])) {
+                                new String[] { "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar" }, new String[0])) {
             final List<InputStream> containedResources =
                     loader.findContainedResources("org/apache/ziplock/ClassLoaders.class");
             containedResources.forEach(it -> {
@@ -170,12 +170,12 @@ class ConfigurableClassLoaderTest {
 
     @Test
     void nestedJars(@TempDir final File temporaryFolder) throws IOException {
-        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:7.0.5");
+        final File nestedJar = createNestedJar(temporaryFolder, "org.apache.tomee:ziplock:jar:8.0.14");
         try (final URLClassLoader parent = new URLClassLoader(new URL[] { nestedJar.toURI().toURL() },
                 Thread.currentThread().getContextClassLoader());
                 final ConfigurableClassLoader loader =
                         new ConfigurableClassLoader("", new URL[0], parent, name -> true, name -> true,
-                                new String[] { "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar" }, new String[0])) {
+                                new String[] { "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar" }, new String[0])) {
             try { // classes
                 final Class<?> aClass = loader.loadClass("org.apache.ziplock.JarLocation");
                 final Object jarLocation =
@@ -194,7 +194,7 @@ class ConfigurableClassLoaderTest {
                 assertNotNull(url);
                 assertEquals("nested", url.getProtocol());
                 assertEquals(
-                        "MAVEN-INF/repository/org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar!/org/apache/ziplock/JarLocation.class",
+                        "MAVEN-INF/repository/org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar!/org/apache/ziplock/JarLocation.class",
                         url.getFile());
                 final byte[] bytes = slurp(url.openStream());
                 assertEquals(4666, bytes.length, mavenJarSizeMargin);
@@ -258,10 +258,10 @@ class ConfigurableClassLoaderTest {
     void spi() throws IOException {
         final Predicate<String> parentClasses = name -> true;
         final File staxApi =
-                new File(Constants.DEPENDENCIES_LOCATION, "org/codehaus/woodstox/stax2-api/4.1/stax2-api-4.1.jar");
+                new File(Constants.DEPENDENCIES_LOCATION, "org/codehaus/woodstox/stax2-api/4.2.1/stax2-api-4.2.1.jar");
         assertTrue(staxApi.isFile());
         final File woodstox = new File(Constants.DEPENDENCIES_LOCATION,
-                "com/fasterxml/woodstox/woodstox-core/5.1.0/woodstox-core-5.1.0.jar");
+                "com/fasterxml/woodstox/woodstox-core/6.5.0/woodstox-core-6.5.0.jar");
         assertTrue(woodstox.isFile());
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());
@@ -304,7 +304,7 @@ class ConfigurableClassLoaderTest {
     @Test
     void excludedSpiResources() throws Exception {
         final Predicate<String> parentClasses = name -> true;
-        final File xerces = new File(Constants.DEPENDENCIES_LOCATION, "xerces/xercesImpl/2.12.0/xercesImpl-2.12.0.jar");
+        final File xerces = new File(Constants.DEPENDENCIES_LOCATION, "xerces/xercesImpl/2.12.2/xercesImpl-2.12.2.jar");
         assertTrue(xerces.exists());
         try (final URLClassLoader parent =
                 new URLClassLoader(new URL[0], Thread.currentThread().getContextClassLoader());

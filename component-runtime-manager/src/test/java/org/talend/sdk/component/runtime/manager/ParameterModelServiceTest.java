@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 package org.talend.sdk.component.runtime.manager;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,15 @@ class ParameterModelServiceTest {
 
         final ParameterMeta date = params.iterator().next();
         assertEquals(ParameterMeta.Type.STRING, date.getType());
-        assertEquals(singletonMap("tcomp::ui::datetime", "zoneddatetime"), date.getMetadata());
+        assertEquals(new HashMap() {
+
+            {
+                put("tcomp::ui::datetime", "zoneddatetime");
+                put("tcomp::ui::datetime::dateFormat", "YYYY/MM/DD");
+                put("tcomp::ui::datetime::useSeconds", "true");
+                put("tcomp::ui::datetime::useUTC", "true");
+            }
+        }, date.getMetadata());
     }
 
     @Test
@@ -108,6 +116,54 @@ class ParameterModelServiceTest {
             assertEquals("1", param.getMetadata().get("tcomp::validation::maxLength"),
                     () -> param.getMetadata().toString());
             assertNull(param.getMetadata().get("tcomp::validation::minLength"), () -> param.getMetadata().toString());
+        }
+    }
+
+    @Test
+    void intWithDefaultBoundaries() throws NoSuchMethodException {
+        final List<ParameterMeta> params = service.buildParameterMetas(
+                MethodsHolder.class.getMethod("intOption", int.class, Integer.class), "def", context());
+        assertEquals(2, params.size());
+
+        final List<String> expectedPaths = Arrays.asList("foo1", "foo2");
+        for (int i = 0; i < params.size(); i++) {
+            final String expectedPath = expectedPaths.get(i);
+            final ParameterMeta param = params.get(i);
+
+            assertEquals(expectedPath, param.getPath());
+            assertEquals(ParameterMeta.Type.NUMBER, param.getType());
+            assertEquals(String.valueOf((double) Integer.MIN_VALUE), param.getMetadata().get("tcomp::validation::min"),
+                    () -> param.getMetadata().toString());
+            assertEquals(String.valueOf((double) Integer.MAX_VALUE), param.getMetadata().get("tcomp::validation::max"),
+                    () -> param.getMetadata().toString());
+        }
+    }
+
+    @Test
+    void intWithOverwrittenDefaultBoundaries() throws NoSuchMethodException {
+        final List<ParameterMeta> params = service.buildParameterMetas(
+                MethodsHolder.class.getMethod("intOptionOverwrite", int.class, Integer.class), "def", context());
+        assertEquals(2, params.size());
+
+        {
+            final ParameterMeta param = params.get(0);
+
+            assertEquals("foo1", param.getPath());
+            assertEquals(ParameterMeta.Type.NUMBER, param.getType());
+            assertEquals("42.0", param.getMetadata().get("tcomp::validation::min"),
+                    () -> param.getMetadata().toString());
+            assertEquals(String.valueOf((double) Integer.MAX_VALUE), param.getMetadata().get("tcomp::validation::max"),
+                    () -> param.getMetadata().toString());
+        }
+        {
+            final ParameterMeta param = params.get(1);
+
+            assertEquals("foo2", param.getPath());
+            assertEquals(ParameterMeta.Type.NUMBER, param.getType());
+            assertEquals(String.valueOf((double) Integer.MIN_VALUE), param.getMetadata().get("tcomp::validation::min"),
+                    () -> param.getMetadata().toString());
+            assertEquals("42.0", param.getMetadata().get("tcomp::validation::max"),
+                    () -> param.getMetadata().toString());
         }
     }
 

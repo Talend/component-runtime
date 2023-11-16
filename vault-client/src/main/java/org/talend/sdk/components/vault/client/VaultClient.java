@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -118,9 +121,14 @@ public class VaultClient {
     private Long refreshDelayMargin;
 
     @Inject
-    @Documentation("How often (in ms) to refresh the vault token in case of an authentication failure.")
-    @ConfigProperty(name = "talend.vault.cache.service.auth.refreshDelayOnFailure", defaultValue = "10000")
+    @Documentation("How long (in ms) to wait before retrying a recoverable error or refresh the vault token in case of an authentication failure.")
+    @ConfigProperty(name = "talend.vault.cache.service.auth.refreshDelayOnFailure", defaultValue = "1000")
     private Long refreshDelayOnFailure;
+
+    @Inject
+    @Documentation("How many times do we retry a recoverable operation in case of a failure.")
+    @ConfigProperty(name = "talend.vault.cache.service.auth.numberOfRetryOnFailure", defaultValue = "3")
+    private Integer numberOfRetryOnFailure;
 
     @Inject
     @Documentation("Status code sent when vault can't decipher some values.")
@@ -144,9 +152,51 @@ public class VaultClient {
 
     private Pattern compiledPassthroughRegex;
 
+    private final Predicate<Throwable> shouldRetry = cause -> {
+        if (WebApplicationException.class.isInstance(cause)) {
+            final WebApplicationException wae = WebApplicationException.class.cast(cause);
+            final int status = wae.getResponse().getStatus();
+            if (Status.NOT_FOUND.getStatusCode() == status || status >= 500) {
+                return false;
+            }
+        }
+        return true;
+    };
+
     @PostConstruct
     private void init() {
         compiledPassthroughRegex = Pattern.compile(passthroughRegex);
+    }
+
+    @PreDestroy
+    private void destroy() {
+        scheduledExecutorService.shutdownNow(); // we don't care anymore about these tasks
+        try {
+            scheduledExecutorService.awaitTermination(1L, MINUTES); // wait too much but enough for our goal
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void init(@Observes @Initialized(ApplicationScoped.class) final ServletContext init) {
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+            private final ThreadGroup group = ofNullable(System.getSecurityManager())
+                    .map(SecurityManager::getThreadGroup)
+                    .orElseGet(() -> Thread.currentThread().getThreadGroup());
+
+            @Override
+            public Thread newThread(final Runnable r) {
+                final Thread t = new Thread(group, r, "talend-vault-service-refresh", 0L);
+                if (t.isDaemon()) {
+                    t.setDaemon(false);
+                }
+                if (t.getPriority() != Thread.NORM_PRIORITY) {
+                    t.setPriority(Thread.NORM_PRIORITY);
+                }
+                return t;
+            }
+        });
     }
 
     @SneakyThrows
@@ -165,21 +215,28 @@ public class VaultClient {
                 .filter(entry -> compiledPassthroughRegex.matcher(entry.getValue()).matches())
                 .map(cyphered -> cyphered.getKey())
                 .collect(toList());
-        final CompletableFuture<Map<String, String>> t =
-                get(cipheredKeys.stream().map(values::get).collect(toList()), clock.millis(), tenantId)
-                        .thenApply(decrypted -> values
-                                .entrySet()
-                                .stream()
-                                .collect(toMap(Entry::getKey,
-                                        e -> of(cipheredKeys.indexOf(e.getKey()))
-                                                .filter(idx -> idx >= 0)
-                                                .map(decrypted::get)
-                                                .map(DecryptedValue::getValue)
-                                                .orElseGet(() -> values.get(e.getKey())))));
-        return t.get();
+        if (cipheredKeys.isEmpty()) {
+            return values;
+        }
+        Supplier<CompletableFuture<Map<String, String>>> attempt = () -> prepareRequest(values, cipheredKeys, tenantId);
+        return withRetries(attempt, shouldRetry).get();
     }
 
-    public CompletableFuture<List<DecryptedValue>> get(final Collection<String> values, final long currentTime,
+    private CompletableFuture<Map<String, String>> prepareRequest(final Map<String, String> values,
+            final List<String> cipheredKeys, final String tenantId) {
+        return get(cipheredKeys.stream().map(values::get).collect(toList()), clock.millis(), tenantId)
+                .thenApply(decrypted -> values
+                        .entrySet()
+                        .stream()
+                        .collect(toMap(Entry::getKey,
+                                e -> of(cipheredKeys.indexOf(e.getKey()))
+                                        .filter(idx -> idx >= 0)
+                                        .map(decrypted::get)
+                                        .map(DecryptedValue::getValue)
+                                        .orElseGet(() -> values.get(e.getKey())))));
+    }
+
+    private CompletableFuture<List<DecryptedValue>> get(final Collection<String> values, final long currentTime,
             final String tenantId) {
         final AtomicInteger index = new AtomicInteger();
         final Collection<EntryWithIndex<String>> clearValues = values
@@ -214,7 +271,9 @@ public class VaultClient {
         if (missing.isEmpty()) { // no remote call, yeah
             return completedFuture(values.stream().map(alreadyCached::get).map(Optional::get).collect(toList()));
         }
+        // do request
         return getOrRequestAuth()
+                // prepare decrypt request to vault
                 .thenCompose(auth -> ofNullable(auth.getAuth()).map(Auth::getClientToken).map(clientToken -> {
                     WebTarget path = vault.path(decryptEndpoint);
                     if (decryptEndpoint.contains("x-talend-tenant-id")) {
@@ -222,7 +281,7 @@ public class VaultClient {
                                 .resolveTemplate("x-talend-tenant-id",
                                         ofNullable(tenantId)
                                                 .orElseThrow(() -> new WebApplicationException(Response
-                                                        .status(Status.BAD_REQUEST)
+                                                        .status(Status.NOT_FOUND)
                                                         .entity(new ErrorPayload(ErrorDictionary.BAD_FORMAT,
                                                                 "No header x-talend-tenant-id"))
                                                         .build())));
@@ -235,10 +294,11 @@ public class VaultClient {
                                     missing.stream().map(it -> new DecryptInput(it, null, null)).collect(toList())),
                                     APPLICATION_JSON_TYPE), DecryptResponse.class)
                             .toCompletableFuture()
+                            // fetch decrypted values
                             .thenApply(decrypted -> {
                                 final Collection<DecryptResult> results = decrypted.getData().getBatchResults();
                                 if (results.isEmpty()) {
-                                    throw new WebApplicationException(Status.FORBIDDEN);
+                                    throwError(cantDecipherStatusCode, "Decrypted values are empty");
                                 }
                                 final List<String> errors = results
                                         .stream()
@@ -246,13 +306,8 @@ public class VaultClient {
                                         .filter(Objects::nonNull)
                                         .collect(toList());
                                 if (!errors.isEmpty()) {
-                                    throw new WebApplicationException(Response
-                                            .status(cantDecipherStatusCode)
-                                            .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
-                                                    "Can't decipher properties: " + errors))
-                                            .build());
+                                    throwError(cantDecipherStatusCode, "Can't decipher properties: " + errors);
                                 }
-
                                 final Iterator<String> keyIterator = missing.iterator();
                                 final Map<String, DecryptedValue> decryptedResults = results
                                         .stream()
@@ -260,86 +315,53 @@ public class VaultClient {
                                                 StandardCharsets.UTF_8))
                                         .collect(toMap(it -> keyIterator.next(),
                                                 it -> new DecryptedValue(it, currentTime)));
-
                                 cache.putAll(decryptedResults);
-
+                                //
                                 return values
                                         .stream()
                                         .map(it -> decryptedResults
                                                 .getOrDefault(it, alreadyCached.get(it).orElse(null)))
                                         .collect(toList());
                             })
-                            .exceptionally(e -> { // we don't cache failure for now since it is not supposed to
-                                                  // happen
+                            // oops, smtg went wrong
+                            .exceptionally(e -> {
                                 final Throwable cause = e.getCause();
-                                String debug = "";
+                                String message = "";
+                                int status = cantDecipherStatusCode;
                                 if (WebApplicationException.class.isInstance(cause)) {
                                     final WebApplicationException wae = WebApplicationException.class.cast(cause);
                                     final Response response = wae.getResponse();
                                     if (response != null) {
                                         if (ErrorPayload.class.isInstance(response.getEntity())) { // internal error
-                                            log
-                                                    .error("{}",
-                                                            ErrorPayload.class
-                                                                    .cast(response.getEntity())
-                                                                    .getDescription());
                                             throw wae;
                                         } else {
                                             try {
-                                                debug = response.readEntity(String.class);
+                                                message = response.readEntity(String.class);
                                             } catch (final Exception ignored) {
                                                 // no-op
                                             }
                                         }
-
-                                        final int status = response.getStatus();
-                                        if (status == Status.NOT_FOUND.getStatusCode()) {
-                                            log
-                                                    .error("Failed to decrypt to vault, endpoint not found, check your setup",
-                                                            e);
-                                            return null;
+                                        status = response.getStatus();
+                                        if (status == Status.NOT_FOUND.getStatusCode() && message.isEmpty()) {
+                                            message = "Decryption failed: Endpoint not found, check your setup.";
                                         }
                                     }
                                 }
-                                log.error("Failed to decrypt, debug='" + debug + "'", e);
-                                throw new WebApplicationException(Response
-                                        .status(cantDecipherStatusCode)
-                                        .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR, debug))
-                                        .build());
+                                if (message.isEmpty()) {
+                                    message = String.format("Decryption failed: %s", cause.getMessage());
+                                }
+                                log.error("{} ({}).", message, status);
+                                throw new WebApplicationException(message,
+                                        Response
+                                                .status(status)
+                                                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, message))
+                                                .build());
                             });
-                }).orElseThrow(() -> new WebApplicationException(Response.Status.FORBIDDEN)));
-    }
-
-    public void init(@Observes @Initialized(ApplicationScoped.class) final ServletContext init) {
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-
-            private final ThreadGroup group = ofNullable(System.getSecurityManager())
-                    .map(SecurityManager::getThreadGroup)
-                    .orElseGet(() -> Thread.currentThread().getThreadGroup());
-
-            @Override
-            public Thread newThread(final Runnable r) {
-                final Thread t = new Thread(group, r, "talend-vault-service-refresh", 0);
-                if (t.isDaemon()) {
-                    t.setDaemon(false);
-                }
-                if (t.getPriority() != Thread.NORM_PRIORITY) {
-                    t.setPriority(Thread.NORM_PRIORITY);
-                }
-                return t;
-            }
-        });
-        // note: by default we start without the token so no: scheduledExecutorService.submit(this::getOrRequestAuth);
-    }
-
-    @PreDestroy
-    private void destroy() {
-        scheduledExecutorService.shutdownNow(); // we don't care anymore about these tasks
-        try {
-            scheduledExecutorService.awaitTermination(1, MINUTES); // wait too much but enough for our goal
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+                })
+                        .orElseThrow(() -> new WebApplicationException(Response
+                                .status(Response.Status.FORBIDDEN)
+                                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, "getOrRequestAuth failed"))
+                                .build())));
     }
 
     private CompletionStage<Authentication> getOrRequestAuth() {
@@ -351,97 +373,123 @@ public class VaultClient {
             return completedFuture(new Authentication(authInfo, Long.MAX_VALUE));
         }).orElseGet(() -> {
             final String role = of(this.role.get()).filter(this::isReloadableConfigSet).orElse(null);
-            if (role == null) {
-                log.error("No vault token or role available, authentication will not be possible");
-                throw new WebApplicationException(Response
-                        .serverError()
-                        .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, "Vault not reachable"))
-                        .build());
-            }
+            final String secret = of(this.secret.get()).filter(this::isReloadableConfigSet).orElse(null);
             return ofNullable(authToken.get())
                     .filter(auth -> (auth.getExpiresAt() - clock.millis()) <= refreshDelayMargin) // is expired
                     .map(CompletableFuture::completedFuture)
-                    .orElseGet(() -> doAuth(role).toCompletableFuture());
+                    .orElseGet(() -> doAuth(role, secret).toCompletableFuture());
         });
     }
 
-    private CompletionStage<Authentication> doAuth(final String role) {
+    private CompletionStage<Authentication> doAuth(final String role, final String secret) {
         log.info("Authenticating to vault");
         return vault
                 .path(authEndpoint)
                 .request(APPLICATION_JSON_TYPE)
                 .rx()
-                .post(entity(new AuthRequest(role, of(secret.get()).filter(this::isReloadableConfigSet).orElse(null)),
-                        APPLICATION_JSON_TYPE), AuthResponse.class)
+                .post(entity(new AuthRequest(role, secret), APPLICATION_JSON_TYPE), AuthResponse.class)
+                //
                 .thenApply(token -> {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Authenticated to vault '{}'", token);
-                    }
-
+                    log.debug("Authenticated to vault");
                     if (token.getAuth() == null || token.getAuth().getClientToken() == null) {
-                        log.error("Vault didn't return a token");
-                        throw new WebApplicationException(Response
-                                .serverError()
-                                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, "Vault not available"))
-                                .build());
+                        throwError(500, "Vault didn't return a token");
                     } else {
                         log.info("Authenticated to vault");
                     }
-
                     final long validityMargin = TimeUnit.SECONDS.toMillis(token.getAuth().getLeaseDuration());
                     final long nextRefresh = clock.millis() + validityMargin - refreshDelayMargin;
                     final Authentication authentication = new Authentication(token.getAuth(), nextRefresh);
                     authToken.set(authentication);
                     if (!scheduledExecutorService.isShutdown() && token.getAuth().isRenewable()) {
-                        scheduledExecutorService.schedule(() -> doAuth(role), nextRefresh, MILLISECONDS);
+                        scheduledExecutorService.schedule(() -> doAuth(role, secret), nextRefresh, MILLISECONDS);
                     }
                     return authentication;
                 })
+                //
                 .exceptionally(e -> {
                     final Throwable cause = e.getCause();
-                    String debug = "";
                     if (WebApplicationException.class.isInstance(cause)) {
                         final WebApplicationException wae = WebApplicationException.class.cast(cause);
                         final Response response = wae.getResponse();
-                        if (response != null) {
-                            if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
-                                // already logged and setup broken so just rethrow
-                                throw wae;
-                            } else {
-                                try {
-                                    debug = response.readEntity(String.class);
-                                } catch (final Exception ignored) {
-                                    // no-op
-                                }
-
-                                final int status = response.getStatus();
-                                if (status == Response.Status.NOT_FOUND.getStatusCode()) {
-                                    log
-                                            .error("Failed to authenticate to vault, endpoint not found, check your setup",
-                                                    e);
-                                    return null;
-                                }
-                                if (status == Response.Status.FORBIDDEN.getStatusCode()) {
-                                    log
-                                            .error("Failed to authenticate to vault, forbidden access, check your setup (key)",
-                                                    e);
-                                    return null;
-                                }
-                                if (status == 429) { // rate limit reached, wait
-                                    log.error("Failed to authenticate to vault, rate limit reached", e);
-                                    return null;
-                                }
-                                if (status >= 500) { // something wrong, no need to retry
-                                    log.error("Failed to authenticate to vault, unexpected error", e);
-                                    return null;
-                                }
+                        String message = "";
+                        if (ErrorPayload.class.isInstance(wae.getResponse().getEntity())) {
+                            throw wae; // already logged and setup broken so just rethrow
+                        } else {
+                            try {
+                                message = response.readEntity(String.class);
+                            } catch (final Exception ignored) {
+                                // no-op
                             }
+                            if (message.isEmpty()) {
+                                message = cause.getMessage();
+                            }
+                            throwError(response.getStatus(), message);
                         }
                     }
-                    log.error("Failed to authenticate to vault, retrying, debug='" + debug + "'", e);
-                    scheduledExecutorService.schedule(() -> doAuth(role), refreshDelayOnFailure, MILLISECONDS);
+                    throwError(cause);
                     return null;
                 });
+    }
+
+    private <T> CompletableFuture<T> withRetries(final Supplier<CompletableFuture<T>> attempt,
+            final Predicate<Throwable> shouldRetry) {
+        Executor scheduler = r -> scheduledExecutorService.schedule(r, refreshDelayOnFailure, TimeUnit.MILLISECONDS);
+        CompletableFuture<T> firstAttempt = attempt.get();
+        return flatten(firstAttempt
+                .thenApply(CompletableFuture::completedFuture)
+                .exceptionally(throwable -> retryFuture(attempt, 1, throwable, shouldRetry, scheduler)));
+    }
+
+    private <T> CompletableFuture<T> retryFuture(final Supplier<CompletableFuture<T>> attempter,
+            final int attemptsSoFar, final Throwable throwable, final Predicate<Throwable> shouldRetry,
+            final Executor scheduler) {
+        int nextAttempt = attemptsSoFar + 1;
+        log
+                .info("[retryFuture] Retry failed operation ({}/{}). Reason: {}.", attemptsSoFar,
+                        numberOfRetryOnFailure, throwable.getMessage());
+        if (nextAttempt > numberOfRetryOnFailure || !shouldRetry.test(throwable.getCause())) {
+            log.info("[retryFuture] Stop retry failed operation (condition triggered).");
+            throwError(throwable.getCause());
+        }
+        return flatten(flatten(CompletableFuture.supplyAsync(attempter, scheduler))
+                .thenApply(CompletableFuture::completedFuture)
+                .exceptionally(
+                        nextThrowable -> retryFuture(attempter, nextAttempt, nextThrowable, shouldRetry, scheduler)));
+    }
+
+    private <T> CompletableFuture<T> flatten(final CompletableFuture<CompletableFuture<T>> completableCompletable) {
+        return completableCompletable.thenCompose(Function.identity());
+    }
+
+    private void throwError(final int status, final String message) {
+        throw new WebApplicationException(message,
+                Response.status(status).entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, message)).build());
+    }
+
+    private void throwError(final Throwable cause) {
+        String message = "";
+        int status = cantDecipherStatusCode;
+        if (WebApplicationException.class.isInstance(cause)) {
+            final WebApplicationException wae = WebApplicationException.class.cast(cause);
+            final Response response = wae.getResponse();
+            status = response.getStatus();
+            if (response != null) {
+                if (ErrorPayload.class.isInstance(response.getEntity())) { // internal error
+                    throw wae;
+                } else {
+                    try {
+                        message = response.readEntity(String.class);
+                    } catch (final Exception ignored) {
+                        // no-op
+                    }
+                }
+            }
+        }
+        if (message.isEmpty()) {
+            message = cause.getMessage();
+        }
+        throw new WebApplicationException(message,
+                Response.status(status).entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, message)).build());
     }
 
     // workaround while geronimo-config does not support generics of generics

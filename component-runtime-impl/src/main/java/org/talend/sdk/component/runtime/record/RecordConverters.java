@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -153,17 +154,14 @@ public class RecordConverters implements Serializable {
                 if (s2 == null) { // unlikely
                     return s1;
                 }
-                final List<Schema.Entry> entries1 = s1.getEntries();
-                final List<Schema.Entry> entries2 = s2.getEntries();
-                final Set<String> names1 = entries1.stream().map(Schema.Entry::getName).collect(toSet());
-                final Set<String> names2 = entries2.stream().map(Schema.Entry::getName).collect(toSet());
+                final Set<String> names1 = s1.getAllEntries().map(Schema.Entry::getName).collect(toSet());
+                final Set<String> names2 = s2.getAllEntries().map(Schema.Entry::getName).collect(toSet());
                 if (!names1.equals(names2)) {
                     // here we are not good since values will not be right anymore,
                     // forbidden for current version anyway but potentially supported later
                     final Schema.Builder builder = factory.newSchemaBuilder(Schema.Type.RECORD);
-                    entries1.forEach(builder::withEntry);
-                    names2.removeAll(names1);
-                    entries2.stream().filter(it -> names2.contains(it.getName())).forEach(builder::withEntry);
+                    s1.getAllEntries().forEach(builder::withEntry);
+                    s2.getAllEntries().filter(it -> !(names1.contains(it.getName()))).forEach(builder::withEntry);
                     return builder.build();
                 }
                 return s1;
@@ -211,7 +209,7 @@ public class RecordConverters implements Serializable {
         if (Float.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.FLOAT).build();
         }
-        if (BigDecimal.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
+        if (JsonNumber.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DOUBLE).build();
         }
         if (Double.class.isInstance(next) || JsonNumber.class.isInstance(next)) {
@@ -220,8 +218,11 @@ public class RecordConverters implements Serializable {
         if (Boolean.class.isInstance(next) || JsonValue.TRUE.equals(next) || JsonValue.FALSE.equals(next)) {
             return factory.newSchemaBuilder(Schema.Type.BOOLEAN).build();
         }
-        if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next)) {
+        if (Date.class.isInstance(next) || ZonedDateTime.class.isInstance(next) || Instant.class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.DATETIME).build();
+        }
+        if (BigDecimal.class.isInstance(next)) {
+            return factory.newSchemaBuilder(Schema.Type.DECIMAL).build();
         }
         if (byte[].class.isInstance(next)) {
             return factory.newSchemaBuilder(Schema.Type.BYTES).build();
@@ -354,6 +355,13 @@ public class RecordConverters implements Serializable {
                 }
                 break;
             }
+            case DECIMAL: {
+                final BigDecimal value = record.get(BigDecimal.class, name);
+                if (value != null) {
+                    builder.add(name, value.toString());
+                }
+                break;
+            }
             case RECORD: {
                 final Record value = record.get(Record.class, name);
                 if (value != null) {
@@ -440,6 +448,8 @@ public class RecordConverters implements Serializable {
         if (value == null) {
             return null;
         }
+
+        // here mean get(Object.class, name) return origin store type, like DATETIME return long, is expected?
         if (!expectedType.isInstance(value)) {
             return expectedType.cast(MappingUtils.coerce(expectedType, value, name));
         }
@@ -480,8 +490,11 @@ public class RecordConverters implements Serializable {
                     constructor.setAccessible(true);
                     recordVisitor = constructor.newInstance(rowStruct, metadata);
                     visitRecord = visitorClass.getDeclaredMethod("visit", Record.class);
-                } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
-                        | InvocationTargetException | NoSuchMethodException e) {
+                } catch (final NoClassDefFoundError | ClassNotFoundException | InstantiationException
+                        | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    if (e.getMessage().matches(".*routines.system.Dynamic.*")) {
+                        throw new IllegalStateException("TOS does not support dynamic type", e);
+                    }
                     throw new IllegalStateException(e);
                 }
             }
@@ -500,9 +513,12 @@ public class RecordConverters implements Serializable {
                     final Constructor<?> constructor = visitorClass.getConstructors()[0];
                     constructor.setAccessible(true);
                     rowStructVisitor = constructor.newInstance();
-                    visitRowStruct = visitorClass.getDeclaredMethod("get", Object.class, RecordBuilderFactory.class);
-                } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
-                        | InvocationTargetException | NoSuchMethodException e) {
+                    visitRowStruct = visitorClass.getMethod("get", Object.class, RecordBuilderFactory.class);
+                } catch (final NoClassDefFoundError | ClassNotFoundException | InstantiationException
+                        | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    if (e.getMessage().matches(".*routines.system.Dynamic.*")) {
+                        throw new IllegalStateException("TOS does not support dynamic type", e);
+                    }
                     throw new IllegalStateException(e);
                 }
             }

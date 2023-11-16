@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -19,21 +19,36 @@ set -xe
 
 # Parameters:
 # $1: docker tag version
-main() {
-  local tag="${1?Missing tag}"
+# $2: should tag as latest (true/false) default is false
+# $3: requested image, if not given, all will be pushed
 
-  echo ">> Building and pushing component-server:${tag}"
-  cd images/component-server-image
-  mvn verify dockerfile:build -P ci-tsbi
-  docker tag "talend/common/tacokit/component-server:${tag}" "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}"
-  docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${tag}"
-  echo ">> Building and pushing component-server-vault-proxy:${tag}"
-  cd ../component-server-vault-proxy-image
-  mvn verify dockerfile:build -P ci-tsbi
-  docker tag "talend/common/tacokit/component-server-vault-proxy:${tag}" "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}"
-  docker push "artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server-vault-proxy:${tag}"
-  #TODO starter and remote-engine-customizer
-  cd ../..
+_TAG="${1?Missing tag}"
+_IS_LATEST="${2-false}"
+_ONLY_ONE_IMAGE="${3}"
+
+dockerBuild() {
+  _IMAGE="${1}"
+  printf ">> Building and push %s:%s\n" "{$_IMAGE}" "${_TAG}"
+  if [[ ${_IS_LATEST} == 'true' ]]; then
+    printf ">>THe image will be tagged as LATEST\n"
+  fi
+
+  mvn package jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define docker.talend.image.tag="${_TAG}"
+
+  if [[ ${_IS_LATEST} == 'true' ]]; then
+    mvn package jib:build@build \
+    --file "images/${_IMAGE}-image/pom.xml" \
+    --define docker.talend.image.tag=latest
+  fi
 }
 
-main "$@"
+if [[ -n "${_ONLY_ONE_IMAGE}" ]]; then
+  dockerBuild "${_ONLY_ONE_IMAGE}"
+else
+  dockerBuild "component-server"
+  dockerBuild "component-starter-server"
+  dockerBuild "remote-engine-customizer"
+fi
+

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
 import org.talend.sdk.component.tools.exec.CarMain;
+import org.talend.sdk.component.tools.exec.Versions;
 
 import lombok.Data;
 
@@ -69,9 +70,11 @@ public class CarBundler implements Runnable {
         final Properties metadata = new Properties();
         metadata.put("date", date);
         metadata.put("version", ofNullable(configuration.version).orElse("NC"));
+        metadata.put("CarBundlerVersion", Versions.KIT_VERSION);
         metadata
                 .put("component_coordinates", ofNullable(configuration.mainGav)
                         .orElseThrow(() -> new IllegalArgumentException("No component coordinates specified")));
+        metadata.put("type", ofNullable(configuration.type).orElse("connector"));
         if (configuration.getCustomMetadata() != null) {
             configuration.getCustomMetadata().forEach(metadata::setProperty);
         }
@@ -166,5 +169,7 @@ public class CarBundler implements Runnable {
         private Map<String, String> customMetadata;
 
         private File output;
+
+        private String type;
     }
 }

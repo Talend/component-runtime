@@ -1,6 +1,7 @@
 = Contributing to Talend Component Kit documentation
-:page-talend_skipindexation:
 :page-talend_stage: draft
+:keywords: documentation, asciidoc, asciidoctor, contributor
+:description: Lear how to contribute to component-runtime documentation
 
 This document explains how Asciidoctor is used in the context of Talend Component Kit as well as the specific processes in place.
 
@@ -88,8 +89,8 @@ It is a best practices that all sublevels added to the document are kept consist
 ----
 
 When possible, avoid going lower than section 2 (`===`) to keep the page readable.
-In the HTML output, the document title is rendered as <h1>, section 1 titles as <h2>, etc.
-The "in-page" navigation available on the right side of the HTML rendering only considers <h2> and <h3> elements. Other levels are ignored to keep the navigation readable and simple.
+In the HTML output, the document title is renderedh1, section 1 titles as h2, etc.
+The "in-page" navigation available on the right side of the HTML rendering only considers h2 and h3 elements. Other levels are ignored to keep the navigation readable and simple.
 
 === Reusing content with includes
 
@@ -107,7 +108,7 @@ An include can be done as follows:
 \include::doc2.adoc[leveloffset=+1]
 ----
 
-In this case, both doc1.adoc and doc2.adoc are rendered in the same page and their content is offset by one level, meaning that the document title of doc1 becomes a section 1 title (<h2>) instead of an <h1> in the final rendering, and so on.
+In this case, both doc1.adoc and doc2.adoc are rendered in the same page and their content is offset by one level, meaning that the document title of doc1 becomes a section 1 title (h2) instead of an h1 in the final rendering, and so on.
 
 Note that both doc1.adoc and doc2.adoc will in addition be rendered as standalone pages (doc1.html and doc2.html).
 

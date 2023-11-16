@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class JmxManager implements ContainerListener {
             container.set(JmxData.class, new JmxData(name));
         } catch (final InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException
                 | MalformedObjectNameException e) {
-            log.warn(e.getMessage(), e);
+            log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
         }
     }
 

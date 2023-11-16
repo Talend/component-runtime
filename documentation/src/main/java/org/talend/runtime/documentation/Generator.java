@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,7 +125,6 @@ import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Values;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.schema.Schema;
-import org.talend.sdk.component.api.service.schema.Type;
 import org.talend.sdk.component.junit.environment.BaseEnvironmentProvider;
 import org.talend.sdk.component.remoteengine.customizer.Cli;
 import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ConditionParameterEnricher;
@@ -135,12 +134,6 @@ import org.talend.sdk.component.runtime.manager.reflect.parameterenricher.Valida
 import org.talend.sdk.component.runtime.manager.xbean.KnownClassesFilter;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.reflect.Defaults;
-import org.talend.sdk.component.runtime.server.vault.proxy.endpoint.security.SecurityFilter;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.VaultService;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.http.ClientSetup;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.CacheConfigurationFactory;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.JCacheSetup;
-import org.talend.sdk.component.runtime.server.vault.proxy.service.jcache.VaultProxyCacheResolver;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 import org.talend.sdk.component.spi.parameter.ParameterExtensionEnricher;
 
@@ -179,9 +172,7 @@ public class Generator {
             tasks.register(() -> generatedActions(generatedDir));
             tasks.register(() -> generatedUi(generatedDir));
             tasks.register(() -> generatedServerConfiguration(generatedDir));
-            tasks.register(() -> generatedServerVaultProxyConfiguration(generatedDir));
             tasks.register(() -> updateComponentServerApi(generatedDir, version));
-            tasks.register(() -> updateComponentServerVaultApi(generatedDir, version));
             tasks.register(() -> generatedJUnitEnvironment(generatedDir));
             tasks.register(() -> generatedScanningExclusions(generatedDir));
             tasks.register(() -> generatedRemoteEngineCustomizerHelp(generatedDir));
@@ -206,11 +197,6 @@ public class Generator {
     private static void updateComponentServerApi(final File generatedDir, final String version) throws Exception {
         writeServerOpenApi(new File(generatedDir, "generated_rest-resources.adoc"),
                 "META-INF/resources/documentation/openapi.json", version);
-    }
-
-    private static void updateComponentServerVaultApi(final File generatedDir, final String version) throws Exception {
-        writeServerOpenApi(new File(generatedDir, "generated_rest-resources-vault.adoc"),
-                "META-INF/resources/openapi.json", version);
     }
 
     private static void writeServerOpenApi(final File output, final String resource, final String version)
@@ -244,7 +230,7 @@ public class Generator {
             if (!oldJson.startsWith("{") || !areEqualsIgnoringOrder(oldApi, newApi)) {
                 try (final OutputStream writer = new WriteIfDifferentStream(output)) {
                     writer
-                            .write(("= Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
+                            .write(("== Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
                                     + "(window.talend " + "= (window.talend || {})).swaggerUi = " + newApi.toString()
                                     + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
                                             .getBytes(StandardCharsets.UTF_8));
@@ -599,6 +585,18 @@ public class Generator {
                                                                             .append("^]")
                                                                             .append(": ")
                                                                             .append(i.getFields().getSummary().trim())
+                                                                            .append(" ")
+                                                                            .append(i.getFields()
+                                                                                    .getComponents()
+                                                                                    .stream()
+                                                                                    .map(c -> c.getName()
+                                                                                            .trim())
+                                                                                    .filter(c -> !"dependency-update"
+                                                                                            .equals(c))
+                                                                                    .map(n -> String.format(
+                                                                                            "link:search.html?query=%s[%s^,role='dockey']",
+                                                                                            n, n))
+                                                                                    .collect(joining(" ")))
                                                                             .append("\n"),
                                                                     StringBuilder::append))
                                                     .append('\n'),
@@ -665,18 +663,6 @@ public class Generator {
             stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
             stream.println();
             generateConfigTableContent(stream, ComponentServerConfiguration.class);
-            stream.println();
-        }
-    }
-
-    private static void generatedServerVaultProxyConfiguration(final File generatedDir) {
-        final File file = new File(generatedDir, "generated_server-vault-proxy-configuration.adoc");
-        try (final PrintStream stream = new PrintStream(new WriteIfDifferentStream(file))) {
-            stream.println();
-            stream.println("NOTE: the configuration is read from system properties, environment variables, ....");
-            stream.println();
-            generateConfigTableContent(stream, ClientSetup.class, VaultService.class, JCacheSetup.class,
-                    SecurityFilter.class, VaultProxyCacheResolver.class, CacheConfigurationFactory.class);
             stream.println();
         }
     }
@@ -863,9 +849,11 @@ public class Generator {
             return jsonb.toJson(status);
         }
         if (returnedType == Schema.class) {
-            final Schema.Entry entry = new Schema.Entry();
-            entry.setName("column1");
-            entry.setType(Type.STRING);
+            final org.talend.sdk.component.api.record.Schema.Entry entry =
+                    new SchemaImpl.EntryImpl.BuilderImpl()
+                            .withName("column1")
+                            .withType(org.talend.sdk.component.api.record.Schema.Type.STRING)
+                            .build();
 
             final Schema schema = new Schema();
             schema.setEntries(new ArrayList<>());
@@ -1088,8 +1076,12 @@ public class Generator {
                                     && Annotation.class == method.getDeclaringClass()) {
                                 return type;
                             }
-                            if (Defaults.isDefaultAndShouldHandle(method)) {
-                                return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
+                            if (method.isDefault()) {
+                                try {
+                                    return Defaults.handleDefault(method.getDeclaringClass(), method, proxy, args);
+                                } catch (Throwable e) {
+                                    log.error("[generateAnnotation] handleDefault failed: {}", e.getMessage());
+                                }
                             }
                             final Class<?> returnType = method.getReturnType();
                             if (int.class == returnType) {
@@ -1348,6 +1340,16 @@ public class Generator {
     }
 
     @Data
+    public static class JiraComponent {
+
+        private String self;
+
+        private String id;
+
+        private String name;
+    }
+
+    @Data
     public static class Fields {
 
         private String summary;
@@ -1359,6 +1361,8 @@ public class Generator {
         private Status status;
 
         private Collection<JiraVersion> fixVersions;
+
+        private Collection<JiraComponent> components;
     }
 
     @Data

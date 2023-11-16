@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,8 @@ public class EnvironmentResourceImpl implements EnvironmentResource {
     @Override
     public Environment get() {
         return new Environment(latestApiVersion, version, commit, time,
-                configuration.getChangeLastUpdatedAtStartup() ? findLastUpdated() : service.findLastUpdated());
+                configuration.getChangeLastUpdatedAtStartup() ? findLastUpdated() : service.findLastUpdated(),
+                service.getConnectors());
     }
 
     private Date findLastUpdated() {

@@ -1,6 +1,6 @@
 = From Javajet to Talend Component Kit
 :page-partial:
-:keywords: javajet, studio, learning, getting started, principles
+:keywords: javajet, studio, studio-integration, learning, getting started, principles
 :description: The Javajet framework is being replaced by the new Talend Component Kit. Learn the main differences and the new approach introduced with this framework.
 
 From the version 7.0 of Talend Studio, Talend Component Kit becomes the recommended framework to use to develop components.
@@ -214,6 +214,34 @@ Component Kit
 List<MyObject> config;
 ----
 
+==== Module List
+
+Javajet
+[source,XML]
+----
+<PARAMETER NAME="DRIVER_JAR" FIELD="TABLE" NUM_ROW="3" NB_LINES="2" REQUIRED="true">
+    <ITEMS>
+        <ITEM NAME="JAR_NAME" FIELD="MODULE_LIST"  />
+    </ITEMS>
+</PARAMETER>
+----
+
+Component Kit
+[source,java]
+----
+public class Driver implements Serializable {
+
+    @ModuleList
+    @Option
+    private String path;
+
+}
+
+//define it in config class like this:
+@Option
+List<Driver> config;
+----
+
 ==== Code
 
 Javajet
@@ -382,6 +410,77 @@ private String login;
 @Documentation("password for the basic authentication")
 private String password;
 ----
+
+=== Return Variables
+
+NOTE: Return variables availability (1.51+) deprecates link:#_after_variables[After Variables].
+
+Javajet
+[source,XML]
+----
+<RETURNS>
+    <RETURN NAME="QUERY" TYPE="id_String" AVAILABILITY="FLOW"/>
+    <RETURN NAME="NAME_1_OF_AFTER_VARIABLE" TYPE="id_Integer" AVAILABILITY="AFTER"/>
+</RETURNS>
+----
+
+`AVAILABILITY` can be :
+
+- `AFTER` : set after component finished.
+- `FLOW` : changed on row level.
+
+Component Kit
+
+[source,java]
+----
+@Slf4j
+@Version(1)
+@ReturnVariable(value = "QUERY", availability = FLOW, type = String.class, description = "Current row query")
+@Processor(name = "Row")
+@Documentation("JDBC Row component.")
+public class JDBCRowProcessor implements Serializable {
+
+    @RuntimeContext
+    private transient RuntimeContextHolder context;
+
+    @ElementListener
+    public void elementListener(@Input final Record record,
+                                @Output final OutputEmitter<Record> success) throws SQLException {
+        ...
+
+        if (context != null) {
+            context.set("QUERY", configuration.getDataSet().getSqlQuery());
+        }
+    }
+}
+----
+
+
+Return variables can be nested as below:
+[source,java]
+----
+import org.talend.sdk.component.api.component.ReturnVariables;
+import org.talend.sdk.component.api.component.ReturnVariables.ReturnVariable;
+import org.talend.sdk.component.api.processor.Processor;
+
+
+    @ReturnVariables({
+            @ReturnVariable(value = "PROCESS_COUNT", type = Integer.class,
+                            availability = ReturnVariable.AVAILABILITY.AFTER),
+            @ReturnVariable(value = "MISC", type = String.class,
+                            availability = ReturnVariable.AVAILABILITY.FLOW) })
+    @Processor
+    public class ClassWithReturnVariablesGroup {
+        ...
+
+        @PreDestroy
+        public void close() {
+            context.set("PROCESS_COUNT", counted);
+        }
+
+    }
+----
+
 
 === After Variables
 

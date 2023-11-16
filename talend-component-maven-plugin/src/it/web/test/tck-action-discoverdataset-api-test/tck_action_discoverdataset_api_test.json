@@ -1,0 +1,150 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi doc is [here for action execute](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Action/execute)  \nAction documentation is [here for discoverdataset](https://talend.github.io/component-runtime/main/latest/ref-actions.html#_discoverdataset)",
+        "id": "396869d7-6698-4f94-8874-2d5da7103bc2",
+        "name": "tck-action-discoverdataset-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBodyEditorHeight": 150,
+              "textBody": "{}"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "family",
+                    "value": "the_family"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "type",
+                    "value": "discoverdataset"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "action",
+                    "value": "action_DISCOVER_DATASET"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/action/execute"
+            },
+            "id": "58bcf3eb-15a6-4a2b-ba5f-9945f7513360",
+            "name": "1. action.execute - discoverdataset",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.datasetDescriptionList..name",
+                "value": "[\"datasetA\",\"datasetB\"]"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "d7975106-9ad9-41fd-8900-ab5520885d2c",
+      "name": "component_runtime_ci",
+      "variables": {
+        "2400e0e3-6175-48e2-bf2b-7354eabc00dc": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-21T01:59:53.483Z",
+          "private": false
+        },
+        "73190d8b-f41f-48d7-a030-32d74f39a16c": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-07-21T01:59:53.483Z",
+          "private": false
+        },
+        "f11721bf-eaa1-4095-a5ff-a2508aa4fd4b": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-21T01:59:53.483Z",
+          "private": false
+        },
+        "ebe274f4-5ff9-4643-aae8-663ebb906504": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-07-21T01:59:53.483Z",
+          "private": false
+        },
+        "72cf6aa3-f802-4ea4-9012-674e5ec07d4d": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-07-21T01:59:53.483Z",
+          "private": false
+        },
+        "c53e3f0b-8f36-4a7e-8fb6-1c0d2ac11f33": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-21T01:59:53.483Z",
+          "private": false
+        },
+        "856a7b3e-d583-452e-9d25-e2bdd15aed68": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-21T01:59:53.483Z",
+          "private": false
+        },
+        "6903f772-9858-4511-b2f9-ea95714cc1dd": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-07-21T01:59:53.483Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}

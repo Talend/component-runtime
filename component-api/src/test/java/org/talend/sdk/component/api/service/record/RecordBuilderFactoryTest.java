@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,8 @@ class RecordBuilderFactoryTest {
 
         private final boolean nullable;
 
+        private final boolean metadata;
+
         private final Object defaultVal;
 
         @Override
@@ -94,6 +96,11 @@ class RecordBuilderFactoryTest {
         @Override
         public String getProp(final String property) {
             return this.getProps().get(property);
+        }
+
+        @Override
+        public Builder toBuilder() {
+            throw new UnsupportedOperationException("#toBuilder()");
         }
     }
 
@@ -125,6 +132,12 @@ class RecordBuilderFactoryTest {
         @Override
         public Entry.Builder withNullable(boolean nullable) {
             this.builder.withNullable(nullable);
+            return this;
+        }
+
+        @Override
+        public Entry.Builder withMetadata(boolean metadata) {
+            this.builder.withMetadata(metadata);
             return this;
         }
 

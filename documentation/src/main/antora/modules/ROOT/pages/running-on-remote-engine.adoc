@@ -1,4 +1,6 @@
 = Running Component Kit components on a Remote Engine
+:description: How to customize components for testing on a remote engine
+:keywords: remote engine, docker, customizer, tool, car, car-bundler, test, testing, cloud, extension, custom
 
 The Remote Engine is a key piece for executing components with Talend Pipeline Designer.
 To customize it for testing purposes, a helper tool is available.

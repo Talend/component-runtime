@@ -34,15 +34,11 @@
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
           </svg>
         </button>
-        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
+        <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
         {{#if page.component}}
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {{#if (eq page.component.name 'blog')}}
-                Blog
-              {{else}}
                 {{#if page.component}}{{page.version}}{{~#if (eq page.origin.branch 'master')}} (dev){{/if}}{{else}}Versions{{/if}}
-              {{/if}}
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
@@ -62,14 +58,9 @@
           {{#if doc}}
           <li><a class="navbar-item dropdown-toggle" href="index.html">Docs</a></li>
           {{/if}}
+          <li><a href="changelog.html" class="navbar-single-link">CHANGELOG</a></li>
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Blog <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a class="navbar-item" href="{{site.url}}/blog/release-notes.html" target="_blank">Release Notes</a></li>
-            </ul>
-          </li>
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community<span class="caret"></span></a>
             <ul class="dropdown-menu">
               <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
               <li><a class="navbar-item" href="contributors.html">Contributors</a></li>

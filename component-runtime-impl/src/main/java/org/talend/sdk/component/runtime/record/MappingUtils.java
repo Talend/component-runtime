@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.record;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -45,7 +46,7 @@ public class MappingUtils {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     public static <T> Object coerce(final Class<T> expectedType, final Object value, final String name) {
-        log.debug("[coerce] expectedType={}, value={}, name={}.", expectedType, value, name);
+        log.trace("[coerce] expectedType={}, value={}, name={}.", expectedType, value, name);
         // null is null, la la la la la... guess which song is it ;-)
         if (value == null) {
             return null;
@@ -54,15 +55,21 @@ public class MappingUtils {
         if (Long.class.isInstance(value) && expectedType != Long.class) {
             if (ZonedDateTime.class == expectedType) {
                 final long epochMilli = Number.class.cast(value).longValue();
-                if (epochMilli == -1L) { // not <0 which can be a bug
-                    return null;
-                }
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), UTC);
             }
             if (Date.class == expectedType) {
                 return new Date(Number.class.cast(value).longValue());
             }
+            if (Instant.class == expectedType) {
+                return Instant.ofEpochMilli(Number.class.cast(value).longValue());
+            }
         }
+
+        // we store decimal by string for AvroRecord case
+        if ((expectedType == BigDecimal.class) && String.class.isInstance(value)) {
+            return new BigDecimal(String.class.cast(value));
+        }
+
         // non-matching types
         if (!expectedType.isInstance(value)) {
             // number classes mapping
@@ -77,6 +84,30 @@ public class MappingUtils {
             if (String.class == expectedType) {
                 return String.valueOf(value);
             }
+            // TCOMP-2293 support Instant
+            if (Instant.class.isInstance(value)) {
+                if (ZonedDateTime.class == expectedType) {
+                    return ZonedDateTime.ofInstant((Instant) value, UTC);
+                } else if (java.util.Date.class == expectedType) {
+                    return java.sql.Timestamp.from((Instant) value);
+                } else if (Long.class == expectedType) {
+                    return ((Instant) value).toEpochMilli();
+                }
+            }
+            if (Timestamp.class.isInstance(value)
+                    && (java.util.Date.class == expectedType || Instant.class == expectedType)) {
+                return value;
+            }
+            if (value instanceof long[]) {
+                final Instant instant = Instant.ofEpochSecond(((long[]) value)[0], ((long[]) value)[1]);
+                if (ZonedDateTime.class == expectedType) {
+                    return ZonedDateTime.ofInstant(instant, UTC);
+                }
+                if (Instant.class == expectedType) {
+                    return instant;
+                }
+            }
+
             // TODO: maybe add a Date.class / ZonedDateTime.class mapping case. Should check that...
             // mainly for CSV incoming data where everything is mapped to String
             if (String.class.isInstance(value)) {

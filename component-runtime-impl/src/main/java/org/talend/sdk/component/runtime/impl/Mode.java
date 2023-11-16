@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.impl;
 
 public enum Mode {
+
     DEFAULT, // default logic, nothing particular
     UNSAFE; // deactivate validations for an unsafe runtime (speed gain when environment is already validated)
 

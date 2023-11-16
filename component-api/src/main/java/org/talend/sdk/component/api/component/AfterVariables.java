@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.talend.sdk.component.api.meta.Documentation;
         + "The functionality is for the Studio only.")
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface AfterVariables {
 
     AfterVariable[] value();
@@ -55,6 +56,7 @@ public @interface AfterVariables {
     @Repeatable(AfterVariables.class)
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
+    @Deprecated
     @interface AfterVariable {
 
         /**
@@ -83,6 +85,7 @@ public @interface AfterVariables {
             + "The functionality is for the Studio only.")
     @Target(ElementType.METHOD)
     @Retention(RUNTIME)
+    @Deprecated
     @interface AfterVariableContainer {
     }
 }

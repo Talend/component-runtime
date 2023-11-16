@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ export const CONFIGURATION_URL = `${SERVER_URL}/project/configuration`;
 export const GENERATOR_ZIP_URL = `${SERVER_URL}/project/zip/form`;
 export const GENERATOR_OPENAPI_ZIP_URL = `${SERVER_URL}/project/openapi/zip/form`;
 export const GENERATOR_GITHUB_URL = `${SERVER_URL}/project/github`;
+export const GENERATOR_OPENAPI_GITHUB_URL = `${SERVER_URL}/project/openapi/github`;
 export const COMPONENT_TYPE_SOURCE = 'Input';
 export const COMPONENT_TYPE_PROCESSOR = 'Processor';
 export const COMPONENT_TYPE_SINK = 'Output';

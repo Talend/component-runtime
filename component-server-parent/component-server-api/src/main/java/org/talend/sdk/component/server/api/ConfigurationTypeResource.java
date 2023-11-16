@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,14 +56,15 @@ public interface ConfigurationTypeResource {
             + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
             + " to create a client model for all configurations.")
     @APIResponse(responseCode = "200",
-            description = "the list of available and storable configurations (datastore, dataset, ...).",
+            description = "List of available and storable configurations (datastore, dataset, ...).",
             content = @Content(mediaType = APPLICATION_JSON))
     ConfigTypeNodes getRepositoryModel(
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.", in = QUERY,
+                    description = "Response language in i18n format.", in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("lightPayload") @DefaultValue("true") @Parameter(name = "lightPayload",
-                    description = "should the payload skip the forms and actions associated to the configuration.",
+                    description = "Should the payload skip the forms and actions associated to the configuration." +
+                            "Default value is `true`.",
                     in = QUERY, schema = @Schema(type = BOOLEAN, defaultValue = "true")) boolean lightPayload,
             @QueryParam("q") @Parameter(name = "q",
                     description = "Query in simple query language to filter configurations. "
@@ -75,25 +76,26 @@ public interface ConfigurationTypeResource {
     @GET
     @Path("details")
     @Operation(operationId = "getConfigurationDetail",
-            description = "Returns all available configuration type - storable models. "
-                    + "Note that the lightPayload flag allows to load all of them at once when you eagerly need "
-                    + " to create a client model for all configurations.")
+            description = "Returns the set of metadata about one or multiples configuration identified by their 'id'.")
     @APIResponse(responseCode = "200",
-            description = "the list of available and storable configurations (datastore, dataset, ...).",
+            description = "List of details for the requested configuration.",
             content = @Content(mediaType = APPLICATION_JSON))
     ConfigTypeNodes getDetail(
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.", in = QUERY,
+                    description = "Response language in i18n format.",
+                    in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("identifiers") @Parameter(name = "identifiers",
-                    description = "the comma separated list of identifiers to request.", in = QUERY) String[] ids);
+                    description = "The identifier id to request. " +
+                            "Repeat this parameter to request more than one element.",
+                    in = QUERY) String[] ids);
 
     @POST
     @Path("migrate/{id}/{configurationVersion}")
     @Operation(operationId = "migrateConfiguration",
             description = "Allows to migrate a configuration without calling any component execution.")
     @APIResponse(responseCode = "200",
-            description = "the new values for that configuration (or the same if no migration was needed).",
+            description = "New values for that configuration (or the same if no migration was needed).",
             content = @Content(mediaType = APPLICATION_JSON))
     @APIResponse(responseCode = "404",
             description = "If the configuration is missing, payload will be an ErrorPayload with the code CONFIGURATION_MISSING.",
@@ -103,10 +105,14 @@ public interface ConfigurationTypeResource {
             description = "An unexpected error occurred during migration, payload will be an ErrorPayload with the code UNEXPECTED.",
             content = @Content(mediaType = APPLICATION_JSON))
     Map<String, String> migrate(
-            @PathParam("id") @Parameter(name = "id", description = "the configuration identifier", in = PATH) String id,
+            @PathParam("id") @Parameter(name = "id",
+                    description = "The configuration identifier.",
+                    in = PATH) String id,
             @PathParam("configurationVersion") @Parameter(name = "configurationVersion",
-                    description = "the configuration version you send", in = PATH) int version,
-            @RequestBody(description = "the actual configuration in key/value form.", required = true,
+                    description = "The configuration version you send in provided body.",
+                    in = PATH) int version,
+            @RequestBody(
+                    description = "Configuration to migrate in key/value json form.", required = true,
                     content = @Content(mediaType = APPLICATION_JSON,
                             schema = @Schema(type = OBJECT))) Map<String, String> config);
 }

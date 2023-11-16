@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,11 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,10 +57,12 @@ import org.talend.sdk.component.api.service.http.HttpClientFactory;
 import org.talend.sdk.component.api.service.injector.Injector;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.record.RecordService;
+import org.talend.sdk.component.api.service.source.ProducerFinder;
 import org.talend.sdk.component.runtime.manager.asm.ProxyGenerator;
 import org.talend.sdk.component.runtime.manager.json.PreComputedJsonpProvider;
 import org.talend.sdk.component.runtime.manager.proxy.JavaProxyEnricherFactory;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
+import org.talend.sdk.component.runtime.manager.service.api.ComponentInstantiator;
 import org.talend.sdk.component.runtime.manager.service.configuration.PropertiesConfiguration;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 import org.talend.sdk.component.runtime.manager.util.Lazy;
@@ -106,13 +110,14 @@ public class DefaultServiceProvider {
 
     public <T> T lookup(final String id, final ClassLoader loader, final Supplier<List<InputStream>> localConfigLookup,
             final Function<String, Path> resolver, final Class<T> api,
-            final AtomicReference<Map<Class<?>, Object>> services) {
-        return api.cast(doLookup(id, loader, localConfigLookup, resolver, api, services));
+            final AtomicReference<Map<Class<?>, Object>> services, final ComponentInstantiator.Builder instantiators) {
+        return api.cast(doLookup(id, loader, localConfigLookup, resolver, api, services, instantiators));
     }
 
     private Object doLookup(final String id, final ClassLoader loader,
             final Supplier<List<InputStream>> localConfigLookup, final Function<String, Path> resolver,
-            final Class<?> api, final AtomicReference<Map<Class<?>, Object>> services) {
+            final Class<?> api, final AtomicReference<Map<Class<?>, Object>> services,
+            final ComponentInstantiator.Builder instantiators) {
         if (JsonProvider.class == api) {
             return new PreComputedJsonpProvider(id, jsonpProvider, jsonpParserFactory, jsonpWriterFactory,
                     jsonpBuilderFactory, jsonpGeneratorFactory, jsonpReaderFactory);
@@ -141,7 +146,8 @@ public class DefaultServiceProvider {
             final JsonbBuilder jsonbBuilder = createPojoJsonbBuilder(id,
                     Lazy
                             .lazy(() -> Jsonb.class
-                                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services))));
+                                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services,
+                                            instantiators))));
             return new GenericOrPojoJsonb(id, jsonbProvider
                     .create()
                     .withProvider(jsonpProvider) // reuses the same memory buffering
@@ -184,6 +190,21 @@ public class DefaultServiceProvider {
         if (ObjectFactory.class == api) {
             return new ObjectFactoryImpl(id, propertyEditorRegistry);
         }
+        if (ProducerFinder.class == api) {
+            final RecordService recordService =
+                    this.lookup(id, loader, localConfigLookup, resolver, RecordService.class, services, instantiators);
+            Iterator<ProducerFinder> producerFinders = ServiceLoader.load(ProducerFinder.class, loader).iterator();
+            if (producerFinders.hasNext()) {
+                ProducerFinder producerFinder = producerFinders.next();
+                if (producerFinders.hasNext()) {
+                    log.warn("More than one ProducerFinder are available via SPI, using {}.",
+                            producerFinder.getClass().getSimpleName());
+                }
+                return producerFinder.init(id, instantiators, recordService::toRecord);
+            } else {
+                return new ProducerFinderImpl().init(id, instantiators, recordService::toRecord);
+            }
+        }
         if (RecordPointerFactory.class == api) {
             return new RecordPointerFactoryImpl(id);
         }
@@ -195,7 +216,8 @@ public class DefaultServiceProvider {
                     () -> jsonpProvider,
                     Lazy
                             .lazy(() -> Jsonb.class
-                                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services))));
+                                    .cast(doLookup(id, loader, localConfigLookup, resolver, Jsonb.class, services,
+                                            instantiators))));
         }
         return null;
     }
@@ -265,7 +287,7 @@ public class DefaultServiceProvider {
      * Build executor service
      * used by
      * - Local cache for eviction.
-     * 
+     *
      * @return scheduled executor service.
      */
     private ScheduledExecutorService buildExecutorService() {

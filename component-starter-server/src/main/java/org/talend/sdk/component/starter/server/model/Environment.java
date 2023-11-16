@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,4 +29,13 @@ public class Environment {
     private Date lastUpdate;
 
     private String version;
+
+    private String branch;
+
+    private String commit;
+
+    private String buildTime;
+
+    private String release;
+
 }

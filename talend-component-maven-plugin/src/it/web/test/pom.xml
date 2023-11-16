@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+   Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.talend.ci.api-tester</groupId>
+    <artifactId>tck-endpoints-api-test</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <!-- All test cases in alphabetical order -->
+        <module>tck-action-builtinsuggestable-api-test</module>
+        <module>tck-action-close-connection-api-test</module>
+        <module>tck-action-create-connection-api-test</module>
+        <module>tck-action-discoverdataset-api-test</module>
+        <module>tck-action-dynamic-values-api-test</module>
+        <module>tck-action-errors-api-test</module>
+        <module>tck-action-index-api-test</module>
+        <module>tck-action-schema-api-test</module>
+        <module>tck-action-suggestion-api-test</module>
+        <module>tck-action-update-api-test</module>
+        <module>tck-action-user-api-test</module>
+        <module>tck-action-validation-api-test</module>
+        <module>tck-action-healthcheck-api-test</module>
+        <module>tck-bulk-api-test</module>
+        <module>tck-component-icon-api-test</module>
+        <module>tck-component-dependencies-api-test</module>
+        <module>tck-component-dependency-api-test</module>
+        <module>tck-component-details-api-test</module>
+        <module>tck-component-index-api-test</module>
+        <module>tck-component-migrate-api-test</module>
+        <module>tck-configurationType-details-api-test</module>
+        <module>tck-configurationType-index-api-test</module>
+        <module>tck-configurationType-migrate-api-test</module>
+        <module>tck-documentation-api-test</module>
+        <module>tck-language-api-test</module>
+        <module>tck-environment-api-test</module>
+        <module>tck-security-api-test</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <api-tester.version>1.10.2</api-tester.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.0.0-M5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.talend.ci</groupId>
+                    <artifactId>tck-endpoints-api-test</artifactId>
+                    <version>1.10.2</version>
+
+                    <executions>
+                        <execution>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <!-- Set by cmd line -->
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>releases</id>
+            <name>Releases repository</name>
+            <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>snapshots</id>
+            <name>Snapshots Repository</name>
+            <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

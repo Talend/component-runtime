@@ -1,0 +1,1322 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "This test project will verify a set of language related topic, in extra of languages test done on endpoints  \nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+        "id": "3c0faec4-f1ef-4c5b-9448-835402417473",
+        "name": "tck-language-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Scenario",
+            "description": "Check the component language support.  \nThe fall back and default language should be English (en),\nFor now only the following languages are supported in most of the connectors:  \n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)  \nThe demo connector have the following:\n - Default (en),\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)  \n - Chinees(zh) \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "1913a41a-9734-4a50-b09e-d59d90c7c0e7",
+            "name": "1 - languages - component/index"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "name": "language",
+                        "value": "en"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Expected: English  \nA non given language fall back to English",
+                "id": "a85e785b-822e-40a5-9433-ff22761b3b2e",
+                "name": "component/index - default language",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..displayName",
+                    "value": "-en"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-en"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..metadata.documentation::value",
+                    "value": "-en"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "xx"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Expected: English fall back  \nAn unknown language fall back to English",
+                "id": "b3fc91c0-9c04-4da1-a322-9b84ed6acc70",
+                "name": "component/index - non i18n language id",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..displayName",
+                    "value": "-en"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-en"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..metadata.documentation::value",
+                    "value": "-en"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "de"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Expected: English fall back  \nAn unknown language fall back to English",
+                "id": "c3e46f28-0beb-4de6-bd9d-00a82e4ba62b",
+                "name": "component/index - unimplemented i18n language",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..displayName",
+                    "value": "-en"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-en"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..metadata.documentation::value",
+                    "value": "-en"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "en"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test the English request",
+                "id": "e0f8a720-14f9-4d17-9893-f65c18783c78",
+                "name": "component/index - en",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..displayName",
+                    "value": "-en"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-en"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "en_US"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test the English request with region  ",
+                "id": "5b2e4f12-946e-4da1-ba1d-60eb5ef72a0f",
+                "name": "component/index - en_US",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..displayName",
+                    "value": "-en"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-en"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "fr"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test the French request",
+                "id": "d6791cec-c741-47c0-be03-81efd73ebd16",
+                "name": "component/index - fr",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "enabled": true,
+                    "path": "$.components..displayName",
+                    "value": "-fr"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-fr"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..metadata.documentation::value",
+                    "value": "-fr"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "fr_CA"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test the French request with region",
+                "id": "40a69fba-4947-412c-b083-f692eff3145d",
+                "name": "component/index - fr_CA",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "enabled": true,
+                    "path": "$.components..displayName",
+                    "value": "-fr"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-fr"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..metadata.documentation::value",
+                    "value": "-fr"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "ja"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test the Japanese request",
+                "id": "d869463f-296b-42f0-84e6-8aeddaabaf97",
+                "name": "component/index - ja",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Accept-Charset",
+                    "value": "utf-8"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "enabled": true,
+                    "path": "$.components..displayName",
+                    "value": "-ja"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-ja"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..metadata.documentation::value",
+                    "value": "-ja"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "zh"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test the Chinese request   ",
+                "id": "ddb40cb9-234f-49de-a736-7be471ccec73",
+                "name": "component/index - zh",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Accept-Charset",
+                    "value": "utf-8"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "enabled": true,
+                    "path": "$.components..displayName",
+                    "value": "-zh_CN"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-zh_CN"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..metadata.documentation::value",
+                    "value": "-zh_CN"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "zh_ZONE"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      },
+                      {
+                        "name": "name",
+                        "value": "input"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test the Chinese request with region  ",
+                "id": "c6437ca6-b01b-479e-8ffd-05b6e3c212bf",
+                "name": "component/index - zh_ZONE",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Accept-Charset",
+                    "value": "utf-8"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "enabled": true,
+                    "path": "$.components..displayName",
+                    "value": "-zh_CN"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..familyDisplayName",
+                    "value": "-zh_CN"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.components..metadata.documentation::value",
+                    "value": "-zh_CN"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Scenario",
+            "description": "Check the component language support.  \nThe fall back and default language should be English (en),\nFor now only the following languages are supported in most of the connectors:  \n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)  \nThe demo connector have the following:\n - Default (en),\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)  \n - Chinees(zh) \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "9eff98ad-976c-4171-b7a1-9faa4c5337d9",
+            "name": "2 - languages - component/details"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${\"mapper_id\"}"
+                      },
+                      {
+                        "name": "language",
+                        "value": "en"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/details"
+                },
+                "description": "A non given language fall back to English",
+                "id": "1d9a057b-cb1c-46db-8838-58b8b81ec3ce",
+                "name": "component details - default language",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.details",
+                    "value": "1"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.details[0].displayName",
+                    "value": "-en"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "en"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${\"mapper_id\"}"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/details"
+                },
+                "description": "Request for English",
+                "id": "b9223edf-a0b6-46a3-8400-43b1a56c2044",
+                "name": "component details - English",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.details",
+                    "value": "1"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.details[0].displayName",
+                    "value": "-en"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "fr"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${\"mapper_id\"}"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/details"
+                },
+                "description": "Request for French",
+                "id": "d9d54d77-6013-4985-a34f-2a199d69c911",
+                "name": "component details - French",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.details",
+                    "value": "1"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.details[0].displayName",
+                    "value": "-fr"
+                  },
+                  {
+                    "comparison": "DoesNotContain",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "-en"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "zh"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "identifiers",
+                        "value": "${\"mapper_id\"}"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/details"
+                },
+                "description": "Request for Chinese  ",
+                "id": "fb2937c9-a7db-441d-b800-475c3b6bbd7c",
+                "name": "component details - Chinese",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.details",
+                    "value": "1"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.details[0].displayName",
+                    "value": "-zh"
+                  },
+                  {
+                    "comparison": "DoesNotContain",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "-en"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Scenario",
+            "description": "Check the component language support.  \nThe fall back and default language should be English (en),\nFor now only the following languages are supported in most of the connectors:  \n - English (en)\n - Dutch (de)\n - French (fr)\n - Japanese (ja)  \nThe demo connector have the following:\n - Default (en),\n - English (en)\n - Ukrainian (uk)\n - French (fr)\n - Japanese (ja)  \n - Chinees(zh) \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "33f38176-2b3b-495c-bc2b-c0f07b7039c3",
+            "name": "3 - specials characters"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "fr"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "q",
+                        "value": "(name = TheOutput1)"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test some French accents",
+                "id": "07af9115-f663-42a1-bd64-0b746f29c0ad",
+                "name": "French",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "enabled": false,
+                    "path": "$.components[0].displayName",
+                    "value": "-fr +é"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "ja"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "q",
+                        "value": "(name = TheOutput1)"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test some Japanes characters",
+                "id": "94372758-daa6-489c-ab25-df2e27aa3fb8",
+                "name": "Japanese",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Accept-Charset",
+                    "value": "utf-8"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "enabled": false,
+                    "path": "$.components[0].displayName",
+                    "value": "-ja +愛"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "language",
+                        "value": "zh"
+                      },
+                      {
+                        "enabled": true,
+                        "name": "q",
+                        "value": "(name = TheOutput1)"
+                      },
+                      {
+                        "name": "includeIconContent",
+                        "value": "false"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/index"
+                },
+                "description": "Test some Chinese characters  ",
+                "id": "f3603594-ac2e-4a87-b742-028a7c5f351e",
+                "name": "Chinese",
+                "headers": [
+                  {
+                    "enabled": true,
+                    "name": "Accept-Charset",
+                    "value": "utf-8"
+                  }
+                ],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "enabled": true,
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseJsonBody",
+                    "enabled": false,
+                    "path": "$.components[0].displayName",
+                    "value": "-zh_CN +爱"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "name": "component_runtime_ci",
+      "variables": {
+        "56f6cb1b-e758-42d2-bfd2-b8b5464654b5": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-05-15T09:45:49.917Z",
+          "private": false
+        },
+        "f7314dca-1c04-496c-ad19-44a4c8009360": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-05-15T09:45:49.917Z",
+          "private": false
+        },
+        "f0e9a692-6866-4c95-8b76-5f5d363e3ed1": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-05-15T09:45:49.917Z",
+          "private": false
+        },
+        "1266d066-8fd3-47f6-ad74-260e39b9d472": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-05-15T09:45:49.917Z",
+          "private": false
+        },
+        "f05e4bab-fee2-4637-869f-bb228225d2ea": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-05-15T09:45:49.917Z",
+          "private": false
+        },
+        "ec6e694a-f4a6-4558-a788-eb3e36ee893e": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-05-15T09:45:49.917Z",
+          "private": false
+        },
+        "c803040f-9503-4201-a576-aee684b93510": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-05-15T09:45:49.917Z",
+          "private": false
+        },
+        "838469ba-346a-4f73-b769-031f529306f0": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-05-24T07:29:46.274Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}

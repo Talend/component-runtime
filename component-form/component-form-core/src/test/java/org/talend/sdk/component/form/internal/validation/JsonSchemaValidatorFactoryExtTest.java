@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ class JsonSchemaValidatorFactoryExtTest {
     @Test
     void testValidationList() {
         List validations = factory.createDefaultValidations();
-        assertEquals(19, validations.size());
+        assertEquals(18, validations.size());
         assertEquals(4, validations
                 .stream()
                 .filter(v -> EnumValidationWithDefaultValue.class.isInstance(v) || MinimumValidation.class.isInstance(v)
@@ -236,6 +236,26 @@ class JsonSchemaValidatorFactoryExtTest {
         final JsonSchemaValidator validator = factory.newInstance(jsonDataStore);
         final ValidationResult errors = validator.apply(conf.get("dataStoreKo"));
         assertEquals(2, errors.getErrors().size());
+    }
+
+    @Test
+    void testPatternOptionOk() throws Exception {
+        schemaDataStore.getProperties().get("username").setPattern("/^[a-zA-Z0-9]+$/");
+        final JsonSchemaValidator validator =
+                factory.newInstance(jsonb.fromJson(jsonb.toJson(schemaDataStore), JsonObject.class));
+        final ValidationResult errors = validator.apply(conf.get("dataStoreOk"));
+        assertEquals(0, errors.getErrors().size());
+    }
+
+    @Test
+    void testPatternOptionKo() throws Exception {
+        schemaDataStore.getProperties().get("username").setPattern("/^1[a-zA-Z0-9]+$/");
+        final JsonSchemaValidator validator =
+                factory.newInstance(jsonb.fromJson(jsonb.toJson(schemaDataStore), JsonObject.class));
+        final ValidationResult errors = validator.apply(conf.get("dataStoreOk"));
+        assertEquals(1, errors.getErrors().size());
+        assertEquals("\"test\" doesn't match JavascriptRegex{/^1[a-zA-Z0-9]+$/}",
+                errors.getErrors().stream().findFirst().get().getMessage());
     }
 
 }

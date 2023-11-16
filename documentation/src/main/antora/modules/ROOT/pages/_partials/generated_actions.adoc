@@ -97,6 +97,7 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
   "entries":[
     {
       "comment":"The column 1",
+      "metadata":false,
       "name":"column1",
       "nullable":false,
       "props":{
@@ -107,6 +108,7 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
     },
     {
       "comment":"The int column",
+      "metadata":false,
       "name":"column2",
       "nullable":false,
       "props":{
@@ -116,8 +118,56 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
       "type":"INT"
     }
   ],
+  "metadata":[
+  ],
   "props":{
+    "talend.fields.order":"column1,column2"
+  },
+  "type":"RECORD"
+}
+----
 
+
+= Schema Extended
+
+Mark a method as returning a Schema resulting from a connector configuration and some other parameters.Parameters can be an incoming schema and/or an outgoing branch.`value' name should match the connector's name.
+
+- Type: `schema_extended`
+- API: `@org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended`
+- Returned type: `org.talend.sdk.component.api.record.Schema`
+- Sample:
+
+[source,js]
+----
+{
+  "entries":[
+    {
+      "comment":"The column 1",
+      "metadata":false,
+      "name":"column1",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 1",
+      "type":"STRING"
+    },
+    {
+      "comment":"The int column",
+      "metadata":false,
+      "name":"column2",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 2",
+      "type":"INT"
+    }
+  ],
+  "metadata":[
+  ],
+  "props":{
+    "talend.fields.order":"column1,column2"
   },
   "type":"RECORD"
 }

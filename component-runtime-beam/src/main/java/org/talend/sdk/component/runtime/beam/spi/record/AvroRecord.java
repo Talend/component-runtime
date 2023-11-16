@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,20 @@
 package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.time.ZoneOffset.UTC;
-import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.apache.avro.Schema.Type.NULL;
-import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
-import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -42,12 +41,11 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
+import org.talend.sdk.component.runtime.record.RecordImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
-
-    private static final org.apache.avro.Schema NULL_SCHEMA = org.apache.avro.Schema.create(NULL);
 
     @JsonbTransient
     private final IndexedRecord delegate;
@@ -69,52 +67,55 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     public AvroRecord(final Record record) {
-        final List<Schema.Entry> entries = record.getSchema().getEntries();
-        final List<org.apache.avro.Schema.Field> fields = entries.stream().map(entry -> {
-            final org.apache.avro.Schema.Field f = new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry),
-                    entry.getComment(), entry.getDefaultValue());
-            if (entry.getRawName() != null) {
-                f.addProp(KeysForAvroProperty.LABEL, entry.getRawName());
-            }
-            entry.getProps().forEach((k, v) -> f.addProp(k, v));
-            return f;
-        }).collect(toList());
-        final org.apache.avro.Schema avroSchema =
-                org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
-        record.getSchema().getProps().forEach((k, v) -> avroSchema.addProp(k, v));
-        avroSchema.setFields(fields);
-        schema = new AvroSchema(avroSchema);
-        delegate = new GenericData.Record(avroSchema);
-        entries
+        if (record instanceof AvroRecord) {
+            final AvroRecord avr = (AvroRecord) record;
+            this.delegate = avr.delegate;
+            this.schema = avr.schema;
+            return;
+        }
+        this.schema = AvroSchema.toAvroSchema(record.getSchema());
+        this.delegate = new GenericData.Record(this.schema.getActualDelegate());
+
+        record
+                .getSchema()
+                .getAllEntries()
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {
-                            Object avroValue = directMapping(v);
-                            if (Collection.class.isInstance(avroValue)) {
-                                avroValue = Collection.class
-                                        .cast(avroValue)
-                                        .stream()
-                                        .map(this::directMapping)
-                                        .collect(toList());
-                            }
+                            final Object avroValue = directMapping(v);
+
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
-                                        avroSchema.getField(sanitizeConnectionName(entry.getName()));
+                                        this.schema.getActualDelegate()
+                                                .getField(sanitizeConnectionName(entry.getName()));
                                 delegate.put(field.pos(), avroValue);
                             }
                         }));
     }
 
     private Object directMapping(final Object value) {
-        if (Record.class.isInstance(value)) {
+        // RecordImpl store BigDecimal directly, no any convert as not necessary, so here need to convert to string for
+        // beam's AvroCoder which cloud platform use
+        // also here for any Collection<BigDecimal> as Array type
+        if (value instanceof BigDecimal) {
+            return BigDecimal.class.cast(value).toString();
+        }
+
+        if (value instanceof Collection) {
+            return Collection.class.cast(value).stream().map(this::directMapping).collect(toList());
+        }
+        if (value instanceof RecordImpl) {
+            return new AvroRecord((Record) value).delegate;
+        }
+        if (value instanceof Record) {
             return Unwrappable.class.cast(value).unwrap(IndexedRecord.class);
         }
-        if (ZonedDateTime.class.isInstance(value)) {
+        if (value instanceof ZonedDateTime) {
             return ZonedDateTime.class.cast(value).toInstant().toEpochMilli();
         }
-        if (Date.class.isInstance(value)) {
+        if (value instanceof Date) {
             return Date.class.cast(value).getTime();
         }
-        if (byte[].class.isInstance(value)) {
+        if (value instanceof byte[]) {
             return ByteBuffer.wrap(byte[].class.cast(value));
         }
         return value;
@@ -125,22 +126,43 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         return schema;
     }
 
+    public Builder withNewSchema(final Schema newSchema) {
+        final AvroRecordBuilder builder = new AvroRecordBuilder(newSchema);
+        newSchema.getAllEntries()
+                .filter(e -> Objects.equals(schema.getEntry(e.getName()), e))
+                .forEach(e -> builder.with(e, get(Object.class, e.getName())));
+        return builder;
+    }
+
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
         if (expectedType == Collection.class) {
             return expectedType.cast(getArray(Object.class, name));
         }
-        return doGet(expectedType, name);
+        return doGet(expectedType, sanitizeConnectionName(name));
+    }
+
+    @Override
+    public <T> T get(final Class<T> expectedType, final Schema.Entry entry) {
+        if (expectedType == Collection.class) {
+            return expectedType.cast(this.doGetArray(Object.class, entry.getName()));
+        }
+        return doGet(expectedType, entry.getName());
     }
 
     @Override
     public <T> Collection<T> getArray(final Class<T> type, final String name) {
-        final Collection<?> collection = doGet(Collection.class, name);
+        final String sanitizedName = sanitizeConnectionName(name);
+        return this.doGetArray(type, sanitizedName);
+    }
+
+    private <T> Collection<T> doGetArray(final Class<T> type, final String sanitizedName) {
+        final Collection<?> collection = doGet(Collection.class, sanitizedName);
         if (collection == null) {
             return null;
         }
         final org.apache.avro.Schema elementType =
-                unwrapUnion(delegate.getSchema().getField(name).schema()).getElementType();
+                unwrapUnion(delegate.getSchema().getField(sanitizedName).schema()).getElementType();
         return doMapCollection(type, collection, elementType);
     }
 
@@ -180,72 +202,86 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
     }
 
     private <T> T doGet(final Class<T> expectedType, final String name) {
-        final org.apache.avro.Schema.Field field = delegate.getSchema().getField(sanitizeConnectionName(name));
+        final org.apache.avro.Schema.Field field = delegate.getSchema().getField(name);
         if (field == null) {
             return null;
         }
         final Object value = delegate.get(field.pos());
-        final org.apache.avro.Schema schema = field.schema();
-        return doMap(expectedType, unwrapUnion(schema), value);
+        final org.apache.avro.Schema fieldSchema = field.schema();
+        return doMap(expectedType, unwrapUnion(fieldSchema), value);
     }
 
-    private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchema, final Object value) {
-        if (Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name())) && Long.class.isInstance(value)
-                && expectedType != Long.class) {
-            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
+    private <T> T doMap(final Class<T> expectedType, final org.apache.avro.Schema fieldSchemaRaw, final Object value) {
+
+        if (value != null && expectedType == value.getClass() && !(value instanceof Collection)) {
+            return expectedType.cast(value);
         }
-        if (IndexedRecord.class.isInstance(value) && (Record.class == expectedType || Object.class == expectedType)) {
+
+        if (value instanceof IndexedRecord && (Record.class == expectedType || Object.class == expectedType)) {
             return expectedType.cast(new AvroRecord(IndexedRecord.class.cast(value)));
         }
-        if (GenericArray.class.isInstance(value) && !GenericArray.class.isAssignableFrom(expectedType)) {
+        if (value instanceof ByteBuffer && byte[].class == expectedType) {
+            return expectedType.cast(ByteBuffer.class.cast(value).array());
+        }
+        final org.apache.avro.Schema fieldSchema = unwrapUnion(fieldSchemaRaw);
+        if (value instanceof Long && expectedType != Long.class
+                && Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name()))) {
+            return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
+        }
+
+        if (Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DECIMAL.name()))) {
+            if (expectedType == BigDecimal.class) {
+                return RECORD_CONVERTERS.coerce(expectedType, (value instanceof Utf8) ? value.toString() : value,
+                        fieldSchema.getName());
+            } else if (expectedType == Object.class) {
+                return (T) RECORD_CONVERTERS.coerce(BigDecimal.class,
+                        (value instanceof Utf8) ? value.toString() : value,
+                        fieldSchema.getName());
+            }
+        }
+
+        if (value instanceof GenericArray && !GenericArray.class.isAssignableFrom(expectedType)) {
+            if (ZonedDateTime.class == expectedType) {
+                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
+                return expectedType.cast(ZonedDateTime.ofInstant(instant, UTC));
+            }
+            if (Instant.class == expectedType) {
+                List<Long> longs = (List) Collection.class.cast(value).stream().collect(Collectors.toList());
+                final Instant instant = Instant.ofEpochSecond(longs.get(0), longs.get(1));
+                return expectedType.cast(instant);
+            }
             final Class<?> itemType = expectedType == Collection.class ? Object.class : expectedType;
             return expectedType
                     .cast(doMapCollection(itemType, Collection.class.cast(value), fieldSchema.getElementType()));
         }
-        if (ByteBuffer.class.isInstance(value) && byte[].class == expectedType) {
-            return expectedType.cast(ByteBuffer.class.cast(value).array());
-        }
-        if (org.joda.time.DateTime.class.isInstance(value) && ZonedDateTime.class == expectedType) {
+
+        if (value instanceof org.joda.time.DateTime && ZonedDateTime.class == expectedType) {
             final long epochMilli = org.joda.time.DateTime.class.cast(value).getMillis();
             return expectedType.cast(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(epochMilli), UTC));
         }
         if (!expectedType.isInstance(value)) {
-            if (Utf8.class.isInstance(value) && String.class == expectedType) {
+            if (value instanceof Utf8 && String.class == expectedType) {
                 return expectedType.cast(value.toString());
             }
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
         }
-        if (Utf8.class.isInstance(value) && Object.class == expectedType) {
+        if (value instanceof Utf8 && Object.class == expectedType) {
             return expectedType.cast(value.toString());
         }
+        if (Collection.class.isAssignableFrom(expectedType) && value instanceof Collection) {
+            final org.apache.avro.Schema elementType = fieldSchema.getElementType();
+            final org.apache.avro.Schema elementSchema = unwrapUnion(elementType);
+            Class<?> toType = Object.class;
+            if (elementSchema.getType() == org.apache.avro.Schema.Type.RECORD) {
+                toType = Record.class;
+            } else if (elementSchema.getType() == org.apache.avro.Schema.Type.ARRAY) {
+                toType = Collection.class;
+            }
+            final Collection<?> objects = this.doMapCollection(toType, Collection.class.cast(value), elementSchema);
+            return expectedType.cast(objects);
+        }
         return expectedType.cast(value);
-    }
-
-    private org.apache.avro.Schema toSchema(final Schema.Entry entry) {
-        final org.apache.avro.Schema schema = doToSchema(entry);
-        if (entry.isNullable() && schema.getType() != UNION) {
-            return org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema));
-        }
-        if (!entry.isNullable() && schema.getType() == UNION) {
-            return org.apache.avro.Schema
-                    .createUnion(schema.getTypes().stream().filter(it -> it.getType() != NULL).collect(toList()));
-        }
-        return schema;
-    }
-
-    private org.apache.avro.Schema doToSchema(final Schema.Entry entry) {
-        final Schema.Builder builder = new AvroSchemaBuilder().withType(entry.getType());
-        switch (entry.getType()) {
-        case ARRAY:
-            ofNullable(entry.getElementSchema()).ifPresent(builder::withElementSchema);
-            break;
-        case RECORD:
-            ofNullable(entry.getElementSchema()).ifPresent(s -> s.getEntries().forEach(builder::withEntry));
-            break;
-        default:
-            // no-op
-        }
-        return Unwrappable.class.cast(builder.build()).unwrap(org.apache.avro.Schema.class);
     }
 
     @Override

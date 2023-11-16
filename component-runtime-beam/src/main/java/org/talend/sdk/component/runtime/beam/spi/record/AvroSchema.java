@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,39 +18,64 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.avro.Schema.Type.NULL;
 import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
+import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
+import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(of = "delegate")
 @ToString(of = "delegate")
 public class AvroSchema implements org.talend.sdk.component.api.record.Schema, AvroPropertyMapper, Unwrappable {
+
+    private static final AvroSchemaCache SCHEMA_CACHE = AvroSchema.initCache();
+
+    private static AvroSchemaCache initCache() {
+        final AvroSchemaConverter converter = new AvroSchemaConverter();
+        return new AvroSchemaCache(converter::convert);
+    }
+
+    static AvroSchema toAvroSchema(final org.talend.sdk.component.api.record.Schema schema) {
+        return AvroSchema.SCHEMA_CACHE.find(schema);
+    }
 
     @JsonbTransient
     private final Schema delegate;
 
-    private volatile AvroSchema elementSchema;
+    private AvroSchema elementSchema;
 
-    private volatile List<Entry> entries;
+    private List<Entry> entries;
 
-    private volatile Type type;
+    @JsonbTransient
+    private Map<String, Entry> entryMap;
 
-    private volatile Schema actualDelegate;
+    @JsonbTransient
+    private List<Entry> metadataEntries;
 
-    private Schema getActualDelegate() {
+    private Type type;
+
+    private Schema actualDelegate;
+
+    Schema getActualDelegate() {
         if (actualDelegate != null) {
             return actualDelegate;
         }
@@ -65,7 +90,16 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     @Override
     public Type getType() {
-        return mapType(getActualDelegate());
+        if (this.type != null) {
+            return this.type;
+        }
+        synchronized (this) {
+            if (this.type != null) {
+                return this.type;
+            }
+            this.type = this.mapType(this.getActualDelegate());
+        }
+        return this.type;
     }
 
     @Override
@@ -96,19 +130,94 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             if (entries != null) {
                 return entries;
             }
-            entries =
-                    getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL).map(field -> {
-                        final Type type = mapType(field.schema());
-                        final AvroSchema elementSchema = new AvroSchema(
-                                type == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
-                        // readProp(unwrapUnion(field.schema()), KeysForAvroProperty.LABEL) is not good location in my
-                        // view
-                        return new SchemaImpl.EntryImpl(field.name(), field.getProp(KeysForAvroProperty.LABEL), type,
-                                field.schema().getType() == UNION, field.defaultVal(), elementSchema, field.doc(),
-                                field.getProps());
-                    }).collect(toList());
+            entries = this
+                    .getNonNullFields() //
+                    .filter(f -> !AvroSchema.isMetadata(f)) // only data fields
+                    .map(this::fromAvro) //
+                    .collect(toList());
         }
         return entries;
+    }
+
+    @Override
+    public List<Entry> getMetadata() {
+        if (getActualDelegate().getType() != Schema.Type.RECORD) {
+            return emptyList();
+        }
+        if (this.metadataEntries != null) {
+            return this.metadataEntries;
+        }
+
+        synchronized (this) {
+            if (this.metadataEntries == null) {
+                this.metadataEntries = this
+                        .getNonNullFields() //
+                        .filter(AvroSchema::isMetadata) // only metadata fields
+                        .map(this::fromAvro) //
+                        .collect(Collectors.toList());
+            }
+        }
+
+        return this.metadataEntries;
+    }
+
+    @Override
+    @JsonbTransient
+    public Stream<Entry> getAllEntries() {
+        return Stream.concat(this.getEntries().stream(), this.getMetadata().stream());
+    }
+
+    @Override
+    @JsonbTransient
+    public Map<String, Entry> getEntryMap() {
+        synchronized (this) {
+            if (entryMap == null || entryMap.isEmpty()) {
+                if (entryMap == null) {
+                    entryMap = new HashMap<>();
+                }
+                getAllEntries().forEach(e -> entryMap.put(e.getName(), e));
+            }
+        }
+        return entryMap;
+    }
+
+    @Override
+    @JsonbTransient
+    public EntriesOrder naturalOrder() {
+        return EntriesOrder.of(getActualDelegate().getProp(ENTRIES_ORDER_PROP));
+    }
+
+    private Stream<Field> getNonNullFields() {
+        return getActualDelegate().getFields().stream().filter(it -> it.schema().getType() != NULL);
+    }
+
+    private static boolean isMetadata(final Field f) {
+        return f.aliases() != null && f.aliases().contains(KeysForAvroProperty.METADATA_ALIAS_NAME);
+    }
+
+    private Entry fromAvro(final Field field) {
+        final Type fieldType = mapType(field.schema());
+        final AvroSchema fieldSchema =
+                new AvroSchema(fieldType == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
+
+        return AvroSchema.buildFromAvro(field, fieldType, fieldSchema);
+    }
+
+    private static Entry buildFromAvro(final Field field, final Type type, final AvroSchema elementSchema) {
+        return new EntryImpl.BuilderImpl() //
+                .withName(field.name()) //
+                .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
+                .withType(type) //
+                .withNullable(field.schema().getType() == UNION) //
+                .withMetadata(AvroSchema.isMetadata(field)) //
+                .withDefaultValue(field.defaultVal()) //
+                .withElementSchema(elementSchema) //
+                .withComment(field.doc()) //
+                .withProps(field.getObjectProps()
+                        .entrySet()
+                        .stream()
+                        .collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))))
+                .build();
     }
 
     @Override
@@ -116,7 +225,10 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         if (getActualDelegate().getType() != Schema.Type.RECORD) {
             return emptyMap();
         }
-        return getActualDelegate().getProps();
+        return getActualDelegate().getObjectProps()
+                .entrySet()
+                .stream()
+                .collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
     }
 
     @Override
@@ -125,6 +237,20 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
             return null;
         }
         return getActualDelegate().getProp(property);
+    }
+
+    @Override
+    public Builder toBuilder() {
+        final Builder builder = new AvroSchemaBuilder()
+                .withType(Type.RECORD)
+                .withElementSchema(this.elementSchema)
+                .withProps(this
+                        .getProps()
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        getEntriesOrdered().forEach(builder::withEntry);
+        return builder;
     }
 
     @Override
@@ -150,6 +276,12 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 return Type.DATETIME;
             }
             return Type.LONG;
+        case STRING:
+            if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
+                    || (Decimal.logicalType().equals(schema.getLogicalType()))) {
+                return Type.DECIMAL;
+            }
+            return Type.STRING;
         default:
             return Type.valueOf(schema.getType().name());
         }

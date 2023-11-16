@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 
 @ApplicationScoped
@@ -33,7 +34,7 @@ public class ComponentDao {
         return meta.getId();
     }
 
-    public <T> ComponentFamilyMeta.BaseMeta<T> findById(final String id) {
+    public <T extends Lifecycle> ComponentFamilyMeta.BaseMeta<T> findById(final String id) {
         return (ComponentFamilyMeta.BaseMeta<T>) data.get(id);
     }
 

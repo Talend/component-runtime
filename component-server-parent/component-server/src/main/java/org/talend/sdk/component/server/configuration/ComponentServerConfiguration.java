@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,6 +161,30 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.locale.mapping",
             defaultValue = "en*=en\nfr*=fr\nzh*=zh_CN\nja*=ja\nde*=de")
     private String localeMapping;
+
+    @Inject
+    @Documentation("Should the plugins be un-deployed and re-deployed.")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.active", defaultValue = "false")
+    private Boolean pluginsReloadActive;
+
+    @Inject
+    @Documentation("Re-deploy method on a `timestamp` or `connectors` version change. By default, the timestamp is"
+            + " checked on the file pointed by `talend.component.server.component.registry` or "
+            + "`talend.component.server.plugins.reloading.marker` variable, otherwise we inspect the content of the "
+            + "`CONNECTORS_VERSION` file. Accepted values: `timestamp`, anything else defaults to `connectors`.")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.method", defaultValue = "timestamp")
+    private String pluginsReloadMethod;
+
+    @Inject
+    @Documentation("Interval in seconds between each check if plugins re-loading is enabled.")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.interval", defaultValue = "600")
+    private Long pluginsReloadInterval;
+
+    @Inject
+    @Documentation("Specify a file to check its timestamp on the filesystem. This file will take precedence of the default "
+            + "ones provided by the `talend.component.server.component.registry` property (used for timestamp method).")
+    @ConfigProperty(name = "talend.component.server.plugins.reloading.marker")
+    private Optional<String> pluginsReloadFileMarker;
 
     @PostConstruct
     private void init() {

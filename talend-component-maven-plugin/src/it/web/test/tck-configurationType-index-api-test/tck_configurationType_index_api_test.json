@@ -1,0 +1,508 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [configurationType/index](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/getRepositoryModel)  ",
+        "id": "9437fa87-7a35-441f-8102-3fb7b77e8ab7",
+        "name": "tck-configurationType-index-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "en"
+                  },
+                  {
+                    "name": "lightPayload",
+                    "value": "true"
+                  },
+                  {
+                    "name": "q",
+                    "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/index"
+            },
+            "description": "The default call, without any parameter, should be in English with all elements in light payload mode.  \nWe check the presence of managed demo elements.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "8179e9e8-635c-40e5-b5cc-4f369cbb41f9",
+            "name": "configurationtype/index - default",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.nodes",
+                "value": "9"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..displayName",
+                "value": "-en"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..name",
+                "value": "the_family"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..name",
+                "value": "TheDataset"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..name",
+                "value": "TheConnection"
+              },
+              {
+                "comparison": "Less",
+                "subject": "ResponseBody",
+                "path": "length",
+                "value": "3000"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "language",
+                    "value": "ja"
+                  },
+                  {
+                    "name": "lightPayload",
+                    "value": "true"
+                  },
+                  {
+                    "name": "q",
+                    "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/index"
+            },
+            "description": "Test the language parameter usage.  \n    \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "8db1053d-fcb0-49ab-a0d2-9b31bf5f89c5",
+            "name": "configurationtype/index - language",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "-ja"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "lightPayload",
+                    "value": "wrong_value"
+                  },
+                  {
+                    "name": "q",
+                    "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/index"
+            },
+            "description": "The default call, with lightPayload parameter set to wrong value.  \nTODO: Check if normal than wrong_value = true  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "b90aa342-8d76-467b-95ef-1e4f479b1c06",
+            "name": "configurationtype/index - lightPayload set to a wrong value",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "{\"nodes\":{.+}}"
+              },
+              {
+                "comparison": "Greater",
+                "subject": "ResponseBody",
+                "path": "length",
+                "value": "3000"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "lightPayload",
+                    "value": "false"
+                  },
+                  {
+                    "name": "q",
+                    "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/index"
+            },
+            "description": "The default call, with lightPayload parameter set to false.  \nTODO: what is the best test to compare light and non-light payload? [TCOMP-2194](https://jira.talendforge.org/browse/TCOMP-2194)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "b7211217-efe7-49c3-a7e7-aeacec2639b0",
+            "name": "configurationtype/index - lightPayload set to false",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.nodes",
+                "value": "5"
+              },
+              {
+                "comparison": "LengthGreaterThanOrEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.nodes",
+                "value": "1"
+              },
+              {
+                "comparison": "Greater",
+                "subject": "ResponseBody",
+                "path": "length",
+                "value": "30000"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "lightPayload",
+                    "value": "true"
+                  },
+                  {
+                    "name": "q",
+                    "value": "(metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) OR (name = input)"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/index"
+            },
+            "description": "The default call, with lightPayload parameter set to true.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "cc149741-2748-4161-ac92-0474d50666fe",
+            "name": "configurationtype/index - lightPayload set to true",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.nodes",
+                "value": "{\"nodes\":{.+}}"
+              },
+              {
+                "comparison": "Less",
+                "subject": "ResponseBody",
+                "path": "length",
+                "value": "3000"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "en"
+                  },
+                  {
+                    "name": "lightPayload",
+                    "value": "false"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "q",
+                    "value": "(name = TheDataset)"
+                  },
+                  {
+                    "name": "q",
+                    "value": "(configurationType = dataset)"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/index"
+            },
+            "description": "Call, with query parameter, should be in English with one elements in light payload mode.  \nTODO: others query [TCOMP-2352](https://jira.talendforge.org/browse/TCOMP-2352)  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)  ",
+            "id": "c8d6baf7-bfec-4adf-9401-53fea74af258",
+            "name": "configurationtype/index - query - filtered answer",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.nodes",
+                "value": "1"
+              },
+              {
+                "comparison": "Less",
+                "subject": "ResponseBody",
+                "path": "length",
+                "value": "1000"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "name": "component_runtime_ci",
+      "variables": {
+        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "52dc8012-b6f2-41d3-8e87-549e41251792": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}

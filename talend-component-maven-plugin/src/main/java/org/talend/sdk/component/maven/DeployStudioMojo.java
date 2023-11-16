@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
 
 import java.io.File;
 
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.talend.sdk.component.maven.api.Audience;
@@ -44,7 +45,7 @@ public class DeployStudioMojo extends DependencyAwareMojo {
     private boolean enforceDeployment;
 
     @Override
-    public void execute() {
+    public void execute() throws MojoFailureException {
         if (studioHome == null) {
             getLog().warn("No studioHome defined, skipping");
             return;

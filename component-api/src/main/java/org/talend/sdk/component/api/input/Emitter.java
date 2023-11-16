@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,4 +39,12 @@ public @interface Emitter {
      * @return the value of the input.
      */
     String name() default "";
+
+    /**
+     * In Studio and some use-cases with some input connectors, we may need to ignore outgoing row.
+     * As mentioned above, this is a Studio only feature.
+     *
+     * @return true if the underlying input is allowed to ignore mandatory output row.
+     */
+    boolean optionalRow() default false;
 }

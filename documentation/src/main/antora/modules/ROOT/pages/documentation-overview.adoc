@@ -11,7 +11,7 @@ If you don't know about Talend Component Kit, you can get started by going throu
 
 * *Starting from scratch:*
   <<getting-started.adoc#getting-started-introducing-talend-component, Overview>> |
-  <<getting-started.adoc#getting-started-system-requirements, Requirements>>
+  <<system-prerequisites.adoc#getting-started-system-requirements, Requirements>>
 * *Step-by-step tutorial:*
   <<getting-started.adoc#getting-started-principles, Code>>
 

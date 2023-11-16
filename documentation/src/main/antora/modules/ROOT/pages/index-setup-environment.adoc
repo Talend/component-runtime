@@ -11,5 +11,5 @@ Before being able to develop components using Talend Component Kit, you need the
 
 Although Talend Component Kit comes with some embedded tools, such as Maven and Gradle wrappers, you still need to prepare your system. A Talend Component Kit plugin for IntelliJ is also available and allows to design and generate your component project right from IntelliJ.
 
-* xref:system-prerequisites.adoc.adoc[System requirements]
+* xref:system-prerequisites.adoc[System requirements]
 * xref:installing-talend-intellij-plugin.adoc[Installing the IntelliJ plugin]

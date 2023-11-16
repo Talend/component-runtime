@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.35.0-SNAPSHOT</version>
+    <version>1.63.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-tools</artifactId>
@@ -37,7 +37,8 @@
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency><!-- avoid windows bugs so let's control this version -->
+    <dependency>
+      <!-- avoid windows bugs so let's control this version -->
       <groupId>org.jruby</groupId>
       <artifactId>jruby-complete</artifactId>
       <version>${jruby.version}</version>
@@ -49,7 +50,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.jruby</groupId>
-          <artifactId>jruby</artifactId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -60,7 +61,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.jruby</groupId>
-          <artifactId>jruby-complete</artifactId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -84,7 +85,8 @@
       </exclusions>
     </dependency>
 
-    <dependency><!-- j11 ide support -->
+    <dependency>
+      <!-- j11 ide support -->
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
       <version>1.0.b2</version>
@@ -103,14 +105,6 @@
       <version>${commons-cli.version}</version>
       <scope>provided</scope>
     </dependency>
-
-    <!--
-    <dependency>
-      <groupId>org.jclarion</groupId>
-      <artifactId>image4j</artifactId>
-      <version>0.7</version>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-codec</artifactId>
@@ -138,7 +132,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -147,21 +140,37 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit5.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <plugin><!-- grab asciidoctor.css as a base of our theme for now -->
+      <plugin>
+        <!-- grab asciidoctor.css as a base of our theme for now -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
+        <configuration>
+          <installDirectory>${project.basedir}/.node</installDirectory>
+          <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
+        </configuration>
         <executions>
           <execution>
             <id>install-node-and-npm</id>
-            <phase>generate-resources</phase>
             <goals>
               <goal>install-node-and-npm</goal>
             </goals>
+            <phase>generate-resources</phase>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
               <npmVersion>${npm.version}</npmVersion>
@@ -169,39 +178,45 @@
           </execution>
           <execution>
             <id>npm-install</id>
-            <phase>generate-resources</phase>
             <goals>
               <goal>npm</goal>
             </goals>
+            <phase>generate-resources</phase>
             <configuration>
               <arguments>install</arguments>
             </configuration>
           </execution>
         </executions>
-        <configuration>
-          <installDirectory>${project.basedir}/.node</installDirectory>
-          <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
-        </configuration>
       </plugin>
-      <plugin><!-- customize asciidoctor.css to use Talend colors -->
+      <plugin>
+        <!-- customize asciidoctor.css to use Talend colors -->
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>${gmavenplus.version}</version>
-        <executions>
-          <execution>
-            <id>prepare-resources</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
           <allowSystemExits>true</allowSystemExits>
           <scripts>
             <script>${project.basedir}/src/build/PrepareResources.groovy</script>
           </scripts>
         </configuration>
+        <executions>
+          <execution>
+            <id>prepare-resources</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>process-resources</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-banned-joda-time-dependency</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

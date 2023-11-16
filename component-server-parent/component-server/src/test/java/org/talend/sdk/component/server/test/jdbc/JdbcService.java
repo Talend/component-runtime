@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,9 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 @Service
 public class JdbcService {
@@ -88,6 +90,22 @@ public class JdbcService {
                         .withName("array")
                         .withType(ARRAY)
                         .withElementSchema(factory.newSchemaBuilder(STRING).build())
+                        .build())
+                .build();
+    }
+
+    @DiscoverSchemaExtended("jdbc_processor_schema")
+    public Schema guessProcessorSchema(final Schema incoming, final JdbcConfig config, final String branch) {
+        final RecordBuilderFactory factory = new RecordBuilderFactoryImpl("jdbc");
+        return factory.newSchemaBuilder(incoming)
+                .withEntry(factory.newEntryBuilder()
+                        .withName(branch)
+                        .withType(STRING)
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("driver")
+                        .withType(STRING)
+                        .withComment(config.getDriver())
                         .build())
                 .build();
     }

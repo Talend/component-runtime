@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -258,5 +258,9 @@ public class ComponentValidator extends BaseTask {
         private boolean validateExceptions;
 
         private boolean failOnValidateExceptions;
+
+        private boolean validateRecord;
+
+        private boolean validateSchema;
     }
 }

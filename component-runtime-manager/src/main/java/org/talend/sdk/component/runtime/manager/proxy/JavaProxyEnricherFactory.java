@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,10 +41,15 @@ public class JavaProxyEnricherFactory {
 
     public Object asSerializable(final ClassLoader loader, final String plugin, final String key,
             final Object instanceToWrap) {
+        return this.asSerializable(loader, plugin, key, instanceToWrap, false);
+    }
+
+    public Object asSerializable(final ClassLoader loader, final String plugin, final String key,
+            final Object instanceToWrap, final boolean force) {
         final Class<?>[] interfaces = instanceToWrap.getClass().getInterfaces();
         final boolean isSerializable =
                 Stream.of(interfaces).anyMatch(i -> i == Serializable.class || i == Externalizable.class);
-        if (isSerializable && !instanceToWrap.getClass().getName().startsWith("org.apache.johnzon.core.")) {
+        if ((!force) && isSerializable && !instanceToWrap.getClass().getName().startsWith("org.apache.johnzon.core.")) {
             return instanceToWrap;
         }
         final Class[] api = isSerializable ? interfaces

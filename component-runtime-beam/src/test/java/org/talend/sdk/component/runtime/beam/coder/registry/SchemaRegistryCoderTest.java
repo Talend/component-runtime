@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ class SchemaRegistryCoderTest {
 
         final org.apache.avro.Schema unwrapped = Unwrappable.class.cast(schema).unwrap(org.apache.avro.Schema.class);
         final String name = SchemaIdGenerator.generateRecordName(unwrapped.getFields());
-        assertEquals("org.talend.sdk.component.schema.generated.Record_1_n_5166783486129187498", name);
+        assertEquals("org.talend.sdk.component.schema.generated.Record_1_n_3269179092139509689", name);
     }
 
     @Test
@@ -111,8 +111,13 @@ class SchemaRegistryCoderTest {
     void codecArrayRecord() throws IOException {
         final AvroRecord nestedRecord = new AvroRecord(new RecordImpl.BuilderImpl().withDouble("len", 2).build());
         final Record record = new AvroRecord(new RecordImpl.BuilderImpl()
-                .withArray(new SchemaImpl.EntryImpl("__default__", "__default__", Schema.Type.ARRAY, true, null,
-                        nestedRecord.getSchema(), null), singletonList(nestedRecord))
+                .withArray(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("__default__")
+                        .withRawName("__default__")
+                        .withType(Schema.Type.ARRAY)
+                        .withNullable(true)
+                        .withElementSchema(nestedRecord.getSchema())
+                        .build(), singletonList(nestedRecord))
                 .build());
 
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();

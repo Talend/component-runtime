@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ import org.apache.xbean.propertyeditor.URLEditor;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalDateConverter;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalDateTimeConverter;
 import org.talend.sdk.component.runtime.manager.xbean.converter.LocalTimeConverter;
+import org.talend.sdk.component.runtime.manager.xbean.converter.SchemaConverter;
 import org.talend.sdk.component.runtime.manager.xbean.converter.ZonedDateTimeConverter;
 
 public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
@@ -74,6 +75,9 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
 
                     @Override
                     protected Object toObjectImpl(final String text) {
+                        if (text.isEmpty()) {
+                            return null;
+                        }
                         final Object o = doubleEditor.toObject(text);
                         return mapper.apply(Double.class.cast(o));
                     }
@@ -116,6 +120,8 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
         super.register(new LocalDateConverter());
         super.register(new LocalTimeConverter());
 
+        // schema and record
+        super.register(new SchemaConverter());
         // extensions
         ServiceLoader.load(Converter.class).forEach(this::register);
     }

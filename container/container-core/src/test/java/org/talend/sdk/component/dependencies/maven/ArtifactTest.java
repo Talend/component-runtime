@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ class ArtifactTest {
 
     static Iterable<Artifact> samples() {
         return asList(new Artifact("g", "a", "jar", null, "1", "compile"),
-                new Artifact("g", "a", "jar", "c", "1", "compile"));
+                new Artifact("g", "a", "jar", "c", "1", "compile"),
+                new Artifact("g", "a", "jar", "c", "1-TCOMP-2285", "compile"));
     }
 
     @ParameterizedTest(name = "{0}")

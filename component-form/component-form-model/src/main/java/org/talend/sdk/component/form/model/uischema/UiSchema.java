@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class UiSchema {
 
     private Collection<Trigger> triggers;
 
-    private Collection<NameValue> titleMap;
+    private Collection<? extends TitleMapContent> titleMap;
 
     private Map<String, Collection<Object>> condition;
 
@@ -198,8 +198,46 @@ public class UiSchema {
         }
     }
 
+    public interface TitleMapContent {
+
+    }
+
     @Data
-    public static class NameValue {
+    public static class TitledNameValue implements TitleMapContent {
+
+        private String title;
+
+        private Collection<NameValue> suggestions;
+
+        public static final class Builder {
+
+            private String title;
+
+            private Collection<NameValue> suggestions;
+
+            public TitledNameValue.Builder withTitle(final String title) {
+                this.title = title;
+                return this;
+            }
+
+            public TitledNameValue.Builder withSuggestions(final Collection<NameValue> nameValue) {
+                this.suggestions = nameValue;
+                return this;
+            }
+
+            public TitledNameValue build() {
+                final TitledNameValue titledNameValue = new TitledNameValue();
+                titledNameValue.setTitle(title);
+                titledNameValue.setSuggestions(suggestions);
+                return titledNameValue;
+            }
+
+        }
+
+    }
+
+    @Data
+    public static class NameValue implements TitleMapContent {
 
         private String name;
 
@@ -433,7 +471,7 @@ public class UiSchema {
 
         private Collection<Trigger> triggers;
 
-        private Collection<NameValue> titleMap;
+        private Collection<? extends TitleMapContent> titleMap;
 
         private Map<String, Collection<Object>> condition;
 
@@ -577,14 +615,11 @@ public class UiSchema {
             return withTitleMap(asList(titleMap));
         }
 
-        public Builder withTitleMap(final Collection<NameValue> titleMap) {
+        public Builder withTitleMap(final Collection<? extends TitleMapContent> titleMap) {
             if (titleMap == null) {
                 return this;
             }
-            if (this.titleMap == null) {
-                this.titleMap = new ArrayList<>();
-            }
-            this.titleMap.addAll(titleMap);
+            this.titleMap = new ArrayList<>(titleMap);
             return this;
         }
 

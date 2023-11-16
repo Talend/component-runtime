@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,6 +162,18 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     private boolean failOnValidateExceptions;
 
     /**
+     * Should the record be validated.
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.record")
+    private boolean validateRecord;
+
+    /**
+     * Should the schema be validated.
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.schema")
+    private boolean validateSchema;
+
+    /**
      * Should the option names be validated.
      */
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.pluginId")
@@ -204,6 +216,8 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setPluginId(pluginId);
         configuration.setValidateExceptions(validateExceptions);
         configuration.setFailOnValidateExceptions(failOnValidateExceptions);
+        configuration.setValidateSchema(validateSchema);
+        configuration.setValidateRecord(validateRecord);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
         new ComponentValidator(configuration, new File[] { classes }, getLog()) {

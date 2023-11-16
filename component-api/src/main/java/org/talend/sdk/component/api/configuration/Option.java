@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,24 @@ import java.lang.annotation.Target;
 @Target({ FIELD, PARAMETER })
 @Retention(RUNTIME)
 public @interface Option {
+
+    /**
+     * Mark parameter of streaming {@link org.talend.sdk.component.api.input.PartitionMapper}
+     * where {@link org.talend.sdk.component.api.input.PartitionMapper#infinite()} == true and
+     * {@link org.talend.sdk.component.api.input.PartitionMapper#stoppable()} == true
+     * that it contains max duration in milliseconds between start read the value and end
+     * expected type of the parameter is long or int or their boxed equivalents
+     */
+    String MAX_DURATION_PARAMETER = "maxDurationMs";
+
+    /**
+     * Mark parameter of streaming {@link org.talend.sdk.component.api.input.PartitionMapper}
+     * where {@link org.talend.sdk.component.api.input.PartitionMapper#infinite()} == true and
+     * {@link org.talend.sdk.component.api.input.PartitionMapper#stoppable()} == true
+     * that it limits amount of records that connector can read.
+     * expected type of the parameter is long or int or their boxed equivalents
+     */
+    String MAX_RECORDS_PARAMETER = "maxRecords";
 
     /**
      * The value of the option, if empty it will use the classname + field value (ex:

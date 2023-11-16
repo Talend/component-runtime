@@ -1,7 +1,7 @@
 = Implementing batch processing
 :page-partial:
 :description: Optimize the way your processor component handle records using groups
-:keywords: bulk, bulking, chunk, group, maxBatchSize, bulking
+:keywords: bulk, bulking, chunk, group, maxBatchSize, bulking, batch
 
 == What is batch processing
 

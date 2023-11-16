@@ -1,0 +1,598 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "This test project contains all common tests. It will be deleted when the split will be finished.\nTo run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here for documentation](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Documentation/getDocumentation)",
+        "id": "9debdda0-8a0a-469a-bbad-51b251077af1",
+        "name": "tck-documentation-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "en"
+                  },
+                  {
+                    "name": "segment",
+                    "value": "none"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/documentation/component/unknow_id"
+            },
+            "description": "Expected: error 404  \nThe default call, with unknown component id.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "bd0104a2-ecdd-4d55-8913-fd08b7e6109b",
+            "name": "documentation/component - id unknow",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "404"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.code",
+                "value": "COMPONENT_MISSING"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.description",
+                "value": "No component 'unknow_id'"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.",
+                "value": "2"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "language",
+                    "value": "fr"
+                  },
+                  {
+                    "name": "segment",
+                    "value": "none"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/documentation/component/${\"output_id\"}"
+            },
+            "description": "Call with a given language parameter to \"fr\".  \nTODO issue with language, https://jira.talendforge.org/browse/TCOMP-2353   \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "35fe03e3-a72f-496c-979f-f1866480dcf9",
+            "name": "documentation/component - language - fr",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "-fr"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.type",
+                "value": "asciidoc"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "segment",
+                    "value": "CONFIGURATION"
+                  },
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/documentation/component/${\"output_id\"}"
+            },
+            "description": "Call with a \"CONFIGURATION\" as given segment parameter.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "f33a9501-3959-4e20-a1d7-43b07115dae7",
+            "name": "documentation/component - segment - CONFIGURATION",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "\\[cols=\\\"d,d,m,a,e,d\\\",[\\s\\S]+"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.type",
+                "value": "asciidoc"
+              },
+              {
+                "comparison": "DoesNotContain",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "== DemoInput1"
+              },
+              {
+                "comparison": "DoesNotContain",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "=== Configuration"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "segment",
+                    "value": "DESCRIPTION"
+                  },
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/documentation/component/${\"output_id\"}"
+            },
+            "description": "Call with a \"DESCRIPTION\" as given segment parameter.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "5155467f-3cda-4f46-bbea-c7c4624b003e",
+            "name": "documentation/component - segment - DESCRIPTION",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.type",
+                "value": "asciidoc"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "== DemoInput1"
+              },
+              {
+                "comparison": "DoesNotContain",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "== DemoInput1"
+              },
+              {
+                "comparison": "DoesNotContain",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "=== Configuration"
+              },
+              {
+                "comparison": "DoesNotContain",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "d,d,m,a,e,d"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "segment",
+                    "value": "unknow"
+                  },
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/documentation/component/${\"output_id\"}"
+            },
+            "description": "Expected: error 404 empty  \nCall with a given unknow segment parameter.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "bf03704a-8d60-4458-b7c3-4078b24a0912",
+            "name": "documentation/component - segment - unknow",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "404"
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "segment",
+                    "value": "ALL"
+                  },
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/documentation/component/${\"output_id\"}"
+            },
+            "description": "Call with a \"ALL\" as given segment parameter.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "731f684e-6668-4f1b-895f-cfdfa61b4058",
+            "name": "documentation/component - segments all - ALL",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.type",
+                "value": "asciidoc"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "== TheOutput1"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "=== Configuration"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "\\[cols=\\\"d,d,m,a,e,d\\\",[\\s\\S]+"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/documentation/component/${\"output_id\"}"
+            },
+            "description": "Call without segment, should be default = \"ALL\".  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "ee906cc7-8791-482b-a96d-1b482c2fc673",
+            "name": "documentation/component - segments default - ALL",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.type",
+                "value": "asciidoc"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "== TheOutput1"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "=== Configuration"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$.source",
+                "value": "\\[cols=\\\"d,d,m,a,e,d\\\",[\\s\\S]+"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "name": "component_runtime_ci",
+      "variables": {
+        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "52dc8012-b6f2-41d3-8e87-549e41251792": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}

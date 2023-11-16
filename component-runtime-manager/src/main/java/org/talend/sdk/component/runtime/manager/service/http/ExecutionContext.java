@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,9 @@ import org.talend.sdk.component.runtime.manager.service.http.codec.CodecMatcher;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 @AllArgsConstructor
 public class ExecutionContext implements BiFunction<String, Object[], Object> {
@@ -150,7 +152,8 @@ public class ExecutionContext implements BiFunction<String, Object[], Object> {
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(toMap(e -> e, urlConnection.getHeaderFields()::get, (k, v) -> {
-                    throw new IllegalArgumentException("Duplicated header key for value: '" + k + "'");
+                    log.warn("Duplicated header key: merging arbitrarily {} vs {}, check peer configuration.", k, v);
+                    return k;
                 }, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
     }
 

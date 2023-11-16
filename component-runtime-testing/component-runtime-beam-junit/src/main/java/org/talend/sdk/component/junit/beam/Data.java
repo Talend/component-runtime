@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,7 +172,7 @@ public class Data {
             if (registry == null) {
                 registry = new RecordConverters.MappingMetaRegistry();
             }
-            return object.getSchema().getEntries().stream().collect(toMap(Schema.Entry::getName, e -> {
+            return object.getSchema().getAllEntries().collect(toMap(Schema.Entry::getName, e -> {
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     final Record record = object.getArray(Record.class, e.getName()).iterator().next();

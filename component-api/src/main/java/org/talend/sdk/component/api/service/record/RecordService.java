@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,7 @@ public interface RecordService {
      * Visit a record with a custom visitor.
      *
      * @param visitor the visitor to use to browse the record.
+     * @param record record to visit.
      * @param <T> the visitor returned type.
      * @return the visitor value.
      */

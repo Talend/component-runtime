@@ -1,7 +1,7 @@
 = Building components with Maven
 :page-partial:
 :description: Use Maven or the Maven wrapper as build tool to develop components
-:keywords: mvn, mvnw, maven
+:keywords: mvn, mvnw, maven, maven-plugin, tool, build
 
 To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter.
 
@@ -429,6 +429,7 @@ This command has some optional parameters:
 |metadata |Additional custom metadata to bundle in the component archive. |-| -
 |output |Specifies the output path and name of the archive |`talend.car.output`| ${project.build.directory}/${project.build.finalName}.car
 |packaging |Specifies the packaging |-| ${project.packaging}
+|type|Specifies the type: `connector' or server `extension'|talend.car.type|connector
 |===
 
 This CAR is executable and exposes the `studio-deploy` command which takes

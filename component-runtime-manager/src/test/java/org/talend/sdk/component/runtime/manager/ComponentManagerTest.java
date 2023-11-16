@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,11 @@ import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -66,7 +69,6 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
-import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
@@ -75,6 +77,10 @@ import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 class ComponentManagerTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
+
+    public static final String M2_PROP = "talend.component.manager.m2.repository";
+
+    public static final String SETTINGS_PROP = "talend.component.manager.m2.settings";
 
     private ComponentManager newManager(final File m2) {
         return new ComponentManager(m2, "META-INF/test/dependencies", "org.talend.test:type=plugin,value=%s");
@@ -143,8 +149,9 @@ class ComponentManagerTest {
         DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class, new RecordBuilderFactoryImpl("plugin"));
         final String jvd = System.getProperty("java.version.date"); // java 11
         System.clearProperty("java.version.date");
+        final File dependencyFile = new File("target/test-dependencies");
         try (final ComponentManager manager =
-                new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+                new ComponentManager(dependencyFile, "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
             final Mapper mapper =
                     manager.findMapper("config", "injected", 1, emptyMap()).orElseThrow(IllegalStateException::new);
@@ -219,10 +226,10 @@ class ComponentManagerTest {
 
         // just some jars with classes we can scan
         final File plugin1 = pluginGenerator
-                .createPlugin(pluginFolder, "plugin1.jar", "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+                .createPlugin(pluginFolder, "plugin1.jar", "org.apache.tomee:openejb-itests-beans:jar:8.0.14:runtime");
         final File plugin2 = pluginGenerator
                 .createPlugin(pluginFolder, "plugin2.jar",
-                        "org.apache.tomee:arquillian-tomee-codi-tests:jar:7.0.5:runtime");
+                        "org.apache.tomee:arquillian-tomee-codi-tests:jar:8.0.9:runtime");
 
         // ensure jmx value is free and we don't get a test luck
         final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -265,7 +272,7 @@ class ComponentManagerTest {
                             }
                         },
                         // must be ignored, if needed it will be in main dependencies.txt
-                        "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+                        "org.apache.tomee:openejb-itests-beans:jar:8.0.14:runtime");
         final File plugin2 = pluginGenerator.createPlugin(pluginFolder, "main.jar", "org.talend.test:transitive:1.0.0");
 
         try (final ComponentManager manager = newManager()) {
@@ -308,7 +315,7 @@ class ComponentManagerTest {
             }
         },
                 // must be ignored, if needed it will be in main dependencies.txt
-                "org.apache.tomee:openejb-itests-beans:jar:7.0.5:runtime");
+                "org.apache.tomee:openejb-itests-beans:jar:8.0.14:runtime");
         final File plugin2 = pluginGenerator
                 .createPluginAt(new File(pluginFolder, "main.jar"),
                         jar -> pluginGenerator.createComponent("comp", jar, "org/test"),
@@ -535,6 +542,92 @@ class ComponentManagerTest {
         } finally { // clean temp files
             doCleanup(pluginFolder);
         }
+    }
+
+    @Test
+    void talendRepositoryPropertyOk() {
+        final Path repository = Paths.get(new File("target/test-classes").getAbsolutePath());
+        System.setProperty(M2_PROP, repository.toString());
+        final Path m2 = ComponentManager.findM2();
+        assertNotNull(m2);
+        assertEquals(repository, m2);
+        System.clearProperty(M2_PROP);
+    }
+
+    @Test
+    void talendRepositoryPropertyKo() {
+        final Path repository = Paths.get("/home/zorro71");
+        System.setProperty(M2_PROP, repository.toString());
+        final Path m2 = ComponentManager.findM2();
+        assertNotNull(m2);
+        assertEquals(System.getProperty("user.home") + "/.m2/repository", m2.toString());
+        System.clearProperty(M2_PROP);
+    }
+
+    private void setSettingsProperty(final String path) {
+        try {
+            final Enumeration<URL> rsc = getClass().getClassLoader().getResources(path);
+            final Path settings = Paths.get(rsc.nextElement().toURI());
+            System.setProperty(SETTINGS_PROP, settings.toString());
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test
+    void findM2FromSettingsOk() {
+        setSettingsProperty("settings/settings-ok.xml");
+        final Path m2 = ComponentManager.findM2();
+        assertNotNull(m2);
+        assertEquals("/home", m2.toString());
+        System.clearProperty(SETTINGS_PROP);
+    }
+
+    @Test
+    void findM2FromSettingsKo() {
+        setSettingsProperty("settings/settings-ko.xml");
+        final Path m2 = ComponentManager.findM2();
+        assertNotNull(m2);
+        assertEquals(System.getProperty("user.home") + "/.m2/repository", m2.toString());
+        System.clearProperty(SETTINGS_PROP);
+    }
+
+    @Test
+    void findM2FromSettingsCommented() {
+        setSettingsProperty("settings/settings-commented.xml");
+        final Path m2 = ComponentManager.findM2();
+        assertNotNull(m2);
+        assertEquals(System.getProperty("user.home") + "/.m2/repository", m2.toString());
+        System.clearProperty(SETTINGS_PROP);
+    }
+
+    @Test
+    void findM2FromSettingsOkSpaced() {
+        setSettingsProperty("settings/settings-ok-spaced.xml");
+        final Path m2 = ComponentManager.findM2();
+        assertNotNull(m2);
+        assertEquals("/home", m2.toString());
+        System.clearProperty(SETTINGS_PROP);
+    }
+
+    @Test
+    void findM2FromSettingsOkSpacedMixedCase() {
+        setSettingsProperty("settings/settings-ok-spaced-mixed-case.xml");
+        final Path m2 = ComponentManager.findM2();
+        assertNotNull(m2);
+        assertEquals("/home", m2.toString());
+        System.clearProperty(SETTINGS_PROP);
+    }
+
+    @Test
+    void findM2FromRepositoryPropertyAndSettingsKo() {
+        System.setProperty(M2_PROP, Paths.get("/home/zorro71").toString());
+        setSettingsProperty("settings/settings-ko.xml");
+        final Path m2 = ComponentManager.findM2();
+        assertNotNull(m2);
+        assertEquals(System.getProperty("user.home") + "/.m2/repository", m2.toString());
+        System.clearProperty(M2_PROP);
+        System.clearProperty(SETTINGS_PROP);
     }
 
 }

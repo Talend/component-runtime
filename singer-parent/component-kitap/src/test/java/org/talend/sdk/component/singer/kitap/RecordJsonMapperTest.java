@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -36,6 +38,8 @@ import org.talend.sdk.component.singer.java.Singer;
 class RecordJsonMapperTest {
 
     private final RecordBuilderFactory factory = new RecordBuilderFactoryImpl(null);
+
+    private final Instant INSTANT = ZonedDateTime.of(2019, 8, 23, 16, 31, 12, 123456, ZoneId.of("UTC")).toInstant();
 
     @Test
     void map() {
@@ -62,10 +66,12 @@ class RecordJsonMapperTest {
                                         .withName("array")
                                         .withElementSchema(factory.newSchemaBuilder(Schema.Type.STRING).build())
                                         .build(), singleton("value-from-array"))
+                                .withInstant("instant", INSTANT)
                                 .build());
         assertEquals("{" + "\"name\":\"hello\"," + "\"age\":1," + "\"toggle\":true,"
-                + "\"date\":\"2019-08-23T16:31:00.000Z\"," + "\"lg\":2," + "\"bytes\":\"dGVzdA==\","
-                + "\"array\":[\"value-from-array\"]," + "\"nested\":{\"value\":\"set\",\"nested2\":{\"l2\":2}}}",
+                + "\"date\":\"2019-08-23T16:31:00.000000Z\"," + "\"lg\":2," + "\"bytes\":\"dGVzdA==\","
+                + "\"array\":[\"value-from-array\"]," + "\"instant\":\"2019-08-23T16:31:12.000123Z\","
+                + "\"nested\":{\"value\":\"set\",\"nested2\":{\"l2\":2}}}",
                 object.toString());
     }
 }

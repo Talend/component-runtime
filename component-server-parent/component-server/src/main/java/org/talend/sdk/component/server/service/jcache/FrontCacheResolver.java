@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,11 +117,11 @@ public class FrontCacheResolver implements CacheResolverFactory {
         }
     }
 
-    private void clearCaches() {
+    public void clearCaches() {
         StreamSupport
                 .stream(cacheManager.getCacheNames().spliterator(), false)
                 .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))
-                .peek(c -> log.warn("[clearCaches] clear cache {}."))
+                .peek(c -> log.info("[clearCaches] clear cache {}.", c))
                 .forEach(r -> cacheManager.getCache(r).clear());
     }
 

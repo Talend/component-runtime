@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,20 +57,19 @@ public class RecordBranchMapper extends DoFn<Record, Record> {
         final Record aggregate = context.element();
         final Collection<Record> branch = aggregate.getArray(Record.class, sourceBranch);
         if (branch != null) {
-            final Record output =
-                    aggregate.getSchema().getEntries().stream().collect(factory::newRecordBuilder, (a, e) -> {
-                        final boolean remappedBranch = e.getName().equals(sourceBranch);
-                        final String branchName = remappedBranch ? targetBranch : e.getName();
-                        a
-                                .withArray(
-                                        factory
-                                                .newEntryBuilder()
-                                                .withName(branchName)
-                                                .withType(Schema.Type.ARRAY)
-                                                .withElementSchema(e.getElementSchema())
-                                                .build(),
-                                        remappedBranch ? branch : aggregate.getArray(Record.class, e.getName()));
-                    }, RecordCollectors::merge).build();
+            final Record output = aggregate.getSchema().getAllEntries().collect(factory::newRecordBuilder, (a, e) -> {
+                final boolean remappedBranch = e.getName().equals(sourceBranch);
+                final String branchName = remappedBranch ? targetBranch : e.getName();
+                a
+                        .withArray(
+                                factory
+                                        .newEntryBuilder()
+                                        .withName(branchName)
+                                        .withType(Schema.Type.ARRAY)
+                                        .withElementSchema(e.getElementSchema())
+                                        .build(),
+                                remappedBranch ? branch : aggregate.getArray(Record.class, e.getName()));
+            }, RecordCollectors::merge).build();
             context.output(output);
         } else {
             context.output(aggregate);

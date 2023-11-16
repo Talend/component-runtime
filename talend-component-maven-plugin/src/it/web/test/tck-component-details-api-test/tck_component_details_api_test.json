@@ -1,0 +1,546 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+        "id": "bea8220c-3b57-4c73-b744-ab91b562b0c3",
+        "name": "tck-component-details-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "en"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "identifiers",
+                    "value": "${\"output_id\"}"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/component/details"
+            },
+            "description": "Check the properties inside the components details  \nRelated to bugs: TCOMP-2171",
+            "id": "d7f2dfc4-5d26-4fea-a884-fbfb2aa10564",
+            "name": "component/details - content",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..actions",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..displayName",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..icon",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..id",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..inputFlows",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..links",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..metadata",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..outputFlows",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..properties",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..type",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseJsonBody",
+                "path": "$.details..version",
+                "value": "{\"details\":\\[{\"actions\":\\[.+\\],\"displayName\":\".+\",\"icon\":\".+\",\"id\":{\"family\":\".+\",\"familyId\":\".+\",\"id\":\".+\",\"name\":\".+\",\"plugin\":\".+\",\"pluginLocation\":\".+\"},\"inputFlows\":\\[.*\\],\"links\":\\[.*\\],\"metadata\":{\"mapper::infinite\":\".+\",\"documentation::value\":\".+\"},\"outputFlows\":\\[\".+\"\\],\"properties\":\\[.+\\],\"type\":\".+\",\"version\":.+}\\]}"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "en"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "identifiers",
+                    "value": "${\"mapper_id\"}"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/component/details"
+            },
+            "description": "The correct call, with one correct \"identifiers\" parameter, should be in English with one component.",
+            "id": "9378d327-8622-4b91-a903-183c8b321d81",
+            "name": "component/details - identifiers (one)",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.details",
+                "value": "1"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "-en"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "en"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "identifiers",
+                    "value": "${\"mapper_id\"}"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "identifiers",
+                    "value": "${\"output_id\"}"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/component/details"
+            },
+            "description": "The correct call, with two correct \"identifiers\" parameter, should be in English with two component.",
+            "id": "c75cb1f3-67c8-417c-9fdb-012a7ee15bc4",
+            "name": "component/details - identifiers (two)",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.details",
+                "value": "2"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "-en"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "enabled": true,
+                    "name": "language",
+                    "value": "fr"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "identifiers",
+                    "value": "${\"output_id\"}"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/component/details"
+            },
+            "description": "Call of the endpoint with \"language\" parameter set to \"fr\", the response should contain French words.",
+            "id": "4441dcf0-e679-4860-817d-7f44445b972c",
+            "name": "component/details - language",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Exists",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "200"
+              },
+              {
+                "comparison": "Contains",
+                "subject": "ResponseBody",
+                "path": "content",
+                "value": "-fr"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.details",
+                "value": "1"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "en"
+                  },
+                  {
+                    "name": "identifiers",
+                    "value": ""
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/component/details"
+            },
+            "description": "Expected:empty answer  \nThe error call, with a no \"identifier\" parameter, should return a 200 status with a empty content",
+            "id": "27384b28-d235-41f0-8b64-4907d4df7dd4",
+            "name": "component/details - missing identifier",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.details",
+                "value": "0"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.",
+                "value": "1"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+              "name": "GET"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": [
+                  {
+                    "name": "language",
+                    "value": "fr"
+                  },
+                  {
+                    "enabled": true,
+                    "name": "identifiers",
+                    "value": "non_existing_id"
+                  }
+                ]
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/component/details"
+            },
+            "description": "Expected: 400  \nThe error call, with a wrong \"identifier\" parameter, should return a 400 status with a json content",
+            "id": "9737ca94-5083-408c-94b5-90a924a4ec79",
+            "name": "component/details - wrong identifier",
+            "headers": [],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "400"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$.",
+                "value": "1"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..code",
+                "value": "COMPONENT_MISSING"
+              },
+              {
+                "comparison": "Matches",
+                "subject": "ResponseJsonBody",
+                "path": "$..description",
+                "value": "No component 'non_existing_id'"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$..",
+                "value": "2"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "name": "component_runtime_ci",
+      "variables": {
+        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "52dc8012-b6f2-41d3-8e87-549e41251792": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}

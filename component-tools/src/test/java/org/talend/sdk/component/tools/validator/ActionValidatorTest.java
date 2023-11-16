@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,10 +26,12 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
@@ -37,6 +41,8 @@ import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult;
 import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.DatasetDescription;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 
@@ -52,7 +58,19 @@ class ActionValidatorTest {
         final String error = errorsStreamKO.collect(Collectors.joining(" / "));
         final String expected =
                 "public java.lang.String org.talend.sdk.component.tools.validator.ActionValidatorTest$ActionDatasetDiscoveryKo.discoverBadReturnType() should have a datastore as first parameter (marked with @DataStore)";
-        Assertions.assertEquals(expected, error);
+        assertEquals(expected, error);
+    }
+
+    @Test
+    void validateDiscoverProcessorSchema() {
+        final ActionValidator validator = new ActionValidator(new FakeHelper());
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaOk.class));
+        final Stream<String> noerrors =
+                validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaOk.class));
+        assertEquals(0, noerrors.count());
+        finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaKo.class));
+        final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaKo.class));
+        assertEquals(13, errors.count());
     }
 
     @Test
@@ -69,7 +87,7 @@ class ActionValidatorTest {
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionClassKO.class));
         final Stream<String> errorsStreamKO = validator.validate(finderKO, Arrays.asList(ActionClassKO.class));
         final List<String> errorsKO = errorsStreamKO.collect(Collectors.toList());
-        Assertions.assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
+        assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
 
         Assertions
                 .assertAll(() -> assertContains(errorsKO,
@@ -162,6 +180,87 @@ class ActionValidatorTest {
         @DiscoverDataset
         public String discoverBadReturnType() {
             return "Should return " + DiscoverDatasetResult.class;
+        }
+    }
+
+    static class ActionDiscoverProcessorSchemaOk {
+
+        @DiscoverSchemaExtended("test-all")
+        public Schema guessProcessorSchemaOk(final Schema incomingSchema, @Option FakeDataSet configuration,
+                final String branch) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-schema")
+        public Schema guessProcessorSchemaOk(final Schema incomingSchema, @Option FakeDataSet configuration) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-branch")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration, final String branch) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-min")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-extra")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration, RecordBuilderFactory factory) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-extra2")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration, final String branch,
+                RecordBuilderFactory factory, final String branchy) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("test-extra3")
+        public Schema guessProcessorSchemaOk(@Option FakeDataSet configuration, final String branch,
+                RecordBuilderFactory factory, final String branchy, final Schema incomingSchema, final Schema schema) {
+            return null;
+        }
+    }
+
+    static class ActionDiscoverProcessorSchemaKo {
+
+        @DiscoverSchemaExtended("test-none")
+        public Schema guessProcessorSchemaKo0() {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("schema")
+        public Schema guessProcessorSchemaKo1(final Schema schema, final @Option FakeDataSet configuration,
+                final String outgoing) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("schema")
+        public Schema guessProcessorSchemaKo2(final Schema schema, final @Option FakeDataSet configuration,
+                final String outgoing) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("record")
+        public Record guessProcessorSchemaKo3(FakeDataSet configuration, final String outgoing) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("record")
+        public Record guessProcessorSchemaKo4(FakeDataSet configuration, final String branch) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("record")
+        public Record guessProcessorSchemaKo5(FakeDataSet configuration) {
+            return null;
+        }
+
+        @DiscoverSchemaExtended("record")
+        public Record guessProcessorSchemaKo6(@Option FakeDataSet configuration, RecordBuilderFactory factory) {
+            return null;
         }
     }
 }

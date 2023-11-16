@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,9 +122,8 @@ public class BeamComponentExtension implements ComponentExtension {
         if (!supports(component)) {
             throw new IllegalArgumentException("Unsupported component API: " + component);
         }
-        log
-                .warn("Creating a '{}' instance for '{}#{}', this must be unwrapped before being used", component,
-                        instance.family(), instance.name());
+        log.warn("Creating a '{}' instance for '{}#{}', this must be unwrapped before being used", component,
+                instance.family(), instance.name());
         return (T) Proxy
                 .newProxyInstance(Thread.currentThread().getContextClassLoader(),
                         new Class<?>[] { component, Serializable.class, Delegated.class },
@@ -159,6 +158,9 @@ public class BeamComponentExtension implements ComponentExtension {
                     return method.invoke(instance, args);
                 }
                 if (Delegated.class == method.getDeclaringClass()) {
+                    return instance;
+                }
+                if (Mapper.class == method.getDeclaringClass()) {
                     return instance;
                 }
                 if ("plugin".equals(method.getName()) && method.getParameterCount() == 0) {

@@ -2,6 +2,6 @@
 :page-partial:
 :page-talend_swaggerui: true
 :description: Component Kit OpenAPI Documentation
-:keywords: Swagger, REST, API
+:keywords: Swagger, REST, API, component-server
 
 include::{partialsdir}/generated_rest-resources.adoc[leveloffset=+2]

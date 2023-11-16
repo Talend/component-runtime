@@ -1,7 +1,7 @@
 = Defining a custom icon for a component or component family
 :page-partial:
 :description: How to replace the default icon with a custom icon using Talend Component Kit
-:keywords: component icon
+:keywords: component icon, icon
 
 Every component family and component needs to have a representative icon. +
 You have to define a custom icon as follows:

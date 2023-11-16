@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,12 @@ public class WebMojo extends AbstractMojo {
     @Parameter(defaultValue = "true", property = "talend.web.openBrowser")
     private boolean openBrowser;
 
+    @Parameter(defaultValue = "false", property = "talend.web.batch")
+    private boolean batchMode;
+
+    @Parameter(defaultValue = "2", property = "talend.web.batch.timeout")
+    private int batchTimeout;
+
     @Override
     public void execute() {
         final String originalRepoSystProp = System.getProperty("talend.component.server.maven.repository");
@@ -70,7 +76,7 @@ public class WebMojo extends AbstractMojo {
         try {
             final WebServer webServer = new WebServer(serverArguments, port, getLog(),
                     String.format("%s:%s:%s", project.getGroupId(), project.getArtifactId(), project.getVersion()));
-            if (openBrowser) {
+            if (!batchMode && openBrowser) {
                 webServer.openBrowserWhenReady();
             }
             webServer.run();

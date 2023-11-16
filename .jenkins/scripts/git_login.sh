@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -27,6 +27,18 @@ main() {
   git config --global credential.username ${username}
   git config --global credential.helper '!echo password=${password}; echo'
   git config --global credential.name "jenkins-build"
+
+  {
+    printf "machine github.com\n"
+    printf "login %s\n" "${username}"
+    printf "password %s\n" "${password}"
+
+    printf "machine api.github.com\n"
+    printf "login %s\n" "${username}"
+    printf "password %s\n" "${password}"
+  } > ~/.netrc
+
+  chmod 600 ~/.netrc
 }
 
 main "$@"

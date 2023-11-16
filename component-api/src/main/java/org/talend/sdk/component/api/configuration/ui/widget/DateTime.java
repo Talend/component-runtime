@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,4 +33,10 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })
 public @interface DateTime {
+
+    String dateFormat() default "YYYY/MM/DD";
+
+    boolean useSeconds() default true;
+
+    boolean useUTC() default true;
 }

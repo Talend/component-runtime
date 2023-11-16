@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import javax.json.bind.Jsonb;
 import javax.json.spi.JsonProvider;
 
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
 
@@ -47,6 +48,29 @@ public class OutputsHandler extends BaseIOHandler {
                     ref.add(jsonb.fromJson(value.toString(), ref.getType()));
                 } else if (value instanceof Record) {
                     ref.add(registry.find(ref.getType()).newInstance(Record.class.cast(value)));
+                } else {
+                    ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
+                }
+            }
+        };
+    }
+
+    /**
+     * Guess schema special use-case for processor Studio mock.
+     * Same as asOutputFactory but stores the record'schema or schema as the pojo class isn't available.
+     *
+     * @return GuessSchema OutputFactory
+     */
+    public OutputFactory asOutputFactoryForGuessSchema() {
+        return name -> value -> {
+            final BaseIOHandler.IO ref = connections.get(getActualName(name));
+            if (ref != null && value != null) {
+                if (value instanceof javax.json.JsonValue) {
+                    ref.add(jsonb.fromJson(value.toString(), ref.getType()));
+                } else if (value instanceof Record) {
+                    ref.add(((Record) value).getSchema());
+                } else if (value instanceof Schema) {
+                    ref.add(value);
                 } else {
                     ref.add(jsonb.fromJson(jsonb.toJson(value), ref.getType()));
                 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@ package org.talend.sdk.component.maven;
 
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 import static org.talend.sdk.component.maven.api.Audience.Type.PUBLIC;
+import static org.talend.sdk.component.maven.api.Constants.CAR_EXTENSION;
 
 import java.io.File;
 import java.util.Map;
 
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -66,11 +68,17 @@ public class CarMojo extends DependencyAwareMojo {
     @Parameter(defaultValue = "false", property = "talend.car.skip")
     private boolean skip;
 
+    /**
+     * Is it a `connector' or an `extension' bundled?
+     */
+    @Parameter(defaultValue = "connector", property = "talend.car.type")
+    private String type;
+
     @Component
     private MavenProjectHelper helper;
 
     @Override
-    public void execute() {
+    public void execute() throws MojoFailureException {
         if (skip) {
             return;
         }
@@ -84,10 +92,11 @@ public class CarMojo extends DependencyAwareMojo {
         configuration.setOutput(output);
         configuration.setArtifacts(artifacts());
         configuration.setVersion(project.getVersion());
+        configuration.setType(type);
         configuration.setCustomMetadata(metadata);
         new CarBundler(configuration, getLog()).run();
         if (attach) {
-            helper.attachArtifact(project, "car", classifier, output);
+            helper.attachArtifact(project, CAR_EXTENSION, classifier, output);
             getLog().info("Attached " + output + " with classifier " + classifier);
         }
     }

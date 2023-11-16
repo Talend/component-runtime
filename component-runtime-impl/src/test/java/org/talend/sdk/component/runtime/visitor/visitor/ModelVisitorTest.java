@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,16 @@ class ModelVisitorTest {
     @Test
     void mapperInfiniteNoAssessor() {
         visit(InfiniteMapperNoAssessor.class);
+    }
+
+    @Test
+    void mapperInfiniteStoppable() {
+        visit(InfiniteMapperStoppable.class);
+    }
+
+    @Test
+    void mapperStoppable() {
+        assertThrows(IllegalArgumentException.class, () -> visit(MapperStoppable.class));
     }
 
     @Test
@@ -339,6 +349,45 @@ class ModelVisitorTest {
 
         @PartitionMapper(family = "comp", name = "Mapper", infinite = true)
         public static class Mapper {
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public ValidIn emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class InfiniteMapperStoppable {
+
+        @PartitionMapper(family = "comp", name = "Mapper", infinite = true, stoppable = true)
+        public static class Mapper {
+
+            @Split
+            public Collection<Mapper> ins() {
+                return emptyList();
+            }
+
+            @Emitter
+            public ValidIn emit() {
+                return null;
+            }
+        }
+    }
+
+    public static class MapperStoppable {
+
+        @PartitionMapper(family = "comp", name = "Mapper", infinite = false, stoppable = true)
+        public static class Mapper {
+
+            @Assessor
+            public long get() {
+                return 1;
+            }
 
             @Split
             public Collection<Mapper> ins() {

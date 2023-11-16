@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class MvnDependencyListLocalRepositoryResolverTest {
                 nested.putNextEntry(new ZipEntry("TALEND-INF/dependencies.txt"));
                 nested
                         .write(new DependenciesTxtBuilder()
-                                .withDependency("org.apache.tomee:ziplock:jar:7.0.5:runtime")
+                                .withDependency("org.apache.tomee:ziplock:jar:8.0.14:runtime")
                                 .withDependency("org.apache.tomee:javaee-api:jar:7.0-1:compile")
                                 .build()
                                 .getBytes(StandardCharsets.UTF_8));
@@ -61,7 +61,37 @@ class MvnDependencyListLocalRepositoryResolverTest {
                             .resolve(tempLoader, "foo/bar/dummy/1.0.0/dummy-1.0.0.jar")
                             .map(Artifact::toPath)
                             .collect(toList());
-            assertEquals(asList("org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar",
+            assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
+                    "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
+        }
+    }
+
+    @Test
+    void nestedDependencyWithJira(@TempDir final File temporaryFolder) throws IOException {
+        final File file = new File(temporaryFolder, UUID.randomUUID().toString() + ".jar");
+        file.getParentFile().mkdirs();
+        try (final JarOutputStream enclosing = new JarOutputStream(new FileOutputStream(file))) {
+            enclosing.putNextEntry(
+                    new ZipEntry("MAVEN-INF/repository/foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar"));
+            try (final JarOutputStream nested = new JarOutputStream(enclosing)) {
+                nested.putNextEntry(new ZipEntry("TALEND-INF/dependencies.txt"));
+                nested
+                        .write(new DependenciesTxtBuilder()
+                                .withDependency("org.apache.tomee:ziplock:jar:8.0.14:runtime")
+                                .withDependency("org.apache.tomee:javaee-api:jar:7.0-1:compile")
+                                .build()
+                                .getBytes(StandardCharsets.UTF_8));
+            }
+        }
+
+        try (final URLClassLoader tempLoader =
+                new URLClassLoader(new URL[] { file.toURI().toURL() }, getSystemClassLoader())) {
+            final List<String> toResolve =
+                    new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", d -> null)
+                            .resolve(tempLoader, "foo/bar/dummy/1.0.0-TCOMP-2285/dummy-1.0.0-TCOMP-2285.jar")
+                            .map(Artifact::toPath)
+                            .collect(toList());
+            assertEquals(asList("org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar",
                     "org/apache/tomee/javaee-api/7.0-1/javaee-api-7.0-1.jar"), toResolve);
         }
     }

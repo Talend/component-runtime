@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,4 +19,6 @@ public interface KeysForAvroProperty {
 
     String LABEL = "talend.component.label";
 
+    // alias that indicate field is metadata if present.
+    String METADATA_ALIAS_NAME = "talend.field.__METADATA__";
 }

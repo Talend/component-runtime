@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.talend.sdk.components.vault.client.VaultClient;
 
@@ -45,15 +47,19 @@ public class VaultMock {
     @POST
     @Path("login")
     public VaultClient.AuthResponse login(final VaultClient.AuthRequest request) {
-        if (!"Test-Role".equals(request.getRoleId()) || !"Test-Secret".equals(request.getSecretId())) {
-            log.error("[login] Invalid Role {} or Secret {}");
-            throw new ForbiddenException();
+        if (!"Test-Role".equals(request.getRoleId())) {
+            throw new WebApplicationException(
+                    Response.status(400).entity("{\"errors\":[\"missing role_id\"]}").build());
+        }
+        if (!"Test-Secret".equals(request.getSecretId())) {
+            throw new WebApplicationException(
+                    Response.status(400).entity("{\"errors\":[\"missing secret_id\"]}").build());
         }
 
         final VaultClient.Auth auth = new VaultClient.Auth();
         auth.setClientToken("client-test-token");
         auth.setRenewable(true);
-        auth.setLeaseDuration(800000);
+        auth.setLeaseDuration(800);
 
         final VaultClient.AuthResponse response = new VaultClient.AuthResponse();
         response.setAuth(auth);
@@ -70,8 +76,8 @@ public class VaultMock {
         }
         if (!"vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA=="
                 .equals(request.getBatchInput().iterator().next().getCiphertext())) {
-            log.error("[decrypt] Invalid cyphered text {}.", request.getBatchInput().iterator().next().getCiphertext());
-            throw new BadRequestException();
+            throw new WebApplicationException(
+                    Response.status(400).entity("{\"errors\":[\"wrong vault_encrypt\"]}").build());
         }
 
         final VaultClient.DecryptResult result = new VaultClient.DecryptResult();

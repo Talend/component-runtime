@@ -2,21 +2,21 @@
 <jsonArray>[
   {
     "commits":2548,
-    "description":"Apache addict I'm involved in several project (OpenWebBeans, Johnzon, Geronimo, Meecrowave, ... - http://home.apache.org/committer-index.html#rmannibucau).\n\nBlog: https://rmannibucau.metawerx.net",
+    "description":"OSS addict I'm involved in several ASF projects (http://home.apache.org/committer-index.html#rmannibucau) and Yupiik (https://www.yupiik.io/projects.html).\n\nBlog: https://rmannibucau.metawerx.net",
     "gravatar":"https://avatars.githubusercontent.com/u/1249546?v=4",
     "id":"rmannibucau",
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":335,
-    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: www.undx.net",
+    "commits":748,
+    "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
     "name":"Emmanuel GALLOIS"
   },
   {
     "commits":218,
-    "description":"Technical Writer at @Talend",
+    "description":"Technical Writer ",
     "gravatar":"https://avatars.githubusercontent.com/u/39913705?v=4",
     "id":"florentlb",
     "name":"Florent LB"
@@ -29,6 +29,13 @@
     "name":"Ivan Gonchar"
   },
   {
+    "commits":75,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
+    "id":"clesaec",
+    "name":"Christophe Le Saec"
+  },
+  {
     "commits":59,
     "description":"Frontend Architect",
     "gravatar":"https://avatars.githubusercontent.com/u/19857479?v=4",
@@ -36,17 +43,32 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":45,
+    "commits":47,
     "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/51320496?v=4",
-    "id":"clesaec"
+    "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
+    "id":"yyin-talend",
+    "name":"yyin"
   },
   {
-    "commits":36,
+    "commits":41,
+    "description":"QA Automation @ Talend Nantes",
+    "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
+    "id":"acatoire",
+    "name":"Axel CATOIRE"
+  },
+  {
+    "commits":38,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",
     "name":"ypiel"
+  },
+  {
+    "commits":24,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
+    "id":"wwang-talend",
+    "name":"wang wei"
   },
   {
     "commits":23,
@@ -56,11 +78,18 @@
     "name":"Chao MENG"
   },
   {
-    "commits":19,
+    "commits":13,
     "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/53257653?v=4",
-    "id":"rlecomte-talend",
-    "name":"Richard Lecomte"
+    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
+    "id":"ozhelezniak-talend",
+    "name":"Oleksandr Zhelezniak"
+  },
+  {
+    "commits":9,
+    "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
+    "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
+    "id":"coheigea",
+    "name":"Colm O hEigeartaigh"
   },
   {
     "commits":9,
@@ -71,23 +100,38 @@
   },
   {
     "commits":9,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
+    "id":"lxia-talend",
+    "name":"lxia-talend"
+  },
+  {
+    "commits":9,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
+    "id":"fdesiles",
+    "name":"Fabien Désiles"
+  },
+  {
+    "commits":9,
     "description":"Frontend Architect.\r\nThis is my Talend account. You can check out @jsomsanith for my personal account",
     "gravatar":"https://avatars.githubusercontent.com/u/10761073?v=4",
     "id":"jsomsanith-tlnd",
     "name":"Jimmy Somsanith"
   },
   {
-    "commits":8,
-    "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
-    "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
-    "id":"coheigea",
-    "name":"Colm O hEigeartaigh"
+    "commits":6,
+    "description":"\n\nBlog: timeline.antoinenicolas.com",
+    "gravatar":"https://avatars.githubusercontent.com/u/39268?v=4",
+    "id":"anicolas",
+    "name":"Antoine Nicolas"
   },
   {
-    "commits":5,
+    "commits":4,
     "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7744819?v=4",
-    "id":"RyanSkraba"
+    "gravatar":"https://avatars.githubusercontent.com/u/59560172?v=4",
+    "id":"pgautier83",
+    "name":"pgautier83"
   },
   {
     "commits":4,
@@ -105,13 +149,6 @@
   },
   {
     "commits":3,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
-    "id":"wwang-talend",
-    "name":"wang wei"
-  },
-  {
-    "commits":3,
     "description":"Templar",
     "gravatar":"https://avatars.githubusercontent.com/u/22737013?v=4",
     "id":"pyzhou-talend",
@@ -121,13 +158,22 @@
     "commits":3,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/18050008?v=4",
-    "id":"chmyga"
+    "id":"chmyga",
+    "name":"chmyga"
   },
   {
     "commits":2,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/31616269?v=4",
-    "id":"lcelton-talend"
+    "id":"lcelton-talend",
+    "name":"lcelton-talend"
+  },
+  {
+    "commits":2,
+    "description":"I'm a serial tooler.",
+    "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
+    "id":"quilicicf",
+    "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
   },
   {
     "commits":2,
@@ -135,20 +181,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/2045409?v=4",
     "id":"ZoltanTakacs",
     "name":"Zoltán Takács"
-  },
-  {
-    "commits":2,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/1133383?v=4",
-    "id":"rdubois",
-    "name":"Rémy DUBOIS"
-  },
-  {
-    "commits":2,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
-    "id":"ozhelezniak-talend",
-    "name":"Oleksandr Zhelezniak"
   },
   {
     "commits":1,
@@ -159,7 +191,7 @@
   },
   {
     "commits":1,
-    "description":"Focused on Big Data technologies. Open Source fan, I contribute to Apache projects.\r\nI'm an Apache Beam committer and PMC member\n\nBlog: https://echauchot.blogspot.com/",
+    "description":"Focused on Big Data. Open Source contributor. I'm an Apache Beam and Flink committer and Beam PMC member. I'm also an Apache Software Foundation member\n\nBlog: https://echauchot.blogspot.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/8821084?v=4",
     "id":"echauchot",
     "name":"Etienne Chauchot"
@@ -173,13 +205,21 @@
   },
   {
     "commits":1,
-    "description":"Senior Cloud Software Architect",
+    "description":"Principal Cloud Software Architect",
     "gravatar":"https://avatars.githubusercontent.com/u/783286?v=4",
-    "id":"sgandon"
+    "id":"sgandon",
+    "name":"Sébastien Gandon"
   },
   {
     "commits":1,
-    "description":"",
+    "description":"Born in 2008 I joined Talend with my master in 2022, I am now the official ci-runner for the connectors team",
+    "gravatar":"https://avatars.githubusercontent.com/u/108458118?v=4",
+    "id":"ci-runner-connectors",
+    "name":"ci-runner-connectors"
+  },
+  {
+    "commits":1,
+    "description":"Product Manager, Information Architect",
     "gravatar":"https://avatars.githubusercontent.com/u/19730806?v=4",
     "id":"fviolette",
     "name":"François Violette"
@@ -190,6 +230,20 @@
     "gravatar":"https://avatars.githubusercontent.com/u/35097656?v=4",
     "id":"aleboulanger",
     "name":"Aurélien Leboulanger"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7733973?v=4",
+    "id":"jzhao-talend",
+    "name":"jzhao"
+  },
+  {
+    "commits":1,
+    "description":"Principal Security Engineer",
+    "gravatar":"https://avatars.githubusercontent.com/u/6706472?v=4",
+    "id":"Gby56",
+    "name":"Gabriel Marquet"
   },
   {
     "commits":1,
@@ -207,10 +261,31 @@
   },
   {
     "commits":1,
+    "description":"Drums, Java, Rock'n'Roll",
+    "gravatar":"https://avatars.githubusercontent.com/u/25642427?v=4",
+    "id":"dmytro-sylaiev",
+    "name":"Dmytro Sylaiev"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/in/29110?v=4",
+    "id":"dependabot[bot]",
+    "name":"dependabot[bot]"
+  },
+  {
+    "commits":1,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/20939820?v=4",
     "id":"Voievidko",
     "name":"Roman"
+  },
+  {
+    "commits":1,
+    "description":"Senior Software engineer at @komodohealth.\r\n\r\nPh.D. in large-scale storage systems.\r\n\r\nPrevious competitive programmer.",
+    "gravatar":"https://avatars.githubusercontent.com/u/10938011?v=4",
+    "id":"jad-darrous",
+    "name":"Jad Darrous"
   }
 ]</jsonArray>
 ++++

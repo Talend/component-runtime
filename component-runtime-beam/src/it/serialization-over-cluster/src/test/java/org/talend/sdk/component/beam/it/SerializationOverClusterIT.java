@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class SerializationOverClusterIT {
     private static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
     private static final SparkClusterRule SPARK = new SparkClusterRule(
-            System.getProperty("spark-scala.version", "2.12"), System.getProperty("spark.version", "3.0.1"), 1);
+            System.getProperty("spark-scala.version", "2.12"), System.getProperty("spark.version", "3.2.2"), 1);
 
     @ClassRule
     public static final TestRule RULE = outerRule(TEMPORARY_FOLDER).around(SPARK);

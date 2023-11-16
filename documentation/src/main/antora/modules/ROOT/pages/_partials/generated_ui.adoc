@@ -116,6 +116,22 @@ Put on a configuration class it notifies the UI a vertical layout is preferred.
 ----
 
 
+= @BasedOnSchema
+
+Mark a table column filled by component's schema auto. Only for studio.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.BasedOnSchema`
+
+== Snippets
+
+[source,js]
+----
+{
+  "ui::basedonschema":"true"
+}
+----
+
+
 = @Code
 
 Mark a field as being represented by some code widget (vs textarea for instance).
@@ -159,28 +175,68 @@ Mark a field as being a date. It supports and is *implicit* - which means you do
 [source,js]
 ----
 {
-  "ui::datetime":"time"
+  "ui::datetime":"time",
+  "ui::datetime::useSeconds":"false"
 }
 ----
 
 [source,js]
 ----
 {
-  "ui::datetime":"date"
+  "ui::datetime":"date",
+  "ui::datetime::dateFormat":"test"
 }
 ----
 
 [source,js]
 ----
 {
-  "ui::datetime":"datetime"
+  "ui::datetime":"datetime",
+  "ui::datetime::dateFormat":"test",
+  "ui::datetime::useSeconds":"false",
+  "ui::datetime::useUTC":"false"
 }
 ----
 
 [source,js]
 ----
 {
-  "ui::datetime":"zoneddatetime"
+  "ui::datetime":"zoneddatetime",
+  "ui::datetime::dateFormat":"test",
+  "ui::datetime::useSeconds":"false",
+  "ui::datetime::useUTC":"false"
+}
+----
+
+
+= @ModuleList
+
+Mark a string field as being represented by selected module list widget, only for studio
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.ModuleList`
+
+== Snippets
+
+[source,js]
+----
+{
+  "ui::modulelist":"true"
+}
+----
+
+
+= @Path
+
+Mark a option as being represented by file or directory widget. Only for studio.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.Path`
+
+== Snippets
+
+[source,js]
+----
+{
+  "ui::path::value":"null"
 }
 ----
 

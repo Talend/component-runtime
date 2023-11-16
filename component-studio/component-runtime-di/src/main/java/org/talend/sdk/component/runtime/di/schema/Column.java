@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ public class Column {
 
     private Boolean nullable;
 
-    private Integer length;
+    private Integer length = null;
 
-    private Integer precision;
+    private Integer precision = null;
 
     private String defaut;
 
@@ -65,4 +65,12 @@ public class Column {
     private Boolean usefulColumn;
 
     private Map<String, String> additionalField;
+
+    public String getDefault() {
+        return defaut;
+    }
+
+    public void setDefault(final String value) {
+        defaut = value;
+    }
 }

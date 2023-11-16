@@ -388,18 +388,18 @@ public class HazelcastSource implements Serializable {
         this.dataset = configuration;
     }
 
-    @PostConstruct
+    @PostConstruct <3>
     public void init() throws IOException {
         //Here we can init connections
     }
 
-    @Producer
+    @Producer <4>
     public Record next() {
         // provide a record every time it is called. Returns null if there is no more data
         return null;
     }
 
-    @PreDestroy
+    @PreDestroy <5>
     public void release() {
         // clean and release any resources
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,28 +50,33 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(final Throwable exception) {
-        log.error(exception.getMessage(), exception);
+        final Response response;
         if (WebApplicationException.class.isInstance(exception)) {
-            return WebApplicationException.class.cast(exception).getResponse();
-        }
-        final Optional<Throwable> optCause = Optional.ofNullable(exception.getCause());
-        if (optCause.isPresent()) {
-            final Throwable cause = optCause.get();
-            if (WebApplicationException.class.isInstance(cause)) {
-                return WebApplicationException.class.cast(cause).getResponse();
+            response = WebApplicationException.class.cast(exception).getResponse();
+        } else {
+            final Optional<Throwable> optCause = Optional.ofNullable(exception.getCause());
+            if (optCause.isPresent()) {
+                final Throwable cause = optCause.get();
+                if (WebApplicationException.class.isInstance(cause)) {
+                    response = WebApplicationException.class.cast(cause).getResponse();
+                } else {
+                    response = Response
+                            .status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                                    replaceException ? configuration.getDefaultExceptionMessage() : cause.getMessage()))
+                            .type(WILDCARD_TYPE)
+                            .build();
+                }
+            } else {
+                response = Response
+                        .status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
+                                replaceException ? configuration.getDefaultExceptionMessage() : exception.getMessage()))
+                        .type(WILDCARD_TYPE)
+                        .build();
             }
-            return Response
-                    .status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
-                            replaceException ? configuration.getDefaultExceptionMessage() : cause.getMessage()))
-                    .type(WILDCARD_TYPE)
-                    .build();
         }
-        return Response
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED,
-                        replaceException ? configuration.getDefaultExceptionMessage() : exception.getMessage()))
-                .type(WILDCARD_TYPE)
-                .build();
+        return response;
     }
+
 }

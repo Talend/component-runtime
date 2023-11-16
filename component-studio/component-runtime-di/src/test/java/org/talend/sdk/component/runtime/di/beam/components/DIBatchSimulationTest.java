@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
 import org.talend.sdk.component.runtime.di.InputsHandler;
@@ -256,14 +255,10 @@ class DIBatchSimulationTest {
             if (javax.json.JsonValue.class.isInstance(dataMapper)) {
                 jsonValueMapper = javax.json.JsonValue.class.cast(dataMapper).toString();
             } else if (org.talend.sdk.component.api.record.Record.class.isInstance(dataMapper)) {
-                jsonValueMapper = converters
-                        .toType(registry,
-                                converters
-                                        .toRecord(new RecordConverters.MappingMetaRegistry(), dataMapper,
-                                                () -> jsonbMapper, () -> recordBuilderMapper),
-                                JsonObject.class, () -> jsonBuilderFactory, () -> jsonProvider, () -> jsonbMapper,
-                                () -> recordBuilderMapper)
-                        .toString();
+                jsonValueMapper = jsonbMapper
+                        .toJson(converters
+                                .toRecord(new RecordConverters.MappingMetaRegistry(), dataMapper, () -> jsonbMapper,
+                                        () -> recordBuilderMapper));
             } else {
                 jsonValueMapper = jsonbMapper.toJson(dataMapper);
             }
@@ -315,11 +310,21 @@ class DIBatchSimulationTest {
 
     @Getter
     @ToString
-    public static class row1Struct {
+    public static class row1Struct implements routines.system.IPersistableRow {
 
         public String id;
 
         public String name;
+
+        @Override
+        public void writeData(final java.io.ObjectOutputStream objectOutputStream) {
+            throw new UnsupportedOperationException("#writeData()");
+        }
+
+        @Override
+        public void readData(final java.io.ObjectInputStream objectInputStream) {
+            throw new UnsupportedOperationException("#readData()");
+        }
     }
 
     @PartitionMapper(name = "from", family = "DIBatchSimulationTest")

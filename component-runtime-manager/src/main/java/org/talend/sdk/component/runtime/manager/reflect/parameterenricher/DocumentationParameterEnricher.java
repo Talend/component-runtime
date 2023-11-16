@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.sdk.component.api.meta.Documentation;
@@ -28,11 +28,19 @@ public class DocumentationParameterEnricher extends BaseParameterEnricher {
 
     private static final String VALUE = "tcomp::documentation::value";
 
+    private static final String TOOLTIP = "tcomp::documentation::tooltip";
+
     @Override
     public Map<String, String> onParameterAnnotation(final String parameterName, final Type parameterType,
             final Annotation annotation) {
         if (annotation.annotationType() == Documentation.class) {
-            return singletonMap(VALUE, Documentation.class.cast(annotation).value());
+            HashMap<String, String> parameters = new HashMap<>();
+            Documentation doc = Documentation.class.cast(annotation);
+            parameters.put(VALUE, doc.value());
+            if (doc.tooltip()) {
+                parameters.put(TOOLTIP, "true");
+            }
+            return parameters;
         }
         return emptyMap();
     }

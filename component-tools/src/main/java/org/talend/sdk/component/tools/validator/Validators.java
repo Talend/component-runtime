@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,6 +131,7 @@ public class Validators {
         }
         if (configuration.isValidateOptionNames()) {
             activeValidators.add(new OptionNameValidator());
+            activeValidators.add(new OptionParameterValidator());
         }
 
         if (configuration.isValidateLocalConfiguration()) {
@@ -170,6 +171,12 @@ public class Validators {
                 final ExtensionValidator validator = new ExtensionValidator(ext, helper);
                 activeValidators.add(validator);
             });
+        }
+        if (configuration.isValidateRecord()) {
+            activeValidators.add(new RecordValidator());
+        }
+        if (configuration.isValidateSchema()) {
+            activeValidators.add(new SchemaValidator());
         }
 
         return new Validators(activeValidators);

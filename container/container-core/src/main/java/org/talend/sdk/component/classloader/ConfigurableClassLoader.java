@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -197,7 +197,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     }
 
     private void logUnexpectedDependency(final URL url, final String entry) {
-        log.error("{} shouldn't be provided outside the JVM itself, origin={}", entry, url);
+        log.warn("{} shouldn't be provided outside the JVM itself, origin={}", entry, url);
     }
 
     private boolean isBlacklisted(final String name) {

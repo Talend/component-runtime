@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import routines.system.IPersistableRow;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import javax.json.bind.config.BinaryDataStrategy;
 import javax.json.bind.config.PropertyOrderStrategy;
 import javax.json.spi.JsonProvider;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -303,6 +305,17 @@ class RecordConvertersTest {
     }
 
     @Test
+    void convertInstant() {
+        final ZonedDateTime dateTime = ZonedDateTime.of(2017, 7, 17, 9, 0, 0, 0, ZoneId.of("GMT"));
+        final Instant asInstant = new RecordConverters().coerce(Instant.class,
+                new long[] { dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano() }, "foo");
+        assertEquals(dateTime.toInstant(), asInstant);
+        final ZonedDateTime asDate = new RecordConverters().coerce(ZonedDateTime.class,
+                new long[] { dateTime.toInstant().getEpochSecond(), dateTime.toInstant().getNano() }, "foo");
+        assertEquals(dateTime.toInstant(), asDate.toInstant());
+    }
+
+    @Test
     void convertListString(final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter)
             throws Exception {
         try (final Jsonb jsonb = JsonbBuilder.create()) {
@@ -340,6 +353,30 @@ class RecordConvertersTest {
                                     .build(),
                             () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
             final Collection<Record> list = record.getArray(Record.class, "list");
+            assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
+        }
+    }
+
+    @Test
+    void convertListVaryingObject(final JsonBuilderFactory jsonBuilderFactory, final JsonProvider jsonProvider,
+            final RecordBuilderFactory recordBuilderFactory, final RecordConverters converter) throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            final Record record = converter
+                    .toRecord(new RecordConverters.MappingMetaRegistry(),
+                            Json
+                                    .createObjectBuilder()
+                                    .add("list", Json
+                                            .createArrayBuilder()
+                                            .add(Json.createObjectBuilder().add("name", "a").add("name1", "a1").build())
+                                            .add(Json.createObjectBuilder().add("name", "b").add("name2", "b2").build())
+                                            .build())
+                                    .build(),
+                            () -> jsonb, () -> new RecordBuilderFactoryImpl("test"));
+            final Collection<Record> list = record.getArray(Record.class, "list");
+            final Schema schema = record.getSchema().getEntries().get(0).getElementSchema();
+            // // FIXME: 7/9/21 : TCOMP-1956
+            Assertions.assertNotNull(schema.getEntry("name1"));
+            Assertions.assertNotNull(schema.getEntry("name2"));
             assertEquals(asList("a", "b"), list.stream().map(it -> it.getString("name")).collect(toList()));
         }
     }

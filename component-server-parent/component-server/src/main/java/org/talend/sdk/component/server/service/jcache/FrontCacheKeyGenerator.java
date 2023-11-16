@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.service.jcache;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.cache.annotation.CacheInvocationParameter;
@@ -30,6 +31,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @ApplicationScoped
 public class FrontCacheKeyGenerator implements CacheKeyGenerator {
 
@@ -55,10 +59,15 @@ public class FrontCacheKeyGenerator implements CacheKeyGenerator {
     }
 
     private Stream<Object> getContextualKeys() {
-        return Stream
-                .of(uriInfo.getPath(), uriInfo.getQueryParameters(), headers.getLanguage(),
-                        headers.getHeaderString(HttpHeaders.ACCEPT),
-                        headers.getHeaderString(HttpHeaders.ACCEPT_ENCODING));
+        try {
+            return Stream
+                    .of(uriInfo.getPath(), uriInfo.getQueryParameters(), headers.getLanguage(),
+                            headers.getHeaderString(HttpHeaders.ACCEPT),
+                            headers.getHeaderString(HttpHeaders.ACCEPT_ENCODING));
+        } catch (Exception e) {
+            log.debug("[getContextualKeys] context not applicable: {}", e.getMessage());
+            return Stream.of(UUID.randomUUID());
+        }
     }
 
     private static class GeneratedCacheKeyImpl implements GeneratedCacheKey {

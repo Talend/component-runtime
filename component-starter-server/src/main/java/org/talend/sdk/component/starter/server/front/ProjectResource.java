@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,9 +79,11 @@ import javax.ws.rs.ext.Providers;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.NullProgressMonitor;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FileUtils;
+import org.eclipse.jgit.util.SystemReader;
 import org.talend.sdk.component.starter.server.configuration.StarterConfiguration;
 import org.talend.sdk.component.starter.server.model.ErrorMessage;
 import org.talend.sdk.component.starter.server.model.FactoryConfiguration;
@@ -257,9 +259,21 @@ public class ProjectResource {
                                     .encodeToString((githubConfig.getUsername() + ':' + githubConfig.getPassword())
                                             .getBytes(StandardCharsets.UTF_8)))
                     .method(starterConfiguration.getGithubCreateProjectMethod(),
-                            entity(new CreateProjectRequest(project.getModel().getArtifact(),
-                                    project.getModel().getDescription(), false), APPLICATION_JSON_TYPE),
+                            entity(new CreateProjectRequest(
+                                    githubConfig.getRepository(),
+                                    String.format("%s :: %s",
+                                            project.getModel().getArtifact(),
+                                            project.getModel().getDescription()),
+                                    false),
+                                    APPLICATION_JSON_TYPE),
                             CreateProjectResponse.class);
+        } catch (Exception e) {
+            log.error("[gitPush] {}", e.getMessage());
+            throw new WebApplicationException(Response
+                    .status(500, e.getMessage())
+                    .entity(new ErrorMessage(e.getMessage()))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build());
         } finally {
             client.close();
         }
@@ -269,6 +283,7 @@ public class ProjectResource {
                 starterConfiguration.getWorkDir().replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir")),
                 githubConfig.getRepository() + "_" + System.nanoTime());
         if (!workDir.mkdirs()) {
+            log.error("[gitPush] can't create a temporary folder");
             throw new WebApplicationException(Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(new ErrorMessage("can't create a temporary folder"))
@@ -278,6 +293,12 @@ public class ProjectResource {
 
         final UsernamePasswordCredentialsProvider credentialsProvider =
                 new UsernamePasswordCredentialsProvider(githubConfig.getUsername(), githubConfig.getPassword());
+        // mainly for testing on local running meecrowave server
+        try {
+            SystemReader.getInstance().getUserConfig().clear();
+        } catch (ConfigInvalidException | IOException e) {
+            log.warn("Clear user gitconfig failed.");
+        }
         try (final Git git = Git
                 .cloneRepository()
                 .setBranch("master")
@@ -377,6 +398,7 @@ public class ProjectResource {
                     .call();
 
         } catch (final GitAPIException | IOException e) {
+            log.error("[gitPush] {}", e.getMessage());
             throw new WebApplicationException(Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(new ErrorMessage(e.getMessage()))

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,12 @@ import org.xml.sax.SAXException;
 
 // IMPORTANT: this class MUST not have ANY dependency, not even slf4j!
 public class CarMain {
+
+    public static final String COMPONENT_JAVA_COORDINATES = "component.java.coordinates";
+
+    public static final String COMPONENT_COORDINATES = "component_coordinates";
+
+    public static final String COMPONENT_SERVER_EXTENSIONS = "component.server.extensions";
 
     private CarMain() {
         // no-op
@@ -159,13 +165,14 @@ public class CarMain {
         if (!m2File.exists()) {
             throw new IllegalArgumentException(m2 + " doesn't exist");
         }
-        final String component = installJars(m2File, forceOverwrite);
+        final String component = installJars(m2File, forceOverwrite).getProperty(COMPONENT_COORDINATES);
         System.out
                 .println("Installed " + jarLocation(CarMain.class).getName() + " in " + m2 + ", "
                         + "you can now register '" + component + "' component in your application.");
     }
 
     private static void deployInStudio(final String studioLocation, final boolean forceOverwrite) {
+        System.out.println(String.format("Connector is being deployed to %s.", studioLocation));
         final File root = new File(studioLocation);
         if (!root.isDirectory()) {
             throw new IllegalArgumentException(studioLocation + " is not a valid directory");
@@ -177,61 +184,71 @@ public class CarMain {
         }
 
         final Properties configuration = readProperties(config);
-        final String repositoryType = configuration.getProperty("maven.repository");
         final File m2Root;
-        if ("global".equals(repositoryType)) {
-            // grab local maven setup, we use talend env first to override dev one then dev env setup
-            // and finally this main system props as a more natural config but less likely set on a dev machine
-            m2Root = Stream
-                    .of("TALEND_STUDIO_MAVEN_HOME", "MAVEN_HOME", "M2_HOME", "talend.component.server.maven.repository",
-                            "talend.studio.m2")
-                    .map(it -> it.contains(".") ? System.getProperty(it) : System.getenv(it))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .map(mvnHome -> {
-                        final File globalSettings = new File(mvnHome, "conf/settings.xml");
-                        if (globalSettings.exists()) {
-                            try {
-                                final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                                factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                                final DocumentBuilder builder = factory.newDocumentBuilder();
-                                final Document document = builder.parse(globalSettings);
-                                final NodeList localRepository = document.getElementsByTagName("localRepository");
-                                if (localRepository.getLength() == 1) {
-                                    final Node node = localRepository.item(0);
-                                    if (node != null) {
-                                        final String repoPath = node.getTextContent();
-                                        if (repoPath != null) {
-                                            return new File(repoPath);
+        String m2RepoPath = System.getProperty("talend.studio.m2.repo", null);
+        if (m2RepoPath != null) {
+            m2Root = new File(m2RepoPath);
+        } else {
+            final String repositoryType = configuration.getProperty("maven.repository");
+            if ("global".equals(repositoryType)) {
+                // grab local maven setup, we use talend env first to override dev one then dev env setup
+                // and finally this main system props as a more natural config but less likely set on a dev machine
+                m2Root = Stream
+                        .of("TALEND_STUDIO_MAVEN_HOME", "MAVEN_HOME", "M2_HOME",
+                                "talend.component.server.maven.repository",
+                                "talend.studio.m2")
+                        .map(it -> it.contains(".") ? System.getProperty(it) : System.getenv(it))
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .map(mvnHome -> {
+                            final File globalSettings = new File(mvnHome, "conf/settings.xml");
+                            if (globalSettings.exists()) {
+                                try {
+                                    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                                    factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                                    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                                    final DocumentBuilder builder = factory.newDocumentBuilder();
+                                    final Document document = builder.parse(globalSettings);
+                                    final NodeList localRepository = document.getElementsByTagName("localRepository");
+                                    if (localRepository.getLength() == 1) {
+                                        final Node node = localRepository.item(0);
+                                        if (node != null) {
+                                            final String repoPath = node.getTextContent();
+                                            if (repoPath != null) {
+                                                return new File(repoPath);
+                                            }
                                         }
                                     }
+                                } catch (final ParserConfigurationException | SAXException | IOException e) {
+                                    throw new IllegalStateException(e);
                                 }
-                            } catch (final ParserConfigurationException | SAXException | IOException e) {
-                                throw new IllegalStateException(e);
                             }
-                        }
-                        return null;
-                    })
-                    .orElseGet(() -> new File(System.getProperty("user.home"), ".m2/repository/"));
-        } else {
-            m2Root = new File(studioLocation, "configuration/.m2/repository/");
+                            return null;
+                        })
+                        .orElseGet(() -> new File(System.getProperty("user.home"), ".m2/repository/"));
+            } else {
+                m2Root = new File(studioLocation, "configuration/.m2/repository/");
+            }
         }
         if (!m2Root.isDirectory()) {
-            throw new IllegalArgumentException(m2Root + " does not exist, did you specify a valid studio home?");
+            throw new IllegalArgumentException(m2Root + " does not exist, did you specify a valid m2 studio property?");
         }
 
         // install jars
-        final String mainGav = installJars(m2Root, forceOverwrite);
+        final Properties carProperties = installJars(m2Root, forceOverwrite);
+        final String mainGav = carProperties.getProperty(COMPONENT_COORDINATES);
+        final String type = carProperties.getProperty("type", "connector");
 
-        // register the component
-        final String components = configuration.getProperty("component.java.coordinates");
+        // register the component/extension
+        final String key =
+                "extension".equalsIgnoreCase(type) ? COMPONENT_SERVER_EXTENSIONS : COMPONENT_JAVA_COORDINATES;
+        final String components = configuration.getProperty(key);
         try {
             final List<String> configLines = Files.readAllLines(config.toPath());
             if (components == null) {
                 final String original = configLines.stream().collect(joining("\n"));
                 try (final Writer writer = new FileWriter(config)) {
-                    writer.write(original + "\ncomponent.java.coordinates = " + mainGav);
+                    writer.write(original + "\n" + key + " = " + mainGav);
                 }
             } else {
                 // backup
@@ -245,7 +262,7 @@ public class CarMain {
                 boolean skip = false;
                 try (final Writer writer = new FileWriter(config)) {
                     for (final String line : configLines) {
-                        if (line.trim().startsWith("component.java.coordinates")) {
+                        if (line.trim().startsWith(key)) {
                             skip = true;
                             continue;
                         } else if (skip && line.trim().contains("=")) {
@@ -260,7 +277,7 @@ public class CarMain {
                             .limit(2)
                             .collect(Collectors.joining(":", "", ":"));
                     writer
-                            .write("component.java.coordinates = " + Stream
+                            .write(key + " = " + Stream
                                     .concat(Stream.of(mainGav),
                                             Stream
                                                     .of(components.trim().split(","))
@@ -269,14 +286,17 @@ public class CarMain {
                                                     .filter(it -> !it.startsWith(toFilter)))
                                     .collect(joining(",")));
                 }
+                System.out.println(type + " registered.");
             }
         } catch (final IOException ioe) {
             throw new IllegalStateException(ioe);
         }
+        System.out.println(type + " deployed successfully.");
     }
 
-    private static String installJars(final File m2Root, final boolean forceOverwrite) {
+    private static Properties installJars(final File m2Root, final boolean forceOverwrite) {
         String mainGav = null;
+        final Properties properties = new Properties();
         try (final JarInputStream jar =
                 new JarInputStream(new BufferedInputStream(new FileInputStream(jarLocation(CarMain.class))))) {
             JarEntry entry;
@@ -296,9 +316,8 @@ public class CarMain {
                     }
                 } else if ("TALEND-INF/metadata.properties".equals(entry.getName())) {
                     // mainGav
-                    final Properties properties = new Properties();
                     properties.load(jar);
-                    mainGav = properties.getProperty("component_coordinates");
+                    mainGav = properties.getProperty(COMPONENT_COORDINATES);
                 }
             }
         } catch (final IOException e) {
@@ -307,7 +326,8 @@ public class CarMain {
         if (mainGav == null || mainGav.trim().isEmpty()) {
             throw new IllegalArgumentException("Didn't find the component coordinates");
         }
-        return mainGav;
+        System.out.println(String.format("Connector %s and dependencies jars installed to %s.", mainGav, m2Root));
+        return properties;
     }
 
     private static Properties readProperties(final File config) {
@@ -451,7 +471,7 @@ public class CarMain {
                     // mainGav
                     final Properties properties = new Properties();
                     properties.load(jar.getInputStream(entry));
-                    mainGav = properties.getProperty("component_coordinates");
+                    mainGav = properties.getProperty(COMPONENT_COORDINATES);
                 }
             }
             if (mainGav == null || mainGav.trim().isEmpty()) {

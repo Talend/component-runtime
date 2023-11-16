@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,10 @@ public class ModelVisitor {
                     type + " partition mapper must have exactly one @Assessor (if not infinite), "
                             + "one @Split and one @Emitter methods");
         }
-
+        final boolean stoppable = type.getAnnotation(PartitionMapper.class).stoppable();
+        if (!infinite && stoppable) {
+            throw new IllegalArgumentException(type + " partition mapper when not infinite cannot set stoppable");
+        }
         //
         // now validate the 2 methods of the mapper
         //
@@ -114,7 +117,7 @@ public class ModelVisitor {
             });
         }
         Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Split.class)).forEach(m -> {
-            // for now we could inject it by default but to ensure we can inject more later
+            // for now, we could inject it by default but to ensure we can inject more later
             // we must do that validation
             if (Stream
                     .of(m.getParameters())

@@ -1,0 +1,383 @@
+{
+  "version": 6,
+  "entities": [
+    {
+      "entity": {
+        "type": "Project",
+        "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [configurationType/migrate](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)  ",
+        "id": "12fdda9e-3f29-444d-9877-907c7b4321ce",
+        "name": "tck-configurationType-migrate-api-test"
+      },
+      "children": [
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{\n\n}\n"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": []
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/migrate/${\"dataset_id\"}/4"
+            },
+            "description": "Test a migration of the demo dataset, with an empty body payload to observe the API default comportment.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)",
+            "id": "a7ff27ba-9e61-4576-972f-2c960aacd4a3",
+            "name": "configurationtype/migrate/id/configurationVersion - default on demo dataset",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.incomingVersion'",
+                "value": "\"4\""
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.currentVersion'",
+                "value": "\"5\""
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.level'",
+                "value": "DATASET"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$",
+                "value": "3"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{\n  \"data\": \"input data\"\n}\n"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": []
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/migrate/${\"dataset_id\"}/6"
+            },
+            "description": "Test that a migration from 2 to 3 is not possible. Expected because 2 doesn't know 3.  \nIt is expected to have a non migrated response.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)",
+            "id": "1bf225b9-9096-48db-a5bc-ee9abb1657cc",
+            "name": "configurationtype/migrate/id/configurationVersion - impossible migration (higher version)",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.data",
+                "value": "input data"
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.incomingVersion'",
+                "value": "\"4\""
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.currentVersion'",
+                "value": "\"5\""
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.level'",
+                "value": "DATASET"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{\n  \"data\": \"input data\"\n}\n"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": []
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/2"
+            },
+            "description": "Test that migration from 2 to 2 is not possible.  \nIt is expected to have a non migrated response.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)",
+            "id": "e3b7c760-f13b-4d34-82ac-1e1fbf2b1462",
+            "name": "configurationtype/migrate/id/configurationVersion - impossible migration (same version)",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.data",
+                "value": "input data"
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.incomingVersion'",
+                "value": "\"1\""
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.currentVersion'",
+                "value": "\"2\""
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.level'",
+                "value": "DATASTORE"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$",
+                "value": "1"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBody": "{\n  \"data\": \"input data\"\n}\n"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": []
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/configurationtype/migrate/${\"datastore_id\"}/1"
+            },
+            "description": "Test incremental classic migration.   \nThe server contains version 2 and we give in payload version 1.  \n  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Configuration%20Type/migrateConfiguration)",
+            "id": "fc0e7078-af72-4519-bb16-8e1af3944705",
+            "name": "configurationtype/migrate/id/configurationVersion - with data on demo datastore",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.data",
+                "value": "input data"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.incomingVersion'",
+                "value": "\"1\""
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.currentVersion'",
+                "value": "\"2\""
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "path": "$.'configuration.level'",
+                "value": "DATASTORE"
+              },
+              {
+                "comparison": "LengthEqual",
+                "subject": "ResponseJsonBody",
+                "path": "$",
+                "value": "4"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
+      "name": "component_runtime_ci",
+      "variables": {
+        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
+          "name": "server-ip",
+          "value": "localhost",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
+          "name": "datastore_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+          "name": "server-port",
+          "value": "8081",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "52dc8012-b6f2-41d3-8e87-549e41251792": {
+          "name": "httpbin_addr",
+          "value": "tal-rd22.talend.lan:8084",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        }
+      }
+    }
+  ]
+}

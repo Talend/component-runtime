@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,17 +19,15 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime-testing</artifactId>
-    <version>1.35.0-SNAPSHOT</version>
+    <version>1.63.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-junit-base</artifactId>
 
   <name>Component Runtime :: Testing :: JUnit Base</name>
-  <description>
-    Some JUnit utilities, reused accross the other testing module.
+  <description>Some JUnit utilities, reused accross the other testing module.
 
-    IMPORTANT: this module must not depend on the runtime/framework.
-  </description>
+    IMPORTANT: this module must not depend on the runtime/framework.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.junit.base</talend.build.name>

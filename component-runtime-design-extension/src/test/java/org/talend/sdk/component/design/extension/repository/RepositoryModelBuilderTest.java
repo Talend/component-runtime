@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,6 +133,7 @@ class RepositoryModelBuilderTest {
 
         final String pluginName = testInfo.getTestMethod().get().getName() + ".jar";
         final File pluginJar = createChainPlugin(temporaryFolder.toFile(), pluginName);
+        final String testLocation = temporaryFolder.getParent().getFileName().toString();
 
         try (final ComponentManager manager =
                 new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null)) {
@@ -152,7 +153,7 @@ class RepositoryModelBuilderTest {
             assertNotNull(dataStore1Config);
             assertEquals(1, dataStore1Config.getChildConfigs().size());
             assertEquals("configuration", dataStore1Config.getChildConfigs().get(0).getMeta().getName());
-            assertEquals("class org.talend.test.generated.target.DataSet1",
+            assertEquals("class org.talend.test.generated." + testLocation + ".DataSet1",
                     dataStore1Config.getChildConfigs().get(0).getMeta().getJavaType().toString());
 
             final String ds2Id = IdGenerator.get("test", "family1", "datastore", "dataStore2");
@@ -161,7 +162,7 @@ class RepositoryModelBuilderTest {
             assertNotNull(dataStore2Config);
             assertEquals(1, dataStore2Config.getChildConfigs().size());
             assertEquals("configuration", dataStore2Config.getChildConfigs().get(0).getMeta().getName());
-            assertEquals("class org.talend.test.generated.target.DataSet2",
+            assertEquals("class org.talend.test.generated." + testLocation + ".DataSet2",
                     dataStore2Config.getChildConfigs().get(0).getMeta().getJavaType().toString());
         }
 

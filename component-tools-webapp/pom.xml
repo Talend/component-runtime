@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.35.0-SNAPSHOT</version>
+    <version>1.63.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-tools-webapp</artifactId>
@@ -28,6 +28,9 @@
   <description>Light web application allowing to provide a light HTTP server to test components locally.</description>
 
   <properties>
+    <!--TODO: bump node/npm when issue TCOMP-2059 Update talend/ui to 6.x will be done-->
+    <node.version>v12.13.0</node.version>
+    <npm.version>6.12.0</npm.version>
     <npm.environment>production</npm.environment>
     <talend.build.name>${talend.build.name.base}.tools.webapp</talend.build.name>
   </properties>
@@ -59,8 +62,8 @@
   <build>
     <resources>
       <resource>
-        <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <directory>src/main/resources</directory>
       </resource>
     </resources>
     <plugins>
@@ -71,10 +74,10 @@
         <executions>
           <execution>
             <id>clean-frontend</id>
-            <phase>clean</phase>
             <goals>
               <goal>clean</goal>
             </goals>
+            <phase>clean</phase>
             <configuration>
               <directory>${project.basedir}/src/main/frontend/dist</directory>
             </configuration>
@@ -117,13 +120,20 @@
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend.version}</version>
+        <configuration>
+          <installDirectory>${project.basedir}/.node</installDirectory>
+          <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
+          <environmentVariables>
+            <NODE_ENV>development</NODE_ENV>
+          </environmentVariables>
+        </configuration>
         <executions>
           <execution>
             <id>install-node-and-npm</id>
-            <phase>generate-sources</phase>
             <goals>
               <goal>install-node-and-npm</goal>
             </goals>
+            <phase>generate-sources</phase>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
               <npmVersion>${npm.version}</npmVersion>
@@ -131,20 +141,20 @@
           </execution>
           <execution>
             <id>npm-install</id>
-            <phase>generate-sources</phase>
             <goals>
               <goal>npm</goal>
             </goals>
+            <phase>generate-sources</phase>
             <configuration>
               <arguments>install</arguments>
             </configuration>
           </execution>
           <execution>
             <id>npm-build</id>
-            <phase>generate-resources</phase>
             <goals>
               <goal>npm</goal>
             </goals>
+            <phase>generate-resources</phase>
             <configuration>
               <skip>${component.front.build.skip}</skip>
               <arguments>run build</arguments>
@@ -156,10 +166,10 @@
           </execution>
           <execution>
             <id>watch</id>
-            <phase />
             <goals>
               <goal>npm</goal>
             </goals>
+            <phase/>
             <configuration>
               <arguments>run watch</arguments>
               <environmentVariables>
@@ -169,13 +179,6 @@
             </configuration>
           </execution>
         </executions>
-        <configuration>
-          <installDirectory>${project.basedir}/.node</installDirectory>
-          <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
-          <environmentVariables>
-            <NODE_ENV>development</NODE_ENV>
-          </environmentVariables>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -184,10 +187,10 @@
         <executions>
           <execution>
             <id>add-resource</id>
-            <phase>generate-resources</phase>
             <goals>
               <goal>add-resource</goal>
             </goals>
+            <phase>generate-resources</phase>
             <configuration>
               <resources>
                 <resource>
@@ -206,7 +209,8 @@
   </build>
 
   <profiles>
-    <profile> <!-- esier debugging from the IDE -->
+    <profile>
+      <!-- esier debugging from the IDE -->
       <id>add-beam</id>
       <dependencies>
         <dependency>

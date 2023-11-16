@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ public class NameConventions {
                 .of(name)
                 // first split on all separators we don't want
                 .flatMap(s -> Stream.of(s.split("[^\\p{Alnum}]")))
+                // remove any '-'
+                .map(s -> s.replaceAll("-", ""))
                 // drop empty strings
                 .map(String::trim)
                 .filter(it -> !it.isEmpty())

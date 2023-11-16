@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.api.service.record;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -81,7 +83,19 @@ public interface RecordVisitor<T> extends Supplier<T>, BinaryOperator<T> {
         // no-op
     }
 
+    default void onObject(final Schema.Entry entry, final Optional<Object> object) {
+        // no-op
+    }
+
     default void onDatetime(final Schema.Entry entry, final Optional<ZonedDateTime> dateTime) {
+        // no-op
+    }
+
+    default void onInstant(final Schema.Entry entry, final Optional<Instant> dateTime) {
+        // no-op
+    }
+
+    default void onDecimal(final Schema.Entry entry, final Optional<BigDecimal> decimal) {
         // no-op
     }
 
@@ -118,6 +132,10 @@ public interface RecordVisitor<T> extends Supplier<T>, BinaryOperator<T> {
     }
 
     default void onDatetimeArray(final Schema.Entry entry, final Optional<Collection<ZonedDateTime>> array) {
+        // no-op
+    }
+
+    default void onDecimalArray(final Schema.Entry entry, final Optional<Collection<BigDecimal>> array) {
         // no-op
     }
 

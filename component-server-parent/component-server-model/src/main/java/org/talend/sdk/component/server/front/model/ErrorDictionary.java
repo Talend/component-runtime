@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.talend.sdk.component.server.front.model;
 public enum ErrorDictionary {
     PLUGIN_MISSING,
     FAMILY_MISSING,
+    TYPE_MISSING,
     COMPONENT_MISSING,
     CONFIGURATION_MISSING,
     ICON_MISSING,

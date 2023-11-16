@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import java.util.stream.Stream;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenFormatStage;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenStrategyStage;
 import org.jboss.shrinkwrap.resolver.api.maven.MavenWorkingSession;
 import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
@@ -117,17 +119,21 @@ public class Dependencies {
     }
 
     private static final MavenResolutionStrategy STRATEGY =
-            new AcceptScopesStrategy(ScopeType.COMPILE, ScopeType.RUNTIME);
+            new AcceptScopesStrategy(ScopeType.COMPILE, ScopeType.RUNTIME, ScopeType.IMPORT);
 
     public static URL[] resolve(final MavenDependency dep) {
         return CACHE.computeIfAbsent(dep, d -> {
             final ConfigurableMavenResolverSystem resolver = Maven
                     .configureResolver()
                     .withClassPathResolution(true)
+                    .useLegacyLocalRepo(true)
                     .workOffline(Boolean.getBoolean("talend.component.junit.maven.offline"));
+
             REPOSITORIES.forEach(resolver::withRemoteRepo);
             resolver.addDependency(dep);
-            return Stream.of(resolver.resolve().using(STRATEGY).asFile()).distinct().map(f -> {
+            final MavenStrategyStage strategyStage = resolver.resolve();
+            final MavenFormatStage formatStage = strategyStage.using(STRATEGY);
+            return Stream.of(formatStage.asFile()).distinct().map(f -> {
                 try {
                     return f.toURI().toURL();
                 } catch (final MalformedURLException e) {

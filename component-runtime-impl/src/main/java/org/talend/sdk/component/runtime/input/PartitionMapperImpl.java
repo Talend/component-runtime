@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.runtime.input;
 
-import static java.util.Collections.emptySet;
+import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
@@ -28,21 +28,21 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Split;
-import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delegated {
 
     private static final Object[] NO_ARG = new Object[0];
@@ -59,15 +59,24 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
     private transient Function<Long, Object[]> splitArgSupplier;
 
+    private final Map<String, String> internalConfiguration;
+
     public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
-            final boolean stream, final Serializable instance) {
+            final boolean stream, final Map<String, String> internalConfiguration, final Serializable instance) {
         super(instance, rootName, name, plugin);
         this.stream = stream;
         this.inputName = inputName;
+        this.internalConfiguration = internalConfiguration;
+        log.debug("[PartitionMapperImpl] {} internalConfig:{}.", name, internalConfiguration);
+    }
+
+    public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
+            final boolean stream, final Serializable instance) {
+        this(rootName, name, inputName, plugin, stream, emptyMap(), instance);
     }
 
     protected PartitionMapperImpl() {
-        // no-op
+        internalConfiguration = emptyMap();
     }
 
     @Override
@@ -85,7 +94,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         return ((Collection<?>) doInvoke(split, splitArgSupplier.apply(desiredSize)))
                 .stream()
                 .map(Serializable.class::cast)
-                .map(mapper -> new PartitionMapperImpl(rootName(), name(), inputName, plugin(), stream, mapper))
+                .map(mapper -> new PartitionMapperImpl(rootName(), name(), inputName, plugin(), stream,
+                        internalConfiguration, mapper))
                 .collect(toList());
     }
 
@@ -96,58 +106,13 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
         // to see it is useful before doing it,
         // java 7/8 made enough progress to probably make it smooth OOTB
         final Serializable input = Serializable.class.cast(doInvoke(inputFactory));
+        log.debug("[PartitionMapperImpl#create] isStream? {}.", isStream());
         if (isStream()) {
-            return new StreamingInputImpl(rootName(), inputName, plugin(), input, loadRetryConfiguration());
+            return new StreamingInputImpl(rootName(), inputName, plugin(), input,
+                    Streaming.loadRetryConfiguration(plugin()),
+                    Streaming.loadStopStrategy(plugin(), internalConfiguration));
         }
         return new InputImpl(rootName(), inputName, plugin(), input);
-    }
-
-    private StreamingInputImpl.RetryConfiguration loadRetryConfiguration() {
-        // note: this configuratoin could be read on the mapper too and distributed
-        final LocalConfiguration configuration = ofNullable(ContainerFinder.Instance.get().find(plugin()))
-                .map(it -> it.findService(LocalConfiguration.class))
-                .orElseGet(() -> new LocalConfiguration() {
-
-                    @Override
-                    public String get(final String key) {
-                        return null;
-                    }
-
-                    @Override
-                    public Set<String> keys() {
-                        return emptySet();
-                    }
-                });
-        final int maxRetries = ofNullable(configuration.get("talend.input.streaming.retry.maxRetries"))
-                .map(Integer::parseInt)
-                .orElse(Integer.MAX_VALUE);
-        return new StreamingInputImpl.RetryConfiguration(maxRetries, getStrategy(configuration));
-    }
-
-    private StreamingInputImpl.RetryStrategy getStrategy(final LocalConfiguration configuration) {
-        switch (ofNullable(configuration.get("talend.input.streaming.retry.strategy")).orElse("constant")) {
-        case "exponential":
-            return new StreamingInputImpl.RetryConfiguration.ExponentialBackoff(
-                    ofNullable(configuration.get("talend.input.streaming.retry.exponential.exponent"))
-                            .map(Double::parseDouble)
-                            .orElse(1.5),
-                    ofNullable(configuration.get("talend.input.streaming.retry.exponential.randomizationFactor"))
-                            .map(Double::parseDouble)
-                            .orElse(.5),
-                    ofNullable(configuration.get("talend.input.streaming.retry.exponential.maxDuration"))
-                            .map(Long::parseLong)
-                            .orElse(TimeUnit.MINUTES.toMillis(5)),
-                    ofNullable(configuration.get("talend.input.streaming.retry.exponential.initialBackOff"))
-                            .map(Long::parseLong)
-                            .orElse(TimeUnit.SECONDS.toMillis(1)),
-                    0);
-        case "constant":
-        default:
-            return new StreamingInputImpl.RetryConfiguration.Constant(
-                    ofNullable(configuration.get("talend.input.streaming.retry.constant.timeout"))
-                            .map(Long::parseLong)
-                            .orElse(500L));
-        }
     }
 
     @Override
@@ -158,6 +123,10 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     @Override
     public Object getDelegate() {
         return delegate;
+    }
+
+    public Map<String, String> getInternalConfiguration() {
+        return ofNullable(internalConfiguration).orElse(emptyMap());
     }
 
     private void lazyInit() {
@@ -185,7 +154,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     }
 
     Object writeReplace() throws ObjectStreamException {
-        return new SerializationReplacer(plugin(), rootName(), name(), inputName, stream, serializeDelegate());
+        return new SerializationReplacer(plugin(), rootName(), name(), inputName, stream, serializeDelegate(),
+                internalConfiguration);
     }
 
     @AllArgsConstructor
@@ -203,9 +173,12 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
 
         private final byte[] value;
 
+        private final Map<String, String> internalConfiguration;
+
         Object readResolve() throws ObjectStreamException {
             try {
-                return new PartitionMapperImpl(component, name, input, plugin, stream, loadDelegate());
+                return new PartitionMapperImpl(component, name, input, plugin, stream, internalConfiguration,
+                        loadDelegate());
             } catch (final IOException | ClassNotFoundException e) {
                 final InvalidObjectException invalidObjectException = new InvalidObjectException(e.getMessage());
                 invalidObjectException.initCause(e);

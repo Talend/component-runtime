@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,44 @@ class JsonSchemaSerializationTest {
     void toJson() throws Exception {
         final Schema schema = new AvroSchemaBuilder()
                 .withType(RECORD)
-                .withEntry(new SchemaImpl.EntryImpl("array", "array", Schema.Type.ARRAY, true, null,
-                        new AvroSchemaBuilder().withType(STRING).build(), null, emptyMap()))
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("array")
+                        .withRawName("array")
+                        .withType(Schema.Type.ARRAY)
+                        .withNullable(true)
+                        .withElementSchema(new AvroSchemaBuilder().withType(STRING).build())
+                        .withProps(emptyMap())
+                        .build())
+                .build();
+        try (final Jsonb jsonb = JsonbBuilder
+                .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
+            final String json = jsonb.toJson(schema);
+            assertEquals(
+                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"metadata\":[],\"props\":{},\"type\":\"STRING\"},\"metadata\":false,\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"metadata\":[],\"props\":{\"talend.fields.order\":\"array\"},\"type\":\"RECORD\"}",
+                    json);
+        }
+    }
+
+    @Test
+    void toJsonWithMeta() throws Exception {
+        final Schema schema = new AvroSchemaBuilder()
+                .withType(RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("array")
+                        .withRawName("array")
+                        .withType(Schema.Type.ARRAY)
+                        .withNullable(true)
+                        .withMetadata(true)
+                        .withElementSchema(new AvroSchemaBuilder().withType(STRING).build())
+                        .withProps(emptyMap())
+                        .build())
                 .build();
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             assertEquals(
-                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"props\":{},\"type\":\"STRING\"},\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"props\":{},\"type\":\"RECORD\"}",
+                    "{\"entries\":[],\"metadata\":[{\"elementSchema\":{\"entries\":[],\"metadata\":[],\"props\":{},\"type\":\"STRING\"},\"metadata\":true,\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"props\":{\"talend.fields.order\":\"array\"},\"type\":\"RECORD\"}",
                     jsonb.toJson(schema));
+
         }
     }
 }

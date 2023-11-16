@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,18 @@ import static java.util.Optional.ofNullable;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import org.talend.sdk.component.api.service.serialization.Serial;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class SerializableService implements Serializable {
+public class SerializableService implements Serializable, Serial {
 
     private final String plugin;
 
     private final String type;
 
+    @Override
     public Object readResolve() throws ObjectStreamException {
         final ContainerFinder containerFinder = ContainerFinder.Instance.get();
         final LightContainer container = containerFinder.find(plugin);

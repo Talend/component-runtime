@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,17 @@ public class ComponentClient {
                 .getId();
     }
 
+    public String getFamilyId(final String family) {
+        return fetchIndex()
+                .getComponents()
+                .stream()
+                .filter(c -> c.getId().getFamily().equals(family))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("no " + family))
+                .getId()
+                .getFamilyId();
+    }
+
     public String getJdbcId() {
         return getComponentId("jdbc", "input");
     }
@@ -59,5 +70,13 @@ public class ComponentClient {
 
     public String getStandaloneId() {
         return getComponentId("chain", "standalone");
+    }
+
+    public String getStreamingId() {
+        return getComponentId("streaming", "infinite");
+    }
+
+    public String getStreamingStoppableId() {
+        return getComponentId("streaming", "infiniteStoppable");
     }
 }

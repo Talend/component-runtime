@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.talend.sdk.components.vault.client;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +35,7 @@ import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import lombok.extern.slf4j.Slf4j;
+import org.talend.sdk.components.vault.server.error.ErrorPayload;
 
 @MonoMeecrowaveConfig
 class VaultClientTest {
@@ -62,20 +62,36 @@ class VaultClientTest {
     }
 
     @BeforeEach
-    void setDecryptEndpoint() {
+    void setup() {
         vault.setDecryptEndpoint("/api/v1/mock/vault/decrypt/{x-talend-tenant-id}");
+        vault.setRole(() -> "Test-Role");
+        vault.setSecret(() -> "Test-Secret");
+        vault.getAuthToken().set(null);
         vault.getCache().clear();
+    }
+
+    public static final HashMap<String, String> DEMO_MAP = new HashMap<String, String>() {
+
+        {
+            put("configuration.username", "username0");
+            put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
+        }
+    };
+
+    private void assertSuccess(final Response response) {
+        assertEquals(200, response.getStatus());
+        final Map<String, String> result = response.readEntity(Map.class);
+        assertEquals("username0", result.get("configuration.username"));
+        assertEquals("test", result.get("configuration.password"));
+        assertEquals("vault", result.get("family"));
+        assertEquals("auth", result.get("type"));
+        assertEquals("do", result.get("action"));
+        assertEquals("fr", result.get("lang"));
     }
 
     @Test
     void decryptWithTenant() {
-        final HashMap<String, String> config = new HashMap<String, String>() {
-
-            {
-                put("configuration.username", "username0");
-                put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
-            }
-        };
+        final HashMap<String, String> config = DEMO_MAP;
         final Map<String, String> result = vault.decrypt(config, "00001");
         assertEquals("username0", result.get("configuration.username"));
         assertEquals("test", result.get("configuration.password"));
@@ -83,13 +99,7 @@ class VaultClientTest {
 
     @Test
     void decryptUsingCache() throws InterruptedException {
-        final HashMap<String, String> config = new HashMap<String, String>() {
-
-            {
-                put("configuration.username", "username0");
-                put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
-            }
-        };
+        final HashMap<String, String> config = DEMO_MAP;
         // first pass to fill cache with correct endpoint
         Map<String, String> result = vault.decrypt(config, "000001");
         assertEquals("username0", result.get("configuration.username"));
@@ -103,13 +113,7 @@ class VaultClientTest {
     @Test
     void decryptWithoutTenant() {
         vault.setDecryptEndpoint("/api/v1/mock/vault/decrypt/000001");
-        final HashMap<String, String> config = new HashMap<String, String>() {
-
-            {
-                put("configuration.username", "username0");
-                put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
-            }
-        };
+        final HashMap<String, String> config = DEMO_MAP;
         final Map<String, String> result = vault.decrypt(config, null);
         assertEquals("username0", result.get("configuration.username"));
         assertEquals("test", result.get("configuration.password"));
@@ -125,25 +129,12 @@ class VaultClientTest {
                 .queryParam("lang", "fr")
                 .request(APPLICATION_JSON_TYPE)
                 .header("x-talend-tenant-id", "test-tenant")
-                .post(Entity.entity(new HashMap<String, String>() {
-
-                    {
-                        put("configuration.username", "username0");
-                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
-                    }
-                }, APPLICATION_JSON_TYPE));
-        assertEquals(200, response.getStatus());
-        final Map<String, String> result = response.readEntity(Map.class);
-        assertEquals("username0", result.get("configuration.username"));
-        assertEquals("test", result.get("configuration.password"));
-        assertEquals("vault", result.get("family"));
-        assertEquals("auth", result.get("type"));
-        assertEquals("do", result.get("action"));
-        assertEquals("fr", result.get("lang"));
+                .post(Entity.entity(DEMO_MAP, APPLICATION_JSON_TYPE));
+        assertSuccess(response);
     }
 
     @Test
-    void executeWithEncryptedAndInvalidTenant() {
+    void nullTenantInHeaders() {
         final Response response = vaultBase()
                 .path("/api/v1/mock/vault/execute")
                 .queryParam("family", "vault")
@@ -151,15 +142,116 @@ class VaultClientTest {
                 .queryParam("action", "do")
                 .queryParam("lang", "fr")
                 .request(APPLICATION_JSON_TYPE)
-                .header("x-talend-tenant-id", "")
-                .post(Entity.entity(new HashMap<String, String>() {
+                .header("x-talend-tenant-id", null)
+                .post(Entity.entity(DEMO_MAP, APPLICATION_JSON_TYPE));
+        assertEquals(404, response.getStatus());
+        assertEquals("No header x-talend-tenant-id", response.readEntity(ErrorPayload.class).getDescription());
+    }
 
-                    {
-                        put("configuration.username", "username0");
-                        put("configuration.password", "vault:v1:hcccVPODe9oZpcr/sKam8GUrbacji8VkuDRGfuDt7bg7VA==");
-                    }
-                }, APPLICATION_JSON_TYPE));
-        assertEquals(500, response.getStatus());
+    @Test
+    void noRoleProvided() {
+        vault.setToken(() -> "-");
+        vault.setRole(() -> "-");
+        final Response response = vaultBase()
+                .path("/api/v1/mock/vault/execute")
+                .queryParam("family", "vault")
+                .queryParam("type", "auth")
+                .queryParam("action", "do")
+                .queryParam("lang", "fr")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(DEMO_MAP, APPLICATION_JSON_TYPE));
+        assertEquals(400, response.getStatus());
+        assertEquals("{\"errors\":[\"missing role_id\"]}", response.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
+    void noSecretProvided() {
+        vault.setToken(() -> "-");
+        vault.setSecret(() -> "-");
+        final Response response = vaultBase()
+                .path("/api/v1/mock/vault/execute")
+                .queryParam("family", "vault")
+                .queryParam("type", "auth")
+                .queryParam("action", "do")
+                .queryParam("lang", "fr")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(DEMO_MAP, APPLICATION_JSON_TYPE));
+        assertEquals(400, response.getStatus());
+        assertEquals("{\"errors\":[\"missing secret_id\"]}", response.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
+    void rateLimitReachedWithRetry() {
+        vault.setRole(() -> "rate-limit-except");
+        final long delay = 1000L;
+        vault.setRefreshDelayOnFailure(delay);
+        final long start = System.currentTimeMillis();
+        final Response response = vaultBase()
+                .path("/api/v1/mock/vault/execute")
+                .queryParam("family", "vault")
+                .queryParam("type", "auth")
+                .queryParam("action", "do")
+                .queryParam("lang", "fr")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(DEMO_MAP, APPLICATION_JSON_TYPE));
+        final long end = System.currentTimeMillis();
+        assertSuccess(response);
+        assertTrue((end - start) > delay);
+    }
+
+    @Test
+    void tokenBasedAuth() {
+        vault.setRole(() -> "-");
+        vault.setToken(() -> "client-test-token");
+        vault.setRefreshDelayOnFailure(100L);
+        final Response response = vaultBase()
+                .path("/api/v1/mock/vault/execute")
+                .queryParam("family", "vault")
+                .queryParam("type", "auth")
+                .queryParam("action", "do")
+                .queryParam("lang", "fr")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(DEMO_MAP, APPLICATION_JSON_TYPE));
+        assertSuccess(response);
+    }
+
+    @Test
+    void badTokenWithRenew() {
+        vault.setRole(() -> "-");
+        vault.setToken(() -> "client-bad-token");
+        vault.setRefreshDelayOnFailure(100L);
+        final Response response = vaultBase()
+                .path("/api/v1/mock/vault/execute")
+                .queryParam("family", "vault")
+                .queryParam("type", "auth")
+                .queryParam("action", "do")
+                .queryParam("lang", "fr")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(DEMO_MAP, APPLICATION_JSON_TYPE));
+        assertSuccess(response);
+    }
+
+    @Test
+    void badTokenWithOutRenew() {
+        vault.setRole(() -> "-");
+        vault.setToken(() -> "client-very-bad-token");
+        vault.setRefreshDelayOnFailure(500L);
+        final Response response = vaultBase()
+                .path("/api/v1/mock/vault/execute")
+                .queryParam("family", "vault")
+                .queryParam("type", "auth")
+                .queryParam("action", "do")
+                .queryParam("lang", "fr")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(DEMO_MAP, APPLICATION_JSON_TYPE));
+        assertEquals(403, response.getStatus());
+        assertEquals("{\"errors\":[\"missing vault_auth\"]}", response.readEntity(ErrorPayload.class).getDescription());
     }
 
     @Test
@@ -179,14 +271,29 @@ class VaultClientTest {
                         put("configuration.password", "test");
                     }
                 }, APPLICATION_JSON_TYPE));
-        assertEquals(200, response.getStatus());
-        final Map<String, String> result = response.readEntity(Map.class);
-        assertEquals("username0", result.get("configuration.username"));
-        assertEquals("test", result.get("configuration.password"));
-        assertEquals("vault", result.get("family"));
-        assertEquals("auth", result.get("type"));
-        assertEquals("do", result.get("action"));
-        assertEquals("fr", result.get("lang"));
+        assertSuccess(response);
+    }
+
+    @Test
+    void executeWithBadEncrypted() {
+        final Response response = vaultBase()
+                .path("/api/v1/mock/vault/execute")
+                .queryParam("family", "vault")
+                .queryParam("type", "auth")
+                .queryParam("action", "do")
+                .queryParam("lang", "fr")
+                .request(APPLICATION_JSON_TYPE)
+                .header("x-talend-tenant-id", "test-tenant")
+                .post(Entity.entity(new HashMap<String, String>() {
+
+                    {
+                        put("configuration.username", "username0");
+                        put("configuration.password", "vault:v1:hccc");
+                    }
+                }, APPLICATION_JSON_TYPE));
+        assertEquals(400, response.getStatus());
+        assertEquals("{\"errors\":[\"wrong vault_encrypt\"]}",
+                response.readEntity(ErrorPayload.class).getDescription());
     }
 
     /**

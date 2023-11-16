@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
  * Search annotation {@link AfterVariable} and add a new meta information about description of after variables.
  * NOTE. This functionality is used only in Studio.
  */
+@Deprecated
 public class AfterVariableMetadataEnricher implements ComponentMetadataEnricher {
 
     private static final Set<Class<? extends Annotation>> SUPPORTED_ANNOTATIONS =

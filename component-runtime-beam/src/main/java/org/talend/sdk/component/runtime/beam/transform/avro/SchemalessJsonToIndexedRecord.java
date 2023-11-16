@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
         private static final Schema INT = Schema.create(Schema.Type.INT);
 
         private static final Schema STRING =
-                Schema.createUnion(asList(Schema.create(Schema.Type.NULL), Schema.create(Schema.Type.STRING)));
+                Schema.createUnion(asList(Schema.create(Schema.Type.STRING), Schema.create(Schema.Type.NULL)));
 
         private final String rootRecordName;
 

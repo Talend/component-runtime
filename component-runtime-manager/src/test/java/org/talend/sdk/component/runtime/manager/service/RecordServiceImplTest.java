@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ class RecordServiceImplTest {
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> factory, null)
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null));
+                                    RecordService.class, null, null));
 
     private final Schema address = factory
             .newSchemaBuilder(RECORD)
@@ -139,7 +139,13 @@ class RecordServiceImplTest {
     void buildRecord() {
         final Schema customSchema = factory
                 .newSchemaBuilder(baseSchema)
-                .withEntry(factory.newEntryBuilder().withName("custom").withType(STRING).withNullable(true).build())
+                .withEntry(factory
+                        .newEntryBuilder()
+                        .withName("custom")
+                        .withType(STRING)
+                        .withNullable(true)
+                        .withMetadata(true)
+                        .build())
                 .build();
 
         final List<Collection<String>> spy = asList(new LinkedList<>(), new LinkedList<>());
@@ -167,17 +173,16 @@ class RecordServiceImplTest {
         Stream
                 .of(noCustomRecord, customRecord)
                 .forEach(record -> assertEquals(
-                        "name=Test,age=33,address={\"street\":\"here\",\"number\":1},custom=yes", toString(record)));
+                        "custom=yes,name=Test,age=33,address={\"street\":\"here\",\"number\":1}", toString(record)));
         assertEquals(asList("visited=name", "visited=age", "visited=address", "done=false"), spy.get(0));
-        assertEquals(asList("visited=name", "visited=age", "visited=address", "visited=custom", "done=true"),
+        assertEquals(asList("visited=custom", "visited=name", "visited=age", "visited=address", "done=true"),
                 spy.get(1));
     }
 
     private String toString(final Record record) {
         return record
                 .getSchema()
-                .getEntries()
-                .stream()
+                .getAllEntries()
                 .map(e -> e.getName() + '=' + record.get(Object.class, e.getName()))
                 .collect(joining(","));
     }

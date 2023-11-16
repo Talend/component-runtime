@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -93,11 +94,20 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         System
                 .setProperty("talend.component.server.icon.paths",
                         "icons/%s.svg,icons/svg/%s.svg,%s.svg,%s_icon32.png,icons/%s_icon32.png,icons/png/%s_icon32.png");
-        System.setProperty("talend.component.server.locale.mapping", "en*=en\nfr*=fr\ntest=test\nde*=de");
+        System.setProperty("talend.component.server.locale.mapping", "en*=en\nfr*=fr\ntest=te\nde*=de");
         System.setProperty("talend.component.server.gridlayout.translation.support", "true");
 
         final String skipLogs = System.getProperty("component.server.test.logging.skip", "true");
         System.setProperty("talend.component.server.request.log", Boolean.toString("false".equals(skipLogs)));
+
+        //
+        System.setProperty("talend.component.server.plugins.reloading.active", "true");
+        System.setProperty("talend.component.server.plugins.reloading.interval", "5");
+        System.setProperty("talend.component.server.plugins.reloading.method", "connectors");
+        System
+                .setProperty("talend.component.server.plugins.reloading.marker",
+                        "target/InitTestInfra/.m2/repository/CONNECTORS_VERSION");
+
     }
 
     private String createUserJars(final String tempDir) {
@@ -128,7 +138,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
     private String createI18nDocRepo(final String tempDir) {
         final File base = new File(tempDir, "i18n-doc");
         base.mkdirs();
-        try (final FileWriter writer = new FileWriter(new File(base, "documentation_the-test-component_test.adoc"))) {
+        try (final FileWriter writer = new FileWriter(new File(base, "documentation_the-test-component_te.adoc"))) {
             writer.write("== Input\n\nSome Input Overriden For Test locale\n\n=== Configuration\n\nblabla\n");
         } catch (final IOException e) {
             throw new IllegalStateException(e);
@@ -140,6 +150,16 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
         // reusing tempDir we don't need to delete it, done by meecrowave
         // reusing tempDir we don't need to delete it, done by meecrowave
         final File m2 = new File(tempDir, ".m2/repository");
+
+        try {
+            final Path conn = m2.toPath().resolve("CONNECTORS_VERSION");
+            if (!conn.toFile().exists()) {
+                conn.toFile().getParentFile().mkdirs();
+                java.nio.file.Files.write(conn, "1.2.3".getBytes());
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
 
         final PluginGenerator generator = new PluginGenerator();
 
@@ -201,7 +221,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             });
         }
 
-        final File ziplock = new File(m2, "org/apache/tomee/ziplock/7.0.5/ziplock-7.0.5.jar");
+        final File ziplock = new File(m2, "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar");
         ziplock.getParentFile().mkdirs();
         try (final InputStream from = new FileInputStream(jarLocation(IO.class));
                 final OutputStream to = new FileOutputStream(ziplock)) {
@@ -289,12 +309,27 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                         {
                             put("org.talend.test.generated.jdbc_component.JdbcService$I18n.read",
                                     "Liberté, égalité, fraternité");
+                            put("configuration.connection._documentation", "Documentation pour Connection");
+                            put("configuration.connection.configurations._documentation",
+                                    "Documentation pour configurations");
+                            put("configuration.connection.configurations[].description._documentation",
+                                    "Documentation pour configurations description");
+                            put("configuration.connection.configurations[].driver._documentation",
+                                    "Documentation pour configurations conducteur");
+                            put("configuration.connection.url._documentation", "Documentation pour hurle...");
+                            put("configuration.driver._documentation", "Documentation pour conducteur...");
+                            put("configuration.query._documentation", "Documentation pour requète...");
+                            put("configuration.timeout._documentation", "Documentation pour expiration...");
+                            put("configuration.connection.host._documentation", "Documentation pour hôte");
+                            put("configuration.connection.port._documentation", "Documentation pour porteàfaux");
+                            put("configuration.connection.username._documentation", "Documentation pour utilisateur");
+                            put("configuration.connection.password._documentation", "Documentation pour mot de passe");
                         }
                     }.store(out, "i18n for the config types");
                     out.closeEntry();
 
                     out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
-                    out.write("org.apache.tomee:ziplock:jar:7.0.5:runtime".getBytes(StandardCharsets.UTF_8));
+                    out.write("org.apache.tomee:ziplock:jar:8.0.14:runtime".getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
 
                     /*

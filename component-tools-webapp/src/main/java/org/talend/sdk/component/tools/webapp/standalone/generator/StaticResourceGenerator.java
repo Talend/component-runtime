@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,8 +53,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.meecrowave.openwebbeans.MeecrowaveLoaderService;
-import org.apache.webbeans.spi.LoaderService;
 import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.server.api.ActionResource;
 import org.talend.sdk.component.server.api.ComponentResource;
@@ -167,7 +165,6 @@ public class StaticResourceGenerator implements Runnable {
                 .newInstance()
                 .addProperty("skipHttp", true) // this generator does not need to bind any port
                 .addProperty("org.apache.webbeans.scanBeansXmlOnly", "true") // dont scan all the classpath
-                .addProperty(LoaderService.class.getName(), new MeecrowaveLoaderService()) // keep MW extensions
                 .initialize(); final Jsonb jsonb = JsonbBuilder.create()) {
             final String[] emptyStringArray = new String[0];
 
@@ -426,6 +423,7 @@ public class StaticResourceGenerator implements Runnable {
     }
 
     public enum OutputFormatter {
+
         JSON {
 
             @Override

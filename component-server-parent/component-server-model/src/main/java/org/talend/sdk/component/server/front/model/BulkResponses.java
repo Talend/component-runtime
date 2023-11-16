@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.talend.sdk.component.server.front.model;
 
 import java.util.List;
 import java.util.Map;
+
+import javax.json.JsonObject;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,6 +40,6 @@ public class BulkResponses {
 
         private Map<String, List<String>> headers;
 
-        private byte[] response;
+        private JsonObject response;
     }
 }

@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -920,4 +920,25 @@ ul.tree > li > a {
     margin-right: 0.4rem;
     margin-bottom: 0px;
     margin-left: 0.4rem;
+}
+
+.found {
+    background-color: #f5f5f5;
+    font-weight: 550;
+}
+
+.dockey {
+  font-family: monospace;
+  font-size: 80%;
+  color: #295679;
+  background-color: #f5f5f5;
+  padding-left: 6px;
+  padding-right: 6px;
+  border: 1px solid #f5f5f5;
+  border-radius: 5px;
+}
+
+.dockey:hover {
+  font-weight: bold;
+  text-decoration: none;
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,9 +167,10 @@ class JobTest {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), plugin);
+        final String testLocation = temporaryFolder.getParent().getFileName().toString();
         try (final ComponentManager manager = newTestManager(jar)) {
             final Collection<JsonObject> outputs =
-                    InMemCollector.getShadedOutputs(manager.findPlugin(plugin).get().getLoader());
+                    InMemCollector.getShadedOutputs(manager.findPlugin(plugin).get().getLoader(), testLocation);
             outputs.clear();
             Job
                     .components()

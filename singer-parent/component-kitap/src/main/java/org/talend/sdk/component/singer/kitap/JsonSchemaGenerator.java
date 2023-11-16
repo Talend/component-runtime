@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,12 @@ public class JsonSchemaGenerator implements Supplier<JsonObject> {
                     .createObjectBuilder()
                     .add("type", types("string", entry.isNullable()))
                     .add("format", "date-time")
+                    .build();
+            break;
+        case DECIMAL: // use string as JSON number data loss risk for decimal
+            schema = jsonBuilderFactory
+                    .createObjectBuilder()
+                    .add("type", types("string", entry.isNullable()))
                     .build();
             break;
         case BOOLEAN:

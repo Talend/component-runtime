@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,21 +46,26 @@ public interface DocumentationResource {
     @Path("component/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
-            description = "Returns an asciidoctor version of the documentation for the component represented by its identifier `id`.")
+            description = "Returns a documentation in asciidoctor format for the given component.  " +
+                    "The component is represented by its identifier (`id`).")
     @APIResponse(responseCode = "200",
-            description = "the list of available and storable configurations (datastore, dataset, ...).",
+            description = "The list of available and storable configurations (datastore, dataset, ...).",
             content = @Content(mediaType = APPLICATION_JSON))
     @APIResponse(responseCode = "404",
-            description = "If the component is missing, payload will be an ErrorPayload with the code PLUGIN_MISSING.",
+            description = "If the component is not found in the server," +
+                    " response will be an ErrorPayload with the code COMPONENT_MISSING.",
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     DocumentationContent getDocumentation(
-            @PathParam("id") @Parameter(name = "id", description = "the component identifier", in = PATH) String id,
+            @PathParam("id") @Parameter(name = "id",
+                    description = "The component identifier.", in = PATH) String id,
             @QueryParam("language") @DefaultValue("en") @Parameter(name = "language",
-                    description = "the language for display names.", in = QUERY,
+                    description = "The language requested.", in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "en")) String language,
             @QueryParam("segment") @DefaultValue("ALL") @Parameter(name = "segment",
-                    description = "the part of the documentation to extract.", in = QUERY,
+                    description = "The documentation part to extract. Available parts are: " +
+                            "`ALL` (default), `DESCRIPTION`, `CONFIGURATION`",
+                    in = QUERY,
                     schema = @Schema(type = STRING, defaultValue = "ALL")) DocumentationSegment segment);
 
     enum DocumentationSegment {

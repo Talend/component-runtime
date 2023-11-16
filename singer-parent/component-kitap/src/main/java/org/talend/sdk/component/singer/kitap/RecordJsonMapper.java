@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package org.talend.sdk.component.singer.kitap;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collection;
@@ -61,7 +64,7 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null));
+                                    RecordService.class, null, null));
 
     @Override
     public JsonObject apply(final Record record) {
@@ -131,6 +134,17 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
         @Override
         public void onDatetime(final Schema.Entry entry, final Optional<ZonedDateTime> dateTime) {
             dateTime.ifPresent(v -> builder.add(entry.getName(), singer.formatDate(v)));
+        }
+
+        @Override
+        public void onInstant(final Schema.Entry entry, final Optional<Instant> dateTime) {
+            dateTime.ifPresent(
+                    v -> builder.add(entry.getName(), singer.formatDate(ZonedDateTime.ofInstant(v, ZoneId.of("UTC")))));
+        }
+
+        @Override
+        public void onDecimal(final Schema.Entry entry, final Optional<BigDecimal> decimal) {
+            decimal.ifPresent(v -> builder.add(entry.getName(), v.toString()));
         }
 
         @Override
@@ -228,6 +242,19 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
                                     vs
                                             .stream()
                                             .map(singer::formatDate)
+                                            .collect(factory::createArrayBuilder, JsonArrayBuilder::add,
+                                                    JsonArrayBuilder::addAll)
+                                            .build()));
+        }
+
+        @Override
+        public void onDecimalArray(final Schema.Entry entry, final Optional<Collection<BigDecimal>> array) {
+            array
+                    .ifPresent(vs -> builder
+                            .add(entry.getName(),
+                                    vs
+                                            .stream()
+                                            .map(v -> v.toString())
                                             .collect(factory::createArrayBuilder, JsonArrayBuilder::add,
                                                     JsonArrayBuilder::addAll)
                                             .build()));
