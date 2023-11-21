@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import java.io.ObjectInputStream;
@@ -27,9 +28,7 @@ import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -99,6 +98,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withName("dynBigDecimal")
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.BIGDECIMAL)
+                        .withProp(ORIGIN_TYPE, "DECIMAL")
                         .build(), BIGDEC.toString())
                 .withDecimal(factory.newEntryBuilder()
                         .withName("dynBigDecimal2")
@@ -247,6 +247,8 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertTrue(byte[].class.isInstance(dynObject));
         assertArrayEquals(String.valueOf(BYTES0).getBytes(), (byte[]) dynObject);
 
+        String originType = rowStruct.dynamic.getColumnMetadata(7).getDbType();
+        assertEquals("DECIMAL", originType);
         dynObject = rowStruct.dynamic.getColumnValue("dynBigDecimal");
         assertTrue(BigDecimal.class.isInstance(dynObject));
         assertEquals(BIGDEC, dynObject);
