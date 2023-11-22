@@ -101,7 +101,7 @@ public class ReflectionService {
     // IMPORTANT: ensure to be able to read all data (including collection) from a
     // map to support system properties override
     public Function<Map<String, String>, Object[]> parameterFactory(final Executable executable,
-                                                                    final Map<Class<?>, Object> precomputed, final List<ParameterMeta> metas) {
+            final Map<Class<?>, Object> precomputed, final List<ParameterMeta> metas) {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final Function<Supplier<Object>, Object> contextualSupplier = createContextualSupplier(loader);
         final Collection<Function<Map<String, String>, Object>> factories =
@@ -235,8 +235,8 @@ public class ReflectionService {
     }
 
     public Function<Map<String, String>, Object> createConfigFactory(final Map<Class<?>, Object> precomputed,
-                                                                     final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier, final String name,
-                                                                     final Configuration configuration, final Annotation[] allAnnotations, final Class<?> configClass)
+            final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier, final String name,
+            final Configuration configuration, final Annotation[] allAnnotations, final Class<?> configClass)
             throws NoSuchMethodException {
         final Constructor constructor = configClass.getConstructor();
         final LocalConfiguration config = LocalConfiguration.class.cast(precomputed.get(LocalConfiguration.class));
@@ -288,7 +288,7 @@ public class ReflectionService {
     }
 
     private Collector createMapCollector(final Class<?> mapType, final Class<?> keyItemClass,
-                                         final Class<?> valueItemClass, final Map<Class<?>, Object> precomputed) {
+            final Class<?> valueItemClass, final Map<Class<?>, Object> precomputed) {
         final Function<Map.Entry<?, ?>, Object> keyMapper = o -> doConvert(keyItemClass, o.getKey(), precomputed);
         final Function<Map.Entry<?, ?>, Object> valueMapper = o -> doConvert(valueItemClass, o.getValue(), precomputed);
         return ConcurrentMap.class.isAssignableFrom(mapType) ? toConcurrentMap(keyMapper, valueMapper)
@@ -296,9 +296,9 @@ public class ReflectionService {
     }
 
     private Object createList(final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier,
-                              final String name, final Class<?> collectionType, final Class<?> itemClass, final Collector collector,
-                              final BiFunction<String, Map<String, Object>, Object> itemFactory, final Map<String, Object> config,
-                              final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
+            final String name, final Class<?> collectionType, final Class<?> itemClass, final Collector collector,
+            final BiFunction<String, Map<String, Object>, Object> itemFactory, final Map<String, Object> config,
+            final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
         final Object obj = config.get(name);
         if (collectionType.isInstance(obj)) {
             return Collection.class
@@ -346,9 +346,9 @@ public class ReflectionService {
     }
 
     private Object createMap(final String name, final Class<?> mapType,
-                             final BiFunction<String, Map<String, Object>, Object> keyItemFactory,
-                             final BiFunction<String, Map<String, Object>, Object> valueItemFactory, final Collector collector,
-                             final Map<String, Object> config) {
+            final BiFunction<String, Map<String, Object>, Object> keyItemFactory,
+            final BiFunction<String, Map<String, Object>, Object> valueItemFactory, final Collector collector,
+            final Map<String, Object> config) {
         final Object obj = config.get(name);
         if (mapType.isInstance(obj)) {
             return Map.class.cast(obj).entrySet().stream().collect(collector);
@@ -378,8 +378,8 @@ public class ReflectionService {
     }
 
     private BiFunction<String, Map<String, Object>, Object> createObjectFactory(final ClassLoader loader,
-                                                                                final Function<Supplier<Object>, Object> contextualSupplier, final Type type,
-                                                                                final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
+            final Function<Supplier<Object>, Object> contextualSupplier, final Type type,
+            final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
         final Class clazz = Class.class.cast(type);
         if (clazz.isPrimitive() || Primitives.unwrap(clazz) != clazz || String.class == clazz) {
             return (name, config) -> doConvert(clazz, config.get(name), precomputed);
@@ -408,7 +408,7 @@ public class ReflectionService {
     }
 
     private JsonValue createJsonValue(final Object value, final Map<Class<?>, Object> precomputed,
-                                      final Function<Reader, JsonReader> fallbackReaderCreator) {
+            final Function<Reader, JsonReader> fallbackReaderCreator) {
         final StringReader sr = new StringReader(String.valueOf(value).trim());
         try (final JsonReader reader = ofNullable(precomputed.get(JsonReaderFactory.class))
                 .map(JsonReaderFactory.class::cast)
@@ -419,8 +419,8 @@ public class ReflectionService {
     }
 
     private Object createObject(final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier,
-                                final Class clazz, final String[] args, final String name, final Map<String, Object> config,
-                                final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
+            final Class clazz, final String[] args, final String name, final Map<String, Object> config,
+            final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
         final Object potentialJsonValue = config.get(name);
         if (JsonObject.class == clazz && String.class.isInstance(potentialJsonValue)) {
             return createJsonValue(potentialJsonValue, precomputed, Json::createReader).asJsonObject();
@@ -449,11 +449,11 @@ public class ReflectionService {
 
         // extract map configuration
         final Map<String, Object> mapEntries = specificMapping.entrySet().stream().filter(e -> {
-                    final String key = e.getKey();
-                    final int idxStart = key.indexOf('[', prefix.length());
-                    return idxStart > 0 && ((idxStart > ".key".length() && key.startsWith(".key", idxStart - ".key".length()))
-                            || (idxStart > ".value".length() && key.startsWith(".value", idxStart - ".value".length())));
-                })
+            final String key = e.getKey();
+            final int idxStart = key.indexOf('[', prefix.length());
+            return idxStart > 0 && ((idxStart > ".key".length() && key.startsWith(".key", idxStart - ".key".length()))
+                    || (idxStart > ".value".length() && key.startsWith(".value", idxStart - ".value".length())));
+        })
                 .sorted(this::sortIndexEntry)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, noMerge(), LinkedHashMap::new));
         mapEntries.keySet().forEach(specificMapping::remove);
@@ -493,12 +493,12 @@ public class ReflectionService {
 
         // extract list configuration
         final Map<String, Object> listEntries = specificMapping.entrySet().stream().filter(e -> {
-                    final String key = e.getKey();
-                    final int idxStart = key.indexOf('[', prefix.length());
-                    final int idxEnd = key.indexOf(']', prefix.length());
-                    final int sep = key.indexOf('.', prefix.length() + 1);
-                    return idxStart > 0 && key.endsWith("]") && (sep > idxEnd || sep < 0);
-                })
+            final String key = e.getKey();
+            final int idxStart = key.indexOf('[', prefix.length());
+            final int idxEnd = key.indexOf(']', prefix.length());
+            final int sep = key.indexOf('.', prefix.length() + 1);
+            return idxStart > 0 && key.endsWith("]") && (sep > idxEnd || sep < 0);
+        })
                 .sorted(this::sortIndexEntry)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, noMerge(), LinkedHashMap::new));
         listEntries.keySet().forEach(specificMapping::remove);
@@ -667,7 +667,7 @@ public class ReflectionService {
     }
 
     private ParameterizedType validateCollection(final Class clazz, final String enclosingName,
-                                                 final Type genericType) {
+            final Type genericType) {
         if (!ParameterizedType.class.isInstance(genericType)) {
             throw new IllegalArgumentException(
                     clazz + "#" + enclosingName + " should be a generic collection and not a " + genericType);
@@ -740,9 +740,9 @@ public class ReflectionService {
 
     // CHECKSTYLE:OFF
     private void addListElement(final ClassLoader loader, final Function<Supplier<Object>, Object> contextualSupplier,
-                                final Map<String, Object> config, final String prefix, final Map<String, Object> preparedObjects,
-                                final String nestedName, final String listName, final ParameterizedType pt, final Supplier<?> init,
-                                final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
+            final Map<String, Object> config, final String prefix, final Map<String, Object> preparedObjects,
+            final String nestedName, final String listName, final ParameterizedType pt, final Supplier<?> init,
+            final List<ParameterMeta> metas, final Map<Class<?>, Object> precomputed) {
         // CHECKSTYLE:ON
         final Collection<Object> aggregator =
                 Collection.class.cast(preparedObjects.computeIfAbsent(listName, k -> init.get()));
@@ -1026,11 +1026,11 @@ public class ReflectionService {
         if (clazz.isEnum()) {
             return (name,
                     config) -> (T) ofNullable(config.get(name))
-                    .map(String.class::cast)
-                    .map(String::trim)
-                    .filter(it -> !it.isEmpty())
-                    .map(v -> Enum.valueOf((Class<Enum>) clazz, v))
-                    .orElse(null);
+                            .map(String.class::cast)
+                            .map(String::trim)
+                            .filter(it -> !it.isEmpty())
+                            .map(v -> Enum.valueOf((Class<Enum>) clazz, v))
+                            .orElse(null);
         }
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         final Function<Supplier<Object>, Object> contextualSupplier = createContextualSupplier(loader);
