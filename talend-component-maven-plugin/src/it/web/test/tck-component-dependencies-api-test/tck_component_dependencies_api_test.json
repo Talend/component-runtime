@@ -253,8 +253,8 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/component/dependencies"
             },
-            "description": "Expected: error 500  \nCall using a wrong id  \nTODO: Opened ticket https://jira.talendforge.org/browse/TCOMP-2194",
-            "id": "9bfa6353-7684-4e19-ad5d-7f3c0382f09c",
+            "description": "Expected: error 404 \nCall using a wrong id  ",
+            "id": "ccdde5e1-23ed-433c-b4b4-9776fe55a3ba",
             "name": "component/dependencies - wrong identifier",
             "headers": [],
             "assertions": [
@@ -262,19 +262,19 @@
                 "comparison": "Equals",
                 "subject": "ResponseStatus",
                 "path": "code",
-                "value": "500"
+                "value": "404"
               },
               {
                 "comparison": "Equals",
                 "subject": "ResponseJsonBody",
                 "path": "$.code",
-                "value": "UNEXPECTED"
+                "value": "COMPONENT_MISSING"
               },
               {
                 "comparison": "LengthEqual",
                 "subject": "ResponseJsonBody",
                 "path": "$.",
-                "value": "1"
+                "value": "2"
               },
               {
                 "comparison": "Equals",
