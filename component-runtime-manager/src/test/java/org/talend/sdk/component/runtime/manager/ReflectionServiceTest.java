@@ -1204,6 +1204,20 @@ class ReflectionServiceTest {
         assertEquals(reflectionService.createObjectFactory(State.class).apply("open", conf), State.OPEN);
     }
 
+    @Test
+    void createObjectFactoryWithNullValue() {
+        final Map conf = new HashMap<String, String>() {
+
+            {
+                put("nestedConfigs[0].value", "value0");
+                put("nestedConfigs[1].value", null);
+            }
+        };
+        final TableNameDataset dataset = reflectionService.createObjectFactory(TableNameDataset.class).apply("", conf);
+        assertEquals("value0", dataset.getNestedConfigs().get(0).value);
+        assertNull(dataset.getNestedConfigs().get(1).value);
+    }
+
     public enum State {
         OPEN,
         PENDING,
