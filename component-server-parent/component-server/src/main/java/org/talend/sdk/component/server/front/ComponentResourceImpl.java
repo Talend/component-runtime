@@ -220,7 +220,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 final ComponentFamilyMeta.BaseMeta<Lifecycle> meta = componentDao.findById(id);
 
                 if (meta == null) {
-                    //FIXME Manage when the meta is null because of an unknown identifier
+                    //Manage when the meta is null because of an unknown identifier
                     throw new WebApplicationException(Response
                             .status(Response.Status.NOT_FOUND)
                             .type(APPLICATION_JSON_TYPE)
