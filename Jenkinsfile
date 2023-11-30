@@ -150,6 +150,14 @@ pipeline {
           defaultValue: false,
           description: 'Force documentation stage for development branches. No effect on master and maintenance.')
         booleanParam(
+          name: 'FORCE_SECURITY_ANALYSIS',
+          defaultValue: false,
+          description: 'Force OSS security analysis stage for branches.')
+        booleanParam(
+          name: 'FORCE_DEPS_REPORT',
+          defaultValue: false,
+          description: 'Force dependencies report stage for branches.')
+        booleanParam(
           name: 'JENKINS_DEBUG',
           defaultValue: false,
           description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
@@ -455,8 +463,10 @@ pipeline {
         }
         stage('OSS security analysis') {
             when {
-                expression { params.Action != 'RELEASE' }
-                branch 'master'
+                anyOf {
+                    expression { params.Action != 'RELEASE' &&  branch_name == 'master' }
+                    expression { params.FORCE_SECURITY_ANALYSIS == true }
+                }
             }
             steps {
                 withCredentials([ossrhCredentials]) {
@@ -483,8 +493,10 @@ pipeline {
         }
         stage('Deps report') {
             when {
-                expression { params.Action != 'RELEASE' }
-                branch 'master'
+                anyOf {
+                    expression { params.Action != 'RELEASE' &&  branch_name == 'master' }
+                    expression { params.FORCE_DEPS_REPORT == true }
+                }
             }
             steps {
                 withCredentials([ossrhCredentials]) {
