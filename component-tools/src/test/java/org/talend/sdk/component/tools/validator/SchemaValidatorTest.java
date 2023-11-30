@@ -58,10 +58,12 @@ public class SchemaValidatorTest {
     }
 
     class MySchema implements Schema {
+
         @Override
         public Builder toBuilder() {
             return null;
         }
+
         @Override
         public Type getType() {
             return null;
