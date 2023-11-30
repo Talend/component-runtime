@@ -34,12 +34,12 @@ public class CacheConfigurationFactory {
 
     @Inject
     @Documentation("Should JCache MBeans be registered.")
-    @ConfigProperty(name = "talend.vault.cache.jcache.cache.management", defaultValue = "false")
+    @ConfigProperty(name = "talend.vault.cache.jcache.cache.management", defaultValue = "true")
     private Boolean cacheManagement;
 
     @Inject
     @Documentation("Should JCache statistics be enabled.")
-    @ConfigProperty(name = "talend.vault.cache.jcache.cache.statistics", defaultValue = "false")
+    @ConfigProperty(name = "talend.vault.cache.jcache.cache.statistics", defaultValue = "true")
     private Boolean cacheStatistics;
 
     @Inject
