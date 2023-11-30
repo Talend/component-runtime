@@ -461,14 +461,9 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        sh """\
-                            #!/usr/bin/env bash 
-                            set -xe
-                            mvn ossindex:audit-aggregate -pl '!bom' \
-                                                         --define ossindex.fail=false \
-                                                         --define ossindex.reportFile=target/audit.txt \
-                                                         --settings .jenkins/settings.xml
-                           """.stripIndent()
+                        sh """
+                            bash .jenkins/scripts/mvn_audit.sh
+                        """
                     }
                 }
             }
@@ -494,11 +489,9 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                        sh """\
-                            #!/usr/bin/env bash 
-                            set -xe
-                            mvn versions:dependency-updates-report versions:plugin-updates-report -pl '!bom'
-                           """.stripIndent()
+                        sh """
+                           bash .jenkins/scripts/mvn_audit.sh
+                        """
                     }
                 }
             }
