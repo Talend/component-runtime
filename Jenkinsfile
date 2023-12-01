@@ -472,7 +472,7 @@ pipeline {
                 withCredentials([ossrhCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         sh """
-                            bash .jenkins/scripts/mvn_audit.sh
+                            bash .jenkins/scripts/mvn-ossindex-audit.sh
                         """
                     }
                 }
@@ -502,7 +502,7 @@ pipeline {
                 withCredentials([ossrhCredentials]) {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         sh """
-                           bash .jenkins/scripts/mvn_audit.sh
+                           bash .jenkins/scripts/mvn_dependency_updates_report.sh
                         """
                     }
                 }
