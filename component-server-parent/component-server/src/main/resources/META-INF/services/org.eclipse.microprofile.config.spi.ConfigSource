@@ -1,3 +1,2 @@
 org.talend.sdk.component.server.configuration.ScmConfigurationLoader
 org.talend.sdk.component.server.configuration.ComponentConfigurationLoader
-org.talend.sdk.component.server.configuration.OpenTracingConfigSource

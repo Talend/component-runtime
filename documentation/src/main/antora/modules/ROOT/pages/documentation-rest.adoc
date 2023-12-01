@@ -596,29 +596,6 @@ Events are logged in the following format:
 
 This profile is very close to the JSON profile and also adds the `LOG_KAFKA_TOPIC` and `LOG_KAFKA_URL` configuration. The difference is that it logs the default logs on Kafka in addition to the tracing logs.
 
-==== OpenTracing
-
-The component server uses Geronimo OpenTracing to monitor request.
-
-The tracing can be activated by setting the `TRACING_ON` environment variable to `true`.
-
-The tracing rate is configurable by setting the `TRACING_SAMPLING_RATE` environment variable.
-It accepts `0` (none) and `1` (all, default) as values to ensure the consistency of the reporting.
-
-TIP: You can find all the details on the configuration in `org.talend.sdk.component.server.configuration.OpenTracingConfigSource`.
-
-Run docker image with tracing on:
-
-[source,sh]
-----
-sudo docker run -p 8080:8080 \
-	-e TRACING_ON=true \
-	tacokit/component-server
-----
-
-By default, Geronimo OpenTracing will log the spans in a Zipking format so you can use the Kafka profile as explained before
-to wire it over any OpenTracing backend.
-
 === Building the docker image
 
 You can register component server images in Docker using these instructions in the corresponding image directory:
