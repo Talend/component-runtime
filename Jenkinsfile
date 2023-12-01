@@ -219,10 +219,10 @@ pipeline {
                     echo 'Manage the version qualifier'
                     if (!needQualify) {
                         println """
-                             No need to add qualifier in followings cases:
-                             - We are on Master or Maintenance branch
-                             - We do not want to deploy on dev branch
-                             """.stripIndent()
+                            No need to add qualifier in followings cases:
+                            - We are on Master or Maintenance branch
+                            - We do not want to deploy on dev branch
+                            """.stripIndent()
                         finalVersion = pomVersion
                     }
                     else {
@@ -231,9 +231,7 @@ pipeline {
                         branch_description = ""
                         if (params.VERSION_QUALIFIER != ("DEFAULT")) {
                             // If the qualifier is given, use it
-                            println """
-                             No need to add qualifier, use the given one: "$params.VERSION_QUALIFIER"
-                             """.stripIndent()
+                            println """No need to add qualifier, use the given one: "$params.VERSION_QUALIFIER" """
                         }
                         else {
                             println "Validate the branch name"
@@ -274,9 +272,9 @@ pipeline {
                         // https://docs.oracle.com/middleware/1212/core/MAVEN/maven_version.htm
                         println "Edit version on dev branches, new version is ${finalVersion}"
                         sh """\
-                          #!/usr/bin/env bash
-                          mvn versions:set --define newVersion=${finalVersion}
-                          mvn versions:set --file bom/pom.xml --define newVersion=${finalVersion}
+                        #!/usr/bin/env bash
+                        mvn versions:set --define newVersion=${finalVersion}
+                        mvn versions:set --file bom/pom.xml --define newVersion=${finalVersion}
                         """.stripIndent()
                     }
 
@@ -327,10 +325,10 @@ pipeline {
                     script {
                         try {
                             sh """\
-                                #!/usr/bin/env bash
-                                bash "${params.POST_LOGIN_SCRIPT}"
-                                bash .jenkins/scripts/npm_fix.sh
-                                """.stripIndent()
+                            #!/usr/bin/env bash
+                            bash "${params.POST_LOGIN_SCRIPT}"
+                            bash .jenkins/scripts/npm_fix.sh
+                            """.stripIndent()
                         } catch (ignored) {
                             //
                         }
@@ -343,13 +341,13 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials]) {
                     sh """\
-                        #!/usr/bin/env bash
-                        set -xe
-                        mvn clean install --file bom/pom.xml
-                        mvn clean install $BUILD_ARGS \
-                                          $extraBuildParams \
-                                          --settings .jenkins/settings.xml
-                        """.stripIndent()
+                    #!/usr/bin/env bash
+                    set -xe
+                    mvn clean install --file bom/pom.xml
+                    mvn clean install $BUILD_ARGS \
+                                      $extraBuildParams \
+                                      --settings .jenkins/settings.xml
+                    """.stripIndent()
                 }
             }
             post {
@@ -385,7 +383,7 @@ pipeline {
                         bash mvn deploy $deployOptions \
                                         $extraBuildParams \
                                         --settings .jenkins/settings.xml
-                    """.stripIndent()
+                        """.stripIndent()
                     }
                 }
                 // Add description to job
@@ -448,15 +446,14 @@ pipeline {
             steps {
                 withCredentials([ossrhCredentials, gitCredentials]) {
                     sh """\
-                        #!/usr/bin/env bash 
-                        set -xe                       
-                        mvn verify pre-site --file documentation/pom.xml \
-                                            --settings .jenkins/settings.xml \
-                                            --activate-profiles gh-pages \
-                                            --define gpg.skip=true \
-                                            $skipOptions \
-                                            $extraBuildParams 
-
+                    #!/usr/bin/env bash 
+                    set -xe                       
+                    mvn verify pre-site --file documentation/pom.xml \
+                                        --settings .jenkins/settings.xml \
+                                        --activate-profiles gh-pages \
+                                        --define gpg.skip=true \
+                                        $skipOptions \
+                                        $extraBuildParams 
                     """.stripIndent()
                 }
             }
@@ -543,20 +540,20 @@ pipeline {
                         if (pull_request_id != null) {
 
                             println 'Run analysis for PR'
-                            sh """\
+                            sh """
                             bash .jenkins/scripts/mvn_sonar_pr.sh \
                                 '${branch_name}' \
                                 '${env.CHANGE_TARGET}' \
                                 '${pull_request_id}' \
                                 ${extraBuildParams}
-                            """.stripIndent()
+                            """
                         } else {
                             echo 'Run analysis for branch'
-                            sh """\
+                            sh """
                             bash .jenkins/scripts/mvn_sonar_branch.sh \
-                            '${branch_name}' \
-                            ${extraBuildParams}
-                            """.stripIndent()
+                                '${branch_name}' \
+                                ${extraBuildParams}
+                            """
                         }
                     }
                 }
@@ -573,10 +570,9 @@ pipeline {
                 script {
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials]) {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                            sh """\
-                               #!/usr/bin/env bash
-                               bash .jenkins/scripts/release.sh $branch_name $finalVersion $extraBuildParams
-                               """.stripIndent()
+                            sh """
+                            bash .jenkins/scripts/release.sh $branch_name $finalVersion $extraBuildParams
+                            """
                         }
                     }
                 }
