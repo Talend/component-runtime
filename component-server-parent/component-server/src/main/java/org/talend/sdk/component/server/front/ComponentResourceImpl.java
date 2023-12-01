@@ -218,6 +218,17 @@ public class ComponentResourceImpl implements ComponentResource {
                 dependencies.put(id, deps);
             } else {
                 final ComponentFamilyMeta.BaseMeta<Lifecycle> meta = componentDao.findById(id);
+
+                if (meta == null) {
+                    // Manage when the meta is null because of an unknown identifier
+                    throw new WebApplicationException(Response
+                            .status(Response.Status.NOT_FOUND)
+                            .type(APPLICATION_JSON_TYPE)
+                            .entity(new ErrorPayload(COMPONENT_MISSING,
+                                    "No component matching the id: " + id))
+                            .build());
+                }
+
                 dependencies.put(meta.getId(), getDependenciesFor(meta));
             }
         }
@@ -236,13 +247,15 @@ public class ComponentResourceImpl implements ComponentResource {
                     .orElseThrow(() -> new WebApplicationException(Response
                             .status(Response.Status.NOT_FOUND)
                             .type(APPLICATION_JSON_TYPE)
-                            .entity(new ErrorPayload(PLUGIN_MISSING, "No plugin matching the id: " + id))
+                            .entity(new ErrorPayload(PLUGIN_MISSING,
+                                    "No plugin matching the id: " + id))
                             .build()))
                     .getContainerFile()
                     .orElseThrow(() -> new WebApplicationException(Response
                             .status(Response.Status.NOT_FOUND)
                             .type(APPLICATION_JSON_TYPE)
-                            .entity(new ErrorPayload(PLUGIN_MISSING, "No dependency matching the id: " + id))
+                            .entity(new ErrorPayload(PLUGIN_MISSING,
+                                    "No dependency matching the id: " + id))
                             .build()));
             if (!Files.exists(file)) {
                 return onMissingJar(id);
