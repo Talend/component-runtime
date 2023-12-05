@@ -42,9 +42,6 @@
         <Logger name="org.apache.meecrowave.tomcat.LoggingAccessLogPattern" level="${env:CONSOLE_LOG_LEVEL:-INFO}" additivity="false">
             <AppenderRef ref="requestLogs"/>
         </Logger>
-        <Logger name="org.apache.geronimo.opentracing.zipkin" level="${env:CONSOLE_LOG_LEVEL:-INFO}" additivity="false">
-            <AppenderRef ref="zipkinLogs"/>
-        </Logger>
         <Logger name="org.apache.logging.log4j.jul" level="${env:CONSOLE_LOG_LEVEL:-INFO}">
             <appender-ref ref="Console"/>
         </Logger>

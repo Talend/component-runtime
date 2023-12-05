@@ -552,12 +552,7 @@ sudo docker run -p 8080:8080 \
 
 ==== JSON profile
 
-The JSON profile does the following:
-
-1. Logs on the console using the `CONSOLE_LOG_LEVEL` configuration as the default profile. It uses the formatting shown below.
-2. If the `TRACING_KAFKA_URL` environment variable is set, it logs the opentracing data on the defined Kafka using the topic `TRACING_KAFKA_TOPIC`. This level can be customized by setting the `KAFKA_LOG_LEVEL` environment variable (`INFO` by default).
-
-Events are logged in the following format:
+The JSON profile logs on the console using the `CONSOLE_LOG_LEVEL` configuration as the default profile. Events are logged in the following format:
 
 [source,json]
 ----
