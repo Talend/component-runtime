@@ -95,7 +95,7 @@
                 <labels>
                   <com.talend.docker.cmd>docker run -d -p ${docker.image.port}:${docker.image.port} ${docker.image.to}</com.talend.docker.cmd>
                   <com.talend.docker.healthcheck>curl --fail http://localhost:${docker.image.port}/api/v1/environment</com.talend.docker.healthcheck>
-                  <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc)&gt;</com.talend.docker.params>
+                  <com.talend.docker.params>JDK_JAVA_OPTIONS=&lt;JVM options (system properties etc)&gt;</com.talend.docker.params>
                 </labels>
               </container>
             </configuration>
