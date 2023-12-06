@@ -65,7 +65,7 @@ public class StarterConfiguration {
     private String csp;
 
     @Inject
-    @ConfigProperty(name = "talend.component.starter.autorefresh.active", defaultValue = "true")
+    @ConfigProperty(name = "talend.component.starter.autorefresh.active", defaultValue = "false")
     private Boolean autoRefresh;
 
     @Inject

@@ -90,6 +90,7 @@
                   <MEECROWAVE_PID>${docker.talend.dir.app}conf/server.pid</MEECROWAVE_PID>
                   <MEECROWAVE-PROPERTIES>${docker.talend.dir.app}conf/meecrowave.properties</MEECROWAVE-PROPERTIES>
                   <CLASSPATH>${docker.talend.dir.app}lib/*:${docker.talend.dir.app}custom/*:${docker.talend.dir.base}extensions/*:${docker.talend.dir.app}resources:${docker.talend.dir.app}classes</CLASSPATH>
+                  <JDK_JAVA_OPTIONS>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.net=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</JDK_JAVA_OPTIONS>
                 </environment>
                 <labels>
                   <com.talend.docker.cmd>docker run -d -p ${docker.image.port}:${docker.image.port} ${docker.image.to}</com.talend.docker.cmd>
