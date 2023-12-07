@@ -79,8 +79,6 @@ public class TaCoKitGuessSchema {
 
     public static final String DATASET = "dataset";
 
-    public static final String ERROR_PROCESSOR_THROUGH_ACTION = "Can't guess processor schema through action.";
-
     public static final String ERROR_THROUGH_ACTION = "Can't guess schema through action.";
 
     public static final String ERROR_NO_AVAILABLE_SCHEMA_FOUND = "There is no available schema found.";
@@ -155,31 +153,34 @@ public class TaCoKitGuessSchema {
         }
     }
 
+    private DiscoverSchemaException handleException(final Exception e) throws Exception {
+        DiscoverSchemaException discoverSchemaException;
+        log.error(ERROR_THROUGH_ACTION, e);
+        if (e instanceof DiscoverSchemaException) {
+            discoverSchemaException = DiscoverSchemaException.class.cast(e);
+        } else if (e instanceof ComponentException) {
+            discoverSchemaException = new DiscoverSchemaException((ComponentException) e);
+        } else {
+            discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(),
+                    DiscoverSchemaException.HandleErrorWith.EXCEPTION);
+        }
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            jsonb.toJson(discoverSchemaException, out);
+        }
+
+        return discoverSchemaException;
+    }
+
     public void guessInputComponentSchema(final Schema schema) throws Exception {
         try {
             if (guessSchemaThroughAction(schema)) {
                 return;
             }
+            if (guessInputComponentSchemaThroughResult()) {
+                return;
+            }
         } catch (Exception e) {
-            if (e instanceof ComponentException) {
-                DiscoverSchemaException x = new DiscoverSchemaException((ComponentException) e);
-                try (final Jsonb jsonb = JsonbBuilder.create()) {
-                    jsonb.toJson(x, out);
-                }
-                log.error(ERROR_PROCESSOR_THROUGH_ACTION, x);
-                throw x;
-            }
-            if (e instanceof DiscoverSchemaException) {
-                try (final Jsonb jsonb = JsonbBuilder.create()) {
-                    jsonb.toJson(e, out);
-                }
-                log.error(ERROR_PROCESSOR_THROUGH_ACTION, e);
-                throw e;
-            }
-            log.error(ERROR_THROUGH_ACTION, e);
-        }
-        if (guessInputComponentSchemaThroughResult()) {
-            return;
+            throw handleException(e);
         }
         throw new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND);
     }
@@ -211,23 +212,7 @@ public class TaCoKitGuessSchema {
                 return;
             }
         } catch (Exception e) {
-            if (e instanceof ComponentException) {
-                DiscoverSchemaException x = new DiscoverSchemaException((ComponentException) e);
-                try (final Jsonb jsonb = JsonbBuilder.create()) {
-                    jsonb.toJson(x, out);
-                }
-                log.error(ERROR_PROCESSOR_THROUGH_ACTION, x);
-                throw x;
-            }
-            if (e instanceof DiscoverSchemaException) {
-                try (final Jsonb jsonb = JsonbBuilder.create()) {
-                    jsonb.toJson(e, out);
-                }
-                log.error(ERROR_PROCESSOR_THROUGH_ACTION, e);
-                throw e;
-            }
-            log.error(ERROR_PROCESSOR_THROUGH_ACTION, e);
-            throw new Exception(e.getMessage());
+            throw handleException(e);
         }
 
         log.error(ERROR_INSTANCE_SCHEMA);
@@ -598,7 +583,6 @@ public class TaCoKitGuessSchema {
                     log.error(e.getMessage(), e);
                 }
             }
-
             try {
                 mapper.stop();
             } catch (Exception e) {
