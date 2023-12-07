@@ -213,10 +213,6 @@ public class TaCoKitGuessSchema {
         } catch (Exception e) {
             if (e instanceof ComponentException) {
                 DiscoverSchemaException x = new DiscoverSchemaException((ComponentException) e);
-                // TODO !!!!
-                // TODO remove me before pull-request review, only for testing
-                x.setPossibleHandleErrorWith(DiscoverSchemaException.HandleErrorWith.EXECUTE_MOCK_JOB);
-                // TODO !!!!
                 try (final Jsonb jsonb = JsonbBuilder.create()) {
                     jsonb.toJson(x, out);
                 }
