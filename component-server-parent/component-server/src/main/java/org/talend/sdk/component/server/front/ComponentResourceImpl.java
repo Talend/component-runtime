@@ -218,6 +218,17 @@ public class ComponentResourceImpl implements ComponentResource {
                 dependencies.put(id, deps);
             } else {
                 final ComponentFamilyMeta.BaseMeta<Lifecycle> meta = componentDao.findById(id);
+
+                if (meta == null) {
+                    // Manage when the meta is null because of an unknown identifier
+                    throw new WebApplicationException(Response
+                            .status(Response.Status.NOT_FOUND)
+                            .type(APPLICATION_JSON_TYPE)
+                            .entity(new ErrorPayload(COMPONENT_MISSING,
+                                    "No component matching the id: " + id))
+                            .build());
+                }
+
                 dependencies.put(meta.getId(), getDependenciesFor(meta));
             }
         }
@@ -236,13 +247,15 @@ public class ComponentResourceImpl implements ComponentResource {
                     .orElseThrow(() -> new WebApplicationException(Response
                             .status(Response.Status.NOT_FOUND)
                             .type(APPLICATION_JSON_TYPE)
-                            .entity(new ErrorPayload(PLUGIN_MISSING, "No plugin matching the id: " + id))
+                            .entity(new ErrorPayload(PLUGIN_MISSING,
+                                    "No plugin matching the id: " + id))
                             .build()))
                     .getContainerFile()
                     .orElseThrow(() -> new WebApplicationException(Response
                             .status(Response.Status.NOT_FOUND)
                             .type(APPLICATION_JSON_TYPE)
-                            .entity(new ErrorPayload(PLUGIN_MISSING, "No dependency matching the id: " + id))
+                            .entity(new ErrorPayload(PLUGIN_MISSING,
+                                    "No dependency matching the id: " + id))
                             .build()));
             if (!Files.exists(file)) {
                 return onMissingJar(id);
@@ -352,6 +365,47 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family identifier: " + id))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+
+        return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
+    }
+
+    @Override
+    @CacheResult
+    public Response icon(final String familyId, final String iconKey) {
+        if (virtualComponents.isExtensionEntity(familyId)) {
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + familyId))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+
+        final ComponentFamilyMeta meta = componentFamilyDao.findById(familyId);
+        if (meta == null) {
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + familyId))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+        final Optional<Container> plugin = manager.findPlugin(meta.getPlugin());
+        if (!plugin.isPresent()) {
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(PLUGIN_MISSING,
+                            "No plugin '" + meta.getPlugin() + "' for family identifier: " + familyId))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), iconKey);
+        if (iconContent == null) {
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for icon key: " + iconKey))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }

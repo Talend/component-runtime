@@ -79,20 +79,20 @@ public class DiRowStructVisitor {
     private Set<String> allowedFields;
 
     private void visit(final Object data) {
-        log.debug("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
+        log.trace("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
         Arrays.stream(data.getClass().getFields()).forEach(field -> {
             try {
                 final Class<?> fieldType = field.getType();
                 final String studioType = StudioTypes.typeFromClass(fieldType.getName());
                 final String name = field.getName();
                 final Object raw = field.get(data);
-                log.debug("[visit] Field {} ({} / {}) ==> {}.", name, fieldType.getName(), studioType, raw);
+                log.trace("[visit] Field {} ({} / {}) ==> {}.", name, fieldType.getName(), studioType, raw);
                 if (raw == null) {
-                    log.debug("[visit] Skipping field {} with null value.", name);
+                    log.trace("[visit] Skipping field {} with null value.", name);
                     return;
                 }
                 if (!allowedFields.contains(name)) {
-                    log.debug("[visit] Skipping technical field {}.", name);
+                    log.trace("[visit] Skipping technical field {}.", name);
                     return;
                 }
                 switch (studioType) {
@@ -146,7 +146,7 @@ public class DiRowStructVisitor {
                         final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
                         final String metaName = sanitizeConnectionName(meta.getName());
                         final String metaOriginalName = meta.getDbName();
-                        log.debug("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
+                        log.trace("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
                         if (value == null) {
                             return;
                         }
@@ -264,7 +264,7 @@ public class DiRowStructVisitor {
             try {
                 final Class<?> type = field.getType();
                 if (!allowedFields.contains(field.getName())) {
-                    log.debug("[inferSchema] Skipping technical field {}.", field.getName());
+                    log.trace("[inferSchema] Skipping technical field {}.", field.getName());
                     return;
                 }
                 final String name = sanitizeConnectionName(field.getName());
@@ -336,7 +336,7 @@ public class DiRowStructVisitor {
                         final String metaPattern =
                                 !meta.getFormat().equals("dd-MM-yyyy HH:mm:ss") ? meta.getFormat() : pattern;
                         final String metaStudioType = meta.getType();
-                        log.debug("[inferSchema] Dynamic {}\t({})\t ==> {}.", meta.getName(), metaStudioType, value);
+                        log.trace("[inferSchema] Dynamic {}\t({})\t ==> {}.", meta.getName(), metaStudioType, value);
                         switch (metaStudioType) {
                         case StudioTypes.LIST:
                             schema.withEntry(toCollectionEntry(metaName, metaOriginalName, value));

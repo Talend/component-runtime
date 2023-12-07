@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.junit.jupiter.api.AfterAll;
@@ -47,13 +48,22 @@ class BeamEnvironmentsTest {
     @EnvironmentalTest
     void execute() throws ClassNotFoundException {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        final String runner = ServiceLoader
+        Iterator<?> loadClasses = ServiceLoader
                 .load(classLoader.loadClass("org.apache.beam.sdk.runners.PipelineRunnerRegistrar"))
-                .iterator()
-                .next()
+                .iterator();
+        // take second runner if exist
+        Object runner = null;
+        if (loadClasses.hasNext()) {
+            runner = loadClasses.next(); // first
+        }
+        if (loadClasses.hasNext()) {
+            runner = loadClasses.next(); // second if exist
+        }
+
+        final String runnerName = runner
                 .getClass()
                 .getName();
-        EXECUTIONS.add(System.getProperty("BeamEnvironmentsTest") + "/" + runner);
+        EXECUTIONS.add(System.getProperty("BeamEnvironmentsTest") + "/" + runnerName);
     }
 
     @AfterAll

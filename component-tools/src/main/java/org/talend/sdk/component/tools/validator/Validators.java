@@ -172,6 +172,12 @@ public class Validators {
                 activeValidators.add(validator);
             });
         }
+        if (configuration.isValidateRecord()) {
+            activeValidators.add(new RecordValidator());
+        }
+        if (configuration.isValidateSchema()) {
+            activeValidators.add(new SchemaValidator());
+        }
 
         return new Validators(activeValidators);
 
