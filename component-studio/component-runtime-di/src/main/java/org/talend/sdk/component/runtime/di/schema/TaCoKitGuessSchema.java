@@ -55,15 +55,21 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.base.Delegated;
+import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
+import org.talend.sdk.component.runtime.di.InputsHandler;
 import org.talend.sdk.component.runtime.di.JobStateAware;
+import org.talend.sdk.component.runtime.di.OutputsHandler;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
+import org.talend.sdk.component.runtime.output.InputFactory;
+import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -185,7 +191,24 @@ public class TaCoKitGuessSchema {
         throw new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND);
     }
 
-    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch) throws Exception {
+    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch,
+            final Boolean isStartOfJob) throws Exception {
+        try {
+            executeDiscoverSchemaExtendedAction(incomingSchema, outgoingBranch);
+            return;
+        } catch (Exception e) {
+            // Case when a processor is the start of a studio job
+            if (isStartOfJob) {
+                guessOutputComponentSchemaThroughResult();
+                return;
+            } else {
+                log.error(ERROR_INSTANCE_SCHEMA, e);
+                throw e;
+            }
+        }
+    }
+
+    private void executeDiscoverSchemaExtendedAction(final Schema schema, final String branch) throws Exception {
         try {
             final Collection<ServiceMeta> services = getPluginServices();
             ServiceMeta.ActionMeta actionRef = services
@@ -206,17 +229,14 @@ public class TaCoKitGuessSchema {
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "No action " + family + "#" + SCHEMA_EXTENDED_TYPE));
             }
-            final Object schemaResult = actionRef.getInvoker()
-                    .apply(buildActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
+            final Object schemaResult =
+                    actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
             if (schemaResult instanceof Schema && fromSchema(Schema.class.cast(schemaResult))) {
                 return;
             }
         } catch (Exception e) {
             throw handleException(e);
         }
-
-        log.error(ERROR_INSTANCE_SCHEMA);
-        throw new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND);
     }
 
     private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
@@ -541,6 +561,44 @@ public class TaCoKitGuessSchema {
             columns.put(name, column);
         }
         return true;
+    }
+
+    private void guessOutputComponentSchemaThroughResult() throws Exception {
+        final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
+        final Map<Class<?>, Object> services =
+                componentManager.findPlugin(plugin).get().get(AllServices.class).getServices();
+        final Processor processorComponent =
+                componentManager.findProcessor(family, componentName, version, configuration)
+                        .orElseThrow(() -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
+        final Jsonb jsonb = (Jsonb) services.get(Jsonb.class);
+        final AutoChunkProcessor processor = new AutoChunkProcessor(1, processorComponent);
+        JobStateAware.init(processorComponent, new HashMap<>());
+        try {
+            processor.start();
+            final InputsHandler inputsHandler = new InputsHandler(jsonb, services);
+            final InputFactory inputFactory = inputsHandler.asInputFactory();
+            final OutputsHandler outputsHandler = new OutputsHandler(jsonb, services);
+            outputsHandler.addConnection("FLOW", Object.class);
+            final OutputFactory outputFactory = outputsHandler.asOutputFactoryForGuessSchema();
+            processor.onElement(inputFactory, outputFactory);
+            final Object row = outputsHandler.getValue("FLOW");
+            if (row != null && Object.class == row.getClass()) {
+                // means we will not find it through data try by reflection
+                fromOutputEmitterPojo(processorComponent, "FLOW");
+                return;
+            }
+            if (row != null && guessSchemaThroughResult(row)) {
+                return;
+            }
+        } finally {
+            if (processor != null) {
+                try {
+                    processor.stop();
+                } catch (RuntimeException re) {
+                    // nop
+                }
+            }
+        }
     }
 
     private boolean guessInputComponentSchemaThroughResult() throws Exception {
