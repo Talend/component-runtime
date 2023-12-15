@@ -17,12 +17,8 @@ package org.talend.sdk.component.runtime.di.schema;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXCEPTION;
-import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_MOCK_JOB;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -41,9 +37,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
 import org.apache.beam.sdk.options.Description;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,7 +48,6 @@ import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -103,7 +95,7 @@ class TaCoKitGuessSchemaTest {
                     out,
                     Collections.singletonMap("para1", "bla"),
                     "test-classes",
-                    "TaCoKitGuessSchemaTest",
+                    "TaCoKitGuessSchema",
                     "inputDi",
                     null,
                     version) {
@@ -118,13 +110,13 @@ class TaCoKitGuessSchemaTest {
             guessSchema.guessInputComponentSchema(null);
             guessSchema.close();
 
-            assertTrue(byteArrayOutputStream.size() > 0);
+            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
 
             final String content = byteArrayOutputStream.toString();
-            assertTrue(content.contains("\"length\":10"));
-            assertTrue(content.contains("\"precision\":2"));
-            assertTrue(!content.contains("\"length\":0"));
-            assertTrue(!content.contains("\"precision\":0"));
+            Assertions.assertTrue(content.contains("\"length\":10"));
+            Assertions.assertTrue(content.contains("\"precision\":2"));
+            Assertions.assertTrue(!content.contains("\"length\":0"));
+            Assertions.assertTrue(!content.contains("\"precision\":0"));
         }
     }
 
@@ -143,7 +135,7 @@ class TaCoKitGuessSchemaTest {
                     out,
                     Collections.singletonMap("para1", "bla"),
                     "test-classes",
-                    "TaCoKitGuessSchemaTest",
+                    "TaCoKitGuessSchema",
                     "inputDi",
                     null,
                     version) {
@@ -155,11 +147,10 @@ class TaCoKitGuessSchemaTest {
                 }
 
             };
-            final DiscoverSchemaException exception =
-                    Assertions.assertThrows(DiscoverSchemaException.class,
+            final IllegalStateException exception =
+                    Assertions.assertThrows(IllegalStateException.class,
                             () -> guessSchema.guessInputComponentSchema(null));
             assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
-            assertEquals(EXCEPTION, exception.getPossibleHandleErrorWith());
         }
     }
 
@@ -205,10 +196,10 @@ class TaCoKitGuessSchemaTest {
             Map<String, String> config = new HashMap<>();
             config.put("configuration.param1", "parameter one");
             config.put("configuration.param2", "parameter two");
-            final TaCoKitGuessSchema guessSchema =
-                    new TaCoKitGuessSchema(out, config, "test-classes", "TaCoKitGuessSchemaTest", "outputDi", null,
-                            "1");
-            guessSchema.guessComponentSchema(schema, "out", false);
+            final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
+                    out, config, "test-classes", "TaCoKitGuessSchema",
+                    "outputDi", null, "1");
+            guessSchema.guessComponentSchema(schema, "out");
             guessSchema.close();
             final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
             final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
@@ -218,7 +209,7 @@ class TaCoKitGuessSchemaTest {
             final String expected =
                     "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
             assertEquals(expected, lines);
-            assertTrue(byteArrayOutputStream.size() > 0);
+            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
         }
     }
 
@@ -230,25 +221,6 @@ class TaCoKitGuessSchemaTest {
     @Test
     void guessProcessorSchemaAvroRecordBuilderFactory() throws Exception {
         guessProcessorSchemaWithRecordBuilderFactory(factory);
-    }
-
-    @Test
-    void guessProcessorSchemaInStartOfJob() throws Exception {
-        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                PrintStream out = new PrintStream(byteArrayOutputStream)) {
-            final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).build();
-            Map<String, String> config = new HashMap<>();
-            config.put("configuration.shouldActionFail", "true");
-            final TaCoKitGuessSchema guessSchema =
-                    new TaCoKitGuessSchema(out, config, "test-classes", "TaCoKitGuessSchemaTest",
-                            "outputDi", null, "1");
-            guessSchema.guessComponentSchema(schema, "out", true);
-            guessSchema.close();
-            final String expected =
-                    "[{\"label\":\"entry\",\"nullable\":true,\"originalDbColumnName\":\"entry\",\"talendType\":\"id_String\"}]";
-            assertTrue(byteArrayOutputStream.size() > 0);
-            assertTrue(byteArrayOutputStream.toString().contains(expected));
-        }
     }
 
     private void guessProcessorSchemaWithRecordBuilderFactory(RecordBuilderFactory facto) throws Exception {
@@ -369,9 +341,9 @@ class TaCoKitGuessSchemaTest {
             config.put("configuration.param1", "parameter one");
             config.put("configuration.param2", "parameter two");
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
-                    out, config, "test-classes", "TaCoKitGuessSchemaTest",
+                    out, config, "test-classes", "TaCoKitGuessSchema",
                     "outputDi", null, "1");
-            guessSchema.guessComponentSchema(schema, "out", false);
+            guessSchema.guessComponentSchema(schema, "out");
             guessSchema.close();
             final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
             final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
@@ -381,39 +353,7 @@ class TaCoKitGuessSchemaTest {
             final String expected =
                     "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"hjk;ljkkj\",\"key\":true,\"label\":\"id\",\"length\":10,\"nullable\":false,\"originalDbColumnName\":\"id\",\"precision\":0,\"talendType\":\"id_Integer\"},{\"comment\":\"hljkjhlk\",\"default\":\"toto\",\"defaut\":\"toto\",\"label\":\"name\",\"length\":20,\"nullable\":true,\"originalDbColumnName\":\"name\",\"precision\":0,\"talendType\":\"id_String\"},{\"label\":\"flag\",\"length\":4,\"nullable\":true,\"originalDbColumnName\":\"flag\",\"precision\":0,\"talendType\":\"id_Character\"},{\"label\":\"female\",\"length\":1,\"nullable\":true,\"originalDbColumnName\":\"female\",\"precision\":0,\"talendType\":\"id_Boolean\"},{\"comment\":\"hhhh\",\"label\":\"num1\",\"length\":3,\"nullable\":true,\"originalDbColumnName\":\"num1\",\"precision\":0,\"talendType\":\"id_byte[]\"},{\"label\":\"num2\",\"length\":5,\"nullable\":true,\"originalDbColumnName\":\"num2\",\"precision\":0,\"talendType\":\"id_Short\"},{\"label\":\"age\",\"length\":19,\"nullable\":true,\"originalDbColumnName\":\"age\",\"precision\":0,\"talendType\":\"id_Long\"},{\"label\":\"bonus\",\"length\":12,\"nullable\":true,\"originalDbColumnName\":\"bonus\",\"precision\":2,\"talendType\":\"id_Float\"},{\"label\":\"salary\",\"length\":22,\"nullable\":true,\"originalDbColumnName\":\"salary\",\"precision\":2,\"talendType\":\"id_Double\"},{\"label\":\"play\",\"length\":10,\"nullable\":true,\"originalDbColumnName\":\"play\",\"precision\":2,\"talendType\":\"id_String\"},{\"label\":\"startdate\",\"nullable\":true,\"originalDbColumnName\":\"startdate\",\"pattern\":\"\\\"yyyy-MM-dd\\\"\",\"talendType\":\"id_Date\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
             assertEquals(expected, lines);
-            assertTrue(byteArrayOutputStream.size() > 0);
-        }
-    }
-
-    @Test
-    void serializeDiscoverSchemaException() throws Exception {
-        final String serialized =
-                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"RETRY\"}";
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
-            DiscoverSchemaException e =
-                    new DiscoverSchemaException("Unknown error. Retry!", DiscoverSchemaException.HandleErrorWith.RETRY);
-            String json = jsonb.toJson(e);
-            assertTrue(json.contains("\"message\":\"Unknown error. Retry!\""));
-            assertTrue(json.contains("\"possibleHandleErrorWith\":\"RETRY\""));
-        }
-    }
-
-    @Test
-    void deserializeDiscoverSchemaException() throws Exception {
-        final String flattened =
-                "{\"message\":\"Not allowed to execute the HTTP call to retrieve the schema.\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"EXCEPTION\"}";
-        final String serialized =
-                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"RETRY\"}";
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
-            DiscoverSchemaException e = jsonb.fromJson(flattened, DiscoverSchemaException.class);
-            assertFalse("EXECUTE_MOCK_JOB".equals(e.getPossibleHandleErrorWith().name()));
-            assertEquals("EXCEPTION", e.getPossibleHandleErrorWith().name());
-            assertEquals("Not allowed to execute the HTTP call to retrieve the schema.", e.getMessage());
-            //
-            e = jsonb.fromJson(serialized, DiscoverSchemaException.class);
-            assertFalse("EXCEPTION".equals(e.getPossibleHandleErrorWith()));
-            assertEquals("RETRY", e.getPossibleHandleErrorWith().name());
-            assertEquals("Unknown error. Retry!", e.getMessage());
+            Assertions.assertTrue(byteArrayOutputStream.size() > 0);
         }
     }
 
@@ -428,7 +368,7 @@ class TaCoKitGuessSchemaTest {
     }
 
     @Version(value = 2, migrationHandler = TestMigration.class)
-    @Emitter(name = "inputDi", family = "TaCoKitGuessSchemaTest")
+    @Emitter(name = "inputDi", family = "TaCoKitGuessSchema")
     public static class InputComponentDi implements Serializable {
 
         private RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test-classes");
@@ -484,17 +424,15 @@ class TaCoKitGuessSchemaTest {
     }
 
     @Data
-    @Processor(name = "outputDi", family = "TaCoKitGuessSchemaTest")
+    @Processor(family = "TaCoKitGuessSchema", name = "outputDi")
     public static class StudioProcessor implements Serializable {
 
         @Option
         private ProcessorConfiguration configuration;
 
-        private RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test-classes");
-
         @ElementListener
-        public Record next(Record in) {
-            return factory.newRecordBuilder().withString("entry", "test").build();
+        public Object next(Record in, Record out) {
+            return null;
         }
     }
 
@@ -509,9 +447,6 @@ class TaCoKitGuessSchemaTest {
 
         @Option
         private String param3;
-
-        @Option
-        Boolean shouldActionFail = false;
     }
 
     @Service
@@ -520,9 +455,6 @@ class TaCoKitGuessSchemaTest {
         @DiscoverSchemaExtended("outputDi")
         public Schema discoverProcessorSchema(final Schema incomingSchema,
                 @Option("configuration") final ProcessorConfiguration conf, final String branch) {
-            if (conf.shouldActionFail) {
-                throw new DiscoverSchemaException("Cannot execute action.", EXECUTE_MOCK_JOB);
-            }
             assertEquals("out", branch);
             assertEquals("parameter one", conf.param1);
             assertEquals("parameter two", conf.param2);
