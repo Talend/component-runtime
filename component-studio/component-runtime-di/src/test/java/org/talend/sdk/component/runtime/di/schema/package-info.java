@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(family = "TaCoKitGuessSchemaTest")
+@Components(family = "TaCoKitGuessSchema")
 package org.talend.sdk.component.runtime.di.schema;
 
 import org.talend.sdk.component.api.component.Components;
