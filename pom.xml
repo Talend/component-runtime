@@ -863,45 +863,60 @@
 
   <repositories>
     <repository>
+      <id>oss.snapshots</id>
+      <snapshots><enabled>true</enabled></snapshots>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+    <repository>
+      <id>oss.releases</id>
+      <releases><enabled>true</enabled></releases>
+      <url>https://oss.sonatype.org/content/repositories/releases</url>
+    </repository>
+    <repository>
+      <id>TalendOpenSourceRelease</id>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
     <repository>
+      <id>gradle-libs-releases-local</id>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>gradle-libs-releases-local</id>
       <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
     <repository>
+      <id>TalendOpenSourceSnapshot</id>
       <releases>
         <enabled>false</enabled>
       </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>TalendOpenSourceSnapshot</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
+      <id>oss.releases</id>
+      <releases><enabled>true</enabled></releases>
+      <url>https://oss.sonatype.org/content/repositories/releases</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>TalendOpenSourceRelease</id>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
   </pluginRepositories>
