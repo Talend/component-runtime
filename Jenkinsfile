@@ -339,7 +339,8 @@ pipeline {
         stage('Maven validate to install') {
             when { expression { params.Action != 'RELEASE' } }
             steps {
-                withCredentials([ossrhCredentials]) {
+                withCredentials([ossrhCredentials,
+                                 nexusCredentials]) {
                     sh """\
                     #!/usr/bin/env bash
                     set -xe
