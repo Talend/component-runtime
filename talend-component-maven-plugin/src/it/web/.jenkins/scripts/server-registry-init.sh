@@ -164,7 +164,7 @@ function download_connector (){
   printf 'From following link: %s\n' "${connector_final_link}"
 
   # Download
-  wget --timestamping --directory-prefix "${_DOWNLOAD_DIR}" "${connector_final_link}"
+  wget --user "${NEXUS_USER}" --password "${NEXUS_PASS}" --timestamping --directory-prefix "${_DOWNLOAD_DIR}" "${connector_final_link}"
 
   # Deploy
   component_path="${_DOWNLOAD_DIR}/${connector_name}-${_CONNECTOR_VERSION}-component.car"
