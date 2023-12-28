@@ -151,29 +151,6 @@
     </dependency>
   </dependencies>
 
-  <repositories>
-    <repository>
-      <id>TalendOpenSourceRelease</id>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-    </repository>
-    <repository>
-      <id>TalendOpenSourceSnapshot</id>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
-    </repository>
-  </repositories>
-
   <build>
     <plugins>
       <plugin>
