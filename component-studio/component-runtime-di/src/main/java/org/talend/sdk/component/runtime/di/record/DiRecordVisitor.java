@@ -369,6 +369,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     @Override
     public void onString(final Entry entry, final Optional<String> string) {
+        // TODO remove this log.info below (keep the trace one) on final commit before pull request review.
+        log.info("[onString] visiting {}{}.", recordPrefix, entry.getName());
         log.trace("[onString] visiting {}.", entry.getName());
         string.ifPresent(value -> setField(entry, value));
     }
@@ -467,6 +469,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     @Override
     public RecordVisitor<Object> onRecord(final Entry entry, final Optional<Record> record) {
+        // TODO check logs and see that recordPrefix should by reset... Quickly done this, it should be in depth tested.
+        recordPrefix = "";
+        // TODO remove this log.info below (keep the trace one) on final commit before pull request review.
+        log.info("[onRecord] visiting {}{}.", recordPrefix, entry.getName());
         log.trace("[onRecord] visiting {}.", entry.getName());
         recordPrefix = entry.getName() + ".";
         record.ifPresent(value -> setField(entry, value));

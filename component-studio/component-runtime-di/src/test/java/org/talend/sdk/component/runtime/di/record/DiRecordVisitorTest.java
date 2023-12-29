@@ -38,6 +38,10 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
+import org.talend.sdk.component.runtime.record.RecordImpl;
+
+import lombok.Getter;
+import lombok.ToString;
 import routines.system.Dynamic;
 
 class DiRecordVisitorTest extends VisitorsTest {
@@ -393,6 +397,31 @@ class DiRecordVisitorTest extends VisitorsTest {
 
     }
 
+    @Test
+    public void testConflictingSubRecord() {
+        final Record record = factory
+                .newRecordBuilder()
+                .withString("id", "id01")
+                .withString("name", "name01")
+                .withRecord("createdBy", factory.newRecordBuilder()
+                        .withString("id", "createdById01")
+                        .withString("user", "createUser01")
+                        .build())
+                .withRecord("updatedBy", factory.newRecordBuilder()
+                        .withString("id", "updatedById01")
+                        .withString("user", "updateUser01")
+                        .build())
+                .build();
+        //
+        final DiRecordVisitor visitor = new DiRecordVisitor(RowStructConflict.class, Collections.emptyMap());
+        final RowStructConflict rowStruct = RowStructConflict.class.cast(visitor.visit(record));
+        assertNotNull(rowStruct);
+        assertEquals("name01", rowStruct.name);
+        assertEquals("{\"id\":\"createdById01\",\"user\":\"createUser01\"}", rowStruct.createdBy.toString());
+        assertTrue(RecordImpl.class.isInstance(rowStruct.createdBy));
+        assertEquals("id01", rowStruct.id);
+    }
+
     public static class RowStruct2 implements routines.system.IPersistableRow {
 
         public String field1;
@@ -423,4 +452,23 @@ class DiRecordVisitorTest extends VisitorsTest {
         }
     }
 
+    @Getter
+    @ToString
+    public static class RowStructConflict implements routines.system.IPersistableRow {
+
+        public String id;
+
+        public String name;
+
+        public Object createdBy;
+
+        @Override
+        public void writeData(ObjectOutputStream objectOutputStream) {
+        }
+
+        @Override
+        public void readData(ObjectInputStream objectInputStream) {
+        }
+
+    }
 }
