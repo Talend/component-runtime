@@ -141,7 +141,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private boolean allowSpecialName;
 
     public Object visit(final Record record) {
-        log.info("Record visit :" + record.toString());
         arrayOfRecordPrefix = "";
         recordPrefix = "";
         try {
@@ -198,7 +197,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             prefillDynamic(record.getSchema());
             initDynamicMetadata = false;
         }
-        log.info("visitor instance :" + record.toString());
         return RECORD_SERVICE.visit(this, record);
     }
 
