@@ -379,7 +379,7 @@ class TaCoKitGuessSchemaTest {
                     .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
                     .collect(joining("\n"));
             final String expected =
-                    "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"hjk;ljkkj\",\"key\":true,\"label\":\"id\",\"length\":10,\"nullable\":false,\"originalDbColumnName\":\"id\",\"precision\":0,\"talendType\":\"id_Integer\"},{\"comment\":\"hljkjhlk\",\"default\":\"toto\",\"defaut\":\"toto\",\"label\":\"name\",\"length\":20,\"nullable\":true,\"originalDbColumnName\":\"name\",\"precision\":0,\"talendType\":\"id_String\"},{\"label\":\"flag\",\"length\":4,\"nullable\":true,\"originalDbColumnName\":\"flag\",\"precision\":0,\"talendType\":\"id_Character\"},{\"label\":\"female\",\"length\":1,\"nullable\":true,\"originalDbColumnName\":\"female\",\"precision\":0,\"talendType\":\"id_Boolean\"},{\"comment\":\"hhhh\",\"label\":\"num1\",\"length\":3,\"nullable\":true,\"originalDbColumnName\":\"num1\",\"precision\":0,\"talendType\":\"id_byte[]\"},{\"label\":\"num2\",\"length\":5,\"nullable\":true,\"originalDbColumnName\":\"num2\",\"precision\":0,\"talendType\":\"id_Short\"},{\"label\":\"age\",\"length\":19,\"nullable\":true,\"originalDbColumnName\":\"age\",\"precision\":0,\"talendType\":\"id_Long\"},{\"label\":\"bonus\",\"length\":12,\"nullable\":true,\"originalDbColumnName\":\"bonus\",\"precision\":2,\"talendType\":\"id_Float\"},{\"label\":\"salary\",\"length\":22,\"nullable\":true,\"originalDbColumnName\":\"salary\",\"precision\":2,\"talendType\":\"id_Double\"},{\"label\":\"play\",\"length\":10,\"nullable\":true,\"originalDbColumnName\":\"play\",\"precision\":2,\"talendType\":\"id_String\"},{\"label\":\"startdate\",\"nullable\":true,\"originalDbColumnName\":\"startdate\",\"pattern\":\"\\\"yyyy-MM-dd\\\"\",\"talendType\":\"id_Date\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
+                    "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"hjk;ljkkj\",\"key\":true,\"label\":\"id\",\"length\":10,\"nullable\":false,\"originalDbColumnName\":\"id\",\"precision\":0,\"talendType\":\"id_Integer\"},{\"comment\":\"hljkjhlk\",\"default\":\"toto\",\"defaut\":\"toto\",\"label\":\"name\",\"length\":20,\"nullable\":true,\"originalDbColumnName\":\"name\",\"precision\":0,\"talendType\":\"id_String\"},{\"label\":\"flag\",\"length\":4,\"nullable\":true,\"originalDbColumnName\":\"flag\",\"precision\":0,\"talendType\":\"id_Character\"},{\"label\":\"female\",\"length\":1,\"nullable\":true,\"originalDbColumnName\":\"female\",\"precision\":0,\"talendType\":\"id_Boolean\"},{\"comment\":\"hhhh\",\"label\":\"num1\",\"length\":3,\"nullable\":true,\"originalDbColumnName\":\"num1\",\"precision\":0,\"talendType\":\"id_Byte\"},{\"label\":\"num2\",\"length\":5,\"nullable\":true,\"originalDbColumnName\":\"num2\",\"precision\":0,\"talendType\":\"id_Short\"},{\"label\":\"age\",\"length\":19,\"nullable\":true,\"originalDbColumnName\":\"age\",\"precision\":0,\"talendType\":\"id_Long\"},{\"label\":\"bonus\",\"length\":12,\"nullable\":true,\"originalDbColumnName\":\"bonus\",\"precision\":2,\"talendType\":\"id_Float\"},{\"label\":\"salary\",\"length\":22,\"nullable\":true,\"originalDbColumnName\":\"salary\",\"precision\":2,\"talendType\":\"id_Double\"},{\"label\":\"play\",\"length\":10,\"nullable\":true,\"originalDbColumnName\":\"play\",\"precision\":2,\"talendType\":\"id_String\"},{\"label\":\"startdate\",\"nullable\":true,\"originalDbColumnName\":\"startdate\",\"pattern\":\"\\\"yyyy-MM-dd\\\"\",\"talendType\":\"id_Date\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
             assertEquals(expected, lines);
             assertTrue(byteArrayOutputStream.size() > 0);
         }
@@ -414,6 +414,50 @@ class TaCoKitGuessSchemaTest {
             assertFalse("EXCEPTION".equals(e.getPossibleHandleErrorWith()));
             assertEquals("RETRY", e.getPossibleHandleErrorWith().name());
             assertEquals("Unknown error. Retry!", e.getMessage());
+        }
+    }
+
+    @Test
+    void testFromSchema() throws Exception {
+        final RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test-classes");
+        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                PrintStream out = new PrintStream(byteArrayOutputStream)) {
+            Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("name")
+                            .withType(Schema.Type.STRING)
+                            .withProp(STUDIO_TYPE, StudioTypes.STRING)
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("bit")
+                            .withType(Schema.Type.BYTES)
+                            .withProp(STUDIO_TYPE, StudioTypes.BYTE)
+                            .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("dynamic")
+                            .withType(Schema.Type.RECORD)
+                            .withProp(STUDIO_TYPE, StudioTypes.DYNAMIC)
+                            .withProp(PATTERN, "dd/MM/YYYY")
+                            .withElementSchema(factory.newSchemaBuilder(Schema.Type.RECORD).build())
+                            .build())
+                    .build();
+
+            Map<String, String> config = new HashMap<>();
+            config.put("configuration.skipAssertions", "true");
+            final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
+                    out, config, "test-classes", "TaCoKitGuessSchemaTest",
+                    "outputDi", null, "1");
+            guessSchema.guessComponentSchema(schema, "out", false);
+            guessSchema.close();
+            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
+            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
+                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
+                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
+                    .collect(joining("\n"));
+            final String expected =
+                    "[{\"label\":\"name\",\"nullable\":false,\"originalDbColumnName\":\"name\",\"talendType\":\"id_String\"},{\"label\":\"bit\",\"nullable\":false,\"originalDbColumnName\":\"bit\",\"talendType\":\"id_Byte\"},{\"label\":\"dynamic\",\"nullable\":true,\"originalDbColumnName\":\"dynamic\",\"pattern\":\"\\\"dd/MM/YYYY\\\"\",\"talendType\":\"id_Dynamic\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
+            assertEquals(expected, lines);
+            assertTrue(byteArrayOutputStream.size() > 0);
         }
     }
 
@@ -512,6 +556,9 @@ class TaCoKitGuessSchemaTest {
 
         @Option
         Boolean shouldActionFail = false;
+
+        @Option
+        Boolean skipAssertions = false;
     }
 
     @Service
@@ -523,21 +570,22 @@ class TaCoKitGuessSchemaTest {
             if (conf.shouldActionFail) {
                 throw new DiscoverSchemaException("Cannot execute action.", EXECUTE_MOCK_JOB);
             }
-            assertEquals("out", branch);
-            assertEquals("parameter one", conf.param1);
-            assertEquals("parameter two", conf.param2);
-            assertNull(conf.param3);
-            assertNotNull(incomingSchema);
-            assertEquals(Schema.Type.RECORD, incomingSchema.getType());
-            assertEquals("a property!", incomingSchema.getProp("aprop"));
-            assertNotNull(incomingSchema.getEntry("f1"));
-            assertEquals(Schema.Type.STRING, incomingSchema.getEntry("f1").getType());
-            assertNotNull(incomingSchema.getEntry("f2"));
-            assertEquals(Schema.Type.LONG, incomingSchema.getEntry("f2").getType());
-            assertEquals(11L, (Long) incomingSchema.getEntry("f2").getDefaultValue());
-            assertNotNull(incomingSchema.getEntry("f3"));
-            assertEquals(Schema.Type.BOOLEAN, incomingSchema.getEntry("f3").getType());
-
+            if (!conf.skipAssertions) {
+                assertEquals("out", branch);
+                assertEquals("parameter one", conf.param1);
+                assertEquals("parameter two", conf.param2);
+                assertNull(conf.param3);
+                assertNotNull(incomingSchema);
+                assertEquals(Schema.Type.RECORD, incomingSchema.getType());
+                assertEquals("a property!", incomingSchema.getProp("aprop"));
+                assertNotNull(incomingSchema.getEntry("f1"));
+                assertEquals(Schema.Type.STRING, incomingSchema.getEntry("f1").getType());
+                assertNotNull(incomingSchema.getEntry("f2"));
+                assertEquals(Schema.Type.LONG, incomingSchema.getEntry("f2").getType());
+                assertEquals(11L, (Long) incomingSchema.getEntry("f2").getDefaultValue());
+                assertNotNull(incomingSchema.getEntry("f3"));
+                assertEquals(Schema.Type.BOOLEAN, incomingSchema.getEntry("f3").getType());
+            }
             return factory.newSchemaBuilder(incomingSchema)
                     .withEntry(factory.newEntryBuilder()
                             .withName(branch)

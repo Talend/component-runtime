@@ -208,6 +208,10 @@ public class TaCoKitGuessSchema {
         }
     }
 
+    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch) throws Exception {
+        guessComponentSchema(incomingSchema, outgoingBranch, false);
+    }
+
     private void executeDiscoverSchemaExtendedAction(final Schema schema, final String branch) throws Exception {
         try {
             final Collection<ServiceMeta> services = getPluginServices();
@@ -494,14 +498,24 @@ public class TaCoKitGuessSchema {
                 typeName = javaTypesManager.FLOAT.getId();
                 break;
             case BYTES:
-                typeName = javaTypesManager.BYTE_ARRAY.getId();
+                if (talendType.equals(StudioTypes.BYTE)) {
+                    typeName = javaTypesManager.BYTE.getId();
+                } else {
+                    typeName = javaTypesManager.BYTE_ARRAY.getId();
+                }
                 break;
             case DATETIME:
                 typeName = javaTypesManager.DATE.getId();
                 isDateTime = true;
                 break;
             case RECORD:
-                typeName = javaTypesManager.OBJECT.getId();
+                if (talendType.equals(StudioTypes.DYNAMIC)) {
+                    typeName = StudioTypes.DYNAMIC;
+                } else if (talendType.equals(StudioTypes.DOCUMENT)) {
+                    typeName = StudioTypes.DOCUMENT;
+                } else {
+                    typeName = javaTypesManager.OBJECT.getId();
+                }
                 break;
             case ARRAY:
                 typeName = javaTypesManager.LIST.getId();
@@ -540,7 +554,7 @@ public class TaCoKitGuessSchema {
                     // let default values if props are trash...
                 }
             }
-            if (isDateTime) {
+            if (isDateTime || talendType.equals(StudioTypes.DYNAMIC)) {
                 if (pattern != null) {
                     column.setPattern(STRING_ESCAPE + pattern + STRING_ESCAPE);
                 } else {
