@@ -197,7 +197,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             prefillDynamic(record.getSchema());
             initDynamicMetadata = false;
         }
-
         return RECORD_SERVICE.visit(this, record);
     }
 
@@ -470,7 +469,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         log.trace("[onRecord] visiting {}.", entry.getName());
         recordPrefix = entry.getName() + ".";
         record.ifPresent(value -> setField(entry, value));
-        return this;
+        return null;
     }
 
 }
