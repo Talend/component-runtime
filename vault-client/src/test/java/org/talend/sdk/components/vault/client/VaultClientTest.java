@@ -369,8 +369,6 @@ class VaultClientTest {
      * add to deps : openwebbeans-se
      */
     void testWithStandaloneContainer() {
-        System.setProperty("geronimo.opentracing.filter.active", "false");
-        System.setProperty("geronimo.opentracing.span.converter.zipkin.logger.active", "false");
         System.setProperty("talend.vault.cache.vault.auth.roleId", "_role-id_");
         System.setProperty("talend.vault.cache.vault.auth.secretId", "_secret-id_");
         System.setProperty("talend.vault.cache.vault.url", "http://localhost:8200");

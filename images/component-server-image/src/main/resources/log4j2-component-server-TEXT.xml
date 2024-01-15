@@ -24,9 +24,6 @@
     </Console>
   </Appenders>
   <Loggers>
-    <Logger name="org.apache.geronimo.opentracing.zipkin" level="${env:CONSOLE_TRACING_LOG_LEVEL:-OFF}" additivity="false">
-      <AppenderRef ref="Console" level="${env:CONSOLE_TRACING_LOG_LEVEL:-INFO}"/>
-    </Logger>
     <Root level="${env:CONSOLE_LOG_LEVEL:-INFO}">
       <AppenderRef ref="Console" level="${env:CONSOLE_LOG_LEVEL:-INFO}" />
     </Root>

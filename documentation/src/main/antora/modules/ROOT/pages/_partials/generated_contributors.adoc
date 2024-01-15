@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":748,
+    "commits":756,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -43,14 +43,14 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":47,
+    "commits":48,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
     "name":"yyin"
   },
   {
-    "commits":41,
+    "commits":43,
     "description":"QA Automation @ Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
@@ -64,7 +64,7 @@
     "name":"ypiel"
   },
   {
-    "commits":24,
+    "commits":26,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",

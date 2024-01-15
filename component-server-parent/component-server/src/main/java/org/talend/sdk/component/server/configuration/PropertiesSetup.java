@@ -41,10 +41,6 @@ public class PropertiesSetup implements Meecrowave.ConfigurationCustomizer {
         checkOrSetProperty("talend.component.manager.services.cache.eviction.defaultEvictionTimeout", "30000");
         checkOrSetProperty("talend.component.manager.services.cache.eviction.defaultMaxSize", "5000");
         checkOrSetProperty("talend.component.manager.services.cache.eviction.maxDeletionPerEvictionRun", "-1");
-        // By default we want to skip vault calls zipkin logs, we can still override it...
-        System.setProperty("geronimo.opentracing.client.filter.request.skip", "true");
-        System.setProperty("geronimo.opentracing.filter.skippedTracing.urls", ".*/login$,.*/decrypt/.*");
-        System.setProperty("geronimo.opentracing.filter.skippedTracing.matcherType", "regex");
         // listening port order: `meecrowave cli --http=x` > `-Dhttp=x` > `-e TALEND_COMPONENT_SERVER_PORT=x`
         final String port = System.getProperty("http") != null ? System.getProperty("http")
                 : System.getenv("TALEND_COMPONENT_SERVER_PORT");

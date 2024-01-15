@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+#
 #  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +13,17 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-name: main
-title: Talend Component Kit Developer Reference Guide
-version: '1.64.0'
-nav:
-- modules/ROOT/nav.adoc
+#
+
+set -xe
+
+main() (
+
+  mvn ossindex:audit-aggregate -pl '!bom' \
+    --define ossindex.fail=false \
+    --define ossindex.reportFile=target/audit.txt \
+    --settings .jenkins/settings.xml
+
+)
+
+main "$@"

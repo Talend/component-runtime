@@ -14,6 +14,18 @@
   limitations under the License.
 -->
 <settings>
+  <servers>
+    <server>
+      <id>TalendOpenSourceRelease</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+    <server>
+      <id>TalendOpenSourceSnapshot</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASS}</password>
+    </server>
+  </servers>
   <profiles>
     <profile>
       <id>it-repo</id>

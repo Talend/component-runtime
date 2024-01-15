@@ -16,8 +16,6 @@
 package org.talend.sdk.components.vault.client.vault;
 
 import org.apache.catalina.startup.Tomcat;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.meecrowave.Meecrowave;
 
 import lombok.Setter;
@@ -30,8 +28,6 @@ public class SetMockUrl implements Meecrowave.MeecrowaveAwareInstanceCustomizer 
     @Override
     public void accept(final Tomcat tomcat) {
         final String hurle = "http://localhost:" + meecrowave.getConfiguration().getHttpPort();
-        System.setProperty("geronimo.opentracing.filter.active", "false");
-        System.setProperty("geronimo.opentracing.span.converter.zipkin.logger.active", "false");
         System.setProperty("talend.vault.cache.vault.url", hurle);
         System.setProperty("talend.vault.cache.vault.auth.endpoint", "/api/v1/mock/vault/login");
         System

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 
 public class InvocationExceptionWrapper {
 
@@ -43,6 +44,9 @@ public class InvocationExceptionWrapper {
         }
         if (ComponentException.class.isInstance(targetException)) {
             return ComponentException.class.cast(targetException);
+        }
+        if (DiscoverSchemaException.class.isInstance(targetException)) {
+            return DiscoverSchemaException.class.cast(targetException);
         }
         if (RuntimeException.class.isInstance(targetException)
                 && targetException.getClass().getName().startsWith("java.")) {

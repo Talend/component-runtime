@@ -22,6 +22,7 @@ import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.record.SchemaProperty.ALLOW_SPECIAL_NAME;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
@@ -196,7 +197,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             prefillDynamic(record.getSchema());
             initDynamicMetadata = false;
         }
-
         return RECORD_SERVICE.visit(this, record);
     }
 
@@ -267,6 +267,11 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 .getOrDefault(STUDIO_TYPE, StudioTypes.typeFromRecord(entry.getType()));
         metadata.getDynamicMetadata().setKey(isKey);
         metadata.getDynamicMetadata().setType(studioType);
+
+        final String originType = entry.getProp(ORIGIN_TYPE);
+        if (originType != null && !originType.isEmpty()) {
+            metadata.getDynamicMetadata().setDbType(originType);
+        }
 
         if (length != null) {
             metadata.getDynamicMetadata().setLength(length);
@@ -464,7 +469,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         log.trace("[onRecord] visiting {}.", entry.getName());
         recordPrefix = entry.getName() + ".";
         record.ifPresent(value -> setField(entry, value));
-        return this;
+        return null;
     }
 
 }
