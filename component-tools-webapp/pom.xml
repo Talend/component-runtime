@@ -28,10 +28,6 @@
   <description>Light web application allowing to provide a light HTTP server to test components locally.</description>
 
   <properties>
-    <!--TODO: bump node/npm when issue TCOMP-2059 Update talend/ui to 6.x will be done-->
-    <node.version>v12.13.0</node.version>
-    <npm.version>6.12.0</npm.version>
-    <npm.environment>production</npm.environment>
     <talend.build.name>${talend.build.name.base}.tools.webapp</talend.build.name>
   </properties>
 

@@ -28,9 +28,6 @@
   <description>Web application allowing to generate maven or gradle project skeleton to speed up component development.</description>
 
   <properties>
-    <!--TODO: bump node/npm when issue TCOMP-2059 Update talend/ui to 6.x will be done-->
-    <node.version>v12.13.0</node.version>
-    <npm.version>6.12.0</npm.version>
     <talend.build.name>${talend.build.name.base}.starter</talend.build.name>
     <rat.numUnapprovedLicenses>10</rat.numUnapprovedLicenses>
   </properties>

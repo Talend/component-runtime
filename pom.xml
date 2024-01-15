@@ -253,6 +253,7 @@
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v16.14.0</node.version>
     <npm.version>8.5.1</npm.version>
+    <npm.environment>production</npm.environment>
     <frontend.version>1.12.1</frontend.version>
 
     <!-- misc dependencies -->
@@ -863,60 +864,66 @@
 
   <repositories>
     <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
       <id>oss.snapshots</id>
-      <snapshots><enabled>true</enabled></snapshots>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
     <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
       <id>oss.releases</id>
-      <releases><enabled>true</enabled></releases>
       <url>https://oss.sonatype.org/content/repositories/releases</url>
     </repository>
     <repository>
-      <id>TalendOpenSourceRelease</id>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
+      <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
     <repository>
-      <id>gradle-libs-releases-local</id>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
+      <id>gradle-libs-releases-local</id>
       <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
     <repository>
-      <id>TalendOpenSourceSnapshot</id>
       <releases>
         <enabled>false</enabled>
       </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+      <id>TalendOpenSourceSnapshot</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
       <id>oss.releases</id>
-      <releases><enabled>true</enabled></releases>
       <url>https://oss.sonatype.org/content/repositories/releases</url>
     </pluginRepository>
     <pluginRepository>
-      <id>TalendOpenSourceRelease</id>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
+      <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
   </pluginRepositories>
