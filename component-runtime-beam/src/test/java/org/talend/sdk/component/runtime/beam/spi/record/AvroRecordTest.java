@@ -47,9 +47,11 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
+import org.apache.avro.generic.GenericFixed;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.io.JsonEncoder;
@@ -506,6 +508,36 @@ class AvroRecordTest {
         Assertions.assertEquals("XX", next.get(0));
         Assertions.assertEquals(null, next.get(1));
         Assertions.assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    void testUnmappedTypes() throws Exception{
+        final org.apache.avro.Schema datetime = org.apache.avro.SchemaBuilder.record("complex").fields()
+                // fixed according avro spec
+                .name("fixed01")
+                .type().fixed("f5").size(5)
+                .noDefault()
+                // fixed not according avro spec
+                .name("fixed02")
+               // .prop("logicalType", "decimal")
+                .type(LogicalTypes.decimal(2,2).addToSchema(org.apache.avro.Schema.createFixed("dec","","",5)))
+                .noDefault()
+                //
+
+                //
+                .endRecord();
+        final GenericData.Record avro = new GenericData.Record(datetime);
+        GenericFixed testValue32 = new GenericData.Fixed(datetime.getField("fixed01").schema(), "11.22".getBytes());
+        avro.put(0, testValue32 );
+        avro.put(1, testValue32 );
+        System.out.println(avro.getSchema());
+        final Record record = new AvroRecord(avro);
+        System.out.println(record.getSchema());
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        SchemaRegistryCoder.of().encode(record, buffer);
+        final Record decoded = SchemaRegistryCoder.of().decode(new ByteArrayInputStream(buffer.toByteArray()));
+        System.out.println(decoded.getSchema());
+        System.out.println(decoded);
     }
 
     interface FactoryTester<T extends Exception> {
