@@ -1,5 +1,25 @@
 
 
+== Version 1.64.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2384[TCOMP-2384^]: Wrong studio mapping on sub records link:search.html?query=studio-integration[studio-integration^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2342[TCOMP-2342^]: httpclient - Guesschema displays dialogbox to execute the connector if it can't be inferred. link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2283[TCOMP-2283^]: Handle Dynamic, Document and Byte column types in guess schema link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2522[TCOMP-2522^]: Upgrade johnzon to 1.2.21 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2590[TCOMP-2590^]: Upgrade tomcat to 9.0.84 link:search.html?query=component-server[component-server^,role='dockey']
+
 == Version 1.63.0
 
 === Bug
@@ -945,6 +965,14 @@
 
 
 
+
+
+== Version 1.38.13
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2590[TCOMP-2590^]: Upgrade tomcat to 9.0.84 link:search.html?query=component-server[component-server^,role='dockey']
+
 == Version 1.38.12
 
 === Work Item
@@ -1751,12 +1779,6 @@
 
 
 
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
-
 == Version 1.1.15
 
 === Bug
@@ -1789,6 +1811,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
+
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
