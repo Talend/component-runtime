@@ -163,20 +163,36 @@ class ComponentResourceImplTest {
     }
 
     @Test
-    void migrate() {
+    void  migrate() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
                 .resolveTemplate("id", client.getJdbcId())
                 .resolveTemplate("version", 1)
                 .request(APPLICATION_JSON_TYPE)
                 .post(entity(new HashMap<String, String>() {
-
                     {
                     }
                 }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
                 });
         assertEquals(1, migrated.size());
         assertEquals("true", migrated.get("migrated"));
+    }
+
+    @Test
+    void no_migrate() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 3)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(new HashMap<String, String>() {
+                    {
+                        put("going", "nowhere");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(1, migrated.size());
+        assertEquals(null, migrated.get("migrated"));
     }
 
     @Test
