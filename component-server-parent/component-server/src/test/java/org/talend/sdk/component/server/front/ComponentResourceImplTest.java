@@ -163,7 +163,7 @@ class ComponentResourceImplTest {
     }
 
     @Test
-    void  migrate() {
+    void migrate() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
                 .resolveTemplate("id", client.getJdbcId())
