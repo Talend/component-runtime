@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":756,
+    "commits":762,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -43,7 +43,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":48,
+    "commits":50,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -85,6 +85,13 @@
     "name":"Oleksandr Zhelezniak"
   },
   {
+    "commits":10,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
+    "id":"fdesiles",
+    "name":"Fabien Désiles"
+  },
+  {
     "commits":9,
     "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
@@ -104,13 +111,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
     "id":"lxia-talend",
     "name":"lxia-talend"
-  },
-  {
-    "commits":9,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
-    "id":"fdesiles",
-    "name":"Fabien Désiles"
   },
   {
     "commits":9,
@@ -275,17 +275,17 @@
   },
   {
     "commits":1,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/20939820?v=4",
-    "id":"Voievidko",
-    "name":"Roman"
-  },
-  {
-    "commits":1,
     "description":"Senior Software engineer at @komodohealth.\r\n\r\nPh.D. in large-scale storage systems.\r\n\r\nPrevious competitive programmer.",
     "gravatar":"https://avatars.githubusercontent.com/u/10938011?v=4",
     "id":"jad-darrous",
     "name":"Jad Darrous"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/20939820?v=4",
+    "id":"Voievidko",
+    "name":"Roman"
   }
 ]</jsonArray>
 ++++
