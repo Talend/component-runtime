@@ -262,7 +262,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return expectedType.cast(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(epochMilli), UTC));
         }
 
-        if (org.apache.avro.Schema.Type.FIXED.equals(fieldSchema.getType())) {
+        if (org.apache.avro.Schema.Type.FIXED.equals(fieldSchema.getType()) && value != null) {
             final String logicalType =
                     fieldSchema.getLogicalType() != null ? fieldSchema.getLogicalType().getName() : "";
             final byte[] bytes = GenericData.Fixed.class.cast(value).bytes();
