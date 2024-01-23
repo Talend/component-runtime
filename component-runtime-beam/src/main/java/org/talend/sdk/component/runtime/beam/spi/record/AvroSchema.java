@@ -287,16 +287,13 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         case ENUM:
             return Type.STRING;
         case FIXED:
+            final String logicalType = schema.getLogicalType() != null ? schema.getLogicalType().getName() : "";
             if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
-                    || (Decimal.logicalType().equals(schema.getLogicalType()))) {
+                    || (Decimal.logicalType().getName().equals(logicalType))) {
                 return Type.DECIMAL;
             }
-            if (LogicalTypes.uuid().getName().equals(schema.getLogicalType())) {
+            if (LogicalTypes.uuid().getName().equals(logicalType)) {
                 return Type.STRING;
-            }
-            final String logicT = schema.getLogicalType() != null ? schema.getLogicalType().getName():"";
-            if (logicT.equals("date") || logicT.contains("time")) {
-                return Type.DATETIME;
             }
             return Type.BYTES;
         // very unlikely to happen but threat all available types

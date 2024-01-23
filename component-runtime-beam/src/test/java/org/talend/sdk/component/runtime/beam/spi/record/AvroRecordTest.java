@@ -17,9 +17,11 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.apache.avro.Schema.createFixed;
 import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -38,10 +40,13 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -511,33 +516,66 @@ class AvroRecordTest {
     }
 
     @Test
-    void testUnmappedTypes() throws Exception{
-        final org.apache.avro.Schema datetime = org.apache.avro.SchemaBuilder.record("complex").fields()
+    void testUnmappedTypes() throws Exception {
+        final org.apache.avro.Schema schema = org.apache.avro.SchemaBuilder.record("complex")
+                .fields()
                 // fixed according avro spec
-                .name("fixed01")
-                .type().fixed("f5").size(5)
+                .name("field01")
+                .type()
+                .fixed("fixed")
+                .size(5)
                 .noDefault()
                 // fixed not according avro spec
-                .name("fixed02")
-               // .prop("logicalType", "decimal")
-                .type(LogicalTypes.decimal(2,2).addToSchema(org.apache.avro.Schema.createFixed("dec","","",5)))
+                .name("field02")
+                .type(LogicalTypes.decimal(2, 2).addToSchema(createFixed("dec", "", "", 5)))
+                .noDefault()
+                // fixed not according avro spec
+                .name("field03")
+                .type(LogicalTypes.uuid().addToSchema(createFixed("uuid", "", "", 16)))
                 .noDefault()
                 //
-
+                .name("field04")
+                .type()
+                .enumeration("enum")
+                .symbols("ONE", "TWO", "THREE")
+                .enumDefault("TWO")
+                //
+                .name("field05")
+                .type()
+                .map()
+                .values()
+                .longType()
+                .noDefault()
                 //
                 .endRecord();
-        final GenericData.Record avro = new GenericData.Record(datetime);
-        GenericFixed testValue32 = new GenericData.Fixed(datetime.getField("fixed01").schema(), "11.22".getBytes());
-        avro.put(0, testValue32 );
-        avro.put(1, testValue32 );
-        System.out.println(avro.getSchema());
+        final GenericData.Record avro = new GenericData.Record(schema);
+        final GenericFixed testValue32 = new GenericData.Fixed(schema.getField("field01").schema(), "11.22".getBytes());
+        final Map<String, Long> myMap = new HashMap();
+        myMap.put("key_1", (long) 1);
+        avro.put(0, testValue32);
+        avro.put(1, testValue32);
+        avro.put(2, "012-345-678-901");
+        avro.put(3, "THREE");
+        avro.put(4, myMap);
         final Record record = new AvroRecord(avro);
-        System.out.println(record.getSchema());
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        SchemaRegistryCoder.of().encode(record, buffer);
-        final Record decoded = SchemaRegistryCoder.of().decode(new ByteArrayInputStream(buffer.toByteArray()));
-        System.out.println(decoded.getSchema());
-        System.out.println(decoded);
+        // check avro schema mappings
+        final List<Entry> entries = record.getSchema().getAllEntries().collect(Collectors.toList());
+        assertEquals(Schema.Type.BYTES, entries.get(0).getType());
+        assertEquals(Schema.Type.DECIMAL, entries.get(1).getType());
+        assertEquals(Schema.Type.STRING, entries.get(2).getType());
+        assertEquals(Schema.Type.STRING, entries.get(3).getType());
+        assertEquals(Schema.Type.RECORD, entries.get(4).getType());
+        // check avro record
+        assertTrue(byte[].class.isInstance(record.getBytes("field01")));
+        assertEquals("11.22", new String(record.getBytes("field01")));
+        assertTrue(BigDecimal.class.isInstance(record.getDecimal("field02")));
+        assertEquals(new BigDecimal("11.22"), record.getDecimal("field02"));
+        assertTrue(String.class.isInstance(record.getString("field03")));
+        assertEquals("012-345-678-901", record.getString("field03"));
+        assertTrue(String.class.isInstance(record.getString("field04")));
+        assertEquals("THREE", record.getString("field04"));
+        assertTrue(Map.class.isInstance(record.get(Object.class, "field05")));
+        assertThrows(IllegalArgumentException.class, () -> record.getRecord("field05"));
     }
 
     interface FactoryTester<T extends Exception> {
