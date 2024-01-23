@@ -41,7 +41,9 @@ import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 @EqualsAndHashCode(of = "delegate")
 @ToString(of = "delegate")
@@ -282,6 +284,26 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 return Type.DECIMAL;
             }
             return Type.STRING;
+        case ENUM:
+            return Type.STRING;
+        case FIXED:
+            final String logicalType = schema.getLogicalType() != null ? schema.getLogicalType().getName() : "";
+            if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
+                    || (Decimal.logicalType().getName().equals(logicalType))) {
+                return Type.DECIMAL;
+            }
+            if (LogicalTypes.uuid().getName().equals(logicalType)) {
+                return Type.STRING;
+            }
+            return Type.BYTES;
+        // very unlikely to happen but treat all available types
+        case MAP:
+        case UNION:
+        case NULL:
+            log.warn("[doMapType] unmanaged avro type {}. Storing as Object.", schema.getType());
+            // the storage will be an object so returning record kind...
+            return Type.RECORD;
+        // remaining iso types: RECORD, BYTES, ARRAY, INT, FLOAT, DOUBLE, BOOLEAN,
         default:
             return Type.valueOf(schema.getType().name());
         }
