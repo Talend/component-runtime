@@ -296,7 +296,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 return Type.STRING;
             }
             return Type.BYTES;
-        // very unlikely to happen but threat all available types
+        // very unlikely to happen but treat all available types
         case MAP:
         case UNION:
         case NULL:
