@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.apache.avro.Schema.createFixed;
 import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -38,18 +40,23 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
+import org.apache.avro.generic.GenericFixed;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.io.JsonEncoder;
@@ -506,6 +513,69 @@ class AvroRecordTest {
         Assertions.assertEquals("XX", next.get(0));
         Assertions.assertEquals(null, next.get(1));
         Assertions.assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    void testUnmappedTypes() throws Exception {
+        final org.apache.avro.Schema schema = org.apache.avro.SchemaBuilder.record("complex")
+                .fields()
+                // fixed according avro spec
+                .name("field01")
+                .type()
+                .fixed("fixed")
+                .size(5)
+                .noDefault()
+                // fixed not according avro spec
+                .name("field02")
+                .type(LogicalTypes.decimal(2, 2).addToSchema(createFixed("dec", "", "", 5)))
+                .noDefault()
+                // fixed not according avro spec
+                .name("field03")
+                .type(LogicalTypes.uuid().addToSchema(createFixed("uuid", "", "", 16)))
+                .noDefault()
+                //
+                .name("field04")
+                .type()
+                .enumeration("enum")
+                .symbols("ONE", "TWO", "THREE")
+                .enumDefault("TWO")
+                //
+                .name("field05")
+                .type()
+                .map()
+                .values()
+                .longType()
+                .noDefault()
+                //
+                .endRecord();
+        final GenericData.Record avro = new GenericData.Record(schema);
+        final GenericFixed testValue32 = new GenericData.Fixed(schema.getField("field01").schema(), "11.22".getBytes());
+        final Map<String, Long> myMap = new HashMap();
+        myMap.put("key_1", (long) 1);
+        avro.put(0, testValue32);
+        avro.put(1, testValue32);
+        avro.put(2, "012-345-678-901");
+        avro.put(3, "THREE");
+        avro.put(4, myMap);
+        final Record record = new AvroRecord(avro);
+        // check avro schema mappings
+        final List<Entry> entries = record.getSchema().getAllEntries().collect(Collectors.toList());
+        assertEquals(Schema.Type.BYTES, entries.get(0).getType());
+        assertEquals(Schema.Type.DECIMAL, entries.get(1).getType());
+        assertEquals(Schema.Type.STRING, entries.get(2).getType());
+        assertEquals(Schema.Type.STRING, entries.get(3).getType());
+        assertEquals(Schema.Type.RECORD, entries.get(4).getType());
+        // check avro record
+        assertTrue(byte[].class.isInstance(record.getBytes("field01")));
+        assertEquals("11.22", new String(record.getBytes("field01")));
+        assertTrue(BigDecimal.class.isInstance(record.getDecimal("field02")));
+        assertEquals(new BigDecimal("11.22"), record.getDecimal("field02"));
+        assertTrue(String.class.isInstance(record.getString("field03")));
+        assertEquals("012-345-678-901", record.getString("field03"));
+        assertTrue(String.class.isInstance(record.getString("field04")));
+        assertEquals("THREE", record.getString("field04"));
+        assertTrue(Map.class.isInstance(record.get(Object.class, "field05")));
+        assertThrows(IllegalArgumentException.class, () -> record.getRecord("field05"));
     }
 
     interface FactoryTester<T extends Exception> {
