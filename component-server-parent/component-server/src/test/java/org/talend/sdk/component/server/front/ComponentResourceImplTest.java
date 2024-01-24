@@ -254,9 +254,9 @@ class ComponentResourceImplTest {
     @Test
     void migrateFromStudioWs() {
         final Map<String, String> migrated = ws
-                .read(Map.class, "post", String.format("/component/migrate/%s/2", client.getJdbcId()),
+                .read(Map.class, "post", String.format("/component/migrate/%s/1", client.getJdbcId()),
                         "{\"going\":\"nowhere\",\"configuration.dataSet.connection.authMethod\":\"base64://QWN0aXZlRGlyZWN0b3J5\",\"configuration.dataSet.blobPath\":\"base64://KFN0cmluZylnbG9iYWxNYXAuZ2V0KCJTWVNURU1aVCIpKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyJfIitTdHJpbmdIYW5kbGluZy5DSEFOR0UoY29udGV4dC5jdHhEYXRlRGVidXRUcmFpdGVtZW50LCAiW15cXGRdIiwgIiIpKyIvIg==\"}");
-        assertEquals(3, migrated.size());
+        assertEquals(4, migrated.size());
         assertEquals(
                 "(String)globalMap.get(\"SYSTEMZT\")+\"/\"+context.ctxNomTableSource+\"/\"+context.ctxNomTableSource+\"_\"+StringHandling.CHANGE(context.ctxDateDebutTraitement, \"[^\\\\d]\", \"\")+\"/\"",
                 migrated.get("configuration.dataSet.blobPath"));
