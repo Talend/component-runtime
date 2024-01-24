@@ -170,6 +170,7 @@ class ComponentResourceImplTest {
                 .resolveTemplate("version", 1)
                 .request(APPLICATION_JSON_TYPE)
                 .post(entity(new HashMap<String, String>() {
+
                     {
                     }
                 }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
@@ -179,13 +180,32 @@ class ComponentResourceImplTest {
     }
 
     @Test
-    void no_migrate() {
+    void noMigrateWithUpperVersion() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
                 .resolveTemplate("id", client.getJdbcId())
                 .resolveTemplate("version", 3)
                 .request(APPLICATION_JSON_TYPE)
                 .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("going", "nowhere");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(1, migrated.size());
+        assertEquals(null, migrated.get("migrated"));
+    }
+
+    @Test
+    void noMigrateWithEqualVersion() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 2)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(new HashMap<String, String>() {
+
                     {
                         put("going", "nowhere");
                     }
@@ -236,7 +256,7 @@ class ComponentResourceImplTest {
         final Map<String, String> migrated = ws
                 .read(Map.class, "post", String.format("/component/migrate/%s/2", client.getJdbcId()),
                         "{\"going\":\"nowhere\",\"configuration.dataSet.connection.authMethod\":\"base64://QWN0aXZlRGlyZWN0b3J5\",\"configuration.dataSet.blobPath\":\"base64://KFN0cmluZylnbG9iYWxNYXAuZ2V0KCJTWVNURU1aVCIpKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyJfIitTdHJpbmdIYW5kbGluZy5DSEFOR0UoY29udGV4dC5jdHhEYXRlRGVidXRUcmFpdGVtZW50LCAiW15cXGRdIiwgIiIpKyIvIg==\"}");
-        assertEquals(4, migrated.size());
+        assertEquals(3, migrated.size());
         assertEquals(
                 "(String)globalMap.get(\"SYSTEMZT\")+\"/\"+context.ctxNomTableSource+\"/\"+context.ctxNomTableSource+\"_\"+StringHandling.CHANGE(context.ctxDateDebutTraitement, \"[^\\\\d]\", \"\")+\"/\"",
                 migrated.get("configuration.dataSet.blobPath"));
