@@ -311,9 +311,11 @@ private String assemblyExtraBuildParams() {
 
 private static ArrayList<String> get_release_milestone_info(String currentVersion, Boolean maintenance) {
 
-  // Evaluate release name and tag from current version
+  println("Evaluate release name from current version: $currentVersion")
+
   String releaseVersion = currentVersion.replaceAll("-SNAPSHOT", "")
-  releaseVersion = currentVersion.replaceAll("/M\\d+", "")
+  releaseVersion = releaseVersion.replaceAll("/M\\d+", "")
+  println("Release version : $releaseVersion")
 
   // Get maj/min/rev
   def (maj, min, rev) = releaseVersion.tokenize('.').collect { it as int }
@@ -328,12 +330,16 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
     maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
     min++
     rev = 0
+
+    println("Maintenance version : $releaseVersion")
+    println("Maintenance branch name : $maintenanceBranch")
   } else {
     rev++
   }
 
   // Calculate the next development version
   String devVersion = "${maj}.${min}.${rev}-SNAPSHOT"
+  println("Next version : $releaseVersion")
 
   return [releaseVersion, devVersion, maintenanceVersion, maintenanceBranch]
 }
