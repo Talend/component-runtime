@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -475,6 +475,9 @@ public class ComponentResourceImpl implements ComponentResource {
                         .status(Status.NOT_FOUND)
                         .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find component " + id))
                         .build()));
+        if (version > comp.getVersion() || version == comp.getVersion()) {
+            return config;
+        }
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)

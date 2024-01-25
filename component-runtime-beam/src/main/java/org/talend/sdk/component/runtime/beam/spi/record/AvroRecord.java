@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import javax.json.bind.annotation.JsonbTransient;
 
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
@@ -260,6 +261,20 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             final long epochMilli = org.joda.time.DateTime.class.cast(value).getMillis();
             return expectedType.cast(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(epochMilli), UTC));
         }
+
+        if (org.apache.avro.Schema.Type.FIXED.equals(fieldSchema.getType()) && value != null) {
+            final String logicalType =
+                    fieldSchema.getLogicalType() != null ? fieldSchema.getLogicalType().getName() : "";
+            final byte[] bytes = GenericData.Fixed.class.cast(value).bytes();
+            if (LogicalTypes.decimal(1).getName().equals(logicalType)) {
+                return RECORD_CONVERTERS.coerce(expectedType, new String(bytes), fieldSchema.getName());
+            }
+            if (LogicalTypes.uuid().getName().equals(logicalType)) {
+                return RECORD_CONVERTERS.coerce(expectedType, new String(bytes), fieldSchema.getName());
+            }
+            return RECORD_CONVERTERS.coerce(expectedType, bytes, fieldSchema.getName());
+        }
+
         if (!expectedType.isInstance(value)) {
             if (value instanceof Utf8 && String.class == expectedType) {
                 return expectedType.cast(value.toString());
