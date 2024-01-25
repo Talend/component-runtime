@@ -310,11 +310,34 @@ private String assemblyExtraBuildParams() {
 }
 
 private static ArrayList<String> get_release_milestone_info(String currentVersion, Boolean maintenance) {
-
+  //TODO manage milestone increment now
   println("Evaluate release name from current version: $currentVersion")
 
-  String releaseVersion = currentVersion.replaceAll("-SNAPSHOT", "")
-  releaseVersion = releaseVersion.replaceAll("/M\\d+", "")
+  // Split the version (ex: "1.65.0M1-SNAPSHOT") on 'M' or '-'
+  def parts = currentVersion.split(/[M-]/)
+  String releaseVersion = parts[0]
+
+  int milestoneNumber = 0
+  if (! maintenance){
+    if (currentVersion.contains('M')){
+      // The version is correct, use it
+      milestoneNumber = parts[1] as int
+    }
+    else{
+      // The version is not correct, raise error
+      throw new RuntimeException("Provided version $currentVersion is not a milestone version (no 'M').")
+    }
+  }
+  else{
+    if (currentVersion.contains('M')){
+      // The version is not correct, raise error
+      throw new RuntimeException("Provided version $currentVersion is not a maintenance version (contains 'M').")
+    }
+  }
+  println("Milestone number : $milestoneNumber")
+
+
+  releaseVersion = releaseVersion.replaceAll(/M\d+/, "")
   println("Release version : $releaseVersion")
 
   // Get maj/min/rev
@@ -323,6 +346,7 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
   // Calculate variables according to branch
   String maintenanceBranch = ""
   String maintenanceVersion = ""
+  String devVersion = ""
 
   if (! maintenance) {
     // This is a release of main branch, the maintenance branch will need to be created.
@@ -330,16 +354,26 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
     maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
     min++
     rev = 0
+    // Calculate the next development version
+    devVersion = "${maj}.${min}.${rev}M${milestoneNumber}-SNAPSHOT"
 
     println("Maintenance version : $releaseVersion")
     println("Maintenance branch name : $maintenanceBranch")
+
+
   } else {
     rev++
+    // Calculate the next development version
+    devVersion = "${maj}.${min}.${rev}-SNAPSHOT"
   }
 
-  // Calculate the next development version
-  String devVersion = "${maj}.${min}.${rev}-SNAPSHOT"
-  println("Next version : $releaseVersion")
+  println("Next version : devVersion")
 
   return [releaseVersion, devVersion, maintenanceVersion, maintenanceBranch]
 }
+
+
+println get_release_milestone_info("1.65.0M1-SNAPSHOT", false)
+println get_release_milestone_info("1.65.1-SNAPSHOT", true)
+//println get_release_milestone_info("1.65.1M1-SNAPSHOT", true) // Not valid
+//println get_release_milestone_info("1.65.1-SNAPSHOT", false) // Not valid
