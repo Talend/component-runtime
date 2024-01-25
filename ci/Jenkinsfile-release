@@ -148,6 +148,7 @@ pipeline {
             sh """ bash .jenkins/scripts/setup_gpg.sh """
           }
         }
+
         ///////////////////////////////////////////
         // asdf install
         ///////////////////////////////////////////
@@ -164,24 +165,6 @@ pipeline {
 
         }
 
-        ///////////////////////////////////////////
-        // Pom version management
-        ///////////////////////////////////////////
-        script{
-
-            echo 'Read the actual version in the pom'
-            final def pom = readMavenPom file: 'pom.xml'
-            pomVersion = pom.version
-
-            echo 'Manage the release version '
-            //TODO
-            releaseVersion = pomVersion
-
-            echo 'Manage the final version after the release'
-            //TODO
-            finalVersion = pomVersion
-
-        }
         ///////////////////////////////////////////
         // Updating build displayName and description
         ///////////////////////////////////////////
@@ -234,28 +217,14 @@ pipeline {
           tagName = "component-runtime-${releaseVersion}"
         }
         ///////////////////////////////////////////
-        // Updating build displayName and description
+        // Updating build description with calculated info
         ///////////////////////////////////////////
-        script {
-          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-          if (user_name == null) {
-            user_name = "auto"
-          }
-
-          currentBuild.displayName = (
-              "#$currentBuild.number-$params.ACTION" + ": $user_name"
-          )
-
-          // updating build description
-          String description = """
-            Execute a $params.Action release.  
-            Actual Version $pomVersion will be release as $releaseVersion.  
-            After the release the repository will be bumped as $finalVersion  
-            Debug: $params.JENKINS_DEBUG  
-            Extra build args: $extraBuildParams""".stripIndent()
-          jenkinsJobTools.job_description_append(description)
-        }
-
+        String description = """
+          Actual Version $pomVersion will be release as $releaseVersion.  
+          After the release the repository will be bumped as $finalVersion  
+          Debug: $params.JENKINS_DEBUG  
+          Extra build args: $extraBuildParams""".stripIndent()
+        jenkinsJobTools.job_description_append(description)
       }
     }
 
