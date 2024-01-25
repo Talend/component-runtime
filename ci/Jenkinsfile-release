@@ -312,7 +312,8 @@ private String assemblyExtraBuildParams() {
 private static ArrayList<String> get_release_milestone_info(String currentVersion, Boolean maintenance) {
 
   // Evaluate release name and tag from current version
-  String releaseVersion = currentVersion.replaceAll("-SNAPSHOT", "") // TODO add replace M*
+  String releaseVersion = currentVersion.replaceAll("-SNAPSHOT", "")
+  releaseVersion = currentVersion.replaceAll("/M\\d+", "")
 
   // Get maj/min/rev
   def (maj, min, rev) = releaseVersion.tokenize('.').collect { it as int }
