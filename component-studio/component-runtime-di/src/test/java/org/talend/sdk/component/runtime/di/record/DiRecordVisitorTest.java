@@ -123,7 +123,11 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
                         .build(), OBJECT)
-
+                .with(factory.newEntryBuilder()
+                        .withName("document")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                        .build(), DOCUMENT)
                 .withRecord("object0", RECORD)
                 .with(factory.newEntryBuilder()
                         .withName("object1")
@@ -271,6 +275,8 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertTrue(Object.class.isInstance(dynObject));
         assertEquals(OBJECT, dynObject);
 
+        // rowStruct::dynamic
+        assertNotNull(rowStruct.document);
         //
         assertEquals(INTEGERS, rowStruct.array0);
         assertEquals(RECORD, rowStruct.dynamic.getColumnValue("RECORD"));

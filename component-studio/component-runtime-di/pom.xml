@@ -59,7 +59,11 @@
       <scope>test</scope>
       <!-- rarely needed + don't deliver it by default since it brings a lot of CVE -->
     </dependency>
-
+    <dependency>
+      <groupId>org.dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>2.1.4</version>
+    </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>

@@ -27,6 +27,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
+import routines.system.Document;
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
 
@@ -118,6 +119,9 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "dynStringDate", StudioTypes.STRING,
                 "2010-01-31", "yyyy-MM-dd", false);
         rowStruct.dynamic = dynamic;
+        // document
+        rowStruct.document = new Document();
+
         //
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
         final Record record = visitor.get(rowStruct, factory);

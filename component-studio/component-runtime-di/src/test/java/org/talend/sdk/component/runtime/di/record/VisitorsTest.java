@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.di.record;
 
+import routines.system.Document;
 import routines.system.Dynamic;
 
 import java.io.ObjectInputStream;
@@ -70,6 +71,8 @@ public class VisitorsTest {
             factory.newRecordBuilder().withInt("ntgr", 1).withString("str", "one").build();
 
     protected static final Object OBJECT = new Object();
+
+    protected static final Document DOCUMENT = new Document();
 
     protected static final List<String> STRINGS = Arrays.asList("one", "two", "three", "four", "five");
 
@@ -208,6 +211,8 @@ public class VisitorsTest {
         public Object object1;
 
         public Dynamic dynamic;
+
+        public Document document;
 
         public Boolean dynamicIsNullable() {
             return false;

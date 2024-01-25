@@ -33,17 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -81,6 +71,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private final String dynamicColumn;
 
+    private final String documentColumn;
+
     private final int dynamicColumnLength;
 
     private final int dynamicColumnPrecision;
@@ -114,18 +106,14 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     .values()
                     .stream()
                     .anyMatch(field -> "routines.system.Dynamic".equals(field.getType().getName()));
-            dynamicColumn = fields
-                    .values()
-                    .stream()
-                    .filter(field -> "routines.system.Dynamic".equals(field.getType().getName()))
-                    .map(Field::getName)
-                    .findAny()
-                    .orElse(null);
+            dynamicColumn = getColumn("routines.system.Dynamic");
             if (hasDynamic) {
                 dynamic = new DynamicWrapper();
             } else {
                 dynamic = null;
             }
+            // document
+            documentColumn = getColumn("routines.system.Document");
             log
                     .trace("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
                             metadata);
@@ -136,6 +124,16 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 | InvocationTargetException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private String getColumn(final String x) {
+        return fields
+                .values()
+                .stream()
+                .filter(field -> x.equals(field.getType().getName()))
+                .map(Field::getName)
+                .findAny()
+                .orElse(null);
     }
 
     private boolean allowSpecialName;
@@ -208,6 +206,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
+        }
+        if (documentColumn != null) {
+            int i = 0;
+            // fields.get(documentColumn).set(instance, ParserUtils.parseTo_Document());
         }
         return instance;
     }
@@ -329,7 +331,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         if (field == null) {
             return;
         }
+
         try {
+            if (documentColumn.equals(entry.getName())) {
+                field.set(instance, value.toString());
+            }
+
             field.set(instance, MappingUtils.coerce(field.getType(), value, entry.getName()));
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
