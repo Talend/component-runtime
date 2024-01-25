@@ -219,12 +219,14 @@ pipeline {
         ///////////////////////////////////////////
         // Updating build description with calculated info
         ///////////////////////////////////////////
-        String description = """
-          Actual Version $pomVersion will be release as $releaseVersion.  
-          After the release the repository will be bumped as $finalVersion  
-          Debug: $params.JENKINS_DEBUG  
-          Extra build args: $extraBuildParams""".stripIndent()
-        jenkinsJobTools.job_description_append(description)
+        script {
+          String description = """
+            Actual Version $pomVersion will be release as $releaseVersion.  
+            After the release the repository will be bumped as $finalVersion  
+            Debug: $params.JENKINS_DEBUG  
+            Extra build args: $extraBuildParams""".stripIndent()
+          jenkinsJobTools.job_description_append(description)
+        }
       }
     }
 
@@ -257,13 +259,15 @@ pipeline {
     }
 
     always {
-      alertingTools.slack_result(
-        env.SLACK_CI_CHANNEL,
-        currentBuild.result,
-        currentBuild.previousBuild.result,
-        true, // Post for success and failure for release scripts
-        true,
-        "Failure of $pomVersion $params.Action release.")
+      script {
+        alertingTools.slack_result(
+            env.SLACK_CI_CHANNEL,
+            currentBuild.result,
+            currentBuild.previousBuild.result,
+            true, // Post for success and failure for release scripts
+            true,
+            "Failure of $pomVersion $params.Action release.")
+      }
 
       script {
         println '====== Archive jacoco reports artifacts'
