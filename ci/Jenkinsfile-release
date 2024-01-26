@@ -432,8 +432,20 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
 
   println("Evaluate release name from current version: $currentVersion")
 
-  if(maintenance && milestoneIncrement){
-    throw new RuntimeException("It is not possible to release a milestone for maintnance branch.")
+
+  if(milestoneIncrement){
+    println("This is a Milestone release")
+    if(maintenance){
+      throw new RuntimeException("It is not possible to release a milestone for maintnance branch.")
+    }
+  }
+  else{
+    if(maintenance){
+      println("This is a Maintenance release")
+    }
+    else{
+      println("This is a GA release")
+    }
   }
 
   // Split the version (ex: "1.65.0M1-SNAPSHOT") on 'M' or '-'
@@ -457,7 +469,6 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
       throw new RuntimeException("Provided version $currentVersion is not a maintenance version (contains 'M').")
     }
   }
-  println("Milestone number : $milestoneNumber")
 
 
   releaseVersion = releaseVersion.replaceAll(/M\d+/, "")
@@ -467,15 +478,24 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
   def (maj, min, rev) = releaseVersion.tokenize('.').collect { it as int }
 
   // Calculate variables according to branch
-  String maintenanceBranch = ""
-  String maintenanceVersion = ""
-  String devVersion
+  String maintenanceBranch = "none"
+  String maintenanceVersion = "none"
+  String nextVersion
+
+
+  if (! milestoneIncrement) {
+    // This is a GA release the maintenance branch will need to be created.
+    println("Milestone number : $milestoneNumber")
+
+    maintenanceBranch = "maintenance/${maj}.${min}"
+    maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
+
+    println("Maintenance version : $releaseVersion")
+    println("Maintenance branch name : $maintenanceBranch")
+  }
 
   if (! maintenance) {
     // master relase
-    // This is a release of main branch, the maintenance branch will need to be created.
-    maintenanceBranch = "maintenance/${maj}.${min}"
-    maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
 
     if(milestoneIncrement){
       milestoneNumber++
@@ -485,30 +505,24 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
       rev = 0
     }
     // Calculate the next development version
-    devVersion = "${maj}.${min}.${rev}M${milestoneNumber}-SNAPSHOT"
-
-    println("Maintenance version : $releaseVersion")
-    println("Maintenance branch name : $maintenanceBranch")
-
+    nextVersion = "${maj}.${min}.${rev}M${milestoneNumber}-SNAPSHOT"
 
   } else {
     // Maintenance release
     rev++
     // Calculate the next development version
-    devVersion = "${maj}.${min}.${rev}-SNAPSHOT"
+    nextVersion = "${maj}.${min}.${rev}-SNAPSHOT"
   }
 
-  println("Next version : devVersion")
+  println("Next version : $nextVersion")
 
-  return [releaseVersion, devVersion, maintenanceVersion, maintenanceBranch]
+  return [releaseVersion, nextVersion, maintenanceVersion, maintenanceBranch]
 }
 
 //println get_release_milestone_info("1.65.0M1-SNAPSHOT", false, true) // milestone
-//println get_release_milestone_info("1.65.0M1-SNAPSHOT", false, false) // release
+//println get_release_milestone_info("1.65.0M5-SNAPSHOT", false, false) // ga
 //println get_release_milestone_info("1.65.1-SNAPSHOT", true, false) // maintenance
 //println get_release_milestone_info("1.65.1M1-SNAPSHOT", true, false) // maintenance, but version not valid
 //println get_release_milestone_info("1.65.1-SNAPSHOT", true, true) // maintenance, but milestone not valid
 //println get_release_milestone_info("1.65.1-SNAPSHOT", false, true) // milestone, but version not valid
 //println get_release_milestone_info("1.65.1-SNAPSHOT", false, false) // release, but version not valid
-
-
