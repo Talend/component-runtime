@@ -410,7 +410,9 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean skipChecks)
         "--define spotless.apply.skip=true",
         "--define checkstyle.skip=true",
         "--define rat.skip=true",
-        "--define rat.skip=true",
+        "--define skipTests=true",
+        "--define gpg.skip=true",
+        "--define enforcer.skip=true",
         "--define invoker.skip=true"
     ].join(' ')
     buildParamsAsArray.add(skipOptions)
