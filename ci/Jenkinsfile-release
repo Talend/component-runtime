@@ -120,6 +120,10 @@ pipeline {
         name: 'JENKINS_DEBUG',
         defaultValue: false,
         description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+    booleanParam(
+        name: 'SKIP_CHECKS',
+        defaultValue: false,
+        description: 'Skip all kind of static check for debug purposes. **DO NOT USE IT on real release**.')
   }
 
   stages {
@@ -155,7 +159,7 @@ pipeline {
         ///////////////////////////////////////////
         script {
           println "Create assemblyExtraBuildParams from user provided parameters and job option"
-          assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean)
+          assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean, params.SKIP_CHECKS as Boolean)
         }
 
         ///////////////////////////////////////////
@@ -259,7 +263,7 @@ pipeline {
           script {
 
             echo "Preparing and installing BOM to release $releaseVersion from $pomVersion"
-            //sh "bash .jenkins/scripts/release-1-install-bom.sh $releaseVersion $pomVersion"
+            sh "bash .jenkins/scripts/release/release-1-install-bom.sh $releaseVersion $pomVersion"
           }
         }
       }
@@ -271,8 +275,14 @@ pipeline {
           script {
 
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
-            //sh "bash .jenkins/scripts/release-2-prepare.sh $releaseVersion $nextVersion $tagName $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion $nextVersion $tagName $extraBuildParams"
           }
+        }
+      }
+      post {
+        always {
+          println "Publish prepared pom.xml files as Jenkins artifact for analysis"
+          archiveArtifacts artifacts: '**/*pom.xml', allowEmptyArchive: false, onlyIfSuccessful: false
         }
       }
     }
@@ -283,7 +293,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Perform release"
-            //sh "bash .jenkins/scripts/release-3-perform.sh $extraBuildParams"
+            //sh "bash .jenkins/scripts/release/release-3-perform.sh $extraBuildParams"
           }
         }
       }
@@ -297,7 +307,7 @@ pipeline {
                          dockerCredentials]) {
           script {
             echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
-            //sh "bash .jenkins/scripts/release-4-docker-image-creation.sh"
+            //sh "bash .jenkins/scripts/release/release-4-docker-image-creation.sh"
           }
         }
       }
@@ -310,7 +320,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
-            //sh "bash .jenkins/scripts/release-4-prepare-next-iteration.sh $branchName"
+            //sh "bash .jenkins/scripts/release/release-4-prepare-next-iteration.sh $branchName"
           }
         }
       }
@@ -326,7 +336,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
-            //sh "bash .jenkins/scripts/release-6-create-maintenance-branch.sh $maintenanceBranch $maintenanceVersion"
+            //sh "bash .jenkins/scripts/release/release-6-create-maintenance-branch.sh $maintenanceBranch $maintenanceVersion"
           }
         }
       }
@@ -384,7 +394,7 @@ pipeline {
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams(Boolean fakeRelease) {
+private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean skipChecks) {
   String extraBuildParams
 
   println 'Processing extraBuildParams'
@@ -392,6 +402,17 @@ private String assemblyExtraBuildParams(Boolean fakeRelease) {
 
   if (params.EXTRA_BUILD_PARAMS) {
     buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
+  }
+
+  if (skipChecks) {
+    String skipOptions = [
+        "--define spotless.apply.skip=true",
+        "--define checkstyle.skip=true",
+        "--define rat.skip=true",
+        "--define rat.skip=true",
+        "--define invoker.skip=true"
+    ].join(' ')
+    buildParamsAsArray.add(skipOptions)
   }
 
   // Manage fake release parameter
