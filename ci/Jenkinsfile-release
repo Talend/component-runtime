@@ -271,7 +271,8 @@ pipeline {
 
     stage('Prepare release') {
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([nexusCredentials,
+                         gpgCredentials]) {
           script {
 
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"

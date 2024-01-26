@@ -24,18 +24,18 @@ main() {
   local releaseVersion="${1?Missing release version}"
   local currentVersion="${2?Missing actual project version}"
 
-  printf ">> Preparing and installing BOM to release %s from %s" "${releaseVersion}" "${currentVersion}"
+  printf ">> Preparing and installing BOM to release %s from %s\n" "${releaseVersion}" "${currentVersion}"
 
-  printf "Set version to release value"
+  printf "Set version to release value\n"
   mvn versions:set \
     --define newVersion="${releaseVersion}" \
     --define generateBackupPoms=false \
     --file bom/pom.xml
 
-  printf "Install the BOM"
+  printf "Install the BOM\n"
   mvn install --file bom/pom.xml
 
-  printf "Set version back to currentVersion value"
+  printf "Set version back to currentVersion value\n"
   mvn versions:set \
     --define newVersion="${currentVersion}" \
     --define generateBackupPoms=false \
