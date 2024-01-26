@@ -175,13 +175,9 @@ pipeline {
             // updating build description
             description = """
             ---------------------------------------------------  
-            ===================================================  
-            **    
-            This is a fake release,  
+            This is a fake release:  
             - artefacts will be posted on artifact-zl  
-            - docker image will be deployed on artifactory dev  
-            **  
-            ===================================================  
+            - docker image will be deployed on artifactory dev   
             ---------------------------------------------------  
             """.stripIndent()
             jenkinsJobTools.job_description_append(description)
@@ -248,7 +244,9 @@ pipeline {
             Actual Version $pomVersion will be release as $releaseVersion.  
             After the release the repository will be bumped as $nextVersion.  
             **Are you OK to continue?**""".stripIndent()
-            jenkinsJobTools.jenkinsBreakpoint(checkMsg)
+
+            // Request user action
+            input message: "$checkMsg", ok: 'Yes'
           }
 
         }
