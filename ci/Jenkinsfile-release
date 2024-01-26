@@ -102,9 +102,9 @@ pipeline {
         description: """
           Type of release:
             MILESTONE: (default) classical milestone release 
-              ex: 1.63.0M1 is release and master branch is bumped as 1.63.0M2
+              ex: 1.63.0M1-SNAPSHOT is released as 1.63.0M1 and master branch is bumped as 1.63.0M2-SNAPSHOT
             GA: release for General Available
-              ex: 1.63.0M9 is release as 1.63.0""")
+              ex: 1.63.0M9 is released as 1.63.0 and master branch is bumped as 1.64.0M1-SNAPSHOT""")
     booleanParam(
         name: 'FAKE_RELEASE',
         defaultValue: true,
@@ -240,7 +240,7 @@ pipeline {
         script {
           if(!params.FAKE_RELEASE){
             String checkMsg = """
-            You will do a REAL release  
+            You will do a REAL-$params.ACTION release  
             Actual Version $pomVersion will be release as $releaseVersion.  
             After the release the repository will be bumped as $nextVersion.  
             **Are you OK to continue?**""".stripIndent()
