@@ -170,7 +170,7 @@ pipeline {
 
           // updating build description
           String description = """
-            Execute a $params.Action release.  
+            Execute a $params.ACTION release.  
             Debug: $params.JENKINS_DEBUG  
             Extra build args: $extraBuildParams  """.stripIndent()
           jenkinsJobTools.job_description_append(description)
@@ -231,10 +231,11 @@ pipeline {
         ///////////////////////////////////////////
         script {
           String description = """
+            ----------------------------------------------------------------  
             Actual Version $pomVersion will be release as $releaseVersion.  
             After the release the repository will be bumped as $nextVersion.  
-            Debug: $params.JENKINS_DEBUG  
-            Extra build args: $extraBuildParams""".stripIndent()
+            ----------------------------------------------------------------  
+            """.stripIndent()
           jenkinsJobTools.job_description_append(description)
         }
 
@@ -371,7 +372,7 @@ pipeline {
             currentBuild.previousBuild.result,
             true, // Post for success and failure for release scripts
             true,
-            "Failure of $pomVersion $params.Action release.")
+            "Failure of $pomVersion $params.ACTION release.")
       }
 
       script {
