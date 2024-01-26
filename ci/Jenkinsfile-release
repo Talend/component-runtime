@@ -457,7 +457,7 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
   if(milestoneIncrement){
     println("This is a Milestone release")
     if(maintenance){
-      throw new RuntimeException("It is not possible to release a milestone for maintnance branch.")
+      throw new RuntimeException("It is not possible to release a milestone for maintenance branch.")
     }
   }
   else{
@@ -469,17 +469,8 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
     }
   }
 
-  // Split the version (ex: "1.65.0M1-SNAPSHOT") on 'M' or '-'
-  def parts = currentVersion.split(/[M-]/)
-  String releaseVersion = parts[0]
-
-  int milestoneNumber = 0
   if (! maintenance){
-    if (currentVersion.contains('M')){
-      // The version is correct, use it
-      milestoneNumber = parts[1] as int
-    }
-    else{
+    if (! currentVersion.contains('M')){
       // The version is not correct, raise error
       throw new RuntimeException("Provided version $currentVersion is not a milestone version (no 'M').")
     }
@@ -491,12 +482,22 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
     }
   }
 
+  // Split the version (ex: "1.65.0M1-SNAPSHOT") on 'M' '.' and '-'
+  def parts = currentVersion.split(/[\.M-]/)
+  int maj = parts[0] as int
+  int min = parts[1] as int
+  int rev = parts[2] as int
+  int milestoneNumber = 0
 
-  releaseVersion = releaseVersion.replaceAll(/M\d+/, "")
+  String releaseVersion
+  if (milestoneIncrement) {
+    milestoneNumber = parts[3] as int
+    releaseVersion  = "${maj}.${min}.${rev}M${milestoneNumber}"
+  }
+  else{
+    releaseVersion  = "${maj}.${min}.${rev}"
+  }
   println("Release version : $releaseVersion")
-
-  // Get maj/min/rev
-  def (maj, min, rev) = releaseVersion.tokenize('.').collect { it as int }
 
   // Calculate variables according to branch
   String maintenanceBranch = "none"
@@ -524,6 +525,7 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
     else{
       min++
       rev = 0
+      milestoneNumber = 1
     }
     // Calculate the next development version
     nextVersion = "${maj}.${min}.${rev}M${milestoneNumber}-SNAPSHOT"
@@ -542,7 +544,7 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
 
 //println get_release_milestone_info("1.65.0M1-SNAPSHOT", false, true) // milestone
 //println get_release_milestone_info("1.65.0M5-SNAPSHOT", false, false) // ga
-//println get_release_milestone_info("1.65.1-SNAPSHOT", true, false) // maintenance
+//println get_release_milestone_info("1.65.3-SNAPSHOT", true, false) // maintenance
 //println get_release_milestone_info("1.65.1M1-SNAPSHOT", true, false) // maintenance, but version not valid
 //println get_release_milestone_info("1.65.1-SNAPSHOT", true, true) // maintenance, but milestone not valid
 //println get_release_milestone_info("1.65.1-SNAPSHOT", false, true) // milestone, but version not valid

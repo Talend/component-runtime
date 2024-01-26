@@ -23,7 +23,7 @@
 
   <name>Component Runtime</name>
   <description>Talend Component Kit Runtime</description>
-  <url>https://talend.github.io/component-runtime/</url>
+  <url>https://acatoire.github.io/component-runtime/</url>
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -131,10 +131,10 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
-    <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
+    <connection>scm:git:git://github.com/acatoire/component-runtime.git</connection>
+    <developerConnection>scm:git:git@github.com:acatoire/component-runtime.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/talend/component-runtime</url>
+    <url>https://github.com/acatoire/component-runtime</url>
   </scm>
   <distributionManagement>
     <repository>
@@ -988,7 +988,7 @@
             <windowtitle>${project.name}</windowtitle>
             <header>${project.name} - ${project.version}</header>
             <doctitle>${project.name} - ${project.version}</doctitle>
-            <bottom>${project.version} - Copyright &amp;copy; 2022 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <bottom>${project.version} - Copyright &amp;copy; 2022 &lt;a href="https://acatoire.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
           </configuration>
         </plugin>
