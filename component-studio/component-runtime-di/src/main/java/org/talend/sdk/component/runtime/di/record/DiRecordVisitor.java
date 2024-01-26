@@ -28,6 +28,8 @@ import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
+import routines.system.ParserUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -41,6 +43,7 @@ import javax.json.bind.JsonbConfig;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
+import org.dom4j.DocumentException;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
@@ -70,8 +73,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private final DynamicWrapper dynamic;
 
     private final String dynamicColumn;
-
-    private final String documentColumn;
 
     private final int dynamicColumnLength;
 
@@ -113,7 +114,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 dynamic = null;
             }
             // document
-            documentColumn = getColumn("routines.system.Document");
             log
                     .trace("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
                             metadata);
@@ -206,10 +206,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
-        }
-        if (documentColumn != null) {
-            int i = 0;
-            // fields.get(documentColumn).set(instance, ParserUtils.parseTo_Document());
         }
         return instance;
     }
@@ -333,13 +329,16 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
 
         try {
-            if (documentColumn.equals(entry.getName())) {
-                field.set(instance, value.toString());
+            if (StudioTypes.DOCUMENT.equals(entry.getProp(STUDIO_TYPE))) {
+                field.set(instance, ParserUtils.parseTo_Document(value.toString()));
+                return;
             }
 
             field.set(instance, MappingUtils.coerce(field.getType(), value, entry.getName()));
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
+        } catch (DocumentException e) {
+            throw new RuntimeException(e);
         }
     }
 

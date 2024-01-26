@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 
+import org.dom4j.DocumentHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -42,12 +43,14 @@ import org.talend.sdk.component.runtime.record.RecordImpl;
 
 import lombok.Getter;
 import lombok.ToString;
+import routines.system.Document;
 import routines.system.Dynamic;
 
 class DiRecordVisitorTest extends VisitorsTest {
 
     @Test
     void visit() {
+        initDocument();
         final Record record = factory
                 .newRecordBuilder()
                 .withString("id", ":testing:")
@@ -236,6 +239,12 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertArrayEquals(BYTES1, rowStruct.bytes1);
         assertEquals(RECORD, rowStruct.object0);
         assertEquals(OBJECT, rowStruct.object1);
+
+        // asserts rowStruct::document
+        assertNotNull(rowStruct.document);
+        assertTrue(Document.class.isInstance(rowStruct.document));
+        assertEquals(DOCUMENT.toString(), rowStruct.document.toString());
+
         // asserts rowStruct::dynamic
         assertNotNull(rowStruct.dynamic);
         assertNotNull(rowStruct.dynamic.metadatas);
@@ -275,8 +284,6 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertTrue(Object.class.isInstance(dynObject));
         assertEquals(OBJECT, dynObject);
 
-        // rowStruct::dynamic
-        assertNotNull(rowStruct.document);
         //
         assertEquals(INTEGERS, rowStruct.array0);
         assertEquals(RECORD, rowStruct.dynamic.getColumnValue("RECORD"));
@@ -297,6 +304,12 @@ class DiRecordVisitorTest extends VisitorsTest {
         });
         assertEquals(BIG_DECIMALS, rowStruct.dynamic.getColumnValue("BIG_DECIMALS"));
         assertEquals(BIG_DECIMALS, rowStruct.dynamic.getColumnValue("BIG_DECIMALS2"));
+    }
+
+    private void initDocument() {
+        org.dom4j.Document doc = DocumentHelper.createDocument();
+        doc.addElement("catelog").addComment("an XML catelog");
+        DOCUMENT.setDocument(doc);
     }
 
     @Test

@@ -36,7 +36,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
-import routines.system.ParserUtils;
+import routines.system.Document;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -143,11 +143,11 @@ public class DiRowStructVisitor {
                     onDatetime(name, Date.class.cast(raw).toInstant().atZone(UTC));
                     break;
                 case StudioTypes.DOCUMENT:
-                    try {
-                        onString(name, ParserUtils.parseTo_Document((String) raw));
-                    } catch (org.dom4j.DocumentException e) {
-                        // throw new IllegalStateException(e.getMessage());
+                    if (Document.class.cast(raw).getDocument() == null) {
+                        log.trace("[visit] Skipping field {} with null value.", name);
+                        return;
                     }
+                    onDocument(name, raw);
                     break;
                 case StudioTypes.DYNAMIC:
                     final DynamicWrapper dynamic = new DynamicWrapper(raw);
@@ -432,6 +432,10 @@ public class DiRowStructVisitor {
 
     private void onString(final String name, final Object value) {
         recordBuilder.withString(name, String.class.cast(MappingUtils.coerce(String.class, value, name)));
+    }
+
+    private void onDocument(final String name, final Object raw) {
+        recordBuilder.withString(name, Document.class.cast(raw).getDocument().toString());
     }
 
     private void onDecimal(final String name, final BigDecimal value) {

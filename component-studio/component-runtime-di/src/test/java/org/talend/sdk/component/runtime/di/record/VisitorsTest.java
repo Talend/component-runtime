@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.di.record;
 
+import org.dom4j.DocumentHelper;
 import routines.system.Document;
 import routines.system.Dynamic;
 
@@ -212,7 +213,14 @@ public class VisitorsTest {
 
         public Dynamic dynamic;
 
-        public Document document;
+        public Document document = new Document();
+
+        public Document getDocument() {
+            org.dom4j.Document doc = DocumentHelper.createDocument();
+            doc.addElement("catelog").addComment("an XML catelog");
+            document.setDocument(doc);
+            return document;
+        }
 
         public Boolean dynamicIsNullable() {
             return false;
