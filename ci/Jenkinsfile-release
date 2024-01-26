@@ -41,10 +41,6 @@ final def dockerCredentials = usernamePassword(
     credentialsId: 'artifactory-datapwn-credentials',
     usernameVariable: 'DOCKER_USER',
     passwordVariable: 'DOCKER_PASS')
-final def sonarCredentials = usernamePassword(
-    credentialsId: 'sonar-credentials',
-    usernameVariable: 'SONAR_LOGIN',
-    passwordVariable: 'SONAR_PASSWORD')
 final def keyImportCredentials = usernamePassword(
     credentialsId: 'component-runtime-import-key-credentials',
     usernameVariable: 'KEY_USER',
@@ -54,25 +50,22 @@ final def gpgCredentials = usernamePassword(
     usernameVariable: 'GPG_KEYNAME',
     passwordVariable: 'GPG_PASSPHRASE')
 
-// In PR environment, the branch name is not valid and should be swap with pr name.
-final String pull_request_id = env.CHANGE_ID
-final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
+// In some cases the branch name is not valid, we define it here
+final String branchName = env.BRANCH_NAME
 
 // Job config
-final Boolean isMasterBranch = branch_name == "master"
-final Boolean isMaintenanceBranch = branch_name.startsWith("maintenance/")
+final Boolean isMasterBranch = branchName == 'master'
+final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
+final Boolean isMilestone = params.ACTION == 'MILESTONE'
 final String extraBuildParams = ""
 
 // Job variables declaration
 String pomVersion          // Declared version in the pom file
 String releaseVersion      // Released version for the release
-String finalVersion        // Final version after the release
+String nextVersion         // Final version after the release
 String tagName             // created git tag name
 String maintenanceVersion  // Final version after the release for created maintenance branch
 String maintenanceBranch   // created maintenance branch name
-
-String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-
 
 pipeline {
   libraries {
@@ -93,13 +86,13 @@ pipeline {
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branch_name == 'master' ? '15' : '10'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branchName == 'master' ? '15' : '10'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
 
   triggers {
-    cron(branch_name == "master" ? "0 12 * * *" : "")
+    cron(branchName == "master" ? "0 12 * * *" : "")
   }
 
   parameters {
@@ -158,11 +151,11 @@ pipeline {
         }
 
         ///////////////////////////////////////////
-        // Variables init
+        // assemblyExtraBuildParams
         ///////////////////////////////////////////
         script {
-          println "Variables init"
-
+          println "Create assemblyExtraBuildParams from user provided parameters and job option"
+          assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean)
         }
 
         ///////////////////////////////////////////
@@ -177,6 +170,15 @@ pipeline {
             Debug: $params.JENKINS_DEBUG  
             Extra build args: $extraBuildParams  """.stripIndent()
           jenkinsJobTools.job_description_append(description)
+
+          if(params.FAKE_RELEASE){
+            // updating build description
+            description = """**<font size=10>
+            This is a fake release,
+            - artefacts will be posted on artifact-zl
+            - docker image will be deployed on artifactory dev</font>**""".stripIndent()
+            jenkinsJobTools.job_description_append(description)
+          }
         }
       }
     }
@@ -212,8 +214,8 @@ pipeline {
           pomVersion = pom.version
 
           echo 'Manage the release version '
-          (releaseVersion, finalVersion,
-          maintenanceVersion, maintenanceBranch) = get_release_milestone_info(pomVersion, isMaintenanceBranch)
+          (releaseVersion, nextVersion,
+          maintenanceVersion, maintenanceBranch) = get_release_milestone_info(pomVersion, isMaintenanceBranch, isMilestone)
           tagName = "component-runtime-${releaseVersion}"
         }
         ///////////////////////////////////////////
@@ -222,7 +224,7 @@ pipeline {
         script {
           String description = """
             Actual Version $pomVersion will be release as $releaseVersion.  
-            After the release the repository will be bumped as $finalVersion  
+            After the release the repository will be bumped as $nextVersion  
             Debug: $params.JENKINS_DEBUG  
             Extra build args: $extraBuildParams""".stripIndent()
           jenkinsJobTools.job_description_append(description)
@@ -230,10 +232,81 @@ pipeline {
       }
     }
 
+    stage('Install BOM') {
+      steps {
+        withCredentials([nexusCredentials]) {
+          script {
+
+            echo "Preparing and installing BOM to release $releaseVersion from $pomVersion"
+            //sh "bash .jenkins/scripts/release-1-install-bom.sh $releaseVersion $pomVersion"
+          }
+        }
+      }
+    }
+
+    stage('Prepare release') {
+      steps {
+        withCredentials([nexusCredentials]) {
+          script {
+
+            echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
+            //sh "bash .jenkins/scripts/release-2-prepare.sh $releaseVersion $nextVersion $tagName $extraBuildParams"
+          }
+        }
+      }
+    }
+
     stage('Release') {
       steps {
-        script {
-          echo 'xxxx'
+        withCredentials([nexusCredentials,
+                         ossrhCredentials]) {
+          script {
+            echo "Perform release"
+            //sh "bash .jenkins/scripts/release-3-perform.sh $extraBuildParams"
+          }
+        }
+      }
+    }
+
+    stage('Docker image creation') {
+      steps {
+        withCredentials([gitCredentials,
+                         nexusCredentials,
+                         ossrhCredentials,
+                         dockerCredentials]) {
+          script {
+            echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
+            //sh "bash .jenkins/scripts/release-4-docker-image-creation.sh"
+          }
+        }
+      }
+    }
+
+    stage('Prepare next iteration') {
+      steps {
+        withCredentials([gitCredentials,
+                         nexusCredentials,
+                         ossrhCredentials]) {
+          script {
+            echo "Prepare next iteration on $branchName"
+            //sh "bash .jenkins/scripts/release-4-prepare-next-iteration.sh $branchName"
+          }
+        }
+      }
+    }
+
+    stage('Create maintenance branch') {
+      when {
+        expression { isMasterBranch && params.ACTION == "GA" }
+      }
+      steps {
+        withCredentials([gitCredentials,
+                         nexusCredentials,
+                         ossrhCredentials]) {
+          script {
+            echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
+            //sh "bash .jenkins/scripts/release-6-create-maintenance-branch.sh $maintenanceBranch $maintenanceVersion"
+          }
         }
       }
     }
@@ -290,16 +363,27 @@ pipeline {
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams() {
+private String assemblyExtraBuildParams(Boolean fakeRelease) {
   String extraBuildParams
 
   println 'Processing extraBuildParams'
   final List<String> buildParamsAsArray = []
 
-  println 'Manage user params'
   if (params.EXTRA_BUILD_PARAMS) {
     buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
   }
+
+  // Manage fake release parameter
+  if (fakeRelease) {
+    buildParamsAsArray.add("--define scm.connection=scm:git:git://github.com/acatoire/component-runtime.git")
+    buildParamsAsArray.add("--define scm.developerConnection=scm:git:git@github.com:acatoire/component-runtime.git")
+    buildParamsAsArray.add("--define scm.url=https://github.com/talend/component-runtime")
+
+    buildParamsAsArray.add("--define distributionManagement.repository.url=https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/")
+    buildParamsAsArray.add("--define distributionManagement.snapshotRepository.url=https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/")
+    buildParamsAsArray.add("--define repositories.snapshotRepository.url=https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/")
+  }
+
 
   println 'Construct final params content'
   extraBuildParams = buildParamsAsArray.join(' ')
@@ -309,9 +393,27 @@ private String assemblyExtraBuildParams() {
   return extraBuildParams
 }
 
-private static ArrayList<String> get_release_milestone_info(String currentVersion, Boolean maintenance) {
-  //TODO manage milestone increment now
+
+/**
+ * Retrieves release and milestone information based on the provided current version.
+ *
+ * @param currentVersion       The current version string to evaluate (e.g., "1.65.0M1-SNAPSHOT").
+ * @param maintenance          Indicates whether it is a maintenance release (true) or a main branch release (false).
+ * @param milestoneIncrement   Indicates whether to increment the milestone number for the next version (applicable for main branch releases).
+ * @return                     An ArrayList containing release and milestone information:
+ *                               - Index 0: Release version.
+ *                               - Index 1: Next development version.
+ *                               - Index 2: Maintenance version (empty string for main branch releases).
+ *                               - Index 3: Maintenance branch name (empty string for main branch releases).
+ * @throws RuntimeException    Throws an exception if the provided version is invalid or incompatible.
+ */
+private static ArrayList<String> get_release_milestone_info(String currentVersion, Boolean maintenance, Boolean milestoneIncrement) {
+
   println("Evaluate release name from current version: $currentVersion")
+
+  if(maintenance && milestoneIncrement){
+    throw new RuntimeException("It is not possible to release a milestone for maintnance branch.")
+  }
 
   // Split the version (ex: "1.65.0M1-SNAPSHOT") on 'M' or '-'
   def parts = currentVersion.split(/[M-]/)
@@ -346,14 +448,21 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
   // Calculate variables according to branch
   String maintenanceBranch = ""
   String maintenanceVersion = ""
-  String devVersion = ""
+  String devVersion
 
   if (! maintenance) {
+    // master relase
     // This is a release of main branch, the maintenance branch will need to be created.
     maintenanceBranch = "maintenance/${maj}.${min}"
     maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
-    min++
-    rev = 0
+
+    if(milestoneIncrement){
+      milestoneNumber++
+    }
+    else{
+      min++
+      rev = 0
+    }
     // Calculate the next development version
     devVersion = "${maj}.${min}.${rev}M${milestoneNumber}-SNAPSHOT"
 
@@ -362,6 +471,7 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
 
 
   } else {
+    // Maintenance release
     rev++
     // Calculate the next development version
     devVersion = "${maj}.${min}.${rev}-SNAPSHOT"
@@ -372,8 +482,12 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
   return [releaseVersion, devVersion, maintenanceVersion, maintenanceBranch]
 }
 
+//println get_release_milestone_info("1.65.0M1-SNAPSHOT", false, true) // milestone
+//println get_release_milestone_info("1.65.0M1-SNAPSHOT", false, false) // release
+//println get_release_milestone_info("1.65.1-SNAPSHOT", true, false) // maintenance
+//println get_release_milestone_info("1.65.1M1-SNAPSHOT", true, false) // maintenance, but version not valid
+//println get_release_milestone_info("1.65.1-SNAPSHOT", true, true) // maintenance, but milestone not valid
+//println get_release_milestone_info("1.65.1-SNAPSHOT", false, true) // milestone, but version not valid
+//println get_release_milestone_info("1.65.1-SNAPSHOT", false, false) // release, but version not valid
 
-println get_release_milestone_info("1.65.0M1-SNAPSHOT", false)
-println get_release_milestone_info("1.65.1-SNAPSHOT", true)
-//println get_release_milestone_info("1.65.1M1-SNAPSHOT", true) // Not valid
-//println get_release_milestone_info("1.65.1-SNAPSHOT", false) // Not valid
+
