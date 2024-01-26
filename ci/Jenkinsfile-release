@@ -173,10 +173,17 @@ pipeline {
 
           if(params.FAKE_RELEASE){
             // updating build description
-            description = """**<font size=10>
-            This is a fake release,
-            - artefacts will be posted on artifact-zl
-            - docker image will be deployed on artifactory dev</font>**""".stripIndent()
+            description = """
+            ---------------------------------------------------  
+            ===================================================  
+            **    
+            This is a fake release,  
+            - artefacts will be posted on artifact-zl  
+            - docker image will be deployed on artifactory dev  
+            **  
+            ===================================================  
+            ---------------------------------------------------  
+            """.stripIndent()
             jenkinsJobTools.job_description_append(description)
           }
         }
@@ -218,16 +225,32 @@ pipeline {
           maintenanceVersion, maintenanceBranch) = get_release_milestone_info(pomVersion, isMaintenanceBranch, isMilestone)
           tagName = "component-runtime-${releaseVersion}"
         }
+
         ///////////////////////////////////////////
         // Updating build description with calculated info
         ///////////////////////////////////////////
         script {
           String description = """
             Actual Version $pomVersion will be release as $releaseVersion.  
-            After the release the repository will be bumped as $nextVersion  
+            After the release the repository will be bumped as $nextVersion.  
             Debug: $params.JENKINS_DEBUG  
             Extra build args: $extraBuildParams""".stripIndent()
           jenkinsJobTools.job_description_append(description)
+        }
+
+        ///////////////////////////////////////////
+        // Validate real release action
+        ///////////////////////////////////////////
+        script {
+          if(!params.FAKE_RELEASE){
+            String checkMsg = """
+            You will do a REAL release  
+            Actual Version $pomVersion will be release as $releaseVersion.  
+            After the release the repository will be bumped as $nextVersion.  
+            **Are you OK to continue?**""".stripIndent()
+            jenkinsJobTools.jenkinsBreakpoint(checkMsg)
+          }
+
         }
       }
     }
