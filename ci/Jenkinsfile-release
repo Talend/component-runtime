@@ -344,7 +344,7 @@ pipeline {
 
       script {
         println '====== Archive jacoco reports artifacts'
-        archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
+        // FIXME SET BACK archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
       }
 
       script {
