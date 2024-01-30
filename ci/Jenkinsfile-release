@@ -391,7 +391,7 @@ pipeline {
 /**
  * Assembly all needed items to put inside extraBuildParams
  *
- * @param Boolean skip_doc, if set to true documentation build will be skipped
+ * @param Boolean fakeRelease
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */

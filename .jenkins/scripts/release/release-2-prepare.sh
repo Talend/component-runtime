@@ -35,7 +35,7 @@ main() {
     --define tag="${tagName}" \
     --define releaseVersion="${releaseVersion}" \
     --define developmentVersion="${nextVersion}" \
-    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true" \
+    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
     --activate-profiles ossrh,release,gpg2 \
     --settings .jenkins/settings.xml \
     "${extraBuildParams[@]}"
