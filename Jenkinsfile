@@ -104,9 +104,9 @@ pipeline {
         skipStagesAfterUnstable()
     }
 
-    triggers {
-        cron(branch_name == "master" ? "0 12 * * *" : "")
-    }
+    //triggers {
+    //    cron(branch_name == "master" ? "0 12 * * *" : "")
+    //}
 
     parameters {
         choice(
