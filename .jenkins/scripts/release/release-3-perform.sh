@@ -24,10 +24,11 @@ main() {
 
   printf ">> Maven perform release"
 
+  # FIXME remove clirr skip when back on talend
   mvn release:perform \
     --batch-mode \
     --errors \
-    --define arguments="-DskipTests -DskipITs" \
+    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --define clirr.skip=true" \
     --settings .jenkins/settings.xml \
     "${extraBuildParams[@]}"
 

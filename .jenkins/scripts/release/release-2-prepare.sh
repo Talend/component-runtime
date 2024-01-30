@@ -29,6 +29,8 @@ main() {
   local extraBuildParams=("$@")
 
   printf ">> Maven prepare release %s (next-dev: %s; tag: %s)\n" "${releaseVersion}" "${nextVersion}" "${tagName}"
+
+  # FIXME remove clirr skip when back on talend
   mvn release:prepare \
     --batch-mode \
     --errors \
