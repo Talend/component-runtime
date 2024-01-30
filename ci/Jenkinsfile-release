@@ -159,7 +159,8 @@ pipeline {
         ///////////////////////////////////////////
         script {
           println "Create assemblyExtraBuildParams from user provided parameters and job option"
-          assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean, params.SKIP_CHECKS as Boolean)
+          extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean,
+                                                      params.SKIP_CHECKS as Boolean)
         }
 
         ///////////////////////////////////////////
@@ -322,7 +323,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
-            //sh "bash .jenkins/scripts/release/release-4-prepare-next-iteration.sh $branchName"
+            //sh "bash .jenkins/scripts/release/release-4-prepare-next-iteration.sh $branchName $extraBuildParams"
           }
         }
       }
