@@ -423,11 +423,11 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean skipChecks)
   if (fakeRelease) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define project.scm.repository=acatoire/component-runtime")
-
     // Use profile to overwrite target nexus in order to use talend instead of sonatype
-    buildParamsAsArray.add("--activate-profiles private_repository")
-
-
+    buildParamsAsArray.add("--activate-profiles private_repository,gpg2,release,no-staging")
+  }
+  else{
+    buildParamsAsArray.add(" --activate-profiles ossrh,release,gpg2")
   }
 
 
