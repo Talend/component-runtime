@@ -23,7 +23,7 @@
 
   <name>Component Runtime</name>
   <description>Talend Component Kit Runtime</description>
-  <url>https://acatoire.github.io/component-runtime/</url>
+  <url>https://talend.github.io/component-runtime/</url>
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -131,10 +131,10 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git://github.com/acatoire/component-runtime.git</connection>
-    <developerConnection>scm:git:git@github.com:acatoire/component-runtime.git</developerConnection>
+    <connection>scm:git:git://github.com/${project.scm.repository}.git</connection>
+    <developerConnection>scm:git:git@github.com:${project.scm.repository}.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/acatoire/component-runtime</url>
+    <url>https://github.com/${project.scm.repository}</url>
   </scm>
   <distributionManagement>
     <repository>
@@ -148,6 +148,8 @@
   </distributionManagement>
 
   <properties>
+    <project.scm.repository>acatoire/component-runtime</project.scm.repository>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- when using -T X, X > 1 you can set -DsimpleLogger.showThreadName=true to have something a bit more readable -->
@@ -988,7 +990,7 @@
             <windowtitle>${project.name}</windowtitle>
             <header>${project.name} - ${project.version}</header>
             <doctitle>${project.name} - ${project.version}</doctitle>
-            <bottom>${project.version} - Copyright &amp;copy; 2022 &lt;a href="https://acatoire.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
           </configuration>
         </plugin>
@@ -1786,9 +1788,13 @@
         Its overwrite the snapshotRepository with a private one.
       -->
       <distributionManagement>
+        <repository>
+          <id>TalendOpenSourceRelease</id>
+          <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+        </repository>
         <snapshotRepository>
-          <id>talend.snapshots</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
+          <id>TalendOpenSourceSnapshot</id>
+          <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
         </snapshotRepository>
       </distributionManagement>
     </profile>
@@ -1823,7 +1829,7 @@
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <nexusUrl>${project.nexusUrl}</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>

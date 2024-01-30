@@ -57,22 +57,6 @@
       </configuration>
     </server>
     <server>
-      <id>talend.snapshots</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
-      <id>talend.releases</id>
-      <username>${env.NEXUS_USER}</username>
-      <password>${env.NEXUS_PASS}</password>
-      <configuration>
-        <timeout>30000</timeout>
-      </configuration>
-    </server>
-    <server>
       <id>talend_nexus_deployment</id>
       <username>${env.NEXUS_USER}</username>
       <password>${env.NEXUS_PASS}</password>

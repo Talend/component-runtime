@@ -421,13 +421,13 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean skipChecks)
 
   // Manage fake release parameter
   if (fakeRelease) {
-    buildParamsAsArray.add("--define scm.connection=scm:git:git://github.com/acatoire/component-runtime.git")
-    buildParamsAsArray.add("--define scm.developerConnection=scm:git:git@github.com:acatoire/component-runtime.git")
-    buildParamsAsArray.add("--define scm.url=https://github.com/talend/component-runtime")
+    // Overwrite the git repository, in order not to write in "talend/component-runtime"
+    buildParamsAsArray.add("--define project.scm.repository=acatoire/component-runtime")
 
-    buildParamsAsArray.add("--define distributionManagement.repository.url=https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/")
-    buildParamsAsArray.add("--define distributionManagement.snapshotRepository.url=https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/")
-    buildParamsAsArray.add("--define repositories.snapshotRepository.url=https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/")
+    // Use profile to overwrite target nexus in order to use talend instead of sonatype
+    buildParamsAsArray.add("--activate-profiles private_repository")
+
+
   }
 
 
