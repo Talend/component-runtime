@@ -32,7 +32,7 @@ main() {
   mvn clean install \
             --define skipTests \
             --define invoker.skip=true \
-            ${extraBuildParams} || true
+            "${extraBuildParams[@]}" || true
 
   printf "Push to github\n"
   git commit -a -m "Updating doc for next iteration" || true

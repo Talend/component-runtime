@@ -30,7 +30,7 @@ main() {
     --define arguments="-DskipTests -DskipITs" \
     --activate-profiles ossrh,release,gpg2 \
     --settings .jenkins/settings.xml \
-    ${extraBuildParams} \
+    "${extraBuildParams[@]}"
 
 }
 
