@@ -23,10 +23,10 @@ set -xe
 # $3: tag name
 # $4: extra build args for all mvn cmd
 main() {
-  local releaseVersion="${1?Missing release version}"
-  local nextVersion="${2?Missing actual project version}"
-  local tagName="${3?Missing actual project version}"
-  local extraBuildParams="${4}"
+  local releaseVersion="${1?Missing release version}"; shift
+  local nextVersion="${1?Missing actual project version}"; shift
+  local tagName="${1?Missing actual project version}"; shift
+  local extraBuildParams=("$@")
 
   printf ">> Maven prepare release %s (next-dev: %s; tag: %s)\n" "${releaseVersion}" "${nextVersion}" "${tagName}"
   mvn release:prepare \

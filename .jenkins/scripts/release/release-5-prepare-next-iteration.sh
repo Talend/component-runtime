@@ -21,8 +21,8 @@ set -xe
 # $1: branch name
 # $2: extra build args for all mvn cmd
 main() {
-  local branchName="${1?Missing actual project version}"
-  local extraBuildParams="${2}"
+  local branchName="${1?Missing actual project version}"; shift
+  local extraBuildParams=("$@")
 
   printf ">> Rebuilding %s and updating it (doc) for next iteration\n" "${branchName}"
   git reset --hard

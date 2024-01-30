@@ -20,7 +20,7 @@ set -xe
 # Parameters:
 # $1: extra build args for all mvn cmd
 main() {
-  local extraBuildParams="${1}"
+  local extraBuildParams=("$@")
 
   printf ">> Maven perform release"
 
