@@ -295,7 +295,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Perform release"
-            //sh "bash .jenkins/scripts/release/release-3-perform.sh $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-3-perform.sh $extraBuildParams"
           }
         }
       }
