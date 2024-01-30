@@ -159,8 +159,7 @@ pipeline {
         ///////////////////////////////////////////
         script {
           println "Create assemblyExtraBuildParams from user provided parameters and job option"
-          extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean,
-                                                      params.SKIP_CHECKS as Boolean)
+          extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean)
         }
 
         ///////////////////////////////////////////
@@ -396,7 +395,7 @@ pipeline {
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean skipChecks) {
+private String assemblyExtraBuildParams(Boolean fakeRelease) {
   String extraBuildParams
 
   println 'Processing extraBuildParams'
@@ -404,19 +403,6 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean skipChecks)
 
   if (params.EXTRA_BUILD_PARAMS) {
     buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
-  }
-
-  if (skipChecks) {
-    String skipOptions = [
-        "--define spotless.apply.skip=true",
-        "--define checkstyle.skip=true",
-        "--define rat.skip=true",
-        "--define skipTests=true",
-        "--define gpg.skip=true",
-        "--define enforcer.skip=true",
-        "--define invoker.skip=true"
-    ].join(' ')
-    buildParamsAsArray.add(skipOptions)
   }
 
   // Manage fake release parameter
