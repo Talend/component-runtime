@@ -242,9 +242,11 @@ pipeline {
         }
 
         ///////////////////////////////////////////
-        // Updating build description with calculated info
+        // Updating build description and name with calculated info
         ///////////////////////////////////////////
         script {
+          jenkinsJobTools.job_name_creation("$releaseVersion")
+
           String description = """
             ----------------------------------------------------------------  
             Actual Version $pomVersion will be release as $releaseVersion.  
