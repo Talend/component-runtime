@@ -27,7 +27,7 @@ main() {
 
   # Manage fake release profiles (has to be sync in  release prepare ans perform scripts
   if [[ "true" == "$fakeRelease" ]]; then
-      local release_profiles="release,private_repository,ossrh,gpg2,no-staging"
+      local release_profiles="release,private_repository,ossrh,gpg2"
   else
       local release_profiles="release,ossrh,gpg2"
   fi

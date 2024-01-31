@@ -322,7 +322,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
-            sh "bash .jenkins/scripts/release/release-4-prepare-next-iteration.sh $branchName $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-5-prepare-next-iteration.sh $branchName $extraBuildParams"
           }
         }
       }
@@ -385,6 +385,7 @@ private String assemblyExtraBuildParams(Boolean fakeRelease) {
   if (fakeRelease) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define project.scm.repository=acatoire/component-runtime")
+    buildParamsAsArray.add("--define project.nexusUrl=https://artifacts-zl.talend.com/")
   }
 
 

@@ -149,6 +149,7 @@
 
   <properties>
     <project.scm.repository>acatoire/component-runtime</project.scm.repository>
+    <project.nexusUrl>https://oss.sonatype.org/</project.nexusUrl>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -1829,7 +1830,7 @@
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <nexusUrl>${project.nexusUrl}</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
