@@ -87,13 +87,9 @@ pipeline {
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branchName == 'master' ? '15' : '10'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '20', numToKeepStr: '20'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
-  }
-
-  triggers {
-    cron(branchName == "master" ? "0 12 * * *" : "")
   }
 
   parameters {
