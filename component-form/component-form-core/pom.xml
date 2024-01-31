@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-form</artifactId>
-    <version>0.65.0M2-SNAPSHOT</version>
+    <version>0.65.0M2</version>
   </parent>
 
   <artifactId>component-form-core</artifactId>
