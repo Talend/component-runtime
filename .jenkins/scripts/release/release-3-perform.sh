@@ -33,6 +33,16 @@ main() {
   fi
 
   # FIXME remove clirr skip when back on talend
+
+  mvn help:effective-pom \
+    --define output="effective-pom-perform.xml" \
+    --batch-mode \
+    --errors \
+    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --define clirr.skip=true" \
+    --settings .jenkins/settings.xml \
+    --activate-profiles "$release_profiles" \
+    "${extraBuildParams[@]}"
+
   mvn release:perform \
     --batch-mode \
     --errors \
