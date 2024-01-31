@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>0.65.0M2</version>
+    <version>0.65.0M3-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server-parent</artifactId>
