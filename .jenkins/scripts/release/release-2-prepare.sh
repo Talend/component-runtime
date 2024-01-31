@@ -34,9 +34,9 @@ main() {
 
   # Manage fake release profiles (has to be sync in  release prepare ans perform scripts
   if [[ "true" == "$fakeRelease" ]]; then
-      local release_profiles="--activate-profiles private_repository,gpg2,release,no-staging"
+      local release_profiles="--activate-profiles release,private_repository,ossrh,gpg2,no-staging"
   else
-      local release_profiles="--activate-profiles ossrh,release,gpg2"
+      local release_profiles="--activate-profiles release,ossrh,gpg2"
   fi
 
 
