@@ -254,7 +254,6 @@ pipeline {
             // Request user action
             input message: "$checkMsg", ok: 'Yes'
           }
-
         }
       }
     }
@@ -293,6 +292,21 @@ pipeline {
       steps {
         withCredentials([nexusCredentials,
                          ossrhCredentials]) {
+          ///////////////////////////////////////////
+          // Validate pom before release action
+          ///////////////////////////////////////////
+          script {
+            String checkMsg = """
+            You will do a release  
+            Actual Version $pomVersion will be release as $releaseVersion.  
+            After the release the repository will be bumped as $nextVersion.  
+            You can check the pom in jenkins artifacts.
+            **Are you OK to continue?**""".stripIndent()
+
+            // Request user action
+            input message: "$checkMsg", ok: 'Yes'
+          }
+
           script {
             echo "Perform release"
             sh "bash .jenkins/scripts/release/release-3-perform.sh $params.FAKE_RELEASE $extraBuildParams"
