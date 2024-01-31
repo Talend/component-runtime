@@ -75,8 +75,8 @@
 
   <properties>
     <scm.repository>acatoire/component-runtime</scm.repository>
-    <serverId>ossrh</serverId>
-    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+    <serverId>TalendOpenSourceRelease</serverId>
+    <nexusUrl>https://artifacts-oss.talend.com/</nexusUrl>
 
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <enforcer-plugin.version>3.0.0</enforcer-plugin.version>

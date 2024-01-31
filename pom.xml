@@ -152,8 +152,8 @@
 
   <properties>
     <scm.repository>acatoire/component-runtime</scm.repository>
-    <serverId>ossrh</serverId>
-    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+    <serverId>TalendOpenSourceRelease</serverId>
+    <nexusUrl>https://artifacts-oss.talend.com/</nexusUrl>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -1795,11 +1795,11 @@
       <distributionManagement>
         <repository>
           <id>TalendOpenSourceRelease</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+          <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
         </repository>
         <snapshotRepository>
           <id>TalendOpenSourceSnapshot</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+          <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
         </snapshotRepository>
       </distributionManagement>
     </profile>
