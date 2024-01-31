@@ -167,12 +167,13 @@ pipeline {
         // release profiles
         ///////////////////////////////////////////
         // Manage fake release profiles
-        if (fakeRelease) {
-          // Use profile to overwrite target nexus in order to use talend instead of sonatype
-          release_profiles = "--activate-profiles private_repository,gpg2,release,no-staging"
-        }
-        else{
-          release_profiles = "--activate-profiles ossrh,release,gpg2"
+        script {
+          if (fakeRelease) {
+            // Use profile to overwrite target nexus in order to use talend instead of sonatype
+            release_profiles = "--activate-profiles private_repository,gpg2,release,no-staging"
+          } else {
+            release_profiles = "--activate-profiles ossrh,release,gpg2"
+          }
         }
 
         ///////////////////////////////////////////
