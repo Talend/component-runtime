@@ -50,7 +50,7 @@ main() {
     --define developmentVersion="${nextVersion}" \
     --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --define clirr.skip=true" \
     --settings .jenkins/settings.xml \
-    "$release_profiles" \
+    $release_profiles \
     "${extraBuildParams[@]}"
 }
 

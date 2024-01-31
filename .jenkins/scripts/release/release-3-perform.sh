@@ -27,9 +27,9 @@ main() {
 
   # Manage fake release profiles (has to be sync in  release prepare ans perform scripts
   if [[ "true" == "$fakeRelease" ]]; then
-      local release_profiles="--activate-profiles private_repository,gpg2,release,no-staging"
+      local release_profiles="--activate-profiles release,private_repository,ossrh,gpg2,no-staging"
   else
-      local release_profiles="--activate-profiles ossrh,release,gpg2"
+      local release_profiles="--activate-profiles release,ossrh,gpg2"
   fi
 
   # FIXME remove clirr skip when back on talend
@@ -38,7 +38,7 @@ main() {
     --errors \
     --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --define clirr.skip=true" \
     --settings .jenkins/settings.xml \
-    "$release_profiles" \
+    $release_profiles \
     "${extraBuildParams[@]}"
 
 }
