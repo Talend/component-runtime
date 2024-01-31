@@ -58,7 +58,6 @@ final Boolean isMasterBranch = branchName == 'master'
 final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
 final Boolean isMilestone = params.ACTION == 'MILESTONE'
 final String extraBuildParams = ""
-final String release_profiles = ""
 
 // Job variables declaration
 String pomVersion          // Declared version in the pom file
@@ -160,19 +159,6 @@ pipeline {
         }
 
         ///////////////////////////////////////////
-        // release profiles
-        ///////////////////////////////////////////
-        // Manage fake release profiles
-        script {
-          if (params.FAKE_RELEASE) {
-            // Use profile to overwrite target nexus in order to use talend instead of sonatype
-            release_profiles = "--activate-profiles private_repository,gpg2,release,no-staging"
-          } else {
-            release_profiles = "--activate-profiles ossrh,release,gpg2"
-          }
-        }
-
-        ///////////////////////////////////////////
         // Updating build displayName and description
         ///////////////////////////////////////////
         script {
@@ -182,8 +168,8 @@ pipeline {
           String description = """
             Execute a $params.ACTION release.  
             Debug: $params.JENKINS_DEBUG  
-            Extra build args: $extraBuildParams  
-            Release profiles: $release_profiles  """.stripIndent()
+            Extra build args: $extraBuildParams
+            """.stripIndent()
           jenkinsJobTools.job_description_append(description)
 
           if(params.FAKE_RELEASE){
@@ -291,7 +277,7 @@ pipeline {
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
-            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion $nextVersion $tagName $release_profiles $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion $nextVersion $tagName $params.FAKE_RELEASE $extraBuildParams"
           }
         }
       }
@@ -309,7 +295,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Perform release"
-            sh "bash .jenkins/scripts/release/release-3-perform.sh $release_profiles $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-3-perform.sh $params.FAKE_RELEASE $extraBuildParams"
           }
         }
       }

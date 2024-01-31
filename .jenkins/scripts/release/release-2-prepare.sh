@@ -26,9 +26,20 @@ main() {
   local releaseVersion="${1?Missing release version}"; shift
   local nextVersion="${1?Missing actual project version}"; shift
   local tagName="${1?Missing actual project version}"; shift
+  local fakeRelease="${1?Missing fake Release}"; shift
   local extraBuildParams=("$@")
 
   printf ">> Maven prepare release %s (next-dev: %s; tag: %s)\n" "${releaseVersion}" "${nextVersion}" "${tagName}"
+
+
+  # Manage fake release profiles (has to be sync in  release prepare ans perform scripts
+  if [[ "true" == "$fakeRelease" ]]; then
+      local release_profiles="--activate-profiles private_repository,gpg2,release,no-staging"
+  else
+      local release_profiles="--activate-profiles ossrh,release,gpg2"
+  fi
+
+
 
   # FIXME remove clirr skip when back on talend
   mvn release:prepare \
@@ -39,6 +50,7 @@ main() {
     --define developmentVersion="${nextVersion}" \
     --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --define clirr.skip=true" \
     --settings .jenkins/settings.xml \
+    "$release_profiles" \
     "${extraBuildParams[@]}"
 }
 
