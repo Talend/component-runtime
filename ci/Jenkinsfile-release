@@ -344,25 +344,6 @@ pipeline {
     }
   }
   post {
-    success {
-      script {
-        println "====== Publish Coverage"
-        publishCoverage adapters: [jacocoAdapter('**/jacoco-aggregate/*.xml')]
-        publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
-        publishCoverage adapters: [jacocoAdapter('**/jacoco-ut/*.xml')]
-        println "====== Publish HTML API Coverage"
-        publishHTML([
-            allowMissing         : false,
-            alwaysLinkToLastBuild: false,
-            keepAll              : true,
-            reportDir            : 'reporting/target/site/jacoco-aggregate',
-            reportFiles          : 'index.html',
-            reportName           : 'Coverage',
-            reportTitles         : 'Coverage'
-        ])
-      }
-    }
-
     always {
       script {
         alertingTools.slack_result(
@@ -373,12 +354,6 @@ pipeline {
             true,
             "Failure of $pomVersion $params.ACTION release.")
       }
-
-      script {
-        println '====== Archive jacoco reports artifacts'
-        // FIXME SET BACK archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
-      }
-
       script {
         if (params.JENKINS_DEBUG) {
           jenkinsJobTools.jenkinsBreakpoint()
