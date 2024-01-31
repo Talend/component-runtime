@@ -24,7 +24,8 @@ final def ossrhCredentials = usernamePassword(
     passwordVariable: 'OSSRH_PASS')
 final def nexusCredentials = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
-    usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
+    usernameVariable: 'NEXUS_USER',
+    passwordVariable: 'NEXUS_PASS')
 final def jetbrainsCredentials = usernamePassword(
     credentialsId: 'jetbrains-credentials',
     usernameVariable: 'JETBRAINS_USER',
@@ -260,7 +261,7 @@ pipeline {
 
     stage('Install BOM') {
       steps {
-        withCredentials([nexusCredentials]) {
+        withCredentials([nexusCredentials, ossrhCredentials]) {
           script {
 
             echo "Preparing and installing BOM to release $releaseVersion from $pomVersion"
@@ -273,6 +274,7 @@ pipeline {
     stage('Prepare release') {
       steps {
         withCredentials([nexusCredentials,
+                         ossrhCredentials,
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
@@ -291,7 +293,10 @@ pipeline {
     stage('Release') {
       steps {
         withCredentials([nexusCredentials,
-                         ossrhCredentials]) {
+                         ossrhCredentials,
+                         jetbrainsCredentials,
+                         jiraCredentials,
+                         gpgCredentials]) {
           ///////////////////////////////////////////
           // Validate pom before release action
           ///////////////////////////////////////////
