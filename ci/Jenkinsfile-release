@@ -309,7 +309,7 @@ pipeline {
                          dockerCredentials]) {
           script {
             echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
-            sh "bash .jenkins/scripts/release/release-4-docker-image-creation.sh"
+            sh "bash .jenkins/scripts/release/release-4-docker-image-creation.sh $releaseVersion $tagName $branchName"
           }
         }
       }
