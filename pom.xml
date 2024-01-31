@@ -131,12 +131,15 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git://github.com/${project.scm.repository}.git</connection>
-    <developerConnection>scm:git:git@github.com:${project.scm.repository}.git</developerConnection>
+    <!-- project.scm.repository can be overwritten if you are running from a project fork-->
+    <connection>scm:git:git://github.com/${scm.repository}.git</connection>
+    <developerConnection>scm:git:git@github.com:${scm.repository}.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/${project.scm.repository}</url>
+    <url>https://github.com/${scm.repository}</url>
   </scm>
+
   <distributionManagement>
+    <!-- default distributionManagement repository can be overwritten using private_repository profile-->
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
@@ -148,8 +151,8 @@
   </distributionManagement>
 
   <properties>
-    <project.scm.repository>acatoire/component-runtime</project.scm.repository>
-    <project.nexusUrl>https://oss.sonatype.org/</project.nexusUrl>
+    <scm.repository>acatoire/component-runtime</scm.repository>
+    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -1800,14 +1803,6 @@
       </distributionManagement>
     </profile>
     <profile>
-      <id>travis</id>
-      <properties>
-        <org.slf4j.simpleLogger.showThreadName>true</org.slf4j.simpleLogger.showThreadName>
-        <org.slf4j.simpleLogger.showDateTime>true</org.slf4j.simpleLogger.showDateTime>
-        <org.slf4j.simpleLogger.dateTimeFormat>HH:mm:ss</org.slf4j.simpleLogger.dateTimeFormat>
-      </properties>
-    </profile>
-    <profile>
       <id>gpg2</id>
       <build>
         <plugins>
@@ -1830,7 +1825,7 @@
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
-              <nexusUrl>${project.nexusUrl}</nexusUrl>
+              <nexusUrl>${nexusUrl}</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>

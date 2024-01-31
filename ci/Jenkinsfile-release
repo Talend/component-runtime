@@ -384,11 +384,9 @@ private String assemblyExtraBuildParams(Boolean fakeRelease) {
   // Manage fake release parameter
   if (fakeRelease) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
-    buildParamsAsArray.add("--define project.scm.repository=acatoire/component-runtime")
-    buildParamsAsArray.add("--define project.nexusUrl=https://artifacts-zl.talend.com/")
+    buildParamsAsArray.add("--define scm.repository=acatoire/component-runtime")
+    buildParamsAsArray.add("--define nexusUrl=https://artifacts-zl.talend.com/")
   }
-
-
 
   println 'Construct final params content'
   extraBuildParams = buildParamsAsArray.join(' ')
