@@ -168,7 +168,7 @@ pipeline {
         ///////////////////////////////////////////
         // Manage fake release profiles
         script {
-          if (fakeRelease) {
+          if (params.FAKE_RELEASE) {
             // Use profile to overwrite target nexus in order to use talend instead of sonatype
             release_profiles = "--activate-profiles private_repository,gpg2,release,no-staging"
           } else {
