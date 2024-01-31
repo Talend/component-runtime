@@ -138,8 +138,8 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
 
+  <!-- default distributionManagement repository can be overwritten using private_repository profile
   <distributionManagement>
-    <!-- default distributionManagement repository can be overwritten using private_repository profile-->
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
@@ -148,10 +148,11 @@
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
-  </distributionManagement>
+  </distributionManagement>-->
 
   <properties>
     <scm.repository>acatoire/component-runtime</scm.repository>
+    <serverId>ossrh</serverId>
     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1824,7 +1825,7 @@
             <version>${nexus-staging-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
+              <serverId>${serverId}</serverId>
               <nexusUrl>${nexusUrl}</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>

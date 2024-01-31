@@ -55,11 +55,13 @@
   </developer>
 </developers>
   <scm>
-    <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
-    <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
+    <connection>scm:git:git://github.com/${scm.repository}.git</connection>
+    <developerConnection>scm:git:git@github.com:${scm.repository}.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/talend/component-runtime</url>
+    <url>https://github.com/${scm.repository}</url>
   </scm>
+
+  <!-- default distributionManagement repository can be overwritten using private_repository profile
   <distributionManagement>
     <repository>
       <id>ossrh</id>
@@ -69,9 +71,13 @@
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
-  </distributionManagement>
+  </distributionManagement>-->
 
   <properties>
+    <scm.repository>acatoire/component-runtime</scm.repository>
+    <serverId>ossrh</serverId>
+    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <enforcer-plugin.version>3.0.0</enforcer-plugin.version>
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
@@ -267,8 +273,8 @@
             <version>${nexus-staging-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <serverId>${serverId}</serverId>
+              <nexusUrl>${nexusUrl}</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
