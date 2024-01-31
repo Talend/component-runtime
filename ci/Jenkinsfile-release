@@ -58,6 +58,7 @@ final Boolean isMasterBranch = branchName == 'master'
 final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
 final Boolean isMilestone = params.ACTION == 'MILESTONE'
 final String extraBuildParams = ""
+final String release_profiles = ""
 
 // Job variables declaration
 String pomVersion          // Declared version in the pom file
@@ -163,6 +164,18 @@ pipeline {
         }
 
         ///////////////////////////////////////////
+        // release profiles
+        ///////////////////////////////////////////
+        // Manage fake release profiles
+        if (fakeRelease) {
+          // Use profile to overwrite target nexus in order to use talend instead of sonatype
+          release_profiles = "--activate-profiles private_repository,gpg2,release,no-staging"
+        }
+        else{
+          release_profiles = "--activate-profiles ossrh,release,gpg2"
+        }
+
+        ///////////////////////////////////////////
         // Updating build displayName and description
         ///////////////////////////////////////////
         script {
@@ -172,7 +185,8 @@ pipeline {
           String description = """
             Execute a $params.ACTION release.  
             Debug: $params.JENKINS_DEBUG  
-            Extra build args: $extraBuildParams  """.stripIndent()
+            Extra build args: $extraBuildParams  
+            Release profiles: $release_profiles  """.stripIndent()
           jenkinsJobTools.job_description_append(description)
 
           if(params.FAKE_RELEASE){
@@ -183,6 +197,7 @@ pipeline {
             - artefacts will be posted on artifact-zl  
             - docker image will be deployed on artifactory dev   
             ---------------------------------------------------  
+            
             """.stripIndent()
             jenkinsJobTools.job_description_append(description)
           }
@@ -235,6 +250,7 @@ pipeline {
             Actual Version $pomVersion will be release as $releaseVersion.  
             After the release the repository will be bumped as $nextVersion.  
             ----------------------------------------------------------------  
+            
             """.stripIndent()
           jenkinsJobTools.job_description_append(description)
         }
@@ -276,7 +292,7 @@ pipeline {
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
-            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion $nextVersion $tagName $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion $nextVersion $tagName $release_profiles $extraBuildParams"
           }
         }
       }
@@ -294,7 +310,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Perform release"
-            sh "bash .jenkins/scripts/release/release-3-perform.sh $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-3-perform.sh $release_profiles $extraBuildParams"
           }
         }
       }
@@ -308,7 +324,7 @@ pipeline {
                          dockerCredentials]) {
           script {
             echo "Docker image creation from branch $branchName with tag: $tagName on version $releaseVersion"
-            //sh "bash .jenkins/scripts/release/release-4-docker-image-creation.sh"
+            sh "bash .jenkins/scripts/release/release-4-docker-image-creation.sh"
           }
         }
       }
@@ -321,7 +337,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Prepare next iteration on $branchName"
-            //sh "bash .jenkins/scripts/release/release-4-prepare-next-iteration.sh $branchName $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-4-prepare-next-iteration.sh $branchName $extraBuildParams"
           }
         }
       }
@@ -337,7 +353,7 @@ pipeline {
                          ossrhCredentials]) {
           script {
             echo "Creating a new branch named $maintenanceBranch with version $maintenanceVersion"
-            //sh "bash .jenkins/scripts/release/release-6-create-maintenance-branch.sh $maintenanceBranch $maintenanceVersion"
+            sh "bash .jenkins/scripts/release/release-6-create-maintenance-branch.sh $maintenanceBranch $maintenanceVersion"
           }
         }
       }
@@ -384,12 +400,8 @@ private String assemblyExtraBuildParams(Boolean fakeRelease) {
   if (fakeRelease) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define project.scm.repository=acatoire/component-runtime")
-    // Use profile to overwrite target nexus in order to use talend instead of sonatype
-    buildParamsAsArray.add("--activate-profiles private_repository,gpg2,release,no-staging")
   }
-  else{
-    buildParamsAsArray.add(" --activate-profiles ossrh,release,gpg2")
-  }
+
 
 
   println 'Construct final params content'
