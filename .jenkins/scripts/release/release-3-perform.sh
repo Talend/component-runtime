@@ -43,7 +43,7 @@ main() {
     --activate-profiles "$release_profiles" \
     "${extraBuildParams[@]}"
 
-  mvn release:perform \
+  mvn release:perform -X \
     --batch-mode \
     --errors \
     --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --define clirr.skip=true" \
