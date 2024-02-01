@@ -64,22 +64,10 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
 
-  <!-- default distributionManagement repository can be overwritten using private_repository profile
-  <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>-->
-
   <properties>
     <scm.repository>acatoire/component-runtime</scm.repository>
-    <serverId>TalendOpenSourceRelease</serverId>
-    <nexusUrl>https://artifacts-zl.talend.com/nexus/</nexusUrl>
+    <serverId>ossrh</serverId>
+    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
 
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <enforcer-plugin.version>3.0.0</enforcer-plugin.version>

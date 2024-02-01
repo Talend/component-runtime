@@ -32,8 +32,9 @@ main() {
   printf ">> Maven prepare release %s (next-dev: %s; tag: %s)\n" "${releaseVersion}" "${nextVersion}" "${tagName}"
 
   # Manage fake release profiles (has to be sync in  release prepare ans perform scripts
+  # TODO private_repository is not working because artifact-zl is not compatible with staging
   if [[ "true" == "$fakeRelease" ]]; then
-      local release_profiles="release,private_repository,ossrh,gpg2"
+      local release_profiles="release,sonatype_repository,ossrh,gpg2"
   else
       local release_profiles="release,sonatype_repository,ossrh,gpg2"
   fi

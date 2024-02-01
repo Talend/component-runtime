@@ -390,8 +390,9 @@ private String assemblyExtraBuildParams(Boolean fakeRelease) {
   if (fakeRelease) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define scm.repository=acatoire/component-runtime")
-    buildParamsAsArray.add("--define serverId=TalendOpenSourceRelease")
-    buildParamsAsArray.add("--define nexusUrl=https://artifacts-oss.talend.com/nexus/")
+    // TODO private_repository is not working because artifact-zl is not compatible with staging
+    //buildParamsAsArray.add("--define serverId=talend.releases")
+    //buildParamsAsArray.add("--define nexusUrl=https://artifacts-zl.talend.com/nexus/")
   }
 
   println 'Construct final params content'
