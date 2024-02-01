@@ -153,7 +153,7 @@
   <properties>
     <scm.repository>acatoire/component-runtime</scm.repository>
     <serverId>TalendOpenSourceRelease</serverId>
-    <nexusUrl>https://artifacts-oss.talend.com/</nexusUrl>
+    <nexusUrl>https://artifacts-zl.talend.com/</nexusUrl>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -891,7 +891,7 @@
         <enabled>false</enabled>
       </snapshots>
       <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </repository>
     <repository>
       <releases>
@@ -911,7 +911,7 @@
         <enabled>true</enabled>
       </snapshots>
       <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
   </repositories>
   <pluginRepositories>
@@ -930,7 +930,7 @@
         <enabled>false</enabled>
       </snapshots>
       <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -1795,11 +1795,11 @@
       <distributionManagement>
         <repository>
           <id>TalendOpenSourceRelease</id>
-          <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+          <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
         </repository>
         <snapshotRepository>
           <id>TalendOpenSourceSnapshot</id>
-          <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+          <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
         </snapshotRepository>
       </distributionManagement>
     </profile>
