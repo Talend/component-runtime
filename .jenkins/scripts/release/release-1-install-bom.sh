@@ -26,13 +26,16 @@ main() {
 
   printf ">> Preparing and installing BOM to release %s from %s\n" "${releaseVersion}" "${currentVersion}"
 
+  printf "Install the BOM (SNAPSHOT)\n"
+  mvn install --file bom/pom.xml
+
   printf "Set version to release value\n"
   mvn versions:set \
     --define newVersion="${releaseVersion}" \
     --define generateBackupPoms=false \
     --file bom/pom.xml
 
-  printf "Install the BOM\n"
+  printf "Install the BOM (FUTURE version)\n"
   mvn install --file bom/pom.xml
 
   printf "Set version back to currentVersion value\n"
