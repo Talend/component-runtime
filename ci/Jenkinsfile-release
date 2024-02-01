@@ -83,7 +83,10 @@ pipeline {
   }
 
   environment {
-    MAVEN_OPTS = "-Dformatter.skip=true -Dmaven.artifact.threads=256"
+    MAVEN_OPTS = [
+        "-Dmaven.artifact.threads=256",
+        "-Dformatter.skip=true",
+    ].join(' ')
   }
 
   options {
@@ -117,10 +120,6 @@ pipeline {
         name: 'JENKINS_DEBUG',
         defaultValue: false,
         description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
-    booleanParam(
-        name: 'SKIP_CHECKS',
-        defaultValue: false,
-        description: 'Skip all kind of static check for debug purposes. **DO NOT USE IT on real release**.')
   }
 
   stages {
