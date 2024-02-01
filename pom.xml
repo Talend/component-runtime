@@ -1797,7 +1797,9 @@
       <distributionManagement>
         <repository>
           <id>talend.releases</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases</url>
+          <!--<url>https://artifacts-zl.talend.com/nexus/content/repositories/releases</url>-->
+          <url>https://artifacts-zl.talend.com/nexus/service/local/staging/deploy/maven2/</url>
+
         </repository>
         <snapshotRepository>
           <id>talend.snapshots</id>
