@@ -40,20 +40,9 @@ main() {
 
   # FIXME remove clirr skip when back on talend
 
-  mvn help:effective-pom \
-    --define output="effective-pom-prepare.xml" \
-    --batch-mode \
-    --errors \
-    --define tag="${tagName}" \
-    --define releaseVersion="${releaseVersion}" \
-    --define developmentVersion="${nextVersion}" \
-    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --define clirr.skip=true" \
-    --settings .jenkins/settings.xml \
-    --activate-profiles "$release_profiles" \
-    "${extraBuildParams[@]}"
-
   mvn release:prepare \
     help:effective-pom \
+    --define output="effective-pom-prepare.xml" \
     --batch-mode \
     --errors \
     --define tag="${tagName}" \
