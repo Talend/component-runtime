@@ -322,7 +322,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
     }
 
-    private void handleDynamic(Entry entry, Object value) {
+    private void handleDynamic(final Entry entry, final Object value) {
         final String name;
         if (allowSpecialName) {
             name = entry.getOriginalFieldName();
