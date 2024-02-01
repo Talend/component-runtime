@@ -35,7 +35,7 @@ main() {
   if [[ "true" == "$fakeRelease" ]]; then
       local release_profiles="release,private_repository,ossrh,gpg2"
   else
-      local release_profiles="release,ossrh,gpg2"
+      local release_profiles="release,sonatype_repository,ossrh,gpg2"
   fi
 
   # FIXME remove clirr skip when back on talend
