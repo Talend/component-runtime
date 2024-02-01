@@ -120,6 +120,13 @@ pipeline {
         name: 'JENKINS_DEBUG',
         defaultValue: false,
         description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+    booleanParam(
+        name: 'NO_STAGING',
+        defaultValue: true,
+        description: """Activate the no-staging profile.  
+                        Execute the release, but at the end of the release:perform step, the release is not done.')  
+                        EXPERT USER ONLY: to solve specials case eg: release ok but failure during docker publish.  
+                        """)
   }
 
   stages {
@@ -155,7 +162,8 @@ pipeline {
         ///////////////////////////////////////////
         script {
           println "Create assemblyExtraBuildParams from user provided parameters and job option"
-          extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean)
+          extraBuildParams = assemblyExtraBuildParams(params.FAKE_RELEASE as Boolean,
+                                                      params.NO_STAGING as Boolean)
         }
 
         ///////////////////////////////////////////
@@ -376,7 +384,7 @@ pipeline {
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-private String assemblyExtraBuildParams(Boolean fakeRelease) {
+private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) {
   String extraBuildParams
 
   println 'Processing extraBuildParams'
@@ -393,6 +401,11 @@ private String assemblyExtraBuildParams(Boolean fakeRelease) {
     // TODO private_repository is not working because artifact-zl is not compatible with staging
     //buildParamsAsArray.add("--define serverId=talend.releases")
     //buildParamsAsArray.add("--define nexusUrl=https://artifacts-zl.talend.com/nexus/")
+  }
+
+  // Manage no-staging parameter
+  if (noStaging) {
+    buildParamsAsArray.add("--activate-profiles no-staging")
   }
 
   println 'Construct final params content'
