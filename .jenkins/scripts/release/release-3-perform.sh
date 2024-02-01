@@ -35,7 +35,7 @@ main() {
 
   # FIXME remove clirr skip when back on talend
 
-  mvn release:perform -X \
+  mvn release:perform \
     help:effective-pom \
     --define output="effective-pom-prepare.xml" \
     --batch-mode \
