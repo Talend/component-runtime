@@ -924,6 +924,16 @@
       <id>oss.releases</id>
       <url>https://oss.sonatype.org/content/repositories/releases</url>
     </pluginRepository>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>TalendOpenSourceRelease</id>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <build>
