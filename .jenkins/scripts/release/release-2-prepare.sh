@@ -52,7 +52,7 @@ main() {
     --activate-profiles "$release_profiles" \
     "${extraBuildParams[@]}"
 
-  mvn release:prepare \
+  mvn release:prepare -X \
     help:effective-pom \
     --batch-mode \
     --errors \
