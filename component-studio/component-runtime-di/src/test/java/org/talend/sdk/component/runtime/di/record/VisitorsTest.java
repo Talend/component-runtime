@@ -215,12 +215,7 @@ public class VisitorsTest {
 
         public Document document = new Document();
 
-        public Document getDocument() {
-            org.dom4j.Document doc = DocumentHelper.createDocument();
-            doc.addElement("catelog").addComment("an XML catelog");
-            document.setDocument(doc);
-            return document;
-        }
+        public Document documentFromString;
 
         public Boolean dynamicIsNullable() {
             return false;

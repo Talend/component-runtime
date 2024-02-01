@@ -120,10 +120,10 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "dynStringDate", StudioTypes.STRING,
                 "2010-01-31", "yyyy-MM-dd", false);
         rowStruct.dynamic = dynamic;
-        // document
+
         initDocument(DOCUMENT);
         initDocument(rowStruct.document);
-        //
+
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
@@ -148,7 +148,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals(StudioTypes.BIGDECIMAL, schema.getEntry("bigDecimal0").getProp(STUDIO_TYPE));
         assertEquals("30", schema.getEntry("bigDecimal0").getProp(SIZE));
         assertEquals("10", schema.getEntry("bigDecimal0").getProp(SCALE));
-        // doocument
+
         assertEquals(StudioTypes.DOCUMENT, schema.getEntry("document").getProp(STUDIO_TYPE));
         assertEquals(DOCUMENT.toString(), rowStruct.document.toString());
         // dyn

@@ -35,7 +35,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.json.Json;
@@ -107,13 +117,19 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     .values()
                     .stream()
                     .anyMatch(field -> "routines.system.Dynamic".equals(field.getType().getName()));
-            dynamicColumn = getColumn("routines.system.Dynamic");
+            dynamicColumn = fields
+                    .values()
+                    .stream()
+                    .filter(field -> "routines.system.Dynamic".equals(field.getType().getName()))
+                    .map(Field::getName)
+                    .findAny()
+                    .orElse(null);
             if (hasDynamic) {
                 dynamic = new DynamicWrapper();
             } else {
                 dynamic = null;
             }
-            // document
+
             log
                     .trace("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
                             metadata);
@@ -124,16 +140,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 | InvocationTargetException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    private String getColumn(final String x) {
-        return fields
-                .values()
-                .stream()
-                .filter(field -> x.equals(field.getType().getName()))
-                .map(Field::getName)
-                .findAny()
-                .orElse(null);
     }
 
     private boolean allowSpecialName;
@@ -294,34 +300,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private void setField(final Entry entry, final Object value) {
         final Field field = fields.get(entry.getName());
         if (hasDynamic && (field == null || dynamicColumn.equals(entry.getName()))) {
-            final String name;
-            if (allowSpecialName) {
-                name = entry.getOriginalFieldName();
-            } else {
-                name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
-                        .stream()
-                        .filter(f -> f.endsWith("." + key))
-                        .findFirst()
-                        .orElse(key));
-            }
-            int index = dynamic.getDynamic().getIndex(name);
-            final DynamicMetadataWrapper metadata;
-            if (index < 0) {
-                metadata = generateMetadata(entry);
-                dynamic.getDynamic().metadatas.add(metadata.getDynamicMetadata());
-                index = dynamic.getDynamic().getIndex(name);
-            } else {
-                metadata = new DynamicMetadataWrapper(dynamic.getDynamic().getColumnMetadata(index));
-            }
-
-            final Class<?> clazz = StudioTypes.classFromType(metadata.getDynamicMetadata().getType());
-            if (clazz != null) {
-                dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(clazz, value, name));
-            } else {
-                dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
-            }
-            log.trace("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(),
-                    value);
+            handleDynamic(entry, value);
             return;
         }
         if (field == null) {
@@ -329,7 +308,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
 
         try {
-            if (StudioTypes.DOCUMENT.equals(entry.getProp(STUDIO_TYPE))) {
+            if (StudioTypes.DOCUMENT.equals(entry.getProp(STUDIO_TYPE)) && Type.STRING.equals(entry.getType())) {
+                log.trace("[setField] Document#{}.", entry.getName());
                 field.set(instance, ParserUtils.parseTo_Document(value.toString()));
                 return;
             }
@@ -337,9 +317,40 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             field.set(instance, MappingUtils.coerce(field.getType(), value, entry.getName()));
         } catch (final IllegalAccessException e) {
             throw new IllegalStateException(e);
-        } catch (DocumentException e) {
-            throw new RuntimeException(e);
+        } catch (final DocumentException e) {
+            throw new IllegalStateException(e);
         }
+    }
+
+    private void handleDynamic(Entry entry, Object value) {
+        final String name;
+        if (allowSpecialName) {
+            name = entry.getOriginalFieldName();
+        } else {
+            name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
+                    .stream()
+                    .filter(f -> f.endsWith("." + key))
+                    .findFirst()
+                    .orElse(key));
+        }
+        int index = dynamic.getDynamic().getIndex(name);
+        final DynamicMetadataWrapper metadata;
+        if (index < 0) {
+            metadata = generateMetadata(entry);
+            dynamic.getDynamic().metadatas.add(metadata.getDynamicMetadata());
+            index = dynamic.getDynamic().getIndex(name);
+        } else {
+            metadata = new DynamicMetadataWrapper(dynamic.getDynamic().getColumnMetadata(index));
+        }
+
+        final Class<?> clazz = StudioTypes.classFromType(metadata.getDynamicMetadata().getType());
+        if (clazz != null) {
+            dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(clazz, value, name));
+        } else {
+            dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
+        }
+        log.trace("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(),
+                value);
     }
 
     @Override

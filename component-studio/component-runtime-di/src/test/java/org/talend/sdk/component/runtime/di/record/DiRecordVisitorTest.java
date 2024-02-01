@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
@@ -31,7 +32,9 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 
-import org.dom4j.DocumentHelper;
+import org.dom4j.DocumentException;
+import org.dom4j.io.SAXReader;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -50,7 +53,13 @@ class DiRecordVisitorTest extends VisitorsTest {
 
     @Test
     void visit() {
-        initDocument();
+        SAXReader reader = new SAXReader();
+        try {
+            DOCUMENT.setDocument(reader.read(new File("src/test/resources/documentTest.xml")));
+        } catch (DocumentException e) {
+            Assert.fail("can not read the document file");
+        }
+
         final Record record = factory
                 .newRecordBuilder()
                 .withString("id", ":testing:")
@@ -131,6 +140,11 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
                         .build(), DOCUMENT)
+                .withString(factory.newEntryBuilder()
+                        .withName("documentFromString")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                        .build(), DOCUMENT.toString())
                 .withRecord("object0", RECORD)
                 .with(factory.newEntryBuilder()
                         .withName("object1")
@@ -244,6 +258,8 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertNotNull(rowStruct.document);
         assertTrue(Document.class.isInstance(rowStruct.document));
         assertEquals(DOCUMENT.toString(), rowStruct.document.toString());
+        assertNotNull(rowStruct.documentFromString);
+        assertEquals(DOCUMENT.toString(), rowStruct.documentFromString.toString());
 
         // asserts rowStruct::dynamic
         assertNotNull(rowStruct.dynamic);
@@ -304,12 +320,6 @@ class DiRecordVisitorTest extends VisitorsTest {
         });
         assertEquals(BIG_DECIMALS, rowStruct.dynamic.getColumnValue("BIG_DECIMALS"));
         assertEquals(BIG_DECIMALS, rowStruct.dynamic.getColumnValue("BIG_DECIMALS2"));
-    }
-
-    private void initDocument() {
-        org.dom4j.Document doc = DocumentHelper.createDocument();
-        doc.addElement("catelog").addComment("an XML catelog");
-        DOCUMENT.setDocument(doc);
     }
 
     @Test
