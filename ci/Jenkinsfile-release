@@ -391,7 +391,7 @@ private String assemblyExtraBuildParams(Boolean fakeRelease) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define scm.repository=acatoire/component-runtime")
     buildParamsAsArray.add("--define serverId=TalendOpenSourceRelease")
-    buildParamsAsArray.add("--define nexusUrl=https://artifacts-zl.talend.com/nexus/")
+    buildParamsAsArray.add("--define nexusUrl=https://artifacts-oss.talend.com/nexus/")
   }
 
   println 'Construct final params content'

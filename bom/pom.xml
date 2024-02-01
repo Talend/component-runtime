@@ -23,6 +23,7 @@
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
   <url>https://talend.github.io/component-runtime/</url>
+
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -30,6 +31,7 @@
       <distribution>may be downloaded from the Maven repository</distribution>
     </license>
   </licenses>
+
   <developers>
     <developer>
     <id>undx</id>
@@ -41,19 +43,20 @@
       <role>Owner</role>
     </roles>
     <timezone>+1</timezone>
-  </developer>
-  <developer>
-    <id>clesaec</id>
-    <name>Christophe Le Saec</name>
-    <email>clesaec@talend.com</email>
-    <organization>Talend</organization>
-    <organizationUrl>https://www.talend.com/</organizationUrl>
-    <roles>
-      <role>Contributor</role>
-    </roles>
-    <timezone>+1</timezone>
-  </developer>
-</developers>
+    </developer>
+    <developer>
+      <id>clesaec</id>
+      <name>Christophe Le Saec</name>
+      <email>clesaec@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+
   <scm>
     <connection>scm:git:git://github.com/${scm.repository}.git</connection>
     <developerConnection>scm:git:git@github.com:${scm.repository}.git</developerConnection>
@@ -76,7 +79,7 @@
   <properties>
     <scm.repository>acatoire/component-runtime</scm.repository>
     <serverId>TalendOpenSourceRelease</serverId>
-    <nexusUrl>https://artifacts-zl.talend.com/nexus/</nexusUrl>
+    <nexusUrl>https://artifacts-oss.talend.com/nexus/</nexusUrl>
 
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <enforcer-plugin.version>3.0.0</enforcer-plugin.version>
@@ -225,6 +228,7 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <build>
     <plugins>
     <plugin>
@@ -250,6 +254,7 @@
     </plugin>
     </plugins>
   </build>
+
   <profiles>
     <profile>
       <id>gpg2</id>

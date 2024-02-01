@@ -153,7 +153,7 @@
   <properties>
     <scm.repository>acatoire/component-runtime</scm.repository>
     <serverId>TalendOpenSourceRelease</serverId>
-    <nexusUrl>https://artifacts-zl.talend.com/nexus/</nexusUrl>
+    <nexusUrl>https://artifacts-oss.talend.com/nexus/</nexusUrl>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -892,7 +892,7 @@
         <enabled>true</enabled>
       </snapshots>
       <id>TalendOpenSourceSnapshot</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
     <repository>
       <releases>
@@ -902,7 +902,17 @@
         <enabled>false</enabled>
       </snapshots>
       <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+      <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>gradle-libs-releases-local</id>
+      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
   </repositories>
 
