@@ -846,6 +846,7 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -885,26 +886,6 @@
     </repository>
     <repository>
       <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>TalendOpenSourceRelease</id>
-      <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>gradle-libs-releases-local</id>
-      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
-    </repository>
-    <repository>
-      <releases>
         <enabled>false</enabled>
       </releases>
       <snapshots>
@@ -913,16 +894,7 @@
       <id>TalendOpenSourceSnapshot</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
     </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <id>oss.releases</id>
-      <url>https://oss.sonatype.org/content/repositories/releases</url>
-    </pluginRepository>
-    <pluginRepository>
+    <repository>
       <releases>
         <enabled>true</enabled>
       </releases>
@@ -931,6 +903,16 @@
       </snapshots>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <id>oss.releases</id>
+      <url>https://oss.sonatype.org/content/repositories/releases</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -1794,11 +1776,11 @@
       -->
       <distributionManagement>
         <repository>
-          <id>TalendOpenSourceRelease</id>
+          <id>talend.releases</id>
           <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
         </repository>
         <snapshotRepository>
-          <id>TalendOpenSourceSnapshot</id>
+          <id>talend.snapshots</id>
           <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
         </snapshotRepository>
       </distributionManagement>
