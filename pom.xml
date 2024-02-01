@@ -1797,7 +1797,7 @@
       <distributionManagement>
         <repository>
           <id>talend.releases</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+          <url>https://artifacts-zl.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
         </repository>
         <snapshotRepository>
           <id>talend.snapshots</id>

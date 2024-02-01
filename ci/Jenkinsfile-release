@@ -261,7 +261,8 @@ pipeline {
 
     stage('Install BOM') {
       steps {
-        withCredentials([nexusCredentials, ossrhCredentials]) {
+        withCredentials([nexusCredentials,
+                         ossrhCredentials]) {
           script {
 
             echo "Preparing and installing BOM to release $releaseVersion from $pomVersion"
