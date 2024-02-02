@@ -130,6 +130,11 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
                         .build(), String.valueOf(Character.MAX_VALUE))
+                .withString(factory.newEntryBuilder()
+                        .withName("dynDocument")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                        .build(), DOCUMENT.toString())
                 .with(factory.newEntryBuilder()
                         .withName("dynObject")
                         .withType(Type.STRING)
@@ -288,6 +293,9 @@ class DiRecordVisitorTest extends VisitorsTest {
         dynObject = rowStruct.dynamic.getColumnValue("dynBigDecimal2");
         assertTrue(BigDecimal.class.isInstance(dynObject));
         assertEquals(BIGDEC, dynObject);
+        dynObject = rowStruct.dynamic.getColumnValue("dynDocument");
+        assertTrue(String.class.isInstance(dynObject));
+        assertEquals(DOCUMENT.toString(), dynObject);
 
         dynObject = rowStruct.dynamic.getColumnValue("dynShort");
         assertTrue(Short.class.isInstance(dynObject));

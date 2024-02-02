@@ -150,75 +150,7 @@ public class DiRowStructVisitor {
                     onDocument(name, raw);
                     break;
                 case StudioTypes.DYNAMIC:
-                    final DynamicWrapper dynamic = new DynamicWrapper(raw);
-                    dynamic.getDynamic().metadatas.forEach(meta -> {
-                        final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
-                        final String metaName = sanitizeConnectionName(meta.getName());
-                        final String metaOriginalName = meta.getDbName();
-                        log.trace("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
-                        if (value == null) {
-                            return;
-                        }
-                        switch (meta.getType()) {
-                        case StudioTypes.OBJECT:
-                            onObject(metaName, value);
-                            break;
-                        case StudioTypes.LIST:
-                            onArray(toCollectionEntry(metaName, metaOriginalName, value), Collection.class.cast(value));
-                            break;
-                        case StudioTypes.STRING:
-                        case StudioTypes.CHARACTER:
-                            onString(metaName, value);
-                            break;
-                        case StudioTypes.BYTE_ARRAY:
-                            final byte[] bytes;
-                            if (byte[].class.isInstance(value)) {
-                                bytes = byte[].class.cast(value);
-                            } else if (ByteBuffer.class.isInstance(value)) {
-                                bytes = ByteBuffer.class.cast(value).array();
-                            } else {
-                                log
-                                        .warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
-                                                + " This should not happen! "
-                                                + " Wrapping `byte[]` from `String.valueOf()`: result may be inaccurate.",
-                                                metaName, value.getClass().getSimpleName());
-                                bytes = ByteBuffer.wrap(String.valueOf(value).getBytes()).array();
-                            }
-                            onBytes(metaName, bytes);
-                            break;
-                        case StudioTypes.BYTE:
-                        case StudioTypes.SHORT:
-                        case StudioTypes.INTEGER:
-                            onInt(metaName, value);
-                            break;
-                        case StudioTypes.LONG:
-                            onLong(metaName, value);
-                            break;
-                        case StudioTypes.FLOAT:
-                            onFloat(metaName, value);
-                            break;
-                        case StudioTypes.DOUBLE:
-                            onDouble(metaName, value);
-                            break;
-                        case StudioTypes.BIGDECIMAL:
-                            onDecimal(metaName, BigDecimal.class.cast(value));
-                            break;
-                        case StudioTypes.BOOLEAN:
-                            onBoolean(metaName, value);
-                            break;
-                        case StudioTypes.DATE:
-                            final ZonedDateTime dateTime;
-                            if (Long.class.isInstance(value)) {
-                                dateTime = ZonedDateTime.ofInstant(ofEpochMilli(Long.class.cast(value)), UTC);
-                            } else {
-                                dateTime = ZonedDateTime.ofInstant(Date.class.cast(value).toInstant(), UTC);
-                            }
-                            onDatetime(metaName, dateTime);
-                            break;
-                        default:
-                            throw new IllegalStateException("Unexpected value: " + meta.getType());
-                        }
-                    });
+                    handleDynamic(raw);
                     break;
                 default:
                     throw new IllegalAccessException(String.format("Invalid type: %s (%s) with value: %s. .",
@@ -226,6 +158,78 @@ public class DiRowStructVisitor {
                 }
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
+            }
+        });
+    }
+
+    private void handleDynamic(final Object raw) {
+        final DynamicWrapper dynamic = new DynamicWrapper(raw);
+        dynamic.getDynamic().metadatas.forEach(meta -> {
+            final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
+            final String metaName = sanitizeConnectionName(meta.getName());
+            final String metaOriginalName = meta.getDbName();
+            log.trace("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
+            if (value == null) {
+                return;
+            }
+            switch (meta.getType()) {
+            case StudioTypes.OBJECT:
+                onObject(metaName, value);
+                break;
+            case StudioTypes.LIST:
+                onArray(toCollectionEntry(metaName, metaOriginalName, value), Collection.class.cast(value));
+                break;
+            case StudioTypes.STRING:
+            case StudioTypes.CHARACTER:
+                onString(metaName, value);
+                break;
+            case StudioTypes.BYTE_ARRAY:
+                final byte[] bytes;
+                if (byte[].class.isInstance(value)) {
+                    bytes = byte[].class.cast(value);
+                } else if (ByteBuffer.class.isInstance(value)) {
+                    bytes = ByteBuffer.class.cast(value).array();
+                } else {
+                    log
+                            .warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
+                                    + " This should not happen! "
+                                    + " Wrapping `byte[]` from `String.valueOf()`: result may be inaccurate.",
+                                    metaName, value.getClass().getSimpleName());
+                    bytes = ByteBuffer.wrap(String.valueOf(value).getBytes()).array();
+                }
+                onBytes(metaName, bytes);
+                break;
+            case StudioTypes.BYTE:
+            case StudioTypes.SHORT:
+            case StudioTypes.INTEGER:
+                onInt(metaName, value);
+                break;
+            case StudioTypes.LONG:
+                onLong(metaName, value);
+                break;
+            case StudioTypes.FLOAT:
+                onFloat(metaName, value);
+                break;
+            case StudioTypes.DOUBLE:
+                onDouble(metaName, value);
+                break;
+            case StudioTypes.BIGDECIMAL:
+                onDecimal(metaName, BigDecimal.class.cast(value));
+                break;
+            case StudioTypes.BOOLEAN:
+                onBoolean(metaName, value);
+                break;
+            case StudioTypes.DATE:
+                final ZonedDateTime dateTime;
+                dateTime = ZonedDateTime.ofInstant(Long.class.isInstance(value) ? ofEpochMilli(Long.class.cast(value))
+                        : Date.class.cast(value).toInstant(), UTC);
+                onDatetime(metaName, dateTime);
+                break;
+            case StudioTypes.DOCUMENT:
+                onString(metaName, value);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + meta.getType());
             }
         });
     }

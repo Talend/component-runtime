@@ -105,6 +105,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "dynBytesBuffer", StudioTypes.BYTE_ARRAY, ByteBuffer.allocate(100).wrap(BYTES0));
         createMetadata(dynamic, "dynBytesWString", StudioTypes.BYTE_ARRAY, String.valueOf(BYTES0));
         createMetadata(dynamic, "dynBigDecimal", StudioTypes.BIGDECIMAL, BIGDEC);
+        createMetadata(dynamic, "dynDocument", StudioTypes.DOCUMENT, DOCUMENT);
         Rcd dynObject = new Rcd();
         createMetadata(dynamic, "dynObject", StudioTypes.OBJECT, dynObject);
         createMetadata(dynamic, "STRINGS", StudioTypes.LIST, STRINGS);
@@ -128,7 +129,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(50, schema.getEntries().size());
+        assertEquals(52, schema.getEntries().size());
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
         assertEquals("true", schema.getEntry("id").getProp(IS_KEY));
@@ -167,6 +168,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals("YYYY-mm-ddTHH:MM", schema.getEntry("dynDate").getProp(PATTERN));
         assertEquals(StudioTypes.STRING, schema.getEntry("dynStringDate").getProp(STUDIO_TYPE));
         assertEquals("yyyy-MM-dd", schema.getEntry("dynStringDate").getProp(PATTERN));
+        assertEquals(StudioTypes.DOCUMENT, schema.getEntry("dynDocument").getProp(STUDIO_TYPE));
         // asserts Record
         assertEquals(":testing:", record.getString("id"));
         assertEquals(NAME, record.getString("name"));
@@ -196,6 +198,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertArrayEquals(String.valueOf(BYTES0).getBytes(), record.getBytes("dynBytesWString"));
         assertEquals(BIGDEC.toString(), record.getString("dynBigDecimal"));
         assertEquals(BIGDEC, new BigDecimal(record.getString("dynBigDecimal")));
+        assertEquals(DOCUMENT.toString(), record.getString("dynDocument"));
         assertEquals(rowStruct.object0, record.get(Object.class, "object0"));
         assertTrue(record.getBoolean("hAshcOdEdIrtY"));
         assertEquals(NAME, record.getString("h"));
