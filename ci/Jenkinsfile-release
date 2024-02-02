@@ -58,6 +58,7 @@ final String branchName = env.BRANCH_NAME
 final Boolean isMasterBranch = branchName == 'master'
 final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
 final Boolean isMilestone = params.ACTION == 'MILESTONE'
+final Boolean isMaintenance = params.ACTION == 'MAINTENANCE' // TODO check that isMaintenance == isMaintenanceBranch
 final String extraBuildParams = ""
 
 // Job variables declaration
@@ -98,13 +99,15 @@ pipeline {
   parameters {
     choice(
         name: 'ACTION',
-        choices: ['MILESTONE', 'GA'],
+        choices: ['TYPE_OF_RELEASE', 'MILESTONE', 'GA', 'MAINTENANCE'],
         description: """
           Type of release:
-            MILESTONE: (default) classical milestone release 
+            MILESTONE: classical milestone release 
               ex: 1.63.0M1-SNAPSHOT is released as 1.63.0M1 and master branch is bumped as 1.63.0M2-SNAPSHOT
             GA: release for General Available
-              ex: 1.63.0M9 is released as 1.63.0 and master branch is bumped as 1.64.0M1-SNAPSHOT""")
+              ex: 1.63.0M9-SNAPSHOT is released as 1.63.0 and master branch is bumped as 1.64.0M1-SNAPSHOT
+            MAINTENANCE: release for General Available of MAINTENANCE
+              ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT""")
     booleanParam(
         name: 'FAKE_RELEASE',
         defaultValue: true,
@@ -228,7 +231,7 @@ pipeline {
 
           echo 'Manage the release version '
           (releaseVersion, nextVersion,
-          maintenanceVersion, maintenanceBranch) = get_release_milestone_info(pomVersion, isMaintenanceBranch, isMilestone)
+          maintenanceVersion, maintenanceBranch) = get_release_info(pomVersion, isMaintenanceBranch, isMilestone)
           tagName = "component-runtime-${releaseVersion}"
         }
 
@@ -430,7 +433,7 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) 
  *                               - Index 3: Maintenance branch name (empty string for main branch releases).
  * @throws RuntimeException    Throws an exception if the provided version is invalid or incompatible.
  */
-private static ArrayList<String> get_release_milestone_info(String currentVersion, Boolean maintenance, Boolean milestoneIncrement) {
+private static ArrayList<String> get_release_info(String currentVersion, Boolean maintenance, Boolean milestoneIncrement) {
 
   println("Evaluate release name from current version: $currentVersion")
 
@@ -522,11 +525,18 @@ private static ArrayList<String> get_release_milestone_info(String currentVersio
 
   return [releaseVersion, nextVersion, maintenanceVersion, maintenanceBranch]
 }
-
-//println get_release_milestone_info("1.65.0M1-SNAPSHOT", false, true) // milestone
-//println get_release_milestone_info("1.65.0M5-SNAPSHOT", false, false) // ga
-//println get_release_milestone_info("1.65.3-SNAPSHOT", true, false) // maintenance
-//println get_release_milestone_info("1.65.1M1-SNAPSHOT", true, false) // maintenance, but version not valid
-//println get_release_milestone_info("1.65.1-SNAPSHOT", true, true) // maintenance, but milestone not valid
-//println get_release_milestone_info("1.65.1-SNAPSHOT", false, true) // milestone, but version not valid
-//println get_release_milestone_info("1.65.1-SNAPSHOT", false, false) // release, but version not valid
+// Use those to test the method:
+//println get_release_info("1.65.0M1-SNAPSHOT", false, true) // milestone
+// result should be: [1.65.0M1, 1.65.0M2-SNAPSHOT, none, none]
+//println get_release_info("1.65.0M5-SNAPSHOT", false, false) // ga
+// result should be: [1.65.0, 1.66.0M1-SNAPSHOT, 1.65.1-SNAPSHOT, maintenance/1.65]
+//println get_release_info("1.65.3-SNAPSHOT", true, false) // maintenance
+// result should be: [1.65.3, 1.65.4-SNAPSHOT, 1.65.4-SNAPSHOT, maintenance/1.65]
+//println get_release_info("1.65.1M1-SNAPSHOT", true, false) // release maintenance, but version not valid
+// should raise a java.lang.RuntimeException: Provided version 1.65.1M1-SNAPSHOT is not a maintenance version (contains 'M').
+//println get_release_info("1.65.1-SNAPSHOT", true, true) // milestone but on maintenance branch
+// should raise a java.lang.RuntimeException: It is not possible to release a milestone for maintenance branch.
+//println get_release_info("1.65.1-SNAPSHOT", false, true) // release milestone, but version not valid
+// should raise a java.lang.RuntimeException: Provided version 1.65.1-SNAPSHOT is not a milestone version (no 'M').
+//println get_release_info("1.65.1-SNAPSHOT", false, false) // release GA, but version not valid
+// should raise a java.lang.RuntimeException: Provided version 1.65.1-SNAPSHOT is not a milestone version (no 'M').
