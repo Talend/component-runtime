@@ -309,7 +309,7 @@ pipeline {
       }
     }
 
-    stage('Prepare release') {
+    stage('Maven release prepare') {
       steps {
         withCredentials([nexusCredentials,
                          ossrhCredentials,
@@ -328,7 +328,7 @@ pipeline {
       }
     }
 
-    stage('Release') {
+    stage('Maven release process') {
       steps {
         withCredentials([nexusCredentials,
                          ossrhCredentials,
@@ -344,7 +344,7 @@ pipeline {
       }
     }
 
-    stage('Docker image creation') {
+    stage('Release Docker image') {
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
