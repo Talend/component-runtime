@@ -65,9 +65,7 @@
   </scm>
 
   <properties>
-    <scm.repository>acatoire/component-runtime</scm.repository>
-    <serverId>ossrh</serverId>
-    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+    <scm.repository>talend/component-runtime</scm.repository>
 
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <enforcer-plugin.version>3.0.0</enforcer-plugin.version>
@@ -266,8 +264,8 @@
             <version>${nexus-staging-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>${serverId}</serverId>
-              <nexusUrl>${nexusUrl}</nexusUrl>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>

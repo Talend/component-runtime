@@ -411,6 +411,7 @@ pipeline {
  * Assembly all needed items to put inside extraBuildParams
  *
  * @param Boolean fakeRelease
+ * @param Boolean noStaging
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
@@ -428,9 +429,6 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) 
   if (fakeRelease) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
     buildParamsAsArray.add("--define scm.repository=acatoire/component-runtime")
-    // TODO private_repository is not working because artifact-zl is not compatible with staging
-    //buildParamsAsArray.add("--define serverId=talend.releases")
-    //buildParamsAsArray.add("--define nexusUrl=https://artifacts-zl.talend.com/nexus/")
   }
 
   // Manage no-staging parameter
@@ -452,7 +450,8 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) 
  *
  * @param currentVersion       The current version string to evaluate (e.g., "1.65.0M1-SNAPSHOT").
  * @param maintenance          Indicates whether it is a maintenance release (true) or a main branch release (false).
- * @param milestoneIncrement   Indicates whether to increment the milestone number for the next version (applicable for main branch releases).
+ * @param milestoneIncrement   Indicates whether to increment the milestone number for the next version
+ *                             (applicable for main branch releases).
  * @return                     An ArrayList containing release and milestone information:
  *                               - Index 0: Release version.
  *                               - Index 1: Next development version.
@@ -460,7 +459,9 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) 
  *                               - Index 3: Maintenance branch name (empty string for main branch releases).
  * @throws RuntimeException    Throws an exception if the provided version is invalid or incompatible.
  */
-private static ArrayList<String> get_release_info(String currentVersion, Boolean maintenance, Boolean milestoneIncrement) {
+private static ArrayList<String> get_release_info(String currentVersion,
+                                                  Boolean maintenance,
+                                                  Boolean milestoneIncrement) {
 
   println("Evaluate release name from current version: $currentVersion")
 

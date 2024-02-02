@@ -131,7 +131,7 @@
   </modules>
 
   <scm>
-    <!-- project.scm.repository can be overwritten if you are running from a project fork-->
+    <!-- scm.repository can be overwritten if you are running from a project fork-->
     <connection>scm:git:git://github.com/${scm.repository}.git</connection>
     <developerConnection>scm:git:git@github.com:${scm.repository}.git</developerConnection>
     <tag>HEAD</tag>
@@ -139,9 +139,7 @@
   </scm>
 
   <properties>
-    <scm.repository>acatoire/component-runtime</scm.repository>
-    <serverId>ossrh</serverId>
-    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+    <scm.repository>talend/component-runtime</scm.repository>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
