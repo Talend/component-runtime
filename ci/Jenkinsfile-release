@@ -108,13 +108,6 @@ pipeline {
               ex: 1.63.0M9-SNAPSHOT is released as 1.63.0 and master branch is bumped as 1.64.0M1-SNAPSHOT
             MAINTENANCE: release for General Available of MAINTENANCE
               ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT""")
-    booleanParam(
-        name: 'FAKE_RELEASE',
-        defaultValue: true,
-        description: '''For debug purposes, the job will deploy in:  
-                        - Artifactory Dev instead of Artifactory Prod for docker images  
-                        - Artifacts-zl instead of sonatype for java artefacts  
-                        The job will not tag/commit on git''')
     string(
         name: 'EXTRA_BUILD_PARAMS',
         defaultValue: '',
@@ -125,7 +118,7 @@ pipeline {
         description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
     booleanParam(
         name: 'NO_STAGING',
-        defaultValue: true,
+        defaultValue: false,
         description: """Activate the no-staging profile.  
                         Execute the release, but at the end of the release:perform step, 
                         the artifacts are not publish on the NEXUS.  
@@ -133,10 +126,17 @@ pipeline {
                         """)
     booleanParam(
         name: 'NO_DOCKER',
-        defaultValue: true,
+        defaultValue: false,
         description: """Execute the release, but at the end of the release is not done.')  
                         EXPERT USER ONLY: to solve specials case eg: release script test.  
                         """)
+    booleanParam(
+        name: 'FAKE_RELEASE',
+        defaultValue: false,
+        description: '''For debug purposes, the job will deploy in:  
+                        - NOT IMPLEMENTED Artifactory Dev instead of Artifactory Prod for docker images  
+                        - NOT IMPLEMENTED Artifacts-zl instead of sonatype for java artefacts  
+                        The job will not tag/commit on git fork''')
   }
 
   stages {
