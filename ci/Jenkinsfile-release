@@ -250,22 +250,6 @@ pipeline {
             """.stripIndent()
           jenkinsJobTools.job_description_append(description)
         }
-
-        ///////////////////////////////////////////
-        // Validate real release action
-        ///////////////////////////////////////////
-        script {
-          if(!params.FAKE_RELEASE){
-            String checkMsg = """
-            You will do a REAL-$params.ACTION release  
-            Actual Version $pomVersion will be release as $releaseVersion.  
-            After the release the repository will be bumped as $nextVersion.  
-            **Are you OK to continue?**""".stripIndent()
-
-            // Request user action
-            input message: "$checkMsg", ok: 'Yes'
-          }
-        }
       }
     }
 
@@ -273,6 +257,20 @@ pipeline {
       steps {
         withCredentials([nexusCredentials,
                          ossrhCredentials]) {
+
+          ///////////////////////////////////////////
+          // Manual validation of release action
+          ///////////////////////////////////////////
+          script {
+            String checkMsg = """
+              You will do a $params.ACTION release  
+              Actual Version $pomVersion will be release as $releaseVersion.  
+              After the release the repository will be bumped as $nextVersion.  
+              **Are you OK to continue?**""".stripIndent()
+
+            // Request user action
+            input message: "$checkMsg", ok: 'Yes'
+          }
           script {
 
             echo "Preparing and installing BOM to release $releaseVersion from $pomVersion"
@@ -534,7 +532,7 @@ private static ArrayList<String> get_release_info(String currentVersion, Boolean
 // result should be: [1.65.3, 1.65.4-SNAPSHOT, 1.65.4-SNAPSHOT, maintenance/1.65]
 //println get_release_info("1.65.1M1-SNAPSHOT", true, false) // release maintenance, but version not valid
 // should raise a java.lang.RuntimeException: Provided version 1.65.1M1-SNAPSHOT is not a maintenance version (contains 'M').
-//println get_release_info("1.65.1-SNAPSHOT", true, true) // milestone but on maintenance branch
+//println get_release_info("1.65.1-SNAPSHOT", true, true) // release milestone but on maintenance branch
 // should raise a java.lang.RuntimeException: It is not possible to release a milestone for maintenance branch.
 //println get_release_info("1.65.1-SNAPSHOT", false, true) // release milestone, but version not valid
 // should raise a java.lang.RuntimeException: Provided version 1.65.1-SNAPSHOT is not a milestone version (no 'M').
