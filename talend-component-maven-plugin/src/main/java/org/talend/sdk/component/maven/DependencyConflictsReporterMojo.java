@@ -70,8 +70,15 @@ public class DependencyConflictsReporterMojo extends ComponentDependenciesBase {
     @Parameter(property = "talend-dependencies-conflicts.js")
     private String js;
 
+    @Parameter(defaultValue = "false", property = "talend.repository-report.skip")
+    private boolean skipReport;
+
     @Override
     public void doExecute() throws MojoExecutionException {
+        if (skipReport) {
+            getLog().info("repository-report goal skipped.");
+            return;
+        }
         final MvnDependencyListLocalRepositoryResolver resolver =
                 new MvnDependencyListLocalRepositoryResolver("TALEND-INF/dependencies.txt", it -> null);
         final Collection<Item> modules = getArtifacts(artifact -> {
