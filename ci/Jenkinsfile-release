@@ -57,8 +57,8 @@ final String branchName = env.BRANCH_NAME
 // Job config
 final Boolean isMasterBranch = branchName == 'master'
 final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
-final Boolean isMilestone = params.ACTION == 'MILESTONE'
-final Boolean isMaintenance = params.ACTION == 'MAINTENANCE' // TODO check that isMaintenance == isMaintenanceBranch
+final Boolean isMilestoneRelease = false
+final Boolean isMaintenanceRelease = false
 final String extraBuildParams = ""
 
 // Job variables declaration
@@ -221,17 +221,46 @@ pipeline {
     stage('Version management') {
       steps {
         ///////////////////////////////////////////
+        // ACTION check
+        ///////////////////////////////////////////
+        script {
+          // Check on maintenance branch
+          if (isMaintenanceBranch) {
+            if (params.ACTION == 'MAINTENANCE') {
+              echo("GA release on maintenance branch")
+              isMaintenanceRelease = true
+            } else {
+              error("On maintenance branch, you can only execute a MAINTENANCE release action")
+            }
+          }
+
+          // Check on maintenance branch
+          if (isMasterBranch) {
+            switch (action) {
+              case 'MILESTONE':
+                echo("Milestone release on master branch")
+                isMilestoneRelease = true
+                break
+              case 'GA':
+                echo("GA release on master branch")
+                break
+              default:
+                error("On master branch, you can only execute a MILESTONE or GA release action")
+            }
+          }
+        }
+
+        ///////////////////////////////////////////
         // Pom version management
         ///////////////////////////////////////////
         script{
-
           echo 'Read the actual version in the pom'
           final def pom = readMavenPom file: 'pom.xml'
           pomVersion = pom.version
 
           echo 'Manage the release version '
           (releaseVersion, nextVersion,
-          maintenanceVersion, maintenanceBranch) = get_release_info(pomVersion, isMaintenanceBranch, isMilestone)
+          maintenanceVersion, maintenanceBranch) = get_release_info(pomVersion, isMaintenanceRelease, isMilestoneRelease)
           tagName = "component-runtime-${releaseVersion}"
         }
 
