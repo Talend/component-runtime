@@ -33,7 +33,7 @@ dockerBuild() {
     printf ">>THe image will be tagged as LATEST\n"
   fi
 
-  local skip_for_release="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip --define clirr.skip=true"
+  local skip_for_release="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip"
 
   mvn package jib:build@build \
     --file "images/${_IMAGE}-image/pom.xml" \

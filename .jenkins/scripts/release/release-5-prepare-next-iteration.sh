@@ -28,16 +28,13 @@ main() {
   git reset --hard
   git checkout "${branchName}"
 
-  # FIXME remove clirr
-  # "|| true" is here to avoid blocking the jenkins pipeline
-  mvn clean install \
-            --define skipTests \
-            --define invoker.skip=true \
-            --define checkstyle.skip \
-            --define enforcer.skip=true \
-            --define rat.skip \
-            --define clirr.skip=true \
-            "${extraBuildParams[@]}" || true
+  # "|| true" is here to avoid blocking the jenkins pipeline in case of failure
+  mvn clean install --define skipTests \
+                    --define invoker.skip=true \
+                    --define checkstyle.skip \
+                    --define enforcer.skip=true \
+                    --define rat.skip \
+                    "${extraBuildParams[@]}" || true
 
   printf "Push to github\n"
   git commit -a -m "Updating doc for next iteration" || true

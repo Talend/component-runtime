@@ -316,7 +316,10 @@ pipeline {
                          gpgCredentials]) {
           script {
             echo "Maven prepare release $releaseVersion (next-dev: $nextVersion; tag: $tagName)"
-            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion $nextVersion $tagName $params.FAKE_RELEASE $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-2-prepare.sh $releaseVersion \
+                                                                   $nextVersion \
+                                                                   $tagName \
+                                                                   $extraBuildParams"
           }
         }
       }
@@ -338,7 +341,7 @@ pipeline {
 
           script {
             echo "Perform release"
-            sh "bash .jenkins/scripts/release/release-3-perform.sh $params.FAKE_RELEASE $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-3-perform.sh $extraBuildParams"
           }
         }
       }
