@@ -24,7 +24,7 @@ main() {
 
   printf ">> Maven perform release"
 
-  local release_profiles="release,sonatype_repository,ossrh,gpg2"
+  local release_profiles="release,ossrh,gpg2"
 
   mvn release:perform \
     help:effective-pom \

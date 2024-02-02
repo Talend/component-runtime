@@ -138,6 +138,17 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
 
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <properties>
     <scm.repository>talend/component-runtime</scm.repository>
 
@@ -1775,34 +1786,13 @@
     <profile>
       <id>private_repository</id>
       <!--
-        This profile is used by the CI or for development branch deployment of fake release.
+        This profile is used by the CI or for development branch deployment.
+        Its overwrite the snapshotRepository with a private one.
       -->
       <distributionManagement>
-        <repository>
-          <id>talend.releases</id>
-          <!--<url>https://artifacts-zl.talend.com/nexus/content/repositories/releases</url>-->
-          <url>https://artifacts-zl.talend.com/nexus/service/local/staging/deploy/maven2/</url>
-
-        </repository>
         <snapshotRepository>
           <id>talend.snapshots</id>
           <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-      </distributionManagement>
-    </profile>
-    <profile>
-      <id>sonatype_repository</id>
-      <!--
-        This profile is used by the CI or for official deployment.
-      -->
-      <distributionManagement>
-        <repository>
-          <id>ossrh</id>
-          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-        <snapshotRepository>
-          <id>ossrh</id>
-          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
       </distributionManagement>
     </profile>
