@@ -30,7 +30,7 @@ dockerBuild() {
   _IMAGE="${1}"
   printf ">> Building and push %s:%s\n" "{$_IMAGE}" "${_TAG}"
   if [[ ${_IS_LATEST} == 'true' ]]; then
-    printf ">>THe image will be tagged as LATEST\n"
+    printf ">>The image will be tagged as LATEST\n"
   fi
 
   local skip_for_release="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip"

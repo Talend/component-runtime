@@ -127,8 +127,15 @@ pipeline {
         name: 'NO_STAGING',
         defaultValue: true,
         description: """Activate the no-staging profile.  
-                        Execute the release, but at the end of the release:perform step, the release is not done.')  
+                        Execute the release, but at the end of the release:perform step, 
+                        the artifacts are not publish on the NEXUS.  
                         EXPERT USER ONLY: to solve specials case eg: release ok but failure during docker publish.  
+                        """)
+    booleanParam(
+        name: 'NO_DOCKER',
+        defaultValue: true,
+        description: """Execute the release, but at the end of the release is not done.')  
+                        EXPERT USER ONLY: to solve specials case eg: release script test.  
                         """)
   }
 
@@ -348,6 +355,9 @@ pipeline {
     }
 
     stage('Release Docker image') {
+      when {
+        expression { !params.NO_DOCKER }
+      }
       steps {
         withCredentials([gitCredentials,
                          nexusCredentials,
