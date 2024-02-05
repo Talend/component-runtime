@@ -215,6 +215,8 @@ public class VisitorsTest {
 
         public Document document = new Document();
 
+        public Document emptyDocument;
+
         public Document documentFromString;
 
         public Boolean dynamicIsNullable() {
