@@ -9,7 +9,7 @@ The component created in this tutorial is a simple processor that reads data com
 
 NOTE: The component designed in this tutorial is a processor and does not require nor show any xref:component-configuration.adoc#dataset-and-datastore[datastore and dataset] configuration. Datasets and datastores are required only for input and output components.
 
-image::tutorial_build_job_run.png[Job run,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_build_job_run.png",70%]
+image::tutorial_build_job_run.png[Job run,window="_blank",link=self,70%]
 
 == Prerequisites
 To get your development environment ready and be able to follow this tutorial:
@@ -24,22 +24,22 @@ The first step in this tutorial is to generate a component skeleton using the *S
 
 . Start IntelliJ and create a new project. In the available options, you should see *Talend Component*. +
 +
-image::intellij_new_component_project.png[New project,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/intellij_new_component_project.png",70%]
+image::intellij_new_component_project.png[New project,window="_blank",link=self,70%]
 . Make sure that a *Project SDK* is selected. Then, select *Talend Component* and click *Next*. +
 The *Talend Component Kit Starter* opens.
 . Enter the component and project metadata. Change the default values, for example as presented in the screenshot below: +
 +
-image::intellij_tutorial_project_metadata.png[Project metadata,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/intellij_tutorial_project_metadata.png",70%]
+image::intellij_tutorial_project_metadata.png[Project metadata,window="_blank",link=self,70%]
 - The *Component Family* and the *Category* will be used later in Talend Open Studio to find the new component.
 - Project metadata is mostly used to identify the project structure. A common practice is to replace 'company' in the default value by a value of your own, like your domain name. +
 . Once the metadata is filled, select *Add a component*. A new screen is displayed in the *Talend Component Kit Starter* that lets you define the generic configuration of the component. By default, new components are processors.
 . Enter a valid Java name for the component. For example, *Logger*.
 . Select *Configuration Model* and add a string type field named `level`. This input field will be used in the component configuration for final users to enter additional information to display in the logs. +
 +
-image::tutorial_component_configuration_model.png[Configuration Model,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_component_configuration_model.png",70%]
+image::tutorial_component_configuration_model.png[Configuration Model,window="_blank",link=self,70%]
 . In the *Input(s) / Output(s)* section, click the default *MAIN* input branch to access its detail, and make sure that the record model is set to *Generic*. Leave the *Name* of the branch with its default `MAIN` value. +
 +
-image::tutorial_component_generic_input.png[Generic Input,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_component_generic_input.png",70%]
+image::tutorial_component_generic_input.png[Generic Input,window="_blank",link=self,70%]
 . Repeat the same step for the default *MAIN* output branch. +
 +
 NOTE: Because the component is a processor, it has an output branch by default. A processor without any output branch is considered an output component. You can create output components when the *Activate IO* option is selected.
@@ -47,7 +47,7 @@ NOTE: Because the component is a processor, it has an output branch by default. 
 
 At this point, your component is technically already ready to be compiled and deployed to Talend Open Studio. But first, take a look at the generated project:
 
-image::tutorial_generated_project_view.png[Project view,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_generated_project_view.png",70%]
+image::tutorial_generated_project_view.png[Project view,window="_blank",link=self,70%]
 
 - Two classes based on the name and type of component defined in the *Talend Component Kit Starter* have been generated:
 ** *LoggerProcessor* is where the component logic is defined
@@ -68,7 +68,7 @@ Before starting to run any command, make sure that Talend Open Studio is not run
 
 . From the component project in IntelliJ, open a Terminal and make sure that the selected directory is the root of the project. All commands shown in this tutorial are performed from this location. +
 +
-image::tutorial_intellij_terminal_blank.png[Compile terminal,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_intellij_terminal_blank.png",70%]
+image::tutorial_intellij_terminal_blank.png[Compile terminal,window="_blank",link=self,70%]
 . Compile the project by running the following command: `mvnw clean install`. +
 The `mvnw` command refers to the Maven wrapper that is embedded in Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.
 . Once the command is executed and you see *BUILD SUCCESS* in the terminal, deploy the component to your local instance of Talend Open Studio using the following command: +
@@ -77,12 +77,12 @@ The `mvnw` command refers to the Maven wrapper that is embedded in Talend Compon
 NOTE: Replace the path with your own value. If the path contains spaces (for example, `Program Files`), enclose it with double quotes.
 . Make sure the build is successful. +
 +
-image::tutorial_deploy_in_studio_success.png[Build success,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_deploy_in_studio_success.png",70%]
+image::tutorial_deploy_in_studio_success.png[Build success,window="_blank",link=self,70%]
 . Open Talend Open Studio and create a new Job:
 ** Find the new component by looking for the family and category specified in the *Talend Component Kit Starter*. You can add it to your job and open its settings.
 ** Notice that the *level* field specified in the configuration model of the component in the *Talend Component Kit Starter* is present. +
 +
-image::tutorial_first_component_in_studio.png[Component in Studio,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_first_component_in_studio.png",70%]
+image::tutorial_first_component_in_studio.png[Component in Studio,window="_blank",link=self,70%]
 
 At this point, the new component is available in Talend Open Studio, and its configurable part is already set. But the component logic is still to be defined. +
 
@@ -136,15 +136,15 @@ As the component is now ready to be used, it is time to create a job and check t
 ** Add a second column named 'lastName' and select the *TalendDataGenerator.getLastName()* function.
 ** Set the *Number of Rows for RowGenerator* to `10`. +
 +
-image::tutorial_build_job_trowgenerator.png[tRowGenerator,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_build_job_trowgenerator.png",70%]
+image::tutorial_build_job_trowgenerator.png[tRowGenerator,window="_blank",link=self,70%]
 4. Validate the *tRowGenerator* configuration.
 5. Open the *TutorialFamilyLogger* component and set the *level* field to `info`. +
 +
-image::tutorial_build_job_logger.png[Logger,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_build_job_logger.png",70%]
+image::tutorial_build_job_logger.png[Logger,window="_blank",link=self,70%]
 6. Go to the *Run* tab of the job and run the job. +
 The job is executed. You can observe in the console that each of the 10 generated rows is logged, and that the `info` value entered in the logger is also displayed with each record, in uppercase.
 
-image::tutorial_build_job_run.png[Job run,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/tutorial_build_job_run.png",70%]
+image::tutorial_build_job_run.png[Job run,window="_blank",link=self,70%]
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

@@ -16,7 +16,7 @@ Once you have generated a project, you can start implementing the logic and layo
 * xref:component-define-standalone.adoc[Defining a standalone component logic]
 * xref:component-configuration.adoc[Defining component layout and configuration]
 
-image:implementing-components.png[Implementing component,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/implementing-components.png",50%]
+image:implementing-components.png[Implementing component,window="_blank",link=self,50%]
 
 In some cases, you will require specific implementations to handle more advanced cases, such as:
 
