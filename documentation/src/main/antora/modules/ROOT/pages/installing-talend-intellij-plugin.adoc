@@ -22,17 +22,17 @@ In the Intellij IDEA:
 . Enter `Talend` in the search field and Select *Talend Component Kit*.
 . Select *Install*.
 
-image::intellij/plugin/2-browse-talend.png[Browse talend plugin,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/intellij/plugin/2-browse-talend.png",70%]
+image::intellij/plugin/2-browse-talend.png[Browse talend plugin,window="_blank",link=self,70%]
 
 [start=6]
 . Click the *Restart IDE* button.
 
-image::intellij/plugin/3-restart.png[IDEA restart,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/intellij/plugin/3-restart.png",70%]
+image::intellij/plugin/3-restart.png[IDEA restart,window="_blank",link=self,70%]
 
 [start=7]
 . Confirm the IDEA restart to complete the installation.
 
-image::intellij/plugin/4-restart.png[IDEA restart,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/intellij/plugin/4-restart.png",70%]
+image::intellij/plugin/4-restart.png[IDEA restart,window="_blank",link=self,70%]
 
 The plugin is now installed on your IntelliJ IDEA. You can xref:generate-project-using-intellij-plugin.adoc[start using it].
 
@@ -74,7 +74,7 @@ For example, you can define a label like `My server URL` for the `url` option:
 The plugin automatically detects your configuration and provides you with key completion in the property file.
 . Press *Ctrl*+*Space* to see the key suggestions.
 
-image::intellij/plugin/suggestion_1.png[Keys suggestion,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/intellij/plugin/suggestion_1.png",70%]
+image::intellij/plugin/suggestion_1.png[Keys suggestion,window="_blank",link=self,70%]
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

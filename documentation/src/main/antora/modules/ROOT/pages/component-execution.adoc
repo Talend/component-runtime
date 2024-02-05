@@ -41,7 +41,7 @@ IMPORTANT: In distributed environments, class constructor are called on cluster 
                     +------------------+
 ....
 ////
-image:deployment-diagram.png[Deployment diagram,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/deployment-diagram.png",60%]
+image:deployment-diagram.png[Deployment diagram,window="_blank",link=self,60%]
 
 <1> The created task is a JAR file containing class information, which describes the pipeline (flow) that should be processed in cluster.
 <2> During the partition plan computation step, the pipeline is analyzed and split into stages. The cluster manager node instantiates mappers/processors, gets estimated data size using mappers, and splits created mappers according to the estimated data size. +
@@ -71,7 +71,7 @@ Partition plan computation <2>
   +----------------------+
 ....
 ////
-image:driver-processing-workflow.png[Driver processing workflow,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/driver-processing-workflow.png",40%]
+image:driver-processing-workflow.png[Driver processing workflow,window="_blank",link=self,40%]
 
 ////
 [ditaa, generated-worker-processing-workflow, png]
@@ -108,6 +108,6 @@ Flow Execution <3>
 +------------------+
 ....
 ////
-image:worker-processing-workflow.png[Worker processing workflow,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/worker-processing-workflow.png",30%]
+image:worker-processing-workflow.png[Worker processing workflow,window="_blank",link=self,30%]
 
 NOTE: The framework is designed to be as declarative as possible but also to stay extensible by not using fixed interfaces or method signatures. This allows to incrementally add new features of the underlying implementations.

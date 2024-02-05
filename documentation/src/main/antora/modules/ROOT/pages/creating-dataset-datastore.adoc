@@ -12,7 +12,7 @@ All connectors (input and output components) created using Talend Component Kit 
 - Datastore: The data you need to connect to the backend.
 - Dataset: A datastore coupled with the data you need to execute an action.
 
-image::datastore_and_dataset_validation.png[Dataset validation,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/datastore_and_dataset_validation.png",50%]
+image::datastore_and_dataset_validation.png[Dataset validation,window="_blank",link=self,50%]
 
 [IMPORTANT]
 ====
@@ -39,7 +39,7 @@ TIP: Make sure to modelize the data your components are designed to handle befor
 
 Once you generate and import the project into an IDE, you can find datastores under a specific `datastore` node.
 
-image::datastore_view_intellij.png[Datastore view,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/datastore_view_intellij.png",50%]
+image::datastore_view_intellij.png[Datastore view,window="_blank",link=self,50%]
 
 Example of datastore:
 
@@ -116,7 +116,7 @@ IMPORTANT: Make sure to modelize the data your components are designed to handle
 
 Once you generate and import the project into an IDE, you can find datasets under a specific `dataset` node.
 
-image::dataset_view_intellij.png[Dataset view,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/dataset_view_intellij.png",50%]
+image::dataset_view_intellij.png[Dataset view,window="_blank",link=self,50%]
 
 Example of dataset referencing the datastore shown above:
 
@@ -170,11 +170,11 @@ When deploying a component or set of components that include datasets and datast
 
 It allows users to create reusable configurations for datastores and datasets.
 
-image::studio_create_dataset.png[Dataset in Studio,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/studio_create_dataset.png",50%]
+image::studio_create_dataset.png[Dataset in Studio,window="_blank",link=self,50%]
 
 With predefined datasets and datastores, users can then quickly fill the component configuration in their jobs. They can do so by selecting *Repository* as *Property Type* and by browsing to the predefined dataset or datastore.
 
-image::studio_select_predefined_dataset.png[Dataset in Component,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/studio_select_predefined_dataset.png",50%]
+image::studio_select_predefined_dataset.png[Dataset in Component,window="_blank",link=self,50%]
 
 == How to create a reusable connection in Studio
 
