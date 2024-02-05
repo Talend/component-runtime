@@ -315,9 +315,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
             }
 
             field.set(instance, MappingUtils.coerce(field.getType(), value, entry.getName()));
-        } catch (final IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        } catch (final DocumentException e) {
+        } catch (final IllegalAccessException | DocumentException e) {
             throw new IllegalStateException(e);
         }
     }

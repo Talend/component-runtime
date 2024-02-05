@@ -221,7 +221,7 @@ public class DiRowStructVisitor {
                 break;
             case StudioTypes.DATE:
                 final ZonedDateTime dateTime;
-                dateTime = ZonedDateTime.ofInstant(Long.class.isInstance(value) ? ofEpochMilli(Long.class.cast(value))
+                dateTime = ZonedDateTime.ofInstant(value instanceof Long ? ofEpochMilli(Long.class.cast(value))
                         : Date.class.cast(value).toInstant(), UTC);
                 onDatetime(metaName, dateTime);
                 break;
