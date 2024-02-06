@@ -100,14 +100,14 @@ pipeline {
     choice(
         name: 'ACTION',
         choices: ['TYPE_OF_RELEASE', 'MILESTONE', 'GA', 'MAINTENANCE'],
-        description: """
+        description: '''
           Type of release:
             MILESTONE: classical milestone release 
               ex: 1.63.0M1-SNAPSHOT is released as 1.63.0M1 and master branch is bumped as 1.63.0M2-SNAPSHOT
             GA: release for General Available
               ex: 1.63.0M9-SNAPSHOT is released as 1.63.0 and master branch is bumped as 1.64.0M1-SNAPSHOT
             MAINTENANCE: release for General Available of MAINTENANCE
-              ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT""")
+              ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT''')
     string(
         name: 'EXTRA_BUILD_PARAMS',
         defaultValue: '',
@@ -119,17 +119,17 @@ pipeline {
     booleanParam(
         name: 'NO_STAGING',
         defaultValue: false,
-        description: """Activate the no-staging profile.  
+        description: '''Activate the no-staging profile.  
                         Execute the release, but at the end of the release:perform step, 
                         the artifacts are not publish on the NEXUS.  
                         EXPERT USER ONLY: to solve specials case eg: release ok but failure during docker publish.  
-                        """)
+                        ''')
     booleanParam(
         name: 'NO_DOCKER',
         defaultValue: false,
-        description: """Execute the release, but at the end of the release is not done.')  
+        description: '''Skip the docker stage.  
                         EXPERT USER ONLY: to solve specials case eg: release script test.  
-                        """)
+                        ''')
     booleanParam(
         name: 'FAKE_RELEASE',
         defaultValue: false,
