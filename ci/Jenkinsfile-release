@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Imports
-import java.time.LocalDateTime
-import java.util.regex.Matcher
 
 // Credentials
 final def ossrhCredentials = usernamePassword(
@@ -219,7 +216,6 @@ pipeline {
                          jiraCredentials,
                          gpgCredentials]) {
           script {
-              // TODO try not to use this
              sh """\
                #!/usr/bin/env bash
                bash .jenkins/scripts/npm_fix.sh
