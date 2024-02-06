@@ -24,7 +24,7 @@ You can enable streaming right from the design phase of the project by enabling 
 Doing so adds a default streaming-ready configuration to your component when generating the project. +
 This default configuration implements a constant pause duration of 500 ms between retries, with no limit of retries.
 
-image::starter/starter_enabling_streaming.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/starter/starter_enabling_streaming.png",80%]
+image::starter/starter_enabling_streaming.png[Stream Toggle,window="_blank",link=self,80%]
 
 == Enabling limitations (stop conditions) for Streaming components
 Without any configuration, streaming components have an infinite lifecycle and will never stop.
@@ -97,11 +97,11 @@ If your streaming connector (`infinite=true`) is defined with the `stoppable=tru
 
 - Cloud
 
-image:streaming-limits-ui-cloud.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/streaming-limits-ui-cloud.png",80%]
+image:streaming-limits-ui-cloud.png[Stream Toggle,window="_blank",link=self,80%]
 
 - Studio
 
-image:streaming-limits-ui-studio.png[Stream Toggle,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/streaming-limits-ui-studio.png",80%]
+image:streaming-limits-ui-studio.png[Stream Toggle,window="_blank",link=self,80%]
 
 
 By default, in the setting those values are set to *-1*. It means _infinity_ behavior.
