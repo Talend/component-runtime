@@ -136,7 +136,11 @@ pipeline {
         description: '''For debug purposes, the job will deploy in:  
                         - NOT IMPLEMENTED Artifactory Dev instead of Artifactory Prod for docker images  
                         - NOT IMPLEMENTED Artifacts-zl instead of sonatype for java artefacts  
-                        The job will not tag/commit on git fork''')
+                        - The job will not tag/commit on git fork from FAKE_REPOSITORY''')
+    string(
+        name: 'FAKE_REPOSITORY',
+        defaultValue: 'acatoire/component-runtime',
+        description: '''For debug purposes, to indicate the FAKE_RELEASE git repository''')
   }
 
   stages {
@@ -404,7 +408,7 @@ pipeline {
     always {
       script {
         alertingTools.slack_result(
-            "acatoire",
+            env.SLACK_CI_CHANNEL,
             currentBuild.result,
             currentBuild.previousBuild.result,
             true, // Post for success and failure for release scripts
@@ -441,7 +445,7 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) 
   // Manage fake release parameter
   if (fakeRelease) {
     // Overwrite the git repository, in order not to write in "talend/component-runtime"
-    buildParamsAsArray.add("--define scm.repository=acatoire/component-runtime")
+    buildParamsAsArray.add("--define scm.repository=$params.FAKE_REPOSITORY")
   }
 
   // Manage no-staging parameter
