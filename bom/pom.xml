@@ -23,6 +23,7 @@
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
   <url>https://talend.github.io/component-runtime/</url>
+
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -30,6 +31,7 @@
       <distribution>may be downloaded from the Maven repository</distribution>
     </license>
   </licenses>
+
   <developers>
     <developer>
     <id>undx</id>
@@ -41,37 +43,30 @@
       <role>Owner</role>
     </roles>
     <timezone>+1</timezone>
-  </developer>
-  <developer>
-    <id>clesaec</id>
-    <name>Christophe Le Saec</name>
-    <email>clesaec@talend.com</email>
-    <organization>Talend</organization>
-    <organizationUrl>https://www.talend.com/</organizationUrl>
-    <roles>
-      <role>Contributor</role>
-    </roles>
-    <timezone>+1</timezone>
-  </developer>
-</developers>
+    </developer>
+    <developer>
+      <id>clesaec</id>
+      <name>Christophe Le Saec</name>
+      <email>clesaec@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+
   <scm>
-    <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
-    <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
+    <connection>scm:git:git://github.com/${scm.repository}.git</connection>
+    <developerConnection>scm:git:git@github.com:${scm.repository}.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/talend/component-runtime</url>
+    <url>https://github.com/${scm.repository}</url>
   </scm>
-  <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
 
   <properties>
+    <scm.repository>talend/component-runtime</scm.repository>
+
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <enforcer-plugin.version>3.0.0</enforcer-plugin.version>
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
@@ -219,6 +214,7 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <build>
     <plugins>
     <plugin>
@@ -244,6 +240,7 @@
     </plugin>
     </plugins>
   </build>
+
   <profiles>
     <profile>
       <id>gpg2</id>
