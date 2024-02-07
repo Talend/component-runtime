@@ -33,18 +33,18 @@ dockerBuild() {
     printf ">>The image will be tagged as LATEST\n"
   fi
 
-  local skip_for_release="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip"
+  local skip_for_docker_build="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip"
 
   mvn package jib:build@build \
     --file "images/${_IMAGE}-image/pom.xml" \
     --define docker.talend.image.tag="${_TAG}" \
-    $skip_for_release
+    $skip_for_docker_build
 
   if [[ ${_IS_LATEST} == 'true' ]]; then
     mvn package jib:build@build \
     --file "images/${_IMAGE}-image/pom.xml" \
     --define docker.talend.image.tag=latest \
-    $skip_for_release
+    $skip_for_docker_build
   fi
 }
 
