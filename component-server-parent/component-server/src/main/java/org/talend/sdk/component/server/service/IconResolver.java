@@ -39,7 +39,9 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class IconResolver {
 
@@ -48,12 +50,18 @@ public class IconResolver {
 
     private boolean supportsSvg;
 
+    private String theme;
+
+    private Boolean isThemeSupported;
+
     private List<String> patterns;
 
     @PostConstruct
     protected void init() {
         supportsSvg = System.getProperty("talend.studio.version") == null
                 && componentServerConfiguration.getIconExtensions().stream().anyMatch(it -> it.endsWith(".svg"));
+        isThemeSupported = Boolean.parseBoolean(componentServerConfiguration.getSupportIconTheme());
+        theme = componentServerConfiguration.getIconDefaultTheme();
         patterns = isSupportsSvg() ? componentServerConfiguration.getIconExtensions()
                 : componentServerConfiguration
                         .getIconExtensions()
@@ -88,10 +96,14 @@ public class IconResolver {
      * @param icon the icon to look up.
      * @return the icon if found.
      */
-    public Icon resolve(final Container container, final String icon) {
+    public Icon resolve(final Container container, final String icon, final String theme) {
         if (icon == null) {
             return null;
         }
+        if (theme != null) {
+            this.theme = theme;
+        }
+        log.warn("[resolve] icon: {} theme: {}", icon, theme);
 
         Cache cache = container.get(Cache.class);
         if (cache == null) {
@@ -124,18 +136,22 @@ public class IconResolver {
     }
 
     public Optional<Icon> doLoad(final ClassLoader loader, final String icon) {
+        final String themedIcon = isThemeSupported ? theme + "/" + icon : icon;
+        log.warn("[doLoad] themed: {}", themedIcon);
         return getExtensionPreferences()
                 .stream()
-                .map(ext -> String.format(ext, icon))
+                .map(ext -> String.format(ext, themedIcon))
                 .map(path -> loadIcon(loader, path))
                 .filter(Optional::isPresent)
+                .peek(s -> log.warn("[doLoad] found: {}", s))
                 .findFirst()
                 .flatMap(identity());
     }
 
     private Optional<Icon> loadIcon(final ClassLoader loader, final String path) {
+        log.warn("[loadIcon] path: {}", path);
         return ofNullable(loader.getResourceAsStream(path))
-                .map(resource -> new Icon(getType(path.toLowerCase(ROOT)), toBytes(resource)));
+                .map(resource -> new Icon(getType(path.toLowerCase(ROOT)), toBytes(resource), theme));
     }
 
     private String getType(final String path) {
@@ -159,6 +175,8 @@ public class IconResolver {
         private final String type;
 
         private final byte[] bytes;
+
+        private final String theme;
     }
 
     private byte[] toBytes(final InputStream resource) {

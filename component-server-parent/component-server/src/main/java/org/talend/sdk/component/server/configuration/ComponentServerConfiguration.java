@@ -153,6 +153,16 @@ public class ComponentServerConfiguration {
     private List<String> iconExtensions;
 
     @Inject
+    @Documentation("Do we support icons theme.")
+    @ConfigProperty(name = "talend.component.server.icon.theme.support", defaultValue = "true")
+    private String supportIconTheme;
+
+    @Inject
+    @Documentation("Icon default theme (light/dark).")
+    @ConfigProperty(name = "talend.component.server.icon.theme.default", defaultValue = "light")
+    private String iconDefaultTheme;
+
+    @Inject
     @Documentation("For caching reasons the goal is to reduce the locales to the minimum required numbers. "
             + "For instance we avoid `fr` and `fr_FR` which would lead to the same entries but x2 in terms of memory. "
             + "This mapping enables that by whitelisting allowed locales, default being `en`. "

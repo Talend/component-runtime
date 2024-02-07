@@ -98,7 +98,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                     if (missingIcon == null) {
                         final ClassLoader fallbackLoader = IconReporterMojo.class.getClassLoader();
                         try (final InputStream stream = fallbackLoader.getResourceAsStream("icon/missing.png")) {
-                            missingIcon = toDataUri(new IconResolver.Icon("image/png", IO.readBytes(stream)));
+                            missingIcon = toDataUri(new IconResolver.Icon("image/png", IO.readBytes(stream), null));
                         } catch (final IOException e) {
                             throw new IllegalStateException(e);
                         }

@@ -226,6 +226,32 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void searchThemedIcon() {
+        final String family = client.getFamilyId("jdbc");
+        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}/?l;;l")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "logo")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class));
+
+        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}/?theme=dark")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "logo")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class));
+
+        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}/?theme=dak")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "logo")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class));
+
+    }
+
+    @Test
     void migrateFromStudio() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
@@ -514,6 +540,7 @@ class ComponentResourceImplTest {
         } else if ("chain".equals(data.getId().getFamily())
                 && ("file".equals(data.getId().getName()) || "standalone".equals(data.getId().getName()))) {
             assertEquals("myicon", data.getIcon().getIcon());
+            assertEquals("light", data.getIcon().getTheme());
             assertTrue(new String(data.getIcon().getCustomIcon(), StandardCharsets.UTF_8)
                     .startsWith("<svg xmlns=\"http://www.w3.org/2000/svg\""));
             assertEquals("image/svg+xml", data.getIcon().getCustomIconType());
