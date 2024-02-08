@@ -202,7 +202,8 @@ public class StaticResourceGenerator implements Runnable {
                                                             .done(),
                                                     emptyMap(), emptyMap(),
                                                     jsonb.toJson(
-                                                            components.getIndex(lang, includeIconContent, "", "light")))))
+                                                            components.getIndex(lang, includeIconContent, "",
+                                                                    "light")))))
                             .collect(toList()));
 
             final List<ComponentIndex> componentIndex = components.getIndex("en", false, "", "light").getComponents();
