@@ -195,7 +195,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                 protected Collection<String> getExtensionPreferences() {
                     return iconPattern;
                 }
-            }.doLoad(loader, custom).map(this::toDataUri).orElse(missingIcon);
+            }.doLoad(loader, custom, "light").map(this::toDataUri).orElse(missingIcon);
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

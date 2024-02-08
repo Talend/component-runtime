@@ -178,8 +178,9 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @PostConstruct
     private void setupRuntime() {
-        log.info("Initializing " + getClass());
+        log.info("[setupRuntime] Initializing " + getClass());
         defaultTheme = configuration.getIconDefaultTheme();
+        log.info("[setupRuntime] Icon theme: {}.", defaultTheme);
         // preload some highly used data
         getIndex("en", false, null, defaultTheme);
 

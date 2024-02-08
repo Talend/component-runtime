@@ -50,9 +50,11 @@ import java.util.jar.JarFile;
 import java.util.stream.IntStream;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.ziplock.IO;
@@ -226,29 +228,94 @@ class ComponentResourceImplTest {
     }
 
     @Test
-    void searchThemedIcon() {
+    void themedIcon() {
+        final String id = client.getJdbcId();
+        //
+        Response icon = base.path("component/icon/{id}")
+                .resolveTemplate("id", id)
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(Response.class);
+        assertNotNull(icon);
+        assertEquals("image/png", icon.getMediaType().toString());
+        //
+        icon = base.path("component/icon/{id}")
+                .resolveTemplate("id", id)
+                .queryParam("theme", "dark")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(Response.class);
+        assertNotNull(icon);
+        assertEquals("image/svg+xml", icon.getMediaType().toString());
+    }
+
+    @Test
+    void themedFamilyIcon() {
+        final String family = client.getFamilyId("chain");
+
+        Response icon = base.path("component/icon/family/{id}")
+                .resolveTemplate("id", family)
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(Response.class);
+        assertNotNull(icon);
+        assertEquals("image/png", icon.getMediaType().toString());
+
+        icon = base.path("component/icon/family/{id}")
+                .resolveTemplate("id", family)
+                .queryParam("theme", "dark")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(Response.class);
+        assertNotNull(icon);
+        assertEquals("image/svg+xml", icon.getMediaType().toString());
+
+        assertThrows(NotFoundException.class, () -> base.path("component/icon/family/{id}")
+                .resolveTemplate("id", family)
+                .queryParam("theme", "dak")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class));
+    }
+
+    @Test
+    void customThemedIcon() {
         final String family = client.getFamilyId("jdbc");
-        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}/?l;;l")
+        String icon = base.path("component/icon/custom/{familyId}/{iconKey}")
                 .resolveTemplate("familyId", family)
                 .resolveTemplate("iconKey", "logo")
                 .request(APPLICATION_OCTET_STREAM_TYPE)
                 .accept(APPLICATION_OCTET_STREAM_TYPE)
-                .get(String.class));
-
-        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}/?theme=dark")
+                .get(String.class);
+        assertNotNull(icon);
+        assertTrue(icon.contains("light"));
+        //
+        icon = base.path("component/icon/custom/{familyId}/{iconKey}")
                 .resolveTemplate("familyId", family)
                 .resolveTemplate("iconKey", "logo")
+                .queryParam("theme", "dark")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class);
+        assertNotNull(icon);
+        assertTrue(icon.contains("dark"));
+        // even if theme does not exist, the legacy lookup should find the top level logo.svg
+        icon = base.path("component/icon/custom/{familyId}/{iconKey}")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "logo")
+                .queryParam("theme", "dak")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class);
+        assertNotNull(icon);
+        // invalid iconKey
+        assertThrows(NotFoundException.class, () -> base.path("component/icon/custom/{familyId}/{iconKey}")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "log")
+                .queryParam("theme", "dak")
                 .request(APPLICATION_OCTET_STREAM_TYPE)
                 .accept(APPLICATION_OCTET_STREAM_TYPE)
                 .get(String.class));
-
-        assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}/?theme=dak")
-                .resolveTemplate("familyId", family)
-                .resolveTemplate("iconKey", "logo")
-                .request(APPLICATION_OCTET_STREAM_TYPE)
-                .accept(APPLICATION_OCTET_STREAM_TYPE)
-                .get(String.class));
-
     }
 
     @Test
