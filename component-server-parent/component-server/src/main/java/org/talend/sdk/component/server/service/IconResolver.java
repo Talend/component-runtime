@@ -93,8 +93,14 @@ public class IconResolver {
      * 2. provide them in the family (2) and
      * 3. fallback on built-in icons if needed (3).
      *
+     * Theme and legacy icons support:
+     * If theme is activated the path will be prefixed by its theme: icons/dark/${icon}.svg, icons/light/${icon}.svg.
+     * Also, if icon is not found in theme and legacy icons support is activated, legacy icons lookup will be applied.
+     * Otherwise, theme deactivated, legacy icons lookup will be applied.
+     *
      * @param container the component family container.
      * @param icon the icon to look up.
+     * @param theme the theme of icon to look up.
      * @return the icon if found.
      */
     public Icon resolve(final Container container, final String icon, final String theme) {
