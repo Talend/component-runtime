@@ -202,10 +202,10 @@ public class StaticResourceGenerator implements Runnable {
                                                             .done(),
                                                     emptyMap(), emptyMap(),
                                                     jsonb.toJson(
-                                                            components.getIndex(lang, includeIconContent, "", null)))))
+                                                            components.getIndex(lang, includeIconContent, "", "light")))))
                             .collect(toList()));
 
-            final List<ComponentIndex> componentIndex = components.getIndex("en", false, "", null).getComponents();
+            final List<ComponentIndex> componentIndex = components.getIndex("en", false, "", "light").getComponents();
             final List<String> componentIds =
                     componentIndex.stream().map(it -> it.getId().getId()).distinct().collect(toList());
             final List<String> componentFamilyIds =
@@ -261,14 +261,14 @@ public class StaticResourceGenerator implements Runnable {
                                 .collect(toList()));
             }
             routes.addAll(componentIds.stream().map(componentId -> {
-                final Response response = components.icon(componentId, null);
+                final Response response = components.icon(componentId, "light");
                 return route("component_server_component_icon_" + componentId, "/api/v1/component/icon/" + componentId,
                         MapBuilder.map().done(),
                         singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM), emptyMap(),
                         response.getStatus(), response::readEntity, jsonb);
             }).collect(toList()));
             routes.addAll(componentFamilyIds.stream().map(familyId -> {
-                final Response response = components.familyIcon(familyId, null);
+                final Response response = components.familyIcon(familyId, "light");
                 return route("component_server_component_family_icon_" + familyId,
                         "/api/v1/component/icon/family/" + familyId, MapBuilder.map().done(),
                         singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM), emptyMap(),
