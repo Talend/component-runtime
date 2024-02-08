@@ -365,7 +365,6 @@ public class ComponentResourceImpl implements ComponentResource {
                     .build();
         }
 
-        final String iconTheme = theme == null ? defaultTheme : theme;
         final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon(), theme);
         if (iconContent == null) {
             return Response
@@ -407,8 +406,7 @@ public class ComponentResourceImpl implements ComponentResource {
                     .build();
         }
 
-        final String iconTheme = theme == null ? defaultTheme : theme;
-        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), iconKey, iconTheme);
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), iconKey, theme);
         if (iconContent == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -451,8 +449,7 @@ public class ComponentResourceImpl implements ComponentResource {
                     .build();
         }
 
-        final String iconTheme = theme == null ? defaultTheme : theme;
-        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon(), iconTheme);
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon(), theme);
         if (iconContent == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
