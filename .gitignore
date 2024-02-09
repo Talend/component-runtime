@@ -65,6 +65,3 @@ documentation/rebuildpdf.bat
 # direnv
 .envrc
 .env
-
-# CI generated files
-*effective-pom*

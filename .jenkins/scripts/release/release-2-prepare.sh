@@ -33,8 +33,6 @@ main() {
   local release_profiles="release,ossrh,gpg2"
 
   mvn release:prepare \
-    help:effective-pom \
-    --define output="effective-pom-prepare.xml" \
     --batch-mode \
     --errors \
     --define tag="${tagName}" \
