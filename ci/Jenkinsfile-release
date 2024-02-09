@@ -495,13 +495,13 @@ private static ArrayList<String> get_release_info(String currentVersion,
   }
 
   if (! maintenance){
-    if (! currentVersion.contains('M')){
+    if (! currentVersion.matches(/.*(M[0-9]+).*/)){
       // The version is not correct, raise error
       throw new RuntimeException("Provided version $currentVersion is not a milestone version (no 'M').")
     }
   }
   else{
-    if (currentVersion.contains('M')){
+    if (currentVersion.matches(/.*(M[0-9]+).*/)){
       // The version is not correct, raise error
       throw new RuntimeException("Provided version $currentVersion is not a maintenance version (contains 'M').")
     }
