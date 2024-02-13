@@ -36,13 +36,13 @@ class SVG2PngTest {
         final Path darkExpected = resolved.resolve("dark/logo_icon32.png");
         final Path lightExpected = resolved.resolve("light/logo_icon32.png");
         if (Files.exists(expected)) {
-           Files.delete(expected);
+            Files.delete(expected);
         }
         if (Files.exists(darkExpected)) {
-           Files.delete(darkExpected);
+            Files.delete(darkExpected);
         }
         if (Files.exists(lightExpected)) {
-           Files.delete(lightExpected);
+            Files.delete(lightExpected);
         }
         new SVG2Png(resolved, true, log).run();
         assertTrue(Files.exists(expected));
