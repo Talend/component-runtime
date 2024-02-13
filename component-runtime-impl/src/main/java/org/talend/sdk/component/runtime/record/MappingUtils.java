@@ -65,11 +65,6 @@ public class MappingUtils {
             }
         }
 
-        // we store decimal by string for AvroRecord case
-        if ((expectedType == BigDecimal.class) && String.class.isInstance(value)) {
-            return new BigDecimal(String.class.cast(value));
-        }
-
         // non-matching types
         if (!expectedType.isInstance(value)) {
             // number classes mapping
@@ -108,7 +103,6 @@ public class MappingUtils {
                 }
             }
 
-            // TODO: maybe add a Date.class / ZonedDateTime.class mapping case. Should check that...
             // mainly for CSV incoming data where everything is mapped to String
             if (String.class.isInstance(value)) {
                 return mapString(expectedType, String.valueOf(value));
@@ -178,6 +172,14 @@ public class MappingUtils {
     }
 
     public static <T> Object mapString(final Class<T> expected, final String value) {
+        if (Boolean.class == expected || boolean.class == expected) {
+            return Boolean.valueOf(value);
+        }
+        // handle null literal
+        if ("null".equalsIgnoreCase(value.trim())) {
+            return null;
+        }
+        //
         final boolean isNumeric = value.chars().allMatch(Character::isDigit);
         if (ZonedDateTime.class == expected) {
             if (isNumeric) {
@@ -211,9 +213,6 @@ public class MappingUtils {
         }
         if (BigDecimal.class == expected) {
             return new BigDecimal(value);
-        }
-        if (Boolean.class == expected || boolean.class == expected) {
-            return Boolean.valueOf(value);
         }
         if (Integer.class == expected || int.class == expected) {
             return Integer.valueOf(value);
