@@ -273,7 +273,7 @@ See https://talend.github.io/component-runtime/
 //
 // start script
 //
-if (project.version.endsWith('-SNAPSHOT')) {
+if (project.version.endsWith('-SNAPSHOT') || project.version.matches(/.*(M[0-9]+).*/)) {
     log.info("Project is in SNAPSHOT, skipping NPM deployment")
     return
 }
