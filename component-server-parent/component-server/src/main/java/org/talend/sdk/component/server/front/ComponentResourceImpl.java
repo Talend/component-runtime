@@ -174,15 +174,13 @@ public class ComponentResourceImpl implements ComponentResource {
 
     private String defaultTheme;
 
-    private String themeMode;
-
     private final Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
 
     @PostConstruct
     private void setupRuntime() {
         log.info("[setupRuntime] Initializing " + getClass());
         defaultTheme = configuration.getIconDefaultTheme();
-        themeMode = configuration.getSupportIconTheme() ? "themed" : "legacy";
+        final String themeMode = configuration.getSupportIconTheme() ? "themed" : "legacy";
         log.info("[setupRuntime] Icon mode: {}; default theme: {}.", themeMode, defaultTheme);
         // preload some highly used data
         getIndex("en", false, null, defaultTheme);
@@ -341,7 +339,7 @@ public class ComponentResourceImpl implements ComponentResource {
     @Override
     @CacheResult
     public Response familyIcon(final String id, final String theme) {
-        if (virtualComponents.isExtensionEntity(id)) { // todo or just use front bundle?
+        if (virtualComponents.isExtensionEntity(id)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
@@ -349,7 +347,6 @@ public class ComponentResourceImpl implements ComponentResource {
                     .build();
         }
 
-        // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta meta = componentFamilyDao.findById(id);
         if (meta == null) {
             return Response
@@ -424,7 +421,7 @@ public class ComponentResourceImpl implements ComponentResource {
     @Override
     @CacheResult
     public Response icon(final String id, final String theme) {
-        if (virtualComponents.isExtensionEntity(id)) { // todo if the front bundle is not sufficient
+        if (virtualComponents.isExtensionEntity(id)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
@@ -432,7 +429,6 @@ public class ComponentResourceImpl implements ComponentResource {
                     .build();
         }
 
-        // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta.BaseMeta<Lifecycle> meta = componentDao.findById(id);
         if (meta == null) {
             return Response
@@ -496,7 +492,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 .migrate(version, config);
     }
 
-    @Override // TODO: max ids.length
+    @Override
     @CacheResult
     public ComponentDetailList getDetail(final String language, final String[] ids) {
         if (ids == null || ids.length == 0) {
@@ -541,7 +537,7 @@ public class ComponentResourceImpl implements ComponentResource {
 
                 final ComponentBundle bundle = meta.findBundle(container.getLoader(), locale);
                 final ComponentDetail componentDetail = new ComponentDetail();
-                componentDetail.setLinks(emptyList() /* todo ? */);
+                componentDetail.setLinks(emptyList());
                 componentDetail.setId(createMetaId(container, meta));
                 componentDetail.setVersion(meta.getVersion());
                 componentDetail.setIcon(meta.getIcon());
