@@ -26,7 +26,7 @@ import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 // - project.properties.idea.pluginZip: the location of the plugin to publish
 //
 
-if (project.version.endsWith('-SNAPSHOT')) {
+if (project.version.endsWith('-SNAPSHOT') || project.version.matches(/.*(M[0-9]+).*/)) {
     log.info("Project is in SNAPSHOT, skipping Jetbrains deployment")
     return
 }
