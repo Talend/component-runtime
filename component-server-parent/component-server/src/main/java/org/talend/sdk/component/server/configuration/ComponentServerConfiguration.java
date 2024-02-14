@@ -155,12 +155,12 @@ public class ComponentServerConfiguration {
     @Inject
     @Documentation("Do we support icons theme.")
     @ConfigProperty(name = "talend.component.server.icon.theme.support", defaultValue = "true")
-    private String supportIconTheme;
+    private Boolean supportIconTheme;
 
     @Inject
     @Documentation("Do we support legacy (not themed) icons. If true, lookup will be done if not themed icon found.")
     @ConfigProperty(name = "talend.component.server.icon.theme.legacy", defaultValue = "true")
-    private String supportLegacyIcons;
+    private Boolean supportLegacyIcons;
 
     @Inject
     @Documentation("Icon default theme (light/dark).")

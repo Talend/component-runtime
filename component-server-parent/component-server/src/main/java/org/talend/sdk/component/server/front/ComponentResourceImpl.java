@@ -174,13 +174,16 @@ public class ComponentResourceImpl implements ComponentResource {
 
     private String defaultTheme;
 
+    private String themeMode;
+
     private final Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
 
     @PostConstruct
     private void setupRuntime() {
         log.info("[setupRuntime] Initializing " + getClass());
         defaultTheme = configuration.getIconDefaultTheme();
-        log.info("[setupRuntime] Icon theme: {}.", defaultTheme);
+        themeMode = configuration.getSupportIconTheme() ? "themed" : "legacy";
+        log.info("[setupRuntime] Icon mode: {}; default theme: {}.", themeMode, defaultTheme);
         // preload some highly used data
         getIndex("en", false, null, defaultTheme);
 
