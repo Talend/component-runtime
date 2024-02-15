@@ -203,7 +203,7 @@
               "path": "/api/v1/bulk"
             },
             "description": "Do a bulk request with three requests inside  \n\nApi documentation is [here for bulk](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Bulk/bulk)",
-            "id": "82e10262-a04d-41f5-95b0-600161c65843",
+            "id": "82e10262-a04d-41f5-95b0-600161c65843",r
             "name": "3-bulk: three component details endpoint usage",
             "headers": [
               {
