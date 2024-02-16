@@ -41,6 +41,10 @@ bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/tcomp-build-fast.
 # Sample connector build, if you edit it, do it every time.
 bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/tcomp-build-sample-connector.sh sample-parent/sample-connector/pom.xml
 
+# TODO TCOMP-2628 To be improve but for now you need to export in env your nexus credential before executing the start server
+export NEXUS_USER=<value>
+export NEXUS_PASS=<value>
+
 # Component server manual start (defining server and connectors version
 bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh 1.41.0
 
