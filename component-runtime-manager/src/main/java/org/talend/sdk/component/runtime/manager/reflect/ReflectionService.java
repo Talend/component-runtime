@@ -890,7 +890,7 @@ public class ReflectionService {
     }
 
     @RequiredArgsConstructor
-    private static class PayloadValidator implements PayloadMapper.OnParameter {
+    protected static class PayloadValidator implements PayloadMapper.OnParameter {
 
         private static final VisibilityService VISIBILITY_SERVICE = new VisibilityService(JsonProvider.provider());
 
