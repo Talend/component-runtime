@@ -35,7 +35,7 @@ public class RequestKey {
         this.includeIconContent = includeIconContent;
         this.query = query;
         this.theme = theme;
-        this.cacheHash = Objects.hash(locale, includeIconContent, query);
+        this.cacheHash = Objects.hash(locale, includeIconContent, query, theme);
     }
 
     @Override
