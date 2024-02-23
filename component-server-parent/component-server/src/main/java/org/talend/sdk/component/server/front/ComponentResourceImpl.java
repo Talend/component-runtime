@@ -316,7 +316,7 @@ public class ComponentResourceImpl implements ComponentResource {
         return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent, query, themedIcon), k -> {
             final Predicate<ComponentIndex> filter = queryLanguageCompiler.compile(query, componentEvaluators);
             return new ComponentIndices(Stream
-                    .concat(findDeployedComponents(includeIconContent, locale, theme), virtualComponents
+                    .concat(findDeployedComponents(includeIconContent, locale, themedIcon), virtualComponents
                             .getDetails()
                             .stream()
                             .map(detail -> new ComponentIndex(
