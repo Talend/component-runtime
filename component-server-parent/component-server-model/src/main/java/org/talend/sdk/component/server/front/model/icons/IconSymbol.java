@@ -32,5 +32,12 @@ public class IconSymbol {
 
     String connector;
 
+    String theme;
+
     byte[] content;
+
+    public String getUid() {
+        final String fmt = connector.isEmpty() ? "%s-%s-%s-%s" : "%s-%s-%s-%s-%s";
+        return String.format(fmt, theme, type, family, icon, connector);
+    }
 }

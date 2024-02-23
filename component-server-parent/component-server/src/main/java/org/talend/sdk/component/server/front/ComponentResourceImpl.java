@@ -19,6 +19,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -475,33 +476,9 @@ public class ComponentResourceImpl implements ComponentResource {
     @Override
     // @CacheResult
     public Response getIconIndex(final String theme) {
-        // TODO handle all theme bundle
         final String themedIcon = theme == null ? defaultTheme : theme;
-        final ComponentIndices index = getIndex(Locale.ROOT.getLanguage(), true, null, themedIcon);
         try {
-            final List<ComponentIndex> components = index.getComponents();
-            List<IconSymbol> icons = components
-                    .stream()
-                    .filter(c -> c.getIconFamily().getCustomIcon() != null)
-                    .filter(c -> "image/svg+xml".equals(c.getIconFamily().getCustomIconType()))
-                    .map(c -> new IconSymbol(c.getIconFamily().getIcon(),
-                            c.getFamilyDisplayName(),
-                            "family",
-                            "",
-                            c.getIconFamily().getCustomIcon()))
-                    // TODO filter to have unique family
-                    .collect(toList());
-            icons.addAll(components
-                    .stream()
-                    .filter(c -> c.getIcon().getCustomIcon() != null)
-                    .filter(c -> c.getIcon().getCustomIcon() != null)
-                    .filter(c -> "image/svg+xml".equals(c.getIcon().getCustomIconType()))
-                    .map(c -> new IconSymbol(c.getIcon().getIcon(),
-                            c.getFamilyDisplayName(),
-                            "connector",
-                            c.getDisplayName(),
-                            c.getIcon().getCustomIcon()))
-                    .collect(toList()));
+            final Map<String, IconSymbol> icons = collectIcons(themedIcon);
             if (icons.isEmpty()) {
                 return Response
                         .status(Response.Status.NOT_FOUND)
@@ -517,12 +494,13 @@ public class ComponentResourceImpl implements ComponentResource {
             root.setAttribute("class", "sr-only");
             root.setAttribute("theme", themedIcon);
             doc.appendChild(root);
-            icons.forEach(icon -> {
+            icons.values().forEach(icon -> {
                 final Element symbol = doc.createElement("symbol");
                 symbol.setAttribute("family", icon.getFamily());
                 symbol.setAttribute("id", icon.getIcon());
                 symbol.setAttribute("type", icon.getType());
                 symbol.setAttribute("connector", icon.getConnector());
+                symbol.setAttribute("theme", icon.getTheme());
                 symbol.setTextContent(new String(icon.getContent()));
                 root.appendChild(symbol);
             });
@@ -536,6 +514,7 @@ public class ComponentResourceImpl implements ComponentResource {
 
             return Response.ok(svgs).type(APPLICATION_SVG_XML_TYPE).build();
         } catch (Exception e) {
+            log.error("[getIconIndex] {}", e.getMessage());
             return Response
                     .status(Status.INTERNAL_SERVER_ERROR)
                     .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
@@ -649,6 +628,51 @@ public class ComponentResourceImpl implements ComponentResource {
         }
 
         return new ComponentDetailList(details);
+    }
+
+    private Map<String, IconSymbol> collectIcons(final String theme) {
+        if ("all".equals(theme)) {
+            Map<String, IconSymbol> icons = getAllIconsForTheme("light");
+            icons.putAll(getAllIconsForTheme("dark"));
+            return icons;
+        } else {
+            return getAllIconsForTheme(theme);
+        }
+    }
+
+    private Map<String, IconSymbol> getAllIconsForTheme(final String theme) {
+        final ComponentIndices index = getIndex(Locale.ROOT.getLanguage(), true, null, theme);
+        try {
+            final List<ComponentIndex> components = index.getComponents();
+            Map<String, IconSymbol> icons = components
+                    .stream()
+                    .filter(c -> c.getIconFamily().getCustomIcon() != null)
+                    .filter(c -> "image/svg+xml".equals(c.getIconFamily().getCustomIconType()))
+                    .map(c -> new IconSymbol(c.getIconFamily().getIcon(),
+                            c.getFamilyDisplayName(),
+                            "family",
+                            "",
+                            theme,
+                            c.getIconFamily().getCustomIcon()))
+                    .peek(c -> log.warn(c.getUid()))
+                    .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1));
+            icons.putAll(components
+                    .stream()
+                    .filter(c -> c.getIcon().getCustomIcon() != null)
+                    .filter(c -> c.getIcon().getCustomIcon() != null)
+                    .filter(c -> "image/svg+xml".equals(c.getIcon().getCustomIconType()))
+                    .map(c -> new IconSymbol(c.getIcon().getIcon(),
+                            c.getFamilyDisplayName(),
+                            "connector",
+                            c.getDisplayName(),
+                            theme,
+                            c.getIcon().getCustomIcon()))
+                    .peek(c -> log.warn(c.getUid()))
+                    .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1)));
+            return icons;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     private Stream<ComponentIndex> findDeployedComponents(final boolean includeIconContent, final Locale locale,

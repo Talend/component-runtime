@@ -161,7 +161,8 @@ public interface ComponentResource {
             content = @Content(mediaType = APPLICATION_SVG_XML))
     @APIResponse(responseCode = "404", description = "No icon found.", content = @Content(mediaType = APPLICATION_JSON))
     Response getIconIndex(
-            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector.") String theme);
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark/all).") String theme);
 
     @POST
     @Path("migrate/{id}/{configurationVersion}")
