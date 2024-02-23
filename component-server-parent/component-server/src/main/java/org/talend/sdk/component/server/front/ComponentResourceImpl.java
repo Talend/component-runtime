@@ -474,7 +474,7 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
-    // @CacheResult
+    @CacheResult
     public Response getIconIndex(final String theme) {
         final String themedIcon = theme == null ? defaultTheme : theme;
         try {
@@ -654,7 +654,6 @@ public class ComponentResourceImpl implements ComponentResource {
                             "",
                             theme,
                             c.getIconFamily().getCustomIcon()))
-                    .peek(c -> log.warn(c.getUid()))
                     .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1));
             icons.putAll(components
                     .stream()
@@ -667,7 +666,6 @@ public class ComponentResourceImpl implements ComponentResource {
                             c.getDisplayName(),
                             theme,
                             c.getIcon().getCustomIcon()))
-                    .peek(c -> log.warn(c.getUid()))
                     .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1)));
             return icons;
         } catch (Exception e) {
