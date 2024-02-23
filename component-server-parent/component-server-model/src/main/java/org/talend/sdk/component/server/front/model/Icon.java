@@ -29,4 +29,6 @@ public class Icon {
     private String customIconType;
 
     private byte[] customIcon;
+
+    private String theme;
 }

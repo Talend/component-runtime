@@ -262,7 +262,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out.putNextEntry(new JarEntry(packageName.replace('.', '/') + "/Messages.properties"));
                     out.write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
 
-                    out.putNextEntry(new JarEntry("icons/myicon.svg"));
+                    out.putNextEntry(new JarEntry("icons/light/myicon.svg"));
                     out
                             .write(IO
                                     .readBytes(Thread

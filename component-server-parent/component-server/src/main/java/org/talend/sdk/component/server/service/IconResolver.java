@@ -48,12 +48,21 @@ public class IconResolver {
 
     private boolean supportsSvg;
 
+    private String defaultTheme;
+
+    private Boolean isThemeSupported;
+
+    private Boolean isLegacyIconsSupported;
+
     private List<String> patterns;
 
     @PostConstruct
     protected void init() {
         supportsSvg = System.getProperty("talend.studio.version") == null
                 && componentServerConfiguration.getIconExtensions().stream().anyMatch(it -> it.endsWith(".svg"));
+        isThemeSupported = componentServerConfiguration.getSupportIconTheme();
+        isLegacyIconsSupported = componentServerConfiguration.getSupportLegacyIcons();
+        defaultTheme = componentServerConfiguration.getIconDefaultTheme();
         patterns = isSupportsSvg() ? componentServerConfiguration.getIconExtensions()
                 : componentServerConfiguration
                         .getIconExtensions()
@@ -73,22 +82,28 @@ public class IconResolver {
     /**
      * IMPORTANT: the strategy moved to the configuration, high level we want something in this spirit:
      *
-     * The look up strategy of an icon is the following one:
+     * The lookup strategy of an icon is the following one:
      * 1. Check in the server classpath in icons/override/${icon}_icon32.png
      * (optionally icons/override/${icon}.svg if in the preferences),
      * 2. Check in the family classloader the following names ${icon}_icon32.png, icons/${icon}_icon32.png, ...
      * 3. Check in the server classloader the following names ${icon}_icon32.png, icons/${icon}_icon32.png, ...
      *
-     * This enable to
+     * This enables to
      * 1. override properly the icons (1),
      * 2. provide them in the family (2) and
      * 3. fallback on built-in icons if needed (3).
      *
+     * Theme and legacy icons support:
+     * If theme is activated the path will be prefixed by its theme: icons/dark/${icon}.svg, icons/light/${icon}.svg.
+     * Also, if icon is not found in theme and legacy icons support is activated, legacy icons lookup will be applied.
+     * Otherwise, theme deactivated, legacy icons lookup will be applied.
+     *
      * @param container the component family container.
      * @param icon the icon to look up.
+     * @param theme the theme of icon to look up.
      * @return the icon if found.
      */
-    public Icon resolve(final Container container, final String icon) {
+    public Icon resolve(final Container container, final String icon, final String theme) {
         if (icon == null) {
             return null;
         }
@@ -104,38 +119,59 @@ public class IconResolver {
             }
         }
         final ClassLoader appLoader = Thread.currentThread().getContextClassLoader();
-        return cache.icons
-                .computeIfAbsent(icon,
-                        k -> ofNullable(getOverridenIcon(icon, appLoader)
-                                .orElseGet(() -> doLoad(container.getLoader(), icon)
-                                        .orElseGet(() -> doLoad(appLoader, icon).orElse(null)))))
-                .orElse(null);
+        if (isThemeSupported) {
+            final String appliedTheme = theme != null ? theme : defaultTheme;
+            final String themedIcon = appliedTheme + "/" + icon;
+            Icon themed = cache.icons
+                    .computeIfAbsent(themedIcon,
+                            k -> ofNullable(getOverridenIcon(icon, appLoader)
+                                    .orElseGet(() -> doLoad(container.getLoader(), themedIcon, appliedTheme)
+                                            .orElseGet(
+                                                    () -> doLoad(appLoader, themedIcon, appliedTheme).orElse(null)))))
+                    .orElse(null);
+            if (themed == null && isLegacyIconsSupported) {
+                themed = cache.icons
+                        .computeIfAbsent(icon,
+                                k -> ofNullable(doLoad(container.getLoader(), icon, "")
+                                        .orElseGet(() -> doLoad(appLoader, icon, "")
+                                                .orElse(null))))
+                        .orElse(null);
+            }
+            return themed;
+        } else {
+            return cache.icons
+                    .computeIfAbsent(icon,
+                            k -> ofNullable(getOverridenIcon(icon, appLoader)
+                                    .orElseGet(() -> doLoad(container.getLoader(), icon, "")
+                                            .orElseGet(() -> doLoad(appLoader, icon, "").orElse(null)))))
+                    .orElse(null);
+        }
     }
 
     private Optional<Icon> getOverridenIcon(final String icon, final ClassLoader appLoader) {
         Icon result = null;
         if (isSupportsSvg()) {
-            result = loadIcon(appLoader, "icons/override/" + icon + ".svg").orElse(null);
+            result = loadIcon(appLoader, "icons/override/" + icon + ".svg", "").orElse(null);
         }
         if (result == null) {
-            return loadIcon(appLoader, "icons/override/" + icon + "_icon32.png");
+            return loadIcon(appLoader, "icons/override/" + icon + "_icon32.png", "");
         }
         return of(result);
     }
 
-    public Optional<Icon> doLoad(final ClassLoader loader, final String icon) {
+    public Optional<Icon> doLoad(final ClassLoader loader, final String icon, final String theme) {
         return getExtensionPreferences()
                 .stream()
                 .map(ext -> String.format(ext, icon))
-                .map(path -> loadIcon(loader, path))
+                .map(path -> loadIcon(loader, path, theme))
                 .filter(Optional::isPresent)
                 .findFirst()
                 .flatMap(identity());
     }
 
-    private Optional<Icon> loadIcon(final ClassLoader loader, final String path) {
+    private Optional<Icon> loadIcon(final ClassLoader loader, final String path, final String theme) {
         return ofNullable(loader.getResourceAsStream(path))
-                .map(resource -> new Icon(getType(path.toLowerCase(ROOT)), toBytes(resource)));
+                .map(resource -> new Icon(getType(path.toLowerCase(ROOT)), toBytes(resource), theme));
     }
 
     private String getType(final String path) {
@@ -159,6 +195,8 @@ public class IconResolver {
         private final String type;
 
         private final byte[] bytes;
+
+        private final String theme;
     }
 
     private byte[] toBytes(final InputStream resource) {
