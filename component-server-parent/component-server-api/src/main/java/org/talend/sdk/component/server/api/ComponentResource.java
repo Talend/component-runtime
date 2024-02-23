@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.api;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
@@ -150,6 +151,16 @@ public interface ComponentResource {
             @PathParam("familyId") @Parameter(name = "familyId", description = "family identifier.",
                     in = PATH) String familyId,
             @PathParam("iconKey") @Parameter(name = "iconKey", description = "icon key.", in = PATH) String iconKey,
+            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector.") String theme);
+
+    @GET
+    @Path("icon/index")
+    @Produces({ APPLICATION_JSON, APPLICATION_SVG_XML })
+    @Operation(description = "Returns list of available svg icons.")
+    @APIResponse(responseCode = "200", description = "The icon list.",
+            content = @Content(mediaType = APPLICATION_SVG_XML))
+    @APIResponse(responseCode = "404", description = "No icon found.", content = @Content(mediaType = APPLICATION_JSON))
+    Response getIconIndex(
             @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector.") String theme);
 
     @POST

@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -316,6 +317,45 @@ class ComponentResourceImplTest {
                 .request(APPLICATION_OCTET_STREAM_TYPE)
                 .accept(APPLICATION_OCTET_STREAM_TYPE)
                 .get(String.class));
+    }
+
+    @Test
+    void getIconIndex() {
+        // content type
+        Response icons = base.path("component/icon/index")
+                .request(APPLICATION_SVG_XML_TYPE)
+                .accept(APPLICATION_SVG_XML_TYPE)
+                .get();
+        assertNotNull(icons);
+        assertEquals(icons.getMediaType(), APPLICATION_SVG_XML_TYPE);
+        // default: light theme
+        String content = base.path("component/icon/index")
+                .request(APPLICATION_SVG_XML_TYPE)
+                .accept(APPLICATION_SVG_XML_TYPE)
+                .get(String.class);
+        assertNotNull(content);
+        assertTrue(
+                content.startsWith("<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" focusable=\"false\" theme=\"light\">"));
+        assertTrue(content.contains("file-family"));
+        // dark theme
+        content = base.path("component/icon/index")
+                .queryParam("theme", "dark")
+                .request(APPLICATION_SVG_XML_TYPE)
+                .accept(APPLICATION_SVG_XML_TYPE)
+                .get(String.class);
+                assertNotNull(content);
+        assertTrue(
+                content.startsWith("<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" focusable=\"false\" theme=\"dark\">"));
+        assertTrue(content.contains("connector=\"input\" family=\"jdbc\" id=\"db-input\" type=\"connector\""));
+        assertTrue(content.contains("connector=\"output\" family=\"jdbc\" id=\"db-input\" type=\"connector\""));
+        // inexistant theme (no fallback)
+        icons = base.path("component/icon/index")
+                .queryParam("theme", "dak")
+                .request(APPLICATION_SVG_XML_TYPE)
+                .accept(APPLICATION_SVG_XML_TYPE)
+                .get();
+        assertTrue(icons.getStatus() == 404);
+        assertEquals(APPLICATION_JSON_TYPE, icons.getMediaType());
     }
 
     @Test
