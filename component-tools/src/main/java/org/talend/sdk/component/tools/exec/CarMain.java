@@ -20,7 +20,6 @@ import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,6 +31,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
@@ -390,7 +390,7 @@ public class CarMain {
             if ("jar".equals(url.getProtocol())) {
                 final String spec = url.getFile();
                 final int separator = spec.indexOf('!');
-                return new File(decode(new URL(spec.substring(0, separator)).getFile()));
+                return new File(URLDecoder.decode(new URL(spec.substring(0, separator)).getFile(), "UTF-8"));
 
             } else if ("file".equals(url.getProtocol())) {
                 return toFile(resourceName, url);
@@ -406,51 +406,7 @@ public class CarMain {
 
     private static File toFile(final String classFileName, final URL url) {
         final String path = url.getFile();
-        return new File(decode(path.substring(0, path.length() - classFileName.length())));
-    }
-
-    private static String decode(final String fileName) {
-        if (fileName.indexOf('%') == -1) {
-            return fileName;
-        }
-
-        final StringBuilder result = new StringBuilder(fileName.length());
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        for (int i = 0; i < fileName.length();) {
-            final char c = fileName.charAt(i);
-
-            if (c == '%') {
-                out.reset();
-                do {
-                    if (i + 2 >= fileName.length()) {
-                        throw new IllegalArgumentException("Incomplete % sequence at: " + i);
-                    }
-
-                    final int d1 = Character.digit(fileName.charAt(i + 1), 16);
-                    final int d2 = Character.digit(fileName.charAt(i + 2), 16);
-
-                    if (d1 == -1 || d2 == -1) {
-                        throw new IllegalArgumentException(
-                                "Invalid % sequence (" + fileName.substring(i, i + 3) + ") at: " + String.valueOf(i));
-                    }
-
-                    out.write((byte) ((d1 << 4) + d2));
-
-                    i += 3;
-
-                } while (i < fileName.length() && fileName.charAt(i) == '%');
-
-                result.append(out.toString());
-
-                continue;
-            } else {
-                result.append(c);
-            }
-
-            i++;
-        }
-        return result.toString();
+        return new File(URLDecoder.decode(path.substring(0, path.length() - classFileName.length())), "UTF-8");
     }
 
     private static void deployToNexus(final String serverUrl, final String repositoryName, final String username,
