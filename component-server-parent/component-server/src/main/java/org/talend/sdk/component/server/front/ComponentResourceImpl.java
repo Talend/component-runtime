@@ -475,6 +475,7 @@ public class ComponentResourceImpl implements ComponentResource {
     @Override
     // @CacheResult
     public Response getIconIndex(final String theme) {
+        // TODO handle all theme bundle
         final String themedIcon = theme == null ? defaultTheme : theme;
         final ComponentIndices index = getIndex(Locale.ROOT.getLanguage(), true, null, themedIcon);
         try {
