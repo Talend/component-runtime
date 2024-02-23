@@ -104,7 +104,8 @@ public interface ComponentResource {
                             + "It provides access to the component `plugin`, `name`, `id` and `metadata` of the first configuration property. "
                             + "Ex: `(id = AYETAE658349453) AND (metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) AND "
                             + "(name = input)`.",
-                    in = QUERY, schema = @Schema(type = STRING)) String query);
+                    in = QUERY, schema = @Schema(type = STRING)) String query,
+            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector.") String theme);
 
     @GET
     @Path("icon/family/{id}")
@@ -118,8 +119,8 @@ public interface ComponentResource {
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     Response familyIcon(
-            @PathParam("id") @Parameter(name = "id",
-                    description = "Family identifier.", in = PATH) String id);
+            @PathParam("id") @Parameter(name = "id", description = "Family identifier.", in = PATH) String id,
+            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector.") String theme);
 
     @GET
     @Path("icon/{id}")
@@ -131,9 +132,9 @@ public interface ComponentResource {
     @APIResponse(responseCode = "404",
             description = "The family or icon is not found.",
             content = @Content(mediaType = APPLICATION_JSON))
-    Response icon(@PathParam("id") @Parameter(name = "id",
-            description = "Component icon identifier.",
-            in = PATH) String id);
+    Response icon(
+            @PathParam("id") @Parameter(name = "id", description = "Component icon identifier.", in = PATH) String id,
+            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector.") String theme);
 
     @GET
     @Path("icon/custom/{familyId}/{iconKey}")
@@ -145,12 +146,11 @@ public interface ComponentResource {
     @APIResponse(responseCode = "404",
             description = "The family or icon is not found.",
             content = @Content(mediaType = APPLICATION_JSON))
-    Response icon(@PathParam("familyId") @Parameter(name = "familyId",
-            description = "family identifier.",
-            in = PATH) String familyId,
-            @PathParam("iconKey") @Parameter(name = "iconKey",
-                    description = "icon key.",
-                    in = PATH) String iconKey);
+    Response icon(
+            @PathParam("familyId") @Parameter(name = "familyId", description = "family identifier.",
+                    in = PATH) String familyId,
+            @PathParam("iconKey") @Parameter(name = "iconKey", description = "icon key.", in = PATH) String iconKey,
+            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector.") String theme);
 
     @POST
     @Path("migrate/{id}/{configurationVersion}")

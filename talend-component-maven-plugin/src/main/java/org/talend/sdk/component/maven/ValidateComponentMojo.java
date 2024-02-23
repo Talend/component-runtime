@@ -48,6 +48,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "true", property = "talend.validation.svg")
     private boolean validateSvg;
 
+    /*
+     * Ensures icons according theme or legacy mode
+     */
+    @Parameter(defaultValue = "false", property = "talend.validation.icons.legacy")
+    private boolean validateLegacyIcons;
+
     /**
      * Ensures each family has an icon.
      */
@@ -214,6 +220,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateOutputConnection(validateOutputConnection);
         configuration.setValidatePlaceholder(validatePlaceholder);
         configuration.setValidateSvg(validateSvg);
+        configuration.setValidateLegacyIcons(validateLegacyIcons);
         configuration.setValidateNoFinalOption(validateNoFinalOption);
         configuration.setValidateWording(validateWording);
         configuration.setPluginId(pluginId);
