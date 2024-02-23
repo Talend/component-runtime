@@ -123,7 +123,7 @@ public class IconResolver {
             final String appliedTheme = theme != null ? theme : defaultTheme;
             final String themedIcon = appliedTheme + "/" + icon;
             Icon themed = cache.icons
-                    .computeIfAbsent(icon + appliedTheme,
+                    .computeIfAbsent(themedIcon,
                             k -> ofNullable(getOverridenIcon(icon, appLoader)
                                     .orElseGet(() -> doLoad(container.getLoader(), themedIcon, appliedTheme)
                                             .orElseGet(
