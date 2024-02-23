@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.65.0M1-SNAPSHOT</version>
+  <version>1.65.0M2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
@@ -63,6 +63,17 @@
     <tag>HEAD</tag>
     <url>https://github.com/${scm.repository}</url>
   </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <properties>
     <scm.repository>talend/component-runtime</scm.repository>
