@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.server.front.model.icons;
-
-import java.util.List;
+package org.talend.sdk.component.server.front.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +22,22 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class IconIndex {
+public class IconSymbol {
 
-    private List<IconSymbol> icons;
+    String icon;
+
+    String family;
+
+    String type;
+
+    String connector;
+
+    String theme;
+
+    byte[] content;
+
+    public String getUid() {
+        final String fmt = connector.isEmpty() ? "%s-%s-%s-%s" : "%s-%s-%s-%s-%s";
+        return String.format(fmt, theme, type, family, icon, connector);
+    }
 }

@@ -104,7 +104,7 @@ import org.talend.sdk.component.server.front.model.Icon;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
-import org.talend.sdk.component.server.front.model.icons.IconSymbol;
+import org.talend.sdk.component.server.front.model.IconSymbol;
 import org.talend.sdk.component.server.front.security.SecurityUtils;
 import org.talend.sdk.component.server.lang.MapCache;
 import org.talend.sdk.component.server.service.ActionsService;
