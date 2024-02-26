@@ -1,21 +1,49 @@
 
 
-== Version 1.63.0
+== Version 1.64.0
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2564[TCOMP-2564^]: component-starter image issues link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2384[TCOMP-2384^]: Wrong studio mapping on sub records link:search.html?query=studio-integration[studio-integration^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2342[TCOMP-2342^]: httpclient - Guesschema displays dialogbox to execute the connector if it can't be inferred. link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2283[TCOMP-2283^]: Handle Dynamic, Document and Byte column types in guess schema link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2522[TCOMP-2522^]: Upgrade johnzon to 1.2.21 link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2590[TCOMP-2590^]: Upgrade tomcat to 9.0.84 link:search.html?query=component-server[component-server^,role='dockey']
+
+== Version 1.63.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2339[TCOMP-2339^]: Remove static modifier in BeamProducerFinder link:search.html?query=beam[beam^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2557[TCOMP-2557^]: [TCK]: unable to test connection well if the password contains ^ link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2564[TCOMP-2564^]: component-starter image issues link:search.html?query=tsbi[tsbi^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2565[TCOMP-2565^]: Dynamic schema with generic JDBCconnection fails with wrong dbtype 
+- link:https://jira.talendforge.org/browse/TCOMP-2582[TCOMP-2582^]: Can't create components on starter-toolkit.talend.io link:search.html?query=intellij[intellij^,role='dockey'] link:search.html?query=starter[starter^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2144[TCOMP-2144^]: Create a validation rule for good usage of Schema and Record 
 - link:https://jira.talendforge.org/browse/TCOMP-2533[TCOMP-2533^]: consider to remove the verbose debug log for DIRowStructVisitor and DIRecordVisitor and MappingUtils link:search.html?query=studio-integration[studio-integration^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2550[TCOMP-2550^]: Upgrade avro to 1.11.3 link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2552[TCOMP-2552^]: support custom connection/close component icon for tck connector in studio link:search.html?query=component-server[component-server^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2558[TCOMP-2558^]: Upgrade guava to 32.1.3-jre 
-- link:https://jira.talendforge.org/browse/TCOMP-2559[TCOMP-2559^]: Upgrade lombok to 1.18.30 
-- link:https://jira.talendforge.org/browse/TCOMP-2560[TCOMP-2560^]: Upgrade junit to 5.10.0 
+- link:https://jira.talendforge.org/browse/TCOMP-2558[TCOMP-2558^]: Upgrade guava to 32.1.3-jre link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2559[TCOMP-2559^]: Upgrade lombok to 1.18.30 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2560[TCOMP-2560^]: Upgrade junit to 5.10.0 link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2562[TCOMP-2562^]: remove grpc from beam-runners-spark-3 link:search.html?query=beam[beam^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2571[TCOMP-2571^]: Bind metrics in prometheus format to Kubernetes Monitoring system link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2578[TCOMP-2578^]: Remove geronimo-opentracing from component-server link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=vault-client[vault-client^,role='dockey']
 
 
 
@@ -937,6 +965,14 @@
 
 
 
+
+
+== Version 1.38.13
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2590[TCOMP-2590^]: Upgrade tomcat to 9.0.84 link:search.html?query=component-server[component-server^,role='dockey']
+
 == Version 1.38.12
 
 === Work Item
@@ -1743,12 +1779,6 @@
 
 
 
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
-
 == Version 1.1.15
 
 === Bug
@@ -1781,6 +1811,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
+
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 

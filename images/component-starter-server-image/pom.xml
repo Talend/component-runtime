@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>images</artifactId>
-    <version>1.63.0-SNAPSHOT</version>
+    <version>1.65.0M2-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-starter-server-image</artifactId>
@@ -90,11 +90,12 @@
                   <MEECROWAVE_PID>${docker.talend.dir.app}conf/server.pid</MEECROWAVE_PID>
                   <MEECROWAVE-PROPERTIES>${docker.talend.dir.app}conf/meecrowave.properties</MEECROWAVE-PROPERTIES>
                   <CLASSPATH>${docker.talend.dir.app}lib/*:${docker.talend.dir.app}custom/*:${docker.talend.dir.base}extensions/*:${docker.talend.dir.app}resources:${docker.talend.dir.app}classes</CLASSPATH>
+                  <JDK_JAVA_OPTIONS>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.net=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</JDK_JAVA_OPTIONS>
                 </environment>
                 <labels>
                   <com.talend.docker.cmd>docker run -d -p ${docker.image.port}:${docker.image.port} ${docker.image.to}</com.talend.docker.cmd>
                   <com.talend.docker.healthcheck>curl --fail http://localhost:${docker.image.port}/api/v1/environment</com.talend.docker.healthcheck>
-                  <com.talend.docker.params>_JAVA_OPTIONS=&lt;JVM options (system properties etc)&gt;</com.talend.docker.params>
+                  <com.talend.docker.params>JDK_JAVA_OPTIONS=&lt;JVM options (system properties etc)&gt;</com.talend.docker.params>
                 </labels>
               </container>
             </configuration>

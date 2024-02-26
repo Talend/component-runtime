@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,11 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -424,7 +425,7 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.customicon")
     void testFailureCustomIcon(final ExceptionSpec spec) {
-        spec.expectMessage("Some error were detected:\n- No icon: 'missing' found");
+        spec.expectMessage("Some error were detected:\n- Missing icon(s) in resources.");// missing' found");
     }
 
     @Test
@@ -437,7 +438,7 @@ class ComponentValidatorTest {
     @ComponentPackage(value = "org.talend.test.valid.customicon", success = true)
     void testValidCustomIcon(final ExceptionSpec spec) {
         // jus a warning so this test is semantically "valid" but we still assert this message
-        spec.expectMessage("icons/present.svg' found, this will run in degraded mode in Talend Cloud");
+        spec.expectMessage("icons/dark/present.svg' found, this will run in degraded mode in Talend Cloud");
     }
 
     @Test
@@ -665,16 +666,25 @@ class ComponentValidatorTest {
                 fail("cant create test plugin: " + e.getMessage());
             }
         }
-        final File icons = new File(root, "icons");
-        if (icons.exists()) {
-            new File(pluginDir, "icons").mkdirs();
-            files(icons).filter(c -> c.getName().endsWith(".png") || c.getName().endsWith(".svg")).forEach(c -> {
-                try {
-                    Files.copy(c.toPath(), new File(pluginDir, "icons/" + c.getName()).toPath());
-                } catch (final IOException e) {
-                    fail("cant create test plugin: " + e.getMessage());
-                }
-            });
+        final Path srcIcons = root.toPath().resolve("icons");
+        final Path destIcons = pluginDir.toPath().resolve("icons");
+        destIcons.toFile().mkdirs();
+        if (srcIcons.toFile().exists()) {
+            try {
+                Files.walk(srcIcons)
+                        .forEach(source -> {
+                            final Path destination = Paths.get(destIcons.toString(),
+                                    source.toString().substring(srcIcons.toString().length()));
+                            try {
+                                Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+                            } catch (IOException e) {
+                                fail("cant create test plugin: " + e.getMessage());
+                            }
+                        });
+
+            } catch (final IOException e) {
+                fail("cant create test plugin: " + e.getMessage());
+            }
         }
     }
 

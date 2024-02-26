@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,13 +131,15 @@ public class RecordServiceImpl implements RecordService, Serializable {
             case RECORD:
                 final Optional<Record> optionalRecord = record.getOptionalRecord(entry.getName());
                 final RecordVisitor<T> recordVisitor = visitor.onRecord(entry, optionalRecord);
-                optionalRecord.ifPresent(r -> {
-                    final T visited = visit(recordVisitor, r);
-                    if (visited != null) {
-                        final T current = out.get();
-                        out.set(current == null ? visited : visitor.apply(current, visited));
-                    }
-                });
+                if (recordVisitor != null) {
+                    optionalRecord.ifPresent(r -> {
+                        final T visited = visit(recordVisitor, r);
+                        if (visited != null) {
+                            final T current = out.get();
+                            out.set(current == null ? visited : visitor.apply(current, visited));
+                        }
+                    });
+                }
                 break;
             case ARRAY:
                 final Schema schema = entry.getElementSchema();

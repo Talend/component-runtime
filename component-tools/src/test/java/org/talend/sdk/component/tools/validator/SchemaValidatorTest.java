@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,10 +58,12 @@ public class SchemaValidatorTest {
     }
 
     class MySchema implements Schema {
+
         @Override
         public Builder toBuilder() {
             return null;
         }
+
         @Override
         public Type getType() {
             return null;

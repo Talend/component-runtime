@@ -31,7 +31,7 @@ Here is a representation of this solution:
 \----------/    \----------/    \----------/
 ....
 ////
-image:classloader-layout.png[Classloader layout,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/classloader-layout.png",70%]
+image:classloader-layout.png[Classloader layout,window="_blank",link=self,70%]
 
 The _shared_ area contains Talend Component Kit API, which only contains by default the classes shared by the plugins.
 

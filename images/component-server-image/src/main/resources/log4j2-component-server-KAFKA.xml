@@ -33,11 +33,6 @@
   </Appenders>
   <Loggers>
     <Logger name="org.apache.kafka" level="INFO" /> <!-- avoid recursive logging -->
-    <Logger name="org.apache.geronimo.opentracing.zipkin"
-            level="INFO"
-            additivity="false">
-      <AppenderRef ref="KafkaTracing"/>
-    </Logger>
     <Root level="${env:KAFKA_ROOT_LOGGER_LEVEL:-INFO}">
       <AppenderRef ref="KafkaLog"/>
     </Root>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,9 +50,11 @@ import java.util.jar.JarFile;
 import java.util.stream.IntStream;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.apache.ziplock.IO;
@@ -180,10 +182,137 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void noMigrateWithUpperVersion() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 3)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("going", "nowhere");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(1, migrated.size());
+        assertEquals(null, migrated.get("migrated"));
+    }
+
+    @Test
+    void noMigrateWithEqualVersion() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 2)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("going", "nowhere");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(1, migrated.size());
+        assertEquals(null, migrated.get("migrated"));
+    }
+
+    @Test
     void searchIcon() {
         assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}")
                 .resolveTemplate("familyId", client.getFamilyId("jdbc"))
                 .resolveTemplate("iconKey", "logo")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class));
+    }
+
+    @Test
+    void themedIcon() {
+        final String id = client.getJdbcId();
+        //
+        Response icon = base.path("component/icon/{id}")
+                .resolveTemplate("id", id)
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(Response.class);
+        assertNotNull(icon);
+        assertEquals("image/png", icon.getMediaType().toString());
+        //
+        icon = base.path("component/icon/{id}")
+                .resolveTemplate("id", id)
+                .queryParam("theme", "dark")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(Response.class);
+        assertNotNull(icon);
+        assertEquals("image/svg+xml", icon.getMediaType().toString());
+    }
+
+    @Test
+    void themedFamilyIcon() {
+        final String family = client.getFamilyId("chain");
+
+        Response icon = base.path("component/icon/family/{id}")
+                .resolveTemplate("id", family)
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(Response.class);
+        assertNotNull(icon);
+        assertEquals("image/png", icon.getMediaType().toString());
+
+        icon = base.path("component/icon/family/{id}")
+                .resolveTemplate("id", family)
+                .queryParam("theme", "dark")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(Response.class);
+        assertNotNull(icon);
+        assertEquals("image/svg+xml", icon.getMediaType().toString());
+
+        assertThrows(NotFoundException.class, () -> base.path("component/icon/family/{id}")
+                .resolveTemplate("id", family)
+                .queryParam("theme", "dak")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class));
+    }
+
+    @Test
+    void customThemedIcon() {
+        final String family = client.getFamilyId("jdbc");
+        String icon = base.path("component/icon/custom/{familyId}/{iconKey}")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "logo")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class);
+        assertNotNull(icon);
+        assertTrue(icon.contains("light"));
+        //
+        icon = base.path("component/icon/custom/{familyId}/{iconKey}")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "logo")
+                .queryParam("theme", "dark")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class);
+        assertNotNull(icon);
+        assertTrue(icon.contains("dark"));
+        // even if theme does not exist, the legacy lookup should find the top level logo.svg
+        icon = base.path("component/icon/custom/{familyId}/{iconKey}")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "logo")
+                .queryParam("theme", "dak")
+                .request(APPLICATION_OCTET_STREAM_TYPE)
+                .accept(APPLICATION_OCTET_STREAM_TYPE)
+                .get(String.class);
+        assertNotNull(icon);
+        // invalid iconKey
+        assertThrows(NotFoundException.class, () -> base.path("component/icon/custom/{familyId}/{iconKey}")
+                .resolveTemplate("familyId", family)
+                .resolveTemplate("iconKey", "log")
+                .queryParam("theme", "dak")
                 .request(APPLICATION_OCTET_STREAM_TYPE)
                 .accept(APPLICATION_OCTET_STREAM_TYPE)
                 .get(String.class));
@@ -218,7 +347,7 @@ class ComponentResourceImplTest {
     @Test
     void migrateFromStudioWs() {
         final Map<String, String> migrated = ws
-                .read(Map.class, "post", String.format("/component/migrate/%s/2", client.getJdbcId()),
+                .read(Map.class, "post", String.format("/component/migrate/%s/1", client.getJdbcId()),
                         "{\"going\":\"nowhere\",\"configuration.dataSet.connection.authMethod\":\"base64://QWN0aXZlRGlyZWN0b3J5\",\"configuration.dataSet.blobPath\":\"base64://KFN0cmluZylnbG9iYWxNYXAuZ2V0KCJTWVNURU1aVCIpKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyIvIitjb250ZXh0LmN0eE5vbVRhYmxlU291cmNlKyJfIitTdHJpbmdIYW5kbGluZy5DSEFOR0UoY29udGV4dC5jdHhEYXRlRGVidXRUcmFpdGVtZW50LCAiW15cXGRdIiwgIiIpKyIvIg==\"}");
         assertEquals(4, migrated.size());
         assertEquals(
@@ -478,6 +607,7 @@ class ComponentResourceImplTest {
         } else if ("chain".equals(data.getId().getFamily())
                 && ("file".equals(data.getId().getName()) || "standalone".equals(data.getId().getName()))) {
             assertEquals("myicon", data.getIcon().getIcon());
+            assertEquals("light", data.getIcon().getTheme());
             assertTrue(new String(data.getIcon().getCustomIcon(), StandardCharsets.UTF_8)
                     .startsWith("<svg xmlns=\"http://www.w3.org/2000/svg\""));
             assertEquals("image/svg+xml", data.getIcon().getCustomIconType());

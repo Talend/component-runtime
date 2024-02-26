@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.opentracing.ClientTracingRegistrar;
 import org.talend.sdk.components.vault.configuration.Documentation;
 
 import lombok.Data;
@@ -207,7 +206,7 @@ public class VaultClientSetup {
                 return null;
             }
         }).filter(Objects::nonNull)).ifPresent(it -> it.forEach(builder::register));
-        return ClientTracingRegistrar.configure(builder);
+        return builder;
     }
 
     private SSLContext createUnsafeSSLContext() {

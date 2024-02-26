@@ -13,7 +13,7 @@ NOTE: Dynamic column is available with Enterprise versions of Talend Studio only
 
 In Studio, we can define for each component a schema with associated metadata.
 
-image::studio_schema.png[Job run,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/studio_schema.png",70%]
+image::studio_schema.png[Job run,window="_blank",link=self,70%]
 
 To access those informations in your component, you've to do a few things:
 

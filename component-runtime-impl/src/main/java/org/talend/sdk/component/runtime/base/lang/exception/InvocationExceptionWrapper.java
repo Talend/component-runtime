@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 
 public class InvocationExceptionWrapper {
 
@@ -43,6 +44,9 @@ public class InvocationExceptionWrapper {
         }
         if (ComponentException.class.isInstance(targetException)) {
             return ComponentException.class.cast(targetException);
+        }
+        if (DiscoverSchemaException.class.isInstance(targetException)) {
+            return DiscoverSchemaException.class.cast(targetException);
         }
         if (RuntimeException.class.isInstance(targetException)
                 && targetException.getClass().getName().startsWith("java.")) {

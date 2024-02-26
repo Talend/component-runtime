@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
      */
     @Parameter(defaultValue = "true", property = "talend.validation.svg")
     private boolean validateSvg;
+
+    /*
+     * Ensures icons according theme or legacy mode
+     */
+    @Parameter(defaultValue = "false", property = "talend.validation.icons.legacy")
+    private boolean validateLegacyIcons;
 
     /**
      * Ensures each family has an icon.
@@ -211,6 +217,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateOutputConnection(validateOutputConnection);
         configuration.setValidatePlaceholder(validatePlaceholder);
         configuration.setValidateSvg(validateSvg);
+        configuration.setValidateLegacyIcons(validateLegacyIcons);
         configuration.setValidateNoFinalOption(validateNoFinalOption);
         configuration.setValidateWording(validateWording);
         configuration.setPluginId(pluginId);

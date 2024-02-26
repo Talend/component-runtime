@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -164,7 +164,7 @@ function download_connector (){
   printf 'From following link: %s\n' "${connector_final_link}"
 
   # Download
-  wget --timestamping --directory-prefix "${_DOWNLOAD_DIR}" "${connector_final_link}"
+  wget --user "${NEXUS_USER}" --password "${NEXUS_PASS}" --timestamping --directory-prefix "${_DOWNLOAD_DIR}" "${connector_final_link}"
 
   # Deploy
   component_path="${_DOWNLOAD_DIR}/${connector_name}-${_CONNECTOR_VERSION}-component.car"

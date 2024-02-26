@@ -1,4 +1,4 @@
-#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ content:
       - '!component-runtime-1.52.1'
       - '!component-runtime-1.53.0'
       - '!component-runtime-1.54.0'
+      - '!component-runtime-1.*.0M*'
     branches:
       - HEAD
     start_path: documentation/src/main/antora

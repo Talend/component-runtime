@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.record;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -83,11 +84,25 @@ class MappingUtilsTest {
         assertEquals(new Date(1000l), MappingUtils.coerce(Date.class, "1000", name));
         assertEquals(1683286435000l, MappingUtils.coerce(Long.class,
                 LocalDateTime.of(2023, 5, 5, 11, 33, 55, 666).toInstant(ZoneOffset.UTC), name));
-        // string mapping :fail
+        // string mapping: fail
         assertThrows(IllegalArgumentException.class,
                 () -> MappingUtils.coerce(List.class, "1970-01-01T00:00:01Z", name));
-
-        // fail
+        // string mapping: "null" literal
+        assertNull(MappingUtils.coerce(Integer.class, "null", name));
+        assertNull(MappingUtils.coerce(Long.class, "null  ", name));
+        assertNull(MappingUtils.coerce(Double.class, "  null  ", name));
+        assertNull(MappingUtils.coerce(Float.class, "   NULL  ", name));
+        assertNull(MappingUtils.coerce(Short.class, "null", name));
+        assertNull(MappingUtils.coerce(ZonedDateTime.class, "null", name));
+        assertNull(MappingUtils.coerce(Byte.class, "null", name));
+        assertNull(MappingUtils.coerce(ZonedDateTime.class, "null", name));
+        assertNull(MappingUtils.coerce(Date.class, "NULL", name));
+        assertNull(MappingUtils.coerce(Character.class, "null", name));
+        assertNull(MappingUtils.coerce(BigDecimal.class, "null", name));
+        assertNull(MappingUtils.coerce(byte[].class, "null", name));
+        assertFalse((boolean) MappingUtils.coerce(Boolean.class, "null", name));
+        assertThrows(IllegalArgumentException.class, () -> MappingUtils.coerce(Long.class, "nul", name));
+        // incompatible mapping: fail
         assertThrows(IllegalArgumentException.class, () -> MappingUtils.coerce(List.class, 123, name));
     }
 }

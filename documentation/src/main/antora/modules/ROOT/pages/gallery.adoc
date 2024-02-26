@@ -25,8 +25,8 @@ String config;
 |===
 |Studio Rendering | Web Rendering
 
-a|image::gallery/widgets/studio/input.png[Studio Input,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/input.png"]
-a|image::gallery/widgets/web/input.png[Web Input,40%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/input.png"]
+a|image::gallery/widgets/studio/input.png[Studio Input,100%,window="_blank",link=self]
+a|image::gallery/widgets/web/input.png[Web Input,40%,window="_blank",link=self]
 |===
 
 === Password
@@ -42,8 +42,8 @@ String config;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/password.png[Studio Password,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/password.png"]
-|image::gallery/widgets/web/password.png[Web Password,50%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/password.png"]
+|image::gallery/widgets/studio/password.png[Studio Password,100%,window="_blank",link=self]
+|image::gallery/widgets/web/password.png[Web Password,50%,window="_blank",link=self]
 |===
 
 === Textarea
@@ -59,8 +59,8 @@ String config;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/textarea.png[Studio Textarea,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/textarea.png"]
-|image::gallery/widgets/web/textarea.png[Web Textarea,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/textarea.png"]
+|image::gallery/widgets/studio/textarea.png[Studio Textarea,100%,window="_blank",link=self]
+|image::gallery/widgets/web/textarea.png[Web Textarea,100%,window="_blank",link=self]
 |===
 
 
@@ -77,8 +77,8 @@ public Integer number;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/studio_talend_component_kit_number_widget.png[Studio Integer,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/studio_talend_component_kit_number_widget.png"]
-|image::gallery/widgets/web/web_talend_component_kit_number_widget.png[Web Textarea,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/web_talend_component_kit_number_widget.png"]
+|image::gallery/widgets/studio/studio_talend_component_kit_number_widget.png[Studio Integer,100%,window="_blank",link=self]
+|image::gallery/widgets/web/web_talend_component_kit_number_widget.png[Web Textarea,100%,window="_blank",link=self]
 |===
 
 === Checkbox
@@ -93,8 +93,8 @@ Boolean config;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/checkbox.png[Studio Checkbox,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/checkbox.png"]
-|image::gallery/widgets/web/checkbox.png[Web Checkbox,40%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/checkbox.png"]
+|image::gallery/widgets/studio/checkbox.png[Studio Checkbox,100%,window="_blank",link=self]
+|image::gallery/widgets/web/checkbox.png[Web Checkbox,40%,window="_blank",link=self]
 |===
 
 === Datetime
@@ -111,8 +111,8 @@ LocalDateTime startTime;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/widget_calendar.png[Studio Calendar,40%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/widget_calendar.png"]
-|image::gallery/widgets/web/widget_calendar.png[Web Calendar,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/widget_calendar.png"]
+|image::gallery/widgets/studio/widget_calendar.png[Studio Calendar,40%,window="_blank",link=self]
+|image::gallery/widgets/web/widget_calendar.png[Web Calendar,100%,window="_blank",link=self]
 |===
 
 === List
@@ -150,8 +150,8 @@ enum ActionEnum {
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/list.png[Studio List,40%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/list.png"]
-|image::gallery/widgets/web/list.png[Web List,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/list.png"]
+|image::gallery/widgets/studio/list.png[Studio List,40%,window="_blank",link=self]
+|image::gallery/widgets/web/list.png[Web List,100%,window="_blank",link=self]
 |===
 
 === Suggestions
@@ -173,10 +173,10 @@ public SuggestionValues loadModules(@Option final MyConfig myconfig) { }
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png[Studio suggestions loading,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png"]
-|image::gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png[Web suggestions loading,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png"]
-|image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png[Studio suggestions loaded,80%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png"]
-|image::gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png[Web suggestions loaded,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png"]
+|image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png[Studio suggestions loading,100%,window="_blank",link=self]
+|image::gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png[Web suggestions loading,100%,window="_blank",link=self]
+|image::gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png[Studio suggestions loaded,80%,window="_blank",link=self]
+|image::gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png[Web suggestions loaded,100%,window="_blank",link=self]
 |===
 
 === Table
@@ -191,8 +191,8 @@ List<MyObject> config;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/table.png[Studio Table,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/table.png"]
-|image::gallery/widgets/web/table.png[Web Table,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/table.png"]
+|image::gallery/widgets/studio/table.png[Studio Table,100%,window="_blank",link=self]
+|image::gallery/widgets/web/table.png[Web Table,100%,window="_blank",link=self]
 |===
 
 
@@ -209,8 +209,8 @@ String config;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/javaCode.png[Studio Code,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/javaCode.png"]
-|image::gallery/widgets/web/javaCode.png[Web Code,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/javaCode.png"]
+|image::gallery/widgets/studio/javaCode.png[Studio Code,100%,window="_blank",link=self]
+|image::gallery/widgets/web/javaCode.png[Web Code,100%,window="_blank",link=self]
 |===
 
 
@@ -227,8 +227,8 @@ List<String> config;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/schema.png[Studio Schema,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/schema.png"]
-|image::gallery/widgets/web/schema.png[Web Schema,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/schema.png"]
+|image::gallery/widgets/studio/schema.png[Studio Schema,100%,window="_blank",link=self]
+|image::gallery/widgets/web/schema.png[Web Schema,100%,window="_blank",link=self]
 |===
 
 
@@ -256,8 +256,8 @@ ValidationResult doValidate(String url) {
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/validation_property.png[Studio Code,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/validation_property.png"]
-|image::gallery/widgets/web/validation_property.png[Web Code,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/validation_property.png"]
+|image::gallery/widgets/studio/validation_property.png[Studio Code,100%,window="_blank",link=self]
+|image::gallery/widgets/web/validation_property.png[Web Code,100%,window="_blank",link=self]
 |===
 
 
@@ -275,8 +275,8 @@ String username;
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/validation_pattern.png[Studio Code,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/validation_pattern.png"]
-|image::gallery/widgets/web/validation_pattern.png[Web Code,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/validation_pattern.png"]
+|image::gallery/widgets/studio/validation_pattern.png[Studio Code,100%,window="_blank",link=self]
+|image::gallery/widgets/web/validation_pattern.png[Web Code,100%,window="_blank",link=self]
 |===
 
 === Data store validation
@@ -301,8 +301,8 @@ public HealthCheckStatus testConnection(){
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/validation_datastore.png[Studio Code,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/prop_validation.png"]
-|image::gallery/widgets/web/validation_datastore.png[Web Code,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/prop_validation.png"]
+|image::gallery/widgets/studio/validation_datastore.png[Studio Code,100%,window="_blank",link=self]
+|image::gallery/widgets/web/validation_datastore.png[Web Code,100%,window="_blank",link=self]
 |===
 
 You can also use other types of validation that are similar to `@Pattern`:

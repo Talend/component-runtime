@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,14 @@ public class RequestKey {
 
     private final int cacheHash;
 
-    public RequestKey(final Locale locale, final boolean includeIconContent, final String query) {
+    private final String theme;
+
+    public RequestKey(final Locale locale, final boolean includeIconContent, final String query, final String theme) {
         this.locale = locale;
         this.includeIconContent = includeIconContent;
         this.query = query;
-        this.cacheHash = Objects.hash(locale, includeIconContent, query);
+        this.theme = theme;
+        this.cacheHash = Objects.hash(locale, includeIconContent, query, theme);
     }
 
     @Override
@@ -48,7 +51,7 @@ public class RequestKey {
         }
         final RequestKey that = RequestKey.class.cast(o);
         return Objects.equals(locale, that.locale) && Objects.equals(includeIconContent, that.includeIconContent)
-                && Objects.equals(query, that.query);
+                && Objects.equals(query, that.query) && Objects.equals(theme, that.theme);
     }
 
     @Override

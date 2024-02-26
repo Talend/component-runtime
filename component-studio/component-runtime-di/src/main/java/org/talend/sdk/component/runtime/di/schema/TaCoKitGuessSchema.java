@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.json.JsonNumber;
@@ -45,17 +47,30 @@ import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
+import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.runtime.base.Delegated;
+import org.talend.sdk.component.runtime.di.AutoChunkProcessor;
+import org.talend.sdk.component.runtime.di.InputsHandler;
 import org.talend.sdk.component.runtime.di.JobStateAware;
+import org.talend.sdk.component.runtime.di.OutputsHandler;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
+import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
+import org.talend.sdk.component.runtime.output.InputFactory;
+import org.talend.sdk.component.runtime.output.OutputFactory;
+import org.talend.sdk.component.runtime.output.Processor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,6 +84,12 @@ public class TaCoKitGuessSchema {
     public static final String TCOMP_CONFIGURATIONTYPE_TYPE = "tcomp::configurationtype::type";
 
     public static final String DATASET = "dataset";
+
+    public static final String ERROR_THROUGH_ACTION = "Can't guess schema through action.";
+
+    public static final String ERROR_NO_AVAILABLE_SCHEMA_FOUND = "There is no available schema found.";
+
+    public static final String ERROR_INSTANCE_SCHEMA = "Result is not an instance of Talend Component Kit Schema.";
 
     private ComponentManager componentManager;
 
@@ -138,22 +159,60 @@ public class TaCoKitGuessSchema {
         }
     }
 
+    private DiscoverSchemaException handleException(final Exception e) throws Exception {
+        DiscoverSchemaException discoverSchemaException;
+        log.error(ERROR_THROUGH_ACTION, e);
+        if (e instanceof DiscoverSchemaException) {
+            discoverSchemaException = DiscoverSchemaException.class.cast(e);
+        } else if (e instanceof ComponentException) {
+            discoverSchemaException = new DiscoverSchemaException((ComponentException) e);
+        } else {
+            discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(),
+                    DiscoverSchemaException.HandleErrorWith.EXCEPTION);
+        }
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            jsonb.toJson(discoverSchemaException, out);
+        }
+
+        return discoverSchemaException;
+    }
+
     public void guessInputComponentSchema(final Schema schema) throws Exception {
         try {
             if (guessSchemaThroughAction(schema)) {
                 return;
             }
+            if (guessInputComponentSchemaThroughResult()) {
+                return;
+            }
         } catch (Exception e) {
-            log.error("Can't guess schema through action.", e);
+            throw handleException(e);
         }
-        if (guessInputComponentSchemaThroughResult()) {
-            return;
-        }
-        throw new Exception("There is no available schema found.");
+        throw new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND);
     }
 
-    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch)
-            throws Exception {
+    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch,
+            final Boolean isStartOfJob) throws Exception {
+        try {
+            executeDiscoverSchemaExtendedAction(incomingSchema, outgoingBranch);
+            return;
+        } catch (Exception e) {
+            // Case when a processor is the start of a studio job
+            if (isStartOfJob) {
+                guessOutputComponentSchemaThroughResult();
+                return;
+            } else {
+                log.error(ERROR_INSTANCE_SCHEMA, e);
+                throw e;
+            }
+        }
+    }
+
+    public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch) throws Exception {
+        guessComponentSchema(incomingSchema, outgoingBranch, false);
+    }
+
+    private void executeDiscoverSchemaExtendedAction(final Schema schema, final String branch) throws Exception {
         try {
             final Collection<ServiceMeta> services = getPluginServices();
             ServiceMeta.ActionMeta actionRef = services
@@ -174,18 +233,14 @@ public class TaCoKitGuessSchema {
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "No action " + family + "#" + SCHEMA_EXTENDED_TYPE));
             }
-            final Object schemaResult = actionRef.getInvoker()
-                    .apply(buildActionConfig(actionRef, configuration, incomingSchema, outgoingBranch));
+            final Object schemaResult =
+                    actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
             if (schemaResult instanceof Schema && fromSchema(Schema.class.cast(schemaResult))) {
                 return;
             }
         } catch (Exception e) {
-            log.error("Can't guess processor schema through action.", e);
-            throw new Exception(e.getMessage());
+            throw handleException(e);
         }
-
-        log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema.");
-        throw new Exception("There is no available schema found.");
     }
 
     private Map<String, String> buildActionConfig(final ServiceMeta.ActionMeta action,
@@ -388,7 +443,7 @@ public class TaCoKitGuessSchema {
             return fromSchema(Schema.class.cast(schemaResult));
 
         } else {
-            log.error("Result of built-in guess schema action is not an instance of Talend Component Kit Schema");
+            log.error(ERROR_INSTANCE_SCHEMA);
             return false;
         }
     }
@@ -443,14 +498,24 @@ public class TaCoKitGuessSchema {
                 typeName = javaTypesManager.FLOAT.getId();
                 break;
             case BYTES:
-                typeName = javaTypesManager.BYTE_ARRAY.getId();
+                if (talendType.equals(StudioTypes.BYTE)) {
+                    typeName = javaTypesManager.BYTE.getId();
+                } else {
+                    typeName = javaTypesManager.BYTE_ARRAY.getId();
+                }
                 break;
             case DATETIME:
                 typeName = javaTypesManager.DATE.getId();
                 isDateTime = true;
                 break;
             case RECORD:
-                typeName = javaTypesManager.OBJECT.getId();
+                if (talendType.equals(StudioTypes.DYNAMIC)) {
+                    typeName = StudioTypes.DYNAMIC;
+                } else if (talendType.equals(StudioTypes.DOCUMENT)) {
+                    typeName = StudioTypes.DOCUMENT;
+                } else {
+                    typeName = javaTypesManager.OBJECT.getId();
+                }
                 break;
             case ARRAY:
                 typeName = javaTypesManager.LIST.getId();
@@ -489,7 +554,7 @@ public class TaCoKitGuessSchema {
                     // let default values if props are trash...
                 }
             }
-            if (isDateTime) {
+            if (isDateTime || talendType.equals(StudioTypes.DYNAMIC)) {
                 if (pattern != null) {
                     column.setPattern(STRING_ESCAPE + pattern + STRING_ESCAPE);
                 } else {
@@ -510,6 +575,44 @@ public class TaCoKitGuessSchema {
             columns.put(name, column);
         }
         return true;
+    }
+
+    private void guessOutputComponentSchemaThroughResult() throws Exception {
+        final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
+        final Map<Class<?>, Object> services =
+                componentManager.findPlugin(plugin).get().get(AllServices.class).getServices();
+        final Processor processorComponent =
+                componentManager.findProcessor(family, componentName, version, configuration)
+                        .orElseThrow(() -> new IllegalArgumentException("Can't find " + family + "#" + componentName));
+        final Jsonb jsonb = (Jsonb) services.get(Jsonb.class);
+        final AutoChunkProcessor processor = new AutoChunkProcessor(1, processorComponent);
+        JobStateAware.init(processorComponent, new HashMap<>());
+        try {
+            processor.start();
+            final InputsHandler inputsHandler = new InputsHandler(jsonb, services);
+            final InputFactory inputFactory = inputsHandler.asInputFactory();
+            final OutputsHandler outputsHandler = new OutputsHandler(jsonb, services);
+            outputsHandler.addConnection("FLOW", Object.class);
+            final OutputFactory outputFactory = outputsHandler.asOutputFactoryForGuessSchema();
+            processor.onElement(inputFactory, outputFactory);
+            final Object row = outputsHandler.getValue("FLOW");
+            if (row != null && Object.class == row.getClass()) {
+                // means we will not find it through data try by reflection
+                fromOutputEmitterPojo(processorComponent, "FLOW");
+                return;
+            }
+            if (row != null && guessSchemaThroughResult(row)) {
+                return;
+            }
+        } finally {
+            if (processor != null) {
+                try {
+                    processor.stop();
+                } catch (RuntimeException re) {
+                    // nop
+                }
+            }
+        }
     }
 
     private boolean guessInputComponentSchemaThroughResult() throws Exception {
@@ -552,7 +655,6 @@ public class TaCoKitGuessSchema {
                     log.error(e.getMessage(), e);
                 }
             }
-
             try {
                 mapper.stop();
             } catch (Exception e) {
@@ -621,6 +723,40 @@ public class TaCoKitGuessSchema {
         }
 
         return originalSize != columns.size();
+    }
+
+    public void fromOutputEmitterPojo(final Processor processor, final String outBranchName) {
+        Object o = processor;
+        while (Delegated.class.isInstance(o)) {
+            o = Delegated.class.cast(o).getDelegate();
+        }
+        final ClassLoader classLoader = o.getClass().getClassLoader();
+        final Thread thread = Thread.currentThread();
+        final ClassLoader old = thread.getContextClassLoader();
+        thread.setContextClassLoader(classLoader);
+        try {
+            final Optional<java.lang.reflect.Type> type = Stream
+                    .of(o.getClass().getMethods())
+                    .filter(m -> m.isAnnotationPresent(ElementListener.class))
+                    .flatMap(m -> IntStream
+                            .range(0, m.getParameterCount())
+                            .filter(i -> m.getParameters()[i].isAnnotationPresent(Output.class)
+                                    && outBranchName.equals(m.getParameters()[i].getAnnotation(Output.class).value()))
+                            .mapToObj(i -> m.getGenericParameterTypes()[i])
+                            .filter(t -> ParameterizedType.class.isInstance(t)
+                                    && ParameterizedType.class.cast(t).getRawType() == OutputEmitter.class
+                                    && ParameterizedType.class.cast(t).getActualTypeArguments().length == 1)
+                            .map(p -> ParameterizedType.class.cast(p).getActualTypeArguments()[0]))
+                    .findFirst();
+            if (type.isPresent() && Class.class.isInstance(type.get())) {
+                final Class<?> clazz = Class.class.cast(type.get());
+                if (clazz != JsonObject.class) {
+                    guessSchemaThroughResultClass(clazz);
+                }
+            }
+        } finally {
+            thread.setContextClassLoader(old);
+        }
     }
 
     /**

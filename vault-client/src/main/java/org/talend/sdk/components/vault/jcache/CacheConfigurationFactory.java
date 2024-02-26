@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,12 @@ public class CacheConfigurationFactory {
 
     @Inject
     @Documentation("Should JCache MBeans be registered.")
-    @ConfigProperty(name = "talend.vault.cache.jcache.cache.management", defaultValue = "false")
+    @ConfigProperty(name = "talend.vault.cache.jcache.cache.management", defaultValue = "true")
     private Boolean cacheManagement;
 
     @Inject
     @Documentation("Should JCache statistics be enabled.")
-    @ConfigProperty(name = "talend.vault.cache.jcache.cache.statistics", defaultValue = "false")
+    @ConfigProperty(name = "talend.vault.cache.jcache.cache.statistics", defaultValue = "true")
     private Boolean cacheStatistics;
 
     @Inject
