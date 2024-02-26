@@ -141,8 +141,9 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
         final Locale locale = localeMapper.mapLocale(language);
         caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
         return indicesPerRequest
-                .computeIfAbsent(new RequestKey(locale, !lightPayload, query), key -> toNodes(locale, lightPayload,
-                        it -> true, queryLanguageCompiler.compile(query, configNodeEvaluators)));
+                .computeIfAbsent(new RequestKey(locale, !lightPayload, query, null),
+                        key -> toNodes(locale, lightPayload,
+                                it -> true, queryLanguageCompiler.compile(query, configNodeEvaluators)));
     }
 
     @Override

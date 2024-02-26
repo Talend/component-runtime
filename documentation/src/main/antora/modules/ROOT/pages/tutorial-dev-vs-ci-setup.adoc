@@ -137,20 +137,20 @@ This tutorial shows how to set up a CI server in passthrough mode using https://
 . Log in to Jenkins.
 . Click *New Item* to create a new build job.
 +
-image::jenkins/1_jenkins_new_item.png[Create a new job,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/jenkins/1_jenkins_new_item.png",70%]
+image::jenkins/1_jenkins_new_item.png[Create a new job,window="_blank",link=self,70%]
 . Enter an Item name (Job name) and choose the freestyle job. Then click OK.
 +
-image::jenkins/2_jenkins_new_item.png[Create a new job,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/jenkins/2_jenkins_new_item.png",70%]
+image::jenkins/2_jenkins_new_item.png[Create a new job,window="_blank",link=self,70%]
 . In the *Source Code Management* section, enter your project repository URL. A GitHub repository is used in this tutorial.
 . Specify the `master` branch as *Branches to build*.
 +
-image::jenkins/4_jenkins_source_code.png[Source Code Management,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/jenkins/4_jenkins_source_code.png",70%]
+image::jenkins/4_jenkins_source_code.png[Source Code Management,window="_blank",link=self,70%]
 . In the *Build* section, click *Add build step* and choose *Invoke top-level Maven targets*.
 +
-image::jenkins/6_jenkins_build_cmd.png[Build Section,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/jenkins/6_jenkins_build_cmd.png",70%]
+image::jenkins/6_jenkins_build_cmd.png[Build Section,window="_blank",link=self,70%]
 . Choose your Maven version and enter the Maven build command. In this case: `clean install`. Then, click *Save*.
 +
-image::jenkins/6_jenkins_build_cmd_2.png[Build Section,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/jenkins/6_jenkins_build_cmd_2.png",70%]
+image::jenkins/6_jenkins_build_cmd_2.png[Build Section,window="_blank",link=self,70%]
 +
 The `-Dtalend.junit.http.passthrough=true` option is part of the build command.
 This option tells the API simulation proxy to run in `passthrough` mode. This way, all the HTTP requests made in the test are forwarded to the real API server.
@@ -160,7 +160,7 @@ The `MavenDecrypterRule` rule allows to get the real credentials.
 TIP: You can configure the *passthrough* mode globally on your CI server by setting the `talend.junit.http.passthrough` environment variable to `true`.
 . Test the job by selecting *Build now*, and check that the job has built correctly.
 +
-image::jenkins/7_jenkins_build_result.png[Test the job,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/jenkins/7_jenkins_build_result.png",70%]
+image::jenkins/7_jenkins_build_result.png[Test the job,window="_blank",link=self,70%]
 
 
 Now your tests run in a simulation mode on your development environment and in a passthrough mode on your CI server.

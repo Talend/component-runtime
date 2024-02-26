@@ -48,7 +48,7 @@ There are four types of components, each type coming with its specificities, esp
 
 The following example shows the different classes of an input components in a multi-component development project:
 
-image::input_intellij.png[Input,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/input_intellij.png",65%]
+image::input_intellij.png[Input,window="_blank",link=self,65%]
 
 == Next
 

@@ -124,7 +124,7 @@ If there is no subfolder, type the image name right away.
 Adding an image title is mandatory to avoid empty broken spaces in the content.
 If necessary, you can add more parameters separated by a comma between the same brackets as the image title, such as the desired width, height, etc.
 
-NOTE: Use values in % for image size. For example; `\image:landscape.png[Landscape,70%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/landscape.png"]`
+NOTE: Use values in % for image size. For example; `\image:landscape.png[Landscape,70%,window="_blank",link=self]`
 
 === Tables
 
@@ -197,15 +197,15 @@ code codeblock
 
 === Section 2 title
 
-image:my_image.png[The image,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/my_image.png",300]
+image:my_image.png[The image,window="_blank",link=self,300]
 
 .Table title for a table with 2 columns that contain images
 [cols="1a,1a",role="table gallery table-striped",options="header,autowidth"]
 |===
 |Studio Rendering | Web Rendering
 
-|image::gallery/widgets/studio/list.png[Studio List,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/studio/list.png"]
-|image::gallery/widgets/web/list.png[Web List,100%,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/gallery/widgets/web/list.png"]
+|image::gallery/widgets/studio/list.png[Studio List,100%,window="_blank",link=self]
+|image::gallery/widgets/web/list.png[Web List,100%,window="_blank",link=self]
 |===
 
 == Section 1 title

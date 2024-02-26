@@ -20,7 +20,7 @@ A component processes batch data as follows:
 - Case 2 - The runtime estimates a group size of 4 but a `maxBatchSize` of 3 is specified in the component configuration. The system adapts the group size to 3. Records are processed by groups of 3.
 
 .*Processing schema (values are examples):*
-image:batch-processing-maxbatchsize.png[Batch processing,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/batch-processing-maxbatchsize.png",80%]
+image:batch-processing-maxbatchsize.png[Batch processing,window="_blank",link=self,80%]
 
 
 == Batch processing implementation logic
@@ -36,7 +36,7 @@ Each group is processed as follows until there is no record left:
 . The previous step happens for all records of the group. Then the `@AfterGroup` method tests if the buffer is empty.
 
 .*Group execution detail (values are examples):*
-image:batch-processing-group.png[Group batch processing,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/batch-processing-group.png",80%]
+image:batch-processing-group.png[Group batch processing,window="_blank",link=self,80%]
 
 You can define the following logic in the processor configuration:
 

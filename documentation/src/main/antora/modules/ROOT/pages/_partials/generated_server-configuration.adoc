@@ -12,6 +12,9 @@ talend.component.server.documentation.active:: Default value: `true`. Should the
 talend.component.server.environment.active:: Default value: `true`. Should the /api/v1/environment endpoint be activated. It shows some internal versions and git commit which are not always desirable over the wire.
 talend.component.server.gridlayout.translation.support:: Default value: `false`. Should the components using a `@GridLayout` support tab translation. Studio does not suppot that feature yet so this is not enabled by default.
 talend.component.server.icon.paths:: Default value: `icons/%s.svg,icons/svg/%s.svg,icons/%s_icon32.png,icons/png/%s_icon32.png`. These patterns are used to find the icons in the classpath(s).
+talend.component.server.icon.theme.default:: Default value: `light`. Icon default theme (light/dark).
+talend.component.server.icon.theme.legacy:: Default value: `true`. Do we support legacy (not themed) icons. If true, lookup will be done if not themed icon found.
+talend.component.server.icon.theme.support:: Default value: `true`. Do we support icons theme.
 talend.component.server.jaxrs.exceptionhandler.defaultMessage:: Default value: `false`. If set it will replace any message for exceptions. Set to `false` to use the actual exception message.
 talend.component.server.lastUpdated.useStartTime:: Default value: `false`. Should the lastUpdated timestamp value of `/environment` endpoint be updated with server start time.
 talend.component.server.locale.mapping:: Default value: `en*=en
