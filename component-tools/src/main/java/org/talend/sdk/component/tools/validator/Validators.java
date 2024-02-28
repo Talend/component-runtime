@@ -77,12 +77,18 @@ public class Validators {
     }
 
     public static Validators build(final Configuration configuration, final ValidatorHelper helper,
-            final Iterable<ValidationExtension> extensions) {
+            final Iterable<ValidationExtension> extensions, final File sourceRoot) {
 
         final List<Validator> activeValidators = new ArrayList<>();
 
         if (configuration.isValidateSerializable()) {
             activeValidators.add(new SerializationValidator());
+        }
+
+        if (configuration.isValidateInternationalization()) {
+            InternationalizationValidator intern = new InternationalizationValidator(helper, sourceRoot,
+                    configuration.isValidatePlaceholder(), configuration.isValidateInternationalizationAutoFix());
+            activeValidators.add(intern);
         }
 
         if (configuration.isValidateHttpClient()) {

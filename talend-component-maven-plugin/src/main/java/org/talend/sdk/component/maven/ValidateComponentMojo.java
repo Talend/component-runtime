@@ -74,6 +74,9 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "true", property = "talend.validation.internationalization")
     private boolean validateInternationalization;
 
+    @Parameter(defaultValue = "false", property = "talend.validation.internationalization.autofix")
+    private boolean validateInternationalizationAutoFix;
+
     /**
      * By default the plugin ensures the methods follow the expected signatures.
      * Skipped if this flag is true.
@@ -225,9 +228,11 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setFailOnValidateExceptions(failOnValidateExceptions);
         configuration.setValidateSchema(validateSchema);
         configuration.setValidateRecord(validateRecord);
+        configuration.setValidateInternationalizationAutoFix(validateInternationalizationAutoFix);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
-        new ComponentValidator(configuration, new File[] { classes }, getLog()) {
+
+        new ComponentValidator(configuration, new File[] { classes }, getLog(), project.getBasedir()) {
 
             @Override
             protected Locale getLocale() {
