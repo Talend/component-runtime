@@ -252,8 +252,6 @@ public class ComponentValidator extends BaseTask {
 
         private boolean validateSerializable;
 
-        private boolean validateInternationalization;
-
         private boolean validateHttpClient;
 
         private boolean validateModel;
@@ -279,8 +277,6 @@ public class ComponentValidator extends BaseTask {
         private boolean validateLocalConfiguration;
 
         private boolean validateOutputConnection;
-
-        private boolean validatePlaceholder;
 
         private boolean validateSvg;
 

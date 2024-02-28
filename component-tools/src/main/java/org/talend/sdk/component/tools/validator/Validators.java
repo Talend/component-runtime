@@ -85,11 +85,6 @@ public class Validators {
             activeValidators.add(new SerializationValidator());
         }
 
-        if (configuration.isValidateInternationalization()) {
-            InternationalizationValidator intern = new InternationalizationValidator(helper);
-            activeValidators.add(intern);
-        }
-
         if (configuration.isValidateHttpClient()) {
             activeValidators.add(new HttpValidator());
         }
@@ -141,19 +136,12 @@ public class Validators {
         if (configuration.isValidateOutputConnection()) {
             activeValidators.add(new OutputConnectionValidator());
         }
-        if (configuration.isValidatePlaceholder()) {
-            PlaceHolderValidator validator = new PlaceHolderValidator(helper);
-            activeValidators.add(validator);
-        }
         if (configuration.isValidateNoFinalOption()) {
             activeValidators.add(new NoFinalOptionValidator());
         }
         if (configuration.isValidateWording()) {
             if (configuration.isValidateDocumentation()) {
                 activeValidators.add(new DocumentationWordingValidator());
-            }
-            if (configuration.isValidateInternationalization()) {
-                activeValidators.add(new InternationalizationWording());
             }
         }
 
