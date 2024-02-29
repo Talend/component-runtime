@@ -28,6 +28,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
@@ -283,6 +284,14 @@ public class InternationalizationValidator implements Validator {
     private void fixLocales(final List<Fix> toFix) {
         Map<Path, List<Fix>> fixByPath = toFix.stream().collect(Collectors.groupingBy(Fix::getDestinationFile));
         for (Path p : fixByPath.keySet()) {
+            try {
+                Files.createDirectories(p);
+                if (!Files.exists(p)) {
+                    Files.createFile(p);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Can't create resource file '%s' : %s", p, e.getMessage()), e);
+            }
 
             List<Fix> fixes = fixByPath.get(p);
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(p.toFile(), true))) {
