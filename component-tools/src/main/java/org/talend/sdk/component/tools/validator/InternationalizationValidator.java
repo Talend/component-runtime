@@ -82,6 +82,10 @@ public class InternationalizationValidator implements Validator {
         Stream<String> result = Stream.empty();
         int repeat = this.autofix ? 2 : 1; // If autofix, fix then check
         while (repeat > 0) {
+            if (this.autofix && repeat == 1) {
+                // Reload resources on the second loop
+                ResourceBundle.clearCache(Thread.currentThread().getContextClassLoader());
+            }
             repeat--;
             final Stream<String> bundlesError = components
                     .stream() //
@@ -114,7 +118,7 @@ public class InternationalizationValidator implements Validator {
                     .filter(this::fieldIsWithoutKey)
                     .peek(f -> {
                         if (this.autofix) {
-                            toFix.add(new Fix(f, "_displayName", sourceRoot, true));
+                            toFix.add(new Fix(f, "._displayName", sourceRoot, true));
                         }
                     })
                     .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
@@ -134,7 +138,7 @@ public class InternationalizationValidator implements Validator {
                                 "._placeholder"))
                         .peek(f -> {
                             if (this.autofix) {
-                                toFix.add(new Fix(f, "_placeholder", this.sourceRoot, false));
+                                toFix.add(new Fix(f, "._placeholder", this.sourceRoot, false));
                             }
                         })
                         .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._placeholder = <"
@@ -197,11 +201,13 @@ public class InternationalizationValidator implements Validator {
             }
             Stream<String> actionsErrors = this.missingActionComment(finder);
 
-            result = Stream
-                    .of(bundlesError, missingDisplayNameEnum, missingDisplayName, missingPlaceholder,
-                            internationalizedErrors.stream(), actionsErrors)
-                    .reduce(Stream::concat)
-                    .orElseGet(Stream::empty);
+            if (repeat <= 0) {
+                result = Stream
+                        .of(bundlesError, missingDisplayNameEnum, missingDisplayName, missingPlaceholder,
+                                internationalizedErrors.stream(), actionsErrors)
+                        .reduce(Stream::concat)
+                        .orElseGet(Stream::empty);
+            }
         }
         return result;
     }
@@ -285,7 +291,7 @@ public class InternationalizationValidator implements Validator {
         Map<Path, List<Fix>> fixByPath = toFix.stream().collect(Collectors.groupingBy(Fix::getDestinationFile));
         for (Path p : fixByPath.keySet()) {
             try {
-                Files.createDirectories(p);
+                Files.createDirectories(p.getParent());
                 if (!Files.exists(p)) {
                     Files.createFile(p);
                 }
