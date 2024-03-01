@@ -58,7 +58,9 @@ import org.talend.sdk.component.tools.ComponentHelper;
 import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class InternationalizationValidator implements Validator {
 
     private final Validators.ValidatorHelper helper;
@@ -79,137 +81,134 @@ public class InternationalizationValidator implements Validator {
 
     @Override
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
-        Stream<String> result = Stream.empty();
-        int repeat = this.autofix ? 2 : 1; // If autofix, fix then check
-        while (repeat > 0) {
-            if (this.autofix && repeat == 1) {
-                // Reload resources on the second loop
-                ResourceBundle.clearCache(Thread.currentThread().getContextClassLoader());
-            }
-            repeat--;
-            final Stream<String> bundlesError = components
-                    .stream() //
-                    .map(this::validateComponentResourceBundle) //
-                    .filter(Objects::nonNull) //
-                    .sorted();
+        final Stream<String> bundlesError = components
+                .stream() //
+                .map(this::validateComponentResourceBundle) //
+                .filter(Objects::nonNull) //
+                .sorted();
 
-            // enum
-            final List<Field> optionsFields = finder.findAnnotatedFields(Option.class);
-            final Stream<String> missingDisplayNameEnum = optionsFields
-                    .stream()
-                    .map(Field::getType) //
-                    .filter(Class::isEnum) //
-                    .distinct() //
-                    .flatMap(enumType -> Stream
-                            .of(enumType.getFields()) //
-                            .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())) //
-                            .filter(f -> hasNoBundleEntry(enumType, f, "_displayName")) //
-                            .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName()
-                                    + "._displayName in "
-                                    + enumType + " resource bundle")) //
-                    .sorted();
+        // enum
+        final List<Field> optionsFields = finder.findAnnotatedFields(Option.class);
+        final Stream<String> missingDisplayNameEnum = optionsFields
+                .stream()
+                .map(Field::getType) //
+                .filter(Class::isEnum) //
+                .distinct() //
+                .flatMap(enumType -> Stream
+                        .of(enumType.getFields()) //
+                        .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())) //
+                        .filter(f -> hasNoBundleEntry(enumType, f, "_displayName")) //
+                        .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName()
+                                + "._displayName in "
+                                + enumType + " resource bundle")) //
+                .sorted();
 
-            List<Fix> toFix = new ArrayList<>();
+        List<Fix> toFix = new ArrayList<>();
 
-            // others - just logged for now, we can add it to errors if we encounter it too often
-            final List<String> missingOptionTranslations = optionsFields
+        // others - just logged for now, we can add it to errors if we encounter it too often
+        final List<String> missingOptionTranslations = optionsFields
+                .stream()
+                .distinct()
+                .filter(this::fieldIsWithoutKey)
+                .peek(f -> {
+                    if (this.autofix) {
+                        toFix.add(new Fix(f, "._displayName", sourceRoot, true));
+                    }
+                })
+                .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
+                        + f.getName() + ">")
+                .sorted()
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<String> missingPlaceholderTranslations = Collections.emptyList();
+        if (this.validatePlaceholder) {
+            missingPlaceholderTranslations = optionsFields
                     .stream()
                     .distinct()
-                    .filter(this::fieldIsWithoutKey)
+                    .filter(e -> this.fieldIsWithoutKey(e,
+                            Arrays.asList(String.class, Integer.class, Double.class, Long.class, Float.class,
+                                    Date.class, ZonedDateTime.class),
+                            "._placeholder"))
                     .peek(f -> {
                         if (this.autofix) {
-                            toFix.add(new Fix(f, "._displayName", sourceRoot, true));
+                            toFix.add(new Fix(f, "._placeholder", this.sourceRoot, false));
                         }
                     })
-                    .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
-                            + f.getName() + ">")
+                    .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._placeholder = ")
                     .sorted()
                     .distinct()
                     .collect(Collectors.toList());
+        }
 
-            List<String> missingPlaceholderTranslations = Collections.emptyList();
-            if (this.validatePlaceholder) {
-                missingPlaceholderTranslations = optionsFields
+        if (this.autofix && !toFix.isEmpty()) {
+            this.fixLocales(toFix);
+        }
+
+        final Stream<String> missingDisplayName;
+        if (missingOptionTranslations != null && !missingOptionTranslations.isEmpty()) {
+            final String missingMsg = missingOptionTranslations
+                    .stream()
+                    .collect(Collectors.joining("\n", "Missing _displayName resource bundle entries:\n", ""));
+            missingDisplayName = Stream.of(missingMsg);
+        } else {
+            missingDisplayName = Stream.empty();
+        }
+
+        final Stream<String> missingPlaceholder;
+        if (missingPlaceholderTranslations != null && !missingPlaceholderTranslations.isEmpty()) {
+            final String missingMsg = missingPlaceholderTranslations
+                    .stream()
+                    .collect(Collectors.joining("\n", "Missing _placeholder resource bundle entries:\n", ""));
+            missingPlaceholder = Stream.of(missingMsg);
+        } else {
+            missingPlaceholder = Stream.empty();
+        }
+
+        final List<String> internationalizedErrors = new ArrayList<>();
+        for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
+            final ResourceBundle resourceBundle = helper.findResourceBundle(i);
+            if (resourceBundle != null) {
+                final Collection<Collection<String>> keys = of(i.getMethods())
+                        .filter(m -> m.getDeclaringClass() != Object.class)
+                        .map(m -> asList(i.getName() + "." + m.getName(), i.getSimpleName() + "." + m.getName()))
+                        .collect(Collectors.toSet());
+                keys
                         .stream()
-                        .distinct()
-                        .filter(e -> this.fieldIsWithoutKey(e,
-                                Arrays.asList(String.class, Integer.class, Double.class, Long.class, Float.class,
-                                        Date.class, ZonedDateTime.class),
-                                "._placeholder"))
-                        .peek(f -> {
-                            if (this.autofix) {
-                                toFix.add(new Fix(f, "._placeholder", this.sourceRoot, false));
-                            }
-                        })
-                        .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._placeholder = <"
-                                + f.getName() + ">")
+                        .filter(ks -> ks.stream().noneMatch(resourceBundle::containsKey))
+                        .map(k -> "Missing key " + k.iterator().next() + " in " + i + " resource bundle")
                         .sorted()
-                        .distinct()
-                        .collect(Collectors.toList());
-            }
+                        .forEach(internationalizedErrors::add);
 
-            if (this.autofix && !toFix.isEmpty()) {
-                this.fixLocales(toFix);
-            }
-
-            final Stream<String> missingDisplayName;
-            if (missingOptionTranslations != null && !missingOptionTranslations.isEmpty()) {
-                final String missingMsg = missingOptionTranslations
+                resourceBundle
+                        .keySet()
                         .stream()
-                        .collect(Collectors.joining("\n", "Missing _displayName resource bundle entries:\n", ""));
-                missingDisplayName = Stream.of(missingMsg);
+                        .filter(k -> (k.startsWith(i.getName() + ".") || k.startsWith(i.getSimpleName() + "."))
+                                && keys.stream().noneMatch(ks -> ks.contains(k)))
+                        .map(k -> "Key " + k + " from " + i + " is no more used")
+                        .sorted()
+                        .forEach(internationalizedErrors::add);
             } else {
-                missingDisplayName = Stream.empty();
-            }
-
-            final Stream<String> missingPlaceholder;
-            if (missingPlaceholderTranslations != null && !missingPlaceholderTranslations.isEmpty()) {
-                final String missingMsg = missingPlaceholderTranslations
-                        .stream()
-                        .collect(Collectors.joining("\n", "Missing _placeholder resource bundle entries:\n", ""));
-                missingPlaceholder = Stream.of(missingMsg);
-            } else {
-                missingPlaceholder = Stream.empty();
-            }
-
-            final List<String> internationalizedErrors = new ArrayList<>();
-            for (final Class<?> i : finder.findAnnotatedClasses(Internationalized.class)) {
-                final ResourceBundle resourceBundle = helper.findResourceBundle(i);
-                if (resourceBundle != null) {
-                    final Collection<Collection<String>> keys = of(i.getMethods())
-                            .filter(m -> m.getDeclaringClass() != Object.class)
-                            .map(m -> asList(i.getName() + "." + m.getName(), i.getSimpleName() + "." + m.getName()))
-                            .collect(Collectors.toSet());
-                    keys
-                            .stream()
-                            .filter(ks -> ks.stream().noneMatch(resourceBundle::containsKey))
-                            .map(k -> "Missing key " + k.iterator().next() + " in " + i + " resource bundle")
-                            .sorted()
-                            .forEach(internationalizedErrors::add);
-
-                    resourceBundle
-                            .keySet()
-                            .stream()
-                            .filter(k -> (k.startsWith(i.getName() + ".") || k.startsWith(i.getSimpleName() + "."))
-                                    && keys.stream().noneMatch(ks -> ks.contains(k)))
-                            .map(k -> "Key " + k + " from " + i + " is no more used")
-                            .sorted()
-                            .forEach(internationalizedErrors::add);
-                } else {
-                    internationalizedErrors.add("No resource bundle for " + i);
-                }
-            }
-            Stream<String> actionsErrors = this.missingActionComment(finder);
-
-            if (repeat <= 0) {
-                result = Stream
-                        .of(bundlesError, missingDisplayNameEnum, missingDisplayName, missingPlaceholder,
-                                internationalizedErrors.stream(), actionsErrors)
-                        .reduce(Stream::concat)
-                        .orElseGet(Stream::empty);
+                internationalizedErrors.add("No resource bundle for " + i);
             }
         }
-        return result;
+        Stream<String> actionsErrors = this.missingActionComment(finder);
+
+        Stream<String> result = Stream
+                .of(bundlesError, missingDisplayNameEnum, missingDisplayName, missingPlaceholder,
+                        internationalizedErrors.stream(), actionsErrors)
+                .reduce(Stream::concat)
+                .orElseGet(Stream::empty);
+
+        if (this.autofix) {
+            String resultAutoFix = result.collect(Collectors.joining("\n", "Automatically fixed missing labels:\n",
+                    "\n\nPlease, check changes and disable '-Dtalend.validation.internationalization.autofix=false' / "
+                            +
+                            "'<validateInternationalizationAutoFix>false</>'property.\n\n"));
+            log.info(resultAutoFix);
+        }
+
+        return this.autofix ? Stream.empty() : result;
     }
 
     private Stream<String> missingActionComment(final AnnotationFinder finder) {
