@@ -133,8 +133,7 @@ public class InternationalizationValidator implements Validator {
                     .distinct()
                     .filter(e -> this.fieldIsWithoutKey(e,
                             Arrays.asList(String.class, Character.class, Integer.class, Double.class, Long.class,
-                                    Float.class,
-                                    Date.class, ZonedDateTime.class),
+                                    Float.class, Date.class, ZonedDateTime.class),
                             "._placeholder"))
                     .peek(f -> {
                         if (this.autofix) {

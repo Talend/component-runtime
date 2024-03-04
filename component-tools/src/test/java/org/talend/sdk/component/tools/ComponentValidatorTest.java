@@ -484,7 +484,17 @@ class ComponentValidatorTest {
         expectedException
                 .expectMessage("Some error were detected:\n" +
                         "- Missing _placeholder resource bundle entries:\n" +
-                        " Foo.missingPlaceholder._placeholder = <missingPlaceholder>");
+                        " Foo.missingPlaceholderChar._placeholder = \n" +
+                        " Foo.missingPlaceholderCharacter._placeholder = \n" +
+                        " Foo.missingPlaceholderDouble._placeholder = \n" +
+                        " Foo.missingPlaceholderDoubleWrapper._placeholder = \n" +
+                        " Foo.missingPlaceholderFloat._placeholder = \n" +
+                        " Foo.missingPlaceholderFloatWrapper._placeholder = \n" +
+                        " Foo.missingPlaceholderInt._placeholder = \n" +
+                        " Foo.missingPlaceholderInteger._placeholder = \n" +
+                        " Foo.missingPlaceholderLong._placeholder = \n" +
+                        " Foo.missingPlaceholderLongWrapper._placeholder = \n" +
+                        " Foo.missingPlaceholderStr._placeholder = ");
     }
 
     @Test
