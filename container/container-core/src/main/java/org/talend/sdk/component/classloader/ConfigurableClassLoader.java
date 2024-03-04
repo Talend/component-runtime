@@ -255,6 +255,24 @@ public class ConfigurableClassLoader extends URLClassLoader {
     }
 
     @Override
+    protected Class<?> findClass(final String name) throws ClassNotFoundException {
+        try {
+            // for others be as it's in parent
+            return super.findClass(name);
+        } catch (ClassNotFoundException e) {
+            if (name.endsWith("package-info")) {
+                // need to handle package-info, because it loaded in a different way
+                // ucp is empty, and we can't load the resource
+                // not sure about the parameter resolve, didn't see that the parent does the resolve
+                return loadClass(name, false);
+            }
+
+            // rethrow the problem otherwise
+            throw e;
+        }
+    }
+
+    @Override
     public Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
         if (name == null) { // some frameworks (hibernate to not cite it) do it
             throw new ClassNotFoundException();
