@@ -152,7 +152,7 @@ public class InternationalizationValidator implements Validator {
         }
 
         final Stream<String> missingDisplayName;
-        if (missingOptionTranslations != null && !missingOptionTranslations.isEmpty()) {
+        if (missingOptionTranslations != null && !missingOptionTranslations.isEmpty() && !this.autofix) {
             final String missingMsg = missingOptionTranslations
                     .stream()
                     .collect(Collectors.joining("\n", "Missing _displayName resource bundle entries:\n", ""));
@@ -162,7 +162,7 @@ public class InternationalizationValidator implements Validator {
         }
 
         final Stream<String> missingPlaceholder;
-        if (missingPlaceholderTranslations != null && !missingPlaceholderTranslations.isEmpty()) {
+        if (missingPlaceholderTranslations != null && !missingPlaceholderTranslations.isEmpty() & !this.autofix) {
             final String missingMsg = missingPlaceholderTranslations
                     .stream()
                     .collect(Collectors.joining("\n", "Missing _placeholder resource bundle entries:\n", ""));
@@ -207,13 +207,17 @@ public class InternationalizationValidator implements Validator {
                 .orElseGet(Stream::empty);
 
         if (this.autofix) {
-            String resultAutoFix = result.collect(Collectors.joining("\n", "Automatically fixed missing labels:\n",
-                    "\n\nPlease, check changes and disable '-Dtalend.validation.internationalization.autofix=false' / "
-                            + "'<validateInternationalizationAutoFix>false</>'property.\n\n"));
+            List<String> forLogs = result.collect(toList());
+            String resultAutoFix = forLogs.stream()
+                    .collect(Collectors.joining("\n", "Automatically fixed missing labels:\n",
+                            "\n\nPlease, check changes and disable '-Dtalend.validation.internationalization.autofix=false' / "
+                                    + "'<validateInternationalizationAutoFix>false</>'property.\n\n"));
             log.info(resultAutoFix);
+
+            result = forLogs.stream();
         }
 
-        return this.autofix ? Stream.empty() : result;
+        return result;
     }
 
     private Stream<String> missingActionComment(final AnnotationFinder finder) {
