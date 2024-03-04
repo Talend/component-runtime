@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -87,6 +88,7 @@ public class InternationalizationValidator implements Validator {
                 .filter(Objects::nonNull) //
                 .sorted();
 
+        List<Fix> toFix = new ArrayList<>();
         // enum
         final List<Field> optionsFields = finder.findAnnotatedFields(Option.class);
         final Stream<String> missingDisplayNameEnum = optionsFields
@@ -94,31 +96,34 @@ public class InternationalizationValidator implements Validator {
                 .map(Field::getType) //
                 .filter(Class::isEnum) //
                 .distinct() //
-                .flatMap(enumType -> Stream
-                        .of(enumType.getFields()) //
+                .flatMap(enumType -> of(enumType.getFields()) //
                         .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())) //
                         .filter(f -> hasNoBundleEntry(enumType, f, "_displayName")) //
+                        .peek(f -> {
+                            if (this.autofix) {
+                                toFix.add(new Fix(f, "._displayName", sourceRoot, true));
+                            }
+                        })
                         .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName()
-                                + "._displayName in "
-                                + enumType + " resource bundle")) //
+                                + "._displayName in " + enumType + " resource bundle")) //
                 .sorted();
 
-        List<Fix> toFix = new ArrayList<>();
-
         // others - just logged for now, we can add it to errors if we encounter it too often
-        final List<String> missingOptionTranslations = optionsFields
-                .stream()
-                .distinct()
-                .filter(this::fieldIsWithoutKey)
-                .peek(f -> {
-                    if (this.autofix) {
-                        toFix.add(new Fix(f, "._displayName", sourceRoot, true));
-                    }
-                })
-                .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
-                        + f.getName() + ">")
-                .sorted()
-                .distinct()
+        final List<String> missingOptionTranslations = Stream.concat(
+                optionsFields
+                        .stream()
+                        .distinct()
+                        .filter(this::fieldIsWithoutKey)
+                        .peek(f -> {
+                            if (this.autofix) {
+                                toFix.add(new Fix(f, "._displayName", sourceRoot, true));
+                            }
+                        })
+                        .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
+                                + f.getName() + ">")
+                        .sorted()
+                        .distinct(),
+                missingDisplayNameEnum)
                 .collect(Collectors.toList());
 
         List<String> missingPlaceholderTranslations = Collections.emptyList();
@@ -127,7 +132,8 @@ public class InternationalizationValidator implements Validator {
                     .stream()
                     .distinct()
                     .filter(e -> this.fieldIsWithoutKey(e,
-                            Arrays.asList(String.class, Integer.class, Double.class, Long.class, Float.class,
+                            Arrays.asList(String.class, Character.class, Integer.class, Double.class, Long.class,
+                                    Float.class,
                                     Date.class, ZonedDateTime.class),
                             "._placeholder"))
                     .peek(f -> {
@@ -195,7 +201,7 @@ public class InternationalizationValidator implements Validator {
         Stream<String> actionsErrors = this.missingActionComment(finder);
 
         Stream<String> result = Stream
-                .of(bundlesError, missingDisplayNameEnum, missingDisplayName, missingPlaceholder,
+                .of(bundlesError, missingDisplayName, missingPlaceholder,
                         internationalizedErrors.stream(), actionsErrors)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
@@ -203,8 +209,7 @@ public class InternationalizationValidator implements Validator {
         if (this.autofix) {
             String resultAutoFix = result.collect(Collectors.joining("\n", "Automatically fixed missing labels:\n",
                     "\n\nPlease, check changes and disable '-Dtalend.validation.internationalization.autofix=false' / "
-                            +
-                            "'<validateInternationalizationAutoFix>false</>'property.\n\n"));
+                            + "'<validateInternationalizationAutoFix>false</>'property.\n\n"));
             log.info(resultAutoFix);
         }
 
@@ -280,8 +285,16 @@ public class InternationalizationValidator implements Validator {
     }
 
     private boolean fieldIsWithoutKey(final Field field, final List<Class> types, final String suffix) {
+        Class<?> tmpFieldType = field.getType();
+        if (tmpFieldType.isPrimitive()) {
+            tmpFieldType = MethodType.methodType(tmpFieldType).wrap().returnType();
+        }
+        final Class fieldType = tmpFieldType;
+        if (!types.isEmpty() && !types.contains(tmpFieldType)) {
+            return false;
+        }
         final ResourceBundle bundle = ofNullable(helper.findResourceBundle(field.getDeclaringClass()))
-                .orElseGet(() -> helper.findResourceBundle(field.getType()));
+                .orElseGet(() -> helper.findResourceBundle(fieldType));
         final String key = field.getDeclaringClass().getSimpleName() + "." + field.getName() + suffix;
         return bundle == null || !bundle.containsKey(key);
     }
@@ -326,7 +339,7 @@ public class InternationalizationValidator implements Validator {
         private String computeKey(final Field field, final String suffix, final boolean defaultValue) {
             String s = field.getDeclaringClass().getSimpleName() + "." + field.getName() + suffix + " = ";
             if (defaultValue) {
-                s += "<" + suffix + ">";
+                s += "<" + field.getName() + ">";
             }
 
             return s;
