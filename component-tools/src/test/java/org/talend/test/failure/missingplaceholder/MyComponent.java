@@ -81,13 +81,13 @@ public class MyComponent implements Serializable {
         @Option
         private Character missingPlaceholderCharacter;
 
-
         @Option
         private AnEnum noMissingPlaceholderEnum;
 
-
-        public enum AnEnum{
-            AAA, BBB, CCC;
+        public enum AnEnum {
+            AAA,
+            BBB,
+            CCC;
         }
     }
 }
