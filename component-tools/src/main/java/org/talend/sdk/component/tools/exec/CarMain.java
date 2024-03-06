@@ -72,6 +72,8 @@ public class CarMain {
 
     public static final String COMPONENT_SERVER_EXTENSIONS = "component.server.extensions";
 
+    public static final String UTF_8_ENC = "UTF-8";
+
     private CarMain() {
         // no-op
     }
@@ -392,7 +394,7 @@ public class CarMain {
                 final String spec = url.getFile();
                 final int separator = spec.indexOf('!');
                 return new File(
-                        URLDecoder.decode(new URL(spec.substring(0, separator)).getFile(), "UTF-8"));
+                        URLDecoder.decode(new URL(spec.substring(0, separator)).getFile(), UTF_8_ENC));
             } else if ("file".equals(url.getProtocol())) {
                 return toFile(resourceName, url);
             } else {
@@ -408,7 +410,7 @@ public class CarMain {
     private static File toFile(final String classFileName, final URL url) throws UnsupportedEncodingException {
         final String path = url.getFile();
         return new File(
-                URLDecoder.decode(path.substring(0, path.length() - classFileName.length()), "UTF-8"));
+                URLDecoder.decode(path.substring(0, path.length() - classFileName.length()), UTF_8_ENC));
     }
 
     private static void deployToNexus(final String serverUrl, final String repositoryName, final String username,
