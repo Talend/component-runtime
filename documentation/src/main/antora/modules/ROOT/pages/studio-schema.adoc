@@ -170,6 +170,8 @@ public class UiServices {
 
 === Using the `@DiscoverSchemaExtended` annotation
 
+Parameters can be an incoming schema and/or an outgoing branch.
+
 Prototype:
 
 [source,java]
@@ -182,7 +184,7 @@ Prototype:
  * @return
  */
 @DiscoverSchemaExtended("full")
-public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf, final String branch) {...}
+public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") ConfigClass myConfig, final String branch) {...}
 
 @DiscoverSchemaExtended("incoming_schema")
 public Schema guessMethodName(final Schema incomingSchema, final @Option procConf) {...}
@@ -195,6 +197,10 @@ public Schema guessMethodName(final @Option procConf) {...}
 ----
 
 NOTE: As you may pass other parameters to method, ensure to use the above naming : _incomingSchema_ for the schema and _branch_ for the outgoing branch.
+
+The schema element must comply with the following requirements:
+* It has to be a string not a sub json object
+* The json has to be flat
 
 Example:
 [source,java]
