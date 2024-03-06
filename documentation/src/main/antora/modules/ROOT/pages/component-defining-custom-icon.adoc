@@ -13,8 +13,8 @@ Custom icons must comply with the following requirements:
 
 * Icons must be stored in the `src/main/resources/icons` folder of the project.
 * Icon file names need to match one of the following patterns: `IconName.svg` or `IconName_icon32.png`. The latter will run in degraded mode in Talend Cloud. Replace `IconName` by the name of your choice. 
+* The icon size for PNG must be 32x32, for SVG must be 16x16.
 * Icons must be squared, even for the SVG format.
-
 
 
 [source,java]
