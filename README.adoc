@@ -15,11 +15,3 @@ Last release: image:https://img.shields.io/maven-central/v/org.talend.sdk.compon
 
 NOTE: the build relies on Node.JS and npm, the build uses `frontend-maven-plugin` to setup your environment.
 
-== Fix a spotless issue
-
-Just run:
-
-[source,sh]
-----
-mvn rmannibucau-common:rootlocation spotless:apply
-----
