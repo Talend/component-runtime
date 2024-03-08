@@ -3,15 +3,15 @@
 :gh-branch: master
 :openhub-name: component-runtime
 
-ifdef::env-github[]
-image:https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Forg%2Ftalend%2Fsdk%2Fcomponent%2Fcomponent-runtime%2Fmaven-metadata.xml&versionPrefix=1.&label=Last%20release["OpenHub", link="https://www.openhub.net/p/{openhub-name}"]
-endif::env-github[]
+
+image:https://www.openhub.net/p/{openhub-name}/widgets/project_thin_badge?format=gif&ref=Thin+badge["OpenHub", link="https://www.openhub.net/p/{openhub-name}"] -
+image:https://img.shields.io/maven-central/v/org.talend.sdk.component/component-runtime?versionPrefix=1&logo=apachemaven&color=red[Maven Central Version] -
+image:https://img.shields.io/badge/component_runtime-blue?label=doc&link=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Findex.html[]
 
 Maven 3.5 or later is required to build this project.
 
-Documentation is in documentation module or available at https://talend.github.io/component-runtime/.
 
-Last release: image:https://img.shields.io/maven-central/v/org.talend.sdk.component/component-runtime.svg[]
+Last release:
 
 NOTE: the build relies on Node.JS and npm, the build uses `frontend-maven-plugin` to setup your environment.
 
