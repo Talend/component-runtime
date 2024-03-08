@@ -4,7 +4,7 @@
 :openhub-name: component-runtime
 
 ifdef::env-github[]
-image:https://www.openhub.net/p/{openhub-name}/widgets/project_thin_badge?format=gif&ref=Thin+badge["OpenHub", link="https://www.openhub.net/p/{openhub-name}"]
+image:https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Forg%2Ftalend%2Fsdk%2Fcomponent%2Fcomponent-runtime%2Fmaven-metadata.xml&versionPrefix=1.&label=Last%20release["OpenHub", link="https://www.openhub.net/p/{openhub-name}"]
 endif::env-github[]
 
 Maven 3.5 or later is required to build this project.
