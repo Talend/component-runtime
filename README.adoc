@@ -4,7 +4,7 @@
 :openhub-name: component-runtime
 
 
-image:https://img.shields.io/maven-central/v/org.talend.sdk.component/component-runtime?versionPrefix=1&logo=apachemaven&color=red[Maven Central Version]
+image:https://img.shields.io/maven-central/v/org.talend.sdk.component/component-runtime?versionPrefix=1.&logo=apachemaven&color=red[Maven Central Version]
 image:https://img.shields.io/badge/component_runtime-blue?label=doc["doc", link="https://talend.github.io/component-runtime/main/latest/index.html"]
 image:https://www.openhub.net/p/{openhub-name}/widgets/project_thin_badge?format=gif&ref=Thin+badge["OpenHub", link="https://www.openhub.net/p/{openhub-name}"]
 
