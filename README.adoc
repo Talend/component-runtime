@@ -9,10 +9,19 @@ image:https://img.shields.io/badge/component_runtime-blue?label=doc["doc", link=
 image:https://img.shields.io/badge/OpenAPI-green?label=.&logo=openapiinitiative["openapi", link="https://talend.github.io/component-runtime/main/latest/rest-openapi.html"]
 image:https://www.openhub.net/p/{openhub-name}/widgets/project_thin_badge?format=gif&ref=Thin+badge["OpenHub", link="https://www.openhub.net/p/{openhub-name}"]
 
-Maven 3.5 or later is required to build this project.
+Talend Component Kit is a framework designed to help Talend components creation for both Talend Studio and Cloud
+applications.
+This framework unifies the way components are built to ensure they are standardized and easy to deploy in different
+environments, as well as 'upgrade-compliant' as Talend applications are getting updated on a regular basis.
+
+Start developing components by generating a project from the https://starter-toolkit.talend.io/[Component Kit Starter]
+or by downloading the Component Kit https://plugins.jetbrains.com/plugin/10558-talend-component-kit[IntelliJ plugin].
+
+
 
 NOTE:
 
+* Maven 3.5 or later is required to build this project.
 * the build relies on Node.JS and npm
 * the build uses `frontend-maven-plugin` to setup your environment.
 
