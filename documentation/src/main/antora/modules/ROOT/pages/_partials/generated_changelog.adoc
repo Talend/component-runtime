@@ -1,5 +1,27 @@
 
 
+== Version 1.65.0
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2427[TCOMP-2427^]: No enum constant org.talend.sdk.component.api.record.Schema.Type.FIXED link:search.html?query=beam[beam^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2475[TCOMP-2475^]: Migration from higher version not protected for a connector link:search.html?query=component-manager[component-manager^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2622[TCOMP-2622^]: Images in documentation, for latest dev version, are leading to Page Not Found link:search.html?query=documentation[documentation^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2600[TCOMP-2600^]: Upgrade netty to 4.1.104.Final link:search.html?query=testing[testing^,role='dockey']
+
+
+
+== Version 1.64.1
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2475[TCOMP-2475^]: Migration from higher version not protected for a connector link:search.html?query=component-manager[component-manager^,role='dockey']
+
 == Version 1.64.0
 
 === Bug
@@ -1779,6 +1801,12 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.15
 
 === Bug
@@ -1811,12 +1839,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
