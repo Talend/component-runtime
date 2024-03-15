@@ -19,9 +19,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML_TYPE;
+import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
@@ -29,6 +32,8 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,6 +68,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
@@ -91,6 +101,7 @@ import org.talend.sdk.component.server.front.model.Dependencies;
 import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.Icon;
+import org.talend.sdk.component.server.front.model.IconSymbol;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
@@ -108,6 +119,8 @@ import org.talend.sdk.component.server.service.event.DeployedComponent;
 import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
 import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 import org.talend.sdk.component.spi.component.ComponentExtension;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -461,6 +474,56 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     @Override
+    @CacheResult
+    public Response getIconIndex(final String theme) {
+        final String themedIcon = theme == null ? defaultTheme : theme;
+        try {
+            final Map<String, IconSymbol> icons = collectIcons(themedIcon);
+            if (icons.isEmpty()) {
+                return Response
+                        .status(Response.Status.NOT_FOUND)
+                        .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No svg icon available"))
+                        .type(APPLICATION_JSON_TYPE)
+                        .build();
+            }
+            // build the document.
+            final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            final Element root = doc.createElement("svg");
+            root.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            root.setAttribute("focusable", "false");
+            root.setAttribute("class", "sr-only");
+            root.setAttribute("theme", themedIcon);
+            doc.appendChild(root);
+            icons.values().forEach(icon -> {
+                final Element symbol = doc.createElement("symbol");
+                symbol.setAttribute("family", icon.getFamily());
+                symbol.setAttribute("id", icon.getIcon());
+                symbol.setAttribute("type", icon.getType());
+                symbol.setAttribute("connector", icon.getConnector());
+                symbol.setAttribute("theme", icon.getTheme());
+                symbol.setTextContent(new String(icon.getContent()));
+                root.appendChild(symbol);
+            });
+            final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
+            final Writer writer = new StringWriter();
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            final String svgs = writer.toString()
+                    .replaceAll("&lt;", "<")
+                    .replaceAll("&gt;", ">");
+
+            return Response.ok(svgs).type(APPLICATION_SVG_XML_TYPE).build();
+        } catch (Exception e) {
+            log.error("[getIconIndex] {}", e.getMessage());
+            return Response
+                    .status(Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
+    }
+
+    @Override
     public Map<String, String> migrate(final String id, final int version, final Map<String, String> config) {
         final Map<String, String> configuration = config.entrySet().stream().map(e -> {
             if (e.getValue().startsWith(BASE64_PREFIX)) {
@@ -565,6 +628,49 @@ public class ComponentResourceImpl implements ComponentResource {
         }
 
         return new ComponentDetailList(details);
+    }
+
+    private Map<String, IconSymbol> collectIcons(final String theme) {
+        if ("all".equals(theme)) {
+            Map<String, IconSymbol> icons = getAllIconsForTheme("light");
+            icons.putAll(getAllIconsForTheme("dark"));
+            return icons;
+        } else {
+            return getAllIconsForTheme(theme);
+        }
+    }
+
+    private Map<String, IconSymbol> getAllIconsForTheme(final String theme) {
+        final ComponentIndices index = getIndex(Locale.ROOT.getLanguage(), true, null, theme);
+        try {
+            final List<ComponentIndex> components = index.getComponents();
+            Map<String, IconSymbol> icons = components
+                    .stream()
+                    .filter(c -> c.getIconFamily().getCustomIcon() != null)
+                    .filter(c -> "image/svg+xml".equals(c.getIconFamily().getCustomIconType()))
+                    .map(c -> new IconSymbol(c.getIconFamily().getIcon(),
+                            c.getFamilyDisplayName(),
+                            "family",
+                            "",
+                            theme,
+                            c.getIconFamily().getCustomIcon()))
+                    .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1));
+            icons.putAll(components
+                    .stream()
+                    .filter(c -> c.getIcon().getCustomIcon() != null)
+                    .filter(c -> c.getIcon().getCustomIcon() != null)
+                    .filter(c -> "image/svg+xml".equals(c.getIcon().getCustomIconType()))
+                    .map(c -> new IconSymbol(c.getIcon().getIcon(),
+                            c.getFamilyDisplayName(),
+                            "connector",
+                            c.getDisplayName(),
+                            theme,
+                            c.getIcon().getCustomIcon()))
+                    .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1)));
+            return icons;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     private Stream<ComponentIndex> findDeployedComponents(final boolean includeIconContent, final Locale locale,
