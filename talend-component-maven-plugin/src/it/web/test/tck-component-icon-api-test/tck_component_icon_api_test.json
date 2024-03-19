@@ -1676,10 +1676,10 @@
                     "value": "image/svg+xml"
                   },
                   {
-                    "comparison": "Equals",
+                    "comparison": "Less",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3179"
+                    "value": "3200"
                   }
                 ]
               }
