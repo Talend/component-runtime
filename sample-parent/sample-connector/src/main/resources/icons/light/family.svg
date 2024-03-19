@@ -6,7 +6,7 @@
    version="1.1"
    sodipodi:docname="family.svg"
    viewBox="0 0 16 16"
-   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,14 +24,14 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="23.883721"
-     inkscape:cx="17.459591"
-     inkscape:cy="18.820351"
-     inkscape:window-width="1350"
-     inkscape:window-height="1230"
-     inkscape:window-x="2063"
-     inkscape:window-y="181"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="body_1" />
+     inkscape:cx="8.7088607"
+     inkscape:cy="8.771665"
+     inkscape:window-width="1920"
+     inkscape:window-height="1129"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g42" />
   <g
      transform="matrix(0.55271509,0,0,0.55271509,-1.3231891,-0.39364831)"
      id="g44">
@@ -43,7 +43,8 @@
          stroke="none"
          fill="#000000"
          fill-rule="nonzero"
-         id="path30" />
+         id="path30"
+         style="display:inline" />
       <path
          d="m 135,244 c -17,-58 -13,-82 9,-51 17,22 32,22 45,0 18,-33 24,-4 9,49 -21,74 -42,75 -63,2 z m 32,-6 c -3,-7 -5,-2 -5,12 0,14 2,19 5,13 2,-7 2,-19 0,-25 z"
          stroke="none"
@@ -74,6 +75,11 @@
          fill="#000000"
          fill-rule="nonzero"
          id="path40" />
+      <path
+         style="fill:#00ff00;fill-opacity:1;stroke-width:0.0418695"
+         d="M 9.6927945,7.3290937 C 9.5737569,7.263676 9.3567397,6.9820515 9.1457798,6.6192303 8.9513007,6.2847531 8.5974421,5.9071415 8.3797138,5.8017413 8.1505753,5.6908172 7.7691515,5.68719 7.5365141,5.7937233 7.2509374,5.924499 6.9462432,6.1996973 6.5798831,6.6577478 6.1899631,7.1452547 5.964327,7.3481012 5.8119699,7.3481012 c -0.3793134,0 -0.2626812,-1.370206 0.2790559,-3.2783725 C 6.6151615,2.2235598 7.1238737,1.1669915 7.6095472,0.91583998 8.1792881,0.62121551 8.7542581,1.3456775 9.3359412,3.0910958 c 0.663185,1.9899755 0.9172848,3.849234 0.5775019,4.2256033 -0.078148,0.086563 -0.08499,0.086947 -0.2206486,0.012395 z M 7.8997055,4.1696652 C 7.9997439,3.9728715 8.0378535,3.4604119 7.9818827,3.0646301 7.9336747,2.7237412 7.8858553,2.6168452 7.7815682,2.6168452 c -0.1146792,0 -0.1549555,0.2230968 -0.1549555,0.8583252 0,0.8225969 0.090709,1.0532768 0.2730928,0.6944948 z"
+         id="path1"
+         transform="matrix(18.092504,0,0,-18.092504,23.939804,312.87792)" />
     </g>
   </g>
 </svg>
