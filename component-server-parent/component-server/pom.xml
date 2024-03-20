@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.65.0M2</version>
+    <version>1.65.0M3-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server</artifactId>
@@ -376,7 +376,7 @@
             <configuration>
               <target>
                 <!-- TCOMP-1983 -->
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/server/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace=""/>
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/server/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" />
               </target>
             </configuration>
           </execution>
