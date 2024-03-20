@@ -58,11 +58,12 @@ public class IconResolver {
 
     @PostConstruct
     protected void init() {
-        supportsSvg = System.getProperty("talend.studio.version") == null
-                && componentServerConfiguration.getIconExtensions().stream().anyMatch(it -> it.endsWith(".svg"));
         isThemeSupported = componentServerConfiguration.getSupportIconTheme();
         isLegacyIconsSupported = componentServerConfiguration.getSupportLegacyIcons();
         defaultTheme = componentServerConfiguration.getIconDefaultTheme();
+        // Studio may support svg and theming
+        supportsSvg = (System.getProperty("talend.studio.version") == null )
+                && componentServerConfiguration.getIconExtensions().stream().anyMatch(it -> it.endsWith(".svg"));
         patterns = isSupportsSvg() ? componentServerConfiguration.getIconExtensions()
                 : componentServerConfiguration
                         .getIconExtensions()
