@@ -80,13 +80,13 @@ import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 class ComponentResourceImplTest {
 
     @Inject
-    protected WebTarget base;
+    private WebTarget base;
 
     @Inject
-    protected ComponentClient client;
+    private ComponentClient client;
 
     @Inject
-    protected WebsocketClient ws;
+    private WebsocketClient ws;
 
     @Test
     void webSocketGetIndex() {
