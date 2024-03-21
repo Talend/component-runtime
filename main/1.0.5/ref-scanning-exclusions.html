@@ -1,0 +1,2291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Framework package and JAR scanning</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.0.5/ref-scanning-exclusions.html">
+    <meta name="generator" content="Talend Component Kit Generator">
+<meta name="date" content="2018-09-19T14:36:12.929Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch.min.css" integrity="sha256-vusmcqkVvKdkwoueSJZLlO9y2P+Lp9fN3WwQUV9Uwfw=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch-theme-algolia.min.css" integrity="sha256-ZqsS4QagZnfArbOyheCO4qVjzzsMbg/WMvf5tLtId/Q=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M9.694 14.652a1.076 1.076 0 0 1-.715.421 1.086 1.086 0 1 1-.148-2.158c.235 0 .462.075.652.22.23.173.38.427.42.714a1.07 1.07 0 0 1-.209.803M2.15 2.627A1.084 1.084 0 1 1 .418 1.322 1.084 1.084 0 0 1 2.15 2.627m11.383 2.491a2.46 2.46 0 0 0-1.482.494L8.94 1.798a.59.59 0 1 0-.156.125l3.111 3.816a2.486 2.486 0 0 0-.557.718l-8.84-4.062c.065-.19.086-.394.057-.599A1.274 1.274 0 0 0 2.058.95a1.278 1.278 0 0 0-.952-.247 1.286 1.286 0 0 0 .356 2.544 1.279 1.279 0 0 0 .956-.668l8.838 4.06c-.11.264-.176.55-.187.85H3.563a.788.788 0 0 0-.31-.533.799.799 0 0 0-1.113.155.786.786 0 0 0 .156 1.105.799.799 0 0 0 1.267-.527h7.506c.014.323.088.63.215.91l-1.903.941a.592.592 0 1 0 .089.179l1.904-.94c.162.292.382.548.645.753l-2.473 3.404a1.28 1.28 0 0 0-1.742.291 1.288 1.288 0 0 0 .253 1.8 1.28 1.28 0 0 0 .952.246c.34-.048.64-.225.847-.499.207-.274.294-.612.246-.952a1.276 1.276 0 0 0-.399-.763l2.479-3.41a2.468 2.468 0 1 0 1.352-4.53"></path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Version 1.0.5 <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version is-current is-latest">
+                    <a href="index.html">1.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.0/index.html">1.0.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-api" target="_blank">API</a></li>
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">Runtime</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.0.5">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Getting Started</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-getting-started-with-tck.html">Getting Started overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="methodology-creating-components.html">Development methodology</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tck-framework-overview.html">Framework Overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-execution.html">General component execution logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Tutorials</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-tutorials.html">Tutorial overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-output-component.html">Creating a Hazelcast output component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-components-rest-api.html">Creating a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-rest-api.html">Testing a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-your-components.html">Testing a Hazelcast component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-dev-vs-ci-setup.html">Testing in a continuous integration environment</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-handle-talend-component-migration.html">Handling component version migration</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Setting up your environment</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-setup-environment.html">Setup overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="system-prerequisites.html">System requirements</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="installing-talend-intellij-plugin.html">Installing the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Generating a project</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-generating-project.html">Project generation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Using the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="generate-project-using-intellij-plugin.html">Using the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Implementing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-creating-components.html">Component implementation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-registering.html">Defining component metadata</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-input.html">Defining an input component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-processor-output.html">Defining a processor/output logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-configuration.html">Defining component configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-internationalization.html">Internationalizing a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-versions-and-migration.html">Managing component versions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-configuration-sensitive-data.html">Masking sensitive data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="concept-processor-and-batch-processing.html">Implementing batch processing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="best-practices.html">Best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-loading.html">Component loading</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Defining services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-defining-services.html">Service overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-internationalization.html">Internationalizing a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-actions.html">Providing actions through a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-built-in.html">Built-in services</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-interceptors.html">Services and interceptors</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-custom-api.html">Defining a custom API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-testing-components.html">Component testing overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-best-practices.html">Component testing best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="index-sub-testing-runtime.html">Testing component runtime</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-beam.html">Beam testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-multiple-envs.html">Testing in multiple environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-maven-passwords.html">Reusing Maven credentials</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-generating-data.html">Generating data for testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Studio</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-deploying-components.html">Studio integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio.html">Deploying to Talend Studio</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Cloud</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-cloud-integration.html">Cloud integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="server-uispec.html">UiSpec Server</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Knowledge base</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-knowledge-base.html">Knowledge base articles</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="changelog.html">Changelog</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Reference Guide</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="gallery.html">Widget and validation gallery</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-actions.html">List of available actions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-conditions.html">List of conditions for binding properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-configuration-types.html">Component data configuration types</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-constraints.html">Component field constraints and validations</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-proxy-server-api.html">UiSpec proxy server API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-proxy-server-configuration.html">UiSpec proxy server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-scanning-exclusions.html">Scanning exclusions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-server-configuration.html">Server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-ui.html">UI API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="apidocs.html">Javadocs</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb"><a href="index-reference-guide.html">Reference Guide</a></li>
+      <li class="crumb active"><a href="ref-scanning-exclusions.html">Scanning exclusions</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Framework package and JAR scanning</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The framework uses two kind of filterings when scanning your component. One based on the JAR name and one based on the package name. Make sure that your component definitions (including services) are in a scanned module if they are not registered manually using <code>ComponentManager.instance().addPlugin()</code>, and that the component package is not excluded.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jars_scanning"><a class="anchor" href="#_jars_scanning"></a>Jars Scanning</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To find components the framework can scan the classpath but in this case,
+to avoid to scan the whole classpath which can be really huge
+an impacts a lot the startup time, several jars are excluded out of the box.</p>
+</div>
+<div class="paragraph">
+<p>These jars use the following prefix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ApacheJMeter</p>
+</li>
+<li>
+<p>FastInfoset</p>
+</li>
+<li>
+<p>HdrHistogram</p>
+</li>
+<li>
+<p>HikariCP</p>
+</li>
+<li>
+<p>PDFBox</p>
+</li>
+<li>
+<p>RoaringBitmap-</p>
+</li>
+<li>
+<p>XmlSchema-</p>
+</li>
+<li>
+<p>accessors-smart</p>
+</li>
+<li>
+<p>activation-</p>
+</li>
+<li>
+<p>activeio-</p>
+</li>
+<li>
+<p>activemq-</p>
+</li>
+<li>
+<p>aeron</p>
+</li>
+<li>
+<p>aether-</p>
+</li>
+<li>
+<p>agrona</p>
+</li>
+<li>
+<p>akka-</p>
+</li>
+<li>
+<p>animal-sniffer-annotation</p>
+</li>
+<li>
+<p>annotation</p>
+</li>
+<li>
+<p>ant-</p>
+</li>
+<li>
+<p>antlr-</p>
+</li>
+<li>
+<p>antlr4-</p>
+</li>
+<li>
+<p>aopalliance-</p>
+</li>
+<li>
+<p>apache-el</p>
+</li>
+<li>
+<p>apache-mime4j</p>
+</li>
+<li>
+<p>apacheds-</p>
+</li>
+<li>
+<p>api-asn1-</p>
+</li>
+<li>
+<p>api-common-</p>
+</li>
+<li>
+<p>api-util-</p>
+</li>
+<li>
+<p>apiguardian-api-</p>
+</li>
+<li>
+<p>app-</p>
+</li>
+<li>
+<p>archaius-core</p>
+</li>
+<li>
+<p>args4j-</p>
+</li>
+<li>
+<p>arquillian-</p>
+</li>
+<li>
+<p>asciidoctorj-</p>
+</li>
+<li>
+<p>asm-</p>
+</li>
+<li>
+<p>aspectj</p>
+</li>
+<li>
+<p>async-http-client-</p>
+</li>
+<li>
+<p>auto-value-</p>
+</li>
+<li>
+<p>autoschema-</p>
+</li>
+<li>
+<p>avalon-framework-</p>
+</li>
+<li>
+<p>avro-</p>
+</li>
+<li>
+<p>avro4s-</p>
+</li>
+<li>
+<p>awaitility-</p>
+</li>
+<li>
+<p>aws-</p>
+</li>
+<li>
+<p>axis-</p>
+</li>
+<li>
+<p>axis2-</p>
+</li>
+<li>
+<p>base64-</p>
+</li>
+<li>
+<p>batchee-jbatch</p>
+</li>
+<li>
+<p>batik-</p>
+</li>
+<li>
+<p>bcmail</p>
+</li>
+<li>
+<p>bcpkix</p>
+</li>
+<li>
+<p>bcprov-</p>
+</li>
+<li>
+<p>beam-model-</p>
+</li>
+<li>
+<p>beam-runners-</p>
+</li>
+<li>
+<p>beam-sdks-</p>
+</li>
+<li>
+<p>bigtable-client-</p>
+</li>
+<li>
+<p>bigtable-protos-</p>
+</li>
+<li>
+<p>boilerpipe-</p>
+</li>
+<li>
+<p>bonecp</p>
+</li>
+<li>
+<p>bootstrap.jar</p>
+</li>
+<li>
+<p>brave-</p>
+</li>
+<li>
+<p>bsf-</p>
+</li>
+<li>
+<p>build-link</p>
+</li>
+<li>
+<p>bval</p>
+</li>
+<li>
+<p>byte-buddy</p>
+</li>
+<li>
+<p>c3p0-</p>
+</li>
+<li>
+<p>cache</p>
+</li>
+<li>
+<p>carrier</p>
+</li>
+<li>
+<p>cassandra-driver-core</p>
+</li>
+<li>
+<p>catalina-</p>
+</li>
+<li>
+<p>catalina.jar</p>
+</li>
+<li>
+<p>cats</p>
+</li>
+<li>
+<p>cdi-</p>
+</li>
+<li>
+<p>cglib-</p>
+</li>
+<li>
+<p>charsets.jar</p>
+</li>
+<li>
+<p>chill</p>
+</li>
+<li>
+<p>classindex</p>
+</li>
+<li>
+<p>classmate</p>
+</li>
+<li>
+<p>classutil</p>
+</li>
+<li>
+<p>classycle</p>
+</li>
+<li>
+<p>cldrdata</p>
+</li>
+<li>
+<p>commands-</p>
+</li>
+<li>
+<p>common-</p>
+</li>
+<li>
+<p>commons-</p>
+</li>
+<li>
+<p>component-api</p>
+</li>
+<li>
+<p>component-form</p>
+</li>
+<li>
+<p>component-runtime</p>
+</li>
+<li>
+<p>component-server</p>
+</li>
+<li>
+<p>component-spi</p>
+</li>
+<li>
+<p>component-studio</p>
+</li>
+<li>
+<p>components-adapter-beam</p>
+</li>
+<li>
+<p>components-api</p>
+</li>
+<li>
+<p>components-common</p>
+</li>
+<li>
+<p>compress-lzf</p>
+</li>
+<li>
+<p>config</p>
+</li>
+<li>
+<p>constructr</p>
+</li>
+<li>
+<p>container-core</p>
+</li>
+<li>
+<p>contenttype</p>
+</li>
+<li>
+<p>coverage-agent</p>
+</li>
+<li>
+<p>cryptacular-</p>
+</li>
+<li>
+<p>cssparser-</p>
+</li>
+<li>
+<p>curator-</p>
+</li>
+<li>
+<p>curvesapi-</p>
+</li>
+<li>
+<p>cxf-</p>
+</li>
+<li>
+<p>daikon</p>
+</li>
+<li>
+<p>databinding</p>
+</li>
+<li>
+<p>dataquality</p>
+</li>
+<li>
+<p>dataset-</p>
+</li>
+<li>
+<p>datastore-</p>
+</li>
+<li>
+<p>debugger-agent</p>
+</li>
+<li>
+<p>deltaspike-</p>
+</li>
+<li>
+<p>deploy.jar</p>
+</li>
+<li>
+<p>derby-</p>
+</li>
+<li>
+<p>derbyclient-</p>
+</li>
+<li>
+<p>derbynet-</p>
+</li>
+<li>
+<p>dnsns</p>
+</li>
+<li>
+<p>dom4j</p>
+</li>
+<li>
+<p>draw2d</p>
+</li>
+<li>
+<p>easymock-</p>
+</li>
+<li>
+<p>ecj-</p>
+</li>
+<li>
+<p>eclipselink-</p>
+</li>
+<li>
+<p>ehcache-</p>
+</li>
+<li>
+<p>el-api</p>
+</li>
+<li>
+<p>enumeratum</p>
+</li>
+<li>
+<p>enunciate-core-annotations</p>
+</li>
+<li>
+<p>error_prone_annotations</p>
+</li>
+<li>
+<p>expressions</p>
+</li>
+<li>
+<p>fastutil</p>
+</li>
+<li>
+<p>feign-core</p>
+</li>
+<li>
+<p>feign-hystrix</p>
+</li>
+<li>
+<p>feign-slf4j</p>
+</li>
+<li>
+<p>filters-helpers</p>
+</li>
+<li>
+<p>findbugs-</p>
+</li>
+<li>
+<p>fluent-hc</p>
+</li>
+<li>
+<p>fluentlenium-core</p>
+</li>
+<li>
+<p>fontbox</p>
+</li>
+<li>
+<p>freemarker-</p>
+</li>
+<li>
+<p>fusemq-leveldb-</p>
+</li>
+<li>
+<p>gax-</p>
+</li>
+<li>
+<p>gcsio-</p>
+</li>
+<li>
+<p>gef-</p>
+</li>
+<li>
+<p>geocoder</p>
+</li>
+<li>
+<p>geronimo-</p>
+</li>
+<li>
+<p>gmbal</p>
+</li>
+<li>
+<p>google-</p>
+</li>
+<li>
+<p>gpars-</p>
+</li>
+<li>
+<p>gragent.jar</p>
+</li>
+<li>
+<p>graph</p>
+</li>
+<li>
+<p>grizzled-scala</p>
+</li>
+<li>
+<p>grizzly-</p>
+</li>
+<li>
+<p>groovy-</p>
+</li>
+<li>
+<p>grpc-</p>
+</li>
+<li>
+<p>gson-</p>
+</li>
+<li>
+<p>guava-</p>
+</li>
+<li>
+<p>guice-</p>
+</li>
+<li>
+<p>h2-</p>
+</li>
+<li>
+<p>hadoop-</p>
+</li>
+<li>
+<p>hamcrest-</p>
+</li>
+<li>
+<p>hawtbuf-</p>
+</li>
+<li>
+<p>hawtdispatch-</p>
+</li>
+<li>
+<p>hawtio-</p>
+</li>
+<li>
+<p>hawtjni-runtime</p>
+</li>
+<li>
+<p>help-</p>
+</li>
+<li>
+<p>hibernate-</p>
+</li>
+<li>
+<p>hk2-</p>
+</li>
+<li>
+<p>howl-</p>
+</li>
+<li>
+<p>hsqldb-</p>
+</li>
+<li>
+<p>htmlunit-</p>
+</li>
+<li>
+<p>htrace-</p>
+</li>
+<li>
+<p>httpclient-</p>
+</li>
+<li>
+<p>httpcore-</p>
+</li>
+<li>
+<p>httpmime</p>
+</li>
+<li>
+<p>hystrix</p>
+</li>
+<li>
+<p>iban4j-</p>
+</li>
+<li>
+<p>icu4j-</p>
+</li>
+<li>
+<p>idb-</p>
+</li>
+<li>
+<p>idea_rt.jar</p>
+</li>
+<li>
+<p>instrumentation-api</p>
+</li>
+<li>
+<p>ion-java</p>
+</li>
+<li>
+<p>isoparser-</p>
+</li>
+<li>
+<p>istack-commons-runtime-</p>
+</li>
+<li>
+<p>ivy-</p>
+</li>
+<li>
+<p>j2objc-annotations</p>
+</li>
+<li>
+<p>jBCrypt</p>
+</li>
+<li>
+<p>jaccess</p>
+</li>
+<li>
+<p>jackcess-</p>
+</li>
+<li>
+<p>jackson-</p>
+</li>
+<li>
+<p>janino-</p>
+</li>
+<li>
+<p>jansi-</p>
+</li>
+<li>
+<p>jasper-el.jar</p>
+</li>
+<li>
+<p>jasper.jar</p>
+</li>
+<li>
+<p>jasypt-</p>
+</li>
+<li>
+<p>java-atk-wrapper</p>
+</li>
+<li>
+<p>java-libpst-</p>
+</li>
+<li>
+<p>java-support-</p>
+</li>
+<li>
+<p>java-xmlbuilder-</p>
+</li>
+<li>
+<p>javacsv</p>
+</li>
+<li>
+<p>javaee-</p>
+</li>
+<li>
+<p>javaee-api</p>
+</li>
+<li>
+<p>javassist-</p>
+</li>
+<li>
+<p>javaws.jar</p>
+</li>
+<li>
+<p>javax.</p>
+</li>
+<li>
+<p>jaxb-</p>
+</li>
+<li>
+<p>jaxp-</p>
+</li>
+<li>
+<p>jbake-</p>
+</li>
+<li>
+<p>jboss-</p>
+</li>
+<li>
+<p>jbossall-</p>
+</li>
+<li>
+<p>jbosscx-</p>
+</li>
+<li>
+<p>jbossjts-</p>
+</li>
+<li>
+<p>jbosssx-</p>
+</li>
+<li>
+<p>jcache</p>
+</li>
+<li>
+<p>jce.jar</p>
+</li>
+<li>
+<p>jcip-annotations</p>
+</li>
+<li>
+<p>jcl-over-slf4j-</p>
+</li>
+<li>
+<p>jcommander-</p>
+</li>
+<li>
+<p>jdbcdslog-1</p>
+</li>
+<li>
+<p>jempbox</p>
+</li>
+<li>
+<p>jersey-</p>
+</li>
+<li>
+<p>jets3t</p>
+</li>
+<li>
+<p>jettison-</p>
+</li>
+<li>
+<p>jetty-</p>
+</li>
+<li>
+<p>jface</p>
+</li>
+<li>
+<p>jfairy</p>
+</li>
+<li>
+<p>jffi</p>
+</li>
+<li>
+<p>jfr.jar</p>
+</li>
+<li>
+<p>jfxrt.jar</p>
+</li>
+<li>
+<p>jfxswt</p>
+</li>
+<li>
+<p>jhighlight</p>
+</li>
+<li>
+<p>jjwt</p>
+</li>
+<li>
+<p>jline</p>
+</li>
+<li>
+<p>jmatio-</p>
+</li>
+<li>
+<p>jmdns-</p>
+</li>
+<li>
+<p>jmespath-</p>
+</li>
+<li>
+<p>jms</p>
+</li>
+<li>
+<p>jmustache</p>
+</li>
+<li>
+<p>jna-</p>
+</li>
+<li>
+<p>jnr-</p>
+</li>
+<li>
+<p>jobs-</p>
+</li>
+<li>
+<p>joda-convert</p>
+</li>
+<li>
+<p>joda-time-</p>
+</li>
+<li>
+<p>johnzon-</p>
+</li>
+<li>
+<p>jolokia-</p>
+</li>
+<li>
+<p>jopt-simple</p>
+</li>
+<li>
+<p>jruby-</p>
+</li>
+<li>
+<p>json-</p>
+</li>
+<li>
+<p>json4s-</p>
+</li>
+<li>
+<p>jsonb-api</p>
+</li>
+<li>
+<p>jsoup-</p>
+</li>
+<li>
+<p>jsp-api</p>
+</li>
+<li>
+<p>jsr</p>
+</li>
+<li>
+<p>jsse.jar</p>
+</li>
+<li>
+<p>jta</p>
+</li>
+<li>
+<p>jul-to-slf4j-</p>
+</li>
+<li>
+<p>juli-</p>
+</li>
+<li>
+<p>junit-</p>
+</li>
+<li>
+<p>junit5-</p>
+</li>
+<li>
+<p>juniversalchardet</p>
+</li>
+<li>
+<p>junrar-</p>
+</li>
+<li>
+<p>jwt</p>
+</li>
+<li>
+<p>jython</p>
+</li>
+<li>
+<p>kafka</p>
+</li>
+<li>
+<p>kahadb-</p>
+</li>
+<li>
+<p>kotlin-runtime</p>
+</li>
+<li>
+<p>kryo</p>
+</li>
+<li>
+<p>leveldb</p>
+</li>
+<li>
+<p>libphonenumber</p>
+</li>
+<li>
+<p>lift-json</p>
+</li>
+<li>
+<p>lmdbjava</p>
+</li>
+<li>
+<p>localedata</p>
+</li>
+<li>
+<p>log4j-</p>
+</li>
+<li>
+<p>logback</p>
+</li>
+<li>
+<p>logging-event-layout</p>
+</li>
+<li>
+<p>logkit-</p>
+</li>
+<li>
+<p>lombok</p>
+</li>
+<li>
+<p>lucene</p>
+</li>
+<li>
+<p>lz4</p>
+</li>
+<li>
+<p>machinist</p>
+</li>
+<li>
+<p>macro-compat</p>
+</li>
+<li>
+<p>mail-</p>
+</li>
+<li>
+<p>management-</p>
+</li>
+<li>
+<p>mapstruct-</p>
+</li>
+<li>
+<p>maven-</p>
+</li>
+<li>
+<p>mbean-annotation-api-</p>
+</li>
+<li>
+<p>meecrowave-</p>
+</li>
+<li>
+<p>mesos-</p>
+</li>
+<li>
+<p>metadata-extractor-</p>
+</li>
+<li>
+<p>metrics-</p>
+</li>
+<li>
+<p>microprofile-config-api-</p>
+</li>
+<li>
+<p>mimepull-</p>
+</li>
+<li>
+<p>mina-</p>
+</li>
+<li>
+<p>minlog</p>
+</li>
+<li>
+<p>mockito-core</p>
+</li>
+<li>
+<p>mqtt-client-</p>
+</li>
+<li>
+<p>multitenant-core</p>
+</li>
+<li>
+<p>multiverse-core-</p>
+</li>
+<li>
+<p>mx4j-</p>
+</li>
+<li>
+<p>myfaces-</p>
+</li>
+<li>
+<p>mysql-connector-java-</p>
+</li>
+<li>
+<p>nashorn</p>
+</li>
+<li>
+<p>neethi-</p>
+</li>
+<li>
+<p>neko-htmlunit</p>
+</li>
+<li>
+<p>nekohtml-</p>
+</li>
+<li>
+<p>netflix</p>
+</li>
+<li>
+<p>netty-</p>
+</li>
+<li>
+<p>nimbus-jose-jwt</p>
+</li>
+<li>
+<p>objenesis-</p>
+</li>
+<li>
+<p>okhttp</p>
+</li>
+<li>
+<p>okio</p>
+</li>
+<li>
+<p>opencensus-</p>
+</li>
+<li>
+<p>openjpa-</p>
+</li>
+<li>
+<p>openmdx-</p>
+</li>
+<li>
+<p>opennlp-</p>
+</li>
+<li>
+<p>opensaml-</p>
+</li>
+<li>
+<p>opentest4j-</p>
+</li>
+<li>
+<p>openwebbeans-</p>
+</li>
+<li>
+<p>openws-</p>
+</li>
+<li>
+<p>ops4j-</p>
+</li>
+<li>
+<p>org.apache.aries</p>
+</li>
+<li>
+<p>org.apache.commons</p>
+</li>
+<li>
+<p>org.apache.log4j</p>
+</li>
+<li>
+<p>org.eclipse.</p>
+</li>
+<li>
+<p>org.junit.</p>
+</li>
+<li>
+<p>org.osgi.core-</p>
+</li>
+<li>
+<p>org.osgi.enterprise</p>
+</li>
+<li>
+<p>org.talend</p>
+</li>
+<li>
+<p>orient-commons-</p>
+</li>
+<li>
+<p>orientdb-core-</p>
+</li>
+<li>
+<p>orientdb-nativeos-</p>
+</li>
+<li>
+<p>oro-</p>
+</li>
+<li>
+<p>osgi</p>
+</li>
+<li>
+<p>paranamer</p>
+</li>
+<li>
+<p>parquet</p>
+</li>
+<li>
+<p>pax-url</p>
+</li>
+<li>
+<p>pdfbox</p>
+</li>
+<li>
+<p>play</p>
+</li>
+<li>
+<p>plexus-</p>
+</li>
+<li>
+<p>plugin.jar</p>
+</li>
+<li>
+<p>poi-</p>
+</li>
+<li>
+<p>postgresql</p>
+</li>
+<li>
+<p>preferences-</p>
+</li>
+<li>
+<p>prefixmapper</p>
+</li>
+<li>
+<p>proto-</p>
+</li>
+<li>
+<p>protobuf-</p>
+</li>
+<li>
+<p>py4j-</p>
+</li>
+<li>
+<p>pyrolite-</p>
+</li>
+<li>
+<p>qdox-</p>
+</li>
+<li>
+<p>quartz-2</p>
+</li>
+<li>
+<p>quartz-openejb-</p>
+</li>
+<li>
+<p>reactive-streams</p>
+</li>
+<li>
+<p>reflectasm-</p>
+</li>
+<li>
+<p>reflections</p>
+</li>
+<li>
+<p>regexp-</p>
+</li>
+<li>
+<p>registry-</p>
+</li>
+<li>
+<p>resources.jar</p>
+</li>
+<li>
+<p>rhino</p>
+</li>
+<li>
+<p>ribbon</p>
+</li>
+<li>
+<p>rmock-</p>
+</li>
+<li>
+<p>rome</p>
+</li>
+<li>
+<p>routes-compiler</p>
+</li>
+<li>
+<p>routines</p>
+</li>
+<li>
+<p>rt.jar</p>
+</li>
+<li>
+<p>runners</p>
+</li>
+<li>
+<p>runtime-</p>
+</li>
+<li>
+<p>rxjava</p>
+</li>
+<li>
+<p>rxnetty</p>
+</li>
+<li>
+<p>saaj-</p>
+</li>
+<li>
+<p>sac-</p>
+</li>
+<li>
+<p>scala</p>
+</li>
+<li>
+<p>scalap</p>
+</li>
+<li>
+<p>scalatest</p>
+</li>
+<li>
+<p>scannotation-</p>
+</li>
+<li>
+<p>selenium</p>
+</li>
+<li>
+<p>serializer-</p>
+</li>
+<li>
+<p>serp-</p>
+</li>
+<li>
+<p>service-common</p>
+</li>
+<li>
+<p>servlet-api-</p>
+</li>
+<li>
+<p>servo-</p>
+</li>
+<li>
+<p>shaded</p>
+</li>
+<li>
+<p>shapeless</p>
+</li>
+<li>
+<p>shrinkwrap-</p>
+</li>
+<li>
+<p>sisu-guice</p>
+</li>
+<li>
+<p>sisu-inject</p>
+</li>
+<li>
+<p>slf4j-</p>
+</li>
+<li>
+<p>slick</p>
+</li>
+<li>
+<p>smack-</p>
+</li>
+<li>
+<p>smackx-</p>
+</li>
+<li>
+<p>snakeyaml-</p>
+</li>
+<li>
+<p>snappy-</p>
+</li>
+<li>
+<p>spark-</p>
+</li>
+<li>
+<p>specs2</p>
+</li>
+<li>
+<p>spring-</p>
+</li>
+<li>
+<p>sshd-</p>
+</li>
+<li>
+<p>ssl-config-core</p>
+</li>
+<li>
+<p>stax-api-</p>
+</li>
+<li>
+<p>stax2-api-</p>
+</li>
+<li>
+<p>stream</p>
+</li>
+<li>
+<p>sunec.jar</p>
+</li>
+<li>
+<p>sunjce_provider</p>
+</li>
+<li>
+<p>sunpkcs11</p>
+</li>
+<li>
+<p>surefire-</p>
+</li>
+<li>
+<p>swagger-</p>
+</li>
+<li>
+<p>swizzle-</p>
+</li>
+<li>
+<p>sxc-</p>
+</li>
+<li>
+<p>system-rules</p>
+</li>
+<li>
+<p>tachyon-</p>
+</li>
+<li>
+<p>tagsoup-</p>
+</li>
+<li>
+<p>talend-icon</p>
+</li>
+<li>
+<p>test-agent</p>
+</li>
+<li>
+<p>test-interface</p>
+</li>
+<li>
+<p>testng-</p>
+</li>
+<li>
+<p>threetenbp</p>
+</li>
+<li>
+<p>tika-</p>
+</li>
+<li>
+<p>tomcat</p>
+</li>
+<li>
+<p>tomee-</p>
+</li>
+<li>
+<p>tools.jar</p>
+</li>
+<li>
+<p>twirl</p>
+</li>
+<li>
+<p>twitter4j-</p>
+</li>
+<li>
+<p>tyrex</p>
+</li>
+<li>
+<p>uncommons</p>
+</li>
+<li>
+<p>unused</p>
+</li>
+<li>
+<p>util</p>
+</li>
+<li>
+<p>validation-api-</p>
+</li>
+<li>
+<p>velocity-</p>
+</li>
+<li>
+<p>wagon-</p>
+</li>
+<li>
+<p>wandou</p>
+</li>
+<li>
+<p>webbeans-</p>
+</li>
+<li>
+<p>websocket</p>
+</li>
+<li>
+<p>woodstox-core</p>
+</li>
+<li>
+<p>workbench</p>
+</li>
+<li>
+<p>ws-commons-util-</p>
+</li>
+<li>
+<p>wsdl4j-</p>
+</li>
+<li>
+<p>wss4j-</p>
+</li>
+<li>
+<p>wstx-asl-</p>
+</li>
+<li>
+<p>xalan-</p>
+</li>
+<li>
+<p>xbean-</p>
+</li>
+<li>
+<p>xercesImpl-</p>
+</li>
+<li>
+<p>xlsx-streamer-</p>
+</li>
+<li>
+<p>xml-apis-</p>
+</li>
+<li>
+<p>xml-resolver-</p>
+</li>
+<li>
+<p>xmlbeans-</p>
+</li>
+<li>
+<p>xmlenc-</p>
+</li>
+<li>
+<p>xmlgraphics-</p>
+</li>
+<li>
+<p>xmlpcore</p>
+</li>
+<li>
+<p>xmlpull-</p>
+</li>
+<li>
+<p>xmlrpc-</p>
+</li>
+<li>
+<p>xmlschema-</p>
+</li>
+<li>
+<p>xmlsec-</p>
+</li>
+<li>
+<p>xmltooling-</p>
+</li>
+<li>
+<p>xmlunit-</p>
+</li>
+<li>
+<p>xstream-</p>
+</li>
+<li>
+<p>xz-</p>
+</li>
+<li>
+<p>zipfs.jar</p>
+</li>
+<li>
+<p>zipkin-</p>
+</li>
+<li>
+<p>ziplock-</p>
+</li>
+<li>
+<p>zkclient</p>
+</li>
+<li>
+<p>zookeeper-</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_package_scanning"><a class="anchor" href="#_package_scanning"></a>Package Scanning</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Since the framework can be used in the case of <em>fatjars</em> or <em>shades</em>,
+and because it still uses scanning,
+it is important to ensure we don&#8217;t scan the whole classes for performances reason.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, the following packages are ignored:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>avro.shaded</p>
+</li>
+<li>
+<p>com.codehale.metrics</p>
+</li>
+<li>
+<p>com.ctc.wstx</p>
+</li>
+<li>
+<p>com.datastax.driver.core</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.annotation</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.core</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.databind</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.dataformat</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.module</p>
+</li>
+<li>
+<p>com.google.common</p>
+</li>
+<li>
+<p>com.google.thirdparty</p>
+</li>
+<li>
+<p>com.ibm.wsdl</p>
+</li>
+<li>
+<p>com.jcraft.jsch</p>
+</li>
+<li>
+<p>com.kenai.jffi</p>
+</li>
+<li>
+<p>com.kenai.jnr</p>
+</li>
+<li>
+<p>com.sun.istack</p>
+</li>
+<li>
+<p>com.sun.xml.bind</p>
+</li>
+<li>
+<p>com.sun.xml.messaging.saaj</p>
+</li>
+<li>
+<p>com.sun.xml.txw2</p>
+</li>
+<li>
+<p>com.thoughtworks</p>
+</li>
+<li>
+<p>io.jsonwebtoken</p>
+</li>
+<li>
+<p>io.netty</p>
+</li>
+<li>
+<p>io.swagger.annotations</p>
+</li>
+<li>
+<p>io.swagger.config</p>
+</li>
+<li>
+<p>io.swagger.converter</p>
+</li>
+<li>
+<p>io.swagger.core</p>
+</li>
+<li>
+<p>io.swagger.jackson</p>
+</li>
+<li>
+<p>io.swagger.jaxrs</p>
+</li>
+<li>
+<p>io.swagger.model</p>
+</li>
+<li>
+<p>io.swagger.models</p>
+</li>
+<li>
+<p>io.swagger.util</p>
+</li>
+<li>
+<p>javax</p>
+</li>
+<li>
+<p>jnr</p>
+</li>
+<li>
+<p>junit</p>
+</li>
+<li>
+<p>net.sf.ehcache</p>
+</li>
+<li>
+<p>net.shibboleth.utilities.java.support</p>
+</li>
+<li>
+<p>org.aeonbits.owner</p>
+</li>
+<li>
+<p>org.apache.activemq</p>
+</li>
+<li>
+<p>org.apache.beam</p>
+</li>
+<li>
+<p>org.apache.bval</p>
+</li>
+<li>
+<p>org.apache.camel</p>
+</li>
+<li>
+<p>org.apache.catalina</p>
+</li>
+<li>
+<p>org.apache.commons.beanutils</p>
+</li>
+<li>
+<p>org.apache.commons.cli</p>
+</li>
+<li>
+<p>org.apache.commons.codec</p>
+</li>
+<li>
+<p>org.apache.commons.collections</p>
+</li>
+<li>
+<p>org.apache.commons.compress</p>
+</li>
+<li>
+<p>org.apache.commons.dbcp2</p>
+</li>
+<li>
+<p>org.apache.commons.digester</p>
+</li>
+<li>
+<p>org.apache.commons.io</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.access</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.admin</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.auxiliary</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.engine</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.io</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.utils</p>
+</li>
+<li>
+<p>org.apache.commons.lang</p>
+</li>
+<li>
+<p>org.apache.commons.lang3</p>
+</li>
+<li>
+<p>org.apache.commons.logging</p>
+</li>
+<li>
+<p>org.apache.commons.pool2</p>
+</li>
+<li>
+<p>org.apache.coyote</p>
+</li>
+<li>
+<p>org.apache.cxf</p>
+</li>
+<li>
+<p>org.apache.geronimo.javamail</p>
+</li>
+<li>
+<p>org.apache.geronimo.mail</p>
+</li>
+<li>
+<p>org.apache.geronimo.osgi</p>
+</li>
+<li>
+<p>org.apache.geronimo.specs</p>
+</li>
+<li>
+<p>org.apache.http</p>
+</li>
+<li>
+<p>org.apache.jcp</p>
+</li>
+<li>
+<p>org.apache.johnzon</p>
+</li>
+<li>
+<p>org.apache.juli</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.core</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.jul</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.util</p>
+</li>
+<li>
+<p>org.apache.logging.slf4j</p>
+</li>
+<li>
+<p>org.apache.meecrowave</p>
+</li>
+<li>
+<p>org.apache.myfaces</p>
+</li>
+<li>
+<p>org.apache.naming</p>
+</li>
+<li>
+<p>org.apache.neethi</p>
+</li>
+<li>
+<p>org.apache.openejb</p>
+</li>
+<li>
+<p>org.apache.openjpa</p>
+</li>
+<li>
+<p>org.apache.oro</p>
+</li>
+<li>
+<p>org.apache.tomcat</p>
+</li>
+<li>
+<p>org.apache.tomee</p>
+</li>
+<li>
+<p>org.apache.velocity</p>
+</li>
+<li>
+<p>org.apache.webbeans</p>
+</li>
+<li>
+<p>org.apache.ws</p>
+</li>
+<li>
+<p>org.apache.wss4j</p>
+</li>
+<li>
+<p>org.apache.xbean</p>
+</li>
+<li>
+<p>org.apache.xml</p>
+</li>
+<li>
+<p>org.apache.xml.resolver</p>
+</li>
+<li>
+<p>org.bouncycastle</p>
+</li>
+<li>
+<p>org.codehaus.jackson</p>
+</li>
+<li>
+<p>org.codehaus.stax2</p>
+</li>
+<li>
+<p>org.codehaus.swizzle.Grep</p>
+</li>
+<li>
+<p>org.codehaus.swizzle.Lexer</p>
+</li>
+<li>
+<p>org.cryptacular</p>
+</li>
+<li>
+<p>org.eclipse.jdt.core</p>
+</li>
+<li>
+<p>org.eclipse.jdt.internal</p>
+</li>
+<li>
+<p>org.fusesource.hawtbuf</p>
+</li>
+<li>
+<p>org.h2</p>
+</li>
+<li>
+<p>org.hamcrest</p>
+</li>
+<li>
+<p>org.hsqldb</p>
+</li>
+<li>
+<p>org.jasypt</p>
+</li>
+<li>
+<p>org.jboss.marshalling</p>
+</li>
+<li>
+<p>org.joda.time</p>
+</li>
+<li>
+<p>org.jose4j</p>
+</li>
+<li>
+<p>org.junit</p>
+</li>
+<li>
+<p>org.jvnet.mimepull</p>
+</li>
+<li>
+<p>org.metatype.sxc</p>
+</li>
+<li>
+<p>org.objectweb.asm</p>
+</li>
+<li>
+<p>org.objectweb.howl</p>
+</li>
+<li>
+<p>org.openejb</p>
+</li>
+<li>
+<p>org.opensaml</p>
+</li>
+<li>
+<p>org.slf4j</p>
+</li>
+<li>
+<p>org.swizzle</p>
+</li>
+<li>
+<p>org.terracotta.context</p>
+</li>
+<li>
+<p>org.terracotta.entity</p>
+</li>
+<li>
+<p>org.terracotta.modules.ehcache</p>
+</li>
+<li>
+<p>org.terracotta.statistics</p>
+</li>
+<li>
+<p>org.tukaani</p>
+</li>
+<li>
+<p>org.yaml.snakeyaml</p>
+</li>
+<li>
+<p>serp</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+it is not recommanded but possible to add in your plugin module a
+<code>TALEND-INF/scanning.properties</code> file with <code>classloader.includes</code> and
+<code>classloader.excludes</code> entries to refine the scanning with custom rules.
+In such a case, exclusions win over inclusions.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/edit/master/documentation/src/main/antora/modules/ROOT/pages/ref-scanning-exclusions.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Fref-scanning-exclusions.html&text=Talend%20Component%20Kit%20%3E%3E%20Framework%20package%20and%20JAR%20scanning%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Fref-scanning-exclusions.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Framework%20package%20and%20JAR%20scanning&body=Talend%20Component%20Kit%3A%20Framework%20package%20and%20JAR%20scanning%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Fref-scanning-exclusions.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+      </main>
+      <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2018 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="https://cdn.rawgit.com/rmannibucau/00206484a54ac569e091513e6d2a1c01/raw/46cd5d77ba1abe678f83d11490e12a327b62d7ee/anchorific.js"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

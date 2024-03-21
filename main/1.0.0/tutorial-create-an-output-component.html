@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Write an Output component</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.38.0/tutorial-create-an-output-component.html">
+    <meta name="generator" content="Talend Component Kit Generator">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Write an Output component :: Talend Component Kit Developer Reference Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.38.0/tutorial-create-an-output-component.html">
+    <meta name="generator" content="Antora 2.2.0">
+<meta name="date" content="2021-10-07T12:10:07.489Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+
+
+<script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                  messageStyle: "none",
+                  tex2jax: {
+                    inlineMath: [["\\(", "\\)"]],
+                    displayMath: [["\\[", "\\]"]],
+                    ignoreClass: "nostem|nolatexmath"
+                  },
+                  asciimath2jax: {
+                    delimiters: [["\\$", "\\$"]],
+                    ignoreClass: "nostem|noasciimath"
+                  },
+                  TeX: { equationNumbers: { autoNumber: "none" } }
+                });
+                </script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+    <script>var uiRootPath = '../../_'</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                1.0.0
+              <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version">
+                    <a href="../1.38.0/index.html">1.38.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.0/index.html">1.37.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.0/index.html">1.36.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.0/index.html">1.35.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.0/index.html">1.34.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.1/index.html">1.33.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.0/index.html">1.33.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.1/index.html">1.32.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.0/index.html">1.32.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.1/index.html">1.31.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.0/index.html">1.31.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.30.0/index.html">1.30.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.1/index.html">1.28.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.0/index.html">1.28.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.15/index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="index.html">1.0.0</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Blog <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://talend.github.io/component-runtime/blog/release-notes.html" target="_blank">Release Notes</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.0.0">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Programming Model</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Components Definition</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_partitionmapper">PartitionMapper</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Definition</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_assessor">@Assessor</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_split">@Split</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_emitter">@Emitter</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_producer">Producer</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_processor">Processor</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_multiple_outputs">Multiple outputs</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_multiple_inputs">Multiple inputs</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_output">Output</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_combiners">Combiners?</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_family_components_icons">Family &amp; Components Icons</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Configuring components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_primitives">Primitives</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Complex object mapping</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_list_case">List case</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_map_case">Map case</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_constraints_and_validation_on_the_configuration_input">Constraints and validation on the configuration/input</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_marking_a_configuration_as_a_particular_type_of_data">Marking a configuration as a particular type of data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_define_links_between_properties">Define links between properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#documentation-ui-hints">Add hints about the rendering based on configuration/component knowledge</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Gallery</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_widgets">Widgets</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_validations">Validations</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Registering components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Components metadata</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_management_of_configuration_versions">Management of configuration versions</a>
+  </li>
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>@PartitionMapper</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_emitter_2">@Emitter</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_processor_2">@Processor</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Internationalization</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_default_components_keys">Default components keys</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Package</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Component Loading</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_packaging_a_plugin">Packaging a plugin</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Packaging an application</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Dependencies</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_create_a_nested_maven_repository_with_maven_shade_plugin">Create a nested maven repository with maven-shade-plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_listing_needed_plugins">Listing needed plugins</a>
+  </li>
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>&lt;code&gt;maven-shade-plugin&lt;/code&gt; extensions</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_containerdependenciestransformer">ContainerDependenciesTransformer</a>
+  </li>
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_plugintransformer">PluginTransformer</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Component scanning rules and default exclusions</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_jars_scanning">Jars Scanning</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_package_scanning">Package Scanning</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Build tools</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Maven Plugin</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_dependencies_2">Dependencies</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_validate">Validate</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Documentation</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Render your documentation</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_html">HTML</a>
+  </li>
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_pdf">PDF</a>
+  </li>
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_include_the_documentation_into_a_document">Include the documentation into a document</a>
+  </li>
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_more">More</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_web">Web</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_generate_inputs_or_outputs">Generate inputs or outputs</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_talend_component_archive">Talend Component Archive</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_gradle_plugin">Gradle Plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Services</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Internationalization</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_internationalization_api">Internationalization API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Providing some actions for consumers/clients</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_particular_action_types">Particular action types</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Built in services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>HttpClient usage</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_advanced_http_client_request_customization">Advanced HTTP client request customization</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_services_and_interceptors">Services and interceptors</a>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Creating a job pipeline</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Job Builder</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_environment_runner">Environment/Runner</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_key_provider">Key Provider</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Beam case</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_i_o">I/O</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_processors">Processors</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_convert_a_beam_io_in_a_component_i_o">Convert a Beam.io in a component I/O</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Advanced: define a custom API</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_extending_the_ui">Extending the UI</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Best practises</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Parameterized tests</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_4">JUnit 4</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_5">JUnit 5</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>component-runtime-testing</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>component-runtime-junit</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_4_2">JUnit 4</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_5_2">JUnit 5</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_mocking_the_output">Mocking the output</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_mocking_the_input">Mocking the input</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_creating_runtime_configuration_from_component_configuration">Creating runtime configuration from component configuration</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_testing_a_mapper">Testing a Mapper</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_testing_a_processor">Testing a Processor</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>component-runtime-testing-spark</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_4_3">JUnit 4</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_5_3">JUnit 5</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_how_to_know_the_job_is_done">How to know the job is done</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>component-runtime-http-junit</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>JUnit 4</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_ssl">SSL</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>JUnit 5</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_ssl_2">SSL</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_capturing_mode">Capturing mode</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_passthrough_mode">Passthrough mode</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_beam_testing">Beam testing</a>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Multiple environments for the same tests</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_junit_4_5">JUnit 4</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_junit_5_5">JUnit 5</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_provided_environments">Provided environments</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Configuring environments</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_advanced_usage">Advanced usage</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_secrets_passwords_and_maven">Secrets/Passwords and Maven</a>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_generating_data">Generating data?</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Web</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+    <a class="menu-link" href="documentation-rest.html">Server</a>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb active"><a href="tutorial-create-an-output-component.html">Write an Output component</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Write an Output component</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div id="tutorial-create-an-output-component" class="paragraph">
+<p>In this tutorial we will create a complete working output component for <a href="#https://hazelcast.org/">hazelcast</a>.
+This will include :</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The component configuration and the UI layout</p>
+</li>
+<li>
+<p>The output that is responsible for connecting and writing data to the data source.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_component_configuration"><a class="anchor" href="#_the_component_configuration"></a>The component configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>How to create component configuration has already been described in <a href="tutorial-create-an-input-component.html#_the_component_configuration" class="page">"Create an input component" tutorial</a>.
+For now we will use the same component configuration.
+We will only add a couple of fields required for our output component to already described configuration.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+private String keyAttribute;
+
+@Option
+private String valueAttribute;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We will need those fields to determine key and value attributes for our Hazelcast map.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_output"><a class="anchor" href="#_the_output"></a>The Output</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As our output component needs to work in distributed environments it should implement Serializable interface.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s take a look at the skeleton of our output component.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Version <i class="conum" data-value="1"></i><b>(1)</b>
+@Icon(custom = "hazelcastOutput", value = CUSTOM) <i class="conum" data-value="2"></i><b>(2)</b>
+@Processor(name = "Output") <i class="conum" data-value="3"></i><b>(3)</b>
+public class HazelcastOutput implements Serializable {
+    private final HazelcastConfiguration configuration;
+    private final JsonBuilderFactory jsonFactory;
+    private final Jsonb jsonb;
+    private final HazelcastService service;
+
+
+    public HazelcastOutput(@Option("configuration") final HazelcastConfiguration configuration,
+                           final JsonBuilderFactory jsonFactory,
+                           final Jsonb jsonb,
+                           final HazelcastService service) {} <i class="conum" data-value="4"></i><b>(4)</b>
+
+    @PostConstruct
+    public void init() {} <i class="conum" data-value="5"></i><b>(5)</b>
+
+    @PreDestroy
+    public void release() {} <i class="conum" data-value="6"></i><b>(6)</b>
+
+    @ElementListener
+    public void onElement(final JsonObject defaultInput) {} <i class="conum" data-value="7"></i><b>(7)</b>
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>@Version</code> annotation indicate the version of the component. it will be used to migrate the component configuration if needed.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>@Icon</code> annotation indicate the icon of the component. here we have defined a custom icon that need to be bundled in the component jar under <code>resources/icons</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td><code>@Processor</code> annotation indicate that this class is the processor(output) and give it&#8217;s name.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>This constructor of the processor is responsible of injecting the component configuration and services. Configuration parameter are annotated by <code>@Option</code>.
+and other parameters are considered as services and will be injected by the component framework. The service may be local services (class annotated with <code>@Service</code>)
+or some services provided by the component framework.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>The method annotated with <code>@PostConstruct</code> is executed once by instance and can be used to do some initialization.
+Here we will get the hazelcast instance according to the provided configuration.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>The method annotated with <code>@PreDestroy</code> is used to clean resource at the end of the execution of the output.
+here we will shutdown the hazelcast instance loaded in the post Construct method.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Data is passed to the method annotated with <code>@ElementListener</code>. That method is responsible for data output. You can put all the related logic in this method.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+in real implementation you can desire to bulk write the updates accordingly to groups, see <a href="component-definition.html#_processor" class="page">Processor description</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s implement all methods required for our output.</p>
+</div>
+<div class="sect2">
+<h3 id="_the_constructor"><a class="anchor" href="#_the_constructor"></a>The constructor</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public HazelcastOutput(@Option("configuration") final HazelcastConfiguration configuration,
+                       final JsonBuilderFactory jsonFactory,
+                       final Jsonb jsonb,
+                       final HazelcastService service) {
+    this.configuration = configuration;
+    this.jsonFactory = jsonFactory;
+    this.jsonb = jsonb;
+    this.service = service;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_postconstruct_method"><a class="anchor" href="#_the_postconstruct_method"></a>The PostConstruct method</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">private transient HazelcastInstance instance;
+private transient IMap&lt;Object, Object&gt; map;
+
+@PostConstruct
+public void init() {
+    instance = service.findInstance(configuration.newConfig()); <i class="conum" data-value="1"></i><b>(1)</b>
+    map = instance.getMap(configuration.getMapName()); <i class="conum" data-value="2"></i><b>(2)</b>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We will need Hazelcast instance and Hazelcast map. We add those as attributes to the output.
+&lt;1&gt; Here we create an instance of hazelcast according to the provided configuration.
+Here you can notice that we use the injected HazelcastService instance to perform that.
+This service is implemented in the project. See the implementation in <a href="tutorial-create-an-input-component.html#_the_postconstruct_method" class="page">"Create an input component" tutorial</a>.
+&lt;2&gt; We get the Hazelcast map according to the map name from configuration. We use Hazelcast instance for that purpose.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+in production you will not want to create one instance per thread/worker but we will cover that in another coming tutorial
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_predestroy_method"><a class="anchor" href="#_the_predestroy_method"></a>The PreDestroy method</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@PreDestroy
+public void close() {
+    instance.getLifecycleService().shutdown();
+    map = null;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We shutdown the instance that we have created in the PostConstruct and we free the Hazelcast map reference.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_elementlistener_method"><a class="anchor" href="#_the_elementlistener_method"></a>The ElementListener method</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ElementListener
+public void onElement(final JsonObject defaultInput) { <i class="conum" data-value="1"></i><b>(1)</b>
+    final Object key = toValue(defaultInput.get(configuration.getKeyAttribute()));
+    final Object value = toValue(defaultInput.get(configuration.getValueAttribute()));
+    map.put(key, value);
+}
+
+private Object toValue(final JsonValue jsonValue) { <i class="conum" data-value="2"></i><b>(2)</b>
+    if (jsonValue == null) {
+        return null;
+    }
+    if (jsonValue.getValueType() == STRING) {
+        return JsonString.class.cast(jsonValue).getString();
+    }
+    if (jsonValue.getValueType() == NUMBER) {
+        return JsonNumber.class.cast(jsonValue).doubleValue();
+    }
+    return jsonValue.asJsonObject();
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>This method will be used to pass the incoming data to our output.
+Every object passed should be a JsonObject instance.
+This method can include any logic required to write data to the data source.
+In our implementation we will put data to Hazelcast map.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This is our inner method which is used to transform incoming values in format
+required to put data to Hazelcast map.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_full_implementation_of_the_output"><a class="anchor" href="#_the_full_implementation_of_the_output"></a>The full implementation of the Output</h3>
+<div class="paragraph">
+<p>Here is the full code source for the output to have a global view of it.
+<a href="component-definition.html#_output" class="page">Read more about output&#8230;&#8203;</a></p>
+</div>
+<div class="listingblock initial-block-closed">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Version <i class="conum" data-value="1"></i><b>(1)</b>
+@Icon(custom = "hazelcastOutput", value = CUSTOM) <i class="conum" data-value="2"></i><b>(2)</b>
+@Processor(name = "Output") <i class="conum" data-value="3"></i><b>(3)</b>
+public class HazelcastOutput implements Serializable {
+    private final HazelcastConfiguration configuration;
+    private final JsonBuilderFactory jsonFactory;
+    private final Jsonb jsonb;
+    private final HazelcastService service;
+
+    private transient HazelcastInstance instance;
+    private transient IMap&lt;Object, Object&gt; map;
+
+    public HazelcastOutput(@Option("configuration") final HazelcastConfiguration configuration,
+                           final JsonBuilderFactory jsonFactory,
+                           final Jsonb jsonb,
+                           final HazelcastService service) {
+        this.configuration = configuration;
+        this.jsonFactory = jsonFactory;
+        this.jsonb = jsonb;
+        this.service = service;
+    }
+
+    @PostConstruct
+    public void init() {
+        instance = service.findInstance(configuration.newConfig());
+        map = instance.getMap(configuration.getMapName());
+    }
+
+    @ElementListener
+    public void onElement(final JsonObject defaultInput) {
+        final Object key = toValue(defaultInput.get(configuration.getKeyAttribute()));
+        final Object value = toValue(defaultInput.get(configuration.getValueAttribute()));
+        map.put(key, value);
+    }
+
+    @PreDestroy
+    public void release() {
+        instance.getLifecycleService().shutdown();
+        map = null;
+    }
+
+    private Object toValue(final JsonValue jsonValue) {
+        if (jsonValue == null) {
+            return null;
+        }
+        if (jsonValue.getValueType() == STRING) {
+            return JsonString.class.cast(jsonValue).getString();
+        }
+        if (jsonValue.getValueType() == NUMBER) {
+            return JsonNumber.class.cast(jsonValue).doubleValue();
+        }
+        return jsonValue.asJsonObject();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We have seen how to create a complete working output in this tutorial. Later we will explain how to create some unit
+tests for it.</p>
+</div>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/edit/component-runtime-1.0.0/documentation/src/main/antora/modules/ROOT/pages/tutorial-create-an-output-component.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.38.0%2Ftutorial-create-an-output-component.html&text=Talend%20Component%20Kit%20%3E%3E%20Write%20an%20Output%20component%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.38.0%2Ftutorial-create-an-output-component.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Write%20an%20Output%20component&body=Talend%20Component%20Kit%3A%20Write%20an%20Output%20component%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.38.0%2Ftutorial-create-an-output-component.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+              <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2019 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="../../_/../js/anchorific.js"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

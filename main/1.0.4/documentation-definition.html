@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Components Definitions Documentation :: Talend Component Kit Developer Reference Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.0.4/documentation-definition.html">
+    <meta name="generator" content="Antora 1.0.1">
+    <link rel="stylesheet" href="../../_/css/site.css">
+<meta name="date" content="2018-07-23T16:45:12.744Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch.min.css" integrity="sha256-vusmcqkVvKdkwoueSJZLlO9y2P+Lp9fN3WwQUV9Uwfw=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch-theme-algolia.min.css" integrity="sha256-ZqsS4QagZnfArbOyheCO4qVjzzsMbg/WMvf5tLtId/Q=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+  </head>
+  <body class="article">
+<header class="header" role="banner">
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="navbar-item">
+                <a href="https://talend.github.io/component-runtime">Talend Component Kit</a>
+                <span class="separator">//</span>
+                <a href="https://talend.github.io/component-runtime">Docs</a>
+            </div>
+            <button class="navbar-burger" data-target="topbar-nav">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <div id="topbar-nav" class="navbar-menu">
+            <div class="navbar-end">
+                <div class="global-search">
+                    <form role="search" action="search.html">
+                        <div>
+                            <input class="rounded" type="text" placeholder="Search" name="query" id="searchInput">
+                            <input type="hidden" name="idx" value="githubantora">
+                        </div>
+                    </form>
+                </div>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <div class="navbar-link">Projects</div>
+                    <div class="navbar-dropdown">
+                        <div class="navbar-item"><strong>API</strong></div>
+                        <a class="navbar-item" href="https://github.com/talend/component-api">Repository</a>
+                        <hr class="navbar-divider">
+                        <div class="navbar-item"><strong>Runtime</strong></div>
+                        <a class="navbar-item" href="https://github.com/talend/component-runtime">Repository</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="main-wrapper">
+<div class="navigation-container" data-component="main" data-version="1.0.4">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+<div class="navigation-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html">Talend Component Kit Developer Reference Guide</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Programming Model</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_component_definition">Component definition</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#partition-mapper">PartitionMapper</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_definition">Definition</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_assessor">@Assessor</a>
+  </li>
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_split">@Split</a>
+  </li>
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_emitter">@Emitter</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_producer">Producer</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_processor">Processor</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_multiple_outputs">Multiple outputs</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_multiple_inputs">Multiple inputs</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_output">Output</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_combiners">Combiners</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_family_and_component_icons">Family and component icons</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_configuring_components">Configuring components</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_primitives">Primitives</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_complex_object_mapping">Complex object mapping</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_list_case">List case</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_map_case">Map case</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_defining_constraints_and_validations_on_the_configuration">Defining Constraints and validations on the configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_marking_a_configuration_as_a_particular_type_of_data">Marking a configuration as a particular type of data</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_defining_links_between_properties">Defining links between properties</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#documentation-ui-hints">Adding hints about the rendering based on configuration/component knowledge</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_widget_and_validation_gallery">Widget and validation gallery</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_widgets">Widgets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_validations">Validations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_registering_components">Registering components</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_components_metadata">Components metadata</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_managing_version_configuration">Managing version configuration</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_partitionmapper">@PartitionMapper</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_emitter_2">@Emitter</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_processor_2">@Processor</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_component_internationalization">Component internationalization</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_default_components_keys">Default components keys</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Package</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_component_loading">Component Loading</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_packaging_a_plugin">Packaging a plugin</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_packaging_an_application">Packaging an application</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_dependencies">Dependencies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_creating_a_nested_maven_repository_with_maven_shade_plugin">Creating a nested Maven repository with maven-shade-plugin</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_listing_needed_plugins">Listing needed plugins</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_maven_shade_plugin_extensions">maven-shade-plugin extensions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_containerdependenciestransformer">ContainerDependenciesTransformer</a>
+  </li>
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_plugintransformer">PluginTransformer</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_component_scanning_rules_and_default_exclusions">Component scanning rules and default exclusions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_jars_scanning">Jars Scanning</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_package_scanning">Package Scanning</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Build tools</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_maven_plugin">Maven Plugin</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_dependencies_2">Dependencies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_validate">Validate</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_documentation">Documentation</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_rendering_your_documentation">Rendering your documentation</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_html_rendering">HTML rendering</a>
+  </li>
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_pdf_rendering">PDF rendering</a>
+  </li>
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_including_the_documentation_into_a_document">Including the documentation into a document</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_testing_a_component_web_rendering">Testing a component web rendering</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_generating_inputs_or_outputs">Generating inputs or outputs</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_talend_component_archive">Talend Component Archive</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="documentation.html#_gradle_plugin">Gradle Plugin</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Services</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_internationalizing_services">Internationalizing services</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_internationalization_api">Internationalization API</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_providing_actions_for_consumers">Providing actions for consumers</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_particular_action_types">Particular action types</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_internationalization">Internationalization</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_built_in_services">Built-in services</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#httpclient_usage">Using HttpClient</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_customizing_http_client_requests">Customizing HTTP client requests</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="documentation.html#_services_and_interceptors">Services and interceptors</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_creating_a_job_pipeline">Creating a job pipeline</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_job_builder">Job Builder</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_environmentrunner">Environment/Runner</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_key_provider">Key Provider</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_beam_case">Beam case</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_inputs_and_outputs">Inputs and Outputs</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_processors">Processors</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_converting_a_beam_io_into_a_component_io">Converting a Beam.io into a component I/O</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_advanced_defining_a_custom_api">Advanced: defining a custom API</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_extending_the_ui">Extending the UI</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Testing</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_testing_best_practices">Testing best practices</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_parameterized_tests">Parameterized tests</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_junit_4">JUnit 4</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_junit_5">JUnit 5</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_component_runtime_testing">component-runtime-testing</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_component_runtime_junit">component-runtime-junit</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_junit_4_2">JUnit 4</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_junit_5_2">JUnit 5</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_mocking_the_output">Mocking the output</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_mocking_the_input">Mocking the input</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_creating_runtime_configuration_from_component_configuration">Creating runtime configuration from component configuration</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_testing_a_mapper">Testing a Mapper</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_testing_a_processor">Testing a Processor</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_component_runtime_testing_spark">component-runtime-testing-spark</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_junit_4_3">JUnit 4</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_junit_5_3">JUnit 5</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_checking_the_job_execution_status">Checking the job execution status</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#component-runtime-http-junit">component-runtime-http-junit</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_junit_4_4">JUnit 4</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_ssl">SSL</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_junit_5_4">JUnit 5</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="4">
+    <a class="nav-link" href="documentation.html#_ssl_2">SSL</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_capturing_mode">Capturing mode</a>
+  </li>
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_passthrough_mode">Passthrough mode</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="documentation.html#_beam_testing">Beam testing</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_testing_on_multiple_environments">Testing on multiple environments</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_junit_4_5">JUnit 4</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_junit_5_5">JUnit 5</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="documentation.html#_provided_environments">Provided environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <button class="nav-toggle"></button>
+    <a class="nav-link" href="documentation.html#_configuring_environments">Configuring environments</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="3">
+    <a class="nav-link" href="documentation.html#_advanced_usage">Advanced usage</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="documentation.html#_secretspasswords_and_maven">Secrets/Passwords and Maven</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="documentation.html#_generating_data">Generating data</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Tutorials</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-generate-project-using-starter.html">Generate a component</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-create-an-input-component.html">Create an input component</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-create-an-output-component.html">Create an output component</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-test-your-components.html">Test your components</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-configuration-sensitive-data.html">Configuration and sensitive data</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-create-components-rest-api.html">Create components for REST API</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-test-rest-api.html">How to test a REST API</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-dev-vs-ci-setup.html">Dev vs CI setup</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="tutorial-talend-intellij-plugin-usage.html">Talend Intellij plugin</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Web</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="documentation-rest.html">Server</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="server-uispec.html">UiSpec Server</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="navigation-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Talend Component Kit Developer Reference Guide</span>
+    <span class="version">1.0.4</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <span class="title">Talend Component Kit Developer Reference Guide</span>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">1.0.4</a>
+        </li>
+        <li class="version">
+          <a href="../1.0.3/index.html">1.0.3</a>
+        </li>
+        <li class="version">
+          <a href="../1.0.2/index.html">1.0.2</a>
+        </li>
+        <li class="version">
+          <a href="../1.0.1/index.html">1.0.1</a>
+        </li>
+        <li class="version">
+          <a href="../1.0.0/index.html">1.0.0</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.12/index.html">0.0.12</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.11/index.html">0.0.11</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.10/index.html">0.0.10</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.9/index.html">0.0.9</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.8/index.html">0.0.8</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.7/index.html">0.0.7</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.6/index.html">0.0.6</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.5/index.html">0.0.5</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.4/index.html">0.0.4</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.3/index.html">0.0.3</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.2/index.html">0.0.2</a>
+        </li>
+        <li class="version">
+          <a href="../0.0.1/index.html">0.0.1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+  <main class="main" role="main">
+<div class="toolbar" role="navigation">
+    <button class="navigation-toggle"></button>
+    <nav class="crumbs" role="navigation" aria-label="breadcrumbs">
+  <ul>
+    <li class="crumb"><a href="index.html">Talend Component Kit Developer Reference Guide</a></li>
+    <li class="crumb"><a href="documentation-definition.html">Talend Components Definitions Documentation</a></li>
+  </ul>
+</nav>
+    <div class="page-versions">
+  <button class="versions-menu-toggle" title="Show other versions of page">1.0.4</button>
+  <div class="versions-menu">
+    <a class="version is-current" href="documentation-definition.html">1.0.4</a>
+    <a class="version" href="../1.0.3/documentation-definition.html">1.0.3</a>
+    <a class="version" href="../1.0.2/documentation-definition.html">1.0.2</a>
+    <a class="version" href="../1.0.1/documentation-definition.html">1.0.1</a>
+    <a class="version" href="../1.0.0/documentation-definition.html">1.0.0</a>
+    <a class="version" href="../0.0.12/documentation-definition.html">0.0.12</a>
+    <a class="version" href="../0.0.11/documentation-definition.html">0.0.11</a>
+    <a class="version" href="../0.0.10/documentation-definition.html">0.0.10</a>
+    <a class="version" href="../0.0.9/documentation-definition.html">0.0.9</a>
+    <a class="version" href="../0.0.8/documentation-definition.html">0.0.8</a>
+    <a class="version" href="../0.0.7/documentation-definition.html">0.0.7</a>
+    <a class="version" href="../0.0.6/documentation-definition.html">0.0.6</a>
+    <a class="version" href="../0.0.5/documentation-definition.html">0.0.5</a>
+    <a class="version" href="../0.0.4/documentation-definition.html">0.0.4</a>
+    <a class="version" href="../0.0.3/documentation-definition.html">0.0.3</a>
+    <a class="version" href="../0.0.2/documentation-definition.html">0.0.2</a>
+    <a class="version" href="../0.0.1/documentation-definition.html">0.0.1</a>
+  </div>
+</div>
+</div>
+<article class="doc">
+        <h1>Talend Components Definitions Documentation</h1>
+        <div class="sect1">
+<h2 id="_component_definition"><a class="anchor" href="#_component_definition"></a>1. Component definition</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Talend Component Kit framework relies on several primitive components.</p>
+</div>
+<div class="paragraph">
+<p>All components can use <code>@PostConstruct</code> and <code>@PreDestroy</code> annotations to initialize or release some underlying resource at the beginning and the end of a processing.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+In distributed environments, class constructor are called on cluster manager node. Methods annotated with <code>@PostConstruct</code> and <code>@PreDestroy</code> are called on worker nodes. Thus, partition plan computation and pipeline tasks are performed on different nodes.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="_images/deployment-diagram.png" alt="deployment diagram"></span></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The created task is a JAR file containing class information, which describes the pipeline (flow) that should be processed in cluster.</p>
+</li>
+<li>
+<p>During the partition plan computation step, the pipeline is analyzed and split into stages. The cluster manager node instantiates mappers/processors, gets estimated data size using mappers, and splits created mappers according to the estimated data size.<br>
+All instances are then serialized and sent to the worker node.</p>
+</li>
+<li>
+<p>Serialized instances are received and deserialized. Methods annotated with <code>@PostConstruct</code> are called. After that, pipeline execution starts. The @BeforeGroup annotated method of the processor is called before processing the first element in chunk.<br>
+After processing the number of records estimated as chunk size, the <code>@AfterGroup</code> annotated method of the processor is called. Chunk size is calculated depending on the environment the pipeline is processed by. Once the pipeline is processed, methods annotated with <code>@PreDestroy</code> are called.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+All the methods managed by the framework must be public. Private methods are ignored.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="_images/driver-processing-workflow.png" alt="driver processing workflow"></span></p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="_images/worker-processing-workflow.png" alt="worker processing workflow"></span></p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The framework is designed to be as declarative as possible but also to stay extensible by not using fixed interfaces or method signatures. This allows to incrementally add new features of the underlying implementations.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="partition-mapper"><a class="anchor" href="#partition-mapper"></a>1.1. PartitionMapper</h3>
+<div class="paragraph">
+<p>A <code>PartitionMapper</code> is a component able to split itself to make the execution more efficient.</p>
+</div>
+<div class="paragraph">
+<p>This concept is borrowed from big data and useful in this context only (<code>BEAM</code> executions).
+The idea is to divide the work before executing it in order to reduce the overall execution time.</p>
+</div>
+<div class="paragraph">
+<p>The process is the following:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The size of the data you work on is estimated. This part can be heuristic and not very precise.</p>
+</li>
+<li>
+<p>From that size, the execution engine (<em>runner</em> for Beam) requests the mapper to split <em>itself</em> in <em>N</em> mappers with a subset of the overall work.</p>
+</li>
+<li>
+<p>The <em>leaf</em> (final) mapper is used as a <code>Producer</code> (actual reader) factory.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This kind of component must be <code>Serializable</code> to be distributable.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_definition"><a class="anchor" href="#_definition"></a>1.1.1. Definition</h4>
+<div class="paragraph">
+<p>A partition mapper requires three methods marked with specific annotations:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>@Assessor</code> for the evaluating method</p>
+</li>
+<li>
+<p><code>@Split</code> for the dividing method</p>
+</li>
+<li>
+<p><code>@Emitter</code> for the <code>Producer</code> factory</p>
+</li>
+</ol>
+</div>
+<div class="sect4">
+<h5 id="_assessor"><a class="anchor" href="#_assessor"></a>@Assessor</h5>
+<div class="paragraph">
+<p>The Assessor method returns the estimated size of the data related to the component (depending its configuration).
+It must return a <code>Number</code> and must not take any parameter.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock initial-block-closed">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Assessor
+public long estimateDataSetByteSize() {
+    return ....;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_split"><a class="anchor" href="#_split"></a>@Split</h5>
+<div class="paragraph">
+<p>The Split method returns a collection of partition mappers and can take optionally a <code>@PartitionSize</code> long value as parameter, which is the requested size of the dataset per sub partition mapper.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Split
+public List&lt;MyMapper&gt; split(@PartitionSize final long desiredSize) {
+    return ....;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_emitter"><a class="anchor" href="#_emitter"></a>@Emitter</h5>
+<div class="paragraph">
+<p>The Emitter method must not have any parameter and must return a producer. It uses the partition mapper configuration to instantiate and configure the producer.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Emitter
+public MyProducer create() {
+    return ....;
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_producer"><a class="anchor" href="#_producer"></a>1.2. Producer</h3>
+<div class="paragraph">
+<p>A <code>Producer</code> is a component interacting with a physical source. It produces input data for the processing flow.</p>
+</div>
+<div class="paragraph">
+<p>A producer is a simple component that must have a <code>@Producer</code> method without any parameter. It can return any data:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Producer
+public MyData produces() {
+    return ...;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_processor"><a class="anchor" href="#_processor"></a>1.3. Processor</h3>
+<div class="paragraph">
+<p>A <code>Processor</code> is a component that converts incoming data to a different model.</p>
+</div>
+<div class="paragraph">
+<p>A processor must have a method decorated with <code>@ElementListener</code> taking an incoming data and returning the processed data:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ElementListener
+public MyNewData map(final MyData data) {
+    return ...;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Processors must be <strong>Serializable</strong> because they are distributed components.</p>
+</div>
+<div class="paragraph">
+<p>If you just need to access data on a map-based ruleset, you can use <code>JsonObject</code> as parameter type.<br>
+From there, Talend Component Kit wraps the data to allow you to access it as a map. The parameter type is not enforced.<br>
+This means that if you know you will get a <code>SuperCustomDto</code>, then you can use it as parameter type. But for generic components that are reusable in any chain, it is highly encouraged to use <code>JsonObject</code> until you have an evaluation language-based processor that has its own way to access components.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ElementListener
+public MyNewData map(final JsonObject incomingData) {
+    String name = incomingData.getString("name");
+    int name = incomingData.getInt("age");
+    return ...;
+}
+
+// equivalent to (using POJO subclassing)
+
+public class Person {
+    private String age;
+    private int age;
+
+    // getters/setters
+}
+
+@ElementListener
+public MyNewData map(final Person person) {
+    String name = person.getName();
+    int age = person.getAge();
+    return ...;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A processor also supports <code>@BeforeGroup</code> and <code>@AfterGroup</code> methods, which must not have any parameter and return <code>void</code> values. Any other result would be ignored.
+These methods are used by the runtime to mark a chunk of the data in a way which is estimated <em>good</em> for the execution flow size.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Because the size is estimated, the size of a <em>group</em> can vary. It is even possible to have groups of size <code>1</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>It is recommended to batch records, for performance reasons:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@BeforeGroup
+public void initBatch() {
+    // ...
+}
+
+@AfterGroup
+public void endBatch() {
+    // ...
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+It is a good practice to support a <code>maxBatchSize</code> here and to commit before the end of the group, in case of a computed size that is way too big for your backend to handle.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_multiple_outputs"><a class="anchor" href="#_multiple_outputs"></a>1.4. Multiple outputs</h3>
+<div class="paragraph">
+<p>In some cases, you may need to split the output of a processor in two. A common example is to have "main" and "reject" branches where part of the incoming data are passed to a specific bucket to be processed later.</p>
+</div>
+<div class="paragraph">
+<p>To do that, you can use <code>@Output</code> as replacement of the returned value:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ElementListener
+public void map(final MyData data, @Output final OutputEmitter&lt;MyNewData&gt; output) {
+    output.emit(createNewData(data));
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Alternatively, you can pass a string that represents the new branch:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ElementListener
+public void map(final MyData data,
+                @Output final OutputEmitter&lt;MyNewData&gt; main,
+                @Output("rejected") final OutputEmitter&lt;MyNewDataWithError&gt; rejected) {
+    if (isRejected(data)) {
+        rejected.emit(createNewData(data));
+    } else {
+        main.emit(createNewData(data));
+    }
+}
+
+// or
+
+@ElementListener
+public MyNewData map(final MyData data,
+                    @Output("rejected") final OutputEmitter&lt;MyNewDataWithError&gt; rejected) {
+    if (isSuspicious(data)) {
+        rejected.emit(createNewData(data));
+        return createNewData(data); // in this case the processing continues but notifies another channel
+    }
+    return createNewData(data);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_multiple_inputs"><a class="anchor" href="#_multiple_inputs"></a>1.5. Multiple inputs</h3>
+<div class="paragraph">
+<p>Having multiple inputs is similar to having multiple outputs, except that an <code>OutputEmitter</code> wrapper is not needed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ElementListener
+public MyNewData map(@Input final MyData data, @Input("input2") final MyData2 data2) {
+    return createNewData(data1, data2);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>@Input</code> takes the input name as parameter. If no name is set, it defaults to the "main (default)" input branch. It is recommended to use the default branch when possible and to avoid naming branches according to the component semantic.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_output"><a class="anchor" href="#_output"></a>1.6. Output</h3>
+<div class="paragraph">
+<p>An <code>Output</code> is a <code>Processor</code> that does not return any data.</p>
+</div>
+<div class="paragraph">
+<p>Conceptually, an output is a data listener. It matches the concept of processor. Being the last component of the execution chain or returning no data makes your processor an output component:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ElementListener
+public void store(final MyData data) {
+    // ...
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_combiners"><a class="anchor" href="#_combiners"></a>1.7. Combiners</h3>
+<div class="paragraph">
+<p>Currently, Talend Component Kit does not allow you to define a <code>Combiner</code>.
+A combiner is the symmetric part of a partition mapper and allows to aggregate results in a single partition.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_family_and_component_icons"><a class="anchor" href="#_family_and_component_icons"></a>1.8. Family and component icons</h3>
+<div class="paragraph">
+<p>Every component family and component needs to have a representative icon.<br>
+You can use one of the icons provided by the framework or you can use a custom icon.</p>
+</div>
+<div class="paragraph">
+<p>For the component family the icon is defined in the <code>package-info.java</code> file. For the component itself, you need to declare it in the component class.</p>
+</div>
+<div class="paragraph">
+<p>To use a custom icon, you need to have the icon file placed in the <code>resources/icons</code> folder of the project.
+The icon file needs to have a name following the convention <code>IconName_icon32.png</code>, where you can replace <code>IconName</code> by the name of your choice.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Icon(value = Icon.IconType.CUSTOM, custom = "IconName")</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuring_components"><a class="anchor" href="#_configuring_components"></a>2. Configuring components</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Components are configured using their constructor parameters. They can all be marked with the <code>@Option</code> property, which lets you give a name to parameters.</p>
+</div>
+<div class="paragraph">
+<p>For the name to be correct, you must follow these guidelines:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use a valid Java name.</p>
+</li>
+<li>
+<p>Do not include any <code>.</code> character in it.</p>
+</li>
+<li>
+<p>Do not start the name with a <code>$</code>.</p>
+</li>
+<li>
+<p>Defining a name is optional. If you don&#8217;t set a specific name, it defaults to the bytecode name, which can require you to compile with a <code>-parameter</code> flag to not end up with names such as <code>arg0</code>, <code>arg1</code>, and so on.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Parameter types can be <em>primitives</em> or complex objects with fields decorated with <code>@Option</code> exactly like method parameters.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+It is recommended to use simple models which can be serialized in order to ease serialized component implementations.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">class FileFormat implements Serializable {
+    @Option("type")
+    private FileType type = FileType.CSV;
+
+    @Option("max-records")
+    private int maxRecords = 1024;
+}
+
+@PartitionMapper(family = "demo", name = "file-reader")
+public MyFileReader(@Option("file-path") final File file,
+                    @Option("file-format") final FileFormat format) {
+    // ...
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Using this kind of API makes the configuration extensible and component-oriented, which allows you to define all you need.</p>
+</div>
+<div class="paragraph">
+<p>The instantiation of the parameters is done from the properties passed to the component.</p>
+</div>
+<div class="paragraph">
+<p>Examples of option names:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option name</th>
+<th class="tableblock halign-center valign-top">Valid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">myName</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><span class="icon green"><i class="fa fa-check"></i></span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">my_name</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><span class="icon green"><i class="fa fa-check"></i></span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">my.name</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><span class="icon mediumvioletred"><i class="fa fa-times"></i></span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">$myName</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><span class="icon mediumvioletred"><i class="fa fa-times"></i></span></p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_primitives"><a class="anchor" href="#_primitives"></a>2.1. Primitives</h3>
+<div class="paragraph">
+<p>A primitive is a class which can be directly converted from a <code>String</code> to the expected type.</p>
+</div>
+<div class="paragraph">
+<p>It includes all Java primitives, like the <code>String</code> type itself, but also all types with a <code>org.apache.xbean.propertyeditor.Converter</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>BigDecimal</code></p>
+</li>
+<li>
+<p><code>BigInteger</code></p>
+</li>
+<li>
+<p><code>File</code></p>
+</li>
+<li>
+<p><code>InetAddress</code></p>
+</li>
+<li>
+<p><code>ObjectName</code></p>
+</li>
+<li>
+<p><code>URI</code></p>
+</li>
+<li>
+<p><code>URL</code></p>
+</li>
+<li>
+<p><code>Pattern</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_complex_object_mapping"><a class="anchor" href="#_complex_object_mapping"></a>2.2. Complex object mapping</h3>
+<div class="paragraph">
+<p>The conversion from property to object uses the Dot notation.</p>
+</div>
+<div class="paragraph">
+<p>For example, assuming the method parameter was configured with <code>@Option("file")</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">file.path = /home/user/input.csv
+file.format = CSV</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>matches</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FileOptions {
+    @Option("path")
+    private File path;
+
+    @Option("format")
+    private Format format;
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_list_case"><a class="anchor" href="#_list_case"></a>2.2.1. List case</h4>
+<div class="paragraph">
+<p>Lists rely on an indexed syntax to define their elements.</p>
+</div>
+<div class="paragraph">
+<p>For example, assuming that the list parameter is named <code>files</code> and that the elements are of the  <code>FileOptions</code> type, you can define a list of two elements as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">files[0].path = /home/user/input1.csv
+files[0].format = CSV
+files[1].path = /home/user/input2.xml
+files[1].format = EXCEL</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_map_case"><a class="anchor" href="#_map_case"></a>2.2.2. Map case</h4>
+<div class="paragraph">
+<p>Similarly to the list case, the map uses <code>.key[index]</code> and <code>.value[index]</code> to represent its keys and values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">// Map&lt;String, FileOptions&gt;
+files.key[0] = first-file
+files.value[0].path = /home/user/input1.csv
+files.value[0].type = CSV
+files.key[1] = second-file
+files.value[1].path = /home/user/input2.xml
+files.value[1].type = EXCEL</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">// Map&lt;FileOptions, String&gt;
+files.key[0].path = /home/user/input1.csv
+files.key[0].type = CSV
+files.value[0] = first-file
+files.key[1].path = /home/user/input2.xml
+files.key[1].type = EXCEL
+files.value[1] = second-file</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Avoid using the Map type. For example, if you can configure your component with an object instead.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_defining_constraints_and_validations_on_the_configuration"><a class="anchor" href="#_defining_constraints_and_validations_on_the_configuration"></a>2.3. Defining Constraints and validations on the configuration</h3>
+<div class="paragraph">
+<p>You can use metadata to specify that a field is required or has a minimum size, and so on. This is done using the <code>validation</code> metadata in the <code>org.talend.sdk.component.api.configuration.constraint</code> package:</p>
+</div>
+<table class="tableblock frame-all grid-all table-striped table-hover table-ordered">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">API</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Parameter Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Supported Types</th>
+<th class="tableblock halign-left valign-top">Metadata sample</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Max</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">maxLength</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">double</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure the decorated option size is validated with a higher bound.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CharSequence</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::maxLength":"12.34"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">minLength</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">double</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure the decorated option size is validated with a lower bound.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CharSequence</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::minLength":"12.34"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Pattern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pattern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validate the decorated string with a <strong>javascript</strong> pattern (even into the Studio).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CharSequence</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::pattern":"test"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Max</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">max</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">double</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure the decorated option size is validated with a higher bound.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number, int, short, byte, long, double, float</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::max":"12.34"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">double</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure the decorated option size is validated with a lower bound.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number, int, short, byte, long, double, float</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::min":"12.34"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Required</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">required</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mark the field as being mandatory.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Object</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::required":"true"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Max</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">maxItems</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">double</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure the decorated option size is validated with a higher bound.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Collection</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::maxItems":"12.34"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">minItems</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">double</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure the decorated option size is validated with a lower bound.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Collection</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::minItems":"12.34"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@org.talend.sdk.component.api.configuration.constraint.Uniques</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">uniqueItems</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure the elements of the collection must be distinct (kind of set).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Collection</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::uniqueItems":"true"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+When using the programmatic API, metadata is prefixed by <code>tcomp::</code>. This prefix is stripped in the web for convenience, and the table above uses the web keys.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Also note that these validations are executed before the runtime is started
+(when loading the component instance) and that the execution will fail if they don&#8217;t pass.
+If somehow it breaks your application you can disable that validation on the JVM by setting the system property <code>talend.component.configuration.validation.skip</code> to <code>true</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_marking_a_configuration_as_a_particular_type_of_data"><a class="anchor" href="#_marking_a_configuration_as_a_particular_type_of_data"></a>2.4. Marking a configuration as a particular type of data</h3>
+<div class="paragraph">
+<p>It is common to classify the incoming data. It is similar to tagging data with several types. Data can commonly be categorized as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Datastore: The data you need to connect to the backend.</p>
+</li>
+<li>
+<p>Dataset: A datastore coupled with the data you need to execute an action.</p>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-all grid-all table-striped table-hover table-ordered">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">API</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Metadata sample</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">o.t.s.c.api.configuration.type.DataSet</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">dataset</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mark a model (complex object) as being a dataset.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "tcomp::configurationtype::type":"dataset",
+  "tcomp::configurationtype::name":"test"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">o.t.s.c.api.configuration.type.DataStore</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">datastore</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mark a model (complex object) as being a datastore (connection to a backend).</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "tcomp::configurationtype::type":"datastore",
+  "tcomp::configurationtype::name":"test"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The component family associated with a configuration type (datastore/dataset) is always the one related to the component using that configuration.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Those configuration types can be composed to provide one configuration item. For example, a dataset type often needs a datastore type to be provided. A datastore type (that provides the connection information) is used to create a dataset type.</p>
+</div>
+<div class="paragraph">
+<p>Those configuration types are also used at design time to create shared configurations that can be stored and used at runtime.</p>
+</div>
+<div class="paragraph">
+<p>For example, in the case of a relational database that supports JDBC:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A datastore can be made of:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>a JDBC URL</p>
+</li>
+<li>
+<p>a username</p>
+</li>
+<li>
+<p>a password.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>A dataset can be made of:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>a datastore (that provides the data required to connect to the database)</p>
+</li>
+<li>
+<p>a table name</p>
+</li>
+<li>
+<p>data.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The component server scans all configuration types and returns a configuration type index. This index can be used for the integration into the targeted platforms (Studio, web applications, and so on).</p>
+</div>
+<div class="paragraph">
+<p>The configuration type index is represented as a flat tree that contains all the configuration types, which themselves are represented as nodes and indexed by ID.</p>
+</div>
+<div class="paragraph">
+<p>Every node can point to other nodes. This relation is represented as an array of edges that provides the child IDs.</p>
+</div>
+<div class="paragraph">
+<p>As an illustration, a configuration type index for the example above can be defined as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{nodes: {
+             "idForDstore": { datastore:"datastore data", edges:[id:"idForDset"] },
+             "idForDset":   { dataset:"dataset data" }
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_defining_links_between_properties"><a class="anchor" href="#_defining_links_between_properties"></a>2.5. Defining links between properties</h3>
+<div class="paragraph">
+<p>If you need to define a binding between properties, you can use a set of annotations:</p>
+</div>
+<table class="tableblock frame-all grid-all table-striped table-hover table-ordered">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">API</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Metadata Sample</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.condition.ActiveIf</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">if</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If the evaluation of the element at the location matches value then the element is considered active, otherwise it is deactivated.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "condition::if::target":"test",
+  "condition::if::evaluationStrategy":"DEFAULT",
+  "condition::if::value":"value1,value2",
+  "condition::if::negate":"false"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.condition.ActiveIfs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ifs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows to set multiple visibility conditions on the same property.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "condition::if::value::0":"value1,value2",
+  "condition::if::value::1":"SELECTED",
+  "condition::if::target::0":"sibling1",
+  "condition::if::target::1":"../../other",
+  "condition::if::negate::1":"true",
+  "condition::if::negate::0":"false",
+  "condition::if::evaluationStrategy::0":"DEFAULT",
+  "condition::if::evaluationStrategy::1":"LENGTH"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The target element location is specified as a relative path to the current location, using Unix path characters.
+The configuration class delimiter is <code>/</code>.<br>
+The parent configuration class is specified by <code>..</code>.<br>
+Thus, <code>../targetProperty</code> denotes a property, which is located in the parent configuration class and is named <code>targetProperty</code>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+When using the programmatic API, metadata is prefixed with <code>tcomp::</code>. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="documentation-ui-hints"><a class="anchor" href="#documentation-ui-hints"></a>2.6. Adding hints about the rendering based on configuration/component knowledge</h3>
+<div class="paragraph">
+<p>In some cases, you may need to add metadata about the configuration to let the UI render that configuration properly.<br>
+For example, a password value that must be hidden and not a simple clear input box. For these cases - if you want to change the UI rendering - you can use a particular set of annotations:</p>
+</div>
+<table class="tableblock frame-all grid-all table-striped table-hover table-ordered">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">API</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Generated property metadata</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.DefaultValue</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provide a default value the UI can use - only for primitive fields.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::defaultvalue::value":"test"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.OptionsOrder</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows to sort a class properties.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::optionsorder::value":"value1,value2"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.layout.AutoLayout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Request the rendered to do what it thinks is best.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::autolayout":"true"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.layout.GridLayout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Advanced layout to place properties by row, this is exclusive with <code>@OptionsOrder</code>.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::gridlayout::value1::value":"first|second,third",
+  "ui::gridlayout::value2::value":"first|second,third"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.layout.GridLayouts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allow to configure multiple grid layouts on the same class, qualified with a classifier (name)</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::gridlayout::Advanced::value":"another",
+  "ui::gridlayout::Main::value":"first|second,third"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.layout.HorizontalLayout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Put on a configuration class it notifies the UI an horizontal layout is preferred.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::horizontallayout":"true"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.layout.VerticalLayout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Put on a configuration class it notifies the UI a vertical layout is preferred.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::verticallayout":"true"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.widget.Code</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mark a field as being represented by some code widget (vs textarea for instance).</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::code::value":"test"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.widget.Credential</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mark a field as being a credential. It is typically used to hide the value in the UI.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::credential":"true"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.widget.Structure</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mark a List&lt;String&gt; or Map&lt;String, String&gt; field as being represented as the component data selector (field names generally or field names as key and type as value).</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::structure::discoverSchema":"test",
+  "ui::structure::type":"IN",
+  "ui::structure::value":"test"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@o.t.s.c.api.configuration.ui.widget.TextArea</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mark a field as being represented by a textarea(multiline text input).</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::textarea":"true"
+}</code></pre>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+When using the programmatic API, metadata is prefixed with <code>tcomp::</code>. This prefix is stripped in the web for convenience, and the previous table uses the web keys.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Target support should cover <code>org.talend.core.model.process.EParameterFieldType</code> but you need to ensure that the web renderer is able to handle the same widgets.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_widget_and_validation_gallery"><a class="anchor" href="#_widget_and_validation_gallery"></a>3. Widget and validation gallery</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_widgets"><a class="anchor" href="#_widgets"></a>3.1. Widgets</h3>
+<table class="tableblock frame-all grid-all table gallery">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Input/Text</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+String config;</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/input.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/input.png" alt="Studio Input"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/input.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/input.png" alt="Web Input"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@Credential
+String config;</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/password.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/password.png" alt="Studio Password"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/password.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/password.png" alt="Web Password"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Textarea</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@Textarea
+String config;</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/textarea.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/textarea.png" alt="Studio Textarea"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/textarea.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/textarea.png" alt="Web Textarea"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checkbox</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+Boolean config;</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/checkbox.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/checkbox.png" alt="Studio Checkbox"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/checkbox.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/checkbox.png" alt="Web Checkbox"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@Proposable("valuesProvider")
+String config;
+/** service class */
+@DynamicValues("valuesProvider")
+public Values vendors(){
+    return new Values(asList(new Values.Item("1", "Delete"),
+                      new Values.Item("2", "Insert")
+                      new Values.Item("3", "Update")));
+ }</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/list.png" alt="Studio List"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/list.png" alt="Web List"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+ActionEnum config;
+/** Define enum */
+enum ActionEnum {Delete,
+    Insert,
+    Update}</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/list.png" alt="Studio List"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/list.png" alt="Web List"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Table</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+Object config;</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/table.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/table.png" alt="Studio Table"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/table.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/table.png" alt="Web Table"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Code</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Code("java")
+@Option
+String config;</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/javaCode.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/javaCode.png" alt="Studio Code"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/javaCode.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/javaCode.png" alt="Web Code"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Schema</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@Structure
+List&lt;String&gt; config;</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/schema.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/schema.png" alt="Studio Schema"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/schema.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/schema.png" alt="Web Schema"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_validations"><a class="anchor" href="#_validations"></a>3.2. Validations</h3>
+<table class="tableblock frame-all grid-all table gallery">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property validation</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">/** configuration class */
+@Option
+@Validable("url")
+String config;
+
+/** service class */
+@AsyncValidation("url")
+ValidationResult doValidate(String url) {
+}</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/validation_property.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_property.png" alt="Studio Code"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/validation_property.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_property.png" alt="Web Code"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property validation with Pattern</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">/** configuration class */
+@Option
+@Pattern("/^[a-zA-Z\\-]+$/")
+String username;</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/validation_pattern.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_pattern.png" alt="Studio Code"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/validation_pattern.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_pattern.png" alt="Web Code"></a>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data store validation</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Datastore
+@Checkable
+public class config {
+/** config ...*/
+}
+
+/** service class */
+@HealthCheck
+public HealthCheckStatus testConnection(){
+
+}</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/prop_validation.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_datastore.png" alt="Studio Code"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/prop_validation.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_datastore.png" alt="Web Code"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>You can also use other types of validation that are similar to <code>@Pattern</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>@Min</code>, <code>@Max</code> for numbers.</p>
+</li>
+<li>
+<p><code>@Unique</code> for collection values.</p>
+</li>
+<li>
+<p><code>@Required</code> for a required configuration.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_registering_components"><a class="anchor" href="#_registering_components"></a>4. Registering components</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As you may have read in the <a href="getting-started.html#getting-started-principles" class="page">Getting Started</a>, you need an annotation to register your component through the <code>family</code> method. Multiple components can use the same <code>family</code> value but the <code>family</code> + <code>name</code> pair must be unique for the system.</p>
+</div>
+<div class="paragraph">
+<p>In order to share the same component family name and to avoid repetitions in all <code>family</code> methods,
+you can use the <code>@Components</code> annotation on the root package of your component. It allows you to define the component family and the categories the component belongs to (<code>Misc</code> by default if not set).</p>
+</div>
+<div class="paragraph">
+<p>Here is a sample <code>package-info.java</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Components(name = "my_component_family", categories = "My Category")
+package org.talend.sdk.component.sample;
+
+import org.talend.sdk.component.api.component.Components;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Another example with an existing component:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Components(name = "Salesforce", categories = {"Business", "Cloud"})
+package org.talend.sdk.component.sample;
+
+import org.talend.sdk.component.api.component.Components;</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_components_metadata"><a class="anchor" href="#_components_metadata"></a>4.1. Components metadata</h3>
+<div class="paragraph">
+<p>Components can require metadata to be integrated in Talend Studio or Cloud platforms.
+Metadata is set on the component class and belongs to the <code>org.talend.sdk.component.api.component</code> package.</p>
+</div>
+<table class="tableblock frame-all grid-all">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">API</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@Icon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets an icon key used to represent the component. You can use a custom key with the <code>custom()</code> method but the icon may not be rendered properly.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">@Version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the component version. 1 by default.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Icon(FILE_XML_O)
+@PartitionMapper(name = "jaxbInput")
+public class JaxbPartitionMapper implements Serializable {
+    // ...
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_managing_version_configuration"><a class="anchor" href="#_managing_version_configuration"></a>4.1.1. Managing version configuration</h4>
+<div class="paragraph">
+<p>If some changes impact the configuration, they can be managed through a migration handler at the <strong>component</strong> level (enabling trans-model migration support).</p>
+</div>
+<div class="paragraph">
+<p>The <code>@Version</code> annotation supports a <code>migrationHandler</code> method which migrates the incoming configuration to the current model.</p>
+</div>
+<div class="paragraph">
+<p>For example, if the <code>filepath</code> configuration entry from v1 changed to <code>location</code> in v2, you can remap the value in your <code>MigrationHandler</code> implementation.</p>
+</div>
+<div class="paragraph">
+<p>A best practice is to split migrations into services that you can inject in the migration handler (through constructor) rather than managing all migrations directly in the handler. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// full component code structure skipped for brievity, kept only migration part
+@Version(value = 3, migrationHandler = MyComponent.Migrations.class)
+public class MyComponent {
+    // the component code...
+
+
+    private interface VersionConfigurationHandler {
+        Map&lt;String, String&gt; migrate(Map&lt;String, String&gt; incomingData);
+    }
+
+    public static class Migrations {
+        private final List&lt;VersionConfigurationHandler&gt; handlers;
+
+        // VersionConfigurationHandler implementations are decorated with @Service
+        public Migrations(final List&lt;VersionConfigurationHandler&gt; migrations) {
+            this.handlers = migrations;
+            this.handlers.sort(/*some custom logic*/);
+        }
+
+        @Override
+        public Map&lt;String, String&gt; migrate(int incomingVersion, Map&lt;String, String&gt; incomingData) {
+            Map&lt;String, String&gt; out = incomingData;
+            for (MigrationHandler handler : handlers) {
+                out = handler.migrate(out);
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What is important to notice in this snippet is not the way the code is organized, but rather the fact that you can organize your migrations the way that best fits your component.</p>
+</div>
+<div class="paragraph">
+<p>If you need to apply migrations in a specific order, make sure that they are sorted.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Consider this API as a migration callback rather than a migration API.<br>
+Adjust the migration code structure you need behind the <code>MigrationHandler</code>, based on your component requirements, using service injection.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_partitionmapper"><a class="anchor" href="#_partitionmapper"></a>4.1.2. @PartitionMapper</h4>
+<div class="paragraph">
+<p><code>@PartitionMapper</code> marks a partition mapper:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@PartitionMapper(family = "demo", name = "my_mapper")
+public class MyMapper {
+}</code></pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_emitter_2"><a class="anchor" href="#_emitter_2"></a>@Emitter</h5>
+<div class="paragraph">
+<p><code>@Emitter</code> is a shortcut for <code>@PartitionMapper</code> when you don&#8217;t support distribution. It enforces an implicit partition mapper execution with an assessor size of 1 and a split returning itself.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Emitter(family = "demo", name = "my_input")
+public class MyInput {
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_processor_2"><a class="anchor" href="#_processor_2"></a>4.1.3. @Processor</h4>
+<div class="paragraph">
+<p>A method decorated with <code>@Processor</code> is considered as a producer factory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Processor(family = "demo", name = "my_processor")
+public class MyProcessor {
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_component_internationalization"><a class="anchor" href="#_component_internationalization"></a>5. Component internationalization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In common cases, you can store messages using a properties file in your component module to use internationalization.</p>
+</div>
+<div class="paragraph">
+<p>Store the properties file in the same package as the related components and name it <code>Messages</code>. For example, <code>org.talend.demo.MyComponent</code> uses <code>org.talend.demo.Messages[locale].properties</code>.</p>
+</div>
+<div class="sect2">
+<h3 id="_default_components_keys"><a class="anchor" href="#_default_components_keys"></a>5.1. Default components keys</h3>
+<div class="paragraph">
+<p>Out of the box components are internationalized using the same location logic for the resource bundle. The supported keys are:</p>
+</div>
+<table class="tableblock frame-all grid-all">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name Pattern</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${family}._displayName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Display name of the family</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${family}.${category}._category</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Display name of the category <code>${category}</code> in the family <code>${family}</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${family}.${configurationType}.${name}._displayName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Display name of a configuration type (dataStore or dataSet)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${family}.${component_name}._displayName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Display name of the component (used by the GUIs)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${property_path}._displayName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Display name of the option.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${simple_class_name}.${property_name}._displayName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Display name of the option using its class name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${enum_simple_class_name}.${enum_name}._displayName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Display name of the <code>enum_name</code> value of the <code>enum_simple_class_name</code> enumeration.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${property_path}._placeholder</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Placeholder of the option.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Example of configuration for a component named <code>list</code> and belonging to the <code>memory</code> family (<code>@Emitter(family = "memory", name = "list")</code>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code>memory.list._displayName = Memory List</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Configuration classes can be translated using the simple class name in the messages properties file.
+This is useful in case of common configurations shared by multiple components.</p>
+</div>
+<div class="paragraph">
+<p>For example, if you have a configuration class as follows :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MyConfig {
+
+    @Option
+    private String host;
+
+    @Option
+    private int port;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can give it a translatable display name by adding <code>${simple_class_name}.${property_name}._displayName</code> to <code>Messages.properties</code> under the same package as the configuration class.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code>MyConfig.host._displayName = Server Host Name
+MyConfig.host._placeholder = Enter Server Host Name...
+
+MyConfig.port._displayName = Server Port
+MyConfig.port._placeholder = Enter Server Port...</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you have a display name using the property path, it overrides the display name defined using the simple class name. This rule also applies to placeholders.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+    </article>
+  </main>
+</div>
+<footer class="footer">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links" style="">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright" style="">&copy; 2018 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+<script src="../../_/js/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script>
+(function (window, document) {
+  hljs.initHighlighting();
+
+  var closedSize = '50px';
+  document.querySelectorAll('.listingblock')
+    .forEach(function (listingblock, index) {
+      var pre = listingblock.querySelector('div.content > pre.highlightjs.highlight');
+      if (!pre) {return;}
+      var code = pre.querySelector('code.hljs');
+      if (!code) {return;}
+
+      var span = document.createElement('span');
+      var initialBlockClosed = listingblock.className.indexOf('initial-block-closed') >= 0;
+      span.className = 'code-' + (initialBlockClosed ? 'collapsed' : 'open') + '-handle code-handle-base';
+
+      var height = code.style.height;
+      if (initialBlockClosed) {code.style.height = closedSize;}
+
+      span.addEventListener('click', function () {
+        if (span.className == 'code-collapsed-handle code-handle-base') {
+          code.style.height = height;
+          span.className = 'code-open-handle code-handle-base';
+        } else {
+          code.style.height = closedSize;
+          span.className = 'code-collapsed-handle code-handle-base';
+        }
+      }, false);
+
+      pre.prepend(span);
+    });
+})(window, document);
+</script>
+  </body>
+</html>

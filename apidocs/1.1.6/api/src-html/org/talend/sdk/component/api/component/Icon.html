@@ -1,0 +1,365 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="fr">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/**<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (C) 2006-2018 Talend Inc. - www.talend.com<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * you may not use this file except in compliance with the License.<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * You may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * See the License for the specific language governing permissions and<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * limitations under the License.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>package org.talend.sdk.component.api.component;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static java.lang.annotation.ElementType.PACKAGE;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static java.lang.annotation.ElementType.TYPE;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static java.lang.annotation.RetentionPolicy.RUNTIME;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.lang.annotation.Retention;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.lang.annotation.Target;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.talend.sdk.component.api.meta.Documentation;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>import lombok.Getter;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import lombok.RequiredArgsConstructor;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>@Documentation("Associate an icon to a component, only supported on `@PartitionMapper`, `@Processor` and `@Emitter` classes.")<a name="line.30"></a>
+<span class="sourceLineNo">031</span>@Target({ TYPE, PACKAGE })<a name="line.31"></a>
+<span class="sourceLineNo">032</span>@Retention(RUNTIME)<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public @interface Icon {<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>    /**<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * @return the icon to associate to the component.<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    IconType value();<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    /**<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * @return the custom icon key (not in {@link IconType}) to use if {@link Icon#value()} is {@link IconType#CUSTOM}.<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     */<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    String custom() default "";<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>    /**<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * See http://talend.surge.sh/icons/<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * generated with<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * {@code var a = document.getElementsByTagName("li");for (i = 0; i &lt; a.length; i++) {var id = a[i].querySelector('svg').id;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * console.log(id.toUpperCase().replace(/-/g, '_') + '("' + id + "\"),");}} and with appending of DEFAULT and CUSTOM.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    @RequiredArgsConstructor<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    enum IconType {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        ACTIVEMQ("activemq"),<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        ACTIVITY("activity"),<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        AGGREGATE("aggregate"),<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        APACHE("apache"),<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        API_DESIGNER_COLORED("api-designer-colored"),<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        API_DESIGNER_NEGATIVE("api-designer-negative"),<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        API_DESIGNER_POSITIVE("api-designer-positive"),<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        API_TESTER_COLORED("api-tester-colored"),<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        API_TESTER_NEGATIVE("api-tester-negative"),<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        API_TESTER_POSITIVE("api-tester-positive"),<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        ARROW_LEFT("arrow-left"),<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        ARROW_RIGHT("arrow-right"),<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        AWS_KINESIS("aws-kinesis"),<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        BADGE("badge"),<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        BADGE_OUTLINE("badge-outline"),<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        BEAM("beam"),<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        BELL("bell"),<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        BELL_NOTIFICATION("bell-notification"),<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        BIGQUERY("bigquery"),<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        BLOCK("block"),<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        BOARD("board"),<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        BUBBLES("bubbles"),<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        BURGER("burger"),<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        CAMPAIGNS("campaigns"),<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        CARET_DOWN("caret-down"),<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        CARRIAGE_RETURN("carriage-return"),<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        CASSANDRA("cassandra"),<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        CHAIN("chain"),<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        CHARACTER("character"),<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        CHARTS("charts"),<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        CHECK("check"),<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        CHECK_CIRCLE("check-circle"),<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        CHECK_PLUS("check-plus"),<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        CHEVRON_END("chevron-end"),<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        CHEVRON_LEFT("chevron-left"),<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        CLOCK("clock"),<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        CLOUD_ENGINE("cloud-engine"),<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        CLOUD_UPGRADE("cloud-upgrade"),<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        CLUSTER("cluster"),<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        COG("cog"),<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        COLUMN_CHOOSER("column-chooser"),<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        COMPONENT_KIT_NEGATIVE("component-kit-negative"),<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        COMPONENT_KIT_POSITIVE("component-kit-positive"),<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        CONNECTIONS("connections"),<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        CONTAINS("contains"),<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        CREDITS_ENGINE("credits-engine"),<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        CROSS("cross"),<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        CROSSHAIRS("crosshairs"),<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        DATAGRID("datagrid"),<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        DATAPREP("dataprep"),<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        DATASETS("datasets"),<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        DATASTORE("datastore"),<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        DATASTREAMS_COLORED("datastreams-colored"),<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        DATASTREAMS_NEGATIVE("datastreams-negative"),<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        DATASTREAMS_POSITIVE("datastreams-positive"),<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        DATA_FABRIC_COLORED("data-fabric-colored"),<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        DATA_MODELS("data-models"),<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        DB_INPUT("db-input"),<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        DOWNLOAD("download"),<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        DRAG("drag"),<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        DRAG_AND_DROP("drag-and-drop"),<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        ELASTIC("elastic"),<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        ELLIPSIS("ellipsis"),<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        EMPTY_CALENDAR("empty-calendar"),<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        EMPTY_CELL("empty-cell"),<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        EMPTY_CHAR("empty-char"),<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        EMPTY_SPACE("empty-space"),<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        ENVIRONMENT("environment"),<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        EQUAL("equal"),<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        EXPANDED("expanded"),<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        EXPORT_HISTORY("export-history"),<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        EYE("eye"),<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        EYE_SLASH("eye-slash"),<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        FIELDGLASS("fieldglass"),<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        FIELD_SELECTOR("field-selector"),<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        FILES_O("files-o"),<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        FILE_COG("file-cog"),<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        FILE_COMPRESSED("file-compressed"),<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        FILE_CONNECT_O("file-connect-o"),<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        FILE_CSV_O("file-csv-o"),<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        FILE_DATABASE_O("file-database-o"),<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        FILE_HDFS_O("file-hdfs-o"),<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        FILE_JOB_O("file-job-o"),<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        FILE_JSON_O("file-json-o"),<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        FILE_MOVE("file-move"),<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        FILE_O("file-o"),<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        FILE_S3_O("file-s3-o"),<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        FILE_SALESFORCE("file-salesforce"),<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        FILE_TXT_O("file-txt-o"),<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        FILE_XLSX_O("file-xlsx-o"),<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        FILE_XLS_O("file-xls-o"),<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        FILE_XML_O("file-xml-o"),<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        FILTER("filter"),<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        FILTER_COLUMN("filter-column"),<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        FILTER_ROW("filter-row"),<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        FLINK("flink"),<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        FLINK_O("flink-o"),<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        FLOW("flow"),<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        FLOW_O("flow-o"),<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        FLOW_SOURCE_O("flow-source-o"),<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        FLOW_STEP_O("flow-step-o"),<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        FLOW_TARGET_O("flow-target-o"),<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        FLOW_UNDER_PLAN("flow-under-plan"),<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        FLOW_UNFINISHED("flow-unfinished"),<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        FOLDER("folder"),<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        FOLDER_CLOSED("folder-closed"),<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        FOLDER_SHARED("folder-shared"),<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        FOLDER_SHARED_OWNER("folder-shared-owner"),<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        FOLDER_SHARED_USER("folder-shared-user"),<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        FULLSCREEN("fullscreen"),<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        GOOGLE_DATAFLOW("google-dataflow"),<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        GROUP_CIRCLE("group-circle"),<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        HADOOP("hadoop"),<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        HAND_POINTER("hand-pointer"),<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        HIERARCHICAL_VIEW("hierarchical-view"),<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        HOME("home"),<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        INFO_CIRCLE("info-circle"),<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        JMS("jms"),<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        KAFKA("kafka"),<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        LAUNCH("launch"),<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        LAUNCHER("launcher"),<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        LESS_THAN("less-than"),<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        LESS_THAN_EQUAL("less-than-equal"),<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        LICENSE("license"),<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        LINK("link"),<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        LOCAL_STORAGE("local-storage"),<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        LOCK("lock"),<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        LOCKED("locked"),<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        LOGO("logo"),<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        LOGO_COLORED("logo-colored"),<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        LOGO_SQUARE("logo-square"),<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        MARKETO("marketo"),<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        MDM_COLORED("mdm-colored"),<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        MDM_NEGATIVE("mdm-negative"),<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        MDM_POSITIVE("mdm-positive"),<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        MINUS_CIRCLE("minus-circle"),<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        MORE_THAN("more-than"),<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        MORE_THAN_EQUAL("more-than-equal"),<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        MOST_TRUSTED("most-trusted"),<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        NETSUITE("netsuite"),<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        NETWORK("network"),<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        NORMALIZE("normalize"),<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        NOTE("note"),<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        NOT_EQUAL("not-equal"),<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        OPENER("opener"),<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        OVERVIEW("overview"),<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        PANEL_OPENER_BOTTOM("panel-opener-bottom"),<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        PANEL_OPENER_RIGHT("panel-opener-right"),<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        PENCIL("pencil"),<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        PHONE("phone"),<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        PIE_CHARTS("pie-charts"),<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        PIN("pin"),<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        PLACEHOLDER("placeholder"),<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        PLAY("play"),<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        PLUS("plus"),<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        PLUS_CIRCLE("plus-circle"),<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        POSTGRESQL("postgresql"),<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        POWER_OFF("power-off"),<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        PROJECTS("projects"),<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        PROMOTION_PIPELINES("promotion-pipelines"),<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        PUBSUB("pubsub"),<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        PYTHON("python"),<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        QUESTION_CIRCLE("question-circle"),<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        QUOTES("quotes"),<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        RAW_DATA("raw-data"),<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        REDO("redo"),<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        REFRESH("refresh"),<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        REMOTE_ENGINE("remote-engine"),<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        REPLICATE("replicate"),<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        ROLES("roles"),<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        SAMPLE("sample"),<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        SCHEDULER("scheduler"),<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        SEARCH("search"),<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        SEMANTIC("semantic"),<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        SEND("send"),<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        SHARE_ALT("share-alt"),<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        SHARING_DEFAULT("sharing-default"),<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        SHARING_OWNER("sharing-owner"),<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        SHARING_USER("sharing-user"),<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        SHIELD("shield"),<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        SHOW_UNASSIGNED_TASKS("show_unassigned_tasks"),<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        SLIDERS("sliders"),<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        SMILEY_ANGRY("smiley-angry"),<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        SMILEY_ENTHUSIAST("smiley-enthusiast"),<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        SMILEY_NEUTRAL("smiley-neutral"),<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        SMILEY_SATISFIED("smiley-satisfied"),<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        SMILEY_SLEEP("smiley-sleep"),<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        SMILEY_UNHAPPY("smiley-unhappy"),<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        SORT_19("sort-19"),<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        SORT_91("sort-91"),<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        SORT_ASC("sort-asc"),<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        SORT_AZ("sort-az"),<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        SORT_DESC("sort-desc"),<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        SORT_ZA("sort-za"),<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        SPARK("spark"),<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        STAR("star"),<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        STOP("stop"),<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        STREAMS("streams"),<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        TABLE("table"),<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        TAGS("tags"),<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        TASKS("tasks"),<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        TDC_COLORED("tdc-colored"),<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        TDC_NEGATIVE("tdc-negative"),<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        TDC_POSITIVE("tdc-positive"),<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        TDP_COLORED("tdp-colored"),<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        TDP_NEGATIVE("tdp-negative"),<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        TDP_POSITIVE("tdp-positive"),<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        TDS_COLORED("tds-colored"),<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        TDS_NEGATIVE("tds-negative"),<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        TDS_POSITIVE("tds-positive"),<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        TIC_COLORED("tic-colored"),<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        TIC_NEGATIVE("tic-negative"),<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        TIC_POSITIVE("tic-positive"),<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        TILES("tiles"),<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        TMC_COLORED("tmc-colored"),<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        TMC_NEGATIVE("tmc-negative"),<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        TMC_POSITIVE("tmc-positive"),<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        TRANSFORMER_WINDOW("transformer-window"),<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        TRASH("trash"),<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        TYPE_CONVERTER("type-converter"),<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        UNDO("undo"),<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        UNION("union"),<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        UNLOCKED("unlocked"),<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        UPLOAD("upload"),<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        USER_CIRCLE("user-circle"),<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        VERSIONING("versioning"),<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        WARNING("warning"),<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        WEBHOOK("webhook"),<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        WINDOW("window"),<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        WORD("word"),<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        WORKSPACES("workspaces"),<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        WORLD("world"),<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        ZOOMIN("zoomin"),<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        ZOOMOUT("zoomout"),<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        CUSTOM("custom"),<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        DEFAULT("default");<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>        @Getter<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        private final String key;<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    }<a name="line.292"></a>
+<span class="sourceLineNo">293</span>}<a name="line.293"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

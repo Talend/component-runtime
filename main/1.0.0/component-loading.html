@@ -1,0 +1,2848 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Component Loading</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.38.0/component-loading.html">
+    <meta name="generator" content="Talend Component Kit Generator">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Component Loading :: Talend Component Kit Developer Reference Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.38.0/component-loading.html">
+    <meta name="generator" content="Antora 2.2.0">
+<meta name="date" content="2021-10-07T12:10:06.165Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+
+
+<script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                  messageStyle: "none",
+                  tex2jax: {
+                    inlineMath: [["\\(", "\\)"]],
+                    displayMath: [["\\[", "\\]"]],
+                    ignoreClass: "nostem|nolatexmath"
+                  },
+                  asciimath2jax: {
+                    delimiters: [["\\$", "\\$"]],
+                    ignoreClass: "nostem|noasciimath"
+                  },
+                  TeX: { equationNumbers: { autoNumber: "none" } }
+                });
+                </script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+    <script>var uiRootPath = '../../_'</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                1.0.0
+              <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version">
+                    <a href="../1.38.0/index.html">1.38.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.0/index.html">1.37.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.0/index.html">1.36.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.0/index.html">1.35.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.0/index.html">1.34.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.1/index.html">1.33.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.0/index.html">1.33.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.1/index.html">1.32.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.0/index.html">1.32.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.1/index.html">1.31.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.0/index.html">1.31.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.30.0/index.html">1.30.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.1/index.html">1.28.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.0/index.html">1.28.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.15/index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="index.html">1.0.0</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Blog <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://talend.github.io/component-runtime/blog/release-notes.html" target="_blank">Release Notes</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.0.0">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Programming Model</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Components Definition</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_partitionmapper">PartitionMapper</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Definition</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_assessor">@Assessor</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_split">@Split</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_emitter">@Emitter</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_producer">Producer</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_processor">Processor</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_multiple_outputs">Multiple outputs</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_multiple_inputs">Multiple inputs</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_output">Output</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_combiners">Combiners?</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_family_components_icons">Family &amp; Components Icons</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Configuring components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_primitives">Primitives</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Complex object mapping</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_list_case">List case</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_map_case">Map case</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_constraints_and_validation_on_the_configuration_input">Constraints and validation on the configuration/input</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_marking_a_configuration_as_a_particular_type_of_data">Marking a configuration as a particular type of data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_define_links_between_properties">Define links between properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#documentation-ui-hints">Add hints about the rendering based on configuration/component knowledge</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Gallery</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_widgets">Widgets</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_validations">Validations</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Registering components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Components metadata</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_management_of_configuration_versions">Management of configuration versions</a>
+  </li>
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>@PartitionMapper</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_emitter_2">@Emitter</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_processor_2">@Processor</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Internationalization</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_default_components_keys">Default components keys</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Package</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Component Loading</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_packaging_a_plugin">Packaging a plugin</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Packaging an application</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Dependencies</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_create_a_nested_maven_repository_with_maven_shade_plugin">Create a nested maven repository with maven-shade-plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_listing_needed_plugins">Listing needed plugins</a>
+  </li>
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>&lt;code&gt;maven-shade-plugin&lt;/code&gt; extensions</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_containerdependenciestransformer">ContainerDependenciesTransformer</a>
+  </li>
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_plugintransformer">PluginTransformer</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Component scanning rules and default exclusions</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_jars_scanning">Jars Scanning</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_package_scanning">Package Scanning</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Build tools</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Maven Plugin</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_dependencies_2">Dependencies</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_validate">Validate</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Documentation</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Render your documentation</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_html">HTML</a>
+  </li>
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_pdf">PDF</a>
+  </li>
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_include_the_documentation_into_a_document">Include the documentation into a document</a>
+  </li>
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_more">More</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_web">Web</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_generate_inputs_or_outputs">Generate inputs or outputs</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_talend_component_archive">Talend Component Archive</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_gradle_plugin">Gradle Plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Services</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Internationalization</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_internationalization_api">Internationalization API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Providing some actions for consumers/clients</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_particular_action_types">Particular action types</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Built in services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>HttpClient usage</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_advanced_http_client_request_customization">Advanced HTTP client request customization</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_services_and_interceptors">Services and interceptors</a>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Creating a job pipeline</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Job Builder</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_environment_runner">Environment/Runner</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_key_provider">Key Provider</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Beam case</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_i_o">I/O</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_processors">Processors</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_convert_a_beam_io_in_a_component_i_o">Convert a Beam.io in a component I/O</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Advanced: define a custom API</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_extending_the_ui">Extending the UI</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Best practises</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Parameterized tests</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_4">JUnit 4</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_5">JUnit 5</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>component-runtime-testing</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>component-runtime-junit</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_4_2">JUnit 4</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_5_2">JUnit 5</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_mocking_the_output">Mocking the output</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_mocking_the_input">Mocking the input</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_creating_runtime_configuration_from_component_configuration">Creating runtime configuration from component configuration</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_testing_a_mapper">Testing a Mapper</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_testing_a_processor">Testing a Processor</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>component-runtime-testing-spark</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_4_3">JUnit 4</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_junit_5_3">JUnit 5</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_how_to_know_the_job_is_done">How to know the job is done</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>component-runtime-http-junit</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>JUnit 4</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_ssl">SSL</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="3">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>JUnit 5</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="4">
+    <a class="menu-link" href="documentation.html#_ssl_2">SSL</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_capturing_mode">Capturing mode</a>
+  </li>
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_passthrough_mode">Passthrough mode</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_beam_testing">Beam testing</a>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Multiple environments for the same tests</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_junit_4_5">JUnit 4</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_junit_5_5">JUnit 5</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation.html#_provided_environments">Provided environments</a>
+  </li>
+  <li data-depth="2">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Configuring environments</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="3">
+    <a class="menu-link" href="documentation.html#_advanced_usage">Advanced usage</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_secrets_passwords_and_maven">Secrets/Passwords and Maven</a>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="documentation.html#_generating_data">Generating data?</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="0">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Web</span></label>
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+    <a class="menu-link" href="documentation-rest.html">Server</a>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="1">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb active"><a href="component-loading.html">Component Loading</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Component Loading</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Talend Component scanning is based on a plugin concept. To ensure plugins can be developped in parallel and avoid conflicts
+it requires to isolate plugins (components or component grouped in a single jar/plugin).</p>
+</div>
+<div class="paragraph">
+<p>Here we have multiple options which are (high level):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>flat classpath: listed for completeness but rejected <em>by design</em> because it doesn&#8217;t match at all this requirement.</p>
+</li>
+<li>
+<p>tree classloading: a shared classloader inherited by plugin classloaders but plugin classloader classes
+are not seen by the shared classloader nor by other plugins.</p>
+</li>
+<li>
+<p>graph classloading: this one allows you to link the plugins and dependencies together dynamically in any direction.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you want to map it to concrete common examples, the tree classloading is commonly used by Servlet containers where plugins are web applications
+and the graph classloading can be illustrated by OSGi containers.</p>
+</div>
+<div class="paragraph">
+<p>In the spirit of avoiding a lot of complexity added by this layer, Talend Component relies on a tree classloading. The advantage
+is you don&#8217;t need to define the relationship with other plugins/dependencies (it is built-in).</p>
+</div>
+<div class="paragraph">
+<p>Here is a representation of this solution:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="_images/classloader-layout.png" alt="classloader layout"></span></p>
+</div>
+<div class="paragraph">
+<p>The interesting part is the <em>shared</em> area will contain Talend Component API which is the only (by default) shared classes accross the whole plugins.</p>
+</div>
+<div class="paragraph">
+<p>Then each plugins will be loaded in their own classloader with their dependencies.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_packaging_a_plugin"><a class="anchor" href="#_packaging_a_plugin"></a>Packaging a plugin</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+this part explains the overall way to handle dependecnies but the Talend Maven plugin provides a shortcut for that.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>A plugin is just a jar which was enriched with the list of its dependencies. By default Talend Component runtime is able to
+read the output of <code>maven-dependency-plugin</code> in <code>TALEND-INF/dependencies.txt</code> location so you just need to ensure your component defines the following plugin:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+  &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.0.2&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;create-TALEND-INF/dependencies.txt&lt;/id&gt;
+      &lt;phase&gt;process-resources&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;list&lt;/goal&gt;
+      &lt;/goals&gt;
+      &lt;configuration&gt;
+        &lt;outputFile&gt;${project.build.outputDirectory}/TALEND-INF/dependencies.txt&lt;/outputFile&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you check your jar once built you will see that the file contains something like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ unzip -p target/mycomponent-1.0.0-SNAPSHOT.jar TALEND-INF/dependencies.txt
+
+The following files have been resolved:
+   org.talend.sdk.component:component-api:jar:1.0.0-SNAPSHOT:provided
+   org.apache.geronimo.specs:geronimo-annotation_1.3_spec:jar:1.0:provided
+   org.superbiz:awesome-project:jar:1.2.3:compile
+   junit:junit:jar:4.12:test
+   org.hamcrest:hamcrest-core:jar:1.3:test</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What is important to see is the scope associated to the artifacts:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the API (<code>component-api</code> and <code>geronimo-annotation_1.3_spec</code>) are <code>provided</code> because you can consider them to be there when executing (it comes with the framework)</p>
+</li>
+<li>
+<p>your specific dependencies (<code>awesome-project</code>) is <code>compile</code>: it will be included as a needed dependency by the framework (note that using <code>runtime</code> works too).</p>
+</li>
+<li>
+<p>the other dependencies will be ignored (<code>test</code> dependencies)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_packaging_an_application"><a class="anchor" href="#_packaging_an_application"></a>Packaging an application</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Even if a flat classpath deployment is possible, it is not recommended because it would then reduce the capabilities of the components.</p>
+</div>
+<div class="sect2">
+<h3 id="_dependencies"><a class="anchor" href="#_dependencies"></a>Dependencies</h3>
+<div class="paragraph">
+<p>The way the framework resolves dependencies is based on a local maven repository layout. As a quick reminder it looks like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code>.
+├── groupId1
+│   └── artifactId1
+│       ├── version1
+│       │   └── artifactId1-version1.jar
+│       └── version2
+│           └── artifactId1-version2.jar
+└── groupId2
+    └── artifactId2
+        └── version1
+            └── artifactId2-version1.jar</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is all the layout the framework will use. Concretely the logic will convert the t-uple {groupId, artifactId, version, type (jar)}
+to the path in the repository.</p>
+</div>
+<div class="paragraph">
+<p>Talend Component runtime has two ways to find an artifact:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>from the file system based on a configure maven 2 repository.</p>
+</li>
+<li>
+<p>from a fatjar (uber jar) with a nested maven repository under <code>MAVEN-INF/repository</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The first option will use either - by default - <code>${user.home}/.m2/repository</code> or a specific path configured when creating a <code>ComponentManager</code>.
+The nested repository option will need some configuration during the packaging to ensure the repository is well created.</p>
+</div>
+<div class="sect3">
+<h4 id="_create_a_nested_maven_repository_with_maven_shade_plugin"><a class="anchor" href="#_create_a_nested_maven_repository_with_maven_shade_plugin"></a>Create a nested maven repository with maven-shade-plugin</h4>
+<div class="paragraph">
+<p>To create the nested <code>MAVEN-INF/repository</code> repository you can use <code>nested-maven-repository</code> extension:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+  &lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.0.0&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;phase&gt;package&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;shade&lt;/goal&gt;
+      &lt;/goals&gt;
+      &lt;configuration&gt;
+        &lt;transformers&gt;
+          &lt;transformer implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer"&gt;
+            &lt;session&gt;${session}&lt;/project&gt;
+          &lt;/transformer&gt;
+        &lt;/transformers&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+      &lt;artifactId&gt;nested-maven-repository&lt;/artifactId&gt;
+      &lt;version&gt;${the.plugin.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_listing_needed_plugins"><a class="anchor" href="#_listing_needed_plugins"></a>Listing needed plugins</h3>
+<div class="paragraph">
+<p>Plugin are programmatically registered in general but if you want to make some of them automatically available you
+need to generate a <code>TALEND-INF/plugins.properties</code> which will map a plugin name to coordinates found with the maven mecanism
+we just talked about.</p>
+</div>
+<div class="paragraph">
+<p>Here again we can enrich <code>maven-shade-plugin</code> to do it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+  &lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.0.0&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;phase&gt;package&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;shade&lt;/goal&gt;
+      &lt;/goals&gt;
+      &lt;configuration&gt;
+        &lt;transformers&gt;
+          &lt;transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer"&gt;
+            &lt;session&gt;${session}&lt;/project&gt;
+          &lt;/transformer&gt;
+        &lt;/transformers&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+      &lt;artifactId&gt;nested-maven-repository&lt;/artifactId&gt;
+      &lt;version&gt;${the.plugin.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_maven_shade_plugin_extensions"><a class="anchor" href="#_maven_shade_plugin_extensions"></a><code>maven-shade-plugin</code> extensions</h3>
+<div class="paragraph">
+<p>Here is a final job/application bundle based on maven shade plugin:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+  &lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.0.0&lt;/version&gt;
+  &lt;configuration&gt;
+    &lt;createDependencyReducedPom&gt;false&lt;/createDependencyReducedPom&gt;
+    &lt;filters&gt;
+      &lt;filter&gt;
+        &lt;artifact&gt;*:*&lt;/artifact&gt;
+        &lt;excludes&gt;
+          &lt;exclude&gt;META-INF/<strong>.SF&lt;/exclude&gt;
+          &lt;exclude&gt;META-INF/</strong>.DSA&lt;/exclude&gt;
+          &lt;exclude&gt;META-INF/*.RSA&lt;/exclude&gt;
+        &lt;/excludes&gt;
+      &lt;/filter&gt;
+    &lt;/filters&gt;
+  &lt;/configuration&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;phase&gt;package&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;shade&lt;/goal&gt;
+      &lt;/goals&gt;
+      &lt;configuration&gt;
+        &lt;shadedClassifierName&gt;shaded&lt;/shadedClassifierName&gt;
+        &lt;transformers&gt;
+          &lt;transformer
+              implementation="org.talend.sdk.component.container.maven.shade.ContainerDependenciesTransformer"&gt;
+            &lt;session&gt;${session}&lt;/session&gt;
+            &lt;userArtifacts&gt;
+              &lt;artifact&gt;
+                &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+                &lt;artifactId&gt;sample-component&lt;/artifactId&gt;
+                &lt;version&gt;1.0&lt;/version&gt;
+                &lt;type&gt;jar&lt;/type&gt;
+              &lt;/artifact&gt;
+            &lt;/userArtifacts&gt;
+          &lt;/transformer&gt;
+          &lt;transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer"&gt;
+            &lt;session&gt;${session}&lt;/session&gt;
+            &lt;userArtifacts&gt;
+              &lt;artifact&gt;
+                &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+                &lt;artifactId&gt;sample-component&lt;/artifactId&gt;
+                &lt;version&gt;1.0&lt;/version&gt;
+                &lt;type&gt;jar&lt;/type&gt;
+              &lt;/artifact&gt;
+            &lt;/userArtifacts&gt;
+          &lt;/transformer&gt;
+        &lt;/transformers&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+      &lt;artifactId&gt;nested-maven-repository-maven-plugin&lt;/artifactId&gt;
+      &lt;version&gt;${the.version}&lt;/version&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+the configuration unrelated to transformers can depend your application.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>ContainerDependenciesTransformer</code> is the one to embed a maven repository and <code>PluginTransformer</code> to create a file listing (one per line)
+a list of artifacts (representing plugins).</p>
+</div>
+<div class="paragraph">
+<p>Both transformers share most of their configuration:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>session</code>: must be set to <code>${session}</code>. This is used to retrieve dependencies.</p>
+</li>
+<li>
+<p><code>scope</code>: a comma separated list of scope to include in the artifact filtering (note that the default will rely on <code>provided</code> but you can replace it by <code>compile</code>, <code>runtime</code>, <code>runtime+compile</code>, <code>runtime+system</code>, <code>test</code>).</p>
+</li>
+<li>
+<p><code>include</code>: a comma separated list of artifact to include in the artifact filtering.</p>
+</li>
+<li>
+<p><code>exclude</code>: a comma separated list of artifact to exclude in the artifact filtering.</p>
+</li>
+<li>
+<p><code>userArtifacts</code>: a list of artifacts (groupId, artifactId, version, type - optional, file - optional for plugin transformer, scope - optional) which can be forced inline - mainly useful for <code>PluginTransformer</code>.</p>
+</li>
+<li>
+<p><code>includeTransitiveDependencies</code>: should transitive dependencies of the components be included, true by default.</p>
+</li>
+<li>
+<p><code>includeProjectComponentDependencies</code>: should project component dependencies be included, false by default (normally a job project uses isolation for components so this is not needed).</p>
+</li>
+<li>
+<p><code>userArtifacts</code>: set of component artifacts to include.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+to use with the component tooling, it is recommended to keep default locations. Also if you feel you need to use project dependencies,
+you can need to refactor your project structure to ensure you keep component isolation. Talend component let you handle that part but the recommended
+practise is to use <code>userArtifacts</code> for the components and not the project <code>&lt;dependencies&gt;</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_containerdependenciestransformer"><a class="anchor" href="#_containerdependenciestransformer"></a>ContainerDependenciesTransformer</h4>
+<div class="paragraph">
+<p><code>ContainerDependenciesTransformer</code> specific configuration is the following one:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>repositoryBase</code>: base repository location (default to <code>MAVEN-INF/repository</code>).</p>
+</li>
+<li>
+<p><code>ignoredPaths</code>: a comma separated list of folder to not create in the output jar, this is common for the ones already created by other transformers/build parts.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_plugintransformer"><a class="anchor" href="#_plugintransformer"></a>PluginTransformer</h4>
+<div class="paragraph">
+<p><code>ContainerDependenciesTransformer</code> specific configuration is the following one:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>pluginListResource</code>: base repository location (default to TALEND-INF/plugins.properties`).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Example: if you want to list only the plugins you use you can configure this transformer like that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;transformer implementation="org.talend.sdk.component.container.maven.shade.PluginTransformer"&gt;
+  &lt;session&gt;${session}&lt;/session&gt;
+  &lt;include&gt;org.talend.sdk.component:component-x,org.talend.sdk.component:component-y,org.talend.sdk.component:component-z&lt;/include&gt;
+&lt;/transformer&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_component_scanning_rules_and_default_exclusions"><a class="anchor" href="#_component_scanning_rules_and_default_exclusions"></a>Component scanning rules and default exclusions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The framework uses two kind of filtering when scanning your component. One based on the jar name
+and one based on the package name. Ensure your component definitions (including services)
+are in a scanned module if not registered manually using <code>ComponentManager.instance().addPlugin()</code>
+and that its package is not excluded.</p>
+</div>
+<div class="sect2">
+<h3 id="_jars_scanning"><a class="anchor" href="#_jars_scanning"></a>Jars Scanning</h3>
+<div class="paragraph">
+<p>To find components the framework can scan the classpath but in this case,
+to avoid to scan the whole classpath which can be really huge
+an impacts a lot the startup time, several jars are excluded out of the box.</p>
+</div>
+<div class="paragraph">
+<p>These jars use the following prefix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ApacheJMeter</p>
+</li>
+<li>
+<p>FastInfoset</p>
+</li>
+<li>
+<p>HdrHistogram</p>
+</li>
+<li>
+<p>HikariCP</p>
+</li>
+<li>
+<p>PDFBox</p>
+</li>
+<li>
+<p>RoaringBitmap-</p>
+</li>
+<li>
+<p>XmlSchema-</p>
+</li>
+<li>
+<p>accessors-smart</p>
+</li>
+<li>
+<p>activation-</p>
+</li>
+<li>
+<p>activeio-</p>
+</li>
+<li>
+<p>activemq-</p>
+</li>
+<li>
+<p>aeron</p>
+</li>
+<li>
+<p>aether-</p>
+</li>
+<li>
+<p>agrona</p>
+</li>
+<li>
+<p>akka-</p>
+</li>
+<li>
+<p>animal-sniffer-annotation</p>
+</li>
+<li>
+<p>annotation</p>
+</li>
+<li>
+<p>ant-</p>
+</li>
+<li>
+<p>antlr-</p>
+</li>
+<li>
+<p>aopalliance-</p>
+</li>
+<li>
+<p>apache-el</p>
+</li>
+<li>
+<p>apacheds-</p>
+</li>
+<li>
+<p>api-asn1-</p>
+</li>
+<li>
+<p>api-util-</p>
+</li>
+<li>
+<p>apiguardian-api-</p>
+</li>
+<li>
+<p>app-</p>
+</li>
+<li>
+<p>archaius-core</p>
+</li>
+<li>
+<p>args4j-</p>
+</li>
+<li>
+<p>arquillian-</p>
+</li>
+<li>
+<p>asciidoctorj-</p>
+</li>
+<li>
+<p>asm-</p>
+</li>
+<li>
+<p>aspectj</p>
+</li>
+<li>
+<p>async-http-client-</p>
+</li>
+<li>
+<p>avalon-framework-</p>
+</li>
+<li>
+<p>avro-</p>
+</li>
+<li>
+<p>awaitility-</p>
+</li>
+<li>
+<p>axis-</p>
+</li>
+<li>
+<p>axis2-</p>
+</li>
+<li>
+<p>base64-</p>
+</li>
+<li>
+<p>batchee-jbatch</p>
+</li>
+<li>
+<p>batik-</p>
+</li>
+<li>
+<p>bcpkix</p>
+</li>
+<li>
+<p>bcprov-</p>
+</li>
+<li>
+<p>beam-model-</p>
+</li>
+<li>
+<p>beam-runners-</p>
+</li>
+<li>
+<p>beam-sdks-</p>
+</li>
+<li>
+<p>bonecp</p>
+</li>
+<li>
+<p>bootstrap.jar</p>
+</li>
+<li>
+<p>brave-</p>
+</li>
+<li>
+<p>bsf-</p>
+</li>
+<li>
+<p>build-link</p>
+</li>
+<li>
+<p>bval</p>
+</li>
+<li>
+<p>byte-buddy</p>
+</li>
+<li>
+<p>c3p0-</p>
+</li>
+<li>
+<p>cache</p>
+</li>
+<li>
+<p>carrier</p>
+</li>
+<li>
+<p>cassandra-driver-core</p>
+</li>
+<li>
+<p>catalina-</p>
+</li>
+<li>
+<p>catalina.jar</p>
+</li>
+<li>
+<p>cats</p>
+</li>
+<li>
+<p>cdi-</p>
+</li>
+<li>
+<p>cglib-</p>
+</li>
+<li>
+<p>charsets.jar</p>
+</li>
+<li>
+<p>chill</p>
+</li>
+<li>
+<p>classindex</p>
+</li>
+<li>
+<p>classmate</p>
+</li>
+<li>
+<p>classutil</p>
+</li>
+<li>
+<p>classycle</p>
+</li>
+<li>
+<p>cldrdata</p>
+</li>
+<li>
+<p>commands-</p>
+</li>
+<li>
+<p>common-</p>
+</li>
+<li>
+<p>commons-</p>
+</li>
+<li>
+<p>component-api</p>
+</li>
+<li>
+<p>component-form</p>
+</li>
+<li>
+<p>component-runtime</p>
+</li>
+<li>
+<p>component-server</p>
+</li>
+<li>
+<p>component-spi</p>
+</li>
+<li>
+<p>component-studio</p>
+</li>
+<li>
+<p>components-api</p>
+</li>
+<li>
+<p>components-common</p>
+</li>
+<li>
+<p>compress-lzf</p>
+</li>
+<li>
+<p>config</p>
+</li>
+<li>
+<p>constructr</p>
+</li>
+<li>
+<p>container-core</p>
+</li>
+<li>
+<p>contenttype</p>
+</li>
+<li>
+<p>coverage-agent</p>
+</li>
+<li>
+<p>cryptacular-</p>
+</li>
+<li>
+<p>cssparser-</p>
+</li>
+<li>
+<p>curator-</p>
+</li>
+<li>
+<p>cxf-</p>
+</li>
+<li>
+<p>daikon</p>
+</li>
+<li>
+<p>databinding</p>
+</li>
+<li>
+<p>dataquality</p>
+</li>
+<li>
+<p>debugger-agent</p>
+</li>
+<li>
+<p>deltaspike-</p>
+</li>
+<li>
+<p>deploy.jar</p>
+</li>
+<li>
+<p>derby-</p>
+</li>
+<li>
+<p>derbyclient-</p>
+</li>
+<li>
+<p>derbynet-</p>
+</li>
+<li>
+<p>dnsns</p>
+</li>
+<li>
+<p>dom4j</p>
+</li>
+<li>
+<p>draw2d</p>
+</li>
+<li>
+<p>ecj-</p>
+</li>
+<li>
+<p>eclipselink-</p>
+</li>
+<li>
+<p>ehcache-</p>
+</li>
+<li>
+<p>el-api</p>
+</li>
+<li>
+<p>enunciate-core-annotations</p>
+</li>
+<li>
+<p>error_prone_annotations</p>
+</li>
+<li>
+<p>expressions</p>
+</li>
+<li>
+<p>fastutil</p>
+</li>
+<li>
+<p>feign-core</p>
+</li>
+<li>
+<p>feign-hystrix</p>
+</li>
+<li>
+<p>feign-slf4j</p>
+</li>
+<li>
+<p>filters-helpers</p>
+</li>
+<li>
+<p>findbugs-</p>
+</li>
+<li>
+<p>fluentlenium-core</p>
+</li>
+<li>
+<p>freemarker-</p>
+</li>
+<li>
+<p>fusemq-leveldb-</p>
+</li>
+<li>
+<p>gef-</p>
+</li>
+<li>
+<p>geocoder</p>
+</li>
+<li>
+<p>geronimo-</p>
+</li>
+<li>
+<p>gmbal</p>
+</li>
+<li>
+<p>google-</p>
+</li>
+<li>
+<p>gpars-</p>
+</li>
+<li>
+<p>gragent.jar</p>
+</li>
+<li>
+<p>graph</p>
+</li>
+<li>
+<p>grizzled-scala</p>
+</li>
+<li>
+<p>grizzly-</p>
+</li>
+<li>
+<p>groovy-</p>
+</li>
+<li>
+<p>grpc-</p>
+</li>
+<li>
+<p>gson-</p>
+</li>
+<li>
+<p>guava-</p>
+</li>
+<li>
+<p>guice-</p>
+</li>
+<li>
+<p>h2-</p>
+</li>
+<li>
+<p>hadoop-</p>
+</li>
+<li>
+<p>hamcrest-</p>
+</li>
+<li>
+<p>hawtbuf-</p>
+</li>
+<li>
+<p>hawtdispatch-</p>
+</li>
+<li>
+<p>hawtio-</p>
+</li>
+<li>
+<p>hawtjni-runtime</p>
+</li>
+<li>
+<p>help-</p>
+</li>
+<li>
+<p>hibernate-</p>
+</li>
+<li>
+<p>hk2-</p>
+</li>
+<li>
+<p>howl-</p>
+</li>
+<li>
+<p>hsqldb-</p>
+</li>
+<li>
+<p>htmlunit-</p>
+</li>
+<li>
+<p>htrace-</p>
+</li>
+<li>
+<p>httpclient-</p>
+</li>
+<li>
+<p>httpcore-</p>
+</li>
+<li>
+<p>httpmime</p>
+</li>
+<li>
+<p>hystrix</p>
+</li>
+<li>
+<p>iban4j-</p>
+</li>
+<li>
+<p>icu4j-</p>
+</li>
+<li>
+<p>idb-</p>
+</li>
+<li>
+<p>idea_rt.jar</p>
+</li>
+<li>
+<p>instrumentation-api</p>
+</li>
+<li>
+<p>istack-commons-runtime-</p>
+</li>
+<li>
+<p>ivy-</p>
+</li>
+<li>
+<p>j2objc-annotations</p>
+</li>
+<li>
+<p>jBCrypt</p>
+</li>
+<li>
+<p>jaccess</p>
+</li>
+<li>
+<p>jackson-</p>
+</li>
+<li>
+<p>janino-</p>
+</li>
+<li>
+<p>jansi-</p>
+</li>
+<li>
+<p>jasper-el.jar</p>
+</li>
+<li>
+<p>jasper.jar</p>
+</li>
+<li>
+<p>jasypt-</p>
+</li>
+<li>
+<p>java-atk-wrapper</p>
+</li>
+<li>
+<p>java-support-</p>
+</li>
+<li>
+<p>java-xmlbuilder-</p>
+</li>
+<li>
+<p>javacsv</p>
+</li>
+<li>
+<p>javaee-</p>
+</li>
+<li>
+<p>javaee-api</p>
+</li>
+<li>
+<p>javassist-</p>
+</li>
+<li>
+<p>javaws.jar</p>
+</li>
+<li>
+<p>javax.</p>
+</li>
+<li>
+<p>jaxb-</p>
+</li>
+<li>
+<p>jaxp-</p>
+</li>
+<li>
+<p>jbake-</p>
+</li>
+<li>
+<p>jboss-</p>
+</li>
+<li>
+<p>jbossall-</p>
+</li>
+<li>
+<p>jbosscx-</p>
+</li>
+<li>
+<p>jbossjts-</p>
+</li>
+<li>
+<p>jbosssx-</p>
+</li>
+<li>
+<p>jcache</p>
+</li>
+<li>
+<p>jce.jar</p>
+</li>
+<li>
+<p>jcip-annotations</p>
+</li>
+<li>
+<p>jcl-over-slf4j-</p>
+</li>
+<li>
+<p>jcommander-</p>
+</li>
+<li>
+<p>jdbcdslog-1</p>
+</li>
+<li>
+<p>jersey-</p>
+</li>
+<li>
+<p>jets3t</p>
+</li>
+<li>
+<p>jettison-</p>
+</li>
+<li>
+<p>jetty-</p>
+</li>
+<li>
+<p>jface</p>
+</li>
+<li>
+<p>jfairy</p>
+</li>
+<li>
+<p>jffi</p>
+</li>
+<li>
+<p>jfr.jar</p>
+</li>
+<li>
+<p>jfxrt.jar</p>
+</li>
+<li>
+<p>jfxswt</p>
+</li>
+<li>
+<p>jjwt</p>
+</li>
+<li>
+<p>jline</p>
+</li>
+<li>
+<p>jmdns-</p>
+</li>
+<li>
+<p>jmustache</p>
+</li>
+<li>
+<p>jna-</p>
+</li>
+<li>
+<p>jnr-</p>
+</li>
+<li>
+<p>jobs-</p>
+</li>
+<li>
+<p>joda-convert</p>
+</li>
+<li>
+<p>joda-time-</p>
+</li>
+<li>
+<p>johnzon-</p>
+</li>
+<li>
+<p>jolokia-</p>
+</li>
+<li>
+<p>jopt-simple</p>
+</li>
+<li>
+<p>jruby-</p>
+</li>
+<li>
+<p>json-</p>
+</li>
+<li>
+<p>json4s-</p>
+</li>
+<li>
+<p>jsonb-api</p>
+</li>
+<li>
+<p>jsoup-</p>
+</li>
+<li>
+<p>jsp-api</p>
+</li>
+<li>
+<p>jsr</p>
+</li>
+<li>
+<p>jsse.jar</p>
+</li>
+<li>
+<p>jta</p>
+</li>
+<li>
+<p>jul-to-slf4j-</p>
+</li>
+<li>
+<p>juli-</p>
+</li>
+<li>
+<p>junit-</p>
+</li>
+<li>
+<p>junit5-</p>
+</li>
+<li>
+<p>jwt</p>
+</li>
+<li>
+<p>kafka</p>
+</li>
+<li>
+<p>kahadb-</p>
+</li>
+<li>
+<p>kotlin-runtime</p>
+</li>
+<li>
+<p>kryo</p>
+</li>
+<li>
+<p>leveldb</p>
+</li>
+<li>
+<p>libphonenumber</p>
+</li>
+<li>
+<p>lift-json</p>
+</li>
+<li>
+<p>lmdbjava</p>
+</li>
+<li>
+<p>localedata</p>
+</li>
+<li>
+<p>log4j-</p>
+</li>
+<li>
+<p>logback</p>
+</li>
+<li>
+<p>logging-event-layout</p>
+</li>
+<li>
+<p>logkit-</p>
+</li>
+<li>
+<p>lombok</p>
+</li>
+<li>
+<p>lucene</p>
+</li>
+<li>
+<p>lz4</p>
+</li>
+<li>
+<p>machinist</p>
+</li>
+<li>
+<p>macro-compat</p>
+</li>
+<li>
+<p>mail-</p>
+</li>
+<li>
+<p>management-</p>
+</li>
+<li>
+<p>mapstruct-</p>
+</li>
+<li>
+<p>maven-</p>
+</li>
+<li>
+<p>mbean-annotation-api-</p>
+</li>
+<li>
+<p>meecrowave-</p>
+</li>
+<li>
+<p>mesos-</p>
+</li>
+<li>
+<p>metrics-</p>
+</li>
+<li>
+<p>mimepull-</p>
+</li>
+<li>
+<p>mina-</p>
+</li>
+<li>
+<p>minlog</p>
+</li>
+<li>
+<p>mockito-core</p>
+</li>
+<li>
+<p>mqtt-client-</p>
+</li>
+<li>
+<p>multiverse-core-</p>
+</li>
+<li>
+<p>mx4j-</p>
+</li>
+<li>
+<p>myfaces-</p>
+</li>
+<li>
+<p>mysql-connector-java-</p>
+</li>
+<li>
+<p>nashorn</p>
+</li>
+<li>
+<p>neethi-</p>
+</li>
+<li>
+<p>neko-htmlunit</p>
+</li>
+<li>
+<p>nekohtml-</p>
+</li>
+<li>
+<p>netflix</p>
+</li>
+<li>
+<p>netty-</p>
+</li>
+<li>
+<p>nimbus-jose-jwt</p>
+</li>
+<li>
+<p>objenesis-</p>
+</li>
+<li>
+<p>okhttp</p>
+</li>
+<li>
+<p>okio</p>
+</li>
+<li>
+<p>openjpa-</p>
+</li>
+<li>
+<p>openmdx-</p>
+</li>
+<li>
+<p>opensaml-</p>
+</li>
+<li>
+<p>opentest4j-</p>
+</li>
+<li>
+<p>openwebbeans-</p>
+</li>
+<li>
+<p>openws-</p>
+</li>
+<li>
+<p>ops4j-</p>
+</li>
+<li>
+<p>org.apache.aries</p>
+</li>
+<li>
+<p>org.apache.commons</p>
+</li>
+<li>
+<p>org.apache.log4j</p>
+</li>
+<li>
+<p>org.eclipse.</p>
+</li>
+<li>
+<p>org.junit.</p>
+</li>
+<li>
+<p>org.osgi.core-</p>
+</li>
+<li>
+<p>org.osgi.enterprise</p>
+</li>
+<li>
+<p>org.talend</p>
+</li>
+<li>
+<p>orient-commons-</p>
+</li>
+<li>
+<p>orientdb-core-</p>
+</li>
+<li>
+<p>orientdb-nativeos-</p>
+</li>
+<li>
+<p>oro-</p>
+</li>
+<li>
+<p>osgi</p>
+</li>
+<li>
+<p>paranamer</p>
+</li>
+<li>
+<p>pax-url</p>
+</li>
+<li>
+<p>play</p>
+</li>
+<li>
+<p>plexus-</p>
+</li>
+<li>
+<p>plugin.jar</p>
+</li>
+<li>
+<p>poi-</p>
+</li>
+<li>
+<p>postgresql</p>
+</li>
+<li>
+<p>preferences-</p>
+</li>
+<li>
+<p>prefixmapper</p>
+</li>
+<li>
+<p>protobuf-</p>
+</li>
+<li>
+<p>py4j-</p>
+</li>
+<li>
+<p>pyrolite-</p>
+</li>
+<li>
+<p>qdox-</p>
+</li>
+<li>
+<p>quartz-2</p>
+</li>
+<li>
+<p>quartz-openejb-</p>
+</li>
+<li>
+<p>reactive-streams</p>
+</li>
+<li>
+<p>reflectasm-</p>
+</li>
+<li>
+<p>registry-</p>
+</li>
+<li>
+<p>resources.jar</p>
+</li>
+<li>
+<p>ribbon</p>
+</li>
+<li>
+<p>rmock-</p>
+</li>
+<li>
+<p>routes-compiler</p>
+</li>
+<li>
+<p>routines</p>
+</li>
+<li>
+<p>rt.jar</p>
+</li>
+<li>
+<p>runners</p>
+</li>
+<li>
+<p>runtime-</p>
+</li>
+<li>
+<p>rxjava</p>
+</li>
+<li>
+<p>rxnetty</p>
+</li>
+<li>
+<p>saaj-</p>
+</li>
+<li>
+<p>sac-</p>
+</li>
+<li>
+<p>scala</p>
+</li>
+<li>
+<p>scalap</p>
+</li>
+<li>
+<p>scalatest</p>
+</li>
+<li>
+<p>scannotation-</p>
+</li>
+<li>
+<p>selenium</p>
+</li>
+<li>
+<p>serializer-</p>
+</li>
+<li>
+<p>serp-</p>
+</li>
+<li>
+<p>service-common</p>
+</li>
+<li>
+<p>servlet-api-</p>
+</li>
+<li>
+<p>servo-</p>
+</li>
+<li>
+<p>shaded</p>
+</li>
+<li>
+<p>shrinkwrap-</p>
+</li>
+<li>
+<p>sisu-guice</p>
+</li>
+<li>
+<p>sisu-inject</p>
+</li>
+<li>
+<p>slf4j-</p>
+</li>
+<li>
+<p>slick</p>
+</li>
+<li>
+<p>smack-</p>
+</li>
+<li>
+<p>smackx-</p>
+</li>
+<li>
+<p>snakeyaml-</p>
+</li>
+<li>
+<p>snappy-</p>
+</li>
+<li>
+<p>spark-</p>
+</li>
+<li>
+<p>specs2</p>
+</li>
+<li>
+<p>spring-</p>
+</li>
+<li>
+<p>sshd-</p>
+</li>
+<li>
+<p>ssl-config-core</p>
+</li>
+<li>
+<p>stax-api-</p>
+</li>
+<li>
+<p>stax2-api-</p>
+</li>
+<li>
+<p>stream</p>
+</li>
+<li>
+<p>sunec.jar</p>
+</li>
+<li>
+<p>sunjce_provider</p>
+</li>
+<li>
+<p>sunpkcs11</p>
+</li>
+<li>
+<p>surefire-</p>
+</li>
+<li>
+<p>swagger-</p>
+</li>
+<li>
+<p>swizzle-</p>
+</li>
+<li>
+<p>sxc-</p>
+</li>
+<li>
+<p>system-rules</p>
+</li>
+<li>
+<p>tachyon-</p>
+</li>
+<li>
+<p>talend-icon</p>
+</li>
+<li>
+<p>test-interface</p>
+</li>
+<li>
+<p>testng-</p>
+</li>
+<li>
+<p>tomcat</p>
+</li>
+<li>
+<p>tomee-</p>
+</li>
+<li>
+<p>tools.jar</p>
+</li>
+<li>
+<p>twirl</p>
+</li>
+<li>
+<p>twitter4j-</p>
+</li>
+<li>
+<p>tyrex</p>
+</li>
+<li>
+<p>uncommons</p>
+</li>
+<li>
+<p>unused</p>
+</li>
+<li>
+<p>validation-api-</p>
+</li>
+<li>
+<p>velocity-</p>
+</li>
+<li>
+<p>wagon-</p>
+</li>
+<li>
+<p>webbeans-</p>
+</li>
+<li>
+<p>websocket</p>
+</li>
+<li>
+<p>woodstox-core</p>
+</li>
+<li>
+<p>workbench</p>
+</li>
+<li>
+<p>ws-commons-util-</p>
+</li>
+<li>
+<p>wsdl4j-</p>
+</li>
+<li>
+<p>wss4j-</p>
+</li>
+<li>
+<p>wstx-asl-</p>
+</li>
+<li>
+<p>xalan-</p>
+</li>
+<li>
+<p>xbean-</p>
+</li>
+<li>
+<p>xercesImpl-</p>
+</li>
+<li>
+<p>xml-apis-</p>
+</li>
+<li>
+<p>xml-resolver-</p>
+</li>
+<li>
+<p>xmlbeans-</p>
+</li>
+<li>
+<p>xmlenc-</p>
+</li>
+<li>
+<p>xmlgraphics-</p>
+</li>
+<li>
+<p>xmlpull-</p>
+</li>
+<li>
+<p>xmlrpc-</p>
+</li>
+<li>
+<p>xmlschema-</p>
+</li>
+<li>
+<p>xmlsec-</p>
+</li>
+<li>
+<p>xmltooling-</p>
+</li>
+<li>
+<p>xmlunit-</p>
+</li>
+<li>
+<p>xstream-</p>
+</li>
+<li>
+<p>xz-</p>
+</li>
+<li>
+<p>zipfs.jar</p>
+</li>
+<li>
+<p>zipkin-</p>
+</li>
+<li>
+<p>ziplock-</p>
+</li>
+<li>
+<p>zkclient</p>
+</li>
+<li>
+<p>zookeeper-</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_package_scanning"><a class="anchor" href="#_package_scanning"></a>Package Scanning</h3>
+<div class="paragraph">
+<p>Since the framework can be used in the case of <em>fatjars</em> or <em>shades</em>,
+and because it still uses scanning,
+it is important to ensure we don&#8217;t scan the whole classes for performances reason.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, the following packages are ignored:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>avro.shaded</p>
+</li>
+<li>
+<p>com.codehale.metrics</p>
+</li>
+<li>
+<p>com.ctc.wstx</p>
+</li>
+<li>
+<p>com.datastax.driver.core</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.annotation</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.core</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.databind</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.dataformat</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.module</p>
+</li>
+<li>
+<p>com.google.common</p>
+</li>
+<li>
+<p>com.google.thirdparty</p>
+</li>
+<li>
+<p>com.ibm.wsdl</p>
+</li>
+<li>
+<p>com.jcraft.jsch</p>
+</li>
+<li>
+<p>com.kenai.jffi</p>
+</li>
+<li>
+<p>com.kenai.jnr</p>
+</li>
+<li>
+<p>com.sun.istack</p>
+</li>
+<li>
+<p>com.sun.xml.bind</p>
+</li>
+<li>
+<p>com.sun.xml.messaging.saaj</p>
+</li>
+<li>
+<p>com.sun.xml.txw2</p>
+</li>
+<li>
+<p>com.thoughtworks</p>
+</li>
+<li>
+<p>io.jsonwebtoken</p>
+</li>
+<li>
+<p>io.netty</p>
+</li>
+<li>
+<p>io.swagger.annotations</p>
+</li>
+<li>
+<p>io.swagger.config</p>
+</li>
+<li>
+<p>io.swagger.converter</p>
+</li>
+<li>
+<p>io.swagger.core</p>
+</li>
+<li>
+<p>io.swagger.jackson</p>
+</li>
+<li>
+<p>io.swagger.jaxrs</p>
+</li>
+<li>
+<p>io.swagger.model</p>
+</li>
+<li>
+<p>io.swagger.models</p>
+</li>
+<li>
+<p>io.swagger.util</p>
+</li>
+<li>
+<p>javax</p>
+</li>
+<li>
+<p>jnr</p>
+</li>
+<li>
+<p>junit</p>
+</li>
+<li>
+<p>net.sf.ehcache</p>
+</li>
+<li>
+<p>net.shibboleth.utilities.java.support</p>
+</li>
+<li>
+<p>org.aeonbits.owner</p>
+</li>
+<li>
+<p>org.apache.activemq</p>
+</li>
+<li>
+<p>org.apache.beam</p>
+</li>
+<li>
+<p>org.apache.bval</p>
+</li>
+<li>
+<p>org.apache.camel</p>
+</li>
+<li>
+<p>org.apache.catalina</p>
+</li>
+<li>
+<p>org.apache.commons.beanutils</p>
+</li>
+<li>
+<p>org.apache.commons.cli</p>
+</li>
+<li>
+<p>org.apache.commons.codec</p>
+</li>
+<li>
+<p>org.apache.commons.collections</p>
+</li>
+<li>
+<p>org.apache.commons.compress</p>
+</li>
+<li>
+<p>org.apache.commons.dbcp2</p>
+</li>
+<li>
+<p>org.apache.commons.digester</p>
+</li>
+<li>
+<p>org.apache.commons.io</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.access</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.admin</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.auxiliary</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.engine</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.io</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.utils</p>
+</li>
+<li>
+<p>org.apache.commons.lang</p>
+</li>
+<li>
+<p>org.apache.commons.lang3</p>
+</li>
+<li>
+<p>org.apache.commons.logging</p>
+</li>
+<li>
+<p>org.apache.commons.pool2</p>
+</li>
+<li>
+<p>org.apache.coyote</p>
+</li>
+<li>
+<p>org.apache.cxf</p>
+</li>
+<li>
+<p>org.apache.geronimo.javamail</p>
+</li>
+<li>
+<p>org.apache.geronimo.mail</p>
+</li>
+<li>
+<p>org.apache.geronimo.osgi</p>
+</li>
+<li>
+<p>org.apache.geronimo.specs</p>
+</li>
+<li>
+<p>org.apache.http</p>
+</li>
+<li>
+<p>org.apache.jcp</p>
+</li>
+<li>
+<p>org.apache.johnzon</p>
+</li>
+<li>
+<p>org.apache.juli</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.core</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.jul</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.util</p>
+</li>
+<li>
+<p>org.apache.logging.slf4j</p>
+</li>
+<li>
+<p>org.apache.meecrowave</p>
+</li>
+<li>
+<p>org.apache.myfaces</p>
+</li>
+<li>
+<p>org.apache.naming</p>
+</li>
+<li>
+<p>org.apache.neethi</p>
+</li>
+<li>
+<p>org.apache.openejb</p>
+</li>
+<li>
+<p>org.apache.openjpa</p>
+</li>
+<li>
+<p>org.apache.oro</p>
+</li>
+<li>
+<p>org.apache.tomcat</p>
+</li>
+<li>
+<p>org.apache.tomee</p>
+</li>
+<li>
+<p>org.apache.velocity</p>
+</li>
+<li>
+<p>org.apache.webbeans</p>
+</li>
+<li>
+<p>org.apache.ws</p>
+</li>
+<li>
+<p>org.apache.wss4j</p>
+</li>
+<li>
+<p>org.apache.xbean</p>
+</li>
+<li>
+<p>org.apache.xml</p>
+</li>
+<li>
+<p>org.apache.xml.resolver</p>
+</li>
+<li>
+<p>org.bouncycastle</p>
+</li>
+<li>
+<p>org.codehaus.jackson</p>
+</li>
+<li>
+<p>org.codehaus.stax2</p>
+</li>
+<li>
+<p>org.codehaus.swizzle.Grep</p>
+</li>
+<li>
+<p>org.codehaus.swizzle.Lexer</p>
+</li>
+<li>
+<p>org.cryptacular</p>
+</li>
+<li>
+<p>org.eclipse.jdt.core</p>
+</li>
+<li>
+<p>org.eclipse.jdt.internal</p>
+</li>
+<li>
+<p>org.fusesource.hawtbuf</p>
+</li>
+<li>
+<p>org.h2</p>
+</li>
+<li>
+<p>org.hamcrest</p>
+</li>
+<li>
+<p>org.hsqldb</p>
+</li>
+<li>
+<p>org.jasypt</p>
+</li>
+<li>
+<p>org.jboss.marshalling</p>
+</li>
+<li>
+<p>org.joda.time</p>
+</li>
+<li>
+<p>org.jose4j</p>
+</li>
+<li>
+<p>org.junit</p>
+</li>
+<li>
+<p>org.jvnet.mimepull</p>
+</li>
+<li>
+<p>org.metatype.sxc</p>
+</li>
+<li>
+<p>org.objectweb.asm</p>
+</li>
+<li>
+<p>org.objectweb.howl</p>
+</li>
+<li>
+<p>org.openejb</p>
+</li>
+<li>
+<p>org.opensaml</p>
+</li>
+<li>
+<p>org.slf4j</p>
+</li>
+<li>
+<p>org.swizzle</p>
+</li>
+<li>
+<p>org.terracotta.context</p>
+</li>
+<li>
+<p>org.terracotta.entity</p>
+</li>
+<li>
+<p>org.terracotta.modules.ehcache</p>
+</li>
+<li>
+<p>org.terracotta.statistics</p>
+</li>
+<li>
+<p>org.tukaani</p>
+</li>
+<li>
+<p>org.yaml.snakeyaml</p>
+</li>
+<li>
+<p>serp</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+it is not recommanded but possible to add in your plugin module a
+<code>TALEND-INF/scanning.properties</code> file with <code>classloader.includes</code> and
+<code>classloader.excludes</code> entries to refine the scanning with custom rules.
+In such a case, exclusions win over inclusions.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/edit/component-runtime-1.0.0/documentation/src/main/antora/modules/ROOT/pages/component-loading.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.38.0%2Fcomponent-loading.html&text=Talend%20Component%20Kit%20%3E%3E%20Component%20Loading%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.38.0%2Fcomponent-loading.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Component%20Loading&body=Talend%20Component%20Kit%3A%20Component%20Loading%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.38.0%2Fcomponent-loading.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+              <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2019 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="../../_/../js/anchorific.js"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

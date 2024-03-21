@@ -1,0 +1,626 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/**<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (C) 2006-2020 Talend Inc. - www.talend.com<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * you may not use this file except in compliance with the License.<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * You may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * See the License for the specific language governing permissions and<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * limitations under the License.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>package org.talend.sdk.component.api.component;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static java.lang.annotation.ElementType.ANNOTATION_TYPE;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static java.lang.annotation.ElementType.PACKAGE;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static java.lang.annotation.ElementType.TYPE;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import static java.lang.annotation.RetentionPolicy.RUNTIME;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.lang.annotation.Retention;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.lang.annotation.Target;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.talend.sdk.component.api.meta.Documentation;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>import lombok.Getter;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import lombok.RequiredArgsConstructor;<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>@Documentation("Associate an icon to a component, "<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        + "only supported on components - `@PartitionMapper`, `@Processor`, `@Emitter` - and "<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        + "configurations - classes.")<a name="line.33"></a>
+<span class="sourceLineNo">034</span>@Target({ TYPE, PACKAGE, ANNOTATION_TYPE })<a name="line.34"></a>
+<span class="sourceLineNo">035</span>@Retention(RUNTIME)<a name="line.35"></a>
+<span class="sourceLineNo">036</span>public @interface Icon {<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * @return the icon to associate to the component.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    IconType value() default IconType.CUSTOM;<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @return the custom icon key (not in {@link IconType}) to use if {@link Icon#value()} is {@link IconType#CUSTOM}.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    String custom() default "";<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * Icons from http://talend.surge.sh/icons/.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * It is recommended for custom components to use vendor specific icons and not reuse Talend built-in icons.<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    @RequiredArgsConstructor<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    enum IconType {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        @Deprecated<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        ACTIVEMQ("activemq"),<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        @Deprecated<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        ACTIVITY("activity"),<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        @Deprecated<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        AGGREGATE("aggregate"),<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        @Deprecated<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        APACHE("apache"),<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        @Deprecated<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        API_DESIGNER_COLORED("api-designer-colored"),<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        @Deprecated<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        API_DESIGNER_NEGATIVE("api-designer-negative"),<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        @Deprecated<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        API_DESIGNER_POSITIVE("api-designer-positive"),<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        @Deprecated<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        API_TESTER_COLORED("api-tester-colored"),<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        @Deprecated<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        API_TESTER_NEGATIVE("api-tester-negative"),<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        @Deprecated<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        API_TESTER_POSITIVE("api-tester-positive"),<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        @Deprecated<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        ARROW_LEFT("arrow-left"),<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        @Deprecated<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        ARROW_RIGHT("arrow-right"),<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        @Deprecated<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        AWS_KINESIS("aws-kinesis"),<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        @Deprecated<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        AZURE_EVENT_HUBS("azure-event-hubs"),<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        @Deprecated<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        BADGE("badge"),<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        @Deprecated<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        BADGE_OUTLINE("badge-outline"),<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        @Deprecated<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        BEAM("beam"),<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        @Deprecated<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        BELL("bell"),<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        @Deprecated<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        BELL_NOTIFICATION("bell-notification"),<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        @Deprecated<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        BIGQUERY("bigquery"),<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        @Deprecated<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        BLOCK("block"),<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        @Deprecated<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        BOARD("board"),<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        @Deprecated<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        BUBBLES("bubbles"),<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        @Deprecated<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        BURGER("burger"),<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        @Deprecated<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        CALENDAR_MOVE("calendar-move"),<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        @Deprecated<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        CAMPAIGNS("campaigns"),<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        @Deprecated<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        CARET_DOWN("caret-down"),<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        @Deprecated<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        CARRIAGE_RETURN("carriage-return"),<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        @Deprecated<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        CASSANDRA("cassandra"),<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        @Deprecated<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        CHAIN("chain"),<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        @Deprecated<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        CHARACTER("character"),<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        @Deprecated<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        CHARTS("charts"),<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        @Deprecated<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        CHECK("check"),<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        @Deprecated<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        CHECK_CIRCLE("check-circle"),<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        @Deprecated<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        CHECK_PLUS("check-plus"),<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        @Deprecated<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        CHEVRON_END("chevron-end"),<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        @Deprecated<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        CHEVRON_LEFT("chevron-left"),<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        @Deprecated<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        CLOCK("clock"),<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        @Deprecated<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        CLOUD_ENGINE("cloud-engine"),<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        @Deprecated<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        CLOUD_UPGRADE("cloud-upgrade"),<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        @Deprecated<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        CLUSTER("cluster"),<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        @Deprecated<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        COG("cog"),<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        @Deprecated<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        COLUMN_CHOOSER("column-chooser"),<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        @Deprecated<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        COMPONENT_KIT_NEGATIVE("component-kit-negative"),<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        @Deprecated<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        COMPONENT_KIT_POSITIVE("component-kit-positive"),<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        @Deprecated<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        COMPONENT_NEGATIVE("component-negative"),<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        @Deprecated<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        COMPONENT_POSITIVE("component-positive"),<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        @Deprecated<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        CONNECTIONS("connections"),<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        @Deprecated<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        CONTAINS("contains"),<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        @Deprecated<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        COUCHBASE("couchbase"),<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        @Deprecated<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        CREDITS_ENGINE("credits-engine"),<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        @Deprecated<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        CROSS("cross"),<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        @Deprecated<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        CROSSHAIRS("crosshairs"),<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        @Deprecated<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        DATAGRID("datagrid"),<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        @Deprecated<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        DATAPREP("dataprep"),<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        @Deprecated<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        DATASETS("datasets"),<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        @Deprecated<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        DATASTORE("datastore"),<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        @Deprecated<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        DATASTREAMS_COLORED("datastreams-colored"),<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        @Deprecated<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        DATASTREAMS_NEGATIVE("datastreams-negative"),<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        @Deprecated<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        DATASTREAMS_POSITIVE("datastreams-positive"),<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        @Deprecated<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        DATA_FABRIC_COLORED("data-fabric-colored"),<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        @Deprecated<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        DATA_MODELS("data-models"),<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        @Deprecated<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        DB_INPUT("db-input"),<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        @Deprecated<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        DOWNLOAD("download"),<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        @Deprecated<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        DRAG("drag"),<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        @Deprecated<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        DRAG_AND_DROP("drag-and-drop"),<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        @Deprecated<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        DROPPER("dropper"),<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        @Deprecated<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        ELASTIC("elastic"),<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        @Deprecated<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        ELLIPSIS("ellipsis"),<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        @Deprecated<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        EMPTY_CALENDAR("empty-calendar"),<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        @Deprecated<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        EMPTY_CELL("empty-cell"),<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        @Deprecated<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        EMPTY_CHAR("empty-char"),<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        @Deprecated<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        EMPTY_SPACE("empty-space"),<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        @Deprecated<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        ENVIRONMENT("environment"),<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        @Deprecated<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        EQUAL("equal"),<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        @Deprecated<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        EXPANDED("expanded"),<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        @Deprecated<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        EXPORT_HISTORY("export-history"),<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        @Deprecated<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        EYE("eye"),<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        @Deprecated<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        EYE_SLASH("eye-slash"),<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        @Deprecated<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        FIELDGLASS("fieldglass"),<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        @Deprecated<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        FIELD_SELECTOR("field-selector"),<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        @Deprecated<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        FILES_O("files-o"),<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        @Deprecated<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        FILE_COG("file-cog"),<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        @Deprecated<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        FILE_COMPRESSED("file-compressed"),<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        @Deprecated<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        FILE_CONNECT_O("file-connect-o"),<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        @Deprecated<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        FILE_CSV_O("file-csv-o"),<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        @Deprecated<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        FILE_DATABASE_O("file-database-o"),<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        @Deprecated<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        FILE_HDFS_O("file-hdfs-o"),<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        @Deprecated<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        FILE_JOB_O("file-job-o"),<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        @Deprecated<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        FILE_JSON_O("file-json-o"),<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        @Deprecated<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        FILE_MOVE("file-move"),<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        @Deprecated<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        FILE_O("file-o"),<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        @Deprecated<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        FILE_S3_O("file-s3-o"),<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        @Deprecated<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        FILE_SALESFORCE("file-salesforce"),<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        @Deprecated<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        FILE_TXT_O("file-txt-o"),<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        @Deprecated<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        FILE_XLSX_O("file-xlsx-o"),<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        @Deprecated<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        FILE_XLS_O("file-xls-o"),<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        @Deprecated<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        FILE_XML_O("file-xml-o"),<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        @Deprecated<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        FILTER("filter"),<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        @Deprecated<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        FILTER_COLUMN("filter-column"),<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        @Deprecated<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        FILTER_ROW("filter-row"),<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        @Deprecated<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        FLINK("flink"),<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        @Deprecated<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        FLINK_O("flink-o"),<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        @Deprecated<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        FLOW("flow"),<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        @Deprecated<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        FLOW_O("flow-o"),<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        @Deprecated<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        FLOW_SOURCE_O("flow-source-o"),<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        @Deprecated<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        FLOW_STEP_O("flow-step-o"),<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        @Deprecated<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        FLOW_TARGET_O("flow-target-o"),<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        @Deprecated<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        FLOW_UNDER_PLAN("flow-under-plan"),<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        @Deprecated<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        FLOW_UNFINISHED("flow-unfinished"),<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        @Deprecated<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        FOLDER("folder"),<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        @Deprecated<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        FOLDER_CLOSED("folder-closed"),<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        @Deprecated<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        FOLDER_SHARED("folder-shared"),<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        @Deprecated<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        FOLDER_SHARED_OWNER("folder-shared-owner"),<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        @Deprecated<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        FOLDER_SHARED_USER("folder-shared-user"),<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        @Deprecated<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        FULLSCREEN("fullscreen"),<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        @Deprecated<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        GOOGLE_DATAFLOW("google-dataflow"),<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        @Deprecated<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        GROUP_CIRCLE("group-circle"),<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        @Deprecated<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        HADOOP("hadoop"),<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        @Deprecated<a name="line.292"></a>
+<span class="sourceLineNo">293</span>        HAND_POINTER("hand-pointer"),<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        @Deprecated<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        HIERARCHICAL_VIEW("hierarchical-view"),<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        @Deprecated<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        HOME("home"),<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        @Deprecated<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        INFO_CIRCLE("info-circle"),<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        @Deprecated<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        JMS("jms"),<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        @Deprecated<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        KAFKA("kafka"),<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        @Deprecated<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        LAUNCH("launch"),<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        @Deprecated<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        LAUNCHER("launcher"),<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        @Deprecated<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        LESS_THAN("less-than"),<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        @Deprecated<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        LESS_THAN_EQUAL("less-than-equal"),<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        @Deprecated<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        LICENSE("license"),<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        @Deprecated<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        LINK("link"),<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        @Deprecated<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        LOCAL_STORAGE("local-storage"),<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        @Deprecated<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        LOCK("lock"),<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        @Deprecated<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        LOCKED("locked"),<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        @Deprecated<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        LOGO("logo"),<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        @Deprecated<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        LOGO_COLORED("logo-colored"),<a name="line.325"></a>
+<span class="sourceLineNo">326</span>        @Deprecated<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        LOGO_SQUARE("logo-square"),<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        @Deprecated<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        MARKETO("marketo"),<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        @Deprecated<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        MDM_COLORED("mdm-colored"),<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        @Deprecated<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        MDM_NEGATIVE("mdm-negative"),<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        @Deprecated<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        MDM_POSITIVE("mdm-positive"),<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        @Deprecated<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        MINUS_CIRCLE("minus-circle"),<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        @Deprecated<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        MONGODB("mongodb"),<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        @Deprecated<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        MORE_THAN("more-than"),<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        @Deprecated<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        MORE_THAN_EQUAL("more-than-equal"),<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        @Deprecated<a name="line.344"></a>
+<span class="sourceLineNo">345</span>        MOST_TRUSTED("most-trusted"),<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        @Deprecated<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        NETSUITE("netsuite"),<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        @Deprecated<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        NETWORK("network"),<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        @Deprecated<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        NORMALIZE("normalize"),<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        @Deprecated<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        NOTE("note"),<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        @Deprecated<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        NOT_EQUAL("not-equal"),<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        @Deprecated<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        OPENER("opener"),<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        @Deprecated<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        OVERVIEW("overview"),<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        @Deprecated<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        PANEL_OPENER_BOTTOM("panel-opener-bottom"),<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        @Deprecated<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        PANEL_OPENER_RIGHT("panel-opener-right"),<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        @Deprecated<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        PENCIL("pencil"),<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        @Deprecated<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        PHONE("phone"),<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        @Deprecated<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        PIE_CHARTS("pie-charts"),<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        @Deprecated<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        PIN("pin"),<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        @Deprecated<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        PLACEHOLDER("placeholder"),<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        @Deprecated<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        PLAY("play"),<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        @Deprecated<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        PLUS("plus"),<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        @Deprecated<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        PLUS_CIRCLE("plus-circle"),<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        @Deprecated<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        POSTGRESQL("postgresql"),<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        @Deprecated<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        POWER_OFF("power-off"),<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        @Deprecated<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        PROJECTS("projects"),<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        @Deprecated<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        PROMOTION_PIPELINES("promotion-pipelines"),<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        @Deprecated<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        PUBSUB("pubsub"),<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        @Deprecated<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        PYTHON("python"),<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        @Deprecated<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        QUESTION_CIRCLE("question-circle"),<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        @Deprecated<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        QUOTES("quotes"),<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        @Deprecated<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        RAW_DATA("raw-data"),<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        @Deprecated<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        REDO("redo"),<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        @Deprecated<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        REFRESH("refresh"),<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        @Deprecated<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        REMOTE_ENGINE("remote-engine"),<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        @Deprecated<a name="line.404"></a>
+<span class="sourceLineNo">405</span>        REPLICATE("replicate"),<a name="line.405"></a>
+<span class="sourceLineNo">406</span>        @Deprecated<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        REST("rest"),<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        @Deprecated<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        ROLES("roles"),<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        @Deprecated<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        SAMPLE("sample"),<a name="line.411"></a>
+<span class="sourceLineNo">412</span>        @Deprecated<a name="line.412"></a>
+<span class="sourceLineNo">413</span>        SCHEDULER("scheduler"),<a name="line.413"></a>
+<span class="sourceLineNo">414</span>        @Deprecated<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        SEARCH("search"),<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        @Deprecated<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        SEMANTIC("semantic"),<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        @Deprecated<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        SEND("send"),<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        @Deprecated<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        SHARE_ALT("share-alt"),<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        @Deprecated<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        SHARING_DEFAULT("sharing-default"),<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        @Deprecated<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        SHARING_OWNER("sharing-owner"),<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        @Deprecated<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        SHARING_USER("sharing-user"),<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        @Deprecated<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        SHIELD("shield"),<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        @Deprecated<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        SHIELD_FULL("shield-full"),<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        @Deprecated<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        SHIELD_FULL_CHECK("shield-full-check"),<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        @Deprecated<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        SHOW_UNASSIGNED_TASKS("show_unassigned_tasks"),<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        @Deprecated<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        SLIDERS("sliders"),<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        @Deprecated<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        SMILEY_ANGRY("smiley-angry"),<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        @Deprecated<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        SMILEY_ENTHUSIAST("smiley-enthusiast"),<a name="line.441"></a>
+<span class="sourceLineNo">442</span>        @Deprecated<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        SMILEY_NEUTRAL("smiley-neutral"),<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        @Deprecated<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        SMILEY_SATISFIED("smiley-satisfied"),<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        @Deprecated<a name="line.446"></a>
+<span class="sourceLineNo">447</span>        SMILEY_SLEEP("smiley-sleep"),<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        @Deprecated<a name="line.448"></a>
+<span class="sourceLineNo">449</span>        SMILEY_UNHAPPY("smiley-unhappy"),<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        @Deprecated<a name="line.450"></a>
+<span class="sourceLineNo">451</span>        SORT("sort"),<a name="line.451"></a>
+<span class="sourceLineNo">452</span>        @Deprecated<a name="line.452"></a>
+<span class="sourceLineNo">453</span>        SORT_19("sort-19"),<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        @Deprecated<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        SORT_91("sort-91"),<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        @Deprecated<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        SORT_ASC("sort-asc"),<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        @Deprecated<a name="line.458"></a>
+<span class="sourceLineNo">459</span>        SORT_AZ("sort-az"),<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        @Deprecated<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        SORT_DESC("sort-desc"),<a name="line.461"></a>
+<span class="sourceLineNo">462</span>        @Deprecated<a name="line.462"></a>
+<span class="sourceLineNo">463</span>        SORT_ZA("sort-za"),<a name="line.463"></a>
+<span class="sourceLineNo">464</span>        @Deprecated<a name="line.464"></a>
+<span class="sourceLineNo">465</span>        SPARK("spark"),<a name="line.465"></a>
+<span class="sourceLineNo">466</span><a name="line.466"></a>
+<span class="sourceLineNo">467</span>        STAR("star"), // used by the starter and not really vendor specific so ok to keep<a name="line.467"></a>
+<span class="sourceLineNo">468</span><a name="line.468"></a>
+<span class="sourceLineNo">469</span>        @Deprecated<a name="line.469"></a>
+<span class="sourceLineNo">470</span>        STOP("stop"),<a name="line.470"></a>
+<span class="sourceLineNo">471</span>        @Deprecated<a name="line.471"></a>
+<span class="sourceLineNo">472</span>        STREAMS("streams"),<a name="line.472"></a>
+<span class="sourceLineNo">473</span>        @Deprecated<a name="line.473"></a>
+<span class="sourceLineNo">474</span>        TABLE("table"),<a name="line.474"></a>
+<span class="sourceLineNo">475</span>        @Deprecated<a name="line.475"></a>
+<span class="sourceLineNo">476</span>        TAGS("tags"),<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        @Deprecated<a name="line.477"></a>
+<span class="sourceLineNo">478</span>        TASKS("tasks"),<a name="line.478"></a>
+<span class="sourceLineNo">479</span>        @Deprecated<a name="line.479"></a>
+<span class="sourceLineNo">480</span>        TDC_COLORED("tdc-colored"),<a name="line.480"></a>
+<span class="sourceLineNo">481</span>        @Deprecated<a name="line.481"></a>
+<span class="sourceLineNo">482</span>        TDC_NEGATIVE("tdc-negative"),<a name="line.482"></a>
+<span class="sourceLineNo">483</span>        @Deprecated<a name="line.483"></a>
+<span class="sourceLineNo">484</span>        TDC_POSITIVE("tdc-positive"),<a name="line.484"></a>
+<span class="sourceLineNo">485</span>        @Deprecated<a name="line.485"></a>
+<span class="sourceLineNo">486</span>        TDP_COLORED("tdp-colored"),<a name="line.486"></a>
+<span class="sourceLineNo">487</span>        @Deprecated<a name="line.487"></a>
+<span class="sourceLineNo">488</span>        TDP_NEGATIVE("tdp-negative"),<a name="line.488"></a>
+<span class="sourceLineNo">489</span>        @Deprecated<a name="line.489"></a>
+<span class="sourceLineNo">490</span>        TDP_POSITIVE("tdp-positive"),<a name="line.490"></a>
+<span class="sourceLineNo">491</span>        @Deprecated<a name="line.491"></a>
+<span class="sourceLineNo">492</span>        TDS_COLORED("tds-colored"),<a name="line.492"></a>
+<span class="sourceLineNo">493</span>        @Deprecated<a name="line.493"></a>
+<span class="sourceLineNo">494</span>        TDS_NEGATIVE("tds-negative"),<a name="line.494"></a>
+<span class="sourceLineNo">495</span>        @Deprecated<a name="line.495"></a>
+<span class="sourceLineNo">496</span>        TDS_POSITIVE("tds-positive"),<a name="line.496"></a>
+<span class="sourceLineNo">497</span>        @Deprecated<a name="line.497"></a>
+<span class="sourceLineNo">498</span>        TIC_COLORED("tic-colored"),<a name="line.498"></a>
+<span class="sourceLineNo">499</span>        @Deprecated<a name="line.499"></a>
+<span class="sourceLineNo">500</span>        TIC_NEGATIVE("tic-negative"),<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        @Deprecated<a name="line.501"></a>
+<span class="sourceLineNo">502</span>        TIC_POSITIVE("tic-positive"),<a name="line.502"></a>
+<span class="sourceLineNo">503</span>        @Deprecated<a name="line.503"></a>
+<span class="sourceLineNo">504</span>        TILES("tiles"),<a name="line.504"></a>
+<span class="sourceLineNo">505</span>        @Deprecated<a name="line.505"></a>
+<span class="sourceLineNo">506</span>        TMC_COLORED("tmc-colored"),<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        @Deprecated<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        TMC_NEGATIVE("tmc-negative"),<a name="line.508"></a>
+<span class="sourceLineNo">509</span>        @Deprecated<a name="line.509"></a>
+<span class="sourceLineNo">510</span>        TMC_POSITIVE("tmc-positive"),<a name="line.510"></a>
+<span class="sourceLineNo">511</span>        @Deprecated<a name="line.511"></a>
+<span class="sourceLineNo">512</span>        TRANSFORMER_WINDOW("transformer-window"),<a name="line.512"></a>
+<span class="sourceLineNo">513</span>        @Deprecated<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        TRASH("trash"),<a name="line.514"></a>
+<span class="sourceLineNo">515</span>        @Deprecated<a name="line.515"></a>
+<span class="sourceLineNo">516</span>        TYPE_CONVERTER("type-converter"),<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        @Deprecated<a name="line.517"></a>
+<span class="sourceLineNo">518</span>        UNDO("undo"),<a name="line.518"></a>
+<span class="sourceLineNo">519</span>        @Deprecated<a name="line.519"></a>
+<span class="sourceLineNo">520</span>        UNION("union"),<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        @Deprecated<a name="line.521"></a>
+<span class="sourceLineNo">522</span>        UNLOCKED("unlocked"),<a name="line.522"></a>
+<span class="sourceLineNo">523</span>        @Deprecated<a name="line.523"></a>
+<span class="sourceLineNo">524</span>        UPLOAD("upload"),<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        @Deprecated<a name="line.525"></a>
+<span class="sourceLineNo">526</span>        USER_CIRCLE("user-circle"),<a name="line.526"></a>
+<span class="sourceLineNo">527</span>        @Deprecated<a name="line.527"></a>
+<span class="sourceLineNo">528</span>        VERSIONING("versioning"),<a name="line.528"></a>
+<span class="sourceLineNo">529</span>        @Deprecated<a name="line.529"></a>
+<span class="sourceLineNo">530</span>        WARNING("warning"),<a name="line.530"></a>
+<span class="sourceLineNo">531</span>        @Deprecated<a name="line.531"></a>
+<span class="sourceLineNo">532</span>        WEBHOOK("webhook"),<a name="line.532"></a>
+<span class="sourceLineNo">533</span>        @Deprecated<a name="line.533"></a>
+<span class="sourceLineNo">534</span>        WINDOW("window"),<a name="line.534"></a>
+<span class="sourceLineNo">535</span>        @Deprecated<a name="line.535"></a>
+<span class="sourceLineNo">536</span>        WORD("word"),<a name="line.536"></a>
+<span class="sourceLineNo">537</span>        @Deprecated<a name="line.537"></a>
+<span class="sourceLineNo">538</span>        WORKSPACES("workspaces"),<a name="line.538"></a>
+<span class="sourceLineNo">539</span>        @Deprecated<a name="line.539"></a>
+<span class="sourceLineNo">540</span>        WORLD("world"),<a name="line.540"></a>
+<span class="sourceLineNo">541</span>        @Deprecated<a name="line.541"></a>
+<span class="sourceLineNo">542</span>        ZOOMIN("zoomin"),<a name="line.542"></a>
+<span class="sourceLineNo">543</span>        @Deprecated<a name="line.543"></a>
+<span class="sourceLineNo">544</span>        ZOOMOUT("zoomout"),<a name="line.544"></a>
+<span class="sourceLineNo">545</span><a name="line.545"></a>
+<span class="sourceLineNo">546</span>        CUSTOM("custom"), // default and only recommended mode now<a name="line.546"></a>
+<span class="sourceLineNo">547</span><a name="line.547"></a>
+<span class="sourceLineNo">548</span>        @Deprecated // use a specific icon as much as possible<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        DEFAULT("default");<a name="line.549"></a>
+<span class="sourceLineNo">550</span><a name="line.550"></a>
+<span class="sourceLineNo">551</span>        @Getter<a name="line.551"></a>
+<span class="sourceLineNo">552</span>        private final String key;<a name="line.552"></a>
+<span class="sourceLineNo">553</span>    }<a name="line.553"></a>
+<span class="sourceLineNo">554</span>}<a name="line.554"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

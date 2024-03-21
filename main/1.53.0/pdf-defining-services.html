@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Defining services</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/pdf-defining-services.html">
+    <meta name="description" content="Get an overview of what are services and how to use services with Talend Component Kit">
+    <meta name="keywords" content="service, component-manager, reuse configuration, overview, action, custom, interceptor, i18n, api">
+    <meta name="generator" content="Talend Component Kit Generator">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Defining services :: Talend Component Kit Developer Reference Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/pdf-defining-services.html">
+    <meta name="description" content="Get an overview of what are services and how to use services with Talend Component Kit">
+    <meta name="keywords" content="service, component-manager, reuse configuration, overview, action, custom, interceptor, i18n, api">
+    <meta name="generator" content="Antora 3.0.1">
+<meta name="date" content="2023-04-07T15:55:19.269Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+
+
+<script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                  messageStyle: "none",
+                  tex2jax: {
+                    inlineMath: [["\\(", "\\)"]],
+                    displayMath: [["\\[", "\\]"]],
+                    ignoreClass: "nostem|nolatexmath"
+                  },
+                  asciimath2jax: {
+                    delimiters: [["\\$", "\\$"]],
+                    ignoreClass: "nostem|noasciimath"
+                  },
+                  TeX: { equationNumbers: { autoNumber: "none" } }
+                });
+                </script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+    <script>var uiRootPath = '../../_'</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                1.53.0
+              <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version">
+                    <a href="../latest/index.html">1.56.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.55.2/index.html">1.55.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.55.1/index.html">1.55.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.55.0/index.html">1.55.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.54.1/index.html">1.54.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.54.0/index.html">1.54.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.53.1/index.html">1.53.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="index.html">1.53.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.52.1/index.html">1.52.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.52.0/index.html">1.52.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.51.4/index.html">1.51.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.51.3/index.html">1.51.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.51.2/index.html">1.51.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.50.4/index.html">1.50.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.49.1/index.html">1.49.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.48.1/index.html">1.48.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.47.1/index.html">1.47.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.46.1/index.html">1.46.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.45.2/index.html">1.45.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.44.3/index.html">1.44.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.43.1/index.html">1.43.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.42.0/index.html">1.42.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.41.1/index.html">1.41.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.40.0/index.html">1.40.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.39.3/index.html">1.39.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.8/index.html">1.38.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.30.0/index.html">1.30.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.29.2/index.html">1.29.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.15/index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.13/index.html">0.0.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="changelog.html" class="navbar-single-link">CHANGELOG</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.53.0">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>First steps</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="getting-started.html">Getting Started</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="record-types.html">Record types</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Tutorials</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-tutorials.html">Tutorial overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-output-component.html">Creating a Hazelcast output component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-components-rest-api.html">Creating a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-rest-api.html">Testing a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-your-components.html">Testing a Hazelcast component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-dev-vs-ci-setup.html">Testing in a continuous integration environment</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-handle-talend-component-migration.html">Handling component version migration</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Setting up your environment</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-setup-environment.html">Setup overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="system-prerequisites.html">System requirements</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="installing-talend-intellij-plugin.html">Installing the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Generating a project</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-generating-project.html">Project generation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Using the Starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="generate-project-using-intellij-plugin.html">Using the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Implementing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-creating-components.html">Component implementation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-registering.html">Defining component metadata</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="creating-dataset-datastore.html">Defining datasets and datastores</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-input.html">Defining an input component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-processor-output.html">Defining a processor/output logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-standalone.html">Defining a standalone component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-configuration.html">Defining component configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-execution.html">Component execution logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-internationalization.html">Internationalizing a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-versions-and-migration.html">Managing component versions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-configuration-sensitive-data.html">Masking sensitive data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="concept-processor-and-batch-processing.html">Implementing batch processing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-loading.html">Component loading</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Defining services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-defining-services.html">Service overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-internationalization.html">Internationalizing a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-actions.html">Providing actions through a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-built-in.html">Built-in services</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-interceptors.html">Services and interceptors</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-custom-api.html">Defining a custom API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-testing-components.html">Component testing overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-best-practices.html">Component testing best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="index-sub-testing-runtime.html">Testing component runtime</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-beam.html">Beam testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-multiple-envs.html">Testing in multiple environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-maven-passwords.html">Reusing Maven credentials</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-generating-data.html">Generating data for testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Studio</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-deploying-components.html">Studio integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio.html">Iterating on component development</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-from-car.html">Installing components from a CAR file</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-schema.html">Studio schema</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="compatibility.html">Version compatibility</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="javajet-to-componentkit.html">From Javajet to the Component Kit</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Cloud</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-cloud-integration.html">Cloud integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Knowledge base</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-knowledge-base.html">Knowledge base articles</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="changelog.html">Changelog</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Reference Guide</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="gallery.html">Widget and validation gallery</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-actions.html">List of available actions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-conditions.html">List of conditions for binding properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-configuration-types.html">Component data configuration types</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-constraints.html">Component field constraints and validations</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-scanning-exclusions.html">Scanning exclusions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-server-configuration.html">Server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-ui.html">UI API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="apidocs.html">Javadocs</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb active"><a href="pdf-defining-services.html">Defining services</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Defining services</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Services are configurations that can be reused across several classes.
+Talend Component Kit comes with a predefined set of services that you can easily use.</p>
+</div>
+<div class="paragraph">
+<p>You can still define your own services under the <strong>service</strong> node of your component project. By default, the Component Kit Starter generates a dedicated class in your project in which you can implement services.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="services-built-in.html" class="xref page">Built-in services</a></p>
+</li>
+<li>
+<p><a href="services-internationalization.html" class="xref page">Internationalizing a service</a></p>
+</li>
+<li>
+<p><a href="services-actions.html" class="xref page">Providing actions through a service</a></p>
+</li>
+<li>
+<p><a href="services-interceptors.html" class="xref page">Services and interceptors</a></p>
+</li>
+<li>
+<p><a href="services-custom-api.html" class="xref page">Defining a custom API</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_built_in_services"><a class="anchor" href="#_built_in_services"></a>Built-in services</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The framework provides built-in services that you can inject by type in components and actions.</p>
+</div>
+<div class="sect2">
+<h3 id="_lisf_of_built_in_services"><a class="anchor" href="#_lisf_of_built_in_services"></a>Lisf of built-in services</h3>
+<table class="tableblock frame-all grid-all stretch table-striped table-hover table-ordered">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.cache.LocalCache</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provides a small abstraction to cache data that does not need to be recomputed very often. Commonly used by actions for UI interactions.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.dependency.Resolver</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Allows to resolve a dependency from its Maven coordinates. It can either try to resolve a local file or (better) creates for you a preinitialized classloader.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>javax.json.bind.Jsonb</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A JSON-B instance. If your model is static and you don&#8217;t want to handle the serialization manually using JSON-P, you can inject that instance.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>javax.json.spi.JsonProvider</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A JSON-P instance. Prefer other JSON-P instances if you don&#8217;t exactly know why you use this one.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>javax.json.JsonBuilderFactory</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>javax.json.JsonWriterFactory</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>javax.json.JsonReaderFactory</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>javax.json.stream.JsonParserFactory</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>javax.json.stream.JsonGeneratorFactory</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A JSON-P instance. It is recommended to use this one instead of a custom one to optimize memory usage and speed.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.dependency.Resolver</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Allows to resolve files from Maven coordinates (like <code>dependencies.txt</code> for component). Note that it assumes that the files are available in the component Maven repository.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.injector.Injector</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Utility to inject services in fields marked with <code>@Service</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.factory.ObjectFactory</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Allows to instantiate an object from its class name and properties.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.record.RecordBuilderFactory</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Allows to instantiate a <a href="record-types.html#record" class="xref page">record</a>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.record.RecordPointerFactory</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Allows to instantiate a <code>RecordPointer</code> which enables to extract a data from a <code>Record</code> based on <a href="https://tools.ietf.org/html/rfc6901">jsonpointer</a> specification.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.record.RecordService</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Some utilities to create records from another one. It is typically what is used when you want to add an entry in a record and passthrough the other ones. It also provides a nice <code>RecordVisitor</code> API for advanced cases.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>org.talend.sdk.component.api.service.configuration.LocalConfiguration</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Represents the local configuration that can be used during the design.</p>
+</div>
+<div class="paragraph">
+<p>It is not recommended to use it for the runtime because the local configuration is usually different and the instances are distinct.</p>
+</div>
+<div class="paragraph">
+<p>You can also use the local cache as an interceptor with <code>@Cached</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Every interface that extends <code>HttpClient</code> and that contains methods annotated with <code>@Request</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Lets you define an HTTP client in a declarative manner using an annotated interface.</p>
+</div>
+<div class="paragraph">
+<p>See the <a href="#httpclient_usage">Using HttpClient</a> for more details.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+All these <strong>injected</strong> services are serializable, which is important for big data environments. If you create the instances yourself, you cannot benefit from these features, nor from the memory optimization done by the runtime. Prefer reusing the framework instances over custom ones.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_localconfiguration"><a class="anchor" href="#_localconfiguration"></a>LocalConfiguration</h4>
+<div class="paragraph">
+<p>The local configuration uses system properties and the environment (replacing dots per underscores) to look up the values.
+You can also put a <code>TALEND-INF/local-configuration.properties</code> file with default values. This allows to use the <code>local_configuration:&lt;key&gt;</code>
+syntax in <code>@Ui</code> annotation. Here is an example to read the default value of a property from the configuration:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@DefaultValue("local_configuration:myfamily.model.key")
+private String value;</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Ensure your key is unique across all components to avoid global overrides on the JVM. In practice, it is strongly recommended to always use the family as a prefix.<br>
+Also note that you can use <code>@Configuration("prefix")</code> to inject a mapping of the <code>LocalConfiguration</code> in a component. It uses the same rules as for any configuration object.
+If you prefer to inject you configuration in a service, ensure to wrap it in a <code>Supplier</code> to always have
+an up to date version.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If you want to ignore the <code>local-configuration.properties</code>, you can set the system property: <code>talend.component.configuration.${componentPluginId}.ignoreLocalConfiguration=true</code>.</p>
+</div>
+<div class="paragraph">
+<p>Here a sample <code>@Configuration</code> model:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Data // from lombok, optional
+public class MyConfig {
+  @Option
+  private String defaultUrl;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here is how to use it from a service:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Service
+public class ConfiguredService {
+  @Configuration("myprefix")
+  private Supplier&lt;MyConfig&gt; config;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And finally, here is how to use it in a component:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Service
+public class ConfiguredComponent {
+  public ConfiguredComponent(@Configuration("myprefix") final MyConfig config) {
+    // ...
+  }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+it is recommended to convert this configuration in a runtime model in components
+to avoid to transport more than desired during the job distribution.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="httpclient_usage"><a class="anchor" href="#httpclient_usage"></a>Using HttpClient</h3>
+<div class="paragraph">
+<p>You can access the API reference in the <a href="https://talend.github.io/component-runtime/apidocs/1.53.0/api/org/talend/sdk/component/api/service/http/package-summary.html">Javadocs</a>.</p>
+</div>
+<div class="paragraph">
+<p>The HttpClient usage is described in this section by using the REST API example below. Assuming that it requires a basic authentication header:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GET     <code>/api/records/{id}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">POST    <code>/api/records</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JSON payload to be created: <code>{"id":"some id", "data":"some data"}</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>To create an HTTP client that is able to consume the REST API above, you need to define an interface that extends <code>HttpClient</code>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>HttpClient</code> interface lets you set the <code>base</code> for the HTTP address that the client will hit.</p>
+</div>
+<div class="paragraph">
+<p>The <code>base</code> is the part of the address that needs to be added to the request path to hit the API. It is now possible, and recommended, to use @Base annotation.</p>
+</div>
+<div class="paragraph">
+<p>Every method annotated with <code>@Request</code> in the interface defines an HTTP request.
+Every request can have a <code>@Codec</code> parameter that allows to encode or decode the request/response payloads.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can ignore the encoding/decoding for <code>String</code> and <code>Void</code> payloads.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface APIClient extends HttpClient {
+    @Request(path = "api/records/{id}", method = "GET")
+    @Codec(decoder = RecordDecoder.class) //decoder =  decode returned data to Record class
+    Record getRecord(@Header("Authorization") String basicAuth, @Path("id") int id);
+
+    /** same with base as parameter */
+    @Request(path = "api/records/{id}", method = "GET")
+    @Codec(decoder = RecordDecoder.class) //decoder =  decode returned data to Record class
+    Record getRecord(@Header("Authorization") String basicAuth, @Base String base, @Path("id") int id);
+
+    @Request(path = "api/records", method = "POST")
+    @Codec(encoder = RecordEncoder.class, decoder = RecordDecoder.class) //encoder = encode record to fit request format (json in this example)
+    Record createRecord(@Header("Authorization") String basicAuth, Record record);
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The interface should extend <code>HttpClient</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In the codec classes (that implement Encoder/Decoder), you can inject any of your service annotated with <code>@Service</code> or <code>@Internationalized</code> into the constructor.
+Internationalization services can be useful to have internationalized messages for errors handling.</p>
+</div>
+<div class="paragraph">
+<p>The interface can be injected into component classes or services to consume the defined API.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Service
+public class MyService {
+
+    private APIClient client;
+
+    public MyService(...,APIClient client){
+        //...
+        this.client = client;
+        client.base("http://localhost:8080");// init the base of the api, often in a PostConstruct or init method
+    }
+
+    //...
+    // Our get request
+    Record rec =  client.getRecord("Basic MLFKG?VKFJ", 100);
+    // or
+    Record rec1 =  client.getRecord("Basic MLFKG?VKFJ", "http://localhost:8080", 100);
+
+    //...
+    // Our post request
+    Record newRecord = client.createRecord("Basic MLFKG?VKFJ", new Record());
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+By default, <code><strong>/</strong>+json</code> are mapped to JSON-P and <code><strong>/</strong>+xml</code> to JAX-B if the model has a <code>@XmlRootElement</code> annotation.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_customizing_http_client_requests"><a class="anchor" href="#_customizing_http_client_requests"></a>Customizing HTTP client requests</h4>
+<div class="paragraph">
+<p>For advanced cases, you can customize the <code>Connection</code> by directly using <code>@UseConfigurer</code> on the method. It calls your custom instance of <code>Configurer</code>. Note that you can use <code>@ConfigurerOption</code> in the method signature to pass some <code>Configurer</code> configurations.</p>
+</div>
+<div class="paragraph">
+<p>For example, if you have the following <code>Configurer</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class BasicConfigurer implements Configurer {
+    @Override
+    public void configure(final Connection connection, final ConfigurerConfiguration configuration) {
+        final String user = configuration.get("username", String.class);
+        final String pwd = configuration.get("password", String.class);
+        connection.withHeader(
+            "Authorization",
+            Base64.getEncoder().encodeToString((user + ':' + pwd).getBytes(StandardCharsets.UTF_8)));
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can then set it on a method to automatically add the basic header with this kind of API usage:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface APIClient extends HttpClient {
+    @Request(path = "...")
+    @UseConfigurer(BasicConfigurer.class)
+    Record findRecord(@ConfigurerOption("username") String user, @ConfigurerOption("password") String pwd);
+}</code></pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_built_in_configurer"><a class="anchor" href="#_built_in_configurer"></a>Built-In configurer</h5>
+<div class="paragraph">
+<p>The framework provides in the <code>component-api</code> an <code>OAuth1.Configurer</code> which can be used as an example
+of configurer implementation. It expects a single <code>OAuth1.Configuration</code> parameter to be passed
+to the request as a <code>@ConfigurationOption</code>.</p>
+</div>
+<div class="paragraph">
+<p>Here is a sample showing how it can be used:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface OAuth1Client extends HttpClient {
+    @Request(path = "/oauth1")
+    @UseConfigurer(OAuth1.Configurer.class)
+    String get(@ConfigurerOption("oauth1") final OAuth1.Configuration configuration);
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_big_data_streams"><a class="anchor" href="#_big_data_streams"></a>Big data streams</h4>
+<div class="paragraph">
+<p>By default, the client loads in memory the payload. In case of big payloads, it can consume too much memory.
+For these cases, you can get the payload as an <code>InputStream</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface APIClient extends HttpClient {
+    @Request(path = "/big/http/data")
+    InputStream getData();
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can use the <code>Response</code> wrapper, or not.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2 relatedlinks">
+<h3 id="_related_articles"><a class="anchor" href="#_related_articles"></a>Related articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="services-internationalization.html" class="xref page">Internationalizing a service</a></p>
+</li>
+<li>
+<p><a href="services-actions.html" class="xref page">Providing actions through a service</a></p>
+</li>
+<li>
+<p><a href="services-interceptors.html" class="xref page">Services and interceptors</a></p>
+</li>
+<li>
+<p><a href="services-custom-api.html" class="xref page">Defining a custom API</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_internationalizing_services"><a class="anchor" href="#_internationalizing_services"></a>Internationalizing services</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Internationalization requires following several best practices:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Storing messages using <code>ResourceBundle</code> properties file in your component module.</p>
+</li>
+<li>
+<p>The location of the properties is in the same package than the related components and is named <code>Messages</code>. For example, <code>org.talend.demo.MyComponent</code> uses <code>org.talend.demo.Messages[locale].properties</code>.</p>
+</li>
+<li>
+<p>Use the internationalization API for your own messages.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_internationalization_api"><a class="anchor" href="#_internationalization_api"></a>Internationalization API</h3>
+<div class="paragraph">
+<p>The Internationalization API is the mechanism to use to internationalize your own messages in your own components.</p>
+</div>
+<div class="paragraph">
+<p>The principle of the API is to design messages as methods returning <code>String</code> values and get back a template using a <code>ResourceBundle</code> named <code>Messages</code> and located in the same package than the interface that defines these methods.</p>
+</div>
+<div class="paragraph">
+<p>To ensure your internationalization API is identified, you need to mark it with the <code>@Internationalized</code> annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.superbiz;
+
+@Internationalized <i class="conum" data-value="1"></i><b>(1)</b>
+public interface Translator {
+
+    String message();
+
+    String templatizedMessage(String arg0, int arg1); <i class="conum" data-value="2"></i><b>(2)</b>
+
+    String localized(String arg0, @Language Locale locale); <i class="conum" data-value="3"></i><b>(3)</b>
+
+    String localized(String arg0, @Language String locale); <i class="conum" data-value="4"></i><b>(4)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>@Internationalized</code> allows to mark a class as an internationalized service.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>You can pass parameters. The message uses the <code>MessageFormat</code> syntax to be resolved, based on the <code>ResourceBundle</code> template.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>You can use <code>@Language</code> on a <code>Locale</code> parameter to specify manually the locale to use. Note that a single value is used (the first parameter tagged as such).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td><code>@Language</code> also supports the <code>String</code> type.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The corresponding <code>Messages.properties</code> placed in the <code>org/superbiz</code> resource folder contains the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">org.superbiz.Translator.message = Some message
+org.superbiz.Translator.templatizedMessage = Some message with string {0} and with number {1}
+org.superbiz.Translator.localized = Some other message with string {0}
+
+# or the short version
+
+Translator.message = Some message
+Translator.templatizedMessage = Some message with string {0} and with number {1}
+Translator.localized = Some other message with string {0}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2 relatedlinks">
+<h3 id="_related_articles_2"><a class="anchor" href="#_related_articles_2"></a>Related articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="services-actions.html" class="xref page">Providing actions through a service</a></p>
+</li>
+<li>
+<p><a href="services-built-in.html" class="xref page">Built-in services</a></p>
+</li>
+<li>
+<p><a href="services-interceptors.html" class="xref page">Services and interceptors</a></p>
+</li>
+<li>
+<p><a href="services-custom-api.html" class="xref page">Defining a custom API</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_providing_actions_for_consumers"><a class="anchor" href="#_providing_actions_for_consumers"></a>Providing actions for consumers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In some cases you can need to add some actions that are not related to the runtime. For example,
+enabling users of the plugin/library to test if a connection works properly.</p>
+</div>
+<div class="paragraph">
+<p>To do so, you need to define an <code>@Action</code>, which is a method with a name (representing the event name), in a class decorated with <code>@Service</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Service
+public class MyDbTester {
+    @Action(family = "mycomp", "test")
+    public Status doTest(final IncomingData data) {
+        return ...;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Services are singleton. If you need some thread safety, make sure that they match that requirement. Services should not store any status either because they can be serialized at any time. Status are held by the component.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Services can be used in components as well (matched by type). They allow to reuse some shared logic, like a client. Here is a sample with a service used to access files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Emitter(family = "sample", name = "reader")
+public class PersonReader implements Serializable {
+    // attributes skipped to be concise
+
+    public PersonReader(@Option("file") final File file,
+                        final FileService service) {
+        this.file = file;
+        this.service = service;
+    }
+
+    // use the service
+    @PostConstruct
+    public void open() throws FileNotFoundException {
+        reader = service.createInput(file);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The service is automatically passed to the constructor. It can be used as a bean. In that case, it is only necessary to call the service method.</p>
+</div>
+<div class="sect2">
+<h3 id="_particular_action_types"><a class="anchor" href="#_particular_action_types"></a>Particular action types</h3>
+<div class="paragraph">
+<p>Some common actions need a clear contract so they are defined as API first-class citizen. For example, this is the case for wizards or health checks. Here is the list of the available actions:</p>
+</div>
+<div class="sect3">
+<h4 id="_close_connection"><a class="anchor" href="#_close_connection"></a>Close Connection</h4>
+<div class="paragraph">
+<p>Mark an action works for closing runtime connection, returning a close helper object which do real close action. The functionality is for the Studio only, studio will use the close object to close connection for existed connection, and no effect for cloud platform.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>close_connection</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.connection.CloseConnection</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.connection.CloseConnectionObject</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+ "connection": "..."
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_create_connection"><a class="anchor" href="#_create_connection"></a>Create Connection</h4>
+<div class="paragraph">
+<p>Mark an action works for creating runtime connection, returning a runtime connection object like jdbc connection if database family. Its parameter MUST be a datastore. Datastore is configuration type annotated with @DataStore. The functionality is for the Studio only, studio will use the runtime connection object when use existed connection, and no effect for cloud platform.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>create_connection</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.connection.CreateConnection</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_discoverdataset"><a class="anchor" href="#_discoverdataset"></a>Discoverdataset</h4>
+<div class="paragraph">
+<p>This class marks an action that explore a connection to retrieve potential datasets.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>discoverdataset</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.discovery.DiscoverDataset</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+ "datasetDescriptionList": "..."
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_dynamic_values"><a class="anchor" href="#_dynamic_values"></a>Dynamic Values</h4>
+<div class="paragraph">
+<p>Mark a method as being useful to fill potential values of a string option for a property denoted by its value. You can link a field as being completable using @Proposable(value). The resolution of the completion action is then done through the component family and value of the action. The callback doesn&#8217;t take any parameter.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>dynamic_values</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.completion.DynamicValues</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.completion.Values</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "items":[
+    {
+      "id":"value",
+      "label":"label"
+    }
+  ]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_healthcheck"><a class="anchor" href="#_healthcheck"></a>Healthcheck</h4>
+<div class="paragraph">
+<p>This class marks an action doing a connection test</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>healthcheck</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.healthcheck.HealthCheck</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "comment":"Something went wrong",
+  "status":"KO"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_schema"><a class="anchor" href="#_schema"></a>Schema</h4>
+<div class="paragraph">
+<p>Mark an action as returning a discovered schema. Its parameter MUST be a dataset. Dataset is configuration type annotated with @DataSet. If component has multiple datasets, then dataset used as action parameter should have the same identifier as this @DiscoverSchema.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>schema</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.schema.DiscoverSchema</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.record.Schema</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "entries":[
+    {
+      "comment":"The column 1",
+      "metadata":false,
+      "name":"column1",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 1",
+      "type":"STRING"
+    },
+    {
+      "comment":"The int column",
+      "metadata":false,
+      "name":"column2",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 2",
+      "type":"INT"
+    }
+  ],
+  "metadata":[
+  ],
+  "props":{
+    "talend.fields.order":"column1,column2"
+  },
+  "type":"RECORD"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_schema_extended"><a class="anchor" href="#_schema_extended"></a>Schema Extended</h4>
+<div class="paragraph">
+<p>Mark a method as returning a Schema resulting from a connector configuration and some other parameters.Parameters can be an incoming schema and/or an outgoing branch.`value' name should match the connector&#8217;s name.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>schema_extended</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.record.Schema</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "entries":[
+    {
+      "comment":"The column 1",
+      "metadata":false,
+      "name":"column1",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 1",
+      "type":"STRING"
+    },
+    {
+      "comment":"The int column",
+      "metadata":false,
+      "name":"column2",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 2",
+      "type":"INT"
+    }
+  ],
+  "metadata":[
+  ],
+  "props":{
+    "talend.fields.order":"column1,column2"
+  },
+  "type":"RECORD"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_suggestions"><a class="anchor" href="#_suggestions"></a>Suggestions</h4>
+<div class="paragraph">
+<p>Mark a method as being useful to fill potential values of a string option. You can link a field as being completable using @Suggestable(value). The resolution of the completion action is then done when the user requests it (generally by clicking on a button or entering the field depending the environment).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>suggestions</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.completion.Suggestions</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.completion.SuggestionValues</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "cacheable":false,
+  "items":[
+    {
+      "id":"value",
+      "label":"label"
+    }
+  ]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_update"><a class="anchor" href="#_update"></a>Update</h4>
+<div class="paragraph">
+<p>This class marks an action returning a new instance replacing part of a form/configuration.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>update</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.update.Update</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_user"><a class="anchor" href="#_user"></a>User</h4>
+<div class="paragraph">
+<p>Extension point for custom UI integrations and custom actions.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>user</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.Action</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_validation"><a class="anchor" href="#_validation"></a>Validation</h4>
+<div class="paragraph">
+<p>Mark a method as being used to validate a configuration.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+this is a server validation so only use it if you can&#8217;t use other client side validation to implement it.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>validation</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.asyncvalidation.ValidationResult</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "comment":"Something went wrong",
+  "status":"KO"
+}</code></pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_built_in_actions"><a class="anchor" href="#_built_in_actions"></a>Built In Actions</h5>
+<div class="paragraph">
+<p>These actions are provided - or not - by the application the UI runs within.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+always ensure you don&#8217;t require this action in your component.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_built_in_suggestable"><a class="anchor" href="#_built_in_suggestable"></a>built_in_suggestable</h4>
+<div class="paragraph">
+<p>Mark the decorated field as supporting suggestions, i.e. dynamically get a list of valid values the user can use. It is however different from <code>@Suggestable</code> by looking up the implementation in the current application and not the services. Finally, it is important to note that it can do nothing in some environments too and that there is no guarantee the specified action is supported.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.action.BuiltInSuggestable</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_internationalization"><a class="anchor" href="#_internationalization"></a>Internationalization</h3>
+<div class="paragraph">
+<p>Internationalization is supported through the injection of the <code>$lang</code> parameter, which allows you to get the correct locale to use with an <code>@Internationalized</code> service:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">public SuggestionValues findSuggestions(@Option("someParameter") final String param,
+                                        @Option("$lang") final String lang) {
+    return ...;
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can combine the <code>$lang</code> option with the <code>@Internationalized</code> and <code>@Language</code> parameters.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2 relatedlinks">
+<h3 id="_related_articles_3"><a class="anchor" href="#_related_articles_3"></a>Related articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="services-internationalization.html" class="xref page">Internationalizing a service</a></p>
+</li>
+<li>
+<p><a href="services-built-in.html" class="xref page">Built-in services</a></p>
+</li>
+<li>
+<p><a href="services-interceptors.html" class="xref page">Services and interceptors</a></p>
+</li>
+<li>
+<p><a href="services-custom-api.html" class="xref page">Defining a custom API</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_services_and_interceptors"><a class="anchor" href="#_services_and_interceptors"></a>Services and interceptors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For common concerns such as caching, auditing, and so on, you can use an interceptor-like API. It is enabled on services by the framework.</p>
+</div>
+<div class="paragraph">
+<p>An interceptor defines an annotation marked with <code>@Intercepts</code>, which defines the implementation of the interceptor (<code>InterceptorHandler</code>).</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Intercepts(LoggingHandler.class)
+@Target({ TYPE, METHOD })
+@Retention(RUNTIME)
+public @interface Logged {
+    String value();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The handler is created from its constructor and can take service injections (by type). The first parameter, however, can be <code>BiFunction&lt;Method, Object[], Object&gt;</code>, which represents the invocation chain if your interceptor can be used with others.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+If you make a generic interceptor, pass the invoker as first parameter. Otherwise you cannot combine interceptors at all.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Here is an example of interceptor implementation for the <code>@Logged</code> API:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class LoggingHandler implements InterceptorHandler {
+    // injected
+    private final BiFunction&lt;Method, Object[], Object&gt; invoker;
+    private final SomeService service;
+
+    // internal
+    private final ConcurrentMap&lt;Method, String&gt; loggerNames = new ConcurrentHashMap&lt;&gt;();
+
+    public CacheHandler(final BiFunction&lt;Method, Object[], Object&gt; invoker, final SomeService service) {
+        this.invoker = invoker;
+        this.service = service;
+    }
+
+    @Override
+    public Object invoke(final Method method, final Object[] args) {
+        final String name = loggerNames.computeIfAbsent(method, m -&gt; findAnnotation(m, Logged.class).get().value());
+        service.getLogger(name).info("Invoking {}", method.getName());
+        return invoker.apply(method, args);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This implementation is compatible with interceptor chains because it takes the invoker as first constructor parameter and it also takes a service injection. Then, the implementation simply does what is needed, which is logging the invoked method in this case.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>findAnnotation</code> annotation, inherited from <code>InterceptorHandler</code>, is an utility method to find an annotation on a method or class (in this order).
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2 relatedlinks">
+<h3 id="_related_articles_4"><a class="anchor" href="#_related_articles_4"></a>Related articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="services-internationalization.html" class="xref page">Internationalizing a service</a></p>
+</li>
+<li>
+<p><a href="services-actions.html" class="xref page">Providing actions through a service</a></p>
+</li>
+<li>
+<p><a href="services-built-in.html" class="xref page">Built-in services</a></p>
+</li>
+<li>
+<p><a href="services-custom-api.html" class="xref page">Defining a custom API</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_defining_a_custom_api"><a class="anchor" href="#_defining_a_custom_api"></a>Defining a custom API</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It is possible to extend the <a href="https://talend.github.io/component-runtime/apidocs/latest/api/index.html">Component API</a> for custom front features.</p>
+</div>
+<div class="paragraph">
+<p>What is important here is to keep in mind that you should do it only if it targets not portable components (only used by the Studio or Beam).</p>
+</div>
+<div class="paragraph">
+<p>It is recommended to create a custom <code>xxxx-component-api</code> module with the new set of annotations.</p>
+</div>
+<div class="sect2">
+<h3 id="_extending_the_ui"><a class="anchor" href="#_extending_the_ui"></a>Extending the UI</h3>
+<div class="paragraph">
+<p>To extend the UI, add an annotation that can be put on <code>@Option</code> fields, and that is decorated with <code>@Ui</code>.
+All its members are then put in the metadata of the parameter. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Ui
+@Target(TYPE)
+@Retention(RUNTIME)
+public @interface MyLayout {
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2 relatedlinks">
+<h3 id="_related_articles_5"><a class="anchor" href="#_related_articles_5"></a>Related articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="services-internationalization.html" class="xref page">Internationalizing a service</a></p>
+</li>
+<li>
+<p><a href="services-actions.html" class="xref page">Providing actions through a service</a></p>
+</li>
+<li>
+<p><a href="services-built-in.html" class="xref page">Built-in services</a></p>
+</li>
+<li>
+<p><a href="services-interceptors.html" class="xref page">Services and interceptors</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/blob/component-runtime-1.53.0/documentation/src/main/antora/modules/ROOT/pages/pdf-defining-services.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Fpdf-defining-services.html&text=Talend%20Component%20Kit%20%3E%3E%20Defining%20services%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Fpdf-defining-services.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Defining%20services&body=Talend%20Component%20Kit%3A%20Defining%20services%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Fpdf-defining-services.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+      <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2019 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchorific/1.2/min/anchorific.min.js" integrity="sha384-ACUAcVkJ3XBvxLPJQqN8h9BfzCtcyqiQoemYyYiS7JJLg9O6aVOVzRYLwqxM2d7/" crossorigin="anonymous"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

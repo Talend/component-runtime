@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Creating your first component</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.0.5/tutorial-create-my-first-component.html">
+    <meta name="description" content="Create your first component using Talend Component Kit and integrate it to Talend Opend Studio to build a job">
+    <meta name="keywords" content="first, start, Studio, integration, palette">
+    <meta name="generator" content="Talend Component Kit Generator">
+<meta name="date" content="2018-09-19T14:36:13.014Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch.min.css" integrity="sha256-vusmcqkVvKdkwoueSJZLlO9y2P+Lp9fN3WwQUV9Uwfw=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch-theme-algolia.min.css" integrity="sha256-ZqsS4QagZnfArbOyheCO4qVjzzsMbg/WMvf5tLtId/Q=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M9.694 14.652a1.076 1.076 0 0 1-.715.421 1.086 1.086 0 1 1-.148-2.158c.235 0 .462.075.652.22.23.173.38.427.42.714a1.07 1.07 0 0 1-.209.803M2.15 2.627A1.084 1.084 0 1 1 .418 1.322 1.084 1.084 0 0 1 2.15 2.627m11.383 2.491a2.46 2.46 0 0 0-1.482.494L8.94 1.798a.59.59 0 1 0-.156.125l3.111 3.816a2.486 2.486 0 0 0-.557.718l-8.84-4.062c.065-.19.086-.394.057-.599A1.274 1.274 0 0 0 2.058.95a1.278 1.278 0 0 0-.952-.247 1.286 1.286 0 0 0 .356 2.544 1.279 1.279 0 0 0 .956-.668l8.838 4.06c-.11.264-.176.55-.187.85H3.563a.788.788 0 0 0-.31-.533.799.799 0 0 0-1.113.155.786.786 0 0 0 .156 1.105.799.799 0 0 0 1.267-.527h7.506c.014.323.088.63.215.91l-1.903.941a.592.592 0 1 0 .089.179l1.904-.94c.162.292.382.548.645.753l-2.473 3.404a1.28 1.28 0 0 0-1.742.291 1.288 1.288 0 0 0 .253 1.8 1.28 1.28 0 0 0 .952.246c.34-.048.64-.225.847-.499.207-.274.294-.612.246-.952a1.276 1.276 0 0 0-.399-.763l2.479-3.41a2.468 2.468 0 1 0 1.352-4.53"></path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Version 1.0.5 <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version is-current is-latest">
+                    <a href="index.html">1.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.0/index.html">1.0.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-api" target="_blank">API</a></li>
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">Runtime</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.0.5">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Getting Started</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-getting-started-with-tck.html">Getting Started overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="methodology-creating-components.html">Development methodology</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tck-framework-overview.html">Framework Overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-execution.html">General component execution logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Tutorials</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-tutorials.html">Tutorial overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-output-component.html">Creating a Hazelcast output component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-components-rest-api.html">Creating a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-rest-api.html">Testing a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-your-components.html">Testing a Hazelcast component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-dev-vs-ci-setup.html">Testing in a continuous integration environment</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-handle-talend-component-migration.html">Handling component version migration</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Setting up your environment</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-setup-environment.html">Setup overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="system-prerequisites.html">System requirements</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="installing-talend-intellij-plugin.html">Installing the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Generating a project</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-generating-project.html">Project generation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Using the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="generate-project-using-intellij-plugin.html">Using the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Implementing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-creating-components.html">Component implementation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-registering.html">Defining component metadata</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-input.html">Defining an input component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-processor-output.html">Defining a processor/output logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-configuration.html">Defining component configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-internationalization.html">Internationalizing a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-versions-and-migration.html">Managing component versions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-configuration-sensitive-data.html">Masking sensitive data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="concept-processor-and-batch-processing.html">Implementing batch processing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="best-practices.html">Best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-loading.html">Component loading</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Defining services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-defining-services.html">Service overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-internationalization.html">Internationalizing a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-actions.html">Providing actions through a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-built-in.html">Built-in services</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-interceptors.html">Services and interceptors</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-custom-api.html">Defining a custom API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-testing-components.html">Component testing overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-best-practices.html">Component testing best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="index-sub-testing-runtime.html">Testing component runtime</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-beam.html">Beam testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-multiple-envs.html">Testing in multiple environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-maven-passwords.html">Reusing Maven credentials</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-generating-data.html">Generating data for testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Studio</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-deploying-components.html">Studio integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio.html">Deploying to Talend Studio</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Cloud</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-cloud-integration.html">Cloud integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="server-uispec.html">UiSpec Server</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Knowledge base</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-knowledge-base.html">Knowledge base articles</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="changelog.html">Changelog</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Reference Guide</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="gallery.html">Widget and validation gallery</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-actions.html">List of available actions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-conditions.html">List of conditions for binding properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-configuration-types.html">Component data configuration types</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-constraints.html">Component field constraints and validations</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-proxy-server-api.html">UiSpec proxy server API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-proxy-server-configuration.html">UiSpec proxy server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-scanning-exclusions.html">Scanning exclusions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-server-configuration.html">Server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-ui.html">UI API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="apidocs.html">Javadocs</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb"><a href="index-getting-started-with-tck.html">Getting Started</a></li>
+      <li class="crumb active"><a href="tutorial-create-my-first-component.html">Creating your first component</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Creating your first component</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This tutorial walks you through all the required steps to get started with <strong>Talend Component Kit</strong>, from the creation of a simple component to its integration into <strong>Talend Open Studio</strong>.</p>
+</div>
+<div class="paragraph">
+<p>The component created in this tutorial is a simple output component that receives data from the previous component and displays it in the logs, along with an extra information entered by a user.</p>
+</div>
+<div class="paragraph">
+<p>Once the prerequisites completed, this tutorial should take you about 20 minutes.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_build_job_run.png" alt="Job run">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This tutorial aims at helping you to create your very first component. But before, get your development environment ready:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Download and install a Java JDK 1.8 or greater.</p>
+</li>
+<li>
+<p>Download and install Talend Open Studio. For example, from <a href="https://sourceforge.net/projects/talend-studio">Sourceforge</a>.</p>
+</li>
+<li>
+<p>Download and install <a href="https://www.jetbrains.com/idea/download">IntelliJ</a>.</p>
+</li>
+<li>
+<p>Download the Talend Component Kit plugin for IntelliJ. The detailed installation steps for the plugin are available in <a href="installing-talend-intellij-plugin.html" class="page">this document</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_generating_a_simple_component_project"><a class="anchor" href="#_generating_a_simple_component_project"></a>Generating a simple component project</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The first step in this tutorial is to generate a project containing a simple output component using the <strong>Starter</strong> included in the Talend Component Kit plugin for IntelliJ.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start IntelliJ and create a new project. In the available options, you should see <strong>Talend Component</strong>.<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/intellij_new_component_project.png" alt="New project">
+</div>
+</div>
+</li>
+<li>
+<p>Make sure that a <strong>Project SDK</strong> is selected. Then, select <strong>Talend Component</strong> and click <strong>Next</strong>.<br>
+The <strong>Talend Component Kit Starter</strong> opens.</p>
+</li>
+<li>
+<p>Enter the project details. The goal here is to define the component and project metadata. Change the default values as follows:<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/intellij_tutorial_project_metadata.png" alt="Project metadata">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <strong>Component Family</strong> and the <strong>Category</strong> will be used later in Talend Open Studio to find the new component.</p>
+</li>
+<li>
+<p>The project metadata are mostly used to identify the project structure. A common practice is to replace 'company' in the default value by a value of your own, like your domain name.<br></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Once the metadata is filled, select <strong>ADD A COMPONENT</strong>. A new screen is displayed in the <strong>Talend Component Kit Starter</strong> that lets you define the generic configuration of the component.</p>
+</li>
+<li>
+<p>Select <strong>PROCESSOR/OUTPUT</strong> and enter a valid Java name for the component. For example, <strong>Logger</strong>.</p>
+</li>
+<li>
+<p>Select <strong>CONFIGURATION MODEL</strong> and add a string field named <code>level</code>. This input field will be used in the component configuration to enter additional information to display in the logs.<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_component_configuration_model.png" alt="Configuration Model">
+</div>
+</div>
+</li>
+<li>
+<p>In the <strong>Input(s) / Output(s)</strong> section, click the default <strong>MAIN</strong> input branch to access its detail, and toggle the <strong>Generic</strong> option to specify that the component can receive any type of data. Leave the <strong>Name</strong> of the branch with its default <code>MAIN</code> value.<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_component_generic_input.png" alt="Generic Input">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+By default, when selecting <strong>PROCESSOR/OUTPUT</strong>, there is one input branch and no output branch for the component, which is fine in the case of this tutorial. A processor without any output branch is considered an output component.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Click <strong>Next</strong> and check the name and location of your project, then click <strong>Finish</strong> to generate the project in the IDE.<br></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>At this point, your component is technically already ready to be compiled and deployed to Talend Open Studio. But first, have a look at the generated project:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_generated_project_view.png" alt="Project view">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Two classes based on the name and type of component defined in the <strong>Talend Component Kit Starter</strong> have been generated:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>LoggerOutput</strong> is where the component logic is defined</p>
+</li>
+<li>
+<p><strong>LoggerOutputConfiguration</strong> is where the component layout and configurable fields are defined, including the <strong>level</strong> string field that was defined earlier in the configuration model of the component.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The <strong>package-info.java</strong> file contains the component metadata defined in the <strong>Talend Component Kit Starter</strong>, like the family and category.</p>
+</li>
+<li>
+<p>You can notice as well that the elements in the tree structure are named after the project metadata defined in the <strong>Talend Component Kit Starter</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These files are the starting point if you later need to edit the configuration, logic, and metadata of your component.</p>
+</div>
+<div class="paragraph">
+<p>There is more that you can do and configure with the <strong>Talend Component Kit Starter</strong>. This tutorial covers only the basics. You can find more information in <a href="tutorial-generate-project-using-starter.html" class="page">this document</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_compiling_and_deploying_the_component_to_talend_open_studio"><a class="anchor" href="#_compiling_and_deploying_the_component_to_talend_open_studio"></a>Compiling and deploying the component to Talend Open Studio</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Without any modification in the component code, you can compile the project and deploy the component to a local instance of Talend Open Studio.</p>
+</div>
+<div class="paragraph">
+<p>This way, it will be easy to check that what is visible in the Studio is what is intended.</p>
+</div>
+<div class="paragraph">
+<p>Before starting to run any command, make sure Talend Open Studio is not running.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>From your component project in IntelliJ, open a terminal.<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_intellij_terminal_blank.png" alt="Compile terminal">
+</div>
+</div>
+<div class="paragraph">
+<p>There, you can see that the terminal opens directly at the root of the project. All commands shown in this tutorial are performed from this folder.</p>
+</div>
+</li>
+<li>
+<p>Compile the project by running the following command: <code>mvnw clean install</code>.<br>
+The <code>mvnw</code> command refers to the Maven wrapper that is shipped with Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.</p>
+</li>
+<li>
+<p>Once the command is executed and you see <strong>BUILD SUCCESS</strong> in the terminal, deploy the component to your local instance of Talend Open Studio using the following command:<br>
+<code>mvnw talend-component:deploy-in-studio -Dtalend.component.studioHome="&lt;path to Talend Open Studio home&gt;"</code><br></p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Replace the path by your own value. If the path contains spaces (for example, <code>Program Files</code>), enclose it with double quotes.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Make sure the build is successful.<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_deploy_in_studio_success.png" alt="Build success">
+</div>
+</div>
+</li>
+<li>
+<p>Open Talend Open Studio and create a new Job:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The new component is present inside the new family and category that were specified in the <strong>Talend Component Kit Starter</strong>. You can add it to your job and open its settings.</p>
+</li>
+<li>
+<p>Notice that the <strong>level</strong> field that was specified in the configuration model of the component in the <strong>Talend Component Kit Starter</strong> is present.<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_first_component_in_studio.png" alt="Component in Studio">
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>At this point, your new component is available in Talend Open Studio, and its configurable part is already set. But the component logic is still to be defined.<br>
+As a reminder, the initial goal of this component is to output the information it received in input in the logs of the job.
+Go to the next section to learn how to define a simple logic.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_editing_the_component"><a class="anchor" href="#_editing_the_component"></a>Editing the component</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can now edit the component to implement a simple logic aiming at reading the data contained in the input branch of the component, to display it the execution logs of the job. The value of the <strong>level</strong> field of the component also needs to be displayed and changed to uppercase.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Save the job created earlier and close Talend Open Studio.</p>
+</li>
+<li>
+<p>Back in IntelliJ open the <strong>LoggerOutput</strong> class. This is the class where the component logic can be defined.</p>
+</li>
+<li>
+<p>Look for the <code>@ElementListener</code> method. It is already present and references the default input branch that was defined in the <strong>Talend Component Kit Starter</strong>, but it is not complete yet.</p>
+</li>
+<li>
+<p>To be able to log the data in input to the console, add the following lines:<br></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">//Log to the console
+        System.out.println("["+configuration.getLevel().toUpperCase()+"] "+defaultInput);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>@ElementListener</code> method now looks as follows:<br></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ElementListener
+    public void onNext(
+            @Input final JsonObject defaultInput) {
+        // this is the method allowing you to handle the input(s) and emit the output(s)
+        // after some custom logic you put here, to send a value to next element you can use an
+        // output parameter and call emit(value).
+
+        //Log to the console
+        System.out.println("["+configuration.getLevel().toUpperCase()+"] "+defaultInput);
+    }</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="5">
+<li>
+<p>Open the Terminal again to compile the project and deploy the component again. To do that, run successively the two following commands:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>mvnw clean install</code></p>
+</li>
+<li>
+<p><code>`mvnw talend-component:deploy-in-studio -Dtalend.component.studioHome="&lt;path to Talend Open Studio home&gt;"</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The update of the component logic should now be deployed to the Studio. After restarting the Studio, you will be ready to build a job and use your component for the first time.</p>
+</div>
+<div class="paragraph">
+<p>To learn the different possibilities and methods available to develop more complex logics, refer to <a href="component-define-processor-output.html" class="page">this document</a>.</p>
+</div>
+<div class="paragraph">
+<p>If you want to avoid having to close and re-open Talend Open Studio every time you need to make an edit, you can enable the developer mode, as explained in <a href="studio.html#developer-mode" class="page">this document</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_building_a_job_with_the_component"><a class="anchor" href="#_building_a_job_with_the_component"></a>Building a job with the component</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As the component is now ready to be used, it is time to create a job and check that it behaves as intended.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open Talend Open Studio again and go to the job created earlier. The new component is still there.</p>
+</li>
+<li>
+<p>Add a <strong>tRowGenerator</strong> component and connect it to the logger.</p>
+</li>
+<li>
+<p>Double-click the <strong>tRowGenerator</strong> to specify the data to generate:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Add a first column named <code>firstName</code> and select the *TalendDataGenerator.getFirstName() function.</p>
+</li>
+<li>
+<p>Add a second column named 'lastName' and select the *TalendDataGenerator.getLastName() function.</p>
+</li>
+<li>
+<p>Set the <strong>Number of Rows for RowGenerator</strong> to <code>10</code>.<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_build_job_trowgenerator.png" alt="tRowGenerator">
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Validate the <strong>tRowGenerator</strong> configuration.</p>
+</li>
+<li>
+<p>Open the <strong>TutorialFamilyLogger</strong> component and set the <strong>level</strong> field to <code>info</code>.<br></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_build_job_logger.png" alt="Logger">
+</div>
+</div>
+</li>
+<li>
+<p>Go to the <strong>Run</strong> tab of the job and run the job.<br>
+The job is executed. You can observe in the console that each of the 10 generated rows is logged, and that the <code>info</code> value entered in the logger is also displayed with each record, in uppercase.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_build_job_run.png" alt="Job run">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1 relatedlinks">
+<h2 id="_related_articles"><a class="anchor" href="#_related_articles"></a>Related articles</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To go further and start implementing more complex components, you can refer to the following documents:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="methodology-creating-components.html" class="page">Methodology for creating components</a></p>
+</li>
+<li>
+<p><a href="tutorial-generate-project-using-starter.html" class="page">Generating a project using the Talend Component Kit Starter</a></p>
+</li>
+<li>
+<p><a href="component-registering.html" class="page">Registering a component</a></p>
+</li>
+<li>
+<p><a href="component-execution.html" class="page">General component execution logic</a></p>
+</li>
+<li>
+<p><a href="component-configuration.html" class="page">Configuring a component</a></p>
+</li>
+<li>
+<p><a href="component-define-input.html" class="page">Defining an input component logic</a></p>
+</li>
+<li>
+<p><a href="component-define-processor-output.html" class="page">Defining a processor/output logic</a></p>
+</li>
+<li>
+<p><a href="component-internationalization.html" class="page">Internationalizing a component</a></p>
+</li>
+<li>
+<p><a href="tutorial-configuration-sensitive-data.html" class="page">Masking sensitive data</a></p>
+</li>
+<li>
+<p><a href="best-practices.html" class="page">Best practices</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/edit/master/documentation/src/main/antora/modules/ROOT/pages/tutorial-create-my-first-component.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Ftutorial-create-my-first-component.html&text=Talend%20Component%20Kit%20%3E%3E%20Creating%20your%20first%20component%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Ftutorial-create-my-first-component.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Creating%20your%20first%20component&body=Talend%20Component%20Kit%3A%20Creating%20your%20first%20component%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Ftutorial-create-my-first-component.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+      </main>
+      <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2018 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="https://cdn.rawgit.com/rmannibucau/00206484a54ac569e091513e6d2a1c01/raw/46cd5d77ba1abe678f83d11490e12a327b62d7ee/anchorific.js"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

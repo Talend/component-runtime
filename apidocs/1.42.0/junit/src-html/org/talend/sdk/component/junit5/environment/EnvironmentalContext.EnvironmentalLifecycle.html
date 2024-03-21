@@ -1,0 +1,232 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/**</a>
+<span class="sourceLineNo">002</span><a id="line.2"> * Copyright (C) 2006-2022 Talend Inc. - www.talend.com</a>
+<span class="sourceLineNo">003</span><a id="line.3"> *</a>
+<span class="sourceLineNo">004</span><a id="line.4"> * Licensed under the Apache License, Version 2.0 (the "License");</a>
+<span class="sourceLineNo">005</span><a id="line.5"> * you may not use this file except in compliance with the License.</a>
+<span class="sourceLineNo">006</span><a id="line.6"> * You may obtain a copy of the License at</a>
+<span class="sourceLineNo">007</span><a id="line.7"> *</a>
+<span class="sourceLineNo">008</span><a id="line.8"> * http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">009</span><a id="line.9"> *</a>
+<span class="sourceLineNo">010</span><a id="line.10"> * Unless required by applicable law or agreed to in writing, software</a>
+<span class="sourceLineNo">011</span><a id="line.11"> * distributed under the License is distributed on an "AS IS" BASIS,</a>
+<span class="sourceLineNo">012</span><a id="line.12"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</a>
+<span class="sourceLineNo">013</span><a id="line.13"> * See the License for the specific language governing permissions and</a>
+<span class="sourceLineNo">014</span><a id="line.14"> * limitations under the License.</a>
+<span class="sourceLineNo">015</span><a id="line.15"> */</a>
+<span class="sourceLineNo">016</span><a id="line.16">package org.talend.sdk.component.junit5.environment;</a>
+<span class="sourceLineNo">017</span><a id="line.17"></a>
+<span class="sourceLineNo">018</span><a id="line.18">import static java.util.Collections.singletonList;</a>
+<span class="sourceLineNo">019</span><a id="line.19">import static java.util.Optional.of;</a>
+<span class="sourceLineNo">020</span><a id="line.20">import static java.util.Optional.ofNullable;</a>
+<span class="sourceLineNo">021</span><a id="line.21"></a>
+<span class="sourceLineNo">022</span><a id="line.22">import java.lang.annotation.Annotation;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import java.util.List;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import java.util.stream.Stream;</a>
+<span class="sourceLineNo">025</span><a id="line.25"></a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.junit.jupiter.api.extension.AfterEachCallback;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.junit.jupiter.api.extension.BeforeEachCallback;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.junit.jupiter.api.extension.ConditionEvaluationResult;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.junit.jupiter.api.extension.ExecutionCondition;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.junit.jupiter.api.extension.Extension;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.junit.jupiter.api.extension.ExtensionContext;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.junit.jupiter.api.extension.ParameterContext;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.junit.jupiter.api.extension.ParameterResolutionException;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.junit.jupiter.api.extension.ParameterResolver;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.junit.jupiter.api.extension.TestInstancePostProcessor;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.junit.jupiter.api.extension.TestTemplateInvocationContext;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import org.junit.platform.commons.util.AnnotationUtils;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import org.talend.sdk.component.junit.environment.DecoratingEnvironmentProvider;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import org.talend.sdk.component.junit.environment.EnvironmentConfiguration;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import org.talend.sdk.component.junit.environment.EnvironmentConfigurations;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import org.talend.sdk.component.junit.environment.EnvironmentProvider;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import org.talend.sdk.component.junit5.ComponentExtension;</a>
+<span class="sourceLineNo">043</span><a id="line.43"></a>
+<span class="sourceLineNo">044</span><a id="line.44">import lombok.AllArgsConstructor;</a>
+<span class="sourceLineNo">045</span><a id="line.45"></a>
+<span class="sourceLineNo">046</span><a id="line.46">@AllArgsConstructor</a>
+<span class="sourceLineNo">047</span><a id="line.47">public class EnvironmentalContext implements TestTemplateInvocationContext {</a>
+<span class="sourceLineNo">048</span><a id="line.48"></a>
+<span class="sourceLineNo">049</span><a id="line.49">    private final EnvironmentProvider provider;</a>
+<span class="sourceLineNo">050</span><a id="line.50"></a>
+<span class="sourceLineNo">051</span><a id="line.51">    private final String displayName;</a>
+<span class="sourceLineNo">052</span><a id="line.52"></a>
+<span class="sourceLineNo">053</span><a id="line.53">    private final ComponentExtension componentExtension;</a>
+<span class="sourceLineNo">054</span><a id="line.54"></a>
+<span class="sourceLineNo">055</span><a id="line.55">    @Override</a>
+<span class="sourceLineNo">056</span><a id="line.56">    public String getDisplayName(final int invocationIndex) {</a>
+<span class="sourceLineNo">057</span><a id="line.57">        return displayName;</a>
+<span class="sourceLineNo">058</span><a id="line.58">    }</a>
+<span class="sourceLineNo">059</span><a id="line.59"></a>
+<span class="sourceLineNo">060</span><a id="line.60">    @Override</a>
+<span class="sourceLineNo">061</span><a id="line.61">    public List&lt;Extension&gt; getAdditionalExtensions() {</a>
+<span class="sourceLineNo">062</span><a id="line.62">        return singletonList(new EnvironmentalLifecycle(provider, componentExtension, null));</a>
+<span class="sourceLineNo">063</span><a id="line.63">    }</a>
+<span class="sourceLineNo">064</span><a id="line.64"></a>
+<span class="sourceLineNo">065</span><a id="line.65">    @AllArgsConstructor</a>
+<span class="sourceLineNo">066</span><a id="line.66">    public static class EnvironmentalLifecycle implements BeforeEachCallback, AfterEachCallback, ExecutionCondition,</a>
+<span class="sourceLineNo">067</span><a id="line.67">            ParameterResolver, TestInstancePostProcessor {</a>
+<span class="sourceLineNo">068</span><a id="line.68"></a>
+<span class="sourceLineNo">069</span><a id="line.69">        private final EnvironmentProvider provider;</a>
+<span class="sourceLineNo">070</span><a id="line.70"></a>
+<span class="sourceLineNo">071</span><a id="line.71">        private final ComponentExtension componentExtension;</a>
+<span class="sourceLineNo">072</span><a id="line.72"></a>
+<span class="sourceLineNo">073</span><a id="line.73">        private AutoCloseable closeable;</a>
+<span class="sourceLineNo">074</span><a id="line.74"></a>
+<span class="sourceLineNo">075</span><a id="line.75">        @Override</a>
+<span class="sourceLineNo">076</span><a id="line.76">        public void beforeEach(final ExtensionContext context) {</a>
+<span class="sourceLineNo">077</span><a id="line.77">            closeable = provider</a>
+<span class="sourceLineNo">078</span><a id="line.78">                    .start(context.getRequiredTestClass(),</a>
+<span class="sourceLineNo">079</span><a id="line.79">                            Stream</a>
+<span class="sourceLineNo">080</span><a id="line.80">                                    .concat(Stream.of(context.getRequiredTestClass().getAnnotations()),</a>
+<span class="sourceLineNo">081</span><a id="line.81">                                            Stream</a>
+<span class="sourceLineNo">082</span><a id="line.82">                                                    .of(of(AnnotationUtils</a>
+<span class="sourceLineNo">083</span><a id="line.83">                                                            .findRepeatableAnnotations(context.getRequiredTestClass(),</a>
+<span class="sourceLineNo">084</span><a id="line.84">                                                                    EnvironmentConfiguration.class))</a>
+<span class="sourceLineNo">085</span><a id="line.85">                                                                            .filter(it -&gt; !it.isEmpty())</a>
+<span class="sourceLineNo">086</span><a id="line.86">                                                                            .map(l -&gt; new Annotation[] {</a>
+<span class="sourceLineNo">087</span><a id="line.87">                                                                                    new EnvironmentConfigurations() {</a>
+<span class="sourceLineNo">088</span><a id="line.88"></a>
+<span class="sourceLineNo">089</span><a id="line.89">                                                                                        @Override</a>
+<span class="sourceLineNo">090</span><a id="line.90">                                                                                        public Class&lt;? extends Annotation&gt;</a>
+<span class="sourceLineNo">091</span><a id="line.91">                                                                                                annotationType() {</a>
+<span class="sourceLineNo">092</span><a id="line.92">                                                                                            return EnvironmentConfigurations.class;</a>
+<span class="sourceLineNo">093</span><a id="line.93">                                                                                        }</a>
+<span class="sourceLineNo">094</span><a id="line.94"></a>
+<span class="sourceLineNo">095</span><a id="line.95">                                                                                        @Override</a>
+<span class="sourceLineNo">096</span><a id="line.96">                                                                                        public EnvironmentConfiguration[]</a>
+<span class="sourceLineNo">097</span><a id="line.97">                                                                                                value() {</a>
+<span class="sourceLineNo">098</span><a id="line.98">                                                                                            return l</a>
+<span class="sourceLineNo">099</span><a id="line.99">                                                                                                    .toArray(</a>
+<span class="sourceLineNo">100</span><a id="line.100">                                                                                                            new EnvironmentConfiguration[0]);</a>
+<span class="sourceLineNo">101</span><a id="line.101">                                                                                        }</a>
+<span class="sourceLineNo">102</span><a id="line.102">                                                                                    } })</a>
+<span class="sourceLineNo">103</span><a id="line.103">                                                                            .orElseGet(() -&gt; new Annotation[0])))</a>
+<span class="sourceLineNo">104</span><a id="line.104">                                    .toArray(Annotation[]::new));</a>
+<span class="sourceLineNo">105</span><a id="line.105">            ofNullable(componentExtension).ifPresent(c -&gt; {</a>
+<span class="sourceLineNo">106</span><a id="line.106">                c.doStart(context);</a>
+<span class="sourceLineNo">107</span><a id="line.107">                c.doInject(context);</a>
+<span class="sourceLineNo">108</span><a id="line.108">            });</a>
+<span class="sourceLineNo">109</span><a id="line.109">        }</a>
+<span class="sourceLineNo">110</span><a id="line.110"></a>
+<span class="sourceLineNo">111</span><a id="line.111">        @Override</a>
+<span class="sourceLineNo">112</span><a id="line.112">        public void afterEach(final ExtensionContext context) {</a>
+<span class="sourceLineNo">113</span><a id="line.113">            ofNullable(componentExtension).ifPresent(c -&gt; {</a>
+<span class="sourceLineNo">114</span><a id="line.114">                c.resetState();</a>
+<span class="sourceLineNo">115</span><a id="line.115">                c.doStop(context);</a>
+<span class="sourceLineNo">116</span><a id="line.116">            });</a>
+<span class="sourceLineNo">117</span><a id="line.117">            ofNullable(closeable).ifPresent(c -&gt; {</a>
+<span class="sourceLineNo">118</span><a id="line.118">                try {</a>
+<span class="sourceLineNo">119</span><a id="line.119">                    c.close();</a>
+<span class="sourceLineNo">120</span><a id="line.120">                } catch (final Exception e) {</a>
+<span class="sourceLineNo">121</span><a id="line.121">                    throw new IllegalStateException(e);</a>
+<span class="sourceLineNo">122</span><a id="line.122">                }</a>
+<span class="sourceLineNo">123</span><a id="line.123">            });</a>
+<span class="sourceLineNo">124</span><a id="line.124">        }</a>
+<span class="sourceLineNo">125</span><a id="line.125"></a>
+<span class="sourceLineNo">126</span><a id="line.126">        @Override</a>
+<span class="sourceLineNo">127</span><a id="line.127">        public ConditionEvaluationResult evaluateExecutionCondition(final ExtensionContext context) {</a>
+<span class="sourceLineNo">128</span><a id="line.128">            return isActive() ? ConditionEvaluationResult.enabled("provider is active")</a>
+<span class="sourceLineNo">129</span><a id="line.129">                    : ConditionEvaluationResult.disabled("provider is disabled");</a>
+<span class="sourceLineNo">130</span><a id="line.130">        }</a>
+<span class="sourceLineNo">131</span><a id="line.131"></a>
+<span class="sourceLineNo">132</span><a id="line.132">        private boolean isActive() {</a>
+<span class="sourceLineNo">133</span><a id="line.133">            return DecoratingEnvironmentProvider.class.isInstance(provider)</a>
+<span class="sourceLineNo">134</span><a id="line.134">                    &amp;&amp; DecoratingEnvironmentProvider.class.cast(provider).isActive();</a>
+<span class="sourceLineNo">135</span><a id="line.135">        }</a>
+<span class="sourceLineNo">136</span><a id="line.136"></a>
+<span class="sourceLineNo">137</span><a id="line.137">        @Override</a>
+<span class="sourceLineNo">138</span><a id="line.138">        public boolean supportsParameter(final ParameterContext parameterContext,</a>
+<span class="sourceLineNo">139</span><a id="line.139">                final ExtensionContext extensionContext) throws ParameterResolutionException {</a>
+<span class="sourceLineNo">140</span><a id="line.140">            return componentExtension != null</a>
+<span class="sourceLineNo">141</span><a id="line.141">                    &amp;&amp; componentExtension.supportsParameter(parameterContext, extensionContext);</a>
+<span class="sourceLineNo">142</span><a id="line.142">        }</a>
+<span class="sourceLineNo">143</span><a id="line.143"></a>
+<span class="sourceLineNo">144</span><a id="line.144">        @Override</a>
+<span class="sourceLineNo">145</span><a id="line.145">        public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext)</a>
+<span class="sourceLineNo">146</span><a id="line.146">                throws ParameterResolutionException {</a>
+<span class="sourceLineNo">147</span><a id="line.147">            return componentExtension == null ? null</a>
+<span class="sourceLineNo">148</span><a id="line.148">                    : componentExtension.resolveParameter(parameterContext, extensionContext);</a>
+<span class="sourceLineNo">149</span><a id="line.149">        }</a>
+<span class="sourceLineNo">150</span><a id="line.150"></a>
+<span class="sourceLineNo">151</span><a id="line.151">        @Override</a>
+<span class="sourceLineNo">152</span><a id="line.152">        public void postProcessTestInstance(final Object o, final ExtensionContext extensionContext) {</a>
+<span class="sourceLineNo">153</span><a id="line.153">            if (componentExtension != null) {</a>
+<span class="sourceLineNo">154</span><a id="line.154">                componentExtension.postProcessTestInstance(o, extensionContext);</a>
+<span class="sourceLineNo">155</span><a id="line.155">            }</a>
+<span class="sourceLineNo">156</span><a id="line.156">        }</a>
+<span class="sourceLineNo">157</span><a id="line.157">    }</a>
+<span class="sourceLineNo">158</span><a id="line.158">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
