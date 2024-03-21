@@ -80,13 +80,13 @@ import org.talend.sdk.component.server.test.websocket.WebsocketClient;
 class ComponentResourceImplTest {
 
     @Inject
-    private WebTarget base;
+    protected WebTarget base;
 
     @Inject
-    private ComponentClient client;
+    protected ComponentClient client;
 
     @Inject
-    private WebsocketClient ws;
+    protected WebsocketClient ws;
 
     @Test
     void webSocketGetIndex() {
@@ -316,42 +316,6 @@ class ComponentResourceImplTest {
                 .request(APPLICATION_OCTET_STREAM_TYPE)
                 .accept(APPLICATION_OCTET_STREAM_TYPE)
                 .get(String.class));
-    }
-
-    @Test
-    void studioThemedIcon() {
-        System.setProperty("talend.studio.version", "802");
-        final String family = client.getFamilyId("jdbc");
-        final String id = client.getJdbcId();
-        //
-        Response icon = base.path("component/icon/custom/{familyId}/{iconKey}")
-                .resolveTemplate("familyId", family)
-                .resolveTemplate("iconKey", "logo")
-                .request(APPLICATION_OCTET_STREAM_TYPE)
-                .accept(APPLICATION_OCTET_STREAM_TYPE)
-                .get(Response.class);
-        assertNotNull(icon);
-        assertEquals(404, icon.getStatusInfo().getStatusCode());
-        //
-        icon = base.path("component/icon/custom/{familyId}/{iconKey}")
-                .resolveTemplate("familyId", family)
-                .resolveTemplate("iconKey", "logo")
-                .queryParam("theme", "dark")
-                .request(APPLICATION_OCTET_STREAM_TYPE)
-                .accept(APPLICATION_OCTET_STREAM_TYPE)
-                .get(Response.class);
-        assertNotNull(icon);
-        assertEquals(404, icon.getStatusInfo().getStatusCode());
-        //
-        icon = base.path("component/icon/{id}")
-                .resolveTemplate("id", id)
-                .queryParam("theme", "dark")
-                .request(APPLICATION_OCTET_STREAM_TYPE)
-                .accept(APPLICATION_OCTET_STREAM_TYPE)
-                .get(Response.class);
-        assertNotNull(icon);
-        assertEquals("image/png", icon.getMediaType().toString());
-        System.clearProperty("talend.studio.version");
     }
 
     @Test
