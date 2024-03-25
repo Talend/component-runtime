@@ -33,6 +33,7 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.sample.connector</talend.build.name>
+    <talend.validation.icons.legacy>true</talend.validation.icons.legacy>
   </properties>
 
   <dependencies>
