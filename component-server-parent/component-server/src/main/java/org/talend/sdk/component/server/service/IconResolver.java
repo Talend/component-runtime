@@ -39,7 +39,9 @@ import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class IconResolver {
 
@@ -58,7 +60,7 @@ public class IconResolver {
 
     @PostConstruct
     protected void init() {
-        supportsSvg = System.getProperty("talend.studio.version") == null
+        supportsSvg = studioSupportsSvgOrTrue()
                 && componentServerConfiguration.getIconExtensions().stream().anyMatch(it -> it.endsWith(".svg"));
         isThemeSupported = componentServerConfiguration.getSupportIconTheme();
         isLegacyIconsSupported = componentServerConfiguration.getSupportLegacyIcons();
@@ -69,6 +71,14 @@ public class IconResolver {
                         .stream()
                         .filter(it -> !it.endsWith(".svg"))
                         .collect(toList());
+        log.info("[IconResolver] SVG supported: {}, patterns: {}.", isSupportsSvg(), patterns);
+    }
+
+    private Boolean studioSupportsSvgOrTrue() {
+        if (System.getProperty("talend.studio.version") != null) {
+            return Boolean.getBoolean("talend.component.server.icon.svg.support");
+        }
+        return true;
     }
 
     protected boolean isSupportsSvg() {
@@ -184,7 +194,7 @@ public class IconResolver {
         throw new IllegalArgumentException("Unsupported icon type: " + path);
     }
 
-    private static class Cache {
+    public static class Cache {
 
         private final ConcurrentMap<String, Optional<Icon>> icons = new ConcurrentHashMap<>();
     }
