@@ -36,6 +36,12 @@ public class SvgValidator {
     private final SAXSVGDocumentFactory factory =
             new SAXSVGDocumentFactory(XMLResourceDescriptor.getXMLParserClassName());
 
+    private final Boolean legacy;
+
+    public SvgValidator(final Boolean legacy) {
+        this.legacy = legacy;
+    }
+
     public Stream<String> validate(final Path path) {
         final String prefix = "[" + path.getFileName() + "] ";
 
@@ -64,13 +70,15 @@ public class SvgValidator {
 
     private String viewportSize(final SVGOMSVGElement icon) {
         final SVGAnimatedRect viewBox = icon.getViewBox();
+        final int vbX = legacy ? 16 : 40;
+        final int vbY = vbX;
         if (viewBox == null) {
-            return "No viewBox, need one with '0 0 16 16'";
+            return String.format("No viewBox, need one with '0 0 %d %d'", vbX, vbY);
         }
         final SVGRect baseVal = viewBox.getBaseVal();
-        if (baseVal.getX() != 0 || baseVal.getY() != 0 || baseVal.getHeight() != 16 || baseVal.getWidth() != 16) {
-            return "viewBox must be '0 0 16 16' found '" + (int) baseVal.getX() + ' ' + (int) baseVal.getY() + ' '
-                    + (int) baseVal.getWidth() + ' ' + (int) baseVal.getHeight() + '\'';
+        if (baseVal.getX() != 0 || baseVal.getY() != 0 || baseVal.getHeight() != vbY || baseVal.getWidth() != vbX) {
+            return String.format("viewBox must be '0 0 %d %d' found '%d %d %d %d'", vbX, vbY, (int) baseVal.getX(),
+                    (int) baseVal.getY(), (int) baseVal.getWidth(), (int) baseVal.getHeight());
         }
         return null;
     }

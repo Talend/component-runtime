@@ -66,7 +66,7 @@ public class ComponentValidator extends BaseTask {
     private final ParameterModelService parameterModelService =
             new ParameterModelService(new EnrichedPropertyEditorRegistry());
 
-    private final SvgValidator validator = new SvgValidator();
+    private final SvgValidator validator;
 
     private final Map<Class<?>, List<ParameterMeta>> parametersCache = new HashMap<>();
 
@@ -79,6 +79,7 @@ public class ComponentValidator extends BaseTask {
         super(classes);
         this.configuration = configuration;
         this.sourceRoot = sourceRoot;
+        this.validator = new SvgValidator(this.configuration.isValidateLegacyIcons());
 
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
