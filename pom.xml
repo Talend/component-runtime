@@ -1286,7 +1286,7 @@
             <goals>
               <goal>audit</goal>
             </goals>
-            <phase />
+            <phase/>
           </execution>
         </executions>
       </plugin>
@@ -1474,78 +1474,78 @@
           <checkstyleRules>
             <module name="Checker">
               <module name="FileLength">
-                <property name="max" value="3500" />
-                <property name="fileExtensions" value="java" />
+                <property name="max" value="3500"/>
+                <property name="fileExtensions" value="java"/>
               </module>
-              <module name="FileTabCharacter" />
+              <module name="FileTabCharacter"/>
               <module name="LineLength">
-                <property name="max" value="180" />
-                <property name="ignorePattern" value="@version|@see" />
+                <property name="max" value="180"/>
+                <property name="ignorePattern" value="@version|@see"/>
               </module>
               <module name="TreeWalker">
-                <module name="SuppressionCommentFilter" />
-                <module name="FinalParameters" />
+                <module name="SuppressionCommentFilter"/>
+                <module name="FinalParameters"/>
                 <module name="ConstantName">
-                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$" />
+                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$"/>
                 </module>
-                <module name="LocalVariableName" />
+                <module name="LocalVariableName"/>
                 <module name="MethodName">
-                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$" />
+                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$"/>
                 </module>
-                <module name="PackageName" />
-                <module name="LocalFinalVariableName" />
-                <module name="ParameterName" />
-                <module name="StaticVariableName" />
+                <module name="PackageName"/>
+                <module name="LocalFinalVariableName"/>
+                <module name="ParameterName"/>
+                <module name="StaticVariableName"/>
                 <module name="TypeName">
-                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$" />
+                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$"/>
                 </module>
                 <module name="AvoidStarImport">
-                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context" />
+                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context"/>
                 </module>
-                <module name="IllegalImport" />
-                <module name="RedundantImport" />
-                <module name="UnusedImports" />
+                <module name="IllegalImport"/>
+                <module name="RedundantImport"/>
+                <module name="UnusedImports"/>
                 <module name="MethodLength">
-                  <property name="max" value="250" />
+                  <property name="max" value="250"/>
                 </module>
                 <module name="ParameterNumber">
-                  <property name="max" value="10" />
+                  <property name="max" value="10"/>
                 </module>
                 <module name="EmptyBlock">
-                  <property name="option" value="text" />
+                  <property name="option" value="text"/>
                 </module>
-                <module name="NeedBraces" />
+                <module name="NeedBraces"/>
                 <module name="LeftCurly">
-                  <property name="option" value="EOL" />
+                  <property name="option" value="EOL"/>
                 </module>
                 <module name="RightCurly">
-                  <property name="option" value="SAME" />
+                  <property name="option" value="SAME"/>
                 </module>
-                <module name="EmptyStatement" />
-                <module name="EqualsHashCode" />
-                <module name="DefaultComesLast" />
-                <module name="MissingSwitchDefault" />
-                <module name="FallThrough" />
-                <module name="MultipleVariableDeclarations" />
+                <module name="EmptyStatement"/>
+                <module name="EqualsHashCode"/>
+                <module name="DefaultComesLast"/>
+                <module name="MissingSwitchDefault"/>
+                <module name="FallThrough"/>
+                <module name="MultipleVariableDeclarations"/>
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck">
-                  <property name="severity" value="ignore" />
+                  <property name="severity" value="ignore"/>
                 </module>
                 <!-- using lombok this constraint is not accurate
                 <module name="HideUtilityClassConstructor" />
                 -->
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck">
-                  <property name="packageAllowed" value="false" />
-                  <property name="protectedAllowed" value="true" />
-                  <property name="publicMemberPattern" value="^serialVersionUID" />
-                  <property name="severity" value="warning" />
+                  <property name="packageAllowed" value="false"/>
+                  <property name="protectedAllowed" value="true"/>
+                  <property name="publicMemberPattern" value="^serialVersionUID"/>
+                  <property name="severity" value="warning"/>
                 </module>
-                <module name="UpperEll" />
+                <module name="UpperEll"/>
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok" />
-                  <property name="ordered" value="true" />
-                  <property name="separated" value="true" />
-                  <property name="option" value="top" />
-                  <property name="sortStaticImportsAlphabetically" value="true" />
+                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok"/>
+                  <property name="ordered" value="true"/>
+                  <property name="separated" value="true"/>
+                  <property name="option" value="top"/>
+                  <property name="sortStaticImportsAlphabetically" value="true"/>
                 </module>
               </module>
             </module>
@@ -1739,8 +1739,8 @@
             </goals>
             <configuration>
               <rules>
-                <banDistributionManagement />
-                <banDuplicatePomDependencyVersions />
+                <banDistributionManagement/>
+                <banDuplicatePomDependencyVersions/>
               </rules>
               <fail>true</fail>
             </configuration>
@@ -1752,7 +1752,7 @@
             </goals>
             <configuration>
               <rules>
-                <dependencyConvergence />
+                <dependencyConvergence/>
               </rules>
               <fail>false</fail>
             </configuration>
@@ -1891,7 +1891,7 @@
         <jdk>1.8</jdk>
       </activation>
       <properties>
-        <extraJvmFlags />
+        <extraJvmFlags/>
       </properties>
     </profile>
     <profile>
