@@ -26,6 +26,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2600[TCOMP-2600^]: Upgrade netty to 4.1.104.Final link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2636[TCOMP-2636^]: Upgrade commons-compress to 1.26.0 link:search.html?query=build[build^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2682[TCOMP-2682^]: Update svg validator mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2687[TCOMP-2687^]: Upgrade tomcat to 9.0.87 
 
 
 
@@ -51,6 +52,7 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2682[TCOMP-2682^]: Update svg validator mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2687[TCOMP-2687^]: Upgrade tomcat to 9.0.87 
 
 == Version 1.64.0
 
