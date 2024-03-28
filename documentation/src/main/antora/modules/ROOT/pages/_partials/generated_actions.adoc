@@ -42,6 +42,23 @@ This class marks an action that explore a connection to retrieve potential datas
 ----
 
 
+= Dynamic Dependencies
+
+Mark a method as returning a list of dynamic dependencies with GAV formatting.
+
+- Type: `dynamic_dependencies`
+- API: `@org.talend.sdk.component.api.service.dependency.DynamicDependencies`
+- Returned type: `java.util.List`
+- Sample:
+
+[source,js]
+----
+{
+
+}
+----
+
+
 = Dynamic Values
 
 Mark a method as being useful to fill potential values of a string option for a property denoted by its value. You can link a field as being completable using @Proposable(value). The resolution of the completion action is then done through the component family and value of the action. The callback doesn't take any parameter.
