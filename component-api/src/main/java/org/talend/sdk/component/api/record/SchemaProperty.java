@@ -35,6 +35,30 @@ public interface SchemaProperty {
 
     String IS_UNIQUE = "field.unique";
 
+    enum LogicalType {
+
+        DATE("date", Schema.Type.DATETIME),
+        TIME("time", Schema.Type.DATETIME),
+        TIMESTAMP("timestamp", Schema.Type.DATETIME),
+        UUID("uuid", Schema.Type.STRING);
+
+        private String logicalType;
+        private Schema.Type type;
+
+        LogicalType(final String logicalType, final Schema.Type type) {
+            this.logicalType = logicalType;
+            this.type = type;
+        }
+
+        public String key() {
+            return this.logicalType;
+        }
+
+        public Schema.Type storageType() {
+            return this.type;
+        }
+    }
+
     String ALLOW_SPECIAL_NAME = "field.special.name";
 
     enum LogicalType {
