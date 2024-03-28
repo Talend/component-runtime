@@ -83,6 +83,7 @@ public class StudioTypes {
             put("long", LONG);
             put("routines.system.Dynamic", DYNAMIC);
             put("short", SHORT);
+            put("routines.system.Document", DOCUMENT);
         }
     };
 

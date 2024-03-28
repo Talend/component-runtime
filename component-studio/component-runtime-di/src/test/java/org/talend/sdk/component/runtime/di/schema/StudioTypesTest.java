@@ -86,6 +86,7 @@ class StudioTypesTest {
         assertEquals(SHORT, StudioTypes.typeFromClass("java.lang.Short"));
         assertEquals(SHORT, StudioTypes.typeFromClass("short"));
         assertEquals(STRING, StudioTypes.typeFromClass("java.lang.String"));
+        assertEquals(DOCUMENT, StudioTypes.typeFromClass("routines.system.Document"));
         assertThrows(IllegalArgumentException.class,
                 () -> StudioTypes.typeFromClass("org.talend.sdk.component.runtime.di.schema.StudioTypesTest"));
     }
