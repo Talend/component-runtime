@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":781,
+    "commits":783,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -36,14 +36,7 @@
     "name":"Christophe Le Saec"
   },
   {
-    "commits":59,
-    "description":"Frontend Architect",
-    "gravatar":"https://avatars.githubusercontent.com/u/19857479?v=4",
-    "id":"jmfrancois",
-    "name":"Jean-Michel FRANCOIS"
-  },
-  {
-    "commits":55,
+    "commits":56,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -216,6 +209,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/19730806?v=4",
     "id":"fviolette",
     "name":"François Violette"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/67528?v=4",
+    "id":"toutpt",
+    "name":"Jean-Michel"
   },
   {
     "commits":1,
