@@ -90,6 +90,8 @@ class ComponentValidatorTest {
 
         boolean validateSchema() default true;
 
+        boolean validatePlaceholder() default false;
+
         String sourceRoot() default "";
     }
 
@@ -156,7 +158,7 @@ class ComponentValidatorTest {
             cfg.setValidateOptionNames(true);
             cfg.setValidateLocalConfiguration(true);
             cfg.setValidateOutputConnection(true);
-            cfg.setValidatePlaceholder(true);
+            cfg.setValidatePlaceholder(config.validatePlaceholder());
             cfg.setValidateSvg(config.validateSvg());
             cfg.setValidateNoFinalOption(true);
             cfg.setValidateRecord(true);
@@ -170,7 +172,8 @@ class ComponentValidatorTest {
             store.put(ComponentPackage.class.getName(), config);
             final TestLog log = new TestLog();
             store.put(TestLog.class.getName(), log);
-            store.put(ComponentValidator.class.getName(), new ComponentValidator(cfg, new File[] { pluginDir }, log));
+            store.put(ComponentValidator.class.getName(),
+                    new ComponentValidator(cfg, new File[] { pluginDir }, log, new File(".")));
             store.put(ExceptionSpec.class.getName(), new ExceptionSpec());
         }
 
@@ -243,7 +246,7 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.svgerror")
     void testFailureSvg(final ExceptionSpec expectedException) {
-        expectedException.expectMessage("[myicon.svg] viewBox must be '0 0 16 16' found '0 0 16 17'");
+        expectedException.expectMessage("[myicon.svg] viewBox must be '0 0 40 40' found '0 0 16 17'");
     }
 
     @Test
@@ -476,12 +479,22 @@ class ComponentValidatorTest {
     }
 
     @Test
-    @ComponentPackage("org.talend.test.failure.missingplaceholder")
+    @ComponentPackage(value = "org.talend.test.failure.missingplaceholder", validatePlaceholder = true)
     void testFailureMissingPlaceholder(final ExceptionSpec expectedException) {
         expectedException
-                .expectMessage(
-                        "No Foo.missingPlaceholder._placeholder set for foo.missingPlaceholder in Messages.properties of packages: "
-                                + "[org.talend.test.failure.missingplaceholder]");
+                .expectMessage("Some error were detected:\n" +
+                        "- Missing _placeholder resource bundle entries:\n" +
+                        " Foo.missingPlaceholderChar._placeholder = \n" +
+                        " Foo.missingPlaceholderCharacter._placeholder = \n" +
+                        " Foo.missingPlaceholderDouble._placeholder = \n" +
+                        " Foo.missingPlaceholderDoubleWrapper._placeholder = \n" +
+                        " Foo.missingPlaceholderFloat._placeholder = \n" +
+                        " Foo.missingPlaceholderFloatWrapper._placeholder = \n" +
+                        " Foo.missingPlaceholderInt._placeholder = \n" +
+                        " Foo.missingPlaceholderInteger._placeholder = \n" +
+                        " Foo.missingPlaceholderLong._placeholder = \n" +
+                        " Foo.missingPlaceholderLongWrapper._placeholder = \n" +
+                        " Foo.missingPlaceholderStr._placeholder = ");
     }
 
     @Test

@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.65.0M2-SNAPSHOT</version>
+    <version>1.65.0M3-SNAPSHOT</version>
   </parent>
 
   <artifactId>sample-connector</artifactId>
@@ -33,6 +33,7 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.sample.connector</talend.build.name>
+    <talend.validation.icons.legacy>true</talend.validation.icons.legacy>
   </properties>
 
   <dependencies>
