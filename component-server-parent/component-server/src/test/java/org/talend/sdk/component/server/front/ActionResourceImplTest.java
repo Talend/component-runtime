@@ -19,6 +19,7 @@ import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
@@ -63,7 +64,7 @@ class ActionResourceImplTest {
     void actionIndex() {
         { // default
             final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-            assertEquals(12, index.getItems().size());
+            assertEquals(13, index.getItems().size());
             assertEquals("jdbc", index.getItems().iterator().next().getComponent());
         }
         { // change the family
@@ -72,7 +73,7 @@ class ActionResourceImplTest {
                     .queryParam("family", "jdbc")
                     .request(APPLICATION_JSON_TYPE)
                     .get(ActionList.class);
-            assertEquals(5, index.getItems().size());
+            assertEquals(6, index.getItems().size());
             assertEquals("jdbc", index.getItems().iterator().next().getComponent());
         }
     }
@@ -80,7 +81,7 @@ class ActionResourceImplTest {
     @RepeatedTest(2)
     void index() {
         final ActionList index = base.path("action/index").request(APPLICATION_JSON_TYPE).get(ActionList.class);
-        assertEquals(12, index.getItems().size());
+        assertEquals(13, index.getItems().size());
 
         final List<ActionItem> items = new ArrayList<>(index.getItems());
         items.sort(Comparator.comparing(ActionItem::getName));
@@ -343,6 +344,67 @@ class ActionResourceImplTest {
         assertEquals(400, response.getStatus());
         assertEquals("{\"errors\":[\"wrong vault_encrypt\"]}",
                 response.readEntity(ErrorPayload.class).getDescription());
+    }
+
+    @Test
+    void executeDynamicDependencies() {
+        HashMap<String, String> params = new HashMap();
+        List<String> drivers;
+        //
+        params.put("configuration.url", "zorglub://vault:8200/fail");
+        params.put("configuration.driver", "zorglub");
+        params.put("configuration.query", "SELECT 1;");
+        Response response = base
+                .path("action/execute")
+                .queryParam("type", "dynamic_dependencies")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "jdbc-deps")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(params, APPLICATION_JSON_TYPE));
+        assertEquals(200, response.getStatus());
+        drivers = response.readEntity(List.class);
+        assertEquals(3, drivers.size());
+        assertEquals(
+                "[org.zorglub:zorglub-client:1.0.0, org.bouncycastle:bcpkix-jdk15to18:jar:4.5.8, org.json:json:jar:2.0.0]",
+                drivers.toString());
+        //
+        params.put("configuration.driver", "derby");
+        response = base
+                .path("action/execute")
+                .queryParam("type", "dynamic_dependencies")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "jdbc-deps")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(params, APPLICATION_JSON_TYPE));
+        assertEquals(200, response.getStatus());
+        drivers = response.readEntity(List.class);
+        assertEquals(1, drivers.size());
+        assertEquals("[org.apache.derby:derbyclient:jar:10.12.1.1]", drivers.toString());
+        //
+        params.put("configuration.driver", "mysql");
+        response = base
+                .path("action/execute")
+                .queryParam("type", "dynamic_dependencies")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "jdbc-deps")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(params, APPLICATION_JSON_TYPE));
+        assertEquals(200, response.getStatus());
+        drivers = response.readEntity(List.class);
+        assertEquals(1, drivers.size());
+        assertEquals("[com.mysql:mysql-connector-j:jar:8.0.33]", drivers.toString());
+        //
+        params.put("configuration.driver", "inexistant");
+        response = base
+                .path("action/execute")
+                .queryParam("type", "dynamic_dependencies")
+                .queryParam("family", "jdbc")
+                .queryParam("action", "jdbc-deps")
+                .request(APPLICATION_JSON_TYPE)
+                .post(Entity.entity(params, APPLICATION_JSON_TYPE));
+        assertEquals(200, response.getStatus());
+        drivers = response.readEntity(List.class);
+        assertTrue(drivers.isEmpty());
     }
 
 }
