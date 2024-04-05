@@ -70,15 +70,18 @@ public class SvgValidator {
 
     private String viewportSize(final SVGOMSVGElement icon) {
         final SVGAnimatedRect viewBox = icon.getViewBox();
-        final int vbX = legacy ? 16 : 40;
-        final int vbY = vbX;
+        final int vb16 = 16;
+        final int vb40 = 40;
         if (viewBox == null) {
-            return String.format("No viewBox, need one with '0 0 %d %d'", vbX, vbY);
+            return String.format("No viewBox, need one with '0 0 %d %d' (family) or '0 0 %d %d' (connector).", vb16,
+                    vb16, vb40, vb40);
         }
         final SVGRect baseVal = viewBox.getBaseVal();
-        if (baseVal.getX() != 0 || baseVal.getY() != 0 || baseVal.getHeight() != vbY || baseVal.getWidth() != vbX) {
-            return String.format("viewBox must be '0 0 %d %d' found '%d %d %d %d'", vbX, vbY, (int) baseVal.getX(),
-                    (int) baseVal.getY(), (int) baseVal.getWidth(), (int) baseVal.getHeight());
+        if (baseVal.getX() != 0 || baseVal.getY() != 0 || (baseVal.getHeight() != vb16 && baseVal.getHeight() != vb40)
+                || (baseVal.getWidth() != vb16 && baseVal.getWidth() != vb40)) {
+            return String.format("viewBox must be '0 0 %d %d' (family) or '0 0 %d %d' (connector) found '%d %d %d %d'",
+                    vb16, vb16, vb40, vb40, (int) baseVal.getX(), (int) baseVal.getY(), (int) baseVal.getWidth(),
+                    (int) baseVal.getHeight());
         }
         return null;
     }
