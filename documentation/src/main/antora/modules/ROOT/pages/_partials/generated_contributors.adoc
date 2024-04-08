@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":783,
+    "commits":786,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -121,13 +121,6 @@
   },
   {
     "commits":4,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/59560172?v=4",
-    "id":"pgautier83",
-    "name":"pgautier83"
-  },
-  {
-    "commits":4,
     "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?)\n\nBlog: https://ismaelmejia.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
@@ -160,6 +153,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
     "id":"quilicicf",
     "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
+  },
+  {
+    "commits":2,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/59560172?v=4",
+    "id":"pgautier83",
+    "name":"Pierre-emmanuel Gautier"
   },
   {
     "commits":2,
