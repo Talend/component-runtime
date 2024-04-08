@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.64.2-SNAPSHOT</version>
+    <version>1.64.2</version>
   </parent>
 
   <artifactId>sample</artifactId>
