@@ -246,7 +246,8 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.svgerror")
     void testFailureSvg(final ExceptionSpec expectedException) {
-        expectedException.expectMessage("[myicon.svg] viewBox must be '0 0 40 40' found '0 0 16 17'");
+        expectedException.expectMessage(
+                "[myicon.svg] viewBox must be '0 0 16 16' (family) or '0 0 40 40' (connector) found '0 0 16 17'");
     }
 
     @Test

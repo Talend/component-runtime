@@ -28,6 +28,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2682[TCOMP-2682^]: Update svg validator mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2687[TCOMP-2687^]: Upgrade tomcat to 9.0.87 
 - link:https://jira.talendforge.org/browse/TCOMP-2692[TCOMP-2692^]: Upgrade jackson to 2.16.0 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2693[TCOMP-2693^]: Handle multiple viewpoints in svg validation mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 
 
 
@@ -35,8 +36,9 @@
 
 === Work Item
 
+- link:https://jira.talendforge.org/browse/TCOMP-2320[TCOMP-2320^]: Export Dynamic dependencies in job build
 - link:https://jira.talendforge.org/browse/TCOMP-2692[TCOMP-2692^]: Upgrade jackson to 2.16.0 link:search.html?query=component-server[component-server^,role='dockey']
-
+- link:https://jira.talendforge.org/browse/TCOMP-2693[TCOMP-2693^]: Handle multiple viewpoints in svg validation mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 
 
 == Version 1.64.1
