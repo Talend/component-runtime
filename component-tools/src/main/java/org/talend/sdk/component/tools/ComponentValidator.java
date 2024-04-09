@@ -179,8 +179,8 @@ public class ComponentValidator extends BaseTask {
                 // themed icons check
                 List<String> prefixes = new ArrayList<>();
                 of(classes).forEach(s -> {
-                    prefixes.add(s + "/" + ICONS + "light/" + icon);
-                    prefixes.add(s + "/" + ICONS + "dark/" + icon);
+                    prefixes.add(s + File.separator + ICONS + "light" + File.separator + icon);
+                    prefixes.add(s + File.separator + ICONS + "dark" + File.separator + icon);
                 });
                 svgs = prefixes.stream().map(s -> new File(s + ".svg")).collect(toSet());
                 pngs = prefixes.stream().map(s -> new File(s + "_icon32.png")).collect(toSet());
