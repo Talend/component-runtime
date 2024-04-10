@@ -66,15 +66,20 @@ public class ComponentValidator extends BaseTask {
     private final ParameterModelService parameterModelService =
             new ParameterModelService(new EnrichedPropertyEditorRegistry());
 
-    private final SvgValidator validator = new SvgValidator();
+    private final SvgValidator validator;
 
     private final Map<Class<?>, List<ParameterMeta>> parametersCache = new HashMap<>();
 
     private final List<ValidationExtension> extensions;
 
-    public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
+    private final File sourceRoot;
+
+    public ComponentValidator(final Configuration configuration, final File[] classes, final Object log,
+            final File sourceRoot) {
         super(classes);
         this.configuration = configuration;
+        this.sourceRoot = sourceRoot;
+        this.validator = new SvgValidator(this.configuration.isValidateLegacyIcons());
 
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
@@ -138,7 +143,7 @@ public class ComponentValidator extends BaseTask {
             }
         };
 
-        final Validators validators = Validators.build(configuration, helper, extensions);
+        final Validators validators = Validators.build(configuration, helper, extensions, sourceRoot);
         final Set<String> errorsFromValidator = validators.validate(finder, components);
         errors.addAll(errorsFromValidator);
 
@@ -254,6 +259,8 @@ public class ComponentValidator extends BaseTask {
 
         private boolean validateInternationalization;
 
+        private boolean validateInternationalizationAutoFix;
+
         private boolean validateHttpClient;
 
         private boolean validateModel;
@@ -297,5 +304,6 @@ public class ComponentValidator extends BaseTask {
         private boolean validateRecord;
 
         private boolean validateSchema;
+
     }
 }

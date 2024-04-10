@@ -61,4 +61,32 @@ public interface SchemaProperty {
 
     String ALLOW_SPECIAL_NAME = "field.special.name";
 
+    enum LogicalType {
+
+        DATE("date"),
+        TIME("time"),
+        TIMESTAMP("timestamp"),
+        UUID("uuid") {
+
+            @Override
+            public Schema.Type storageType() {
+                return Schema.Type.STRING;
+            }
+        };
+
+        private String logicalType;
+
+        LogicalType(final String logicalType) {
+            this.logicalType = logicalType;
+        }
+
+        public String key() {
+            return this.logicalType;
+        }
+
+        public Schema.Type storageType() {
+            return Schema.Type.DATETIME;
+        }
+    }
+
 }

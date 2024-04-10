@@ -43,6 +43,51 @@ public class MyComponent implements Serializable {
     public static class Foo {
 
         @Option
-        private String missingPlaceholder;
+        private String missingPlaceholderStr;
+
+        @Option
+        private int missingPlaceholderInt;
+
+        @Option
+        private Integer missingPlaceholderInteger;
+
+        @Option
+        private long missingPlaceholderLong;
+
+        @Option
+        private Long missingPlaceholderLongWrapper;
+
+        @Option
+        private float missingPlaceholderFloat;
+
+        @Option
+        private float missingPlaceholderFloatWrapper;
+
+        @Option
+        private double missingPlaceholderDouble;
+
+        @Option
+        private Double missingPlaceholderDoubleWrapper;
+
+        @Option
+        private boolean missingPlaceholderBoolean;
+
+        @Option
+        private Boolean missingPlaceholderBooleanWrapper;
+
+        @Option
+        private char missingPlaceholderChar;
+
+        @Option
+        private Character missingPlaceholderCharacter;
+
+        @Option
+        private AnEnum noMissingPlaceholderEnum;
+
+        public enum AnEnum {
+            AAA,
+            BBB,
+            CCC;
+        }
     }
 }
