@@ -20,15 +20,12 @@ import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.talend.sdk.component.api.record.Schema.Type.BYTES;
 
 public class RecordValidatorTest {
 
