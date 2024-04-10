@@ -3,23 +3,27 @@
 :gh-branch: master
 :openhub-name: component-runtime
 
-ifdef::env-github[]
+
+image:https://img.shields.io/maven-central/v/org.talend.sdk.component/component-runtime?versionPrefix=1.&logo=apachemaven&color=red[Maven Central Version]
+image:https://img.shields.io/badge/component_runtime-blue?label=doc["doc", link="https://talend.github.io/component-runtime/main/latest/index.html"]
+image:https://img.shields.io/badge/changelog-blue["changelog", link="https://talend.github.io/component-runtime/main/latest/changelog.html"]
+image:https://img.shields.io/badge/OpenAPI-green?label=.&logo=openapiinitiative["openapi", link="https://talend.github.io/component-runtime/main/latest/rest-openapi.html"]
+
 image:https://www.openhub.net/p/{openhub-name}/widgets/project_thin_badge?format=gif&ref=Thin+badge["OpenHub", link="https://www.openhub.net/p/{openhub-name}"]
-endif::env-github[]
 
-Maven 3.5 or later is required to build this project.
+Talend Component Kit is a framework designed to help Talend components creation for both Talend Studio and Cloud
+applications.
+This framework unifies the way components are built to ensure they are standardized and easy to deploy in different
+environments, as well as 'upgrade-compliant' as Talend applications are getting updated on a regular basis.
 
-Documentation is in documentation module or available at https://talend.github.io/component-runtime/.
+Start developing components by generating a project from the https://starter-toolkit.talend.io/[Component Kit Starter]
+or by downloading the Component Kit https://plugins.jetbrains.com/plugin/10558-talend-component-kit[IntelliJ plugin].
 
-Last release: image:https://img.shields.io/maven-central/v/org.talend.sdk.component/component-runtime.svg[]
 
-NOTE: the build relies on Node.JS and npm, the build uses `frontend-maven-plugin` to setup your environment.
 
-== Fix a spotless issue
+NOTE:
 
-Just run:
+* Maven 3.5 or later is required to build this project.
+* the build relies on Node.JS and npm
+* the build uses `frontend-maven-plugin` to setup your environment.
 
-[source,sh]
-----
-mvn rmannibucau-common:rootlocation spotless:apply
-----

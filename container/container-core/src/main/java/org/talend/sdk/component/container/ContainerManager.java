@@ -276,7 +276,7 @@ public class ContainerManager implements Lifecycle {
                 autoId = autoId.substring(0, jiraTicket.start());
             }
             final Matcher milestone = versionWithMilestone.matcher(autoId);
-            if (milestone.find()){
+            if (milestone.find()) {
                 autoId = autoId.substring(0, milestone.start());
             }
             // strip the version
