@@ -8,12 +8,16 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2475[TCOMP-2475^]: Migration from higher version not protected for a connector link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2622[TCOMP-2622^]: Images in documentation, for latest dev version, are leading to Page Not Found link:search.html?query=documentation[documentation^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2631[TCOMP-2631^]: CarMain decodes badly encoded windows path link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2632[TCOMP-2632^]: Fix _placeholder validator and auto fix them and _displayName link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2633[TCOMP-2633^]: Load package-info class from nested sources link:search.html?query=component-manager[component-manager^,role='dockey']
 
 
 
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-2598[TCOMP-2598^]: Handle themes in component-server icon endpoints link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2635[TCOMP-2635^]: Schema/Record subtype handling link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2679[TCOMP-2679^]: Handle svg icons in Studio link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
@@ -21,7 +25,20 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2600[TCOMP-2600^]: Upgrade netty to 4.1.104.Final link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2636[TCOMP-2636^]: Upgrade commons-compress to 1.26.0 link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2682[TCOMP-2682^]: Update svg validator mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2687[TCOMP-2687^]: Upgrade tomcat to 9.0.87 
+- link:https://jira.talendforge.org/browse/TCOMP-2692[TCOMP-2692^]: Upgrade jackson to 2.16.0 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2693[TCOMP-2693^]: Handle multiple viewpoints in svg validation mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 
+
+
+== Version 1.64.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2320[TCOMP-2320^]: Export Dynamic dependencies in job build
+- link:https://jira.talendforge.org/browse/TCOMP-2692[TCOMP-2692^]: Upgrade jackson to 2.16.0 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2693[TCOMP-2693^]: Handle multiple viewpoints in svg validation mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 
 
 == Version 1.64.1
@@ -30,12 +47,23 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2475[TCOMP-2475^]: Migration from higher version not protected for a connector link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2631[TCOMP-2631^]: CarMain decodes badly encoded windows path link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2632[TCOMP-2632^]: Fix _placeholder validator and auto fix them and _displayName link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2633[TCOMP-2633^]: Load package-info class from nested sources link:search.html?query=component-manager[component-manager^,role='dockey']
 
 
 
 === New Feature
 
+- link:https://jira.talendforge.org/browse/TCOMP-2598[TCOMP-2598^]: Handle themes in component-server icon endpoints link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2635[TCOMP-2635^]: Schema/Record subtype handling link:search.html?query=schema-record[schema-record^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2679[TCOMP-2679^]: Handle svg icons in Studio link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2682[TCOMP-2682^]: Update svg validator mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2687[TCOMP-2687^]: Upgrade tomcat to 9.0.87 
 
 == Version 1.64.0
 
@@ -1003,6 +1031,14 @@
 
 
 
+
+
+
+== Version 1.38.14
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2687[TCOMP-2687^]: Upgrade tomcat to 9.0.87 
 
 == Version 1.38.13
 

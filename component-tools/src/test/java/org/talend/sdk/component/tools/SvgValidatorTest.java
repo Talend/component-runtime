@@ -49,13 +49,17 @@ class SvgValidatorTest {
     @Test
     void viewboxSize() {
         final String error = doValidate("viewboxsize", 1, Boolean.TRUE).iterator().next();
-        assertTrue(error.startsWith("[viewboxsize.svg] viewBox must be '0 0 16 16' found '0 0 16 17'"), error);
+        assertTrue(error.startsWith(
+                "[viewboxsize.svg] viewBox must be '0 0 16 16' (family) or '0 0 40 40' (connector) found '0 0 16 17'"),
+                error);
     }
 
     @Test
     void viewboxSize40() {
         final String error = doValidate("viewboxsize40", 1, Boolean.FALSE).iterator().next();
-        assertTrue(error.startsWith("[viewboxsize40.svg] viewBox must be '0 0 40 40' found '0 0 16 17'"), error);
+        assertTrue(error.startsWith(
+                "[viewboxsize40.svg] viewBox must be '0 0 16 16' (family) or '0 0 40 40' (connector) found '0 0 16 17'"),
+                error);
     }
 
     @Test
