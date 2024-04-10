@@ -25,6 +25,7 @@ import static org.talend.sdk.component.runtime.manager.reflect.Constructors.find
 
 import java.io.File;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -35,6 +36,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -55,6 +57,8 @@ import lombok.Data;
 // IMPORTANT: this class is used by reflection in gradle integration, don't break signatures without checking it
 public class ComponentValidator extends BaseTask {
 
+    public static final String ICONS = "icons/";
+
     private final Configuration configuration;
 
     private final Log log;
@@ -62,15 +66,20 @@ public class ComponentValidator extends BaseTask {
     private final ParameterModelService parameterModelService =
             new ParameterModelService(new EnrichedPropertyEditorRegistry());
 
-    private final SvgValidator validator = new SvgValidator();
+    private final SvgValidator validator;
 
     private final Map<Class<?>, List<ParameterMeta>> parametersCache = new HashMap<>();
 
     private final List<ValidationExtension> extensions;
 
-    public ComponentValidator(final Configuration configuration, final File[] classes, final Object log) {
+    private final File sourceRoot;
+
+    public ComponentValidator(final Configuration configuration, final File[] classes, final Object log,
+            final File sourceRoot) {
         super(classes);
         this.configuration = configuration;
+        this.sourceRoot = sourceRoot;
+        this.validator = new SvgValidator(this.configuration.isValidateLegacyIcons());
 
         try {
             this.log = Log.class.isInstance(log) ? Log.class.cast(log) : new ReflectiveLog(log);
@@ -134,7 +143,7 @@ public class ComponentValidator extends BaseTask {
             }
         };
 
-        final Validators validators = Validators.build(configuration, helper, extensions);
+        final Validators validators = Validators.build(configuration, helper, extensions, sourceRoot);
         final Set<String> errorsFromValidator = validators.validate(finder, components);
         errors.addAll(errorsFromValidator);
 
@@ -156,21 +165,50 @@ public class ComponentValidator extends BaseTask {
 
         if (annotation.value() == Icon.IconType.CUSTOM) {
             final String icon = annotation.custom();
-            final Set<File> svgs =
-                    of(classes).map(it -> new File(it, "icons/" + icon + ".svg")).filter(File::exists).collect(toSet());
-            if (svgs.isEmpty()) {
-                log.error("No 'icons/" + icon + ".svg' found, this will run in degraded mode in Talend Cloud");
+            Set<File> svgs;
+            Set<File> pngs;
+            // legacy checks
+            if (configuration.isValidateLegacyIcons()) {
+                svgs = of(classes)
+                        .map(it -> new File(it, ICONS + icon + ".svg"))
+                        .collect(toSet());
+                pngs = Stream.of(classes)
+                        .map(it -> new File(it, ICONS + icon + "_icon32.png"))
+                        .collect(Collectors.toSet());
             } else {
-                if (configuration.isValidateSvg()) {
-                    errors.addAll(svgs.stream().flatMap(this::validateSvg).collect(toSet()));
-                }
+                // themed icons check
+                List<String> prefixes = new ArrayList<>();
+                of(classes).forEach(s -> {
+                    prefixes.add(s + "/" + ICONS + "light/" + icon);
+                    prefixes.add(s + "/" + ICONS + "dark/" + icon);
+                });
+                svgs = prefixes.stream().map(s -> new File(s + ".svg")).collect(toSet());
+                pngs = prefixes.stream().map(s -> new File(s + "_icon32.png")).collect(toSet());
             }
-            if (Stream.of(classes).map(it -> new File(it, "icons/" + icon + "_icon32.png")).noneMatch(File::exists)) {
-                return "No icon: '" + icon + "' found, did you create - or generated with svg2png - 'icons/" + icon
-                        + "_icon32.png' in resources?";
+
+            svgs.stream()
+                    .filter(f -> !f.exists())
+                    .forEach(
+                            svg -> log.error("No '" + stripPath(svg)
+                                    + "' found, this will run in degraded mode in Talend Cloud"));
+            if (configuration.isValidateSvg()) {
+                errors.addAll(svgs.stream().filter(File::exists).flatMap(this::validateSvg).collect(toSet()));
+            }
+            List<File> missingPngs = pngs.stream().filter(f -> !f.exists()).collect(toList());
+            if (!missingPngs.isEmpty()) {
+                errors.addAll(missingPngs.stream()
+                        .map(p -> String.format(
+                                "No icon: '%s' found, did you create - or generated with svg2png in resources?",
+                                stripPath(p)))
+                        .collect(toList()));
+                return "Missing icon(s) in resources.";
             }
         }
         return null;
+    }
+
+    private String stripPath(final File icon) {
+        return icon.toString().substring(icon.toString().indexOf(ICONS));
     }
 
     private Stream<String> validateSvg(final File file) {
@@ -221,6 +259,8 @@ public class ComponentValidator extends BaseTask {
 
         private boolean validateInternationalization;
 
+        private boolean validateInternationalizationAutoFix;
+
         private boolean validateHttpClient;
 
         private boolean validateModel;
@@ -251,6 +291,8 @@ public class ComponentValidator extends BaseTask {
 
         private boolean validateSvg;
 
+        private boolean validateLegacyIcons;
+
         private boolean validateNoFinalOption;
 
         private String pluginId;
@@ -262,5 +304,6 @@ public class ComponentValidator extends BaseTask {
         private boolean validateRecord;
 
         private boolean validateSchema;
+
     }
 }

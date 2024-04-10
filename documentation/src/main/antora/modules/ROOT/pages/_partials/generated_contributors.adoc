@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":762,
+    "commits":786,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -36,28 +36,21 @@
     "name":"Christophe Le Saec"
   },
   {
-    "commits":59,
-    "description":"Frontend Architect",
-    "gravatar":"https://avatars.githubusercontent.com/u/19857479?v=4",
-    "id":"jmfrancois",
-    "name":"Jean-Michel FRANCOIS"
-  },
-  {
-    "commits":50,
+    "commits":56,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
     "name":"yyin"
   },
   {
-    "commits":43,
+    "commits":48,
     "description":"QA Automation @ Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
     "name":"Axel CATOIRE"
   },
   {
-    "commits":38,
+    "commits":39,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",
@@ -78,14 +71,14 @@
     "name":"Chao MENG"
   },
   {
-    "commits":13,
+    "commits":14,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
     "id":"ozhelezniak-talend",
     "name":"Oleksandr Zhelezniak"
   },
   {
-    "commits":10,
+    "commits":13,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
     "id":"fdesiles",
@@ -93,7 +86,7 @@
   },
   {
     "commits":9,
-    "description":"Senior principal software engineer at @Talend, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
+    "description":"Senior principal product security engineer at Qlik, security contributor at @apache.\n\nBlog: http://coheigea.blogspot.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/472162?v=4",
     "id":"coheigea",
     "name":"Colm O hEigeartaigh"
@@ -128,13 +121,6 @@
   },
   {
     "commits":4,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/59560172?v=4",
-    "id":"pgautier83",
-    "name":"pgautier83"
-  },
-  {
-    "commits":4,
     "description":"Committer and PMC member of Apache Beam and Apache Avro. Free education and Open Source enthusiast. Distributed Systems practitioner (victim?)\n\nBlog: https://ismaelmejia.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/79476?v=4",
     "id":"iemejia",
@@ -146,13 +132,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/7931535?v=4",
     "id":"amaumont",
     "name":"Axel MAUMONT"
-  },
-  {
-    "commits":3,
-    "description":"Templar",
-    "gravatar":"https://avatars.githubusercontent.com/u/22737013?v=4",
-    "id":"pyzhou-talend",
-    "name":"pyzhou"
   },
   {
     "commits":3,
@@ -174,6 +153,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
     "id":"quilicicf",
     "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
+  },
+  {
+    "commits":2,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/59560172?v=4",
+    "id":"pgautier83",
+    "name":"Pierre-emmanuel Gautier"
   },
   {
     "commits":2,
@@ -223,6 +209,13 @@
     "gravatar":"https://avatars.githubusercontent.com/u/19730806?v=4",
     "id":"fviolette",
     "name":"François Violette"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/67528?v=4",
+    "id":"toutpt",
+    "name":"Jean-Michel"
   },
   {
     "commits":1,
