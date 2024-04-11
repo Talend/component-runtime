@@ -208,7 +208,12 @@ public class ComponentValidator extends BaseTask {
     }
 
     private String stripPath(final File icon) {
-        return icon.toString().substring(icon.toString().indexOf(ICONS));
+        try {
+            return icon.toString().substring(icon.toString().indexOf(ICONS));
+        } catch (StringIndexOutOfBoundsException e) {
+            log.error("Validate Icon Path Error :" + icon.toString() + "-- Exception: " + e.getMessage());
+        }
+        return ("Icon Path Error :" + icon.toString());
     }
 
     private Stream<String> validateSvg(final File file) {
