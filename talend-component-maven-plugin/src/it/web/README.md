@@ -45,7 +45,7 @@ bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/tcomp-build-sampl
 export NEXUS_USER=<value>
 export NEXUS_PASS=<value>
 
-# Component server manual start (defining server and connectors version
+# Component server manual start (connectors version)
 bash talend-component-maven-plugin/src/it/web/.jenkins/scripts/server-registry-manual_start.sh 1.41.0
 
 # You can now test with api tester on your local machine
