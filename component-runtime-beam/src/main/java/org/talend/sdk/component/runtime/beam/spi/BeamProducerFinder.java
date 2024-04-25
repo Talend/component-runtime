@@ -218,11 +218,17 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             boolean ok = recordQueue.offer(context.element());
             log.debug("queue injected {}; ok={}; thread:{}", recordQueue.size(), ok, Thread.currentThread().getId());
 
+            int index = 0;
             while (!ok) {
-                sleep();
-                ok = recordQueue.offer(context.element());
-                log.debug("\tqueue injected retry {}; ok={}; thread:{}", recordQueue.size(), ok,
-                        Thread.currentThread().getId());
+                if (recordQueue.size() == QUEUE_SIZE && index == 20) {
+                    throw new IllegalStateException("\t The queue reached its max size. ");
+                } else {
+                    sleep();
+                    ok = recordQueue.offer(context.element());
+                    log.debug("\tqueue injected retry {}; ok={}; thread:{}", recordQueue.size(), ok,
+                            Thread.currentThread().getId());
+                    index++;
+                }
             }
         }
 
