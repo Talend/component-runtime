@@ -146,6 +146,15 @@ public class ProducerFinderEnvironmentTest implements Serializable {
         List<Record> records = IntStream.range(0, recordCount)
                 .mapToObj(i -> factory.newRecordBuilder()
                         .withString("id", "id_" + i)
+                        .withString("id1", "id_" + i)
+                        .withString("id2", "id_" + i)
+                        .withString("id3", "id_" + i)
+                        .withString("id4", "id_" + i)
+                        .withString("id5", "id_" + i)
+                        .withString("id6", "id_" + i)
+                        .withString("id7", "id_" + i)
+                        .withString("id8", "id_" + i)
+                        .withString("id9", "id_" + i)
                         .build())
                 .collect(toList());
         PAssert.that(out).containsInAnyOrder(records);
@@ -214,6 +223,15 @@ public class ProducerFinderEnvironmentTest implements Serializable {
             return input.apply(Create.of(IntStream.range(0, count)
                     .mapToObj(i -> recordBuilderFactory.newRecordBuilder()
                             .withString("id", "id_" + i)
+                            .withString("id1", "id_" + i)
+                            .withString("id2", "id_" + i)
+                            .withString("id3", "id_" + i)
+                            .withString("id4", "id_" + i)
+                            .withString("id5", "id_" + i)
+                            .withString("id6", "id_" + i)
+                            .withString("id7", "id_" + i)
+                            .withString("id8", "id_" + i)
+                            .withString("id9", "id_" + i)
                             .build())
                     .collect(toList()))
                     .withCoder(SchemaRegistryCoder.of()));
@@ -254,7 +272,16 @@ public class ProducerFinderEnvironmentTest implements Serializable {
         public Record next() {
             Record record = counted == count ? null
                     : recordBuilderFactory.newRecordBuilder()
-                            .withString("id", "id_" + counted++)
+                            .withString("id", "id_" + counted)
+                            .withString("id1", "id_" + counted)
+                            .withString("id2", "id_" + counted)
+                            .withString("id3", "id_" + counted)
+                            .withString("id4", "id_" + counted)
+                            .withString("id5", "id_" + counted)
+                            .withString("id6", "id_" + counted)
+                            .withString("id7", "id_" + counted)
+                            .withString("id8", "id_" + counted)
+                            .withString("id9", "id_" + counted++)
                             .build();
             return record;
         }

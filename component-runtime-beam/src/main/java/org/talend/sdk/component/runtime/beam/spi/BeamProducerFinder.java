@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BeamProducerFinder extends ProducerFinderImpl {
 
-    private static final int QUEUE_SIZE = 200;
+    private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "110000"));
 
     private static final int BEAM_PARALLELISM = 10;
 
