@@ -189,7 +189,7 @@ public class ComponentValidator extends BaseTask {
             svgs.stream()
                     .filter(f -> !f.exists())
                     .forEach(
-                            svg -> log.error("No '" + stripPath(svg)
+                            svg -> errors.add("No '" + stripPath(svg)
                                     + "' found, this will run in degraded mode in Talend Cloud"));
             if (configuration.isValidateSvg()) {
                 errors.addAll(svgs.stream().filter(File::exists).flatMap(this::validateSvg).collect(toSet()));
