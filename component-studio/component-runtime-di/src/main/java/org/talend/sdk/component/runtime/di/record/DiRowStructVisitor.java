@@ -483,20 +483,45 @@ public class DiRowStructVisitor {
     }
 
     private Entry toCollectionEntry(final String name, final String originalName, final Object value) {
+        Object coll = null;
         Type elementType = STRING;
-        if (value != null && !Collection.class.cast(value).isEmpty()) {
-            final Object coll = Collection.class.cast(value).iterator().next();
+        if (value != null && !((Collection<?>) value).isEmpty()) {
+            coll = ((Collection<?>) value).iterator().next();
             elementType = getTypeFromValue(coll);
         }
+
         return factory
                 .newEntryBuilder()
                 .withName(name)
                 .withRawName(originalName)
                 .withNullable(true)
                 .withType(ARRAY)
-                .withElementSchema(factory.newSchemaBuilder(elementType).build())
+                .withElementSchema(elementSchema(elementType, coll))
                 .withProp(STUDIO_TYPE, StudioTypes.LIST)
                 .build();
+    }
+
+    private Schema elementSchema(final Type type, final Object value) {
+        if (type != ARRAY || !(value instanceof Collection)) {
+            return factory.newSchemaBuilder(type).build();
+        }
+
+        Type elementType = null;
+        Object columnValue = null;
+
+        // we inherit the logic that we evaluate the type by its first element. (at least it's fast )
+        // looks like we support only homogeneous structures
+        if (!((Collection<?>) value).isEmpty()) {
+            columnValue = ((Collection<?>) value).iterator().next();
+            elementType = getTypeFromValue(columnValue);
+        }
+
+        // if we can't evaluate the type of element we will return the same as it was, array without type
+        return elementType == null
+                ? factory.newSchemaBuilder(Type.ARRAY).build()
+                : factory.newSchemaBuilder(Type.ARRAY)
+                        .withElementSchema(elementSchema(elementType, columnValue))
+                        .build();
     }
 
     private Schema.Type getTypeFromValue(final Object value) {
