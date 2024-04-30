@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BeamProducerFinder extends ProducerFinderImpl {
 
-    private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "110000"));
+    private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "1000"));
 
     private static final int BEAM_PARALLELISM = 10;
 
@@ -218,17 +218,11 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             boolean ok = recordQueue.offer(context.element());
             log.debug("queue injected {}; ok={}; thread:{}", recordQueue.size(), ok, Thread.currentThread().getId());
 
-            int index = 0;
             while (!ok) {
-                if (recordQueue.size() == QUEUE_SIZE && index == 20) {
-                    throw new IllegalStateException("\t The queue reached its max size. ");
-                } else {
-                    sleep();
-                    ok = recordQueue.offer(context.element());
-                    log.debug("\tqueue injected retry {}; ok={}; thread:{}", recordQueue.size(), ok,
+                sleep();
+                ok = recordQueue.offer(context.element());
+                log.debug("\tqueue injected retry {}; ok={}; thread:{}", recordQueue.size(), ok,
                             Thread.currentThread().getId());
-                    index++;
-                }
             }
         }
 
