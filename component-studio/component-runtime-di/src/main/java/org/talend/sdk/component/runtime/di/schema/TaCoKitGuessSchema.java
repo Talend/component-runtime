@@ -19,6 +19,7 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_MOCK_JOB;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -159,9 +160,8 @@ public class TaCoKitGuessSchema {
         }
     }
 
-    private DiscoverSchemaException handleException(final Exception e) throws Exception {
+    private DiscoverSchemaException transformException(final Exception e) {
         DiscoverSchemaException discoverSchemaException;
-        log.error(ERROR_THROUGH_ACTION, e);
         if (e instanceof DiscoverSchemaException) {
             discoverSchemaException = DiscoverSchemaException.class.cast(e);
         } else if (e instanceof ComponentException) {
@@ -170,6 +170,12 @@ public class TaCoKitGuessSchema {
             discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(),
                     DiscoverSchemaException.HandleErrorWith.EXCEPTION);
         }
+        return discoverSchemaException;
+    }
+
+    private DiscoverSchemaException handleException(final Exception e) throws Exception {
+        log.error(ERROR_THROUGH_ACTION, e);
+        final DiscoverSchemaException discoverSchemaException = transformException(e);
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             jsonb.toJson(discoverSchemaException, out);
         }
@@ -199,6 +205,10 @@ public class TaCoKitGuessSchema {
             // Case when a processor is the start of a studio job
             if (isStartOfJob) {
                 try {
+                    final DiscoverSchemaException dse = transformException(e);
+                    if (EXECUTE_MOCK_JOB.equals(dse.getPossibleHandleErrorWith())) {
+                        throw handleException(dse);
+                    }
                     guessOutputComponentSchemaThroughResult();
                 } catch (Exception er) {
                     throw handleException(e);
@@ -235,7 +245,7 @@ public class TaCoKitGuessSchema {
         }
         final Object schemaResult =
                 actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
-        if (schemaResult instanceof Schema){
+        if (schemaResult instanceof Schema) {
             fromSchema(Schema.class.cast(schemaResult));
         }
     }
