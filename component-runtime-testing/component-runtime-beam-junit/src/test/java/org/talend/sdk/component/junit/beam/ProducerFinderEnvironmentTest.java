@@ -40,13 +40,9 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Assessor;
@@ -62,6 +58,7 @@ import org.talend.sdk.component.api.service.source.ProducerFinder;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.junit.BaseComponentsHandler;
 import org.talend.sdk.component.junit.environment.Environment;
+import org.talend.sdk.component.junit.environment.builtin.ContextualEnvironment;
 import org.talend.sdk.component.junit.environment.builtin.beam.SparkRunnerEnvironment;
 import org.talend.sdk.component.junit5.Injected;
 import org.talend.sdk.component.junit5.WithComponents;
@@ -75,7 +72,7 @@ import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 
 @Slf4j
-// @Environment(ContextualEnvironment.class)
+@Environment(ContextualEnvironment.class)
 @Environment(SparkRunnerEnvironment.class)
 @WithComponents("org.talend.sdk.component.junit.beam.test")
 public class ProducerFinderEnvironmentTest implements Serializable {
@@ -100,8 +97,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
      * +
      */
     private final Integer recordCount =
-            Integer.valueOf(System.getProperty("ProducerFinderEnvironmentTest.recordCount", "1000")); // 10 100 1000
-                                                                                                      // 10000 100000
+            Integer.valueOf(System.getProperty("ProducerFinderEnvironmentTest.recordCount", "1000"));
 
     @BeforeAll
     static void forceManagerInit() {
@@ -112,12 +108,6 @@ public class ProducerFinderEnvironmentTest implements Serializable {
                 manager.addPlugin(new File("target/test-classes").getAbsolutePath());
             }
         }
-    }
-
-    @BeforeEach
-    void beforeEach() {
-        log.info("Detecting logging framework : {}.", log.getClass());
-        Configurator.setRootLevel(Level.WARN);
     }
 
     @Test
@@ -133,16 +123,6 @@ public class ProducerFinderEnvironmentTest implements Serializable {
     @Test
     void interateWithBeamFamily() {
         final Iterator<Record> recordIterator = getInterator(ComponentManager.instance(), "BeamFamily", recordCount);
-        /*
-         * final int[] total = new int[1];
-         * total[0] = 0;
-         * recordIterator.forEachRemaining((Record rec) -> {
-         * Assertions.assertNotNull(rec);
-         * total[0]++;
-         * });
-         * Assertions.assertEquals(recordCount, total[0], "did not consume all records");
-         */
-
         List<Record> records =
                 StreamSupport.stream(Spliterators.spliteratorUnknownSize(recordIterator, Spliterator.ORDERED), false)
                         .collect(toList());
@@ -228,11 +208,6 @@ public class ProducerFinderEnvironmentTest implements Serializable {
                 .run();
         List<Record> records = handler.getCollectedData(Record.class);
         assertEquals(recordCount, records.size());
-
-        log.warn("RUNJOB retrieved {} records", records.size());
-        System.out.printf("RUNJOB retrieved %s records", records.size());
-
-        // records.stream().forEach(r -> log.info("-> " + r));
     }
 
     static <T> Iterable<T> toIterable(Iterator<T> it) {

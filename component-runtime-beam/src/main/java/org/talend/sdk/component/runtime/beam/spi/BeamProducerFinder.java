@@ -17,14 +17,11 @@ package org.talend.sdk.component.runtime.beam.spi;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.apache.beam.runners.direct.DirectOptions;
 import org.apache.beam.runners.direct.DirectRunner;
@@ -51,14 +48,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BeamProducerFinder extends ProducerFinderImpl {
 
-    private static final int QUEUE_SIZE = 3; // Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity",
-    // "1000"));
+    private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "1000"));
 
     private static final int BEAM_PARALLELISM = 10;
 
     private static final Map<UUID, ArrayBlockingQueue<Record>> QUEUE = new ConcurrentHashMap<>();
-
-    private static final List<UUID> GENERATED_UUID = new ArrayList<>();
 
     private static final Record END_OF_QUEUE = new Record() {
 
@@ -86,11 +80,8 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             final Object delegate = Delegated.class.cast(mapper).getDelegate();
             if (PTransform.class.isInstance(delegate)) {
                 final UUID uuid = UUID.randomUUID();
-                GENERATED_UUID.add(uuid);
                 ArrayBlockingQueue<Record> abq = new ArrayBlockingQueue<>(QUEUE_SIZE, true);
-                log.info("ADD QUEUE - {}, thread: {}.", uuid, Thread.currentThread().getId());
                 QUEUE.put(uuid, abq);
-                log.info("** New BlockingQueue, nb:{}, uuid: {}", QUEUE.size(), uuid);
                 return new BlockingQueueIterator(delegate, familyName, inputName, familyName,
                         PTransform.class.cast(delegate),
                         uuid);
@@ -107,17 +98,11 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
         private final PTransform<PBegin, PCollection<Record>> transform;
 
-        // private final PipelineResult result;
-
         private boolean started;
-
-        private boolean end;
 
         private Record next;
 
         private final UUID queueId;
-
-        private int n = 0;
 
         // private Thread th;
 
@@ -131,20 +116,12 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
         @Override
         public boolean hasNext() {
-            log.info("CONSUME hasNext {}, next:{}, started:{}", this.queueId, next, started);
             if (next == null && !started) {
                 next = findNext();
                 started = true;
             }
             if (next == null) {
-                log.info("REMOVE QUEUE - {}, thread: {}.", this.queueId, Thread.currentThread().getId());
                 QUEUE.remove(this.queueId);
-                String allUUID =
-                        GENERATED_UUID.stream()
-                                .map(uuid -> "\t - " +
-                                        uuid.toString())
-                                .collect(Collectors.joining("\n"));
-                log.info("All generated UUID : \n{}\n------", allUUID);
             }
             return next != null;
         }
@@ -157,48 +134,22 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             final Record current = next;
             next = findNext();
 
-            if (n == 2000) {
-                System.out.println("## ID: " + current.getString("id"));
-                n = 0;
-            } else {
-                n++;
-            }
             return current;
         }
 
         private Record findNext() {
             final ArrayBlockingQueue<Record> recordQueue = QUEUE.get(this.queueId);
 
-            log.info("CONSUME - try to poll on {} queue from thread:{}.", this.queueId, Thread.currentThread().getId());
-            // Record record = recordQueue.poll();
             Record record = null;
             try {
                 record = recordQueue.take();
                 if (record == END_OF_QUEUE) {
-                    log.info("CONSUME END_OF_QUEUE for {}.", this.queueId);
                     return null;
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            log.info("CONSUME - successful poll element {} on {} queue from thread:{}.", record, this.queueId,
-                    Thread.currentThread().getId());
 
-            /*
-             * int index = 0;
-             * while (record == null && (!end)) {
-             * end = result != null && result.getState() != PipelineResult.State.RUNNING;
-             * if (!end && index > 10) {
-             * log.info("waitUntilFinish {}, thread: {}.", this.queueId, Thread.currentThread().getId());
-             * result.waitUntilFinish();
-             * } else {
-             * index++;
-             * log.debug("findNext NULL, retry : end={}; size:{}", end, recordQueue.size());
-             * sleep();
-             * }
-             * record = recordQueue.poll();
-             * }
-             */
             return record;
         }
 
@@ -225,7 +176,6 @@ public class BeamProducerFinder extends ProducerFinderImpl {
          * </p>
          */
         private void runDataReadingPipeline() {
-            log.info("** runDataReadingPipeline : " + this.queueId);
             final ClassLoader beamAwareClassLoader = Pipeline.class.getClassLoader();
             final ClassLoader callerClassLoader = Thread.currentThread().getContextClassLoader();
 
@@ -239,18 +189,8 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                 ParDo.SingleOutput<Record, Void> of = ParDo.of(pushRecord);
                 Pipeline p = Pipeline.create(options);
                 p.apply(transform).apply(of);
-                // END_OF_QUEUE
 
-                final UUID uid = this.queueId;
-                final long waitms = 5000;
                 Thread th = new Thread(() -> {
-                    log.info("Start Thread {} for UUID {} and Wait {}.", Thread.currentThread().getId(), uid, waitms);
-                    try {
-                        Thread.sleep(waitms);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    log.info("RUN PIPELINE Thread {} for UUID {}", Thread.currentThread().getId(), uid);
                     PipelineResult pipelineResult = p.run();
                     pipelineResult.waitUntilFinish();
                     try {
@@ -261,12 +201,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                 });
 
                 th.start();
-                /*
-                 * while (result[0] == null) {
-                 * sleep();
-                 * }
-                 */
-                // return result[0];
+
             } finally {
                 Thread.currentThread().setContextClassLoader(callerClassLoader);
             }
@@ -286,7 +221,6 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         private final UUID queueId;
 
         public MyDoFn(final UUID queueId) {
-            log.info("************************************* NEW MYDOFN ({}) ****************************", queueId);
             this.queueId = queueId;
         }
 
@@ -295,13 +229,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             final ArrayBlockingQueue<Record> recordQueue = QUEUE.get(this.queueId);
             try {
                 Record record = context.element();
-                log.info("PRODUCER - Queue {}, try to add element:{}, size:{}; thread:{}...", this.queueId, record,
-                        recordQueue.size(),
-                        Thread.currentThread().getId());
                 recordQueue.put(record);
-                log.info("\tPRODUCER - Queue {}, element added:{}, size:{}; thread:{}...", this.queueId, record,
-                        recordQueue.size(),
-                        Thread.currentThread().getId());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
