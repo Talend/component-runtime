@@ -56,7 +56,10 @@ import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.ComponentException.ErrorOrigin;
 import org.talend.sdk.component.api.exception.DiscoverSchemaException;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -415,14 +418,18 @@ class TaCoKitGuessSchemaTest {
 
     @Test
     void serializeDiscoverSchemaException() throws Exception {
-        final String serialized =
-                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"RETRY\"}";
+        final DiscoverSchemaException de = new DiscoverSchemaException(
+                new ComponentException(ErrorOrigin.BACKEND, "Unknown error. Retry!", new NullPointerException()),
+                HandleErrorWith.RETRY);
+        final String msg = "{\"localizedMessage\":\"Unknown error. Retry!\"";
+        final String hdl = "\"possibleHandleErrorWith\":\"RETRY\"}";
         try (final Jsonb jsonb = JsonbBuilder.create()) {
-            DiscoverSchemaException e =
-                    new DiscoverSchemaException("Unknown error. Retry!", DiscoverSchemaException.HandleErrorWith.RETRY);
-            String json = jsonb.toJson(e);
-            assertTrue(json.contains("\"message\":\"Unknown error. Retry!\""));
-            assertTrue(json.contains("\"possibleHandleErrorWith\":\"RETRY\""));
+            final String json = jsonb.toJson(de, DiscoverSchemaException.class);
+            System.out.println(json);
+            assertTrue(json.contains(msg));
+            assertTrue(json.startsWith(msg));
+            assertTrue(json.contains(hdl));
+            assertTrue(json.endsWith(hdl));
         }
     }
 
@@ -592,7 +599,7 @@ class TaCoKitGuessSchemaTest {
         Boolean shouldActionFail = false;
 
         @Option
-        DiscoverSchemaException.HandleErrorWith failWith = EXECUTE_MOCK_JOB;
+        HandleErrorWith failWith = EXECUTE_MOCK_JOB;
 
         @Option
         Boolean skipAssertions = false;

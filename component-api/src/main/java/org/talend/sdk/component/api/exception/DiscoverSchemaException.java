@@ -16,6 +16,7 @@
 package org.talend.sdk.component.api.exception;
 
 import javax.json.bind.annotation.JsonbCreator;
+import javax.json.bind.annotation.JsonbPropertyOrder;
 
 import lombok.Data;
 
@@ -28,6 +29,7 @@ import lombok.Data;
  * See me TCOMP-2342 for more details.
  */
 @Data
+@JsonbPropertyOrder({ "localizedMessage", "message", "stackTrace", "suppressed", "possibleHandleErrorWith" })
 public class DiscoverSchemaException extends RuntimeException {
 
     public enum HandleErrorWith {
