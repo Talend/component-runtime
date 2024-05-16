@@ -21,7 +21,7 @@ set -xe
 function usage(){
   printf 'Manual server starter, like ci would do.\n'
   printf 'For manual testing.\n'
-  printf 'Usage : %s [connectors_version] [server_port]  [server_dir] \n' "${0}"
+  printf 'Usage : %s [connectors_version] [server_port] [server_dir] \n' "${0}"
   printf '\n'
   exit 1
 }

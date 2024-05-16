@@ -20,13 +20,26 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -45,12 +58,26 @@ import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.tools.ComponentHelper;
 import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class InternationalizationValidator implements Validator {
 
     private final Validators.ValidatorHelper helper;
 
-    public InternationalizationValidator(final ValidatorHelper helper) {
+    private final File sourceRoot;
+
+    private final boolean validatePlaceholder;
+
+    private final boolean autofix;
+
+    public InternationalizationValidator(final ValidatorHelper helper, final File sourceRoot,
+            final boolean validatePlaceholder, final boolean autofix) {
         this.helper = helper;
+        this.sourceRoot = sourceRoot;
+        this.validatePlaceholder = validatePlaceholder;
+        this.autofix = autofix;
     }
 
     @Override
@@ -61,40 +88,86 @@ public class InternationalizationValidator implements Validator {
                 .filter(Objects::nonNull) //
                 .sorted();
 
+        List<Fix> toFix = new ArrayList<>();
         // enum
         final List<Field> optionsFields = finder.findAnnotatedFields(Option.class);
-        final Stream<String> missingDisplayName = optionsFields
+        final Stream<String> missingDisplayNameEnum = optionsFields
                 .stream()
                 .map(Field::getType) //
                 .filter(Class::isEnum) //
                 .distinct() //
-                .flatMap(enumType -> Stream
-                        .of(enumType.getFields()) //
+                .flatMap(enumType -> of(enumType.getFields()) //
                         .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())) //
                         .filter(f -> hasNoBundleEntry(enumType, f, "_displayName")) //
-                        .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName() + "._displayName in "
-                                + enumType + " resource bundle")) //
+                        .peek(f -> {
+                            if (this.autofix) {
+                                toFix.add(new Fix(f, "._displayName", sourceRoot, true));
+                            }
+                        })
+                        .map(f -> "Missing key " + enumType.getSimpleName() + "." + f.getName()
+                                + "._displayName in " + enumType + " resource bundle")) //
                 .sorted();
 
         // others - just logged for now, we can add it to errors if we encounter it too often
-        final List<String> missingOptionTranslations = optionsFields
-                .stream()
-                .distinct()
-                .filter(this::fieldIsWithoutKey)
-                .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
-                        + f.getName() + ">")
-                .sorted()
-                .distinct()
+        final List<String> missingOptionTranslations = Stream.concat(
+                optionsFields
+                        .stream()
+                        .distinct()
+                        .filter(this::fieldIsWithoutKey)
+                        .peek(f -> {
+                            if (this.autofix) {
+                                toFix.add(new Fix(f, "._displayName", sourceRoot, true));
+                            }
+                        })
+                        .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._displayName = <"
+                                + f.getName() + ">")
+                        .sorted()
+                        .distinct(),
+                missingDisplayNameEnum)
                 .collect(Collectors.toList());
 
-        final Stream<String> allMissing;
-        if (missingOptionTranslations != null && !missingOptionTranslations.isEmpty()) {
+        List<String> missingPlaceholderTranslations = Collections.emptyList();
+        if (this.validatePlaceholder) {
+            missingPlaceholderTranslations = optionsFields
+                    .stream()
+                    .distinct()
+                    .filter(e -> this.fieldIsWithoutKey(e,
+                            Arrays.asList(String.class, Character.class, Integer.class, Double.class, Long.class,
+                                    Float.class, Date.class, ZonedDateTime.class),
+                            "._placeholder"))
+                    .peek(f -> {
+                        if (this.autofix) {
+                            toFix.add(new Fix(f, "._placeholder", this.sourceRoot, false));
+                        }
+                    })
+                    .map(f -> " " + f.getDeclaringClass().getSimpleName() + "." + f.getName() + "._placeholder = ")
+                    .sorted()
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        if (this.autofix && !toFix.isEmpty()) {
+            this.fixLocales(toFix);
+        }
+
+        final Stream<String> missingDisplayName;
+        if (missingOptionTranslations != null && !missingOptionTranslations.isEmpty() && !this.autofix) {
             final String missingMsg = missingOptionTranslations
                     .stream()
-                    .collect(Collectors.joining("\n", "Missing resource bundle entries:\n", ""));
-            allMissing = Stream.of(missingMsg);
+                    .collect(Collectors.joining("\n", "Missing _displayName resource bundle entries:\n", ""));
+            missingDisplayName = Stream.of(missingMsg);
         } else {
-            allMissing = Stream.empty();
+            missingDisplayName = Stream.empty();
+        }
+
+        final Stream<String> missingPlaceholder;
+        if (missingPlaceholderTranslations != null && !missingPlaceholderTranslations.isEmpty() & !this.autofix) {
+            final String missingMsg = missingPlaceholderTranslations
+                    .stream()
+                    .collect(Collectors.joining("\n", "Missing _placeholder resource bundle entries:\n", ""));
+            missingPlaceholder = Stream.of(missingMsg);
+        } else {
+            missingPlaceholder = Stream.empty();
         }
 
         final List<String> internationalizedErrors = new ArrayList<>();
@@ -126,10 +199,24 @@ public class InternationalizationValidator implements Validator {
         }
         Stream<String> actionsErrors = this.missingActionComment(finder);
 
-        return Stream
-                .of(bundlesError, missingDisplayName, allMissing, internationalizedErrors.stream(), actionsErrors)
+        Stream<String> result = Stream
+                .of(bundlesError, missingDisplayName, missingPlaceholder,
+                        internationalizedErrors.stream(), actionsErrors)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
+
+        if (this.autofix) {
+            List<String> forLogs = result.collect(toList());
+            String resultAutoFix = forLogs.stream()
+                    .collect(Collectors.joining("\n", "Automatically fixed missing labels:\n",
+                            "\n\nPlease, check changes and disable '-Dtalend.validation.internationalization.autofix=false' / "
+                                    + "'<validateInternationalizationAutoFix>false</>'property.\n\n"));
+            log.info(resultAutoFix);
+
+            result = forLogs.stream();
+        }
+
+        return result;
     }
 
     private Stream<String> missingActionComment(final AnnotationFinder finder) {
@@ -197,9 +284,80 @@ public class InternationalizationValidator implements Validator {
     }
 
     private boolean fieldIsWithoutKey(final Field field) {
+        return this.fieldIsWithoutKey(field, Collections.emptyList(), "._displayName");
+    }
+
+    private boolean fieldIsWithoutKey(final Field field, final List<Class> types, final String suffix) {
+        Class<?> tmpFieldType = field.getType();
+        if (tmpFieldType.isPrimitive()) {
+            tmpFieldType = MethodType.methodType(tmpFieldType).wrap().returnType();
+        }
+        final Class fieldType = tmpFieldType;
+        if (!types.isEmpty() && !types.contains(tmpFieldType)) {
+            return false;
+        }
         final ResourceBundle bundle = ofNullable(helper.findResourceBundle(field.getDeclaringClass()))
-                .orElseGet(() -> helper.findResourceBundle(field.getType()));
-        final String key = field.getDeclaringClass().getSimpleName() + "." + field.getName() + "._displayName";
+                .orElseGet(() -> helper.findResourceBundle(fieldType));
+        final String key = field.getDeclaringClass().getSimpleName() + "." + field.getName() + suffix;
         return bundle == null || !bundle.containsKey(key);
     }
+
+    private void fixLocales(final List<Fix> toFix) {
+        Map<Path, List<Fix>> fixByPath = toFix.stream().collect(Collectors.groupingBy(Fix::getDestinationFile));
+        for (Path p : fixByPath.keySet()) {
+            try {
+                Files.createDirectories(p.getParent());
+                if (!Files.exists(p)) {
+                    Files.createFile(p);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Can't create resource file '%s' : %s", p, e.getMessage()), e);
+            }
+
+            List<Fix> fixes = fixByPath.get(p);
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(p.toFile(), true))) {
+                for (Fix f : fixes) {
+                    writer.newLine();
+                    writer.write(f.key);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Can't fix internationalization file: '%s'", p), e);
+            }
+
+        }
+    }
+
+    @Data
+    private static class Fix {
+
+        private final String key;
+
+        private final Path destinationFile;
+
+        public Fix(final Field field, final String suffix, final File sourceRoot, final boolean defaultValue) {
+            this.key = computeKey(field, suffix, defaultValue);
+            this.destinationFile = computeDestinationFile(field, sourceRoot);
+        }
+
+        private String computeKey(final Field field, final String suffix, final boolean defaultValue) {
+            String s = field.getDeclaringClass().getSimpleName() + "." + field.getName() + suffix + " = ";
+            if (defaultValue) {
+                s += "<" + field.getName() + ">";
+            }
+
+            return s;
+        }
+
+        private Path computeDestinationFile(final Field field, final File sourceRoot) {
+            String packageName = field.getDeclaringClass().getPackage().getName();
+            Path path = Paths.get(sourceRoot.getAbsolutePath())
+                    .resolve("src")
+                    .resolve("main")
+                    .resolve("resources")
+                    .resolve(Paths.get(packageName.replaceAll("\\.", "/")))
+                    .resolve("Messages.properties");
+            return path;
+        }
+    }
+
 }
