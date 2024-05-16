@@ -19,7 +19,7 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_MOCK_JOB;
+import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_LIFECYCLE;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -202,13 +202,10 @@ public class TaCoKitGuessSchema {
         try {
             executeDiscoverSchemaExtendedAction(incomingSchema, outgoingBranch);
         } catch (Exception e) {
-            // Case when a processor is the start of a studio job
-            if (isStartOfJob) {
+            final DiscoverSchemaException dse = transformException(e);
+            // When a processor is the start of a studio job and dev explicitly set the handleError to Lifecycle exec
+            if (isStartOfJob && EXECUTE_LIFECYCLE.equals(dse.getPossibleHandleErrorWith())) {
                 try {
-                    final DiscoverSchemaException dse = transformException(e);
-                    if (EXECUTE_MOCK_JOB.equals(dse.getPossibleHandleErrorWith())) {
-                        throw handleException(dse);
-                    }
                     guessOutputComponentSchemaThroughResult();
                 } catch (Exception er) {
                     throw handleException(e);
