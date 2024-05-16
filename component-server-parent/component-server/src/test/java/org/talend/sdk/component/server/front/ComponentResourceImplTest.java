@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_INPUT;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_PROCESSOR;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.COMPONENT_TYPE_STANDALONE;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.MEDIA_TYPE_SVG_XML;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -247,7 +248,7 @@ class ComponentResourceImplTest {
                 .accept(APPLICATION_OCTET_STREAM_TYPE)
                 .get(Response.class);
         assertNotNull(icon);
-        assertEquals("image/svg+xml", icon.getMediaType().toString());
+        assertEquals(MEDIA_TYPE_SVG_XML, icon.getMediaType().toString());
     }
 
     @Test
@@ -269,7 +270,7 @@ class ComponentResourceImplTest {
                 .accept(APPLICATION_OCTET_STREAM_TYPE)
                 .get(Response.class);
         assertNotNull(icon);
-        assertEquals("image/svg+xml", icon.getMediaType().toString());
+        assertEquals(MEDIA_TYPE_SVG_XML, icon.getMediaType().toString());
 
         assertThrows(NotFoundException.class, () -> base.path("component/icon/family/{id}")
                 .resolveTemplate("id", family)
@@ -690,7 +691,7 @@ class ComponentResourceImplTest {
             assertEquals("light", data.getIcon().getTheme());
             assertTrue(new String(data.getIcon().getCustomIcon(), StandardCharsets.UTF_8)
                     .startsWith("<svg xmlns=\"http://www.w3.org/2000/svg\""));
-            assertEquals("image/svg+xml", data.getIcon().getCustomIconType());
+            assertEquals(MEDIA_TYPE_SVG_XML, data.getIcon().getCustomIconType());
             assertEquals(singletonList("Misc/" + data.getFamilyDisplayName()), data.getCategories());
         } else {
             assertEquals(singletonList("Misc/" + data.getFamilyDisplayName()), data.getCategories());

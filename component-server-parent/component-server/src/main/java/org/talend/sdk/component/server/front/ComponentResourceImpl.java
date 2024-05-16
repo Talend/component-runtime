@@ -144,6 +144,14 @@ public class ComponentResourceImpl implements ComponentResource {
 
     public static final String MSG_NO_FAMILY_FOR_IDENTIFIER = "No family for identifier: ";
 
+    public static final String THEME_DARK = "dark";
+
+    public static final String THEME_LIGHT = "light";
+
+    public static final String THEME_ALL = "all";
+
+    public static final String MEDIA_TYPE_SVG_XML = "image/svg+xml";
+
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
     @Inject
@@ -641,9 +649,9 @@ public class ComponentResourceImpl implements ComponentResource {
     }
 
     private Map<String, IconSymbol> collectIcons(final String theme) {
-        if ("all".equals(theme)) {
-            Map<String, IconSymbol> icons = getAllIconsForTheme("light");
-            icons.putAll(getAllIconsForTheme("dark"));
+        if (THEME_ALL.equals(theme)) {
+            Map<String, IconSymbol> icons = getAllIconsForTheme(THEME_LIGHT);
+            icons.putAll(getAllIconsForTheme(THEME_DARK));
             return icons;
         } else {
             return getAllIconsForTheme(theme);
@@ -657,7 +665,7 @@ public class ComponentResourceImpl implements ComponentResource {
             Map<String, IconSymbol> icons = components
                     .stream()
                     .filter(c -> c.getIconFamily().getCustomIcon() != null)
-                    .filter(c -> "image/svg+xml".equals(c.getIconFamily().getCustomIconType()))
+                    .filter(c -> MEDIA_TYPE_SVG_XML.equals(c.getIconFamily().getCustomIconType()))
                     .map(c -> new IconSymbol(c.getIconFamily().getIcon(),
                             c.getFamilyDisplayName(),
                             "family",
@@ -668,8 +676,7 @@ public class ComponentResourceImpl implements ComponentResource {
             icons.putAll(components
                     .stream()
                     .filter(c -> c.getIcon().getCustomIcon() != null)
-                    .filter(c -> c.getIcon().getCustomIcon() != null)
-                    .filter(c -> "image/svg+xml".equals(c.getIcon().getCustomIconType()))
+                    .filter(c -> MEDIA_TYPE_SVG_XML.equals(c.getIcon().getCustomIconType()))
                     .map(c -> new IconSymbol(c.getIcon().getIcon(),
                             c.getFamilyDisplayName(),
                             "connector",
