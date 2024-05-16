@@ -503,6 +503,7 @@ public class ComponentResourceImpl implements ComponentResource {
             }
             // build the document.
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            // to be compliant, prohibit the use of all protocols by external entities:
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             final Document doc = factory.newDocumentBuilder().newDocument();
@@ -522,7 +523,11 @@ public class ComponentResourceImpl implements ComponentResource {
                 symbol.setTextContent(new String(icon.getContent()));
                 root.appendChild(symbol);
             });
-            final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            final TransformerFactory transformerFactory = javax.xml.transform.TransformerFactory.newInstance();
+            // to be compliant, prohibit the use of all protocols by external entities:
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            final Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
             final Writer writer = new StringWriter();
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
