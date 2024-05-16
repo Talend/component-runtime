@@ -327,7 +327,7 @@ class ComponentResourceImplTest {
                 .accept(APPLICATION_SVG_XML_TYPE)
                 .get();
         assertNotNull(icons);
-        assertEquals(icons.getMediaType(), APPLICATION_SVG_XML_TYPE);
+        assertEquals(APPLICATION_SVG_XML_TYPE, icons.getMediaType());
         // default: light theme
         String content = base.path("component/icon/index")
                 .request(APPLICATION_SVG_XML_TYPE)
@@ -394,7 +394,7 @@ class ComponentResourceImplTest {
                 .request(APPLICATION_SVG_XML_TYPE)
                 .accept(APPLICATION_SVG_XML_TYPE)
                 .get();
-        assertTrue(icons.getStatus() == 404);
+        assertEquals(404, icons.getStatus());
         assertEquals(APPLICATION_JSON_TYPE, icons.getMediaType());
     }
 

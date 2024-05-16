@@ -106,7 +106,8 @@ public interface ComponentResource {
                             + "Ex: `(id = AYETAE658349453) AND (metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) AND "
                             + "(name = input)`.",
                     in = QUERY, schema = @Schema(type = STRING)) String query,
-            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector (light/dark). Defaults to light.") String theme);
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark). Defaults to light.") String theme);
 
     @GET
     @Path("icon/family/{id}")
@@ -121,7 +122,8 @@ public interface ComponentResource {
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     Response familyIcon(
             @PathParam("id") @Parameter(name = "id", description = "Family identifier.", in = PATH) String id,
-            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector (light/dark). Defaults to light.") String theme);
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark). Defaults to light.") String theme);
 
     @GET
     @Path("icon/{id}")
@@ -135,7 +137,8 @@ public interface ComponentResource {
             content = @Content(mediaType = APPLICATION_JSON))
     Response icon(
             @PathParam("id") @Parameter(name = "id", description = "Component icon identifier.", in = PATH) String id,
-            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector (light/dark). Defaults to light.") String theme);
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark). Defaults to light.") String theme);
 
     @GET
     @Path("icon/custom/{familyId}/{iconKey}")
@@ -151,7 +154,8 @@ public interface ComponentResource {
             @PathParam("familyId") @Parameter(name = "familyId", description = "family identifier.",
                     in = PATH) String familyId,
             @PathParam("iconKey") @Parameter(name = "iconKey", description = "icon key.", in = PATH) String iconKey,
-            @QueryParam("theme") @Parameter(name = "theme", description = "Theme selector (light/dark). Defaults to light.") String theme);
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark). Defaults to light.") String theme);
 
     @GET
     @Path("icon/index")

@@ -68,6 +68,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -136,6 +137,12 @@ public class ComponentResourceImpl implements ComponentResource {
     public static final String COMPONENT_TYPE_INPUT = "input";
 
     public static final String COMPONENT_TYPE_PROCESSOR = "processor";
+
+    public static final String MSG_NO_PLUGIN = "No plugin '";
+
+    public static final String MSG_NO_ICON_FOR_FAMILY = "No icon for family: ";
+
+    public static final String MSG_NO_FAMILY_FOR_IDENTIFIER = "No family for identifier: ";
 
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
@@ -355,7 +362,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (virtualComponents.isExtensionEntity(id)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -364,7 +371,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, MSG_NO_FAMILY_FOR_IDENTIFIER + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -373,7 +380,7 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getPlugin() + "' for identifier: " + id))
+                            MSG_NO_PLUGIN + meta.getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -396,7 +403,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (virtualComponents.isExtensionEntity(familyId)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + familyId))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -405,7 +412,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + familyId))
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, MSG_NO_FAMILY_FOR_IDENTIFIER + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -414,7 +421,7 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getPlugin() + "' for family identifier: " + familyId))
+                            MSG_NO_PLUGIN + meta.getPlugin() + "' for family identifier: " + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -437,7 +444,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (virtualComponents.isExtensionEntity(id)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -456,7 +463,7 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getParent().getPlugin() + "' for identifier: " + id))
+                            MSG_NO_PLUGIN + meta.getParent().getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -487,7 +494,10 @@ public class ComponentResourceImpl implements ComponentResource {
                         .build();
             }
             // build the document.
-            final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            final Document doc = factory.newDocumentBuilder().newDocument();
             final Element root = doc.createElement("svg");
             root.setAttribute("xmlns", "http://www.w3.org/2000/svg");
             root.setAttribute("focusable", "false");
@@ -509,8 +519,8 @@ public class ComponentResourceImpl implements ComponentResource {
             final Writer writer = new StringWriter();
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             final String svgs = writer.toString()
-                    .replaceAll("&lt;", "<")
-                    .replaceAll("&gt;", ">");
+                    .replace("&lt;", "<")
+                    .replace("&gt;", ">");
 
             return Response.ok(svgs).type(APPLICATION_SVG_XML_TYPE).build();
         } catch (Exception e) {
@@ -575,7 +585,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 if (!plugin.isPresent()) {
                     errors
                             .put(meta.getId(), new ErrorPayload(PLUGIN_MISSING,
-                                    "No plugin '" + meta.getParent().getPlugin() + "'"));
+                                    MSG_NO_PLUGIN + meta.getParent().getPlugin() + "'"));
                     return null;
                 }
 
@@ -669,6 +679,7 @@ public class ComponentResourceImpl implements ComponentResource {
                     .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1)));
             return icons;
         } catch (Exception e) {
+            log.error("[getAllIconsForTheme]", e);
             throw e;
         }
     }
