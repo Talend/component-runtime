@@ -15,14 +15,11 @@
  */
 package org.talend.sdk.component.runtime.di.schema;
 
-import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXCEPTION;
-import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_MOCK_JOB;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -34,7 +31,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,12 +71,22 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 class TaCoKitGuessSchemaTest {
 
     private static final String EXPECTED_ERROR_MESSAGE = "Should not be invoked";
 
     private static RecordBuilderFactory factory;
+
+    private final Pattern errorPattern =
+            Pattern.compile("(\\{\"localizedMessage\":\".*?\"possibleHandleErrorWith\":\"\\w+\"})");
+
+    private final Pattern schemaPattern = Pattern.compile("(\\[\\{.*\"talendType\".*\\}])");
+
+    private final Pattern logPattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
+
+    private final static java.io.PrintStream stdout = System.out;
 
     @BeforeAll
     static void forceManagerInit() {
@@ -163,7 +169,7 @@ class TaCoKitGuessSchemaTest {
                     Assertions.assertThrows(DiscoverSchemaException.class,
                             () -> guessSchema.guessInputComponentSchema(null));
             assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
-            assertEquals(EXCEPTION, exception.getPossibleHandleErrorWith());
+            assertEquals(HandleErrorWith.EXCEPTION, exception.getPossibleHandleErrorWith());
         }
     }
 
@@ -212,17 +218,17 @@ class TaCoKitGuessSchemaTest {
             final TaCoKitGuessSchema guessSchema =
                     new TaCoKitGuessSchema(out, config, "test-classes", "TaCoKitGuessSchemaTest", "outputDi", null,
                             "1");
+            redirectStdout(out);
             guessSchema.guessComponentSchema(schema, "out", false);
             guessSchema.close();
-            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
-            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
-                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
-                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
-                    .collect(joining("\n"));
+            restoreStdout();
+            final String flattened = flatten(byteArrayOutputStream);
             final String expected =
                     "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
-            assertEquals(expected, lines);
-            assertTrue(byteArrayOutputStream.size() > 0);
+            final Matcher schemaMatcher = schemaPattern.matcher(flattened);
+            assertFalse(errorPattern.matcher(flattened).find());
+            assertTrue(schemaMatcher.find());
+            assertEquals(expected, schemaMatcher.group());
         }
     }
 
@@ -243,16 +249,21 @@ class TaCoKitGuessSchemaTest {
             final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).build();
             Map<String, String> config = new HashMap<>();
             config.put("configuration.shouldActionFail", "true");
-            config.put("configuration.failWith", "EXCEPTION");
+            config.put("configuration.failWith", "EXECUTE_LIFECYCLE");
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(out, config, "test-classes",
                     "TaCoKitGuessSchemaTest", "outputDi", null, "1");
             // guess schema action will fail and as start of job is true, it should use processor lifecycle
+            redirectStdout(out);
             guessSchema.guessComponentSchema(schema, "out", true);
             guessSchema.close();
+            restoreStdout();
             final String expected =
                     "[{\"label\":\"entry\",\"nullable\":true,\"originalDbColumnName\":\"entry\",\"talendType\":\"id_String\"}]";
-            assertTrue(byteArrayOutputStream.size() > 0);
-            assertTrue(byteArrayOutputStream.toString().contains(expected));
+            final String flattened = flatten(byteArrayOutputStream);
+            final Matcher schemaMatcher = schemaPattern.matcher(flattened);
+            assertFalse(errorPattern.matcher(flattened).find());
+            assertTrue(schemaMatcher.find());
+            assertEquals(expected, schemaMatcher.group());
         }
     }
 
@@ -266,19 +277,21 @@ class TaCoKitGuessSchemaTest {
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(out, config, "test-classes",
                     "TaCoKitGuessSchemaTest", "outputDi", null, "1");
             try {
+                redirectStdout(out);
                 guessSchema.guessComponentSchema(sin, "out", true);
             } catch (Exception e) {
                 guessSchema.close();
             }
-            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
-            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
-                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
-                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
-                    .collect(joining("\n"));
-            final Matcher errorMatcher = Pattern.compile("(\\{.*\"possibleHandleErrorWith\".*\\})").matcher(lines);
+            restoreStdout();
+            // same transformations as in Studio
+            final String flattened = flatten(byteArrayOutputStream);
+            final Matcher errorMatcher = errorPattern.matcher(flattened);
+            assertFalse(schemaPattern.matcher(flattened).find());
             assertTrue(errorMatcher.find());
-            assertTrue(lines.contains("EXECUTE_MOCK_JOB"));
-            assertTrue(byteArrayOutputStream.size() > 0);
+            final DiscoverSchemaException de = jsonToException(errorMatcher.group());
+            assertNotNull(de);
+            assertEquals("Cannot execute action.", de.getMessage());
+            assertEquals(HandleErrorWith.EXECUTE_MOCK_JOB, de.getPossibleHandleErrorWith());
         }
     }
 
@@ -402,53 +415,18 @@ class TaCoKitGuessSchemaTest {
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
                     out, config, "test-classes", "TaCoKitGuessSchemaTest",
                     "outputDi", null, "1");
+            redirectStdout(out);
             guessSchema.guessComponentSchema(schema, "out", false);
             guessSchema.close();
-            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
-            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
-                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
-                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
-                    .collect(joining("\n"));
+            restoreStdout();
+
+            final String flattened = flatten(byteArrayOutputStream);
             final String expected =
                     "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"hjk;ljkkj\",\"key\":true,\"label\":\"id\",\"length\":10,\"nullable\":false,\"originalDbColumnName\":\"id\",\"precision\":0,\"talendType\":\"id_Integer\"},{\"comment\":\"hljkjhlk\",\"default\":\"toto\",\"defaut\":\"toto\",\"label\":\"name\",\"length\":20,\"nullable\":true,\"originalDbColumnName\":\"name\",\"precision\":0,\"talendType\":\"id_String\"},{\"label\":\"flag\",\"length\":4,\"nullable\":true,\"originalDbColumnName\":\"flag\",\"precision\":0,\"talendType\":\"id_Character\"},{\"label\":\"female\",\"length\":1,\"nullable\":true,\"originalDbColumnName\":\"female\",\"precision\":0,\"talendType\":\"id_Boolean\"},{\"comment\":\"hhhh\",\"label\":\"num1\",\"length\":3,\"nullable\":true,\"originalDbColumnName\":\"num1\",\"precision\":0,\"talendType\":\"id_Byte\"},{\"label\":\"num2\",\"length\":5,\"nullable\":true,\"originalDbColumnName\":\"num2\",\"precision\":0,\"talendType\":\"id_Short\"},{\"label\":\"age\",\"length\":19,\"nullable\":true,\"originalDbColumnName\":\"age\",\"precision\":0,\"talendType\":\"id_Long\"},{\"label\":\"bonus\",\"length\":12,\"nullable\":true,\"originalDbColumnName\":\"bonus\",\"precision\":2,\"talendType\":\"id_Float\"},{\"label\":\"salary\",\"length\":22,\"nullable\":true,\"originalDbColumnName\":\"salary\",\"precision\":2,\"talendType\":\"id_Double\"},{\"label\":\"play\",\"length\":10,\"nullable\":true,\"originalDbColumnName\":\"play\",\"precision\":2,\"talendType\":\"id_String\"},{\"label\":\"startdate\",\"nullable\":true,\"originalDbColumnName\":\"startdate\",\"pattern\":\"\\\"yyyy-MM-dd\\\"\",\"talendType\":\"id_Date\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
-            assertEquals(expected, lines);
-            assertTrue(byteArrayOutputStream.size() > 0);
-        }
-    }
-
-    @Test
-    void serializeDiscoverSchemaException() throws Exception {
-        final DiscoverSchemaException de = new DiscoverSchemaException(
-                new ComponentException(ErrorOrigin.BACKEND, "Unknown error. Retry!", new NullPointerException()),
-                HandleErrorWith.RETRY);
-        final String msg = "{\"localizedMessage\":\"Unknown error. Retry!\"";
-        final String hdl = "\"possibleHandleErrorWith\":\"RETRY\"}";
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
-            final String json = jsonb.toJson(de, DiscoverSchemaException.class);
-            System.out.println(json);
-            assertTrue(json.contains(msg));
-            assertTrue(json.startsWith(msg));
-            assertTrue(json.contains(hdl));
-            assertTrue(json.endsWith(hdl));
-        }
-    }
-
-    @Test
-    void deserializeDiscoverSchemaException() throws Exception {
-        final String flattened =
-                "{\"message\":\"Not allowed to execute the HTTP call to retrieve the schema.\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"EXCEPTION\"}";
-        final String serialized =
-                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"RETRY\"}";
-        try (final Jsonb jsonb = JsonbBuilder.create()) {
-            DiscoverSchemaException e = jsonb.fromJson(flattened, DiscoverSchemaException.class);
-            assertFalse("EXECUTE_MOCK_JOB".equals(e.getPossibleHandleErrorWith().name()));
-            assertEquals("EXCEPTION", e.getPossibleHandleErrorWith().name());
-            assertEquals("Not allowed to execute the HTTP call to retrieve the schema.", e.getMessage());
-            //
-            e = jsonb.fromJson(serialized, DiscoverSchemaException.class);
-            assertFalse("EXCEPTION".equals(e.getPossibleHandleErrorWith()));
-            assertEquals("RETRY", e.getPossibleHandleErrorWith().name());
-            assertEquals("Unknown error. Retry!", e.getMessage());
+            final Matcher schemaMatcher = schemaPattern.matcher(flattened);
+            assertFalse(errorPattern.matcher(flattened).find());
+            assertTrue(schemaMatcher.find());
+            assertEquals(expected, schemaMatcher.group());
         }
     }
 
@@ -488,18 +466,81 @@ class TaCoKitGuessSchemaTest {
             final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(
                     out, config, "test-classes", "TaCoKitGuessSchemaTest",
                     "outputDi", null, "1");
+            redirectStdout(out);
             guessSchema.guessComponentSchema(schema, "out", false);
             guessSchema.close();
-            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
-            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
-                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
-                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
-                    .collect(joining("\n"));
+            restoreStdout();
+
+            final String flattened = flatten(byteArrayOutputStream);
             final String expected =
                     "[{\"label\":\"name\",\"nullable\":false,\"originalDbColumnName\":\"name\",\"talendType\":\"id_String\"},{\"label\":\"bit\",\"nullable\":false,\"originalDbColumnName\":\"bit\",\"talendType\":\"id_Byte\"},{\"label\":\"dynamic\",\"nullable\":true,\"originalDbColumnName\":\"dynamic\",\"pattern\":\"\\\"dd/MM/YYYY\\\"\",\"talendType\":\"id_Dynamic\"},{\"label\":\"document\",\"nullable\":true,\"originalDbColumnName\":\"document\",\"talendType\":\"id_Document\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
-            assertEquals(expected, lines);
             assertTrue(byteArrayOutputStream.size() > 0);
+            final Matcher schemaMatcher = schemaPattern.matcher(flattened);
+            assertFalse(errorPattern.matcher(flattened).find());
+            assertTrue(schemaMatcher.find());
+            assertEquals(expected, schemaMatcher.group());
         }
+    }
+
+    @Test
+    void serializeDiscoverSchemaException() throws Exception {
+        final DiscoverSchemaException de = new DiscoverSchemaException(
+                new ComponentException(ErrorOrigin.BACKEND, "Unknown error. Retry!", new NullPointerException()),
+                HandleErrorWith.RETRY);
+        final String msg = "{\"localizedMessage\":\"Unknown error. Retry!\"";
+        final String hdl = "\"possibleHandleErrorWith\":\"RETRY\"}";
+        final String json = exceptionToJsonString(de);
+        System.out.println(json);
+        assertTrue(json.contains(msg));
+        assertTrue(json.startsWith(msg));
+        assertTrue(json.contains(hdl));
+        assertTrue(json.endsWith(hdl));
+    }
+
+    @Test
+    void deserializeDiscoverSchemaException() throws Exception {
+        final String flattened =
+                "{\"message\":\"Not allowed to execute the HTTP call to retrieve the schema.\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"EXCEPTION\"}";
+        final String serialized =
+                "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"RETRY\"}";
+        DiscoverSchemaException e = jsonToException(flattened);
+        assertFalse("EXECUTE_MOCK_JOB".equals(e.getPossibleHandleErrorWith().name()));
+        assertEquals("EXCEPTION", e.getPossibleHandleErrorWith().name());
+        assertEquals("Not allowed to execute the HTTP call to retrieve the schema.", e.getMessage());
+        //
+        e = jsonToException(serialized);
+        assertFalse("EXCEPTION".equals(e.getPossibleHandleErrorWith()));
+        assertEquals("RETRY", e.getPossibleHandleErrorWith().name());
+        assertEquals("Unknown error. Retry!", e.getMessage());
+    }
+
+    private DiscoverSchemaException jsonToException(final String json) throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            return jsonb.fromJson(json, DiscoverSchemaException.class);
+        }
+    }
+
+    private String exceptionToJsonString(final DiscoverSchemaException e) throws Exception {
+        try (final Jsonb jsonb = JsonbBuilder.create()) {
+            return jsonb.toJson(e, DiscoverSchemaException.class);
+        }
+    }
+
+    /**
+     * Mimic Mock_job_for_Guess_schema.java :
+     * Deactivate System.out for guess schema
+     * This stream is used to transfer the schema between process
+     */
+    void redirectStdout(final PrintStream out) {
+        System.setOut(out);
+    }
+
+    void restoreStdout() {
+        System.setOut(stdout);
+    }
+
+    private String flatten(ByteArrayOutputStream out) {
+        return out.toString().replaceAll("\n", "");
     }
 
     @Data
@@ -599,19 +640,35 @@ class TaCoKitGuessSchemaTest {
         Boolean shouldActionFail = false;
 
         @Option
-        HandleErrorWith failWith = EXECUTE_MOCK_JOB;
+        HandleErrorWith failWith = HandleErrorWith.EXECUTE_MOCK_JOB;
 
         @Option
         Boolean skipAssertions = false;
     }
 
+    @Slf4j
     @Service
     public static class StudioProcessorService implements Serializable {
 
         @DiscoverSchemaExtended("outputDi")
         public Schema discoverProcessorSchema(final Schema incomingSchema,
                 @Option("configuration") final ProcessorConfiguration conf, final String branch) {
+            log.info("[discoverProcessorSchema] calling guess schema action.");
+            log.info("[discoverProcessorSchema] trash values coming...");
+            log.warn(
+                    "[discoverProcessorSchema] trash values collected [WARN ] 14:38:00 com.couchbase.endpoint- [com.couchbase.endpoint][EndpointConnectionFailedEvent][905us] Connect attempt 5 failed because of UnknownHostException: <AnyIPwithoutcouchbaseservice> {\"circuitBreaker\":\"DISABLED\",\"coreId\":\"0x2620ac1e00000001\",\"remote\":\"<AnyIPwithoutcouchbaseservice>:11210\",\"type\":\"KV\"}\n"
+                            +
+                            "java.net.UnknownHostException: <AnyIPwithoutcouchbaseservice>\n" +
+                            "        at java.net.InetAddress$CachedAddresses.get(InetAddress.java:801) ~[?:?]\n" +
+                            "        at java.net.InetAddress.getAllByName0(InetAddress.java:1533) ~[?:?]\n" +
+                            "        at java.net.InetAddress.getAllByName(InetAddress.java:1385) ~[?:?]\n" +
+                            "        at java.net.InetAddress.getAllByName(InetAddress.java:1306) ~[?:?]\n" +
+                            "        at java.net.InetAddress.getByName(InetAddress.java:1256) ~[?:?]\n" +
+                            "        at java.security.AccessController.doPrivileged(AccessController.java:569) ~[?:?]\n"
+                            +
+                            "        at java.lang.Thread.run(Thread.java:840) [?:?]\n");
             if (conf.shouldActionFail) {
+                log.error("[discoverProcessorSchema] Action will fail!");
                 throw new DiscoverSchemaException("Cannot execute action.", conf.failWith);
             }
             if (!conf.skipAssertions) {
