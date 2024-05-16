@@ -81,6 +81,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             if (PTransform.class.isInstance(delegate)) {
                 final UUID uuid = UUID.randomUUID();
                 ArrayBlockingQueue<Record> abq = new ArrayBlockingQueue<>(QUEUE_SIZE, true);
+                log.debug("Create and add blocking queue {}.", uuid);
                 QUEUE.put(uuid, abq);
                 return new BlockingQueueIterator(delegate, familyName, inputName, familyName,
                         PTransform.class.cast(delegate),
@@ -104,8 +105,6 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
         private final UUID queueId;
 
-        // private Thread th;
-
         public BlockingQueueIterator(final Object delegate, final String rootName, final String name,
                 final String plugin,
                 final PTransform<PBegin, PCollection<Record>> transform, final UUID queueId) {
@@ -121,6 +120,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                 started = true;
             }
             if (next == null) {
+                log.debug("Remove blocking queue {}.", this.queueId);
                 QUEUE.remove(this.queueId);
             }
             return next != null;
@@ -142,8 +142,12 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
             Record record = null;
             try {
+                log.debug("Take next element from blocking queue: {}, thread: {}.", this.queueId,
+                        Thread.currentThread().getId());
                 record = recordQueue.take();
                 if (record == END_OF_QUEUE) {
+                    log.debug("END_OF_QUEUE reached for blocking queue {}, in thread: {}.", this.queueId,
+                            Thread.currentThread().getId());
                     return null;
                 }
             } catch (InterruptedException e) {
@@ -191,6 +195,8 @@ public class BeamProducerFinder extends ProducerFinderImpl {
                 p.apply(transform).apply(of);
 
                 Thread th = new Thread(() -> {
+                    log.debug("Start thread {} to produce elements in blocking queue {}.",
+                            Thread.currentThread().getId(), this.queueId);
                     PipelineResult pipelineResult = p.run();
                     pipelineResult.waitUntilFinish();
                     try {
@@ -228,13 +234,14 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         public void processElement(final ProcessContext context) {
             final ArrayBlockingQueue<Record> recordQueue = QUEUE.get(this.queueId);
             try {
+                log.debug("Add an element in blocking queue: {}, thread: {}.", this.queueId,
+                        Thread.currentThread().getId());
                 Record record = context.element();
                 recordQueue.put(record);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-
     }
 
 }
