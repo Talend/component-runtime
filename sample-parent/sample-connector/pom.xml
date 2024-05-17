@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.64.0</version>
+    <version>1.64.0-TCOMP-2715</version>
   </parent>
 
   <artifactId>sample-connector</artifactId>
