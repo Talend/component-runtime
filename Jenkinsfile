@@ -115,20 +115,20 @@ pipeline {
           description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
         booleanParam(
           name: 'MAVEN_DEPLOY',
-          defaultValue: false,
+          defaultValue: true,
           description: '''
             Force MAVEN deploy stage for development branches. No effect on master and maintenance.
             INFO: master/maintenance branch are deploying on <oss.sonatype.org>
                   dev branches are deploying on <artifacts-zl.talend.com>''')
         booleanParam(
           name: 'DOCKER_PUSH',
-          defaultValue: false,
+          defaultValue: true,
           description: '''
             Force DOCKER push stage for development branches. No effect on master and maintenance.
             INFO: master/maintenance and dev branches are deploying on <artifactory.datapwn.com>''')
         string(
           name: 'VERSION_QUALIFIER',
-          defaultValue: 'DEFAULT',
+          defaultValue: '',
           description: '''
             Deploy jars with the given version qualifier. No effect on master and maintenance.
              - DEFAULT means the qualifier will be the Jira id extracted from the branch name.

@@ -138,12 +138,12 @@
   </scm>
   <distributionManagement>
     <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>talend.releases</id>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases</url>
     </repository>
     <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>talend.snapshots</id>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
