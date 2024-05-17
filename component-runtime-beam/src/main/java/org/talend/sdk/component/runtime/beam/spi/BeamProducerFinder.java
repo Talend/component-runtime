@@ -20,14 +20,11 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.beam.runners.direct.DirectOptions;
-import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
+import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -37,6 +34,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.source.ProducerFinder;
 import org.talend.sdk.component.runtime.base.Delegated;
+import org.talend.sdk.component.runtime.base.LifecycleImpl;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.service.ProducerFinderImpl;
@@ -48,11 +46,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BeamProducerFinder extends ProducerFinderImpl {
 
-    private static final int QUEUE_SIZE = 200;
+    static final int CAPACITY = Integer.parseInt(System.getProperty("talend.beam.wrapper.capacity", "100000"));
 
-    private static final int BEAM_PARALLELISM = 10;
-
-    private static final Map<UUID, Queue<Record>> QUEUE = new ConcurrentHashMap<>();
+    static final Queue<Record> QUEUE = new ArrayBlockingQueue<>(CAPACITY, true);
 
     @Override
     public Iterator<Record> find(final String familyName, final String inputName, final int version,
@@ -66,10 +62,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             log.warn("Component Kit Mapper instantiation failed, trying to wrap native beam mapper...");
             final Object delegate = Delegated.class.cast(mapper).getDelegate();
             if (PTransform.class.isInstance(delegate)) {
-                final UUID uuid = UUID.randomUUID();
-                QUEUE.put(uuid, new ArrayBlockingQueue<>(QUEUE_SIZE, true));
-                return new QueueInput(delegate, familyName, inputName, familyName, PTransform.class.cast(delegate),
-                        uuid);
+                return new QueueInput(delegate, familyName, inputName, familyName, PTransform.class.cast(delegate));
             }
             throw new IllegalStateException(e);
         }
@@ -79,7 +72,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         return new SerializableService(plugin, ProducerFinder.class.getName());
     }
 
-    static class QueueInput implements Iterator<Record>, Serializable {
+    static class QueueInput extends LifecycleImpl implements Input, Iterator<Record> {
 
         private final PTransform<PBegin, PCollection<Record>> transform;
 
@@ -91,14 +84,10 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
         private Record next;
 
-        private final UUID queueId;
-
-        private Thread th;
-
         public QueueInput(final Object delegate, final String rootName, final String name, final String plugin,
-                final PTransform<PBegin, PCollection<Record>> transform, final UUID queueId) {
+                final PTransform<PBegin, PCollection<Record>> transform) {
+            super(delegate, rootName, name, plugin);
             this.transform = transform;
-            this.queueId = queueId;
             result = runDataReadingPipeline();
         }
 
@@ -107,9 +96,6 @@ public class BeamProducerFinder extends ProducerFinderImpl {
             if (next == null && !started) {
                 next = findNext();
                 started = true;
-            }
-            if (next == null) {
-                QUEUE.remove(this.queueId);
             }
             return next != null;
         }
@@ -125,21 +111,12 @@ public class BeamProducerFinder extends ProducerFinderImpl {
         }
 
         private Record findNext() {
-            final Queue<Record> recordQueue = QUEUE.get(this.queueId);
+            Record record = QUEUE.poll();
 
-            Record record = recordQueue.poll();
-
-            int index = 0;
             while (record == null && (!end)) {
-                end = result != null && result.getState() != PipelineResult.State.RUNNING;
-                if (!end && index > 10) {
-                    result.waitUntilFinish();
-                } else {
-                    index++;
-                    log.debug("findNext NULL, retry : end={}; size:{}", end, recordQueue.size());
-                    sleep();
-                }
-                record = recordQueue.poll();
+                end = result.getState() != PipelineResult.State.RUNNING;
+                sleep();
+                record = QUEUE.poll();
             }
             return record;
         }
@@ -156,7 +133,7 @@ public class BeamProducerFinder extends ProducerFinderImpl {
          * <p>
          * Not specifying the appropriate classloader can lead to weird exceptions like:
          * </p>
-         *
+         * 
          * <pre>
          * No translator known for org.apache.beam.repackaged.direct_java.runners.core.construction.SplittableParDo$PrimitiveBoundedRead
          * </pre>
@@ -172,24 +149,14 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
             try {
                 Thread.currentThread().setContextClassLoader(beamAwareClassLoader);
-                DirectOptions options = PipelineOptionsFactory.as(DirectOptions.class);
-                options.setRunner(DirectRunner.class);
-                options.setTargetParallelism(BEAM_PARALLELISM);
-                options.setBlockOnRun(false);
-                MyDoFn pushRecord = new MyDoFn(this.queueId);
+
+                PipelineOptions options = PipelineOptionsFactory.create();
+                PushRecord pushRecord = new PushRecord();
                 ParDo.SingleOutput<Record, Void> of = ParDo.of(pushRecord);
                 Pipeline p = Pipeline.create(options);
                 p.apply(transform).apply(of);
 
-                final PipelineResult[] result = new PipelineResult[1];
-                th = new Thread(() -> {
-                    result[0] = p.run();
-                });
-                this.th.start();
-                while (result[0] == null) {
-                    sleep();
-                }
-                return result[0];
+                return p.run();
             } finally {
                 Thread.currentThread().setContextClassLoader(callerClassLoader);
             }
@@ -197,38 +164,34 @@ public class BeamProducerFinder extends ProducerFinderImpl {
 
         private void sleep() {
             try {
-                Thread.sleep(30L);
+                Thread.sleep(100L);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
     }
 
-    static class MyDoFn extends DoFn<Record, Void> {
-
-        private final UUID queueId;
-
-        public MyDoFn(final UUID queueId) {
-            this.queueId = queueId;
-        }
+    static class PushRecord extends DoFn<Record, Void> implements Serializable {
 
         @ProcessElement
-        public void processElement(final ProcessContext context) {
-            final Queue<Record> recordQueue = QUEUE.get(this.queueId);
-            boolean ok = recordQueue.offer(context.element());
-            log.debug("queue injected {}; ok={}; thread:{}", recordQueue.size(), ok, Thread.currentThread().getId());
-
+        public void processElement(final @Element Record record) {
+            boolean ok = QUEUE.offer(record);
             while (!ok) {
+                if (QUEUE.size() >= CAPACITY) {
+                    final String msg = String.format(
+                            "Wrapper queue if full (capacity: %d). Consider increasing it according data with talend.beam.wrapper.capacity property.",
+                            CAPACITY);
+                    log.error("[processElement] {}", msg);
+                    throw new IllegalStateException(msg);
+                }
                 sleep();
-                ok = recordQueue.offer(context.element());
-                log.debug("\tqueue injected retry {}; ok={}; thread:{}", recordQueue.size(), ok,
-                        Thread.currentThread().getId());
+                ok = QUEUE.offer(record);
             }
         }
 
         private void sleep() {
             try {
-                Thread.sleep(20L);
+                Thread.sleep(100L);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

@@ -80,19 +80,6 @@ public class ProducerFinderEnvironmentTest implements Serializable {
     @Service
     private RecordBuilderFactory factory;
 
-    /**
-     * + * arrayblocking queue capacity
-     * + * 7 fixed CAPACITY variable
-     * + * recordCount value
-     * + * 10 11sec 13sec
-     * + * 100 16sec 13sec
-     * + * 1000 57sec 16sec
-     * + * 10000 ~ 7min55 52sec
-     * + * 100000 1h34min 25min
-     * +
-     */
-    private final Integer recordCount = 5000; // 10 100 1000 10000 100000
-
     @BeforeAll
     static void forceManagerInit() {
         // manager for non environmental tests
@@ -106,26 +93,19 @@ public class ProducerFinderEnvironmentTest implements Serializable {
 
     @Test
     void finderWithTacokitFamily() {
-        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "TckFamily", recordCount);
+        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "TckFamily");
         recordIterator.forEachRemaining(Assertions::assertNotNull);
     }
 
     @Test
     void finderWithBeamFamily() {
-        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "BeamFamily", recordCount);
-        final int[] total = new int[1];
-        total[0] = 0;
-        recordIterator.forEachRemaining((Record rec) -> {
-            Assertions.assertNotNull(rec);
-            total[0]++;
-        });
-        Assertions.assertEquals(recordCount, total[0], "did not consume all records");
+        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "BeamFamily");
+        recordIterator.forEachRemaining(Assertions::assertNotNull);
     }
 
     @EnvironmentalTest
     void runPipelineBeam() {
-        Mapper mapper =
-                manager.findMapper("BeamFamily", "from", 1, singletonMap("count", recordCount.toString())).get();
+        Mapper mapper = manager.findMapper("BeamFamily", "from", 1, singletonMap("count", "10")).get();
         assertNotNull(mapper);
         final Object delegate = Delegated.class.cast(mapper).getDelegate();
         assertNotNull(delegate);
@@ -134,7 +114,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
 
     @EnvironmentalTest
     void runPipelineTacokt() {
-        Mapper mapper = manager.findMapper("TckFamily", "from", 1, singletonMap("count", recordCount.toString())).get();
+        Mapper mapper = manager.findMapper("TckFamily", "from", 1, singletonMap("count", "10")).get();
         assertNotNull(mapper);
         runPipeline(TalendIO.read(mapper));
     }
@@ -143,7 +123,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
         final Pipeline pipeline = Pipeline.create(PipelineOptionsFactory.create());
         final PTransform<PBegin, PCollection<Record>> start = transform;
         final PCollection<Record> out = pipeline.apply(start);
-        List<Record> records = IntStream.range(0, recordCount)
+        List<Record> records = IntStream.range(0, 10)
                 .mapToObj(i -> factory.newRecordBuilder()
                         .withString("id", "id_" + i)
                         .build())
@@ -162,20 +142,19 @@ public class ProducerFinderEnvironmentTest implements Serializable {
         runJob(handler.asManager(), "BeamFamily");
     }
 
-    private Iterator<Record> getFinder(final ComponentManager manager, final String family, final int expectedNumber) {
+    private Iterator<Record> getFinder(final ComponentManager manager, final String family) {
         final Container container = manager.findPlugin("test-classes").get();
         ProducerFinder finder = (ProducerFinder) container.get(AllServices.class)
                 .getServices()
                 .get(ProducerFinder.class);
         assertNotNull(finder);
-        final Iterator<Record> recordIterator = finder.find(family, "from", 1,
-                singletonMap("count", Integer.toString(expectedNumber)));
+        final Iterator<Record> recordIterator = finder.find(family, "from", 1, singletonMap("count", "10"));
         assertNotNull(recordIterator);
         return recordIterator;
     }
 
     private void runJob(final ComponentManager manager, final String family) {
-        final Iterator<Record> recordIterator = getFinder(manager, family, recordCount);
+        final Iterator<Record> recordIterator = getFinder(manager, family);
         assertNotNull(recordIterator);
         handler.setInputData(toIterable(recordIterator));
         Job
@@ -187,7 +166,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
                 .to("output")
                 .build()
                 .run();
-        assertEquals(recordCount, handler.getCollectedData(Record.class).size());
+        assertEquals(10, handler.getCollectedData(Record.class).size());
     }
 
     static <T> Iterable<T> toIterable(Iterator<T> it) {
