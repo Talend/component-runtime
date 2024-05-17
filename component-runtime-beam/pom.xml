@@ -66,12 +66,7 @@
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-direct-java</artifactId>
       <version>${beam.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>joda-time</groupId>
-          <artifactId>joda-time</artifactId>
-        </exclusion>
-      </exclusions>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.beam</groupId>
