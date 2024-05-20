@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,6 +36,8 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -45,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -74,6 +78,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
@@ -99,7 +104,7 @@ class AvroRecordTest {
     @Test
     void providedSchemaGetSchema() {
         final Schema schema = new AvroSchemaBuilder()
-                .withType(Schema.Type.RECORD)
+                .withType(RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(true)
@@ -113,7 +118,7 @@ class AvroRecordTest {
     @Test
     void providedSchemaNullable() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
-                .withType(Schema.Type.RECORD)
+                .withType(RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(true)
@@ -141,7 +146,7 @@ class AvroRecordTest {
     @Test
     void providedSchemaNullableDate() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
-                .withType(Schema.Type.RECORD)
+                .withType(RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(true)
@@ -158,7 +163,7 @@ class AvroRecordTest {
     @Test
     void providedSchemaNullableDecimal() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
-                .withType(Schema.Type.RECORD)
+                .withType(RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("decimal")
                         .withNullable(true)
@@ -188,7 +193,7 @@ class AvroRecordTest {
     @Test
     void providedSchemaNotNullable() {
         final Supplier<RecordImpl.BuilderImpl> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
-                .withType(Schema.Type.RECORD)
+                .withType(RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(false)
@@ -208,7 +213,7 @@ class AvroRecordTest {
     @Test
     void providedSchemaNotNullableDate() {
         final Supplier<AvroRecordBuilder> builder = () -> new AvroRecordBuilder(new AvroSchemaBuilder()
-                .withType(Schema.Type.RECORD)
+                .withType(RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("name")
                         .withNullable(false)
@@ -228,7 +233,7 @@ class AvroRecordTest {
     @Test
     void withNullEntry() {
         final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
-            final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
+            final Schema schema = factory.newSchemaBuilder(RECORD)
                     .withEntry(factory.newEntryBuilder()
                             .withName("field")
                             .withType(Schema.Type.STRING)
@@ -240,11 +245,11 @@ class AvroRecordTest {
             final Entry field = factory.newEntryBuilder()
                     .withName("Hello")
                     .withNullable(true)
-                    .withType(Schema.Type.RECORD)
+                    .withType(RECORD)
                     .withElementSchema(schema)
                     .build();
 
-            final Schema schemaBis = factory.newSchemaBuilder(Schema.Type.RECORD)
+            final Schema schemaBis = factory.newSchemaBuilder(RECORD)
                     .withEntry(field)
                     .build();
 
@@ -408,7 +413,7 @@ class AvroRecordTest {
                 .withName("t_decimal")
                 .withNullable(true)
                 .build();
-        final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+        final Schema schema = factory.newSchemaBuilder(RECORD).withEntry(f1).build();
 
         final Record.Builder builder = factory.newRecordBuilder(schema);
 
@@ -450,7 +455,7 @@ class AvroRecordTest {
                 .withName("t_timestamp")
                 .withNullable(true)
                 .build();
-        final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+        final Schema schema = factory.newSchemaBuilder(RECORD).withEntry(f1).build();
 
         final Record.Builder builder = factory.newRecordBuilder(schema);
 
@@ -482,7 +487,7 @@ class AvroRecordTest {
                 .withElementSchema(arrayOfString)
                 .build();
         final Schema schema = new AvroSchemaBuilder()
-                .withType(Schema.Type.RECORD)
+                .withType(RECORD)
                 .withEntry(data)
                 .build();
         final AvroRecordBuilder builder = new AvroRecordBuilder(schema);
@@ -564,7 +569,7 @@ class AvroRecordTest {
         assertEquals(Schema.Type.DECIMAL, entries.get(1).getType());
         assertEquals(Schema.Type.STRING, entries.get(2).getType());
         assertEquals(Schema.Type.STRING, entries.get(3).getType());
-        assertEquals(Schema.Type.RECORD, entries.get(4).getType());
+        assertEquals(RECORD, entries.get(4).getType());
         // check avro record
         assertTrue(byte[].class.isInstance(record.getBytes("field01")));
         assertEquals("11.22", new String(record.getBytes("field01")));
@@ -602,7 +607,7 @@ class AvroRecordTest {
     void arrayOfRecords() {
         final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
-            final Schema innerSchema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+            final Schema innerSchema = factory.newSchemaBuilder(RECORD).withEntry(f1).build();
 
             final Schema.Entry array = factory
                     .newEntryBuilder()
@@ -610,7 +615,7 @@ class AvroRecordTest {
                     .withName("array") //
                     .withElementSchema(innerSchema) //
                     .build();
-            final Schema recordSchema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(array).build();
+            final Schema recordSchema = factory.newSchemaBuilder(RECORD).withEntry(array).build();
 
             final Record record = factory.newRecordBuilder(innerSchema).withString(f1, "Hello").build();
             final Record record1 = factory.newRecordBuilder(recordSchema).withArray(array, asList(record)).build();
@@ -627,7 +632,7 @@ class AvroRecordTest {
     void arrayWithNull() throws IOException {
         final FactoryTester<IOException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
-            final Schema innerSchema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+            final Schema innerSchema = factory.newSchemaBuilder(RECORD).withEntry(f1).build();
 
             final Record record1 = factory.newRecordBuilder(innerSchema)
                     .with(f1, "object1")
@@ -642,7 +647,7 @@ class AvroRecordTest {
                     .withNullable(true)
                     .withElementSchema(innerSchema)
                     .build();
-            final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(fArray).build();
+            final Schema schema = factory.newSchemaBuilder(RECORD).withEntry(fArray).build();
 
             final Record record = factory.newRecordBuilder(schema)
                     .withArray(fArray, asList(record1, null, record2))
@@ -674,7 +679,7 @@ class AvroRecordTest {
     void arrayOfArrayOfRecords(final int level) {
         final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
-            final Schema innerSchema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(f1).build();
+            final Schema innerSchema = factory.newSchemaBuilder(RECORD).withEntry(f1).build();
             Schema currentSchema = innerSchema;
             for (int i = 1; i < level; i++) {
                 currentSchema = factory.newSchemaBuilder(Schema.Type.ARRAY).withElementSchema(currentSchema).build();
@@ -686,7 +691,7 @@ class AvroRecordTest {
                     .withName("array") //
                     .withElementSchema(fieldSchema) //
                     .build();
-            final Schema recordSchema = factory.newSchemaBuilder(Schema.Type.RECORD).withEntry(array).build();
+            final Schema recordSchema = factory.newSchemaBuilder(RECORD).withEntry(array).build();
 
             final Record record = factory.newRecordBuilder(innerSchema).withString(f1, "Hello").build();
             Collection inputRecords = asList(record);
@@ -752,7 +757,7 @@ class AvroRecordTest {
                 .build();
 
         final Schema schema =
-                stdFactory.newSchemaBuilder(Schema.Type.RECORD).withEntry(field).withEntry(oid).withEntry(meta).build();
+                stdFactory.newSchemaBuilder(RECORD).withEntry(field).withEntry(oid).withEntry(meta).build();
 
         final Record record = stdFactory
                 .newRecordBuilder(schema) //
@@ -819,7 +824,7 @@ class AvroRecordTest {
                 .build();
 
         final Schema schemaArray =
-                stdFactory.newSchemaBuilder(Schema.Type.RECORD).withEntry(field).withEntry(oid).withEntry(meta).build();
+                stdFactory.newSchemaBuilder(RECORD).withEntry(field).withEntry(oid).withEntry(meta).build();
         final Schema.Entry arrayEntry = stdFactory
                 .newEntryBuilder()
                 .withType(Schema.Type.ARRAY)
@@ -828,7 +833,7 @@ class AvroRecordTest {
                 .withMetadata(true)
                 .build();
 
-        final Schema schema = stdFactory.newSchemaBuilder(Schema.Type.RECORD).withEntry(arrayEntry).build();
+        final Schema schema = stdFactory.newSchemaBuilder(RECORD).withEntry(arrayEntry).build();
         final Record record1 = stdFactory
                 .newRecordBuilder(schemaArray) //
                 .withString(field, "Hello") //
@@ -856,5 +861,71 @@ class AvroRecordTest {
         Assertions.assertEquals("array", entry.getName());
         final Collection<Record> records = avrRec.getArray(Record.class, "array");
         Assertions.assertEquals(2, records.size());
+    }
+
+    @Test
+    void testSubTypes(){
+        // prepare data from RecordImpl
+        final RecordBuilderFactory builderFactory= new RecordBuilderFactoryImpl("test");
+        final Schema schema = builderFactory.newSchemaBuilder(RECORD)
+                .withEntry(builderFactory.newEntryBuilder()
+                        .withName("uuid")
+                        .withLogicalType(SchemaProperty.LogicalType.UUID)
+                        .build())
+                .withEntry(builderFactory.newEntryBuilder()
+                        .withName("date")
+                        .withLogicalType(SchemaProperty.LogicalType.DATE)
+                        .build())
+                .withEntry(builderFactory.newEntryBuilder()
+                        .withName("timestamp")
+                        .withLogicalType(SchemaProperty.LogicalType.TIMESTAMP)
+                        .build())
+                .withEntry(builderFactory.newEntryBuilder()
+                        .withName("time")
+                        .withLogicalType(SchemaProperty.LogicalType.TIME)
+                        .build())
+                .build();
+        final String sampleUuid = UUID.randomUUID().toString();
+        final Record recordImpl = builderFactory.newRecordBuilder(schema)
+                .withString("uuid", sampleUuid)
+                .withDateTime("date", new Date(124 , 4, 20, 14, 00, 19))
+                .withTimestamp("timestamp", Timestamp.valueOf("2024-05-20 14:00:19.0").getTime())
+                .withDateTime("time", ZonedDateTime.of(2024 , 05, 20, 14, 0, 19, 0, ZoneId.of("UTC")))
+                .build();
+        // instantiate avro record and get vals
+        final AvroRecord record = new AvroRecord(recordImpl);
+        final Date date = record.get(Date.class, "date");
+        final LocalDate localDate = record.getDateTime("date").toLocalDate();
+        final Timestamp timestamp = Timestamp.from(record.get(Instant.class, "timestamp"));
+        final LocalTime time = record.getDateTime("time").toLocalTime();
+        final UUID uuid = UUID.fromString(record.getString("uuid"));
+        //
+        // assertions
+        //
+        // failing conversions
+        // TODO make a more flexible conversion for timestamps
+        assertThrows(IllegalArgumentException.class, () -> { record.get(Timestamp.class, "timestamp"); });
+        assertThrows(IllegalArgumentException.class, () -> { record.get(LocalTime.class, "time"); });
+        assertThrows(IllegalArgumentException.class, () -> { record.get(LocalDate.class, "date"); });
+        // date (deprecated but needs just to check vals...)
+        assertEquals(2024 - 1900, date.getYear());
+        assertEquals(5 - 1, date.getMonth());
+        assertEquals(20, date.getDate());
+        // localDate
+        assertEquals(2024, localDate.getYear());
+        assertEquals(5, localDate.getMonth().getValue());
+        assertEquals(20, localDate.getDayOfMonth());
+        // localTime
+        assertEquals("14:00:19", time.toString());
+        // timestamp
+        assertEquals(2024 - 1900, timestamp.getYear());
+        assertEquals(5 - 1, timestamp.getMonth());
+        assertEquals(20, timestamp.getDate());
+        assertEquals(14, timestamp.getHours());
+        assertEquals(00, timestamp.getMinutes());
+        assertEquals(19, timestamp.getSeconds());
+        assertEquals("2024-05-20T12:00:19Z", timestamp.toInstant().toString());
+        // uuid
+        assertEquals(sampleUuid, uuid.toString());
     }
 }
