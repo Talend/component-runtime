@@ -105,7 +105,7 @@ pipeline {
     }
 
     triggers {
-        cron(branch_name == "master" ? "0 12 * * *" : "")
+        cron(branch_name == "master" ? "0 0 * * *" : "")
     }
 
     parameters {

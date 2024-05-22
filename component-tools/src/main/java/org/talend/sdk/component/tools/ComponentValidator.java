@@ -57,7 +57,7 @@ import lombok.Data;
 // IMPORTANT: this class is used by reflection in gradle integration, don't break signatures without checking it
 public class ComponentValidator extends BaseTask {
 
-    public static final String ICONS = "icons/";
+    public static final String ICONS = "icons" + File.separator;
 
     private final Configuration configuration;
 
@@ -179,8 +179,8 @@ public class ComponentValidator extends BaseTask {
                 // themed icons check
                 List<String> prefixes = new ArrayList<>();
                 of(classes).forEach(s -> {
-                    prefixes.add(s + "/" + ICONS + "light/" + icon);
-                    prefixes.add(s + "/" + ICONS + "dark/" + icon);
+                    prefixes.add(s + File.separator + ICONS + "light" + File.separator + icon);
+                    prefixes.add(s + File.separator + ICONS + "dark" + File.separator + icon);
                 });
                 svgs = prefixes.stream().map(s -> new File(s + ".svg")).collect(toSet());
                 pngs = prefixes.stream().map(s -> new File(s + "_icon32.png")).collect(toSet());
@@ -189,7 +189,7 @@ public class ComponentValidator extends BaseTask {
             svgs.stream()
                     .filter(f -> !f.exists())
                     .forEach(
-                            svg -> log.error("No '" + stripPath(svg)
+                            svg -> errors.add("No '" + stripPath(svg)
                                     + "' found, this will run in degraded mode in Talend Cloud"));
             if (configuration.isValidateSvg()) {
                 errors.addAll(svgs.stream().filter(File::exists).flatMap(this::validateSvg).collect(toSet()));
@@ -208,7 +208,12 @@ public class ComponentValidator extends BaseTask {
     }
 
     private String stripPath(final File icon) {
-        return icon.toString().substring(icon.toString().indexOf(ICONS));
+        try {
+            return icon.toString().substring(icon.toString().indexOf(ICONS));
+        } catch (StringIndexOutOfBoundsException e) {
+            log.error("Validate Icon Path Error :" + icon.toString() + "-- Exception: " + e.getMessage());
+        }
+        return ("Icon Path Error :" + icon.toString());
     }
 
     private Stream<String> validateSvg(final File file) {
