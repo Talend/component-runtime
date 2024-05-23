@@ -19,9 +19,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML_TYPE;
+import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
@@ -29,6 +32,8 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,6 +68,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
@@ -91,6 +102,7 @@ import org.talend.sdk.component.server.front.model.Dependencies;
 import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.Icon;
+import org.talend.sdk.component.server.front.model.IconSymbol;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
@@ -108,6 +120,8 @@ import org.talend.sdk.component.server.service.event.DeployedComponent;
 import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
 import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 import org.talend.sdk.component.spi.component.ComponentExtension;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -123,6 +137,20 @@ public class ComponentResourceImpl implements ComponentResource {
     public static final String COMPONENT_TYPE_INPUT = "input";
 
     public static final String COMPONENT_TYPE_PROCESSOR = "processor";
+
+    public static final String MSG_NO_PLUGIN = "No plugin '";
+
+    public static final String MSG_NO_ICON_FOR_FAMILY = "No icon for family: ";
+
+    public static final String MSG_NO_FAMILY_FOR_IDENTIFIER = "No family for identifier: ";
+
+    public static final String THEME_DARK = "dark";
+
+    public static final String THEME_LIGHT = "light";
+
+    public static final String THEME_ALL = "all";
+
+    public static final String MEDIA_TYPE_SVG_XML = "image/svg+xml";
 
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
@@ -342,7 +370,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (virtualComponents.isExtensionEntity(id)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -351,7 +379,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, MSG_NO_FAMILY_FOR_IDENTIFIER + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -360,7 +388,7 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getPlugin() + "' for identifier: " + id))
+                            MSG_NO_PLUGIN + meta.getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -383,7 +411,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (virtualComponents.isExtensionEntity(familyId)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + familyId))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -392,7 +420,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + familyId))
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, MSG_NO_FAMILY_FOR_IDENTIFIER + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -401,7 +429,7 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getPlugin() + "' for family identifier: " + familyId))
+                            MSG_NO_PLUGIN + meta.getPlugin() + "' for family identifier: " + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -424,7 +452,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (virtualComponents.isExtensionEntity(id)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -443,7 +471,7 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getParent().getPlugin() + "' for identifier: " + id))
+                            MSG_NO_PLUGIN + meta.getParent().getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -458,6 +486,64 @@ public class ComponentResourceImpl implements ComponentResource {
         }
 
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
+    }
+
+    @Override
+    @CacheResult
+    public Response getIconIndex(final String theme) {
+        final String themedIcon = theme == null ? defaultTheme : theme;
+        try {
+            final Map<String, IconSymbol> icons = collectIcons(themedIcon);
+            if (icons.isEmpty()) {
+                return Response
+                        .status(Response.Status.NOT_FOUND)
+                        .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No svg icon available"))
+                        .type(APPLICATION_JSON_TYPE)
+                        .build();
+            }
+            // build the document.
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            // to be compliant, prohibit the use of all protocols by external entities:
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            final Document doc = factory.newDocumentBuilder().newDocument();
+            final Element root = doc.createElement("svg");
+            root.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            root.setAttribute("focusable", "false");
+            root.setAttribute("class", "sr-only");
+            root.setAttribute("theme", themedIcon);
+            doc.appendChild(root);
+            icons.values().forEach(icon -> {
+                final Element symbol = doc.createElement("symbol");
+                symbol.setAttribute("family", icon.getFamily());
+                symbol.setAttribute("id", icon.getIcon());
+                symbol.setAttribute("type", icon.getType());
+                symbol.setAttribute("connector", icon.getConnector());
+                symbol.setAttribute("theme", icon.getTheme());
+                symbol.setTextContent(new String(icon.getContent()));
+                root.appendChild(symbol);
+            });
+            final TransformerFactory transformerFactory = javax.xml.transform.TransformerFactory.newInstance();
+            // to be compliant, prohibit the use of all protocols by external entities:
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            final Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
+            final Writer writer = new StringWriter();
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            final String svgs = writer.toString()
+                    .replace("&lt;", "<")
+                    .replace("&gt;", ">");
+
+            return Response.ok(svgs).type(APPLICATION_SVG_XML_TYPE).build();
+        } catch (Exception e) {
+            log.error("[getIconIndex] {}", e.getMessage());
+            return Response
+                    .status(Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
     }
 
     @Override
@@ -518,7 +604,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 if (!plugin.isPresent()) {
                     errors
                             .put(meta.getId(), new ErrorPayload(PLUGIN_MISSING,
-                                    "No plugin '" + meta.getParent().getPlugin() + "'"));
+                                    MSG_NO_PLUGIN + meta.getParent().getPlugin() + "'"));
                     return null;
                 }
 
@@ -571,6 +657,49 @@ public class ComponentResourceImpl implements ComponentResource {
         }
 
         return new ComponentDetailList(details);
+    }
+
+    private Map<String, IconSymbol> collectIcons(final String theme) {
+        if (THEME_ALL.equals(theme)) {
+            Map<String, IconSymbol> icons = getAllIconsForTheme(THEME_LIGHT);
+            icons.putAll(getAllIconsForTheme(THEME_DARK));
+            return icons;
+        } else {
+            return getAllIconsForTheme(theme);
+        }
+    }
+
+    private Map<String, IconSymbol> getAllIconsForTheme(final String theme) {
+        final ComponentIndices index = getIndex(Locale.ROOT.getLanguage(), true, null, theme);
+        try {
+            final List<ComponentIndex> components = index.getComponents();
+            Map<String, IconSymbol> icons = components
+                    .stream()
+                    .filter(c -> c.getIconFamily().getCustomIcon() != null)
+                    .filter(c -> MEDIA_TYPE_SVG_XML.equals(c.getIconFamily().getCustomIconType()))
+                    .map(c -> new IconSymbol(c.getIconFamily().getIcon(),
+                            c.getFamilyDisplayName(),
+                            "family",
+                            "",
+                            theme,
+                            c.getIconFamily().getCustomIcon()))
+                    .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1));
+            icons.putAll(components
+                    .stream()
+                    .filter(c -> c.getIcon().getCustomIcon() != null)
+                    .filter(c -> MEDIA_TYPE_SVG_XML.equals(c.getIcon().getCustomIconType()))
+                    .map(c -> new IconSymbol(c.getIcon().getIcon(),
+                            c.getFamilyDisplayName(),
+                            "connector",
+                            c.getDisplayName(),
+                            theme,
+                            c.getIcon().getCustomIcon()))
+                    .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1)));
+            return icons;
+        } catch (Exception e) {
+            log.error("[getAllIconsForTheme]", e);
+            throw e;
+        }
     }
 
     private Stream<ComponentIndex> findDeployedComponents(final boolean includeIconContent, final Locale locale,
