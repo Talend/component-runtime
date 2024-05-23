@@ -15,7 +15,7 @@
     <meta name="description" content="How to access studio's schema in your component.">
     <meta name="keywords" content="studio, studio-integration, schema, metadata, dynamic, columns, output, sink, connector, record-schema, guess, discover, guess-schema, discover-schema">
     <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2024-05-23T00:48:45.101Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2024-05-23T16:21:19.111Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -1046,7 +1046,7 @@ public class UiServices {
 <div class="sect2">
 <h3 id="_using_the_discoverschemaextended_annotation"><a class="anchor" href="#_using_the_discoverschemaextended_annotation"></a>Using the <code>@DiscoverSchemaExtended</code> annotation</h3>
 <div class="paragraph">
-<p>Parameters can be an incoming schema and/or an outgoing branch.</p>
+<p>Parameters can be an incoming schema and/or an outgoing branch, and an optional parameter: configuration. None of them is "Must have".</p>
 </div>
 <div class="paragraph">
 <p>Prototype:</p>
@@ -1064,13 +1064,13 @@ public class UiServices {
 public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") ConfigClass myConfig, final String branch) {...}
 
 @DiscoverSchemaExtended("incoming_schema")
-public Schema guessMethodName(final Schema incomingSchema, final @Option procConf) {...}
+public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") ConfigClass myConfig) {...}
 
 @DiscoverSchemaExtended("branch")
-public Schema guessMethodName(final @Option("configuration") procConf, final String branch) {...}
+public Schema guessMethodName(final @Option("configuration") ConfigClass myConfig, final String branch) {...}
 
 @DiscoverSchemaExtended("minimal")
-public Schema guessMethodName(final @Option procConf) {...}</code></pre>
+public Schema guessMethodName(final @Option("configuration") ConfigClass myConfig) {...}</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -1086,9 +1086,17 @@ As you may pass other parameters to method, ensure to use the above naming : <em
 </table>
 </div>
 <div class="paragraph">
-<p>The schema element must comply with the following requirements:
-* It has to be a string not a sub json object
-* The json has to be flat</p>
+<p>The schema element must comply with the following requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It has to be a string not a sub json object</p>
+</li>
+<li>
+<p>The json has to be flat</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>Example:</p>
