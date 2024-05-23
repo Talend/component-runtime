@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.65.0M2-SNAPSHOT</version>
+  <version>1.65.0M4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
@@ -88,11 +88,11 @@
     <log4j2.version>2.20.0</log4j2.version>
 
     <commons-codec.version>1.15</commons-codec.version>
-    <commons-compress.version>1.24.0</commons-compress.version>
+    <commons-compress.version>1.26.0</commons-compress.version>
     <commons-lang3.version>3.11</commons-lang3.version>
 
-    <jackson.version>2.15.2</jackson.version>
-    <jackson-databind.version>2.15.2</jackson-databind.version>
+    <jackson.version>2.16.0</jackson.version>
+    <jackson-databind.version>2.16.0</jackson-databind.version>
 
     <bouncycastle.version>1.70</bouncycastle.version>
     <commons-io.version>2.13.0</commons-io.version>

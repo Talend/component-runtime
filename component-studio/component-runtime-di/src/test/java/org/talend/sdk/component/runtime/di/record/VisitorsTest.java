@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -78,6 +79,24 @@ public class VisitorsTest {
     protected static final List<String> STRINGS = Arrays.asList("one", "two", "three", "four", "five");
 
     protected static final List<Integer> INTEGERS = Arrays.asList(1, 2, 3, 4, 5);
+
+    protected static final List<List<Integer>> LIST_INTEGERS = Arrays.asList(
+            Arrays.asList(1, 2, 3),
+            Collections.singletonList(5));
+
+    protected static final List<?> LIST_HETEROGENEOUS_INTEGER = Arrays.asList(
+            5,
+            Arrays.asList(1, 2, 3));
+
+    protected static final List<?> LIST_HETEROGENEOUS_LIST = Arrays.asList(
+            Arrays.asList(1, 2, 3),
+            5);
+
+    protected static final List<List<Integer>> LIST_INTEGERS_EMPTY = Collections.singletonList(
+            Collections.emptyList());
+
+    protected static final List<List<List<Integer>>> LIST_3_DEEP = Collections.singletonList(
+            Collections.singletonList(Collections.singletonList(42)));
 
     protected static final List<Long> LONGS = Arrays.asList(1l, 2l, 3l, 4l, 5l);
 
@@ -206,6 +225,16 @@ public class VisitorsTest {
         public Boolean bool1;
 
         public List<Integer> array0;
+
+        public List<List<Integer>> array1;
+
+        public List<?> array2;
+
+        public List<?> array3;
+
+        public List<List<Integer>> array4;
+
+        public List<List<List<Integer>>> array5;
 
         public Object object0;
 

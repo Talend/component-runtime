@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.di.record;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,10 +40,13 @@ import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
 import lombok.Data;
@@ -91,6 +95,11 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.bigDecimal0 = BIGDEC;
         rowStruct.bool1 = Boolean.TRUE;
         rowStruct.array0 = INTEGERS;
+        rowStruct.array1 = LIST_INTEGERS;
+        rowStruct.array2 = LIST_HETEROGENEOUS_INTEGER;
+        rowStruct.array3 = LIST_HETEROGENEOUS_LIST;
+        rowStruct.array4 = LIST_INTEGERS_EMPTY;
+        rowStruct.array5 = LIST_3_DEEP;
         rowStruct.object0 = new Rcd();
         rowStruct.hAshcOdEdIrtY = Boolean.TRUE;
         rowStruct.h = NAME;
@@ -130,7 +139,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(53, schema.getEntries().size());
+        assertEquals(54, schema.getEntries().size());
+
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
         assertEquals("true", schema.getEntry("id").getProp(IS_KEY));
@@ -206,7 +216,6 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals(StudioTypes.CHARACTER, schema.getEntry("char0").getProp(STUDIO_TYPE));
         assertEquals(String.valueOf(Character.MAX_VALUE), record.getString("char0"));
         assertEquals(dynObject, record.get(Object.class, "dynObject"));
-        assertEquals(INTEGERS, record.getArray(Integer.class, "array0"));
         assertEquals(STRINGS, record.getArray(String.class, "STRINGS"));
         assertEquals(LONGS, record.getArray(Long.class, "LONGS"));
         assertEquals(FLOATS, record.getArray(Float.class, "FLOATS"));
@@ -225,6 +234,21 @@ class DiRowStructVisitorTest extends VisitorsTest {
                         .stream()
                         .filter(entry -> entry.getName().matches("hAshcOdEdIrtY|h|id"))
                         .count());
+        // check list combinations
+        assertEquals(INTEGERS, record.getArray(Integer.class, "array0"));
+        assertEquals(LIST_INTEGERS, record.getArray(List.class, "array1"));
+        assertEquals(LIST_HETEROGENEOUS_INTEGER, record.getArray(List.class, "array2"));
+        assertEquals(LIST_HETEROGENEOUS_LIST, record.getArray(List.class, "array3"));
+        assertEquals(LIST_INTEGERS_EMPTY, record.getArray(List.class, "array4"));
+        assertEquals(LIST_3_DEEP, record.getArray(List.class, "array5"));
+        // check their schemas
+        assertSchemaArray0(schema);
+        assertSchemaArray1(schema);
+        assertSchemaArray2(schema);
+        assertSchemaArray3(schema);
+        assertSchemaArray4(schema);
+        assertSchemaArray5(schema);
+
         // check we don't have any technical field in our schema/record
         assertEquals(0,
                 schema
@@ -237,10 +261,80 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertNull(record.getString("lookKey"));
     }
 
+
     private void initDocument(Document document) {
         org.dom4j.Document doc = DocumentHelper.createDocument();
         doc.addElement("catelog").addComment("an XML catelog");
         document.setDocument(doc);
+
+    private static void assertSchemaArray0(final Schema schema) {
+        final Entry schemaArray = schema.getEntry("array0");
+        assertEquals(Type.ARRAY, schemaArray.getType());
+
+        final Schema elSchema = schemaArray.getElementSchema();
+        assertNotNull(elSchema);
+        assertEquals(Type.INT, elSchema.getType());
+    }
+
+    private static void assertSchemaArray1(final Schema schema) {
+        final Entry schemaArray = schema.getEntry("array1");
+        assertEquals(Type.ARRAY, schemaArray.getType());
+
+        final Schema elSchema = schemaArray.getElementSchema();
+        assertNotNull(elSchema);
+        assertEquals(Type.ARRAY, elSchema.getType());
+        final Schema elSchemaNested = elSchema.getElementSchema();
+        assertEquals(Type.INT, elSchemaNested.getType());
+    }
+
+    private static void assertSchemaArray2(final Schema schema) {
+        final Entry schemaArray = schema.getEntry("array2");
+        assertEquals(Type.ARRAY, schemaArray.getType());
+
+        final Schema elSchema = schemaArray.getElementSchema();
+        assertNotNull(elSchema);
+        // this one, because we evaluate a schema by the first element in the List
+        assertEquals(Type.INT, elSchema.getType());
+    }
+
+    private static void assertSchemaArray3(final Schema schema) {
+        final Entry schemaArray = schema.getEntry("array3");
+        assertEquals(Type.ARRAY, schemaArray.getType());
+
+        final Schema elSchema = schemaArray.getElementSchema();
+        assertNotNull(elSchema);
+        assertEquals(Type.ARRAY, elSchema.getType());
+        final Schema elSchemaNested = elSchema.getElementSchema();
+        assertNotNull(elSchemaNested);
+        assertEquals(Type.INT, elSchemaNested.getType());
+    }
+
+    private static void assertSchemaArray4(final Schema schema) {
+        final Entry schemaArray = schema.getEntry("array4");
+        assertEquals(Type.ARRAY, schemaArray.getType());
+
+        final Schema elSchema = schemaArray.getElementSchema();
+        assertNotNull(elSchema);
+        assertEquals(Type.ARRAY, elSchema.getType());
+        final Schema elSchemaNested = elSchema.getElementSchema();
+        // the previous behavior when an empty element is evaluated with null element schema
+        // it's kind of honest, but maybe we want anyway some type here. Maybe String?
+        assertNull(elSchemaNested);
+    }
+
+    private static void assertSchemaArray5(final Schema schema) {
+        final Entry schemaArray = schema.getEntry("array5");
+        assertEquals(Type.ARRAY, schemaArray.getType());
+
+        final Schema elSchema = schemaArray.getElementSchema();
+        assertNotNull(elSchema);
+        assertEquals(Type.ARRAY, elSchema.getType());
+        final Schema elSchemaNested = elSchema.getElementSchema();
+        assertNotNull(elSchemaNested);
+        assertEquals(Type.ARRAY, elSchemaNested.getType());
+        final Schema elSchemaNestedInNested = elSchemaNested.getElementSchema();
+        assertNotNull(elSchemaNestedInNested);
+        assertEquals(Type.INT, elSchemaNestedInNested.getType());
     }
 
     @Test
