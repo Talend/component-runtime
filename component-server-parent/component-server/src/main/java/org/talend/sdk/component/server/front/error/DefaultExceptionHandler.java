@@ -50,6 +50,7 @@ public class DefaultExceptionHandler implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(final Throwable exception) {
+        log.error("[DefaultExceptionHandler#toResponse] Throwable: ", exception);
         final Response response;
         if (WebApplicationException.class.isInstance(exception)) {
             response = WebApplicationException.class.cast(exception).getResponse();

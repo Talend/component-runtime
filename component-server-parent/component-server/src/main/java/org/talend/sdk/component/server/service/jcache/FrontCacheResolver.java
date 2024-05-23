@@ -24,7 +24,6 @@ import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.cache.Cache;
-import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.annotation.CacheMethodDetails;
 import javax.cache.annotation.CacheResolver;
@@ -139,8 +138,11 @@ public class FrontCacheResolver implements CacheResolverFactory {
         Cache<?, ?> cache = cacheManager.getCache(exceptionCacheName);
         if (cache == null) {
             try {
-                cache = createCache(exceptionCacheName);
-            } catch (final CacheException ce) {
+                synchronized (this) {
+                    cache = createCache(exceptionCacheName);
+                }
+            } catch (final Exception ce) {
+                log.warn("[findCacheResolver] createCache failed: {}.", ce.getMessage());
                 cache = cacheManager.getCache(exceptionCacheName);
             }
         }
