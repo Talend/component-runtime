@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,8 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class StaticResourceGenerator implements Runnable {
+
+    public static final String THEME = "light";
 
     private final Map<String, String> systemPropertyVariables;
 
@@ -201,10 +203,12 @@ public class StaticResourceGenerator implements Runnable {
                                                                     Boolean.toString(includeIconContent))
                                                             .done(),
                                                     emptyMap(), emptyMap(),
-                                                    jsonb.toJson(components.getIndex(lang, includeIconContent, "")))))
+                                                    jsonb.toJson(
+                                                            components.getIndex(lang, includeIconContent, "",
+                                                                    THEME)))))
                             .collect(toList()));
 
-            final List<ComponentIndex> componentIndex = components.getIndex("en", false, "").getComponents();
+            final List<ComponentIndex> componentIndex = components.getIndex("en", false, "", THEME).getComponents();
             final List<String> componentIds =
                     componentIndex.stream().map(it -> it.getId().getId()).distinct().collect(toList());
             final List<String> componentFamilyIds =
@@ -260,14 +264,14 @@ public class StaticResourceGenerator implements Runnable {
                                 .collect(toList()));
             }
             routes.addAll(componentIds.stream().map(componentId -> {
-                final Response response = components.icon(componentId);
+                final Response response = components.icon(componentId, THEME);
                 return route("component_server_component_icon_" + componentId, "/api/v1/component/icon/" + componentId,
                         MapBuilder.map().done(),
                         singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM), emptyMap(),
                         response.getStatus(), response::readEntity, jsonb);
             }).collect(toList()));
             routes.addAll(componentFamilyIds.stream().map(familyId -> {
-                final Response response = components.familyIcon(familyId);
+                final Response response = components.familyIcon(familyId, THEME);
                 return route("component_server_component_family_icon_" + familyId,
                         "/api/v1/component/icon/family/" + familyId, MapBuilder.map().done(),
                         singletonMap(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM), emptyMap(),

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -18,11 +18,12 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-bom</artifactId>
-  <version>1.64.0</version>
+  <version>1.65.0M4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Component BOM</name>
   <description>Talend Component Kit</description>
   <url>https://talend.github.io/component-runtime/</url>
+
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -30,6 +31,7 @@
       <distribution>may be downloaded from the Maven repository</distribution>
     </license>
   </licenses>
+
   <developers>
     <developer>
     <id>undx</id>
@@ -41,25 +43,27 @@
       <role>Owner</role>
     </roles>
     <timezone>+1</timezone>
-  </developer>
-  <developer>
-    <id>clesaec</id>
-    <name>Christophe Le Saec</name>
-    <email>clesaec@talend.com</email>
-    <organization>Talend</organization>
-    <organizationUrl>https://www.talend.com/</organizationUrl>
-    <roles>
-      <role>Contributor</role>
-    </roles>
-    <timezone>+1</timezone>
-  </developer>
-</developers>
+    </developer>
+    <developer>
+      <id>clesaec</id>
+      <name>Christophe Le Saec</name>
+      <email>clesaec@talend.com</email>
+      <organization>Talend</organization>
+      <organizationUrl>https://www.talend.com/</organizationUrl>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+
   <scm>
-    <connection>scm:git:git://github.com/talend/component-runtime.git</connection>
-    <developerConnection>scm:git:git@github.com:talend/component-runtime.git</developerConnection>
-    <tag>component-runtime-1.64.0</tag>
-    <url>https://github.com/talend/component-runtime</url>
+    <connection>scm:git:git://github.com/${scm.repository}.git</connection>
+    <developerConnection>scm:git:git@github.com:${scm.repository}.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/${scm.repository}</url>
   </scm>
+
   <distributionManagement>
     <repository>
       <id>ossrh</id>
@@ -72,6 +76,8 @@
   </distributionManagement>
 
   <properties>
+    <scm.repository>talend/component-runtime</scm.repository>
+
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
     <enforcer-plugin.version>3.0.0</enforcer-plugin.version>
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
@@ -82,11 +88,11 @@
     <log4j2.version>2.20.0</log4j2.version>
 
     <commons-codec.version>1.15</commons-codec.version>
-    <commons-compress.version>1.24.0</commons-compress.version>
+    <commons-compress.version>1.26.0</commons-compress.version>
     <commons-lang3.version>3.11</commons-lang3.version>
 
-    <jackson.version>2.15.2</jackson.version>
-    <jackson-databind.version>2.15.2</jackson-databind.version>
+    <jackson.version>2.16.0</jackson.version>
+    <jackson-databind.version>2.16.0</jackson-databind.version>
 
     <bouncycastle.version>1.70</bouncycastle.version>
     <commons-io.version>2.13.0</commons-io.version>
@@ -219,6 +225,7 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <build>
     <plugins>
     <plugin>
@@ -244,6 +251,7 @@
     </plugin>
     </plugins>
   </build>
+
   <profiles>
     <profile>
       <id>gpg2</id>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
@@ -31,9 +33,10 @@ import org.talend.sdk.component.api.internationalization.Internationalized;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Action;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 @Service
@@ -108,6 +111,25 @@ public class JdbcService {
                         .withComment(config.getDriver())
                         .build())
                 .build();
+    }
+
+    @DynamicDependencies("jdbc-deps")
+    public List<String> getExportDependencies(@Option("configuration") final JdbcDataSet dataset) {
+        final List<String> dependencies = new ArrayList<>();
+        switch (dataset.getDriver()) {
+        case "derby":
+            dependencies.add("org.apache.derby:derbyclient:jar:10.12.1.1");
+            break;
+        case "mysql":
+            dependencies.add("com.mysql:mysql-connector-j:jar:8.0.33");
+            break;
+        case "zorglub":
+            dependencies.add("org.zorglub:zorglub-client:1.0.0");
+            dependencies.add("org.bouncycastle:bcpkix-jdk15to18:jar:4.5.8");
+            dependencies.add("org.json:json:jar:2.0.0");
+        default:
+        }
+        return dependencies;
     }
 
     public enum MyEnum {

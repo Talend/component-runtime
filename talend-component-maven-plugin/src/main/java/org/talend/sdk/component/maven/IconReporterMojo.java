@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                     if (missingIcon == null) {
                         final ClassLoader fallbackLoader = IconReporterMojo.class.getClassLoader();
                         try (final InputStream stream = fallbackLoader.getResourceAsStream("icon/missing.png")) {
-                            missingIcon = toDataUri(new IconResolver.Icon("image/png", IO.readBytes(stream)));
+                            missingIcon = toDataUri(new IconResolver.Icon("image/png", IO.readBytes(stream), "light"));
                         } catch (final IOException e) {
                             throw new IllegalStateException(e);
                         }
@@ -195,7 +195,7 @@ public class IconReporterMojo extends ClasspathMojoBase {
                 protected Collection<String> getExtensionPreferences() {
                     return iconPattern;
                 }
-            }.doLoad(loader, custom).map(this::toDataUri).orElse(missingIcon);
+            }.doLoad(loader, custom, "light").map(this::toDataUri).orElse(missingIcon);
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

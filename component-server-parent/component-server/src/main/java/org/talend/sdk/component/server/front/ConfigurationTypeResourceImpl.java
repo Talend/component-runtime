@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,8 +142,9 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
         final Locale locale = localeMapper.mapLocale(language);
         caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
         return indicesPerRequest
-                .computeIfAbsent(new RequestKey(locale, !lightPayload, query), key -> toNodes(locale, lightPayload,
-                        it -> true, queryLanguageCompiler.compile(query, configNodeEvaluators)));
+                .computeIfAbsent(new RequestKey(locale, !lightPayload, query, null),
+                        key -> toNodes(locale, lightPayload,
+                                it -> true, queryLanguageCompiler.compile(query, configNodeEvaluators)));
     }
 
     @Override

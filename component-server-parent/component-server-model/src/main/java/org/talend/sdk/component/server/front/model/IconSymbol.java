@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.tools.validator;
+package org.talend.sdk.component.server.front.model;
 
-import java.util.List;
-import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import org.apache.xbean.finder.AnnotationFinder;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class IconSymbol {
 
-public class InternationalizationWording implements Validator {
+    String icon;
 
-    @Override
-    public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
-        // TODO: define rules to apply to messages to users.
-        // as a starter can apply it to all non enum, *_displayname and *_placeholder
-        return Stream.empty();
+    String family;
+
+    String type;
+
+    String connector;
+
+    String theme;
+
+    byte[] content;
+
+    public String getUid() {
+        final String fmt = connector.isEmpty() ? "%s-%s-%s-%s" : "%s-%s-%s-%s-%s";
+        return String.format(fmt, theme, type, family, icon, connector);
     }
 }

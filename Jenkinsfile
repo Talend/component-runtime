@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ pipeline {
     }
 
     triggers {
-        cron(branch_name == "master" ? "0 12 * * *" : "")
+        cron(branch_name == "master" ? "0 0 * * *" : "")
     }
 
     parameters {
@@ -572,7 +572,7 @@ pipeline {
                     withCredentials([gitCredentials, dockerCredentials, ossrhCredentials, jetbrainsCredentials, jiraCredentials, gpgCredentials, nexusCredentials]) {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
                             sh """
-                            bash .jenkins/scripts/release.sh $branch_name $finalVersion $extraBuildParams
+                            bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
                             """
                         }
                     }

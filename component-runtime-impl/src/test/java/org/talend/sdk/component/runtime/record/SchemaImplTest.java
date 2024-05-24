@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,9 @@ package org.talend.sdk.component.runtime.record;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,9 +45,14 @@ import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.record.SchemaProperty;
+import org.talend.sdk.component.api.record.SchemaProperty.LogicalType;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
+
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 
 class SchemaImplTest {
 
@@ -460,6 +464,46 @@ class SchemaImplTest {
         RecordBuilderFactory factory = new RecordBuilderFactoryImpl("test");
         Record record = factory.newRecordBuilder(emptySchema).build();
         Assertions.assertNotNull(record);
+    }
+
+    @Test
+    void logicalTypes() {
+        final Schema.Entry data3 = new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withName("data3") //
+                .withType(Type.DATETIME) //
+                .withLogicalType(LogicalType.TIMESTAMP)
+                .withNullable(true) //
+                .build();
+        final Schema.Entry data4 = new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withName("data4") //
+                .withLogicalType(LogicalType.DATE)
+                .withNullable(true) //
+                .build();
+        final Schema.Entry data5 = new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withName("data5") //
+                .withType(Type.DATETIME) //
+                .withProp(SchemaProperty.LOGICAL_TYPE, LogicalType.TIME.key())
+                .withNullable(true) //
+                .build();
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(data1) //
+                .withEntry(data2) //
+                .withEntry(data3) //
+                .withEntry(data4) //
+                .withEntry(data5) //
+                .build();
+        assertNull(schema.getEntry("data1").getLogicalType());
+        assertNull(schema.getEntry("data2").getLogicalType());
+        assertNotNull(schema.getEntry("data3").getLogicalType());
+        assertEquals("timestamp", schema.getEntry("data3").getLogicalType());
+        assertEquals(Type.DATETIME, schema.getEntry("data3").getType());
+        assertNotNull(schema.getEntry("data4").getLogicalType());
+        assertEquals(Type.DATETIME, schema.getEntry("data4").getType());
+        assertEquals("date", schema.getEntry("data4").getLogicalType());
+        assertNotNull(schema.getEntry("data5").getLogicalType());
+        assertEquals(Type.DATETIME, schema.getEntry("data5").getType());
+        assertEquals("time", schema.getEntry("data5").getLogicalType());
     }
 
     private String getSchemaFields(final Schema schema) {

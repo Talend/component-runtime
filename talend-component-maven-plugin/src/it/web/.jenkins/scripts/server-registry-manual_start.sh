@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ set -xe
 function usage(){
   printf 'Manual server starter, like ci would do.\n'
   printf 'For manual testing.\n'
-  printf 'Usage : %s [connectors_version] [server_port]  [server_dir] \n' "${0}"
+  printf 'Usage : %s [connectors_version] [server_port] [server_dir] \n' "${0}"
   printf '\n'
   exit 1
 }

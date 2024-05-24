@@ -39,7 +39,7 @@ Used as an extension, the goals detailed in this document will be set up.
 The Talend Component Kit plugin integrates some specific goals within Maven build lifecycle.
 For example, to compile the project and prepare for deploying your component, run `mvn clean install`. Using this command, the following goals are executed:
 
-image:mvn_clean_install.png[Maven clean install,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/mvn_clean_install.png",70%]
+image:mvn_clean_install.png[Maven clean install,window="_blank",link=self,70%]
 
 The build is split into several phases. The different goals are executed in the order shown above. Talend Component Kit uses default goals from the Maven build lifecycle and adds additional goals to the building and packaging phases.
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,10 +62,6 @@ pipeline {
       defaultValue: true,
       description: 'Veracode SCA (Source Clear Analysis)')
     booleanParam(
-      name: 'VERACODE_SAST',
-      defaultValue: true,
-      description: 'Veracode SAST (Static testing)')
-    booleanParam(
       name: 'JENKINS_DEBUG',
       defaultValue: false,
       description: '''
@@ -83,9 +79,6 @@ pipeline {
           def scans = []
           if (params.VERACODE_SCA) {
             scans.add('SCA')
-          }
-          if (params.VERACODE_SAST) {
-            scans.add('SAST')
           }
           job_name_creation(scans.join('+'))
 
@@ -119,48 +112,6 @@ pipeline {
         withCredentials([string(credentialsId: 'veracode-token', variable: 'SRCCLR_API_TOKEN'),
                         nexusCredentials]) {
           sh "bash .jenkins/scripts/veracode-sca.sh $SRCCLR_API_TOKEN"
-        }
-      }
-    }
-    stage('Package the app for Static testing') {
-      when {
-        expression { params.VERACODE_SAST }
-      }
-      steps {
-        withCredentials([veracodeCredentials, nexusCredentials]) {
-          script {
-            // Execute a mvn package skipping not needed element
-            sh "bash .jenkins/scripts/package.sh ${SKIP_OPTS}"
-          }
-        }
-      }
-    }
-    stage('Veracode SAST (Static testing)') {
-      when {
-        expression { params.VERACODE_SAST }
-      }
-      steps {
-        withCredentials([veracodeCredentials, nexusCredentials]) {
-          script {
-            veracode applicationName: "$VERACODE_SANDBOX",
-              teams: "Components",
-              canFailJob: true,
-              createProfile: true,
-              criticality: "High",
-              debug: true,
-              copyRemoteFiles: true,
-              fileNamePattern: '',
-              useProxy: false,
-              replacementPattern: '',
-              scanExcludesPattern: '',
-              scanIncludesPattern: '',
-              scanName: "${git_branch_name}-${currentBuild.number}-${currentBuild.startTimeInMillis}",
-              uploadExcludesPattern: '**/.cache/**/*.jar,**/*dep*/**/*.jar,**/lib/**/*.jar,**/*repo*/**/*.jar,**/it/**/*.jar,**/sample*.jar',
-              uploadIncludesPattern: '**/*.jar',
-              waitForScan: true,
-              vid: "$VERACODE_ID",
-              vkey: "$VERACODE_KEY"
-          }
         }
       }
     }

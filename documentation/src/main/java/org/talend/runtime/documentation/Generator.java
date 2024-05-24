@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -147,6 +148,8 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = PRIVATE)
 public class Generator {
 
+    private static final Pattern SNAPSHOT = Pattern.compile("(-SNAPSHOT|M\\d+-SNAPSHOT)");
+
     public static void main(final String[] args) {
         if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
@@ -155,7 +158,7 @@ public class Generator {
 
         final File generatedDir = new File(args[0], "_partials");
         generatedDir.mkdirs();
-        final String version = args[3].replace("-SNAPSHOT", "");
+        final String version = SNAPSHOT.matcher(args[3]).replaceAll("");
 
         try (final Tasks tasks = new Tasks()) {
             tasks.register(Asciidoctor.Factory::create).thenApply(adoc -> {

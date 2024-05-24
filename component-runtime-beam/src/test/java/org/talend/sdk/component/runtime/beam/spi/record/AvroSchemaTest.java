@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.talend.sdk.component.api.record.Schema.Type.DATETIME;
 import static org.talend.sdk.component.api.record.Schema.Type.DECIMAL;
@@ -43,6 +45,7 @@ import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
@@ -301,6 +304,44 @@ class AvroSchemaTest {
         final EntriesOrder entriesOrder = EntriesOrder.of(order);
         Assertions.assertEquals(shuffled, getSchemaFields(schema, entriesOrder).replace(order + ",", ""));
         Assertions.assertEquals(order, getSchemaFields(schema, entriesOrder).replaceAll(",data0.*", ""));
+    }
+
+    @Test
+    void testLogicalTypes() {
+        final org.talend.sdk.component.api.record.Schema.Entry data3 = new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withName("data3") //
+                .withType(Type.DATETIME) //
+                .withLogicalType(SchemaProperty.LogicalType.TIMESTAMP)
+                .withNullable(true) //
+                .build();
+        final org.talend.sdk.component.api.record.Schema.Entry data4 = new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withName("data4") //
+                .withType(Type.DATETIME) //
+                .withLogicalType(SchemaProperty.LogicalType.DATE)
+                .withNullable(true) //
+                .build();
+        final org.talend.sdk.component.api.record.Schema.Entry data5 = new SchemaImpl.EntryImpl.BuilderImpl() //
+                .withName("data5") //
+                .withType(Type.DATETIME) //
+                .withProp(SchemaProperty.LOGICAL_TYPE, SchemaProperty.LogicalType.TIME.key())
+                .withNullable(true) //
+                .build();
+        final org.talend.sdk.component.api.record.Schema schema = new AvroSchemaBuilder() //
+                .withType(RECORD) //
+                .withEntry(data1) //
+                .withEntry(data2) //
+                .withEntry(data3) //
+                .withEntry(data4) //
+                .withEntry(data5) //
+                .build();
+        assertNull(schema.getEntry("data1").getLogicalType());
+        assertNull(schema.getEntry("data2").getLogicalType());
+        assertNotNull(schema.getEntry("data3").getLogicalType());
+        assertEquals(SchemaProperty.LogicalType.TIMESTAMP.key(), schema.getEntry("data3").getLogicalType());
+        assertNotNull(schema.getEntry("data4").getLogicalType());
+        assertEquals(SchemaProperty.LogicalType.DATE.key(), schema.getEntry("data4").getLogicalType());
+        assertNotNull(schema.getEntry("data5").getLogicalType());
+        assertEquals(SchemaProperty.LogicalType.TIME.key(), schema.getEntry("data5").getLogicalType());
     }
 
     private String getSchemaFields(final org.talend.sdk.component.api.record.Schema schema) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.64.0</version>
+    <version>1.65.0M4-SNAPSHOT</version>
   </parent>
 
   <artifactId>talend-component-maven-plugin</artifactId>
@@ -36,7 +36,7 @@
     <!-- ITs -->
     <it-component-version>1.31.1</it-component-version>
     <it-component-artifact-id>jdbc</it-component-artifact-id>
-    <it-component-snapshot-version>1.31.2-SNAPSHOT</it-component-snapshot-version>
+    <it-component-snapshot-version>1.55.0-SNAPSHOT</it-component-snapshot-version>
     <it-component-snapshot-artifact-id>salesforce</it-component-snapshot-artifact-id>
   </properties>
 

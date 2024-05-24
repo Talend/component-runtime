@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class Validators {
     }
 
     public static Validators build(final Configuration configuration, final ValidatorHelper helper,
-            final Iterable<ValidationExtension> extensions) {
+            final Iterable<ValidationExtension> extensions, final File sourceRoot) {
 
         final List<Validator> activeValidators = new ArrayList<>();
 
@@ -86,7 +86,8 @@ public class Validators {
         }
 
         if (configuration.isValidateInternationalization()) {
-            InternationalizationValidator intern = new InternationalizationValidator(helper);
+            InternationalizationValidator intern = new InternationalizationValidator(helper, sourceRoot,
+                    configuration.isValidatePlaceholder(), configuration.isValidateInternationalizationAutoFix());
             activeValidators.add(intern);
         }
 
@@ -141,19 +142,12 @@ public class Validators {
         if (configuration.isValidateOutputConnection()) {
             activeValidators.add(new OutputConnectionValidator());
         }
-        if (configuration.isValidatePlaceholder()) {
-            PlaceHolderValidator validator = new PlaceHolderValidator(helper);
-            activeValidators.add(validator);
-        }
         if (configuration.isValidateNoFinalOption()) {
             activeValidators.add(new NoFinalOptionValidator());
         }
         if (configuration.isValidateWording()) {
             if (configuration.isValidateDocumentation()) {
                 activeValidators.add(new DocumentationWordingValidator());
-            }
-            if (configuration.isValidateInternationalization()) {
-                activeValidators.add(new InternationalizationWording());
             }
         }
 

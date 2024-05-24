@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "true", property = "talend.validation.svg")
     private boolean validateSvg;
 
+    /*
+     * Ensures icons according theme or legacy mode
+     */
+    @Parameter(defaultValue = "false", property = "talend.validation.icons.legacy")
+    private boolean validateLegacyIcons;
+
     /**
      * Ensures each family has an icon.
      */
@@ -67,6 +73,9 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
      */
     @Parameter(defaultValue = "true", property = "talend.validation.internationalization")
     private boolean validateInternationalization;
+
+    @Parameter(defaultValue = "false", property = "talend.validation.internationalization.autofix")
+    private boolean validateInternationalizationAutoFix;
 
     /**
      * By default the plugin ensures the methods follow the expected signatures.
@@ -185,6 +194,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "${project.artifactId}", property = "talend.validation.locale")
     private String locale;
 
+    /**
+     * http client validation
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.httpclient")
+    private boolean validateHttpClient;
+
     @Override
     public void doExecute() {
         if (!validatePlaceholder) {
@@ -211,6 +226,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateOutputConnection(validateOutputConnection);
         configuration.setValidatePlaceholder(validatePlaceholder);
         configuration.setValidateSvg(validateSvg);
+        configuration.setValidateLegacyIcons(validateLegacyIcons);
         configuration.setValidateNoFinalOption(validateNoFinalOption);
         configuration.setValidateWording(validateWording);
         configuration.setPluginId(pluginId);
@@ -218,9 +234,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setFailOnValidateExceptions(failOnValidateExceptions);
         configuration.setValidateSchema(validateSchema);
         configuration.setValidateRecord(validateRecord);
+        configuration.setValidateInternationalizationAutoFix(validateInternationalizationAutoFix);
+        configuration.setValidateHttpClient(validateHttpClient);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
-        new ComponentValidator(configuration, new File[] { classes }, getLog()) {
+
+        new ComponentValidator(configuration, new File[] { classes }, getLog(), project.getBasedir()) {
 
             @Override
             protected Locale getLocale() {

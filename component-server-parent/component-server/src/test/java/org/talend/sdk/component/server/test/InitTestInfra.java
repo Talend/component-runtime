@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -262,7 +262,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out.putNextEntry(new JarEntry(packageName.replace('.', '/') + "/Messages.properties"));
                     out.write("chain.list._displayName = The List Component\n".getBytes(StandardCharsets.UTF_8));
 
-                    out.putNextEntry(new JarEntry("icons/myicon.svg"));
+                    out.putNextEntry(new JarEntry("icons/light/myicon.svg"));
                     out
                             .write(IO
                                     .readBytes(Thread

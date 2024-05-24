@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.api;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
@@ -104,7 +105,9 @@ public interface ComponentResource {
                             + "It provides access to the component `plugin`, `name`, `id` and `metadata` of the first configuration property. "
                             + "Ex: `(id = AYETAE658349453) AND (metadata[configurationtype::type] = dataset) AND (plugin = jdbc-component) AND "
                             + "(name = input)`.",
-                    in = QUERY, schema = @Schema(type = STRING)) String query);
+                    in = QUERY, schema = @Schema(type = STRING)) String query,
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark). Defaults to light.") String theme);
 
     @GET
     @Path("icon/family/{id}")
@@ -118,8 +121,9 @@ public interface ComponentResource {
             content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(type = OBJECT, implementation = ErrorPayload.class)))
     Response familyIcon(
-            @PathParam("id") @Parameter(name = "id",
-                    description = "Family identifier.", in = PATH) String id);
+            @PathParam("id") @Parameter(name = "id", description = "Family identifier.", in = PATH) String id,
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark). Defaults to light.") String theme);
 
     @GET
     @Path("icon/{id}")
@@ -131,9 +135,10 @@ public interface ComponentResource {
     @APIResponse(responseCode = "404",
             description = "The family or icon is not found.",
             content = @Content(mediaType = APPLICATION_JSON))
-    Response icon(@PathParam("id") @Parameter(name = "id",
-            description = "Component icon identifier.",
-            in = PATH) String id);
+    Response icon(
+            @PathParam("id") @Parameter(name = "id", description = "Component icon identifier.", in = PATH) String id,
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark). Defaults to light.") String theme);
 
     @GET
     @Path("icon/custom/{familyId}/{iconKey}")
@@ -145,12 +150,23 @@ public interface ComponentResource {
     @APIResponse(responseCode = "404",
             description = "The family or icon is not found.",
             content = @Content(mediaType = APPLICATION_JSON))
-    Response icon(@PathParam("familyId") @Parameter(name = "familyId",
-            description = "family identifier.",
-            in = PATH) String familyId,
-            @PathParam("iconKey") @Parameter(name = "iconKey",
-                    description = "icon key.",
-                    in = PATH) String iconKey);
+    Response icon(
+            @PathParam("familyId") @Parameter(name = "familyId", description = "family identifier.",
+                    in = PATH) String familyId,
+            @PathParam("iconKey") @Parameter(name = "iconKey", description = "icon key.", in = PATH) String iconKey,
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark). Defaults to light.") String theme);
+
+    @GET
+    @Path("icon/index")
+    @Produces({ APPLICATION_JSON, APPLICATION_SVG_XML })
+    @Operation(description = "Returns list of available svg icons.")
+    @APIResponse(responseCode = "200", description = "The icon list.",
+            content = @Content(mediaType = APPLICATION_SVG_XML))
+    @APIResponse(responseCode = "404", description = "No icon found.", content = @Content(mediaType = APPLICATION_JSON))
+    Response getIconIndex(
+            @QueryParam("theme") @Parameter(name = "theme",
+                    description = "Theme selector (light/dark/all). Defaults to light.") String theme);
 
     @POST
     @Path("migrate/{id}/{configurationVersion}")

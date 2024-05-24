@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -279,6 +279,14 @@ public interface Schema {
         }
 
         /**
+         *
+         * @return the logical type property
+         */
+        default String getLogicalType() {
+            return this.getProp(SchemaProperty.LOGICAL_TYPE);
+        }
+
+        /**
          * @return an {@link Entry.Builder} from this entry.
          */
         default Entry.Builder toBuilder() {
@@ -295,6 +303,14 @@ public interface Schema {
             Builder withRawName(String rawName);
 
             Builder withType(Type type);
+
+            default Builder withLogicalType(SchemaProperty.LogicalType logicalType) {
+                throw new UnsupportedOperationException("#withLogicalType is not implemented");
+            }
+
+            default Builder withLogicalType(String logicalType) {
+                throw new UnsupportedOperationException("#withLogicalType is not implemented");
+            }
 
             Builder withNullable(boolean nullable);
 

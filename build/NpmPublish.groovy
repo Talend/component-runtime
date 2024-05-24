@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ *  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -273,7 +273,7 @@ See https://talend.github.io/component-runtime/
 //
 // start script
 //
-if (project.version.endsWith('-SNAPSHOT')) {
+if (project.version.endsWith('-SNAPSHOT') || project.version.matches(/.*(M[0-9]+).*/)) {
     log.info("Project is in SNAPSHOT, skipping NPM deployment")
     return
 }

@@ -1,5 +1,9 @@
-Created with 
-https://uxwing.com/svg-icon-editor/ - [LICENSE](https://uxwing.com/license/) (Attribution and Credit is NOT required)
+
+
+Simple svg editor
+* http://www.inkscape.org/namespaces/inkscape - [LICENSE](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+* https://uxwing.com/svg-icon-editor/ - [LICENSE](https://uxwing.com/license/)
+
 
 Need to be SVG and/or PNG with (Better to provide both with svg2png):
  - PNG must be

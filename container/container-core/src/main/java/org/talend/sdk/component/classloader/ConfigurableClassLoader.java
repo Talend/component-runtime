@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -252,6 +252,24 @@ public class ConfigurableClassLoader extends URLClassLoader {
             closeables.clear();
         }
         super.close();
+    }
+
+    @Override
+    protected Class<?> findClass(final String name) throws ClassNotFoundException {
+        try {
+            // for others be as it's in parent
+            return super.findClass(name);
+        } catch (ClassNotFoundException e) {
+            if (name.endsWith("package-info")) {
+                // need to handle package-info, because it loaded in a different way
+                // ucp is empty, and we can't load the resource
+                // not sure about the parameter resolve, didn't see that the parent does the resolve
+                return loadClass(name, false);
+            }
+
+            // rethrow the problem otherwise
+            throw e;
+        }
     }
 
     @Override

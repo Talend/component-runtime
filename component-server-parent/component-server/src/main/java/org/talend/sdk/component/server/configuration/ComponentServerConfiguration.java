@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,6 +151,21 @@ public class ComponentServerConfiguration {
     @ConfigProperty(name = "talend.component.server.icon.paths",
             defaultValue = "icons/%s.svg,icons/svg/%s.svg,icons/%s_icon32.png,icons/png/%s_icon32.png")
     private List<String> iconExtensions;
+
+    @Inject
+    @Documentation("Do we support icons theme.")
+    @ConfigProperty(name = "talend.component.server.icon.theme.support", defaultValue = "true")
+    private Boolean supportIconTheme;
+
+    @Inject
+    @Documentation("Do we support legacy (not themed) icons. If true, lookup will be done if not themed icon found.")
+    @ConfigProperty(name = "talend.component.server.icon.theme.legacy", defaultValue = "true")
+    private Boolean supportLegacyIcons;
+
+    @Inject
+    @Documentation("Icon default theme (light/dark).")
+    @ConfigProperty(name = "talend.component.server.icon.theme.default", defaultValue = "light")
+    private String iconDefaultTheme;
 
     @Inject
     @Documentation("For caching reasons the goal is to reduce the locales to the minimum required numbers. "

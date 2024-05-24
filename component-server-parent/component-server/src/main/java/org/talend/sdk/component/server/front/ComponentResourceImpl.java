@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML_TYPE;
+import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN_MISSING;
@@ -29,6 +32,8 @@ import static org.talend.sdk.component.server.front.model.ErrorDictionary.PLUGIN
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,6 +68,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.dependencies.maven.Artifact;
@@ -91,6 +102,7 @@ import org.talend.sdk.component.server.front.model.Dependencies;
 import org.talend.sdk.component.server.front.model.DependencyDefinition;
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.Icon;
+import org.talend.sdk.component.server.front.model.IconSymbol;
 import org.talend.sdk.component.server.front.model.Link;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
@@ -108,6 +120,8 @@ import org.talend.sdk.component.server.service.event.DeployedComponent;
 import org.talend.sdk.component.server.service.jcache.FrontCacheKeyGenerator;
 import org.talend.sdk.component.server.service.jcache.FrontCacheResolver;
 import org.talend.sdk.component.spi.component.ComponentExtension;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -123,6 +137,20 @@ public class ComponentResourceImpl implements ComponentResource {
     public static final String COMPONENT_TYPE_INPUT = "input";
 
     public static final String COMPONENT_TYPE_PROCESSOR = "processor";
+
+    public static final String MSG_NO_PLUGIN = "No plugin '";
+
+    public static final String MSG_NO_ICON_FOR_FAMILY = "No icon for family: ";
+
+    public static final String MSG_NO_FAMILY_FOR_IDENTIFIER = "No family for identifier: ";
+
+    public static final String THEME_DARK = "dark";
+
+    public static final String THEME_LIGHT = "light";
+
+    public static final String THEME_ALL = "all";
+
+    public static final String MEDIA_TYPE_SVG_XML = "image/svg+xml";
 
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
@@ -172,14 +200,18 @@ public class ComponentResourceImpl implements ComponentResource {
     @Inject
     private SecurityUtils secUtils;
 
+    private String defaultTheme;
+
     private final Map<String, Function<ComponentIndex, Object>> componentEvaluators = new HashMap<>();
 
     @PostConstruct
     private void setupRuntime() {
-        log.info("Initializing " + getClass());
-
+        log.info("[setupRuntime] Initializing " + getClass());
+        defaultTheme = configuration.getIconDefaultTheme();
+        final String themeMode = configuration.getSupportIconTheme() ? "themed" : "legacy";
+        log.info("[setupRuntime] Icon mode: {}; default theme: {}.", themeMode, defaultTheme);
         // preload some highly used data
-        getIndex("en", false, null);
+        getIndex("en", false, null, defaultTheme);
 
         componentEvaluators.put("plugin", c -> c.getId().getPlugin());
         componentEvaluators.put("id", c -> c.getId().getId());
@@ -304,13 +336,15 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     @CacheResult
-    public ComponentIndices getIndex(final String language, final boolean includeIconContent, final String query) {
+    public ComponentIndices getIndex(final String language, final boolean includeIconContent, final String query,
+            final String theme) {
         final Locale locale = localeMapper.mapLocale(language);
+        final String themedIcon = theme == null ? defaultTheme : theme;
         caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
-        return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent, query), k -> {
+        return indicesPerRequest.computeIfAbsent(new RequestKey(locale, includeIconContent, query, themedIcon), k -> {
             final Predicate<ComponentIndex> filter = queryLanguageCompiler.compile(query, componentEvaluators);
             return new ComponentIndices(Stream
-                    .concat(findDeployedComponents(includeIconContent, locale), virtualComponents
+                    .concat(findDeployedComponents(includeIconContent, locale, themedIcon), virtualComponents
                             .getDetails()
                             .stream()
                             .map(detail -> new ComponentIndex(
@@ -318,9 +352,9 @@ public class ComponentResourceImpl implements ComponentResource {
                                     detail.getDisplayName(),
                                     detail.getId().getFamily(),
                                     detail.getType(),
-                                    new Icon(detail.getIcon(), null, null),
+                                    new Icon(detail.getIcon(), null, null, themedIcon),
                                     new Icon(virtualComponents.getFamilyIconFor(detail.getId().getFamilyId()), null,
-                                            null),
+                                            null, themedIcon),
                                     detail.getVersion(),
                                     singletonList(detail.getId().getFamily()),
                                     detail.getLinks(),
@@ -332,21 +366,20 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     @CacheResult
-    public Response familyIcon(final String id) {
-        if (virtualComponents.isExtensionEntity(id)) { // todo or just use front bundle?
+    public Response familyIcon(final String id, final String theme) {
+        if (virtualComponents.isExtensionEntity(id)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
 
-        // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta meta = componentFamilyDao.findById(id);
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, MSG_NO_FAMILY_FOR_IDENTIFIER + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -355,12 +388,12 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getPlugin() + "' for identifier: " + id))
+                            MSG_NO_PLUGIN + meta.getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
 
-        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon());
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon(), theme);
         if (iconContent == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -374,11 +407,11 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     @CacheResult
-    public Response icon(final String familyId, final String iconKey) {
+    public Response icon(final String familyId, final String iconKey, final String theme) {
         if (virtualComponents.isExtensionEntity(familyId)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + familyId))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -387,7 +420,7 @@ public class ComponentResourceImpl implements ComponentResource {
         if (meta == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, "No family for identifier: " + familyId))
+                    .entity(new ErrorPayload(ErrorDictionary.FAMILY_MISSING, MSG_NO_FAMILY_FOR_IDENTIFIER + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -396,12 +429,12 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getPlugin() + "' for family identifier: " + familyId))
+                            MSG_NO_PLUGIN + meta.getPlugin() + "' for family identifier: " + familyId))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
 
-        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), iconKey);
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), iconKey, theme);
         if (iconContent == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -415,16 +448,15 @@ public class ComponentResourceImpl implements ComponentResource {
 
     @Override
     @CacheResult
-    public Response icon(final String id) {
-        if (virtualComponents.isExtensionEntity(id)) { // todo if the front bundle is not sufficient
+    public Response icon(final String id, final String theme) {
+        if (virtualComponents.isExtensionEntity(id)) {
             return Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No icon for family: " + id))
+                    .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, MSG_NO_ICON_FOR_FAMILY + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
 
-        // todo: add caching if SvgIconResolver becomes used a lot - not the case ATM
         final ComponentFamilyMeta.BaseMeta<Lifecycle> meta = componentDao.findById(id);
         if (meta == null) {
             return Response
@@ -439,12 +471,12 @@ public class ComponentResourceImpl implements ComponentResource {
             return Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorPayload(PLUGIN_MISSING,
-                            "No plugin '" + meta.getParent().getPlugin() + "' for identifier: " + id))
+                            MSG_NO_PLUGIN + meta.getParent().getPlugin() + "' for identifier: " + id))
                     .type(APPLICATION_JSON_TYPE)
                     .build();
         }
 
-        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon());
+        final IconResolver.Icon iconContent = iconResolver.resolve(plugin.get(), meta.getIcon(), theme);
         if (iconContent == null) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -454,6 +486,64 @@ public class ComponentResourceImpl implements ComponentResource {
         }
 
         return Response.ok(iconContent.getBytes()).type(iconContent.getType()).build();
+    }
+
+    @Override
+    @CacheResult
+    public Response getIconIndex(final String theme) {
+        final String themedIcon = theme == null ? defaultTheme : theme;
+        try {
+            final Map<String, IconSymbol> icons = collectIcons(themedIcon);
+            if (icons.isEmpty()) {
+                return Response
+                        .status(Response.Status.NOT_FOUND)
+                        .entity(new ErrorPayload(ErrorDictionary.ICON_MISSING, "No svg icon available"))
+                        .type(APPLICATION_JSON_TYPE)
+                        .build();
+            }
+            // build the document.
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            // to be compliant, prohibit the use of all protocols by external entities:
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            final Document doc = factory.newDocumentBuilder().newDocument();
+            final Element root = doc.createElement("svg");
+            root.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            root.setAttribute("focusable", "false");
+            root.setAttribute("class", "sr-only");
+            root.setAttribute("theme", themedIcon);
+            doc.appendChild(root);
+            icons.values().forEach(icon -> {
+                final Element symbol = doc.createElement("symbol");
+                symbol.setAttribute("family", icon.getFamily());
+                symbol.setAttribute("id", icon.getIcon());
+                symbol.setAttribute("type", icon.getType());
+                symbol.setAttribute("connector", icon.getConnector());
+                symbol.setAttribute("theme", icon.getTheme());
+                symbol.setTextContent(new String(icon.getContent()));
+                root.appendChild(symbol);
+            });
+            final TransformerFactory transformerFactory = javax.xml.transform.TransformerFactory.newInstance();
+            // to be compliant, prohibit the use of all protocols by external entities:
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            final Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
+            final Writer writer = new StringWriter();
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            final String svgs = writer.toString()
+                    .replace("&lt;", "<")
+                    .replace("&gt;", ">");
+
+            return Response.ok(svgs).type(APPLICATION_SVG_XML_TYPE).build();
+        } catch (Exception e) {
+            log.error("[getIconIndex] {}", e.getMessage());
+            return Response
+                    .status(Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorPayload(ErrorDictionary.UNEXPECTED, e.getMessage()))
+                    .type(APPLICATION_JSON_TYPE)
+                    .build();
+        }
     }
 
     @Override
@@ -475,6 +565,9 @@ public class ComponentResourceImpl implements ComponentResource {
                         .status(Status.NOT_FOUND)
                         .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find component " + id))
                         .build()));
+        if (version > comp.getVersion() || version == comp.getVersion()) {
+            return config;
+        }
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)
@@ -485,7 +578,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 .migrate(version, config);
     }
 
-    @Override // TODO: max ids.length
+    @Override
     @CacheResult
     public ComponentDetailList getDetail(final String language, final String[] ids) {
         if (ids == null || ids.length == 0) {
@@ -505,7 +598,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 if (!plugin.isPresent()) {
                     errors
                             .put(meta.getId(), new ErrorPayload(PLUGIN_MISSING,
-                                    "No plugin '" + meta.getParent().getPlugin() + "'"));
+                                    MSG_NO_PLUGIN + meta.getParent().getPlugin() + "'"));
                     return null;
                 }
 
@@ -530,7 +623,7 @@ public class ComponentResourceImpl implements ComponentResource {
 
                 final ComponentBundle bundle = meta.findBundle(container.getLoader(), locale);
                 final ComponentDetail componentDetail = new ComponentDetail();
-                componentDetail.setLinks(emptyList() /* todo ? */);
+                componentDetail.setLinks(emptyList());
                 componentDetail.setId(createMetaId(container, meta));
                 componentDetail.setVersion(meta.getVersion());
                 componentDetail.setIcon(meta.getIcon());
@@ -560,7 +653,51 @@ public class ComponentResourceImpl implements ComponentResource {
         return new ComponentDetailList(details);
     }
 
-    private Stream<ComponentIndex> findDeployedComponents(final boolean includeIconContent, final Locale locale) {
+    private Map<String, IconSymbol> collectIcons(final String theme) {
+        if (THEME_ALL.equals(theme)) {
+            Map<String, IconSymbol> icons = getAllIconsForTheme(THEME_LIGHT);
+            icons.putAll(getAllIconsForTheme(THEME_DARK));
+            return icons;
+        } else {
+            return getAllIconsForTheme(theme);
+        }
+    }
+
+    private Map<String, IconSymbol> getAllIconsForTheme(final String theme) {
+        final ComponentIndices index = getIndex(Locale.ROOT.getLanguage(), true, null, theme);
+        try {
+            final List<ComponentIndex> components = index.getComponents();
+            Map<String, IconSymbol> icons = components
+                    .stream()
+                    .filter(c -> c.getIconFamily().getCustomIcon() != null)
+                    .filter(c -> MEDIA_TYPE_SVG_XML.equals(c.getIconFamily().getCustomIconType()))
+                    .map(c -> new IconSymbol(c.getIconFamily().getIcon(),
+                            c.getFamilyDisplayName(),
+                            "family",
+                            "",
+                            theme,
+                            c.getIconFamily().getCustomIcon()))
+                    .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1));
+            icons.putAll(components
+                    .stream()
+                    .filter(c -> c.getIcon().getCustomIcon() != null)
+                    .filter(c -> MEDIA_TYPE_SVG_XML.equals(c.getIcon().getCustomIconType()))
+                    .map(c -> new IconSymbol(c.getIcon().getIcon(),
+                            c.getFamilyDisplayName(),
+                            "connector",
+                            c.getDisplayName(),
+                            theme,
+                            c.getIcon().getCustomIcon()))
+                    .collect(toMap(IconSymbol::getUid, identity(), (r1, r2) -> r1)));
+            return icons;
+        } catch (Exception e) {
+            log.error("[getAllIconsForTheme]", e);
+            throw e;
+        }
+    }
+
+    private Stream<ComponentIndex> findDeployedComponents(final boolean includeIconContent, final Locale locale,
+            final String theme) {
         return manager
                 .find(c -> c
                         .execute(() -> c.get(ContainerComponentRegistry.class).getComponents().values().stream())
@@ -571,21 +708,21 @@ public class ComponentResourceImpl implements ComponentResource {
                                         .stream()
                                         .map(mapper -> toComponentIndex(c, locale, c.getId(), mapper,
                                                 c.get(ComponentManager.OriginalId.class), includeIconContent,
-                                                COMPONENT_TYPE_INPUT)),
+                                                COMPONENT_TYPE_INPUT, theme)),
                                         component
                                                 .getProcessors()
                                                 .values()
                                                 .stream()
                                                 .map(proc -> toComponentIndex(c, locale, c.getId(), proc,
                                                         c.get(ComponentManager.OriginalId.class), includeIconContent,
-                                                        COMPONENT_TYPE_PROCESSOR)),
+                                                        COMPONENT_TYPE_PROCESSOR, theme)),
                                         component
                                                 .getDriverRunners()
                                                 .values()
                                                 .stream()
                                                 .map(runner -> toComponentIndex(c, locale, c.getId(), runner,
                                                         c.get(ComponentManager.OriginalId.class), includeIconContent,
-                                                        COMPONENT_TYPE_STANDALONE)))
+                                                        COMPONENT_TYPE_STANDALONE, theme)))
                                 .flatMap(Function.identity())));
     }
 
@@ -632,12 +769,13 @@ public class ComponentResourceImpl implements ComponentResource {
 
     private ComponentIndex toComponentIndex(final Container container, final Locale locale, final String plugin,
             final ComponentFamilyMeta.BaseMeta meta, final ComponentManager.OriginalId originalId,
-            final boolean includeIcon, final String type) {
+            final boolean includeIcon, final String type, final String theme) {
         final ClassLoader loader = container.getLoader();
+        final String iconTheme = theme == null ? defaultTheme : theme;
         final String icon = meta.getIcon();
         final String familyIcon = meta.getParent().getIcon();
-        final IconResolver.Icon iconContent = iconResolver.resolve(container, icon);
-        final IconResolver.Icon iconFamilyContent = iconResolver.resolve(container, familyIcon);
+        final IconResolver.Icon iconContent = iconResolver.resolve(container, icon, iconTheme);
+        final IconResolver.Icon iconFamilyContent = iconResolver.resolve(container, familyIcon, iconTheme);
         final FamilyBundle parentBundle = meta.getParent().findBundle(loader, locale);
         final ComponentBundle bundle = meta.findBundle(loader, locale);
         final String familyDisplayName = parentBundle.displayName().orElse(meta.getParent().getName());
@@ -658,9 +796,10 @@ public class ComponentResourceImpl implements ComponentResource {
                 bundle.displayName().orElse(meta.getName()),
                 familyDisplayName, type,
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),
-                        !includeIcon ? null : (iconContent == null ? null : iconContent.getBytes())),
+                        !includeIcon ? null : (iconContent == null ? null : iconContent.getBytes()), iconTheme),
                 new Icon(familyIcon, iconFamilyContent == null ? null : iconFamilyContent.getType(),
-                        !includeIcon ? null : (iconFamilyContent == null ? null : iconFamilyContent.getBytes())),
+                        !includeIcon ? null : (iconFamilyContent == null ? null : iconFamilyContent.getBytes()),
+                        iconTheme),
                 meta.getVersion(),
                 categories,
                 singletonList(new Link("Detail", "/component/details?identifiers=" + meta.getId(),

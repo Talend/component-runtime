@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ public interface SchemaProperty {
 
     String ORIGIN_TYPE = "field.origin.type";
 
+    String LOGICAL_TYPE = "field.logical.type";
+
     String SIZE = "field.size";
 
     String SCALE = "field.scale";
@@ -34,5 +36,33 @@ public interface SchemaProperty {
     String IS_UNIQUE = "field.unique";
 
     String ALLOW_SPECIAL_NAME = "field.special.name";
+
+    enum LogicalType {
+
+        DATE("date"),
+        TIME("time"),
+        TIMESTAMP("timestamp"),
+        UUID("uuid") {
+
+            @Override
+            public Schema.Type storageType() {
+                return Schema.Type.STRING;
+            }
+        };
+
+        private String logicalType;
+
+        LogicalType(final String logicalType) {
+            this.logicalType = logicalType;
+        }
+
+        public String key() {
+            return this.logicalType;
+        }
+
+        public Schema.Type storageType() {
+            return Schema.Type.DATETIME;
+        }
+    }
 
 }

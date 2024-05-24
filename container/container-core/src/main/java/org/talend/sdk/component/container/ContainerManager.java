@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,8 @@ public class ContainerManager implements Lifecycle {
     private final boolean hasNestedRepository;
 
     private final Pattern versionWithJiraIssue = Pattern.compile("-[A-Z]{2,}-\\d+$");
+
+    private final Pattern versionWithMilestone = Pattern.compile("M\\d+$");
 
     public ContainerManager(final DependenciesResolutionConfiguration dependenciesResolutionConfiguration,
             final ClassLoaderConfiguration classLoaderConfiguration, final Consumer<Container> containerInitializer,
@@ -272,6 +274,10 @@ public class ContainerManager implements Lifecycle {
             final Matcher jiraTicket = versionWithJiraIssue.matcher(autoId);
             if (jiraTicket.find()) {
                 autoId = autoId.substring(0, jiraTicket.start());
+            }
+            final Matcher milestone = versionWithMilestone.matcher(autoId);
+            if (milestone.find()) {
+                autoId = autoId.substring(0, milestone.start());
             }
             // strip the version
             int end = autoId.length() - 1;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime-testing</artifactId>
-    <version>1.64.0</version>
+    <version>1.65.0M4-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-junit-base</artifactId>

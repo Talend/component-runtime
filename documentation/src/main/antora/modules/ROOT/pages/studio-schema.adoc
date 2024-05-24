@@ -13,7 +13,7 @@ NOTE: Dynamic column is available with Enterprise versions of Talend Studio only
 
 In Studio, we can define for each component a schema with associated metadata.
 
-image::studio_schema.png[Job run,window="_blank",link="https://talend.github.io/component-runtime/main/{page-component-version}/_images/studio_schema.png",70%]
+image::studio_schema.png[Job run,window="_blank",link=self,70%]
 
 To access those informations in your component, you've to do a few things:
 
@@ -170,6 +170,8 @@ public class UiServices {
 
 === Using the `@DiscoverSchemaExtended` annotation
 
+Parameters can be an incoming schema and/or an outgoing branch, and an optional parameter: configuration. None of them is "Must have".
+
 Prototype:
 
 [source,java]
@@ -182,19 +184,24 @@ Prototype:
  * @return
  */
 @DiscoverSchemaExtended("full")
-public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") procConf, final String branch) {...}
+public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") ConfigClass myConfig, final String branch) {...}
 
 @DiscoverSchemaExtended("incoming_schema")
-public Schema guessMethodName(final Schema incomingSchema, final @Option procConf) {...}
+public Schema guessMethodName(final Schema incomingSchema, final @Option("configuration") ConfigClass myConfig) {...}
 
 @DiscoverSchemaExtended("branch")
-public Schema guessMethodName(final @Option("configuration") procConf, final String branch) {...}
+public Schema guessMethodName(final @Option("configuration") ConfigClass myConfig, final String branch) {...}
 
 @DiscoverSchemaExtended("minimal")
-public Schema guessMethodName(final @Option procConf) {...}
+public Schema guessMethodName(final @Option("configuration") ConfigClass myConfig) {...}
 ----
 
 NOTE: As you may pass other parameters to method, ensure to use the above naming : _incomingSchema_ for the schema and _branch_ for the outgoing branch.
+
+The schema element must comply with the following requirements:
+
+- It has to be a string not a sub json object
+- The json has to be flat
 
 Example:
 [source,java]
