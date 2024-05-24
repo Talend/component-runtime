@@ -136,9 +136,9 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
     }
 
     @Override
-    @CacheResult()
+    @CacheResult
     public ConfigTypeNodes getRepositoryModel(final String language, final boolean lightPayload, final String query) {
-        log.info("[getRepositoryModel] lang={} lpl={} query={}", language, lightPayload, query);
+        log.debug("[getRepositoryModel] lang={} lpl={} query={}", language, lightPayload, query);
         final Locale locale = localeMapper.mapLocale(language);
         caches.evictIfNeeded(indicesPerRequest, configuration.getMaxCacheSize() - 1);
         return indicesPerRequest
