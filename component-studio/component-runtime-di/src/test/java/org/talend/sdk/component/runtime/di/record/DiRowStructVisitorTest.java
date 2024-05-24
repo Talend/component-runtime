@@ -131,8 +131,10 @@ class DiRowStructVisitorTest extends VisitorsTest {
                 "2010-01-31", "yyyy-MM-dd", false);
         rowStruct.dynamic = dynamic;
 
-        initDocument(DOCUMENT);
-        initDocument(rowStruct.document);
+        org.dom4j.Document doc = DocumentHelper.createDocument();
+        doc.addElement("catelog").addComment("an XML catelog");
+        DOCUMENT.setDocument(doc);
+        rowStruct.document.setDocument(doc);
         rowStruct.emptyDocument = new Document();
 
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
@@ -260,12 +262,6 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertNull(record.getString("loopKey"));
         assertNull(record.getString("lookKey"));
     }
-
-
-    private void initDocument(Document document) {
-        org.dom4j.Document doc = DocumentHelper.createDocument();
-        doc.addElement("catelog").addComment("an XML catelog");
-        document.setDocument(doc);
 
     private static void assertSchemaArray0(final Schema schema) {
         final Entry schemaArray = schema.getEntry("array0");
