@@ -13,7 +13,8 @@ Need to be SVG and/or PNG with (Better to provide both with svg2png):
    - 16x16
    - named  NAME_.svg 
 
-For test purpose:
+For test purpose this connector is compatible with the theme functionality:
+ - icons are only in dark and light folders
  - family and has PNG and SVG
  - mapper has only SVG
- - output has only PNG
+ - output has PNG and SVG
