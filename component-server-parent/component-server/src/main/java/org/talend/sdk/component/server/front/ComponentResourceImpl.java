@@ -149,7 +149,7 @@ public class ComponentResourceImpl implements ComponentResource {
 
     public static final String THEME_ALL = "all";
 
-    public static final String MEDIA_TYPE_SVG_XML = "image/svg+xml";
+    public static final String IMAGE_SVG_XML_TYPE = "image/svg+xml";
 
     private final ConcurrentMap<RequestKey, ComponentIndices> indicesPerRequest = new ConcurrentHashMap<>();
 
@@ -534,7 +534,7 @@ public class ComponentResourceImpl implements ComponentResource {
                     .replace("&lt;", "<")
                     .replace("&gt;", ">");
 
-            return Response.ok(svgs).type(MEDIA_TYPE_SVG_XML).build();
+            return Response.ok(svgs).type(IMAGE_SVG_XML_TYPE).build();
         } catch (Exception e) {
             log.error("[getIconIndex] {}", e.getMessage());
             return Response
@@ -669,7 +669,7 @@ public class ComponentResourceImpl implements ComponentResource {
             Map<String, IconSymbol> icons = components
                     .stream()
                     .filter(c -> c.getIconFamily().getCustomIcon() != null)
-                    .filter(c -> MEDIA_TYPE_SVG_XML.equals(c.getIconFamily().getCustomIconType()))
+                    .filter(c -> IMAGE_SVG_XML_TYPE.equals(c.getIconFamily().getCustomIconType()))
                     .map(c -> new IconSymbol(c.getIconFamily().getIcon(),
                             c.getFamilyDisplayName(),
                             "family",
@@ -680,7 +680,7 @@ public class ComponentResourceImpl implements ComponentResource {
             icons.putAll(components
                     .stream()
                     .filter(c -> c.getIcon().getCustomIcon() != null)
-                    .filter(c -> MEDIA_TYPE_SVG_XML.equals(c.getIcon().getCustomIconType()))
+                    .filter(c -> IMAGE_SVG_XML_TYPE.equals(c.getIcon().getCustomIconType()))
                     .map(c -> new IconSymbol(c.getIcon().getIcon(),
                             c.getFamilyDisplayName(),
                             "connector",
