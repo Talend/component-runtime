@@ -23,7 +23,6 @@ import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML_TYPE;
 import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.COMPONENT_MISSING;
 import static org.talend.sdk.component.server.front.model.ErrorDictionary.DESIGN_MODEL_MISSING;
@@ -535,7 +534,7 @@ public class ComponentResourceImpl implements ComponentResource {
                     .replace("&lt;", "<")
                     .replace("&gt;", ">");
 
-            return Response.ok(svgs).type(APPLICATION_SVG_XML_TYPE).build();
+            return Response.ok(svgs).type(MEDIA_TYPE_SVG_XML).build();
         } catch (Exception e) {
             log.error("[getIconIndex] {}", e.getMessage());
             return Response
