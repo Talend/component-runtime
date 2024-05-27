@@ -28,8 +28,10 @@ import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -422,6 +424,31 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertEquals("id01", rowStruct.id);
     }
 
+    @Test
+    void dynamicValuesArentOverwritten() {
+        final String value1 = "value1";
+        final String value2 = "value2";
+        final String columnName = "name";
+
+        final List<Record> records = Arrays.asList(
+                factory.newRecordBuilder()
+                        .withString(columnName, value1)
+                        .build(),
+                factory.newRecordBuilder()
+                        .withString(columnName, value2)
+                        .build());
+
+        final DiRecordVisitor visitor = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
+        final List<RowStruct3> rows = records.stream()
+                .map(visitor::visit)
+                .map(RowStruct3.class::cast)
+                .collect(Collectors.toList());
+        Assertions.assertEquals(2, rows.size());
+        rows.forEach(Assertions::assertNotNull);
+        Assertions.assertEquals(value1, rows.get(0).dyn.getColumnValue(columnName));
+        Assertions.assertEquals(value2, rows.get(1).dyn.getColumnValue(columnName));
+    }
+
     public static class RowStruct2 implements routines.system.IPersistableRow {
 
         public String field1;
@@ -469,6 +496,5 @@ class DiRecordVisitorTest extends VisitorsTest {
         @Override
         public void readData(ObjectInputStream objectInputStream) {
         }
-
     }
 }
