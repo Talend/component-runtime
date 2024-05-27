@@ -353,11 +353,11 @@ class ComponentResourceImplTest {
         assertNotNull(content);
         assertTrue(
                 content.startsWith(
-                        "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" focusable=\"false\" theme=\"light\">"));
+                        "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" data-theme=\"light\" focusable=\"false\">"));
         assertTrue(content.contains(
-                "connector=\"standalone\" family=\"chain\" id=\"myicon\" theme=\"light\" type=\"connector\""));
+                "data-connector=\"standalone\" data-family=\"chain\" data-theme=\"light\" data-type=\"connector\" id=\"myicon-light\""));
         assertTrue(
-                content.contains("connector=\"\" family=\"file\" id=\"file-family\" theme=\"light\" type=\"family\""));
+                content.contains("data-family=\"file\" data-theme=\"light\" data-type=\"family\" id=\"file-family-light\""));
         // light theme
         content = base.path("component/icon/index")
                 .queryParam("theme", "light")
@@ -367,11 +367,11 @@ class ComponentResourceImplTest {
         assertNotNull(content);
         assertTrue(
                 content.startsWith(
-                        "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" focusable=\"false\" theme=\"light\">"));
+                        "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" data-theme=\"light\" focusable=\"false\">"));
         assertTrue(content.contains(
-                "connector=\"standalone\" family=\"chain\" id=\"myicon\" theme=\"light\" type=\"connector\""));
+                "data-connector=\"standalone\" data-family=\"chain\" data-theme=\"light\" data-type=\"connector\" id=\"myicon-light\""));
         assertTrue(
-                content.contains("connector=\"\" family=\"file\" id=\"file-family\" theme=\"light\" type=\"family\""));
+                content.contains("data-family=\"file\" data-theme=\"light\" data-type=\"family\" id=\"file-family-light\""));
 
         // dark theme
         content = base.path("component/icon/index")
@@ -382,11 +382,11 @@ class ComponentResourceImplTest {
         assertNotNull(content);
         assertTrue(
                 content.startsWith(
-                        "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" focusable=\"false\" theme=\"dark\">"));
+                        "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" data-theme=\"dark\" focusable=\"false\">"));
         assertTrue(content
-                .contains("connector=\"input\" family=\"jdbc\" id=\"db-input\" theme=\"dark\" type=\"connector\""));
+                .contains("data-connector=\"input\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
         assertTrue(content
-                .contains("connector=\"output\" family=\"jdbc\" id=\"db-input\" theme=\"dark\" type=\"connector\""));
+                .contains("data-connector=\"output\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
         // theme = all
         content = base.path("component/icon/index")
                 .queryParam("theme", "all")
@@ -394,17 +394,18 @@ class ComponentResourceImplTest {
                 .accept(IMAGE_SVG_XML_TYPE)
                 .get(String.class);
         assertNotNull(content);
+        System.out.println(content);
         assertTrue(
                 content.startsWith(
-                        "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" focusable=\"false\" theme=\"all\">"));
+                        "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" data-theme=\"all\" focusable=\"false\">"));
         assertTrue(content
-                .contains("connector=\"input\" family=\"jdbc\" id=\"db-input\" theme=\"dark\" type=\"connector\""));
+                .contains("data-connector=\"input\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
         assertTrue(content
-                .contains("connector=\"output\" family=\"jdbc\" id=\"db-input\" theme=\"dark\" type=\"connector\""));
+                .contains("data-connector=\"output\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
         assertTrue(content.contains(
-                "connector=\"standalone\" family=\"chain\" id=\"myicon\" theme=\"light\" type=\"connector\""));
+                "data-connector=\"standalone\" data-family=\"chain\" data-theme=\"light\" data-type=\"connector\" id=\"myicon-light\""));
         assertTrue(
-                content.contains("connector=\"\" family=\"file\" id=\"file-family\" theme=\"light\" type=\"family\""));
+                content.contains("data-family=\"file\" data-theme=\"dark\" data-type=\"family\" id=\"file-family-dark\""));
     }
 
     @Test

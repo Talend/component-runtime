@@ -510,15 +510,17 @@ public class ComponentResourceImpl implements ComponentResource {
             root.setAttribute("xmlns", "http://www.w3.org/2000/svg");
             root.setAttribute("focusable", "false");
             root.setAttribute("class", "sr-only");
-            root.setAttribute("theme", themedIcon);
+            root.setAttribute("data-theme", themedIcon);
             doc.appendChild(root);
             icons.values().forEach(icon -> {
                 final Element symbol = doc.createElement("symbol");
-                symbol.setAttribute("family", icon.getFamily());
-                symbol.setAttribute("id", icon.getIcon());
-                symbol.setAttribute("type", icon.getType());
-                symbol.setAttribute("connector", icon.getConnector());
-                symbol.setAttribute("theme", icon.getTheme());
+                symbol.setAttribute("id", String.format("%s-%s", icon.getIcon(), icon.getTheme()));
+                symbol.setAttribute("data-theme", icon.getTheme());
+                symbol.setAttribute("data-type", icon.getType());
+                symbol.setAttribute("data-family", icon.getFamily());
+                if ("connector".equals(icon.getType())) {
+                    symbol.setAttribute("data-connector", icon.getConnector());
+                }
                 symbol.setTextContent(new String(icon.getContent()));
                 root.appendChild(symbol);
             });
