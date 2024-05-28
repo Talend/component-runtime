@@ -30,6 +30,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import routines.system.Dynamic;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -73,6 +74,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private final Class<?> clazz;
 
+    private final Constructor<?> constructor;
+
     private Object instance;
 
     private final Map<String, Field> fields;
@@ -99,16 +102,21 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private boolean initDynamicMetadata = true;
 
-    private static final RecordService RECORD_SERVICE = RecordService.class
-            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+    private static final RecordService RECORD_SERVICE =
+            new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null, null));
+                                    RecordService.class, null, null);
 
     DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;
+        try {
+            constructor = clzz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
         fields = Arrays.stream(clazz.getFields()).collect(toMap(Field::getName, identity()));
         hasDynamic = fields
                 .values()
@@ -138,9 +146,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         arrayOfRecordPrefix = "";
         recordPrefix = "";
         try {
-            instance = clazz.getConstructor().newInstance();
-        } catch (final InstantiationException | InvocationTargetException | NoSuchMethodException
-                | IllegalAccessException e) {
+            instance = constructor.newInstance();
+        } catch (final InstantiationException | InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
         if (hasDynamic) {
@@ -191,13 +198,12 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     })
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
-            recordFields
-                    .addAll(record
-                            .getSchema()
-                            .getAllEntries()
-                            .filter(t -> !t.getType().equals(Type.RECORD))
-                            .map(Entry::getName)
-                            .collect(Collectors.toSet()));
+            record
+                    .getSchema()
+                    .getAllEntries()
+                    .filter(t -> !t.getType().equals(Type.RECORD))
+                    .map(Entry::getName)
+                    .forEach(recordFields::add);
 
             prefillDynamic(record.getSchema());
             initDynamicMetadata = false;
