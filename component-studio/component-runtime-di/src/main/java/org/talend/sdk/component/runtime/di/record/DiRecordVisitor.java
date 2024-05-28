@@ -308,7 +308,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
 
         try {
-            if (StudioTypes.DOCUMENT.equals(entry.getProp(STUDIO_TYPE)) && Type.STRING.equals(entry.getType())) {
+            if (field.getType().getName().equals("routines.system.Document")) {
                 log.trace("[setField] Document#{}.", entry.getName());
                 field.set(instance, ParserUtils.parseTo_Document(value.toString()));
                 return;
@@ -316,6 +316,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
             field.set(instance, MappingUtils.coerce(field.getType(), value, entry.getName()));
         } catch (final IllegalAccessException | DocumentException e) {
+            log.trace("[setField] exception message: " + e.getMessage());
             throw new IllegalStateException(e);
         }
     }

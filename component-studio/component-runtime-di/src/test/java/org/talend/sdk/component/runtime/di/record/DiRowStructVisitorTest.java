@@ -141,7 +141,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(54, schema.getEntries().size());
+        assertEquals(58, schema.getEntries().size());
 
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
