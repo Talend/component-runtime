@@ -1828,7 +1828,7 @@
                 },
                 "description": "TODO https://jira.talendforge.org/browse/TCOMP-2737 to be improved  ",
                 "id": "242ea807-a063-4a8e-83a9-fad3e7a24934",
-                "name": "Copy of >>>>DEV>>>> component/icon/index",
+                "name": "component/icon/index",
                 "headers": [],
                 "assertions": [
                   {
