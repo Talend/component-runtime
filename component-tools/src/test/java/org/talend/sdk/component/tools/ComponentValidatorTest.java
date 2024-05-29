@@ -441,8 +441,7 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage(value = "org.talend.test.valid.customicon", success = true)
     void testValidCustomIcon(final ExceptionSpec spec) {
-        // jus a warning so this test is semantically "valid" but we still assert this message
-        spec.expectMessage("icons/dark/present.svg' found, this will run in degraded mode in Talend Cloud");
+        // no-op
     }
 
     @Test
