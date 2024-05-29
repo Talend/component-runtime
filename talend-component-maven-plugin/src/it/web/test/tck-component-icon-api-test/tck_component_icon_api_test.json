@@ -65,7 +65,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3561"
+                    "value": "3506"
                   },
                   {
                     "comparison": "Equals",
@@ -114,7 +114,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3560"
+                    "value": "3505"
                   },
                   {
                     "comparison": "Equals",
@@ -173,7 +173,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3560"
+                    "value": "3505"
                   },
                   {
                     "comparison": "Equals",
@@ -392,7 +392,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3561"
+                    "value": "3506"
                   },
                   {
                     "comparison": "Equals",
@@ -445,7 +445,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3560"
+                    "value": "3505"
                   },
                   {
                     "comparison": "Equals",
@@ -504,7 +504,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3560"
+                    "value": "3505"
                   },
                   {
                     "comparison": "Equals",
@@ -840,7 +840,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "5087"
+                    "value": "5032"
                   }
                 ]
               }
@@ -893,7 +893,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "4193"
+                    "value": "4138"
                   }
                 ]
               }
@@ -952,7 +952,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "4193"
+                    "value": "4138"
                   }
                 ]
               }
@@ -1118,125 +1118,6 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
                     "value": "FAMILY_MISSING"
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "entity": {
-            "type": "Service",
-            "id": "732622da-8bdc-4648-b038-dd2688846cae",
-            "name": "component - icon/index"
-          },
-          "children": [
-            {
-              "entity": {
-                "type": "Request",
-                "method": {
-                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                  "name": "GET"
-                },
-                "body": {
-                  "formBody": {
-                    "overrideContentType": true,
-                    "encoding": "application/x-www-form-urlencoded",
-                    "items": []
-                  },
-                  "bodyType": "Text"
-                },
-                "uri": {
-                  "query": {
-                    "delimiter": "&",
-                    "items": []
-                  },
-                  "scheme": {
-                    "name": "http",
-                    "version": "V11"
-                  },
-                  "host": "${\"server-ip\"}:${\"server-port\"}",
-                  "path": "/api/v1/component/icon/index"
-                },
-                "description": "TODO https://jira.talendforge.org/browse/TCOMP-2737 to be improved  ",
-                "id": "242ea807-a063-4a8e-83a9-fad3e7a24934",
-                "name": "component/icon/index",
-                "headers": [],
-                "assertions": [
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseStatus",
-                    "path": "code",
-                    "value": "200"
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseHeader",
-                    "path": "Content-Type",
-                    "value": "image/svg+xml"
-                  },
-                  {
-                    "comparison": "Contains",
-                    "subject": "ResponseXmlBody",
-                    "enabled": true,
-                    "path": "/",
-                    "value": "symbol"
-                  },
-                  {
-                    "comparison": "Matches",
-                    "subject": "ResponseBody",
-                    "enabled": true,
-                    "path": "content",
-                    "value": "^<svg "
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/svg",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/@data-connector",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/@data-type",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/@data-theme",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/@id",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/svg",
-                    "value": ""
                   }
                 ]
               }
