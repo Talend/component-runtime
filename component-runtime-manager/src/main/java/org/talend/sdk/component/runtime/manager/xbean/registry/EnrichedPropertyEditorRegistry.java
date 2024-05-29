@@ -115,7 +115,7 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
         super.register(new PatternConverter());
 
         // customs
-        super.register(new LazyZonedDateTimeConverter());
+        super.register(new ZonedDateTimeConverter());
         super.register(new LocalDateTimeConverter());
         super.register(new LocalDateConverter());
         super.register(new LocalTimeConverter());
@@ -197,10 +197,4 @@ public class EnrichedPropertyEditorRegistry extends PropertyEditorRegistry {
         }
     }
 
-    private static class LazyZonedDateTimeConverter extends LazyEditor<ZonedDateTimeConverter> {
-
-        private LazyZonedDateTimeConverter() {
-            super(lazy(ZonedDateTimeConverter::new), Date.class);
-        }
-    }
 }

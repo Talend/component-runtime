@@ -18,6 +18,9 @@ package org.talend.sdk.component.server.service;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.MEDIA_TYPE_SVG_XML;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.THEME_DARK;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.THEME_LIGHT;
 
 import javax.inject.Inject;
 
@@ -30,6 +33,10 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 
 @MonoMeecrowaveConfig
 class IconResolverTest {
+
+    public static final String PLUGIN_DB_INPUT = "db-input";
+
+    public static final String MEDIA_TYPE_PNG = "image/png";
 
     @Inject
     private ComponentManager manager;
@@ -59,20 +66,20 @@ class IconResolverTest {
         System.setProperty("talend.component.server.icon.svg.support", "true");
         resolver.init();
         //
-        IconResolver.Icon icon = resolver.resolve(plugin, "logo", "dark");
+        IconResolver.Icon icon = resolver.resolve(plugin, "logo", THEME_DARK);
         assertNotNull(icon);
-        assertEquals("image/svg+xml", icon.getType());
-        assertEquals("dark", icon.getTheme());
+        assertEquals(MEDIA_TYPE_SVG_XML, icon.getType());
+        assertEquals(THEME_DARK, icon.getTheme());
         //
-        icon = resolver.resolve(plugin, "db-input", "dark");
+        icon = resolver.resolve(plugin, PLUGIN_DB_INPUT, THEME_DARK);
         assertNotNull(icon);
-        assertEquals("image/svg+xml", icon.getType());
-        assertEquals("dark", icon.getTheme());
+        assertEquals(MEDIA_TYPE_SVG_XML, icon.getType());
+        assertEquals(THEME_DARK, icon.getTheme());
         //
-        icon = resolver.resolve(plugin, "db-input", "light");
+        icon = resolver.resolve(plugin, PLUGIN_DB_INPUT, THEME_LIGHT);
         assertNotNull(icon);
-        assertEquals("image/png", icon.getType());
-        assertEquals("light", icon.getTheme());
+        assertEquals(MEDIA_TYPE_PNG, icon.getType());
+        assertEquals(THEME_LIGHT, icon.getTheme());
     }
 
     @Test
@@ -83,19 +90,19 @@ class IconResolverTest {
         IconResolver.Icon icon = resolver.resolve(plugin, "logo", "");
         assertNull(icon);
         //
-        icon = resolver.resolve(plugin, "db-input", "");
+        icon = resolver.resolve(plugin, PLUGIN_DB_INPUT, "");
         assertNotNull(icon);
-        assertEquals("image/png", icon.getType());
+        assertEquals(MEDIA_TYPE_PNG, icon.getType());
         assertEquals("", icon.getTheme());
         //
-        icon = resolver.resolve(plugin, "db-input", "light");
+        icon = resolver.resolve(plugin, PLUGIN_DB_INPUT, THEME_LIGHT);
         assertNotNull(icon);
-        assertEquals("image/png", icon.getType());
-        assertEquals("light", icon.getTheme());
+        assertEquals(MEDIA_TYPE_PNG, icon.getType());
+        assertEquals(THEME_LIGHT, icon.getTheme());
         //
-        icon = resolver.resolve(plugin, "db-input", "dark");
+        icon = resolver.resolve(plugin, PLUGIN_DB_INPUT, THEME_DARK);
         assertNotNull(icon);
-        assertEquals("image/png", icon.getType());
+        assertEquals(MEDIA_TYPE_PNG, icon.getType());
         assertEquals("", icon.getTheme());
     }
 
