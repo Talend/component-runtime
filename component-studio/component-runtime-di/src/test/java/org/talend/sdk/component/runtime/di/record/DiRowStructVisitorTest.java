@@ -132,7 +132,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.dynamic = dynamic;
 
         org.dom4j.Document doc = DocumentHelper.createDocument();
-        doc.addElement("catelog").addComment("an XML catelog");
+        doc.addElement("catalog").addComment("an XML catalog");
         DOCUMENT.setDocument(doc);
         rowStruct.document.setDocument(doc);
         rowStruct.emptyDocument = new Document();
