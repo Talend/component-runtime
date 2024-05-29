@@ -18,7 +18,7 @@ package org.talend.sdk.component.server.service;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.talend.sdk.component.server.front.ComponentResourceImpl.MEDIA_TYPE_SVG_XML;
+import static org.talend.sdk.component.server.front.ComponentResourceImpl.IMAGE_SVG_XML_TYPE;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.THEME_DARK;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.THEME_LIGHT;
 
@@ -68,12 +68,12 @@ class IconResolverTest {
         //
         IconResolver.Icon icon = resolver.resolve(plugin, "logo", THEME_DARK);
         assertNotNull(icon);
-        assertEquals(MEDIA_TYPE_SVG_XML, icon.getType());
+        assertEquals(IMAGE_SVG_XML_TYPE, icon.getType());
         assertEquals(THEME_DARK, icon.getTheme());
         //
         icon = resolver.resolve(plugin, PLUGIN_DB_INPUT, THEME_DARK);
         assertNotNull(icon);
-        assertEquals(MEDIA_TYPE_SVG_XML, icon.getType());
+        assertEquals(IMAGE_SVG_XML_TYPE, icon.getType());
         assertEquals(THEME_DARK, icon.getTheme());
         //
         icon = resolver.resolve(plugin, PLUGIN_DB_INPUT, THEME_LIGHT);
