@@ -14,7 +14,7 @@
             "type": "Service",
             "description": "",
             "id": "9a12725c-ae49-4285-9a8d-0e71674b207c",
-            "name": "component - icon - theme connector"
+            "name": "component - icon"
           },
           "children": [
             {
@@ -48,9 +48,239 @@
                     "version": "V11"
                   },
                   "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/${\"output_id\"}"
+                },
+                "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
+                "id": "9c0811ab-671c-406c-aab1-4e9df5ea066b",
+                "name": "component/icon - PNG - dark",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "1048"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/${\"output_id\"}"
+                },
+                "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
+                "id": "5cc62b40-d1b1-4087-9e0e-14140b568ef0",
+                "name": "component/icon - PNG - default theme",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "1215"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "light"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/${\"output_id\"}"
+                },
+                "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
+                "id": "e16f7728-9078-43fd-8987-68021751e752",
+                "name": "component/icon - PNG - light",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "1215"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "non_existing_theme"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/${\"output_id\"}"
+                },
+                "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided\n\nNon existing theme / legacy on / legacy icon exists -> legacy icon",
+                "id": "0d3fe096-83d5-4d9f-81b8-d378b6311662",
+                "name": "component/icon - PNG - non existing theme fall back to legacy",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "900"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "dark"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
-                "description": "Check the mapper icon   \n* only SVG image given",
+                "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
                 "id": "b350e7d0-3d88-4010-9723-7f6ab946e9c2",
                 "name": "component/icon - SVG - dark",
                 "headers": [],
@@ -65,7 +295,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3506"
+                    "value": "3561"
                   },
                   {
                     "comparison": "Equals",
@@ -99,7 +329,7 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
-                "description": "Check the mapper icon   \n* only SVG image given",
+                "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
                 "id": "cb2898a3-6e0a-4f49-8a30-75a107246521",
                 "name": "component/icon - SVG - default theme",
                 "headers": [],
@@ -114,7 +344,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3505"
+                    "value": "3560"
                   },
                   {
                     "comparison": "Equals",
@@ -158,7 +388,7 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
-                "description": "Check the mapper icon   \n* only SVG image given",
+                "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
                 "id": "831343dd-1815-49aa-8d95-450edf7bf24e",
                 "name": "component/icon - SVG - light",
                 "headers": [],
@@ -173,56 +403,13 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3505"
+                    "value": "3560"
                   },
                   {
                     "comparison": "Equals",
                     "subject": "ResponseHeader",
                     "path": "Content-Type",
                     "value": "image/svg+xml"
-                  }
-                ]
-              }
-            },
-            {
-              "entity": {
-                "type": "Request",
-                "method": {
-                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                  "name": "GET"
-                },
-                "body": {
-                  "formBody": {
-                    "overrideContentType": true,
-                    "encoding": "application/x-www-form-urlencoded",
-                    "items": []
-                  },
-                  "bodyType": "Text"
-                },
-                "uri": {
-                  "scheme": {
-                    "name": "http",
-                    "version": "V11"
-                  },
-                  "host": "${\"server-ip\"}:${\"server-port\"}",
-                  "path": "/api/v1/component/icon"
-                },
-                "description": "Check the mapper icon   \n* only SVG image given",
-                "id": "b53bca05-d64b-4d4c-ad58-b24fd9f9bb8e",
-                "name": "component/icon - error - missing id",
-                "headers": [],
-                "assertions": [
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseStatus",
-                    "path": "code",
-                    "value": "404"
-                  },
-                  {
-                    "comparison": "DoesNotExist",
-                    "subject": "ResponseBody",
-                    "path": "content",
-                    "value": "{\"code\":\"COMPONENT_MISSING\",\"description\":\"No component for identifier: wrong_id\"}"
                   }
                 ]
               }
@@ -260,9 +447,9 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
-                "description": "Check the mapper icon   \n* only SVG image given",
+                "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided\n\nNon existing theme / legacy on/ legacy icon exists -> 404\n",
                 "id": "8c6dcc66-222c-476a-8158-e581fd61dee7",
-                "name": "component/icon - error - non existing theme 404",
+                "name": "component/icon - SVG - non existing theme 404",
                 "headers": [],
                 "assertions": [
                   {
@@ -276,12 +463,49 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
                     "value": "ICON_MISSING"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon"
+                },
+                "description": "Expected: error 404 without body  \nThe call without providing id parameter",
+                "id": "b53bca05-d64b-4d4c-ad58-b24fd9f9bb8e",
+                "name": "component/icon - error - missing id",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "404"
                   },
                   {
-                    "comparison": "Exists",
-                    "subject": "ResponseJsonBody",
-                    "path": "$.description",
-                    "value": "ICON_MISSING"
+                    "comparison": "DoesNotExist",
+                    "subject": "ResponseBody",
+                    "path": "content",
+                    "value": "{\"code\":\"COMPONENT_MISSING\",\"description\":\"No component for identifier: wrong_id\"}"
                   }
                 ]
               }
@@ -309,7 +533,7 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/wrong_id"
                 },
-                "description": "Check the mapper icon   \n* only SVG image given",
+                "description": "Expected: error 404 with body  \nThe call with wrong id parameter",
                 "id": "ff287644-baeb-4ff8-9f59-53a92b9650be",
                 "name": "component/icon - error - wrong id",
                 "headers": [],
@@ -321,9 +545,9 @@
                     "value": "404"
                   },
                   {
-                    "comparison": "Exists",
+                    "comparison": "LengthEqual",
                     "subject": "ResponseJsonBody",
-                    "path": "$.description",
+                    "path": "$.",
                     "value": "2"
                   },
                   {
@@ -341,7 +565,7 @@
           "entity": {
             "type": "Service",
             "id": "81a062e8-37e4-4c6a-852e-1c148bc81929",
-            "name": "component - icon/custom - theme connector"
+            "name": "component - icon/custom"
           },
           "children": [
             {
@@ -375,9 +599,406 @@
                     "version": "V11"
                   },
                   "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/output"
+                },
+                "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
+                "id": "2f83d2f9-8c70-4026-adf3-40137b237de9",
+                "name": "component/icon/custom - PNG - dark",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "1048"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/output"
+                },
+                "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
+                "id": "56de9f18-361d-4740-a329-0a590d141e46",
+                "name": "component/icon/custom - PNG - default theme",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "1215"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "light"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/output"
+                },
+                "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
+                "id": "13265f8d-fb21-43a2-856f-6ceb36296d3c",
+                "name": "component/icon/custom - PNG - light",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "1215"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "dark"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/input"
+                },
+                "description": "Check the input icon to validate parameter `talend.component.server.icon.theme.legacy`  \n* only one PNG image defined\n* no theme files provided\n* legacy files provided\n\nFall back on legacy icon location",
+                "id": "56ea03bf-4816-4242-b81a-c389ec20dcde",
+                "name": "component/icon/custom - PNG - no theme provided - dark",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "779"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/input"
+                },
+                "description": "Check the input icon to validate parameter `talend.component.server.icon.theme.legacy`  \n* only one PNG image defined\n* no theme files provided\n* legacy files provided\n\nFall back on legacy icon location",
+                "id": "3d61fe5c-f988-4785-af00-0440aeaea278",
+                "name": "component/icon/custom - PNG - no theme provided - default theme",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "779"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "light"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/input"
+                },
+                "description": "Check the input icon to validate parameter `talend.component.server.icon.theme.legacy`  \n* only one PNG image defined\n* no theme files provided\n* legacy files provided\n\nFall back on legacy icon location",
+                "id": "379dcb54-330e-44bf-84bb-2c67f7b7d001",
+                "name": "component/icon/custom - PNG - no theme provided - light",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "779"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "non_existing_theme"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/output"
+                },
+                "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided\n\nNon existing theme / legacy on / legacy icon exists -> legacy icon",
+                "id": "196e1ce3-e5ef-4309-961e-8807102a693e",
+                "name": "component/icon/custom - PNG - non existing theme fall back to legacy",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "900"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/png"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "dark"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/custom/${family_id}/mapper"
                 },
-                "description": "Check the mapper icon   \n* only SVG image given",
+                "description": "Check the mapper icon\n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
                 "id": "ffadb9a4-59f5-48b3-8bba-4d5f2498bfdd",
                 "name": "component/icon/custom - SVG - dark",
                 "headers": [],
@@ -392,7 +1013,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3506"
+                    "value": "3561"
                   },
                   {
                     "comparison": "Equals",
@@ -430,7 +1051,7 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/custom/${family_id}/mapper"
                 },
-                "description": "Check the mapper icon   \n* only SVG image given",
+                "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
                 "id": "c496c781-914b-4771-8efc-4624d3b050e4",
                 "name": "component/icon/custom - SVG - default theme",
                 "headers": [],
@@ -445,7 +1066,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3505"
+                    "value": "3560"
                   },
                   {
                     "comparison": "Equals",
@@ -489,7 +1110,7 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/custom/${family_id}/mapper"
                 },
-                "description": "Check the mapper icon   \n* only SVG image given",
+                "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
                 "id": "f4b0fffc-3f0c-43f8-9a67-b42efa75973c",
                 "name": "component/icon/custom - SVG - light",
                 "headers": [],
@@ -504,7 +1125,113 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "3505"
+                    "value": "3560"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/svg+xml"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "non_existing_theme"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/mapper"
+                },
+                "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided\n\nNon existing theme / legacy on / legacy icon exists -> 404",
+                "id": "e38ccf6b-d94d-4df5-b7a9-f0c075066935",
+                "name": "component/icon/custom - SVG - non existing theme 404",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "404"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.code",
+                    "value": "ICON_MISSING"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/custom/${family_id}/family"
+                },
+                "description": "Check the family icon   \n* has PNG and SVG image provided\n* theme files provided\n* legacy files not provided",
+                "id": "bd481682-d77f-4a66-ade4-c1f204da9e3e",
+                "name": "component/icon/custom - SVG priority - default theme",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "4193"
                   },
                   {
                     "comparison": "Equals",
@@ -550,9 +1277,9 @@
                     "value": "404"
                   },
                   {
-                    "comparison": "Exists",
+                    "comparison": "LengthEqual",
                     "subject": "ResponseJsonBody",
-                    "path": "$.description",
+                    "path": "$.",
                     "value": "2"
                   },
                   {
@@ -629,24 +1356,18 @@
                 "uri": {
                   "query": {
                     "delimiter": "&",
-                    "items": [
-                      {
-                        "enabled": true,
-                        "name": "theme",
-                        "value": "non_existing_theme"
-                      }
-                    ]
+                    "items": []
                   },
                   "scheme": {
                     "name": "http",
                     "version": "V11"
                   },
                   "host": "${\"server-ip\"}:${\"server-port\"}",
-                  "path": "/api/v1/component/icon/custom/${family_id}/mapper"
+                  "path": "/api/v1/component/icon/custom/${family_id}/wrong_iconKey"
                 },
-                "description": "The call with a non existing theme",
-                "id": "e38ccf6b-d94d-4df5-b7a9-f0c075066935",
-                "name": "component/icon/custom - error - non existing theme 404",
+                "description": "The call with wrong iconKey parameter",
+                "id": "954593e7-de37-469c-a8e9-9d592f83cf86",
+                "name": "component/icon/custom - error - wrong iconKey",
                 "headers": [],
                 "assertions": [
                   {
@@ -656,15 +1377,15 @@
                     "value": "404"
                   },
                   {
+                    "comparison": "LengthEqual",
+                    "subject": "ResponseJsonBody",
+                    "path": "$.",
+                    "value": "2"
+                  },
+                  {
                     "comparison": "Equals",
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
-                    "value": "ICON_MISSING"
-                  },
-                  {
-                    "comparison": "Exists",
-                    "subject": "ResponseJsonBody",
-                    "path": "$.description",
                     "value": "ICON_MISSING"
                   }
                 ]
@@ -699,7 +1420,7 @@
                 },
                 "description": "The call with wrong id parameter",
                 "id": "e1b33e45-2d28-49fc-ac5f-b0384994f569",
-                "name": "component/icon/custom - error - wrong familyId and iconKey",
+                "name": "component/icon/custom - error -wrong familyId and iconKey",
                 "headers": [],
                 "assertions": [
                   {
@@ -709,9 +1430,9 @@
                     "value": "404"
                   },
                   {
-                    "comparison": "Exists",
+                    "comparison": "LengthEqual",
                     "subject": "ResponseJsonBody",
-                    "path": "$.description",
+                    "path": "$.",
                     "value": "2"
                   },
                   {
@@ -719,59 +1440,6 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
                     "value": "FAMILY_MISSING"
-                  }
-                ]
-              }
-            },
-            {
-              "entity": {
-                "type": "Request",
-                "method": {
-                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                  "name": "GET"
-                },
-                "body": {
-                  "formBody": {
-                    "overrideContentType": true,
-                    "encoding": "application/x-www-form-urlencoded",
-                    "items": []
-                  },
-                  "bodyType": "Text"
-                },
-                "uri": {
-                  "query": {
-                    "delimiter": "&",
-                    "items": []
-                  },
-                  "scheme": {
-                    "name": "http",
-                    "version": "V11"
-                  },
-                  "host": "${\"server-ip\"}:${\"server-port\"}",
-                  "path": "/api/v1/component/icon/custom/${family_id}/wrong_iconKey"
-                },
-                "description": "The call with wrong iconKey parameter",
-                "id": "954593e7-de37-469c-a8e9-9d592f83cf86",
-                "name": "component/icon/custom - error - wrong iconKey",
-                "headers": [],
-                "assertions": [
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseStatus",
-                    "path": "code",
-                    "value": "404"
-                  },
-                  {
-                    "comparison": "Exists",
-                    "subject": "ResponseJsonBody",
-                    "path": "$.description",
-                    "value": "2"
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseJsonBody",
-                    "path": "$.code",
-                    "value": "ICON_MISSING"
                   }
                 ]
               }
@@ -783,7 +1451,7 @@
             "type": "Service",
             "description": "",
             "id": "a9545f63-6b19-484d-9479-feabfd10cefa",
-            "name": "component - icon/family - theme connector"
+            "name": "component - icon/family"
           },
           "children": [
             {
@@ -819,7 +1487,7 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/family/${\"family_id\"}"
                 },
-                "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG",
+                "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG\n* theme files provided\n* legacy files provided",
                 "id": "4a5ae95c-ccc0-48bb-b9a9-26b62ce282be",
                 "name": "component/icon/family - PNG and SVG - dark",
                 "headers": [],
@@ -840,7 +1508,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "5032"
+                    "value": "5087"
                   }
                 ]
               }
@@ -872,7 +1540,7 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/family/${\"family_id\"}"
                 },
-                "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG",
+                "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG\n* theme files provided\n* legacy files provided",
                 "id": "e8d05502-2fbc-45d5-a700-1fc934d880c5",
                 "name": "component/icon/family - PNG and SVG - default theme",
                 "headers": [],
@@ -893,7 +1561,7 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "4138"
+                    "value": "4193"
                   }
                 ]
               }
@@ -931,7 +1599,7 @@
                   "host": "${\"server-ip\"}:${\"server-port\"}",
                   "path": "/api/v1/component/icon/family/${\"family_id\"}"
                 },
-                "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG",
+                "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG\n* theme files provided\n* legacy files provided",
                 "id": "bd768be4-5eef-4bb3-8e3a-420eeafedb8a",
                 "name": "component/icon/family - PNG and SVG - light",
                 "headers": [],
@@ -952,7 +1620,66 @@
                     "comparison": "Equals",
                     "subject": "ResponseBody",
                     "path": "length",
-                    "value": "4138"
+                    "value": "4193"
+                  }
+                ]
+              }
+            },
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": [
+                      {
+                        "enabled": true,
+                        "name": "theme",
+                        "value": "non_existing_theme"
+                      }
+                    ]
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/family/${\"family_id\"}"
+                },
+                "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG\n* theme files provided\n* legacy files provided",
+                "id": "7502fc69-80e2-415c-9499-b1d9afe9ee41",
+                "name": "component/icon/family - PNG and SVG - non existing theme fall back to legacy",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/svg+xml"
+                  },
+                  {
+                    "comparison": "Less",
+                    "subject": "ResponseBody",
+                    "path": "length",
+                    "value": "3200"
                   }
                 ]
               }
@@ -1028,65 +1755,6 @@
                 "uri": {
                   "query": {
                     "delimiter": "&",
-                    "items": [
-                      {
-                        "enabled": true,
-                        "name": "theme",
-                        "value": "non_existing_theme"
-                      }
-                    ]
-                  },
-                  "scheme": {
-                    "name": "http",
-                    "version": "V11"
-                  },
-                  "host": "${\"server-ip\"}:${\"server-port\"}",
-                  "path": "/api/v1/component/icon/family/${\"family_id\"}"
-                },
-                "description": "The call with a non existing theme",
-                "id": "7502fc69-80e2-415c-9499-b1d9afe9ee41",
-                "name": "component/icon/family - error - non existing theme 404",
-                "headers": [],
-                "assertions": [
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseStatus",
-                    "path": "code",
-                    "value": "404"
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseHeader",
-                    "path": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseJsonBody",
-                    "path": "$.code",
-                    "value": "ICON_MISSING"
-                  }
-                ]
-              }
-            },
-            {
-              "entity": {
-                "type": "Request",
-                "method": {
-                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                  "name": "GET"
-                },
-                "body": {
-                  "formBody": {
-                    "overrideContentType": true,
-                    "encoding": "application/x-www-form-urlencoded",
-                    "items": []
-                  },
-                  "bodyType": "Text"
-                },
-                "uri": {
-                  "query": {
-                    "delimiter": "&",
                     "items": []
                   },
                   "scheme": {
@@ -1118,125 +1786,6 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
                     "value": "FAMILY_MISSING"
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "entity": {
-            "type": "Service",
-            "id": "732622da-8bdc-4648-b038-dd2688846cae",
-            "name": "component - icon/index"
-          },
-          "children": [
-            {
-              "entity": {
-                "type": "Request",
-                "method": {
-                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-                  "name": "GET"
-                },
-                "body": {
-                  "formBody": {
-                    "overrideContentType": true,
-                    "encoding": "application/x-www-form-urlencoded",
-                    "items": []
-                  },
-                  "bodyType": "Text"
-                },
-                "uri": {
-                  "query": {
-                    "delimiter": "&",
-                    "items": []
-                  },
-                  "scheme": {
-                    "name": "http",
-                    "version": "V11"
-                  },
-                  "host": "${\"server-ip\"}:${\"server-port\"}",
-                  "path": "/api/v1/component/icon/index"
-                },
-                "description": "TODO https://jira.talendforge.org/browse/TCOMP-2737 to be improved  ",
-                "id": "242ea807-a063-4a8e-83a9-fad3e7a24934",
-                "name": "component/icon/index",
-                "headers": [],
-                "assertions": [
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseStatus",
-                    "path": "code",
-                    "value": "200"
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseHeader",
-                    "path": "Content-Type",
-                    "value": "image/svg+xml"
-                  },
-                  {
-                    "comparison": "Contains",
-                    "subject": "ResponseXmlBody",
-                    "enabled": true,
-                    "path": "/",
-                    "value": "symbol"
-                  },
-                  {
-                    "comparison": "Matches",
-                    "subject": "ResponseBody",
-                    "enabled": true,
-                    "path": "content",
-                    "value": "^<svg "
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/svg",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/@data-connector",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/@data-type",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/@data-theme",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/@id",
-                    "value": ""
-                  },
-                  {
-                    "comparison": "Equals",
-                    "subject": "ResponseXmlBody",
-                    "enabled": false,
-                    "path": "/svg/symbol[1]/svg",
-                    "value": ""
                   }
                 ]
               }
