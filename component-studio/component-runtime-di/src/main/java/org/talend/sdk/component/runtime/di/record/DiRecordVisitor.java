@@ -308,7 +308,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
 
         try {
-            if (field.getType().getName().equals("routines.system.Document")) {
+            if (routines.system.Document.class == field.getType()) {
                 log.trace("[setField] Document#{}.", entry.getName());
                 field.set(instance, ParserUtils.parseTo_Document(value.toString()));
                 return;
