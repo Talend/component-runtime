@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is here [component/icon](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/icon) [component/icon/family](https://talend.github.io/component-runtime/main/latest/rest-openapi.html#/Component/familyIcon) \nAction documentation is [here for schema](https://talend.github.io/component-runtime/main/latest/services-actions.html#_schema)\n\nSet of demo icon rules:  \n* light contain green\n* dark contain grey\n* legacy b&w\n\nSet of demo icon content:  \n* family\n  * contains svg and png icon\n  * present in dark and light theme and legacy\n* mapper\n  * contains ONLY svg \n  * present in dark and light theme and legacy\n* output\n  * contains ONLY png\n  * present in dark and light theme and legacy\n* input\n  * contains ONLY png\n  * not present in theme only in legacy\n",
-        "id": "7c00913e-590f-4071-8a9f-3d722888a551",
+        "id": "4ce1e8fa-dcec-48b2-8a81-d65c545828a0",
         "name": "tck-component-icon-api-test"
       },
       "children": [
@@ -13,7 +13,7 @@
           "entity": {
             "type": "Service",
             "description": "",
-            "id": "973f05fd-9328-4297-a695-2d7713d97613",
+            "id": "9a12725c-ae49-4285-9a8d-0e71674b207c",
             "name": "component - icon"
           },
           "children": [
@@ -51,7 +51,7 @@
                   "path": "/api/v1/component/icon/${\"output_id\"}"
                 },
                 "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
-                "id": "f75fafdd-8a53-4466-b735-dd5d7ba3fd4b",
+                "id": "9c0811ab-671c-406c-aab1-4e9df5ea066b",
                 "name": "component/icon - PNG - dark",
                 "headers": [],
                 "assertions": [
@@ -104,7 +104,7 @@
                   "path": "/api/v1/component/icon/${\"output_id\"}"
                 },
                 "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
-                "id": "8019523b-1075-4c3a-b677-e00ee45a6f06",
+                "id": "5cc62b40-d1b1-4087-9e0e-14140b568ef0",
                 "name": "component/icon - PNG - default theme",
                 "headers": [],
                 "assertions": [
@@ -163,7 +163,7 @@
                   "path": "/api/v1/component/icon/${\"output_id\"}"
                 },
                 "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
-                "id": "fb0e98a6-23e8-4d35-9791-f032997a4ae4",
+                "id": "e16f7728-9078-43fd-8987-68021751e752",
                 "name": "component/icon - PNG - light",
                 "headers": [],
                 "assertions": [
@@ -222,7 +222,7 @@
                   "path": "/api/v1/component/icon/${\"output_id\"}"
                 },
                 "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided\n\nNon existing theme / legacy on / legacy icon exists -> legacy icon",
-                "id": "46ab8df1-2256-43fc-9117-89ed8c197038",
+                "id": "0d3fe096-83d5-4d9f-81b8-d378b6311662",
                 "name": "component/icon - PNG - non existing theme fall back to legacy",
                 "headers": [],
                 "assertions": [
@@ -281,7 +281,7 @@
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
                 "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
-                "id": "20c69138-ec6d-4d7c-ae53-d38ee9a72077",
+                "id": "b350e7d0-3d88-4010-9723-7f6ab946e9c2",
                 "name": "component/icon - SVG - dark",
                 "headers": [],
                 "assertions": [
@@ -330,7 +330,7 @@
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
                 "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
-                "id": "fed0d4bb-2754-42a2-a2bc-2b64e993c556",
+                "id": "cb2898a3-6e0a-4f49-8a30-75a107246521",
                 "name": "component/icon - SVG - default theme",
                 "headers": [],
                 "assertions": [
@@ -389,7 +389,7 @@
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
                 "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
-                "id": "5332826d-a2fb-4d92-9c9c-6fd4e94755ed",
+                "id": "831343dd-1815-49aa-8d95-450edf7bf24e",
                 "name": "component/icon - SVG - light",
                 "headers": [],
                 "assertions": [
@@ -448,7 +448,7 @@
                   "path": "/api/v1/component/icon/${\"mapper_id\"}"
                 },
                 "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided\n\nNon existing theme / legacy on/ legacy icon exists -> 404\n",
-                "id": "f16905cb-84b8-4417-8ab3-5cb789a967a2",
+                "id": "8c6dcc66-222c-476a-8158-e581fd61dee7",
                 "name": "component/icon - SVG - non existing theme 404",
                 "headers": [],
                 "assertions": [
@@ -491,7 +491,7 @@
                   "path": "/api/v1/component/icon"
                 },
                 "description": "Expected: error 404 without body  \nThe call without providing id parameter",
-                "id": "a87c66e8-ddcc-4823-8f1c-0203ed13dca2",
+                "id": "b53bca05-d64b-4d4c-ad58-b24fd9f9bb8e",
                 "name": "component/icon - error - missing id",
                 "headers": [],
                 "assertions": [
@@ -534,7 +534,7 @@
                   "path": "/api/v1/component/icon/wrong_id"
                 },
                 "description": "Expected: error 404 with body  \nThe call with wrong id parameter",
-                "id": "0632c2ad-bf12-4830-9bcd-53903bba439d",
+                "id": "ff287644-baeb-4ff8-9f59-53a92b9650be",
                 "name": "component/icon - error - wrong id",
                 "headers": [],
                 "assertions": [
@@ -564,7 +564,7 @@
         {
           "entity": {
             "type": "Service",
-            "id": "257af96b-cc7e-445d-98e4-aaaf6ffd66d6",
+            "id": "81a062e8-37e4-4c6a-852e-1c148bc81929",
             "name": "component - icon/custom"
           },
           "children": [
@@ -602,7 +602,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/output"
                 },
                 "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
-                "id": "ac9ed670-39b2-4bdf-b32c-7e4d9d8ca04a",
+                "id": "2f83d2f9-8c70-4026-adf3-40137b237de9",
                 "name": "component/icon/custom - PNG - dark",
                 "headers": [],
                 "assertions": [
@@ -655,7 +655,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/output"
                 },
                 "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
-                "id": "4548ae2c-71f1-4865-ab60-862e9b3f160a",
+                "id": "56de9f18-361d-4740-a329-0a590d141e46",
                 "name": "component/icon/custom - PNG - default theme",
                 "headers": [],
                 "assertions": [
@@ -714,7 +714,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/output"
                 },
                 "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided",
-                "id": "16300019-f905-4fee-aa7c-cf111d29159e",
+                "id": "13265f8d-fb21-43a2-856f-6ceb36296d3c",
                 "name": "component/icon/custom - PNG - light",
                 "headers": [],
                 "assertions": [
@@ -773,7 +773,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/input"
                 },
                 "description": "Check the input icon to validate parameter `talend.component.server.icon.theme.legacy`  \n* only one PNG image defined\n* no theme files provided\n* legacy files provided\n\nFall back on legacy icon location",
-                "id": "623b5e03-6903-4859-b82e-15d921b81ee1",
+                "id": "56ea03bf-4816-4242-b81a-c389ec20dcde",
                 "name": "component/icon/custom - PNG - no theme provided - dark",
                 "headers": [],
                 "assertions": [
@@ -822,7 +822,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/input"
                 },
                 "description": "Check the input icon to validate parameter `talend.component.server.icon.theme.legacy`  \n* only one PNG image defined\n* no theme files provided\n* legacy files provided\n\nFall back on legacy icon location",
-                "id": "122d40f8-627e-4590-a0e5-d4f7e6248d01",
+                "id": "3d61fe5c-f988-4785-af00-0440aeaea278",
                 "name": "component/icon/custom - PNG - no theme provided - default theme",
                 "headers": [],
                 "assertions": [
@@ -881,7 +881,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/input"
                 },
                 "description": "Check the input icon to validate parameter `talend.component.server.icon.theme.legacy`  \n* only one PNG image defined\n* no theme files provided\n* legacy files provided\n\nFall back on legacy icon location",
-                "id": "5c29ed8f-5b4a-4f59-b0ac-97987d5ef0dd",
+                "id": "379dcb54-330e-44bf-84bb-2c67f7b7d001",
                 "name": "component/icon/custom - PNG - no theme provided - light",
                 "headers": [],
                 "assertions": [
@@ -940,7 +940,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/output"
                 },
                 "description": "Check the output icon   \n* only one PNG image defined\n* theme files provided\n* legacy files provided\n\nNon existing theme / legacy on / legacy icon exists -> legacy icon",
-                "id": "cfeb94eb-604a-4a63-b197-8239095f3065",
+                "id": "196e1ce3-e5ef-4309-961e-8807102a693e",
                 "name": "component/icon/custom - PNG - non existing theme fall back to legacy",
                 "headers": [],
                 "assertions": [
@@ -999,7 +999,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/mapper"
                 },
                 "description": "Check the mapper icon\n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
-                "id": "616169ac-278e-4017-b067-aa68efe04f02",
+                "id": "ffadb9a4-59f5-48b3-8bba-4d5f2498bfdd",
                 "name": "component/icon/custom - SVG - dark",
                 "headers": [],
                 "assertions": [
@@ -1052,7 +1052,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/mapper"
                 },
                 "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
-                "id": "82216282-6fad-4937-9913-eab52773c54e",
+                "id": "c496c781-914b-4771-8efc-4624d3b050e4",
                 "name": "component/icon/custom - SVG - default theme",
                 "headers": [],
                 "assertions": [
@@ -1111,7 +1111,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/mapper"
                 },
                 "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided",
-                "id": "cd2849cd-f4fc-4286-a71d-e0c45c30f93f",
+                "id": "f4b0fffc-3f0c-43f8-9a67-b42efa75973c",
                 "name": "component/icon/custom - SVG - light",
                 "headers": [],
                 "assertions": [
@@ -1170,7 +1170,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/mapper"
                 },
                 "description": "Check the mapper icon   \n* only one SVG image defined\n* theme files provided\n* legacy files not provided\n\nNon existing theme / legacy on / legacy icon exists -> 404",
-                "id": "5877fbcc-71d0-45a2-a0cd-3963b8447908",
+                "id": "e38ccf6b-d94d-4df5-b7a9-f0c075066935",
                 "name": "component/icon/custom - SVG - non existing theme 404",
                 "headers": [],
                 "assertions": [
@@ -1217,7 +1217,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/family"
                 },
                 "description": "Check the family icon   \n* has PNG and SVG image provided\n* theme files provided\n* legacy files not provided",
-                "id": "1924e1aa-365c-46f4-bf33-bb34333435eb",
+                "id": "bd481682-d77f-4a66-ade4-c1f204da9e3e",
                 "name": "component/icon/custom - SVG priority - default theme",
                 "headers": [],
                 "assertions": [
@@ -1266,7 +1266,7 @@
                   "path": "/api/v1/component/icon/custom"
                 },
                 "description": "The call without providing familyId and iconKey",
-                "id": "fd4bee2f-e2d9-4ade-a452-9b3c8137705f",
+                "id": "260a2bbe-4583-42d3-9065-81db6bc6ac81",
                 "name": "component/icon/custom - error - missing familyId and iconKey",
                 "headers": [],
                 "assertions": [
@@ -1319,7 +1319,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}"
                 },
                 "description": "The call without providing iconKey parameter",
-                "id": "afefd585-1c84-4e12-adc0-18452a5b5eef",
+                "id": "735bca98-5207-4f83-926b-6abac7a15135",
                 "name": "component/icon/custom - error - missing iconKey",
                 "headers": [],
                 "assertions": [
@@ -1366,7 +1366,7 @@
                   "path": "/api/v1/component/icon/custom/${family_id}/wrong_iconKey"
                 },
                 "description": "The call with wrong iconKey parameter",
-                "id": "5d762280-5f8c-427c-944a-f53a7d72ea43",
+                "id": "954593e7-de37-469c-a8e9-9d592f83cf86",
                 "name": "component/icon/custom - error - wrong iconKey",
                 "headers": [],
                 "assertions": [
@@ -1419,7 +1419,7 @@
                   "path": "/api/v1/component/icon/custom/wrong_familyId/wrong_iconKey"
                 },
                 "description": "The call with wrong id parameter",
-                "id": "0787ff15-16dc-42f4-959d-d0fae5a71b93",
+                "id": "e1b33e45-2d28-49fc-ac5f-b0384994f569",
                 "name": "component/icon/custom - error -wrong familyId and iconKey",
                 "headers": [],
                 "assertions": [
@@ -1450,7 +1450,7 @@
           "entity": {
             "type": "Service",
             "description": "",
-            "id": "94c5f798-55f7-42b6-ada4-03adc3e2de7d",
+            "id": "a9545f63-6b19-484d-9479-feabfd10cefa",
             "name": "component - icon/family"
           },
           "children": [
@@ -1488,7 +1488,7 @@
                   "path": "/api/v1/component/icon/family/${\"family_id\"}"
                 },
                 "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG\n* theme files provided\n* legacy files provided",
-                "id": "26966223-f9bd-45b5-82d4-d3f5f37297fa",
+                "id": "4a5ae95c-ccc0-48bb-b9a9-26b62ce282be",
                 "name": "component/icon/family - PNG and SVG - dark",
                 "headers": [],
                 "assertions": [
@@ -1541,7 +1541,7 @@
                   "path": "/api/v1/component/icon/family/${\"family_id\"}"
                 },
                 "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG\n* theme files provided\n* legacy files provided",
-                "id": "80085a14-868c-4232-a4af-50529d492903",
+                "id": "e8d05502-2fbc-45d5-a700-1fc934d880c5",
                 "name": "component/icon/family - PNG and SVG - default theme",
                 "headers": [],
                 "assertions": [
@@ -1600,7 +1600,7 @@
                   "path": "/api/v1/component/icon/family/${\"family_id\"}"
                 },
                 "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG\n* theme files provided\n* legacy files provided",
-                "id": "87708c66-6caf-467f-93e0-d8fe8fff8692",
+                "id": "bd768be4-5eef-4bb3-8e3a-420eeafedb8a",
                 "name": "component/icon/family - PNG and SVG - light",
                 "headers": [],
                 "assertions": [
@@ -1659,7 +1659,7 @@
                   "path": "/api/v1/component/icon/family/${\"family_id\"}"
                 },
                 "description": "Check the family icon  \n* SVG and PNG image defined\n* priority to SVG\n* theme files provided\n* legacy files provided",
-                "id": "a57c00ee-45a0-4283-92a2-cb2e70a22743",
+                "id": "7502fc69-80e2-415c-9499-b1d9afe9ee41",
                 "name": "component/icon/family - PNG and SVG - non existing theme fall back to legacy",
                 "headers": [],
                 "assertions": [
@@ -1712,7 +1712,7 @@
                   "path": "/api/v1/component/icon/family"
                 },
                 "description": "The call without providing id parameter",
-                "id": "4375e42b-340d-4c8a-8ea6-0b69d7c96b7f",
+                "id": "0dd876d2-1869-4072-adeb-94a8fb2135b9",
                 "name": "component/icon/family - error - missing id",
                 "headers": [],
                 "assertions": [
@@ -1765,7 +1765,7 @@
                   "path": "/api/v1/component/icon/family/unknow_identifier"
                 },
                 "description": "The call with wrong id parameter",
-                "id": "e4409a07-e5cd-466e-abd0-c08b416f7052",
+                "id": "e3fcbbe6-a8d5-451f-bcbb-e8e6ef218781",
                 "name": "component/icon/family - error - wrong id",
                 "headers": [],
                 "assertions": [
@@ -1786,6 +1786,125 @@
                     "subject": "ResponseJsonBody",
                     "path": "$.code",
                     "value": "FAMILY_MISSING"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "entity": {
+            "type": "Service",
+            "id": "732622da-8bdc-4648-b038-dd2688846cae",
+            "name": "component - icon/index"
+          },
+          "children": [
+            {
+              "entity": {
+                "type": "Request",
+                "method": {
+                  "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+                  "name": "GET"
+                },
+                "body": {
+                  "formBody": {
+                    "overrideContentType": true,
+                    "encoding": "application/x-www-form-urlencoded",
+                    "items": []
+                  },
+                  "bodyType": "Text"
+                },
+                "uri": {
+                  "query": {
+                    "delimiter": "&",
+                    "items": []
+                  },
+                  "scheme": {
+                    "name": "http",
+                    "version": "V11"
+                  },
+                  "host": "${\"server-ip\"}:${\"server-port\"}",
+                  "path": "/api/v1/component/icon/index"
+                },
+                "description": "TODO https://jira.talendforge.org/browse/TCOMP-2737 to be improved  ",
+                "id": "242ea807-a063-4a8e-83a9-fad3e7a24934",
+                "name": "component/icon/index",
+                "headers": [],
+                "assertions": [
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseStatus",
+                    "path": "code",
+                    "value": "200"
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseHeader",
+                    "path": "Content-Type",
+                    "value": "image/svg+xml"
+                  },
+                  {
+                    "comparison": "Contains",
+                    "subject": "ResponseXmlBody",
+                    "enabled": true,
+                    "path": "/",
+                    "value": "symbol"
+                  },
+                  {
+                    "comparison": "Matches",
+                    "subject": "ResponseBody",
+                    "enabled": true,
+                    "path": "content",
+                    "value": "^<svg "
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseXmlBody",
+                    "enabled": false,
+                    "path": "/svg/symbol",
+                    "value": ""
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseXmlBody",
+                    "enabled": false,
+                    "path": "/svg/symbol[1]/svg",
+                    "value": ""
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseXmlBody",
+                    "enabled": false,
+                    "path": "/svg/symbol[1]/@data-connector",
+                    "value": ""
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseXmlBody",
+                    "enabled": false,
+                    "path": "/svg/symbol[1]/@data-type",
+                    "value": ""
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseXmlBody",
+                    "enabled": false,
+                    "path": "/svg/symbol[1]/@data-theme",
+                    "value": ""
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseXmlBody",
+                    "enabled": false,
+                    "path": "/svg/symbol[1]/@id",
+                    "value": ""
+                  },
+                  {
+                    "comparison": "Equals",
+                    "subject": "ResponseXmlBody",
+                    "enabled": false,
+                    "path": "/svg/symbol[1]/svg",
+                    "value": ""
                   }
                 ]
               }
