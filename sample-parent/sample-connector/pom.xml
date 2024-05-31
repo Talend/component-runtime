@@ -92,10 +92,28 @@
             </goals>
             <phase>process-classes</phase>
             <configuration>
-              <validateModel>true</validateModel>
               <validatePlaceholder>true</validatePlaceholder>
+              <validateSvg>true</validateSvg>
+              <validateLegacyIcons>false</validateLegacyIcons> <!-- needed because this connector is use theme icons. -->
+              <validateFamily>true</validateFamily>
+              <validateSerializable>true</validateSerializable>
+              <validateInternationalization>true</validateInternationalization>
+              <validateModel>true</validateModel>
+              <validateMetadata>true</validateMetadata>
+              <validateComponent>true</validateComponent>
+              <validateDataStore>true</validateDataStore>
+              <validateDataSet>true</validateDataSet>
+              <validateActions>true</validateActions>
               <validateDocumentation>true</validateDocumentation>
               <validateWording>true</validateWording>
+              <validateLayout>true</validateLayout>
+              <validateOptionNames>true</validateOptionNames>
+              <validateOutputConnection>true</validateOutputConnection>
+              <validateLocalConfiguration>true</validateLocalConfiguration>
+              <validateNoFinalOption>true</validateNoFinalOption>
+              <validateExceptions>true</validateExceptions>
+              <validateRecord>true</validateRecord>
+              <validateSchema>true</validateSchema>
               <failOnValidateExceptions>true</failOnValidateExceptions>
             </configuration>
           </execution>
