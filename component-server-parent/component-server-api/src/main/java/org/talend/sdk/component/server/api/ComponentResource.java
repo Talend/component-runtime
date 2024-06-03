@@ -17,7 +17,6 @@ package org.talend.sdk.component.server.api;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-import static javax.ws.rs.core.MediaType.APPLICATION_SVG_XML;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.PATH;
 import static org.eclipse.microprofile.openapi.annotations.enums.ParameterIn.QUERY;
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.OBJECT;
@@ -54,6 +53,8 @@ import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "Component", description = "Endpoints related to component metadata access.")
 public interface ComponentResource {
+
+    String IMAGE_SVG_XML = "image/svg+xml";
 
     @GET
     @Path("dependencies")
@@ -159,10 +160,10 @@ public interface ComponentResource {
 
     @GET
     @Path("icon/index")
-    @Produces({ APPLICATION_JSON, APPLICATION_SVG_XML })
+    @Produces({ APPLICATION_JSON, IMAGE_SVG_XML })
     @Operation(description = "Returns list of available svg icons.")
     @APIResponse(responseCode = "200", description = "The icon list.",
-            content = @Content(mediaType = APPLICATION_SVG_XML))
+            content = @Content(mediaType = IMAGE_SVG_XML))
     @APIResponse(responseCode = "404", description = "No icon found.", content = @Content(mediaType = APPLICATION_JSON))
     Response getIconIndex(
             @QueryParam("theme") @Parameter(name = "theme",
