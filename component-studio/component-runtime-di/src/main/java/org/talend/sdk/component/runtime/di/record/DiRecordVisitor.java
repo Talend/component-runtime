@@ -28,6 +28,9 @@ import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
+import routines.system.Dynamic;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -71,6 +74,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private final Class<?> clazz;
 
+    private final Constructor<?> constructor;
+
     private Object instance;
 
     private final Map<String, Field> fields;
@@ -97,45 +102,42 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private boolean initDynamicMetadata = true;
 
-    private static final RecordService RECORD_SERVICE = RecordService.class
-            .cast(new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
+    private static final RecordService RECORD_SERVICE =
+            new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
                             .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null, null));
+                                    RecordService.class, null, null);
 
     DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;
         try {
-            instance = clazz.getConstructor().newInstance();
-            fields = Arrays.stream(instance.getClass().getFields()).collect(toMap(Field::getName, identity()));
-            hasDynamic = fields
-                    .values()
-                    .stream()
-                    .anyMatch(field -> "routines.system.Dynamic".equals(field.getType().getName()));
-            dynamicColumn = fields
-                    .values()
-                    .stream()
-                    .filter(field -> "routines.system.Dynamic".equals(field.getType().getName()))
-                    .map(Field::getName)
-                    .findAny()
-                    .orElse(null);
-            if (hasDynamic) {
-                dynamic = new DynamicWrapper();
-            } else {
-                dynamic = null;
-            }
-            log
-                    .trace("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn,
-                            metadata);
-            dynamicColumnLength = Integer.valueOf(metadata.getOrDefault(SIZE, "-1"));
-            dynamicColumnPrecision = Integer.valueOf(metadata.getOrDefault(SCALE, "-1"));
-            dynamicColumnPattern = metadata.getOrDefault(PATTERN, "yyyy-MM-dd");
-        } catch (final NoSuchMethodException | IllegalAccessException | InstantiationException
-                | InvocationTargetException e) {
+            constructor = clzz.getConstructor();
+        } catch (NoSuchMethodException e) {
             throw new IllegalStateException(e);
         }
+        fields = Arrays.stream(clazz.getFields()).collect(toMap(Field::getName, identity()));
+        hasDynamic = fields
+                .values()
+                .stream()
+                .anyMatch(field -> "routines.system.Dynamic".equals(field.getType().getName()));
+        dynamicColumn = fields
+                .values()
+                .stream()
+                .filter(field -> "routines.system.Dynamic".equals(field.getType().getName()))
+                .map(Field::getName)
+                .findAny()
+                .orElse(null);
+        if (hasDynamic) {
+            dynamic = new DynamicWrapper();
+        } else {
+            dynamic = null;
+        }
+        log.trace("[DiRecordVisitor] {} dynamic? {} ({} {}).", clazz.getName(), hasDynamic, dynamicColumn, metadata);
+        dynamicColumnLength = Integer.parseInt(metadata.getOrDefault(SIZE, "-1"));
+        dynamicColumnPrecision = Integer.parseInt(metadata.getOrDefault(SCALE, "-1"));
+        dynamicColumnPattern = metadata.getOrDefault(PATTERN, "yyyy-MM-dd");
     }
 
     private boolean allowSpecialName;
@@ -144,16 +146,23 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         arrayOfRecordPrefix = "";
         recordPrefix = "";
         try {
-            instance = clazz.getConstructor().newInstance();
-        } catch (final InstantiationException | InvocationTargetException | NoSuchMethodException
-                | IllegalAccessException e) {
+            instance = constructor.newInstance();
+        } catch (final InstantiationException | InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
         if (hasDynamic) {
-            dynamic.getDynamic().clearColumnValues();
-            int count = dynamic.getDynamic().getColumnCount();
+            // for each record we need to have a separate dynamic instance
+            // (otherwise we share the same values between different rows)
+            final Dynamic studioDynamic = new Dynamic();
+            studioDynamic.setDbmsId(dynamic.getDynamic().getDbmsId());
+            // re-use metadata
+            studioDynamic.metadatas = dynamic.getDynamic().metadatas;
+            dynamic.setDynamic(studioDynamic);
+
+            // set null values
+            int count = studioDynamic.getColumnCount();
             for (int i = 0; i < count; i++) {
-                dynamic.getDynamic().addColumnValue(null);
+                studioDynamic.addColumnValue(null);
             }
         }
 
@@ -162,37 +171,39 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
             recordFieldsMap = new HashMap<>();
 
-            recordFields =
-                    record.getSchema().getAllEntries().filter(t -> t.getType().equals(Type.RECORD)).map(rcdEntry -> {
+            recordFields = record.getSchema()
+                    .getAllEntries()
+                    .filter(t -> t.getType().equals(Type.RECORD))
+                    .map(rcdEntry -> {
                         final String root = rcdEntry.getName() + ".";
                         final List<String> names = new ArrayList<>();
                         rcdEntry.getElementSchema()
                                 .getAllEntries()
                                 .filter(e -> e.getType().equals(Type.RECORD))
-                                .map(sr -> {
+                                .forEach(sr -> {
                                     final String sub = root + sr.getName() + ".";
-                                    return sr
+                                    sr
                                             .getElementSchema()
                                             .getAllEntries()
                                             .map(entry -> sub + entry.getName())
-                                            .collect(Collectors.toList());
-                                })
-                                .forEach(l -> l.stream().forEach(m -> names.add(m)));
+                                            .forEach(names::add);
+                                });
                         rcdEntry
                                 .getElementSchema()
                                 .getAllEntries()
                                 .filter(e -> !e.getType().equals(Type.RECORD))
                                 .map(entry -> root + entry.getName())
-                                .forEach(sre -> names.add(sre));
+                                .forEach(names::add);
                         return names;
-                    }).flatMap(liststream -> liststream.stream()).collect(Collectors.toSet());
-            recordFields
-                    .addAll(record
-                            .getSchema()
-                            .getAllEntries()
-                            .filter(t -> !t.getType().equals(Type.RECORD))
-                            .map(entry -> entry.getName())
-                            .collect(Collectors.toSet()));
+                    })
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+            record
+                    .getSchema()
+                    .getAllEntries()
+                    .filter(t -> !t.getType().equals(Type.RECORD))
+                    .map(Entry::getName)
+                    .forEach(recordFields::add);
 
             prefillDynamic(record.getSchema());
             initDynamicMetadata = false;
