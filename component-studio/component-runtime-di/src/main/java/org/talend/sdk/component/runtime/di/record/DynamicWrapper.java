@@ -18,9 +18,7 @@ package org.talend.sdk.component.runtime.di.record;
 import routines.system.Dynamic;
 
 import lombok.Getter;
-import lombok.Setter;
 
-@Setter
 @Getter
 class DynamicWrapper {
 
@@ -31,6 +29,7 @@ class DynamicWrapper {
     }
 
     DynamicWrapper(final Object dynamic) {
-        this.dynamic = (Dynamic) dynamic;
+        this.dynamic = Dynamic.class.cast(dynamic);
     }
+
 }
