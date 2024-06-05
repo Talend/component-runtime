@@ -114,6 +114,11 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;
+        try {
+            constructor = clzz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
         fields = Arrays.stream(clazz.getFields()).collect(toMap(Field::getName, identity()));
         hasDynamic = fields
                 .values()
