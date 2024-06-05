@@ -462,6 +462,28 @@ class DiRecordVisitorTest extends VisitorsTest {
     }
 
     @Test
+    void documentWrongContent(){
+        final Record record = factory
+                .newRecordBuilder()
+                .withString("id", ":testing:")
+                .withString("name", NAME)
+                .with(factory.newEntryBuilder()
+                        .withName("document")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                        .build(), "wrong string")
+                .build();
+        //
+        final DiRecordVisitor visitor = new DiRecordVisitor(RowStruct.class, Collections.emptyMap());
+        try {
+            final RowStruct rowStruct = RowStruct.class.cast(visitor.visit(record));
+            Assert.fail("Should throw exception");
+        } catch (IllegalStateException e) {
+            assertEquals("org.dom4j.DocumentException: Error on line 1 of document  : Content is not allowed in prolog.", e.getMessage());
+        }
+    }
+
+    @Test
     void dynamicValuesArentOverwritten() {
         final String value1 = "value1";
         final String value2 = "value2";

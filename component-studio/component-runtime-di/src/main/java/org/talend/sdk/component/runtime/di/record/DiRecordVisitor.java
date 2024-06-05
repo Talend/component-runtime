@@ -325,7 +325,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
             field.set(instance, MappingUtils.coerce(field.getType(), value, entry.getName()));
         } catch (final IllegalAccessException | DocumentException e) {
-            log.trace("[setField] exception message: " + e.getMessage());
+            log.error("[setField] exception message: {}", e.getMessage());
             throw new IllegalStateException(e);
         }
     }
