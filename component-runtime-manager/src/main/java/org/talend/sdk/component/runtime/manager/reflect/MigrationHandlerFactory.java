@@ -74,7 +74,7 @@ public class MigrationHandlerFactory {
 
                     return (Function<Map<String, String>, Map<String, String>>) map -> buildMigrationFunction(p,
                             handler, p.getPath(), map,
-                            ofNullable(jType.getAnnotation(Version.class)).map(Version::value).orElse(-1));
+                            ofNullable(jType.getAnnotation(Version.class)).map(Version::value).orElse(1));
                 })
                 .filter(Objects::nonNull)
                 .reduce(NO_MIGRATION,
