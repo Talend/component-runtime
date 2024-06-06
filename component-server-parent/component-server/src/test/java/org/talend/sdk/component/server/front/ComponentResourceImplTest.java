@@ -619,7 +619,6 @@ class ComponentResourceImplTest {
         assertEquals(1, details.getDetails().size());
         final ComponentDetail detail = details.getDetails().iterator().next();
         assertEquals(1, detail.getProperties().size());
-        // assertEquals();
         assertThrows(IllegalArgumentException.class, () -> detail
                 .getProperties()
                 .stream()
