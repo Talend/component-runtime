@@ -75,7 +75,9 @@ class ConfigurationTypeResourceImplTest {
         assertEquals(1, index.getNodes().size());
         final ConfigTypeNode jdbcConnection = index.getNodes().get("amRiYy1jb21wb25lbnQjamRiYyNkYXRhc3RvcmUjamRiYw");
         assertNotNull(jdbcConnection);
-        assertEquals("[{\"description\":\"D1\",\"driver\":\"d1\"},{\"description\":\"D2\",\"driver\":\"d2\"}]",
+        assertEquals(
+                "[{\"dependencies\":[\"org.talend.db:zorglub:1.0:jar\"],\"description\":\"D1\",\"driver\":\"d1\"},{\"dependencies\":[\"org.talend.db:zorglub:1.0:jar\",\"a:b:1.0:jar\"],\"description\":\"D2\",\"driver\":\"d2\"}]",
+
                 jdbcConnection
                         .getProperties()
                         .stream()

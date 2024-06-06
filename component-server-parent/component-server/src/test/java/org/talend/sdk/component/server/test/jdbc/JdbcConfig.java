@@ -16,8 +16,11 @@
 package org.talend.sdk.component.server.test.jdbc;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.ui.widget.ModuleList;
+import org.talend.sdk.component.api.configuration.ui.widget.ReadOnly;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.AllArgsConstructor;
@@ -36,4 +39,10 @@ public class JdbcConfig implements Serializable {
     @Option
     @Documentation(value = "Documentation for description (jdbcconfig) doc.", tooltip = true)
     private String description;
+
+    @Option
+    @Documentation(value = "Documentation for dependencies (jdbcconfig) doc.", tooltip = true)
+    @ModuleList
+    @ReadOnly
+    private List<String> dependencies;
 }
