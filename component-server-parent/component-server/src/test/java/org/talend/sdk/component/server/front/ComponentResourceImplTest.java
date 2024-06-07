@@ -328,7 +328,7 @@ class ComponentResourceImplTest {
                 .accept(APPLICATION_SVG_XML_TYPE)
                 .get();
         assertNotNull(icons);
-        assertEquals(406,  icons.getStatus());
+        assertEquals(406, icons.getStatus());
         // inexistant theme (no fallback)
         icons = base.path("component/icon/index")
                 .queryParam("theme", "dak")
@@ -357,7 +357,8 @@ class ComponentResourceImplTest {
         assertTrue(content.contains(
                 "data-connector=\"standalone\" data-family=\"chain\" data-theme=\"light\" data-type=\"connector\" id=\"myicon-light\""));
         assertTrue(
-                content.contains("data-family=\"file\" data-theme=\"light\" data-type=\"family\" id=\"file-family-light\""));
+                content.contains(
+                        "data-family=\"file\" data-theme=\"light\" data-type=\"family\" id=\"file-family-light\""));
         // light theme
         content = base.path("component/icon/index")
                 .queryParam("theme", "light")
@@ -371,7 +372,8 @@ class ComponentResourceImplTest {
         assertTrue(content.contains(
                 "data-connector=\"standalone\" data-family=\"chain\" data-theme=\"light\" data-type=\"connector\" id=\"myicon-light\""));
         assertTrue(
-                content.contains("data-family=\"file\" data-theme=\"light\" data-type=\"family\" id=\"file-family-light\""));
+                content.contains(
+                        "data-family=\"file\" data-theme=\"light\" data-type=\"family\" id=\"file-family-light\""));
 
         // dark theme
         content = base.path("component/icon/index")
@@ -384,9 +386,11 @@ class ComponentResourceImplTest {
                 content.startsWith(
                         "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" data-theme=\"dark\" focusable=\"false\">"));
         assertTrue(content
-                .contains("data-connector=\"input\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
+                .contains(
+                        "data-connector=\"input\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
         assertTrue(content
-                .contains("data-connector=\"output\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
+                .contains(
+                        "data-connector=\"output\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
         // theme = all
         content = base.path("component/icon/index")
                 .queryParam("theme", "all")
@@ -399,13 +403,16 @@ class ComponentResourceImplTest {
                 content.startsWith(
                         "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"sr-only\" data-theme=\"all\" focusable=\"false\">"));
         assertTrue(content
-                .contains("data-connector=\"input\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
+                .contains(
+                        "data-connector=\"input\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
         assertTrue(content
-                .contains("data-connector=\"output\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
+                .contains(
+                        "data-connector=\"output\" data-family=\"jdbc\" data-theme=\"dark\" data-type=\"connector\" id=\"db-input-dark\""));
         assertTrue(content.contains(
                 "data-connector=\"standalone\" data-family=\"chain\" data-theme=\"light\" data-type=\"connector\" id=\"myicon-light\""));
         assertTrue(
-                content.contains("data-family=\"file\" data-theme=\"dark\" data-type=\"family\" id=\"file-family-dark\""));
+                content.contains(
+                        "data-family=\"file\" data-theme=\"dark\" data-type=\"family\" id=\"file-family-dark\""));
     }
 
     @Test
@@ -709,7 +716,7 @@ class ComponentResourceImplTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(12, index.getComponents().size());
+        assertEquals(13, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));

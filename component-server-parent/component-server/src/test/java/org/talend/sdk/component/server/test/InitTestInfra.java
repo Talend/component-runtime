@@ -199,6 +199,12 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             final String version = "0.0.1";
             createComponent(m2, groupId, artifactId, version, generator::createCustomPlugin);
         }
+        {
+            final String groupId = "org.talend.test";
+            final String artifactId = "migration-component";
+            final String version = "0.0.1";
+            createComponent(m2, groupId, artifactId, version, generator::createMigrationPlugin);
+        }
         if (Boolean.getBoolean("components.server.beam.active")) {
             final String groupId = System.getProperty("components.sample.beam.groupId");
             final String artifactId = System.getProperty("components.sample.beam.artifactId");
@@ -385,6 +391,30 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                 }
             });
         }
+
+        public File createMigrationPlugin(final File target) {
+            return createRepackaging(target, "org/talend/sdk/component/server/test/migration", out -> {
+                try {
+                    out.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
+                    out.closeEntry();
+                    out.putNextEntry(new JarEntry("org/talend/test/generated/migration_component/Messages.properties"));
+                    new Properties() {
+
+                        {
+                            put("migration.datastore.migration._displayName", "JDBC DataStore");
+                            put("migration.dataset.migration._displayName", "JDBC DataSet");
+                            put("migration.Database/migration/Standard._category", "DB/Std/Yes");
+                            put("migration.parameters.user.custom._displayName", "My Custom Action");
+                            put("org.talend.test.generated.jdbc_component.JdbcService$I18n.read", "God save the queen");
+                        }
+                    }.store(out, "i18n for the config types");
+
+                } catch (final IOException e) {
+                    fail(e.getMessage());
+                }
+            });
+        }
+
 
         private File createRepackaging(final File target, final String sourcePackage,
                 final Consumer<JarOutputStream> custom) {

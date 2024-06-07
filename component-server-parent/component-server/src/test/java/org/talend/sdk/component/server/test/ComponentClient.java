@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.server.front.model.ComponentIndices;
+import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 
 @ApplicationScoped
 public class ComponentClient {
@@ -36,6 +37,17 @@ public class ComponentClient {
                 .request(APPLICATION_JSON_TYPE)
                 .header("Accept-Encoding", "gzip")
                 .get(ComponentIndices.class);
+    }
+
+    public ConfigTypeNodes fetchConfigTypeNodes() {
+        return base
+                .path("configurationtype/index")
+                .queryParam("lightPayload", false)
+                .queryParam("query", "")
+                .queryParam("lang", "en")
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ConfigTypeNodes.class);
     }
 
     public String getComponentId(final String family, final String component) {
