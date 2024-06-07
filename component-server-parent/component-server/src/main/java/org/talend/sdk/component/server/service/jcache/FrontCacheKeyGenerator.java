@@ -17,7 +17,6 @@ package org.talend.sdk.component.server.service.jcache;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.cache.annotation.CacheInvocationParameter;
@@ -66,7 +65,7 @@ public class FrontCacheKeyGenerator implements CacheKeyGenerator {
                             headers.getHeaderString(HttpHeaders.ACCEPT_ENCODING));
         } catch (Exception e) {
             log.debug("[getContextualKeys] context not applicable: {}", e.getMessage());
-            return Stream.of(UUID.randomUUID());
+            return Stream.empty();
         }
     }
 
