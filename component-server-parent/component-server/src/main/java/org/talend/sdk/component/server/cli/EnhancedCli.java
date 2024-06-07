@@ -24,7 +24,10 @@ import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.meecrowave.Meecrowave;
 import org.apache.meecrowave.runner.Cli;
 
+import lombok.extern.slf4j.Slf4j;
+
 // utility to use into the studio, mainly to workaround JVM URL stream handler limitations
+@Slf4j
 public class EnhancedCli extends Cli implements AutoCloseable {
 
     private final String[] args;
@@ -63,6 +66,7 @@ public class EnhancedCli extends Cli implements AutoCloseable {
                 doWait(meecrowave, null);
             }
         } catch (final Exception e) {
+            log.error("[Meecrowave#run]", e);
             throw new IllegalStateException(e);
         }
     }
