@@ -1,0 +1,26 @@
+# list of excluded package names or full name either artifactID or groupID:ArtifactID
+excludedDeps: []
+# path to the build.gradle that will be used to build the project(s)
+gradleDepSpecs: []
+# relative path of the helm chart to be scanned
+helmDepSpecs: []
+# parent pom files
+mavenDepSpecs:
+  - pom.xml
+# yarn.lock files to scan
+yarnDepSpecs: []
+
+
+
+##example
+#excludedDeps:
+#  - packageA
+#  - groupB:PackageA
+#gradleDepSpecs:
+#  - build.gradle
+#helmDepSpecs:
+#  - data-preparation/tdp-api
+#mavenDepSpecs:
+#  - pom.xml
+#yarnDepSpecs:
+#  - yarn.lock
