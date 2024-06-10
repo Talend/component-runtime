@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (C) 2010-2024 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at https://www.talend.com/legal-terms/us-eula
+  ~
+  ~ You should have received a copy of the agreement along with this program; if not, write to Talend SAS
+  ~ 5 rue Salomon de Rothschild - 92150 Suresnes, France
+  ~
+  -->
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="
+            http://maven.apache.org/SETTINGS/1.0.0
+            https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>releases</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
+    <server>
+      <id>talend_nexus</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
+    <server>
+      <id>talend_nexus_deployment</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
+
+      <server>
+          <id>TalendOpenSourceRelease</id>
+          <username>${env.NEXUS_USER}</username>
+          <password>${env.NEXUS_PASSWORD}</password>
+          <configuration>
+              <timeout>30000</timeout>
+          </configuration>
+      </server>
+      <server>
+          <id>oss_releases</id>
+          <username>${env.NEXUS_USER}</username>
+          <password>${env.NEXUS_PASSWORD}</password>
+          <configuration>
+              <timeout>30000</timeout>
+          </configuration>
+      </server>
+    <server>
+      <id>oss_snapshots</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
+    <server>
+      <id>snapshots</id>
+      <username>${env.NEXUS_USER}</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+      <configuration>
+        <timeout>30000</timeout>
+      </configuration>
+    </server>
+  </servers>
+
+</settings>
