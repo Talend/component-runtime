@@ -29,6 +29,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
 import routines.system.Dynamic;
+import routines.system.ParserUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -54,6 +55,7 @@ import javax.json.bind.JsonbConfig;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
+import org.dom4j.DocumentException;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
@@ -307,44 +309,56 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
     private void setField(final Entry entry, final Object value) {
         final Field field = fields.get(entry.getName());
         if (hasDynamic && (field == null || dynamicColumn.equals(entry.getName()))) {
-            final String name;
-            if (allowSpecialName) {
-                name = entry.getOriginalFieldName();
-            } else {
-                name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
-                        .stream()
-                        .filter(f -> f.endsWith("." + key))
-                        .findFirst()
-                        .orElse(key));
-            }
-            int index = dynamic.getDynamic().getIndex(name);
-            final DynamicMetadataWrapper metadata;
-            if (index < 0) {
-                metadata = generateMetadata(entry);
-                dynamic.getDynamic().metadatas.add(metadata.getDynamicMetadata());
-                index = dynamic.getDynamic().getIndex(name);
-            } else {
-                metadata = new DynamicMetadataWrapper(dynamic.getDynamic().getColumnMetadata(index));
-            }
-
-            final Class<?> clazz = StudioTypes.classFromType(metadata.getDynamicMetadata().getType());
-            if (clazz != null) {
-                dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(clazz, value, name));
-            } else {
-                dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
-            }
-            log.trace("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(),
-                    value);
+            handleDynamic(entry, value);
             return;
         }
         if (field == null) {
             return;
         }
+
         try {
+            if (routines.system.Document.class == field.getType()) {
+                log.trace("[setField] Document#{}.", entry.getName());
+                field.set(instance, ParserUtils.parseTo_Document(value.toString()));
+                return;
+            }
+
             field.set(instance, MappingUtils.coerce(field.getType(), value, entry.getName()));
-        } catch (final IllegalAccessException e) {
+        } catch (final IllegalAccessException | DocumentException e) {
+            log.error("[setField] exception message: {}", e.getMessage());
             throw new IllegalStateException(e);
         }
+    }
+
+    private void handleDynamic(final Entry entry, final Object value) {
+        final String name;
+        if (allowSpecialName) {
+            name = entry.getOriginalFieldName();
+        } else {
+            name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
+                    .stream()
+                    .filter(f -> f.endsWith("." + key))
+                    .findFirst()
+                    .orElse(key));
+        }
+        int index = dynamic.getDynamic().getIndex(name);
+        final DynamicMetadataWrapper metadata;
+        if (index < 0) {
+            metadata = generateMetadata(entry);
+            dynamic.getDynamic().metadatas.add(metadata.getDynamicMetadata());
+            index = dynamic.getDynamic().getIndex(name);
+        } else {
+            metadata = new DynamicMetadataWrapper(dynamic.getDynamic().getColumnMetadata(index));
+        }
+
+        final Class<?> clazz = StudioTypes.classFromType(metadata.getDynamicMetadata().getType());
+        if (clazz != null) {
+            dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(clazz, value, name));
+        } else {
+            dynamic.getDynamic().setColumnValue(index, MappingUtils.coerce(value.getClass(), value, name));
+        }
+        log.trace("[setField] Dynamic#{}\t{}\t({})\t ==> {}.", index, name, metadata.getDynamicMetadata().getType(),
+                value);
     }
 
     @Override

@@ -468,6 +468,12 @@ class TaCoKitGuessSchemaTest {
                             .withProp(PATTERN, "dd/MM/YYYY")
                             .withElementSchema(factory.newSchemaBuilder(Schema.Type.RECORD).build())
                             .build())
+                    .withEntry(factory.newEntryBuilder()
+                            .withName("document")
+                            .withType(Schema.Type.RECORD)
+                            .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                            .withElementSchema(factory.newSchemaBuilder(Schema.Type.RECORD).build())
+                            .build())
                     .build();
 
             Map<String, String> config = new HashMap<>();
@@ -483,7 +489,7 @@ class TaCoKitGuessSchemaTest {
                     .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
                     .collect(joining("\n"));
             final String expected =
-                    "[{\"label\":\"name\",\"nullable\":false,\"originalDbColumnName\":\"name\",\"talendType\":\"id_String\"},{\"label\":\"bit\",\"nullable\":false,\"originalDbColumnName\":\"bit\",\"talendType\":\"id_Byte\"},{\"label\":\"dynamic\",\"nullable\":true,\"originalDbColumnName\":\"dynamic\",\"pattern\":\"\\\"dd/MM/YYYY\\\"\",\"talendType\":\"id_Dynamic\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
+                    "[{\"label\":\"name\",\"nullable\":false,\"originalDbColumnName\":\"name\",\"talendType\":\"id_String\"},{\"label\":\"bit\",\"nullable\":false,\"originalDbColumnName\":\"bit\",\"talendType\":\"id_Byte\"},{\"label\":\"dynamic\",\"nullable\":true,\"originalDbColumnName\":\"dynamic\",\"pattern\":\"\\\"dd/MM/YYYY\\\"\",\"talendType\":\"id_Dynamic\"},{\"label\":\"document\",\"nullable\":true,\"originalDbColumnName\":\"document\",\"talendType\":\"id_Document\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
             assertEquals(expected, lines);
             assertTrue(byteArrayOutputStream.size() > 0);
         }

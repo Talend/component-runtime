@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
@@ -33,6 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.dom4j.DocumentException;
+import org.dom4j.io.SAXReader;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -44,12 +48,20 @@ import org.talend.sdk.component.runtime.record.RecordImpl;
 
 import lombok.Getter;
 import lombok.ToString;
+import routines.system.Document;
 import routines.system.Dynamic;
 
 class DiRecordVisitorTest extends VisitorsTest {
 
     @Test
     void visit() {
+        SAXReader reader = new SAXReader();
+        try {
+            DOCUMENT.setDocument(reader.read(new File("src/test/resources/documentTest.xml")));
+        } catch (DocumentException e) {
+            Assert.fail("can not read the document file");
+        }
+
         final Record record = factory
                 .newRecordBuilder()
                 .withString("id", ":testing:")
@@ -120,12 +132,26 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.CHARACTER)
                         .build(), String.valueOf(Character.MAX_VALUE))
+                .withString(factory.newEntryBuilder()
+                        .withName("dynDocument")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                        .build(), DOCUMENT.toString())
                 .with(factory.newEntryBuilder()
                         .withName("dynObject")
                         .withType(Type.STRING)
                         .withProp(STUDIO_TYPE, StudioTypes.OBJECT)
                         .build(), OBJECT)
-
+                .with(factory.newEntryBuilder()
+                        .withName("document")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                        .build(), DOCUMENT)
+                .withString(factory.newEntryBuilder()
+                        .withName("documentFromString")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                        .build(), DOCUMENT.toString())
                 .withRecord("object0", RECORD)
                 .with(factory.newEntryBuilder()
                         .withName("object1")
@@ -234,6 +260,14 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertArrayEquals(BYTES1, rowStruct.bytes1);
         assertEquals(RECORD, rowStruct.object0);
         assertEquals(OBJECT, rowStruct.object1);
+
+        // asserts rowStruct::document
+        assertNotNull(rowStruct.document);
+        assertTrue(Document.class.isInstance(rowStruct.document));
+        assertEquals(DOCUMENT.toString(), rowStruct.document.toString());
+        assertNotNull(rowStruct.documentFromString);
+        assertEquals(DOCUMENT.toString(), rowStruct.documentFromString.toString());
+
         // asserts rowStruct::dynamic
         assertNotNull(rowStruct.dynamic);
         assertNotNull(rowStruct.dynamic.metadatas);
@@ -261,6 +295,9 @@ class DiRecordVisitorTest extends VisitorsTest {
         dynObject = rowStruct.dynamic.getColumnValue("dynBigDecimal2");
         assertTrue(BigDecimal.class.isInstance(dynObject));
         assertEquals(BIGDEC, dynObject);
+        dynObject = rowStruct.dynamic.getColumnValue("dynDocument");
+        assertTrue(String.class.isInstance(dynObject));
+        assertEquals(DOCUMENT.toString(), dynObject);
 
         dynObject = rowStruct.dynamic.getColumnValue("dynShort");
         assertTrue(Short.class.isInstance(dynObject));
@@ -422,6 +459,22 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertEquals("{\"id\":\"createdById01\",\"user\":\"createUser01\"}", rowStruct.createdBy.toString());
         assertTrue(RecordImpl.class.isInstance(rowStruct.createdBy));
         assertEquals("id01", rowStruct.id);
+    }
+
+    @Test
+    void documentWrongContent(){
+        final Record record = factory
+                .newRecordBuilder()
+                .withString("id", ":testing:")
+                .withString("name", NAME)
+                .with(factory.newEntryBuilder()
+                        .withName("document")
+                        .withType(Type.STRING)
+                        .withProp(STUDIO_TYPE, StudioTypes.DOCUMENT)
+                        .build(), "wrong string")
+                .build();
+        final DiRecordVisitor visitor = new DiRecordVisitor(RowStruct.class, Collections.emptyMap());
+        Assert.assertThrows(IllegalStateException.class, () -> visitor.visit(record));
     }
 
     @Test
