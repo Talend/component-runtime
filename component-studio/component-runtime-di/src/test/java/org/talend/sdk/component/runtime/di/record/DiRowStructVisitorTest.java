@@ -28,6 +28,8 @@ import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
+import org.dom4j.DocumentHelper;
+import routines.system.Document;
 import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
 
@@ -112,6 +114,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "dynBytesBuffer", StudioTypes.BYTE_ARRAY, ByteBuffer.allocate(100).wrap(BYTES0));
         createMetadata(dynamic, "dynBytesWString", StudioTypes.BYTE_ARRAY, String.valueOf(BYTES0));
         createMetadata(dynamic, "dynBigDecimal", StudioTypes.BIGDECIMAL, BIGDEC);
+        createMetadata(dynamic, "dynDocument", StudioTypes.DOCUMENT, DOCUMENT);
         Rcd dynObject = new Rcd();
         createMetadata(dynamic, "dynObject", StudioTypes.OBJECT, dynObject);
         createMetadata(dynamic, "STRINGS", StudioTypes.LIST, STRINGS);
@@ -127,12 +130,19 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "dynStringDate", StudioTypes.STRING,
                 "2010-01-31", "yyyy-MM-dd", false);
         rowStruct.dynamic = dynamic;
-        //
+
+        org.dom4j.Document doc = DocumentHelper.createDocument();
+        doc.addElement("catalog").addComment("an XML catalog");
+        DOCUMENT.setDocument(doc);
+        rowStruct.document.setDocument(doc);
+        rowStruct.emptyDocument = new Document();
+
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(54, schema.getEntries().size());
+        assertEquals(58, schema.getEntries().size());
+
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
         assertEquals("true", schema.getEntry("id").getProp(IS_KEY));
@@ -152,6 +162,9 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals(StudioTypes.BIGDECIMAL, schema.getEntry("bigDecimal0").getProp(STUDIO_TYPE));
         assertEquals("30", schema.getEntry("bigDecimal0").getProp(SIZE));
         assertEquals("10", schema.getEntry("bigDecimal0").getProp(SCALE));
+
+        assertEquals(StudioTypes.DOCUMENT, schema.getEntry("document").getProp(STUDIO_TYPE));
+        assertEquals(DOCUMENT.toString(), rowStruct.document.toString());
         // dyn
         assertTrue(schema.getEntry("dynString").isNullable());
         assertEquals("true", schema.getEntry("dynString").getProp(IS_KEY));
@@ -168,6 +181,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals("YYYY-mm-ddTHH:MM", schema.getEntry("dynDate").getProp(PATTERN));
         assertEquals(StudioTypes.STRING, schema.getEntry("dynStringDate").getProp(STUDIO_TYPE));
         assertEquals("yyyy-MM-dd", schema.getEntry("dynStringDate").getProp(PATTERN));
+        assertEquals(StudioTypes.DOCUMENT, schema.getEntry("dynDocument").getProp(STUDIO_TYPE));
         // asserts Record
         assertEquals(":testing:", record.getString("id"));
         assertEquals(NAME, record.getString("name"));
@@ -197,6 +211,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertArrayEquals(String.valueOf(BYTES0).getBytes(), record.getBytes("dynBytesWString"));
         assertEquals(BIGDEC.toString(), record.getString("dynBigDecimal"));
         assertEquals(BIGDEC, new BigDecimal(record.getString("dynBigDecimal")));
+        assertEquals(DOCUMENT.toString(), record.getString("dynDocument"));
         assertEquals(rowStruct.object0, record.get(Object.class, "object0"));
         assertTrue(record.getBoolean("hAshcOdEdIrtY"));
         assertEquals(NAME, record.getString("h"));
