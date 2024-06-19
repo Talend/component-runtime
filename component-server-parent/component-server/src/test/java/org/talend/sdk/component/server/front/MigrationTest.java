@@ -34,7 +34,7 @@ import org.talend.sdk.component.server.test.migration.MigrationDataStore;
 import org.talend.sdk.component.server.test.migration.MigrationInput;
 
 @MonoMeecrowaveConfig
-public class MigrationTest {
+class MigrationTest {
 
     @Inject
     private ComponentClient client;
