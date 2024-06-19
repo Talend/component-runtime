@@ -202,7 +202,7 @@ class ComponentResourceImplTest {
     }
 
     @Test
-    void noMigrateWithEqualVersion() {
+    void migrateWithEqualVersion() {
         final Map<String, String> migrated = base
                 .path("component/migrate/{id}/{version}")
                 .resolveTemplate("id", client.getJdbcId())
@@ -215,8 +215,8 @@ class ComponentResourceImplTest {
                     }
                 }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
                 });
-        assertEquals(1, migrated.size());
-        assertEquals(null, migrated.get("migrated"));
+        assertEquals(2, migrated.size());
+        assertEquals("true", migrated.get("migrated"));
     }
 
     @Test
