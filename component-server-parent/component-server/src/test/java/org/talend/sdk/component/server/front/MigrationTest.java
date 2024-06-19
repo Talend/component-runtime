@@ -130,7 +130,8 @@ class MigrationTest {
     void migrateDataStoreEqual() {
         Map<String, String> conf = new HashMap<>();
         conf.put("configuration.dataStoreKey", "keylevel0");
-        final Map<String, String> migrated = migrateConfigurationType(getDataStoreID(), MigrationDataStore.Version, conf);
+        final Map<String, String> migrated =
+                migrateConfigurationType(getDataStoreID(), MigrationDataStore.Version, conf);
         assertEquals(conf, migrated);
     }
 
