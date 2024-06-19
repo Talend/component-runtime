@@ -65,8 +65,10 @@ class MigrationTest {
     void migrateComponentEqual() {
         Map<String, String> conf = new HashMap<>();
         conf.put("configuration.inputKey", "keylevel0");
-        final Map<String, String> migrated = migrateComponent(getInputComponentId(), 5, conf);
-        assertEquals(conf, migrated);
+        final Map<String, String> migrated = migrateComponent(getInputComponentId(), MigrationInput.Version, conf);
+        assertEquals("INPUT", migrated.get("level"));
+        assertEquals(String.valueOf(MigrationInput.Version), migrated.get("currentVersion"));
+        assertEquals(String.valueOf(MigrationInput.Version), migrated.get("incomingVersion"));
     }
 
     @Test
@@ -128,7 +130,7 @@ class MigrationTest {
     void migrateDataStoreEqual() {
         Map<String, String> conf = new HashMap<>();
         conf.put("configuration.dataStoreKey", "keylevel0");
-        final Map<String, String> migrated = migrateConfigurationType(getDataStoreID(), 2, conf);
+        final Map<String, String> migrated = migrateConfigurationType(getDataStoreID(), MigrationDataStore.Version, conf);
         assertEquals(conf, migrated);
     }
 
