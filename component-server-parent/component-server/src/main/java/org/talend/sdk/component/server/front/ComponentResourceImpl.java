@@ -566,14 +566,12 @@ public class ComponentResourceImpl implements ComponentResource {
                         .status(Status.NOT_FOUND)
                         .entity(new ErrorPayload(COMPONENT_MISSING, "Didn't find component " + id))
                         .build()));
-        if (version != comp.getVersion()) {
-            log.info("Version mismatch - component: {} VS configuration: {}.", comp.getVersion(), version);
-        }
         if (version >= comp.getVersion()) {
-            log.info("Not migrating component.");
+            log.debug("[Component#migrate] Skipping {}#{}.", comp.getParent().getName(), comp.getName());
             return config;
         }
-        log.info("Migrating component from {} to {}.", comp.getVersion(), version);
+        log.info("[Component#migrate] {}#{} registry version {} - incoming: {}.", comp.getParent().getName(),
+                comp.getName(), comp.getVersion(), version);
         return ofNullable(componentDao.findById(id))
                 .orElseThrow(() -> new WebApplicationException(Response
                         .status(Response.Status.NOT_FOUND)

@@ -415,7 +415,6 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
             });
         }
 
-
         private File createRepackaging(final File target, final String sourcePackage,
                 final Consumer<JarOutputStream> custom) {
             try (final JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(target))) {
