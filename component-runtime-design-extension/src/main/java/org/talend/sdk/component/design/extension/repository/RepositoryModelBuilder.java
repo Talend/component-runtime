@@ -141,7 +141,7 @@ public class RepositoryModelBuilder {
                                     .findMigrationHandler(() -> singletonList(c.getMeta()), clazz, services));
                 }
             } else {
-                c.setVersion(1);
+                c.setVersion(-1);
             }
         }
         if (c.getMigrationHandler() == null) {
