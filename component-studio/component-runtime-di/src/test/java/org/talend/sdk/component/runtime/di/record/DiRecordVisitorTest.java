@@ -462,7 +462,7 @@ class DiRecordVisitorTest extends VisitorsTest {
     }
 
     @Test
-    void documentWrongContent(){
+    void documentWrongContent() {
         final Record record = factory
                 .newRecordBuilder()
                 .withString("id", ":testing:")
