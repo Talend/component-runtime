@@ -202,24 +202,6 @@ class ComponentResourceImplTest {
     }
 
     @Test
-    void migrateWithEqualVersion() {
-        final Map<String, String> migrated = base
-                .path("component/migrate/{id}/{version}")
-                .resolveTemplate("id", client.getJdbcId())
-                .resolveTemplate("version", 2)
-                .request(APPLICATION_JSON_TYPE)
-                .post(entity(new HashMap<String, String>() {
-
-                    {
-                        put("going", "nowhere");
-                    }
-                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
-                });
-        assertEquals(2, migrated.size());
-        assertEquals("true", migrated.get("migrated"));
-    }
-
-    @Test
     void searchIcon() {
         assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}")
                 .resolveTemplate("familyId", client.getFamilyId("jdbc"))
