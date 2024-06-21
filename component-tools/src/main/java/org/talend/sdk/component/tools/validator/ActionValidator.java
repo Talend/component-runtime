@@ -235,15 +235,8 @@ public class ActionValidator implements Validator {
         final Stream<String> returnType = finder
                 .findAnnotatedMethods(DynamicDependencies.class)
                 .stream()
-                .filter(m -> !hasListReturnType(m))
-                .map(m -> m + " should return a List")
-                .sorted();
-
-        final Stream<String> returnStringInList = finder
-                .findAnnotatedMethods(DynamicDependencies.class)
-                .stream()
                 .filter(m -> !hasStringInList(m))
-                .map(m -> m + " should return String in the List")
+                .map(m -> m + " should return List<String>")
                 .sorted();
 
         final Stream<String> dataset = finder
@@ -253,7 +246,7 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should have its Dataset parameter")
                 .sorted();
 
-        return Stream.of(returnType, optionParameter, dataset, returnStringInList)
+        return Stream.of(returnType, optionParameter, dataset)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
@@ -352,13 +345,12 @@ public class ActionValidator implements Validator {
     }
 
     private boolean hasStringInList(final Method method) {
-        Type returnType = method.getGenericReturnType();
-
-        if (returnType instanceof ParameterizedType) {
-            ParameterizedType type = (ParameterizedType) returnType;
-            Type[] actualTypeArguments = type.getActualTypeArguments();
-            if (actualTypeArguments.length > 0) {
-                return "java.lang.String".equals(actualTypeArguments[0].getTypeName());
+        if (List.class.isAssignableFrom(method.getReturnType())) {
+            if (method.getGenericReturnType() instanceof ParameterizedType) {
+                Type[] actualTypeArguments = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments();
+                if (actualTypeArguments.length > 0) {
+                    return "java.lang.String".equals(actualTypeArguments[0].getTypeName());
+                }
             }
         }
         return false;

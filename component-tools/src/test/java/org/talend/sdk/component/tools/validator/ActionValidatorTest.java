@@ -81,6 +81,7 @@ class ActionValidatorTest {
         final Stream<String> noerrors =
                 validator.validate(finder, Arrays.asList(ActionDynamicDependenciesOK.class));
         assertEquals(0, noerrors.count());
+
         finder = new AnnotationFinder(new ClassesArchive(ActionDynamicDependenciesKO.class));
         final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDynamicDependenciesKO.class));
         assertEquals(6, errors.count());
@@ -277,6 +278,7 @@ class ActionValidatorTest {
         }
     }
 
+    @Service
     static class ActionDynamicDependenciesOK {
 
         @DynamicDependencies("test-all")
@@ -285,6 +287,7 @@ class ActionValidatorTest {
         }
     }
 
+    @Service
     static class ActionDynamicDependenciesKO {
 
         @DynamicDependencies("error: return List<String>")
