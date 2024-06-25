@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,9 +28,9 @@ public class HttpValidator implements Validator {
     @Override
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
         return finder
-                .findAnnotatedClasses(Request.class) //
+                .findAnnotatedMethods(Request.class) //
                 .stream() //
-                .map(Class::getDeclaringClass) //
+                .map(Method::getDeclaringClass) //
                 .distinct() //
                 .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream()) //
                 .sorted();
