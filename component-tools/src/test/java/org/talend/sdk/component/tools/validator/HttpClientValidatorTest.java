@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Request;
 
-public class HttpClientValidatorTest {
+class HttpClientValidatorTest {
     @Test
     void validateErrors1() {
         final HttpValidator validator = new HttpValidator();
@@ -40,20 +40,20 @@ public class HttpClientValidatorTest {
         assertEquals(0, noerrors.count());
     }
 
-    public interface SimpleClient extends HttpClient {
+    interface SimpleClient extends HttpClient {
 
         @Request(method = "POST")
         String main1(String ok);
     }
 
-    public interface MethodKo extends List{
+    interface MethodKo extends List{
 
         @Request
         List<Object> main(String payload);
     }
 
 
-    public interface ClientKo {
+    interface ClientKo {
 
         @Request
         String main();
