@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.di.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -504,12 +505,12 @@ class TaCoKitGuessSchemaTest {
         final String serialized =
                 "{\"localizedMessage\":\"Unknown error. Retry!\",\"message\":\"Unknown error. Retry!\",\"stackTrace\":[],\"suppressed\":[],\"possibleHandleErrorWith\":\"RETRY\"}";
         DiscoverSchemaException e = jsonToException(flattened);
-        assertFalse("EXECUTE_MOCK_JOB".equals(e.getPossibleHandleErrorWith().name()));
+        assertNotEquals("EXECUTE_MOCK_JOB", e.getPossibleHandleErrorWith().name());
         assertEquals("EXCEPTION", e.getPossibleHandleErrorWith().name());
         assertEquals("Not allowed to execute the HTTP call to retrieve the schema.", e.getMessage());
         //
         e = jsonToException(serialized);
-        assertFalse("EXCEPTION".equals(e.getPossibleHandleErrorWith()));
+        assertNotEquals("EXCEPTION", e.getPossibleHandleErrorWith());
         assertEquals("RETRY", e.getPossibleHandleErrorWith().name());
         assertEquals("Unknown error. Retry!", e.getMessage());
     }

@@ -204,7 +204,7 @@ public class TaCoKitGuessSchema {
         } catch (Exception e) {
             final DiscoverSchemaException dse = transformException(e);
             // When a processor is the start of a studio job and dev explicitly set the handleError to Lifecycle exec
-            if (isStartOfJob && EXECUTE_LIFECYCLE.equals(dse.getPossibleHandleErrorWith())) {
+            if (isStartOfJob && EXECUTE_LIFECYCLE == dse.getPossibleHandleErrorWith()) {
                 try {
                     guessOutputComponentSchemaThroughResult();
                 } catch (Exception er) {
