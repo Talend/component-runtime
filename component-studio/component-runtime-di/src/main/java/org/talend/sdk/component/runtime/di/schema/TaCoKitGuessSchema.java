@@ -19,6 +19,7 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXCEPTION;
 import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_LIFECYCLE;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
@@ -167,8 +168,7 @@ public class TaCoKitGuessSchema {
         } else if (e instanceof ComponentException) {
             discoverSchemaException = new DiscoverSchemaException((ComponentException) e);
         } else {
-            discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(),
-                    DiscoverSchemaException.HandleErrorWith.EXCEPTION);
+            discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(), EXCEPTION);
         }
         return discoverSchemaException;
     }
@@ -243,7 +243,12 @@ public class TaCoKitGuessSchema {
         final Object schemaResult =
                 actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
         if (schemaResult instanceof Schema) {
-            fromSchema(Schema.class.cast(schemaResult));
+            final Schema result = (Schema) schemaResult;
+            if (result.getEntries().isEmpty()) {
+                throw new DiscoverSchemaException(ERROR_NO_AVAILABLE_SCHEMA_FOUND, EXCEPTION);
+            } else {
+                fromSchema(Schema.class.cast(schemaResult));
+            }
         }
     }
 
