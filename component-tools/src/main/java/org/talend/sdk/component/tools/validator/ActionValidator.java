@@ -239,14 +239,7 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should return List<String>")
                 .sorted();
 
-        final Stream<String> dataset = finder
-                .findAnnotatedMethods(DynamicDependencies.class)
-                .stream()
-                .filter(m -> !hasTypeParameter(m, DataSet.class))
-                .map(m -> m + " should have its Dataset parameter")
-                .sorted();
-
-        return Stream.of(returnType, optionParameter, dataset)
+        return Stream.of(returnType, optionParameter)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
@@ -340,17 +333,12 @@ public class ActionValidator implements Validator {
         return Schema.class.isAssignableFrom(method.getReturnType());
     }
 
-    private boolean hasListReturnType(final Method method) {
-        return List.class.isAssignableFrom(method.getReturnType());
-    }
-
     private boolean hasStringInList(final Method method) {
-        if (List.class.isAssignableFrom(method.getReturnType())) {
-            if (method.getGenericReturnType() instanceof ParameterizedType) {
-                Type[] actualTypeArguments = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments();
-                if (actualTypeArguments.length > 0) {
-                    return "java.lang.String".equals(actualTypeArguments[0].getTypeName());
-                }
+        if (List.class.isAssignableFrom(method.getReturnType())
+                && method.getGenericReturnType() instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments();
+            if (actualTypeArguments.length > 0) {
+                return "java.lang.String".equals(actualTypeArguments[0].getTypeName());
             }
         }
         return false;
