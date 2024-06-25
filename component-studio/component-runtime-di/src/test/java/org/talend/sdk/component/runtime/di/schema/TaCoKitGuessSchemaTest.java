@@ -510,7 +510,7 @@ class TaCoKitGuessSchemaTest {
         assertEquals("Not allowed to execute the HTTP call to retrieve the schema.", e.getMessage());
         //
         e = jsonToException(serialized);
-        assertNotEquals("EXCEPTION", e.getPossibleHandleErrorWith());
+        assertNotEquals("EXCEPTION", e.getPossibleHandleErrorWith().name());
         assertEquals("RETRY", e.getPossibleHandleErrorWith().name());
         assertEquals("Unknown error. Retry!", e.getMessage());
     }

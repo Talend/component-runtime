@@ -198,7 +198,7 @@ public class TaCoKitGuessSchema {
     }
 
     public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch,
-            final Boolean isStartOfJob) throws Exception {
+            final boolean isStartOfJob) throws Exception {
         try {
             executeDiscoverSchemaExtendedAction(incomingSchema, outgoingBranch);
         } catch (Exception e) {
