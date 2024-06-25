@@ -14,7 +14,7 @@ import org.talend.sdk.component.api.service.http.Request;
 
 class HttpClientValidatorTest {
     @Test
-    void validateErrors1() {
+    void validateClassExtendWrongCLass() {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(MethodKo.class));
         final Stream<String> errors =
@@ -23,7 +23,7 @@ class HttpClientValidatorTest {
     }
 
     @Test
-    void validateErrors2() {
+    void validateClassDoNotExtendHttpClient() {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ClientKo.class));
         final Stream<String> errors =
@@ -32,7 +32,16 @@ class HttpClientValidatorTest {
     }
 
     @Test
-    void validateOKs() {
+    void validateClassMethodMissingAnnotation() {
+        final HttpValidator validator = new HttpValidator();
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClient.class));
+        final Stream<String> errors =
+                validator.validate(finder, Arrays.asList(WrongClient.class));
+        assertEquals(1, errors.count());
+    }
+
+    @Test
+    void validateClassOK() {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(SimpleClient.class));
         final Stream<String> noerrors =
@@ -59,4 +68,12 @@ class HttpClientValidatorTest {
         String main();
     }
 
+    interface WrongClient extends HttpClient {
+
+        // It misses @Request
+        String queryA(String ok);
+
+        @Request(method = "POST")
+        String queryB(String ok);
+    }
 }
