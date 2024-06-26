@@ -51,6 +51,15 @@ class HttpClientValidatorTest {
     }
 
     @Test
+    void validateWrongClientNoMethodRequest() {
+        final HttpValidator validator = new HttpValidator();
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClientNoMethodRequest.class));
+        final Stream<String> errors =
+                validator.validate(finder, Arrays.asList(WrongClientNoMethodRequest.class));
+        assertEquals(2, errors.count());
+    }
+
+    @Test
     void validateClassOK() {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(SimpleClient.class));
@@ -94,6 +103,15 @@ class HttpClientValidatorTest {
         String queryA(String ok);
 
         @Request(method = "POST")
+        String queryB(String ok);
+    }
+
+    interface WrongClientNoMethodRequest extends HttpClient {
+
+        // It misses @Request
+        String queryA(String ok);
+
+        // It misses @Request
         String queryB(String ok);
     }
 }
