@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":786,
+    "commits":793,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -36,14 +36,21 @@
     "name":"Christophe Le Saec"
   },
   {
-    "commits":56,
+    "commits":59,
+    "description":"Frontend Architect",
+    "gravatar":"https://avatars.githubusercontent.com/u/19857479?v=4",
+    "id":"jmfrancois",
+    "name":"Jean-Michel FRANCOIS"
+  },
+  {
+    "commits":59,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
     "name":"yyin"
   },
   {
-    "commits":48,
+    "commits":51,
     "description":"QA Automation @ Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
@@ -57,7 +64,7 @@
     "name":"ypiel"
   },
   {
-    "commits":26,
+    "commits":27,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7802267?v=4",
     "id":"wwang-talend",
@@ -71,14 +78,14 @@
     "name":"Chao MENG"
   },
   {
-    "commits":14,
+    "commits":16,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/66320870?v=4",
     "id":"ozhelezniak-talend",
     "name":"Oleksandr Zhelezniak"
   },
   {
-    "commits":13,
+    "commits":14,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/52663885?v=4",
     "id":"fdesiles",
@@ -103,7 +110,7 @@
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/19920586?v=4",
     "id":"lxia-talend",
-    "name":"lxia-talend"
+    "name":"lxia"
   },
   {
     "commits":9,
@@ -129,13 +136,6 @@
   {
     "commits":3,
     "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7931535?v=4",
-    "id":"amaumont",
-    "name":"Axel MAUMONT"
-  },
-  {
-    "commits":3,
-    "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/18050008?v=4",
     "id":"chmyga",
     "name":"chmyga"
@@ -146,13 +146,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/31616269?v=4",
     "id":"lcelton-talend",
     "name":"lcelton-talend"
-  },
-  {
-    "commits":2,
-    "description":"I'm a serial tooler.",
-    "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
-    "id":"quilicicf",
-    "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
   },
   {
     "commits":2,
@@ -177,10 +170,24 @@
   },
   {
     "commits":1,
+    "description":"I'm a serial tooler.",
+    "gravatar":"https://avatars.githubusercontent.com/u/5594303?v=4",
+    "id":"quilicicf",
+    "name":"C​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌yprien Q​⁠‌​⁠⁠‌​﻿​⁠‍‌‌​​‍‌uilici"
+  },
+  {
+    "commits":1,
     "description":"Focused on Big Data. Open Source contributor. I'm an Apache Beam and Flink committer and Beam PMC member. I'm also an Apache Software Foundation member\n\nBlog: https://echauchot.blogspot.com/",
     "gravatar":"https://avatars.githubusercontent.com/u/8821084?v=4",
     "id":"echauchot",
     "name":"Etienne Chauchot"
+  },
+  {
+    "commits":1,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7931535?v=4",
+    "id":"amaumont",
+    "name":"Axel MAUMONT"
   },
   {
     "commits":1,
@@ -205,17 +212,10 @@
   },
   {
     "commits":1,
-    "description":"Product Manager, Information Architect",
+    "description":"Information Architect, Product Manager",
     "gravatar":"https://avatars.githubusercontent.com/u/19730806?v=4",
     "id":"fviolette",
     "name":"François Violette"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/67528?v=4",
-    "id":"toutpt",
-    "name":"Jean-Michel"
   },
   {
     "commits":1,
