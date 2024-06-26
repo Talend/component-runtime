@@ -1336,9 +1336,6 @@
  * limitations under the License.
  */]]></content>
             </licenseHeader>
-            <eclipse>
-              <file>talend_java_eclipse_formatter.xml</file>
-            </eclipse>
           </java>
           <pom>
             <sortPom>
@@ -1346,13 +1343,6 @@
             </sortPom>
           </pom>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.talend.tools</groupId>
-            <artifactId>java-formatter</artifactId>
-            <version>0.2.2</version>
-          </dependency>
-        </dependencies>
         <executions>
           <execution>
             <id>apply</id>
