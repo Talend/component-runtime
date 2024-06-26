@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.http.HttpClient;
 import org.talend.sdk.component.api.service.http.Request;
 
@@ -32,11 +33,20 @@ class HttpClientValidatorTest {
     }
 
     @Test
-    void validateClassMethodMissingAnnotation() {
+    void validateClassMethodMissingRequestAnnotation() {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClient.class));
         final Stream<String> errors =
                 validator.validate(finder, Arrays.asList(WrongClient.class));
+        assertEquals(1, errors.count());
+    }
+
+    @Test
+    void validateClassMethodWithOtherAnnotation() {
+        final HttpValidator validator = new HttpValidator();
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WithOtherAnnotationClient.class));
+        final Stream<String> errors =
+                validator.validate(finder, Arrays.asList(WithOtherAnnotationClient.class));
         assertEquals(1, errors.count());
     }
 
@@ -71,6 +81,16 @@ class HttpClientValidatorTest {
     interface WrongClient extends HttpClient {
 
         // It misses @Request
+        String queryA(String ok);
+
+        @Request(method = "POST")
+        String queryB(String ok);
+    }
+
+    interface WithOtherAnnotationClient extends HttpClient {
+
+        // It misses @Request
+        @DynamicDependencies
         String queryA(String ok);
 
         @Request(method = "POST")
