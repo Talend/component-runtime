@@ -84,7 +84,7 @@ class ActionValidatorTest {
 
         finder = new AnnotationFinder(new ClassesArchive(ActionDynamicDependenciesKO.class));
         final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDynamicDependenciesKO.class));
-        assertEquals(4, errors.count());
+        assertEquals(9, errors.count());
     }
 
     @Test
@@ -300,8 +300,17 @@ class ActionValidatorTest {
             return null;
         }
 
-        @DynamicDependencies("error: List<T> T not String, param not dataset")
-        public List<Object> getDynamicDependencies3(@Option("configuration") final FakeDataStore dataset) {
+        @DynamicDependencies("error: param not dataset")
+        public String getDynamicDependencies3(@Option("configuration") final FakeDataStore dataset) {
+            return null;
+        }
+
+        @DynamicDependencies("error: param not option")
+        public List<Object> getDynamicDependencies4(final FakeDataStore dataset) {return null;
+        }
+
+        @DynamicDependencies("error: List<T> T not String")
+        public List<Object> getDynamicDependencies5(@Option("configuration") final DataSet dataset) {
             return null;
         }
     }

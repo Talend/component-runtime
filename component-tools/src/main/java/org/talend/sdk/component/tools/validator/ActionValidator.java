@@ -228,8 +228,8 @@ public class ActionValidator implements Validator {
         final Stream<String> optionParameter = finder
                 .findAnnotatedMethods(DynamicDependencies.class)
                 .stream()
-                .filter(m -> !hasOption(m))
-                .map(m -> m + " should have a parameter being an option (marked with @Option)")
+                .filter(m -> !hasOption(m) || !hasTypeParameter(m, DataSet.class))
+                .map(m -> m + " should have a Dataset parameter marked with @Option")
                 .sorted();
 
         final Stream<String> returnType = finder
