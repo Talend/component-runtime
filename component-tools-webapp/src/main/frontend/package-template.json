@@ -8,12 +8,12 @@
     "watch": "webpack --config webpack.config --bail --progress --colors --watch --display-error-details --display-chunks"
   },
   "dependencies": {
-    "@talend/bootstrap-theme": "${talend-ui.version}",
-    "@talend/icons": "${talend-ui.version}",
-    "@talend/react-cmf": "${talend-ui.version}",
-    "@talend/react-components": "${talend-ui.version}",
-    "@talend/react-forms": "${talend-ui.version}",
-    "@talend/react-containers": "${talend-ui.version}",
+    "@talend/bootstrap-theme": "5.23.0",
+    "@talend/icons": "5.23.0",
+    "@talend/react-cmf": "5.23.0",
+    "@talend/react-components": "5.23.0",
+    "@talend/react-forms": "5.23.0",
+    "@talend/react-containers": "5.23.0",
     "bootstrap-sass": "3.4.1",
     "classnames": "2.2.5",
     "date-fns": "1.27.2",

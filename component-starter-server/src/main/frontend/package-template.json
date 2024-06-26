@@ -8,9 +8,9 @@
     "lint": "talend-scripts lint:es"
   },
   "dependencies": {
-    "@talend/bootstrap-theme": "${talend-ui.version}",
-    "@talend/icons": "${talend-ui.version}",
-    "@talend/react-components": "${talend-ui.version}",
+    "@talend/bootstrap-theme": "5.23.0",
+    "@talend/icons": "5.23.0",
+    "@talend/react-components": "5.23.0",
     "@talend/scripts": "^0.18.0",
     "classnames": "^2.2.6",
     "i18next": "^15.1.3",
