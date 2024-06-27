@@ -17,36 +17,36 @@ class HttpClientValidatorTest {
     @Test
     void validateClassExtendWrongCLass() {
         final HttpValidator validator = new HttpValidator();
-        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(MethodKo.class));
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ClientKoWrongExtends.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(MethodKo.class));
+                validator.validate(finder, Arrays.asList(ClientKoWrongExtends.class));
         assertEquals(1, errors.count());
     }
 
     @Test
     void validateClassDoNotExtendHttpClient() {
         final HttpValidator validator = new HttpValidator();
-        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ClientKo.class));
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ClientKoNotExtendsAnything.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(ClientKo.class));
+                validator.validate(finder, Arrays.asList(ClientKoNotExtendsAnything.class));
         assertEquals(1, errors.count());
     }
 
     @Test
     void validateClassMethodMissingRequestAnnotation() {
         final HttpValidator validator = new HttpValidator();
-        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClient.class));
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClientMissingOneRequest.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(WrongClient.class));
+                validator.validate(finder, Arrays.asList(WrongClientMissingOneRequest.class));
         assertEquals(1, errors.count());
     }
 
     @Test
     void validateClassMethodWithOtherAnnotation() {
         final HttpValidator validator = new HttpValidator();
-        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WithOtherAnnotationClient.class));
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClientUsingOneWrongAnnotation.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(WithOtherAnnotationClient.class));
+                validator.validate(finder, Arrays.asList(WrongClientUsingOneWrongAnnotation.class));
         assertEquals(1, errors.count());
     }
 
@@ -62,32 +62,32 @@ class HttpClientValidatorTest {
     @Test
     void validateClassOK() {
         final HttpValidator validator = new HttpValidator();
-        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(SimpleClient.class));
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ClientCorrect.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(SimpleClient.class));
+                validator.validate(finder, Arrays.asList(ClientCorrect.class));
         assertEquals(0, noerrors.count());
     }
 
-    interface SimpleClient extends HttpClient {
+    interface ClientCorrect extends HttpClient {
 
         @Request(method = "POST")
         String main1(String ok);
     }
 
-    interface MethodKo extends List{
+    interface ClientKoWrongExtends extends List{
 
         @Request
         List<Object> main(String payload);
     }
 
 
-    interface ClientKo {
+    interface ClientKoNotExtendsAnything {
 
         @Request
         String main();
     }
 
-    interface WrongClient extends HttpClient {
+    interface WrongClientMissingOneRequest extends HttpClient {
 
         // It misses @Request
         String queryA(String ok);
@@ -96,7 +96,7 @@ class HttpClientValidatorTest {
         String queryB(String ok);
     }
 
-    interface WithOtherAnnotationClient extends HttpClient {
+    interface WrongClientUsingOneWrongAnnotation extends HttpClient {
 
         // It misses @Request
         @DynamicDependencies
