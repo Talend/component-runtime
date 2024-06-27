@@ -182,6 +182,24 @@ class ComponentResourceImplTest {
     }
 
     @Test
+    void noMigrateWithUpperVersion() {
+        final Map<String, String> migrated = base
+                .path("component/migrate/{id}/{version}")
+                .resolveTemplate("id", client.getJdbcId())
+                .resolveTemplate("version", 3)
+                .request(APPLICATION_JSON_TYPE)
+                .post(entity(new HashMap<String, String>() {
+
+                    {
+                        put("going", "nowhere");
+                    }
+                }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
+                });
+        assertEquals(1, migrated.size());
+        assertEquals(null, migrated.get("migrated"));
+    }
+
+    @Test
     void searchIcon() {
         assertNotNull(base.path("component/icon/custom/{familyId}/{iconKey}")
                 .resolveTemplate("familyId", client.getFamilyId("jdbc"))
@@ -583,7 +601,7 @@ class ComponentResourceImplTest {
     }
 
     private void assertIndex(final ComponentIndices index) {
-        assertEquals(12, index.getComponents().size());
+        assertEquals(13, index.getComponents().size());
 
         final List<ComponentIndex> list = new ArrayList<>(index.getComponents());
         list.sort(Comparator.comparing(o -> o.getId().getFamily() + "#" + o.getId().getName()));
