@@ -178,6 +178,11 @@ public class ConfigurationTypeResourceImpl implements ConfigurationTypeResource 
         final String versionKey = configuration.getMeta().getPath() + ".__version";
         final boolean addedVersion = configToMigrate.putIfAbsent(versionKey, Integer.toString(version)) == null;
         try {
+            if (configuration.getVersion() != version) {
+                log.info("[ConfigurationType#migrate] {}#{} registry: {} - incoming: {}.",
+                        configuration.getKey().getFamily(), configuration.getKey().getConfigName(),
+                        configuration.getVersion(), version);
+            }
             final Map<String, String> migrated = configuration.getMigrationHandler().migrate(version, configToMigrate);
             if (addedVersion) {
                 migrated.remove(versionKey);

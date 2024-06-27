@@ -5,7 +5,7 @@
       "entity": {
         "type": "Project",
         "description": "To run the test you need to run a component server.  \nTesting documentation can be found [here](https://github.com/Talend/component-runtime/tree/master/talend-component-maven-plugin/src/it/web)  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-        "id": "752c0a55-71fa-4767-af35-92e5e502d4b3",
+        "id": "e3f5f654-6a1c-41ee-8e4e-9d784f31e67b",
         "name": "tck-component-migrate-api-test"
       },
       "children": [
@@ -39,7 +39,7 @@
               "path": "/api/v1/component/migrate/${\"maper_id\"}/4"
             },
             "description": "Expected: 400",
-            "id": "88069cff-1af4-4c23-9961-4d9df05b872f",
+            "id": "2b4f4d3a-047f-448f-8dd9-3760fb10a257",
             "name": "component/migrate/id/configurationVersion - empty body",
             "headers": [
               {
@@ -87,9 +87,9 @@
               "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/component/migrate/${\"mapper_id\"}/10"
             },
-            "description": "We have an executed migration from 10 to 3  \nTODO https://jira.talendforge.org/browse/TCOMP-2359   \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "b5913ed5-35c9-4ff6-b19c-c3f36ce75ff0",
-            "name": "component/migrate/id/configurationVersion - invalid migration version",
+            "description": "Migration from 3 to 10 is not possible because 3 doesn't know 10.  \nIt is normal to have a non migrated response.  \nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "750b1859-e2e4-4619-bee6-0a11bc00eb9a",
+            "name": "component/migrate/id/configurationVersion - impossible migration (higher version)",
             "headers": [
               {
                 "enabled": true,
@@ -159,10 +159,88 @@
                 "version": "V11"
               },
               "host": "${\"server-ip\"}:${\"server-port\"}",
+              "path": "/api/v1/component/migrate/${\"mapper_id\"}/3"
+            },
+            "description": "Migration from 2 to 2 is not possible.  \nIt is normal to have a non migrated response.  \n\nFIXME This test is disabled waiting for https://jira.talendforge.org/browse/TCOMP-2754  \n\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
+            "id": "cdaf9065-68b4-4bca-b95d-746584e1b934",
+            "name": "component/migrate/id/configurationVersion - impossible migration (same version) FIXME",
+            "headers": [
+              {
+                "enabled": true,
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "assertions": [
+              {
+                "comparison": "Equals",
+                "subject": "ResponseStatus",
+                "path": "code",
+                "value": "200"
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "enabled": false,
+                "path": "$.level",
+                "value": "EXTRA"
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "enabled": false,
+                "path": "$.incomingVersion",
+                "value": "\"1\""
+              },
+              {
+                "comparison": "DoesNotExist",
+                "subject": "ResponseJsonBody",
+                "enabled": false,
+                "path": "$.currentVersion",
+                "value": "\"3\""
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseJsonBody",
+                "enabled": false,
+                "path": "$.data",
+                "value": "input data"
+              }
+            ]
+          }
+        },
+        {
+          "entity": {
+            "type": "Request",
+            "method": {
+              "requestBody": true,
+              "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+              "name": "POST"
+            },
+            "body": {
+              "formBody": {
+                "overrideContentType": true,
+                "encoding": "application/x-www-form-urlencoded",
+                "items": []
+              },
+              "bodyType": "Text",
+              "textBodyEditorHeight": 150,
+              "textBody": "{\n  \"data\": \"input data\"\n}\n"
+            },
+            "uri": {
+              "query": {
+                "delimiter": "&",
+                "items": []
+              },
+              "scheme": {
+                "name": "http",
+                "version": "V11"
+              },
+              "host": "${\"server-ip\"}:${\"server-port\"}",
               "path": "/api/v1/component/migrate/${\"mapper_id\"}/2"
             },
             "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "cbc2af93-2693-4d18-bb53-a9086154d5b2",
+            "id": "b346f36c-dc84-4fb2-93ef-7040ee5ac54e",
             "name": "component/migrate/id/configurationVersion - with demo mapper",
             "headers": [
               {
@@ -236,7 +314,7 @@
               "path": "/api/v1/component/migrate/${\"output_id\"}/1"
             },
             "description": "\nApi documentation is [here](https://talend.github.io/component-runtime/main/latest/rest-openapi.html)",
-            "id": "0801c25e-bcf4-4f84-82c8-7e2f887474c8",
+            "id": "d14ec015-5fcb-4bc6-92b4-f9abdb543574",
             "name": "component/migrate/id/configurationVersion - with demo output",
             "headers": [
               {
@@ -309,7 +387,7 @@
               "path": "/api/v1/component/migrate/wrong_id/4"
             },
             "description": "Expected: 400",
-            "id": "027f22b3-77b6-4742-9017-8f2ad7375db8",
+            "id": "bb737277-2a82-4e5d-b926-5d855e5d0007",
             "name": "component/migrate/id/configurationVersion - wrong id",
             "headers": [
               {
@@ -336,60 +414,60 @@
       "id": "7cc306c5-b3f9-4f07-8476-7fa2db669034",
       "name": "component_runtime_ci",
       "variables": {
-        "56f6cb1b-e758-42d2-bfd2-b8b5464654b5": {
-          "name": "output_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f7314dca-1c04-496c-ad19-44a4c8009360": {
-          "name": "mapper_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "f0e9a692-6866-4c95-8b76-5f5d363e3ed1": {
-          "name": "dataset_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "1266d066-8fd3-47f6-ad74-260e39b9d472": {
+        "ed8bbd5f-ff31-40c3-963c-fc18dbb6f72a": {
           "name": "server-ip",
           "value": "localhost",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "f05e4bab-fee2-4637-869f-bb228225d2ea": {
-          "name": "server-port",
-          "value": "8081",
-          "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
-          "private": false
-        },
-        "ec6e694a-f4a6-4558-a788-eb3e36ee893e": {
+        "28ea0f59-b89b-474a-9f77-6f3d73dd9046": {
           "name": "datastore_id",
           "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzdG9yZSNUaGVDb25uZWN0aW9u",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "c803040f-9503-4201-a576-aee684b93510": {
-          "name": "family_id",
-          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+        "d2298e59-d08d-48af-bb6e-c52e7810c209": {
+          "name": "server-port",
+          "value": "8081",
           "enabled": true,
-          "createdAt": "2023-05-15T09:45:49.917Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         },
-        "838469ba-346a-4f73-b769-031f529306f0": {
+        "4fde58c1-0bef-461c-b576-a21289ccdbe1": {
+          "name": "mapper_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU1hcHBlcjE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "52dc8012-b6f2-41d3-8e87-549e41251792": {
           "name": "httpbin_addr",
           "value": "tal-rd22.talend.lan:8084",
           "enabled": true,
-          "createdAt": "2023-05-24T07:29:46.274Z",
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "6205aaff-1547-4dcc-bcb5-188fb9d26b51": {
+          "name": "dataset_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I2RhdGFzZXQjVGhlRGF0YXNldA",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "851c35ce-8117-4f11-adaa-9fe7823cb869": {
+          "name": "family_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
+          "private": false
+        },
+        "442413a8-bd29-40db-8f74-5f2d6ebb6509": {
+          "name": "output_id",
+          "value": "c2FtcGxlLWNvbm5lY3RvciN0aGVfZmFtaWx5I1RoZU91dHB1dDE",
+          "enabled": true,
+          "createdAt": "2023-07-13T13:32:37.182Z",
           "private": false
         }
       }
