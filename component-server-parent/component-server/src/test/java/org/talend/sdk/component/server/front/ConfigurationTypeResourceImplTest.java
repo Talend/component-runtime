@@ -184,7 +184,7 @@ class ConfigurationTypeResourceImplTest {
     }
 
     private void assertIndex(final ConfigTypeNodes index) {
-        assertEquals(5, index.getNodes().size());
+        assertEquals(8, index.getNodes().size());
         index.getNodes().keySet().forEach(Assertions::assertNotNull); // assert no null ids
         // assert there is at least one parent node
         assertTrue(index.getNodes().values().stream().anyMatch(n -> n.getParentId() == null));

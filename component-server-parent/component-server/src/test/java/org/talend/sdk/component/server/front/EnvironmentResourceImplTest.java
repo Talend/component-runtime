@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
-import javax.json.JsonObject;
 import javax.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
@@ -49,8 +48,9 @@ class EnvironmentResourceImplTest {
         assertTrue(environment.getLastUpdated().compareTo(new Date(0)) > 0);
         final Connectors connectors = environment.getConnectors();
         assertTrue(("1.2.3").equals(connectors.getVersion()) || ("1.26.0-SNAPSHOT").equals(connectors.getVersion()));
-        assertEquals("3a507eb7e52c9acd14c247d62bffecdee6493fc08f9cf69f65b941a64fcbf179", connectors.getPluginsHash());
+        assertEquals("4960c7dbe95b9df086f06ee6057cc57dd3c3d152be25ee71d964db00e6adbd52", connectors.getPluginsHash());
         assertEquals(Arrays.asList("another-test-component", "collection-of-object", "component-with-user-jars",
-                "file-component", "jdbc-component", "the-test-component"), connectors.getPluginsList());
+                "file-component", "jdbc-component", "migration-component", "the-test-component"),
+                connectors.getPluginsList());
     }
 }
