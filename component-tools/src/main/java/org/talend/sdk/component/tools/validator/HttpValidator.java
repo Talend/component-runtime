@@ -15,19 +15,41 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
+import org.talend.sdk.component.api.service.http.HttpClient;
+import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
 
 public class HttpValidator implements Validator {
 
     @Override
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
-        return components
-                .stream()
-                .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream()) //
-                .sorted();
+        // If the class extends HttpClient, it should use @Request.
+        List<String> classErrors = components.stream()
+                .filter(c -> {
+                    if (HttpClient.class.isAssignableFrom(c) && finder.findAnnotatedMethods(Request.class).isEmpty()) {
+                        return true;
+                    }
+                    return false;
+                })
+                .map(c -> c.getCanonicalName() + " should extends HttpClient")
+                .collect(Collectors.toList());
+
+        List<String> methodError = finder
+                .findAnnotatedMethods(Request.class) //
+                .stream() //
+                .map(Method::getDeclaringClass) //
+                .distinct() //
+                .flatMap(c -> HttpClientFactoryImpl.createErrors(c).stream())
+                .sorted()
+                .collect(Collectors.toList());
+
+        return Stream.concat(classErrors.stream(), methodError.stream());
+
     }
 }
