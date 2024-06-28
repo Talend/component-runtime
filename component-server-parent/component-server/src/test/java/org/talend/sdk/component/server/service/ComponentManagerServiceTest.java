@@ -63,10 +63,11 @@ class ComponentManagerServiceTest {
     @Inject
     private ComponentActionDao componentActionDao;
 
-    public static final String PLUGINS_HASH = "3a507eb7e52c9acd14c247d62bffecdee6493fc08f9cf69f65b941a64fcbf179";
+    public static final String PLUGINS_HASH = "4960c7dbe95b9df086f06ee6057cc57dd3c3d152be25ee71d964db00e6adbd52";
 
     public static final List<String> PLUGINS_LIST = Arrays.asList("another-test-component", "collection-of-object",
-            "component-with-user-jars", "file-component", "jdbc-component", "the-test-component");
+            "component-with-user-jars", "file-component", "jdbc-component", "migration-component",
+            "the-test-component");
 
     @Test
     void deployExistingPlugin() {
@@ -144,9 +145,9 @@ class ComponentManagerServiceTest {
     @Order(1)
     void checkPluginsNotReloaded() throws Exception {
         assertEquals("1.2.3", componentManagerService.getConnectors().getVersion());
-        assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
+        assertEquals(7, componentManagerService.manager().getContainer().findAll().stream().count());
         Thread.sleep(6000);
-        assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
+        assertEquals(7, componentManagerService.manager().getContainer().findAll().stream().count());
         assertEquals(PLUGINS_HASH, componentManagerService.getConnectors().getPluginsHash());
         assertEquals(PLUGINS_LIST, componentManagerService.getConnectors().getPluginsList());
     }
@@ -155,12 +156,12 @@ class ComponentManagerServiceTest {
     @Order(10)
     void checkPluginsReloaded() throws Exception {
         assertEquals("1.2.3", componentManagerService.getConnectors().getVersion());
-        assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
+        assertEquals(7, componentManagerService.manager().getContainer().findAll().stream().count());
         assertEquals(PLUGINS_HASH, componentManagerService.getConnectors().getPluginsHash());
         assertEquals(PLUGINS_LIST, componentManagerService.getConnectors().getPluginsList());
         writeVersion("1.26.0-SNAPSHOT");
         Thread.sleep(6000);
-        assertEquals(6, componentManagerService.manager().getContainer().findAll().stream().count());
+        assertEquals(7, componentManagerService.manager().getContainer().findAll().stream().count());
         final String gav = "org.talend.test1:the-test-component:jar:1.2.6:compile";
         String pluginID = getPluginId(gav);
         assertNotNull(pluginID);
