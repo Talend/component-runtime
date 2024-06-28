@@ -84,7 +84,7 @@ class ActionValidatorTest {
 
         finder = new AnnotationFinder(new ClassesArchive(ActionDynamicDependenciesKO.class));
         final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDynamicDependenciesKO.class));
-        assertEquals(9, errors.count());
+        assertEquals(10, errors.count());
     }
 
     @Test
@@ -282,7 +282,7 @@ class ActionValidatorTest {
     static class ActionDynamicDependenciesOK {
 
         @DynamicDependencies("test-all")
-        public List<String> getDynamicDependencies(@Option("configuration") final DataSet dataset) {
+        public List<String> getDynamicDependencies(@Option("configuration") final FakeDataSet dataset) {
             return null;
         }
     }
@@ -291,7 +291,7 @@ class ActionValidatorTest {
     static class ActionDynamicDependenciesKO {
 
         @DynamicDependencies("error: return List<String>")
-        public String getDynamicDependencies(@Option("configuration") final DataSet dataset) {
+        public String getDynamicDependencies(@Option("configuration") final FakeDataSet dataset) {
             return null;
         }
 
@@ -310,8 +310,12 @@ class ActionValidatorTest {
         }
 
         @DynamicDependencies("error: List<T> T not String")
-        public List<Object> getDynamicDependencies5(@Option("configuration") final DataSet dataset) {
+        public List<Object> getDynamicDependencies5(@Option("configuration") final FakeDataSet dataset) {
             return null;
+        }
+
+        @DynamicDependencies("error: 2 params")
+        public List<String> getDynamicDependencies6(@Option("configuration") final FakeDataSet dataset, @Option("configuration") final FakeDataSet dataset2) {return null;
         }
     }
 }
