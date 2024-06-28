@@ -150,6 +150,8 @@ public class Generator {
 
     private static final Pattern SNAPSHOT = Pattern.compile("(-SNAPSHOT|M\\d+-SNAPSHOT)");
 
+    private static final Pattern MILESTONE = Pattern.compile("(M\\d+|M\\d+-SNAPSHOT)$");
+
     public static void main(final String[] args) {
         if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
@@ -605,7 +607,9 @@ public class Generator {
                                                     .append('\n'),
                                             StringBuilder::append)));
 
-            final String changelog = changelogPerVersion.entrySet().stream().sorted((v1, v2) -> {
+            final String changelog = changelogPerVersion.entrySet().stream()
+                    .filter(v -> !MILESTONE.matcher(v.getKey()).find())
+                    .sorted((v1, v2) -> {
                 if (v1.equals(v2)) {
                     return 0;
                 }
