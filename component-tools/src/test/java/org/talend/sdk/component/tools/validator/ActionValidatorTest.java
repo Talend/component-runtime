@@ -306,7 +306,8 @@ class ActionValidatorTest {
         }
 
         @DynamicDependencies("error: param not option")
-        public List<Object> getDynamicDependencies4(final FakeDataStore dataset) {return null;
+        public List<Object> getDynamicDependencies4(final FakeDataStore dataset) {
+            return null;
         }
 
         @DynamicDependencies("error: List<T> T not String")
@@ -315,7 +316,9 @@ class ActionValidatorTest {
         }
 
         @DynamicDependencies("error: 2 params")
-        public List<String> getDynamicDependencies6(@Option("configuration") final FakeDataSet dataset, @Option("configuration") final FakeDataSet dataset2) {return null;
+        public List<String> getDynamicDependencies6(@Option("configuration") final FakeDataSet dataset,
+                @Option("configuration") final FakeDataSet dataset2) {
+            return null;
         }
     }
 }

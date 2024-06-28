@@ -322,7 +322,7 @@ public class ActionValidator implements Validator {
                 .count() == 1;
     }
 
-    private boolean hasDatasetParameter(Method method) {
+    private boolean hasDatasetParameter(final Method method) {
         return Arrays.stream(method.getParameters())
                 .filter(p -> p.getType().isAnnotationPresent(DataSet.class))
                 .count() == 1;
