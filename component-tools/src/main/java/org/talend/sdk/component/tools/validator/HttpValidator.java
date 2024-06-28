@@ -15,17 +15,11 @@
  */
 package org.talend.sdk.component.tools.validator;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.talend.sdk.component.api.service.http.HttpClient;
-import org.talend.sdk.component.api.service.http.Request;
 import org.talend.sdk.component.runtime.manager.service.http.HttpClientFactoryImpl;
-
-import static java.util.stream.Collectors.toList;
 
 public class HttpValidator implements Validator {
 
