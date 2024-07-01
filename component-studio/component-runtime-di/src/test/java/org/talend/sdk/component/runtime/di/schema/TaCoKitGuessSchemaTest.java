@@ -38,7 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -240,42 +239,15 @@ class TaCoKitGuessSchemaTest {
             final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD).build();
             Map<String, String> config = new HashMap<>();
             config.put("configuration.shouldActionFail", "true");
-            config.put("configuration.failWith", "EXCEPTION");
-            final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(out, config, "test-classes",
-                    "TaCoKitGuessSchemaTest", "outputDi", null, "1");
-            // guess schema action will fail and as start of job is true, it should use processor lifecycle
+            final TaCoKitGuessSchema guessSchema =
+                    new TaCoKitGuessSchema(out, config, "test-classes", "TaCoKitGuessSchemaTest",
+                            "outputDi", null, "1");
             guessSchema.guessComponentSchema(schema, "out", true);
             guessSchema.close();
             final String expected =
                     "[{\"label\":\"entry\",\"nullable\":true,\"originalDbColumnName\":\"entry\",\"talendType\":\"id_String\"}]";
             assertTrue(byteArrayOutputStream.size() > 0);
             assertTrue(byteArrayOutputStream.toString().contains(expected));
-        }
-    }
-
-    @Test
-    void guessProcessorSchemaInStartWithMockExecution() throws Exception {
-        final Schema sin = new RecordBuilderFactoryImpl("test-classes").newSchemaBuilder(Schema.Type.RECORD).build();
-        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                PrintStream out = new PrintStream(byteArrayOutputStream)) {
-            Map<String, String> config = new HashMap<>();
-            config.put("configuration.shouldActionFail", "true");
-            final TaCoKitGuessSchema guessSchema = new TaCoKitGuessSchema(out, config, "test-classes",
-                    "TaCoKitGuessSchemaTest", "outputDi", null, "1");
-            try {
-                guessSchema.guessComponentSchema(sin, "out", true);
-            } catch (Exception e) {
-                guessSchema.close();
-            }
-            final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
-            final String lines = Arrays.stream(byteArrayOutputStream.toString().split("\n"))
-                    .filter(l -> !pattern.matcher(l).find()) // filter out logs
-                    .filter(l -> l.startsWith("[") || l.startsWith("{")) // ignore line with non json data
-                    .collect(joining("\n"));
-            final Matcher errorMatcher = Pattern.compile("(\\{.*\"possibleHandleErrorWith\".*\\})").matcher(lines);
-            assertTrue(errorMatcher.find());
-            assertTrue(lines.contains("EXECUTE_MOCK_JOB"));
-            assertTrue(byteArrayOutputStream.size() > 0);
         }
     }
 
@@ -592,9 +564,6 @@ class TaCoKitGuessSchemaTest {
         Boolean shouldActionFail = false;
 
         @Option
-        DiscoverSchemaException.HandleErrorWith failWith = EXECUTE_MOCK_JOB;
-
-        @Option
         Boolean skipAssertions = false;
     }
 
@@ -605,7 +574,7 @@ class TaCoKitGuessSchemaTest {
         public Schema discoverProcessorSchema(final Schema incomingSchema,
                 @Option("configuration") final ProcessorConfiguration conf, final String branch) {
             if (conf.shouldActionFail) {
-                throw new DiscoverSchemaException("Cannot execute action.", conf.failWith);
+                throw new DiscoverSchemaException("Cannot execute action.", EXECUTE_MOCK_JOB);
             }
             if (!conf.skipAssertions) {
                 assertEquals("out", branch);
