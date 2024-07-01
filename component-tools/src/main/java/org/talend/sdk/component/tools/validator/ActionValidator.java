@@ -22,6 +22,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
+import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
@@ -95,6 +98,9 @@ public class ActionValidator implements Validator {
         // parameters for @DiscoverSchemaExtended
         final Stream<String> discoverProcessor = findDiscoverSchemaExtendedErrors(finder);
 
+        // parameters for @DynamicDependencies
+        final Stream<String> dynamicDependencyErrors = findDynamicDependenciesErrors(finder);
+
         // returned type for @Update, for now limit it on objects and not primitives
         final Stream<String> updatesErrors = this.findUpdatesErrors(finder);
 
@@ -130,6 +136,7 @@ public class ActionValidator implements Validator {
                         datasetDiscover, //
                         discover, //
                         discoverProcessor, //
+                        dynamicDependencyErrors, //
                         updatesErrors, //
                         enumProposable, //
                         proposableWithoutDynamic) //
@@ -202,6 +209,37 @@ public class ActionValidator implements Validator {
                 .sorted();
 
         return Stream.of(returnType, optionParameter, incomingSchema, branch)
+                .reduce(Stream::concat)
+                .orElseGet(Stream::empty);
+    }
+
+    /**
+     * Checks method signature for @DynamicDependencies annotation.
+     * Valid signatures are:
+     * <ul>
+     * <li>public List<String> getDependencies(@Option("configuration") final TheDataset dataset)</li>
+     * </ul>
+     *
+     * @param finder
+     * @return Errors on @DynamicDependencies method
+     */
+    private Stream<String> findDynamicDependenciesErrors(final AnnotationFinder finder) {
+
+        final Stream<String> optionParameter = finder
+                .findAnnotatedMethods(DynamicDependencies.class)
+                .stream()
+                .filter(m -> !hasOption(m) || !hasDatasetParameter(m))
+                .map(m -> m + " should have a Dataset parameter marked with @Option")
+                .sorted();
+
+        final Stream<String> returnType = finder
+                .findAnnotatedMethods(DynamicDependencies.class)
+                .stream()
+                .filter(m -> !hasStringInList(m))
+                .map(m -> m + " should return List<String>")
+                .sorted();
+
+        return Stream.of(returnType, optionParameter)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
@@ -284,6 +322,12 @@ public class ActionValidator implements Validator {
                 .count() == 1;
     }
 
+    private boolean hasDatasetParameter(final Method method) {
+        return Arrays.stream(method.getParameters())
+                .filter(p -> p.getType().isAnnotationPresent(DataSet.class))
+                .count() == 1;
+    }
+
     private boolean hasBranchCorrectNaming(final Method method) {
         return Arrays.stream(method.getParameters())
                 .filter(p -> String.class.isAssignableFrom(p.getType()))
@@ -293,5 +337,16 @@ public class ActionValidator implements Validator {
 
     private boolean hasCorrectReturnType(final Method method) {
         return Schema.class.isAssignableFrom(method.getReturnType());
+    }
+
+    private boolean hasStringInList(final Method method) {
+        if (List.class.isAssignableFrom(method.getReturnType())
+                && method.getGenericReturnType() instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments();
+            if (actualTypeArguments.length > 0) {
+                return "java.lang.String".equals(actualTypeArguments[0].getTypeName());
+            }
+        }
+        return false;
     }
 }
