@@ -48,7 +48,9 @@ public class JdbcDataStore implements Serializable {
 
     @Option // to test tables
     @Documentation(value = "Documentation for Datastore configurations.", tooltip = true)
-    private List<JdbcConfig> configurations = asList(new JdbcConfig("d1", "D1"), new JdbcConfig("d2", "D2"));
+    private List<JdbcConfig> configurations =
+            asList(new JdbcConfig("d1", "D1", List.of("org.talend.db:zorglub:1.0:jar")),
+                    new JdbcConfig("d2", "D2", List.of("org.talend.db:zorglub:1.0:jar", "a:b:1.0:jar")));
 
     @Option
     @DateTime(dateFormat = "DD-MM-YYYY", useUTC = false, useSeconds = false)

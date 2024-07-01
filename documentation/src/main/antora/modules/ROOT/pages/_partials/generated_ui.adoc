@@ -241,6 +241,22 @@ Mark a option as being represented by file or directory widget. Only for studio.
 ----
 
 
+= @ReadOnly
+
+Mark a option as being read-only widget. User cannot modify widget.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.widget.ReadOnly`
+
+== Snippets
+
+[source,js]
+----
+{
+  "ui::readonly":"true"
+}
+----
+
+
 = @Structure
 
 Mark a List<String> or List<Object> field as being represented as the component data selector.
