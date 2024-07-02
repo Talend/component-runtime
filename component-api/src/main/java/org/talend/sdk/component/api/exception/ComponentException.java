@@ -37,7 +37,7 @@ public class ComponentException extends RuntimeException {
     public ComponentException(final ErrorOrigin errorOrigin, final String type, final String message,
             final StackTraceElement[] stackTrace, final Throwable cause) {
         super((type != null ? "(" + type + ") " : "") + message);
-        this.initCause(transformException(cause));
+        this.initCause(toGenericThrowable(cause));
         this.errorOrigin = errorOrigin;
         originalType = type;
         originalMessage = message;
@@ -72,22 +72,34 @@ public class ComponentException extends RuntimeException {
     }
 
     /**
-     * Transform all specific cause exceptions to Exception class.
+     * Convert all exception stack to generic throwable stack to avoid unknown exception at deserialization time..
      * 
      * @param t
-     * @return An exception of type java.lang.Exception.
+     * @return An Throwable.
      */
-    private Exception transformException(final Throwable t) {
-        Exception cause = null;
-        if (t.getCause() != null) {
-            cause = transformException(t.getCause());
+    protected Throwable toGenericThrowable(final Throwable t) {
+        if (t == null) {
+            return null;
         }
-        String newMsg = String.format("[%s] : %s", t.getClass(), t.getMessage());
+        if (ComponentException.class.isInstance(t)) {
+            return t;
+        }
+        Throwable generic = new Throwable(String.format("(%s) : %s", t.getClass().getName(), t.getMessage()));
+        generic.setStackTrace(t.getStackTrace());
 
-        Exception e = new Exception(newMsg, cause);
-        e.setStackTrace(t.getStackTrace());
+        Throwable cause = t.getCause();
+        Throwable genericCause = null;
+        if (cause != null) {
+            genericCause = toGenericThrowable(cause);
+        } else {
+            return generic;
+        }
 
-        return e;
+        if (genericCause != null) {
+            generic = new Throwable(generic.getMessage(), genericCause);
+        }
+
+        return generic;
     }
 
 }
