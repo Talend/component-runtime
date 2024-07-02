@@ -33,6 +33,7 @@ import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.completion.Suggestions;
+import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
@@ -179,7 +180,7 @@ public class Validators {
 
     public static Stream<Class<? extends Annotation>> getActionsStream() {
         return of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
-                Suggestions.class, Update.class);
+                Suggestions.class, Update.class, DynamicDependencies.class);
     }
 
     public static Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
