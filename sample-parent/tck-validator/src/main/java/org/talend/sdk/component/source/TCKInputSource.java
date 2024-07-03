@@ -37,15 +37,12 @@ public class TCKInputSource implements Serializable {
 
     private final GenerateExceptionServices exceptionServices;
 
-    private final RecordBuilderFactory builderFactory;
-
     public TCKInputSource(@Option("configuration") final TCKInputMapperConfiguration configuration,
             final TckValidatorService service,
-            final GenerateExceptionServices exceptionServices, final RecordBuilderFactory builderFactory) {
+            final GenerateExceptionServices exceptionServices) {
         this.configuration = configuration;
         this.service = service;
         this.exceptionServices = exceptionServices;
-        this.builderFactory = builderFactory;
     }
 
     @PostConstruct

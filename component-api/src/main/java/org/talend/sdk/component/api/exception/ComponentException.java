@@ -81,7 +81,7 @@ public class ComponentException extends RuntimeException {
         if (t == null) {
             return null;
         }
-        if (ComponentException.class.isInstance(t)) {
+        if (t instanceof ComponentException) {
             return t;
         }
         Throwable generic = new Throwable(String.format("(%s) : %s", t.getClass().getName(), t.getMessage()));

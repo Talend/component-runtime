@@ -86,6 +86,6 @@ public class TCKInputMapper implements Serializable {
         // here we create an actual worker,
         // you are free to rework the configuration etc but our default generated implementation
         // propagates the partition mapper entries.
-        return new TCKInputSource(configuration, service, exceptionServices, recordBuilderFactory);
+        return new TCKInputSource(configuration, service, exceptionServices);
     }
 }

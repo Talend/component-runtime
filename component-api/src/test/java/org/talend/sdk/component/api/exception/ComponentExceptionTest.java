@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ComponentExceptionTest {
 
     @Test
-    public void testTypedCauseExceptionTransformation() {
+    void testTypedCauseExceptionTransformation() {
         IndexOutOfBoundsException indexOutOfBoundsException = new IndexOutOfBoundsException("AAA");
         IllegalArgumentException illegalArgumentException =
                 new IllegalArgumentException("BBB", indexOutOfBoundsException);

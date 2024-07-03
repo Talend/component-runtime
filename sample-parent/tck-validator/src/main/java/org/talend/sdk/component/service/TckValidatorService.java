@@ -17,8 +17,10 @@ package org.talend.sdk.component.service;
 
 import org.talend.sdk.component.api.service.Service;
 
+import java.io.Serializable;
+
 @Service
-public class TckValidatorService {
+public class TckValidatorService implements Serializable {
 
     // you can put logic here you can reuse in components
 
