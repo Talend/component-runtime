@@ -15,9 +15,9 @@
  */
 package org.talend.sdk.component.service;
 
-import org.talend.sdk.component.api.service.Service;
-
 import java.io.Serializable;
+
+import org.talend.sdk.component.api.service.Service;
 
 @Service
 public class TckValidatorService implements Serializable {

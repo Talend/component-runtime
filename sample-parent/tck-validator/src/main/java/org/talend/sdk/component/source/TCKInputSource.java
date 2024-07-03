@@ -24,7 +24,6 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.service.GenerateExceptionServices;
 import org.talend.sdk.component.service.TckValidatorService;
 

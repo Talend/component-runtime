@@ -41,4 +41,21 @@ class ComponentExceptionTest {
         Assertions.assertEquals(Throwable.class, aaa.getClass());
     }
 
+    @Test
+    void testConstructor() {
+        ComponentException componentException = new ComponentException("message");
+        Assertions.assertNull(componentException.getCause());
+    }
+
+    @Test
+    void testParameters() {
+        ComponentException componentException = new ComponentException(new IndexOutOfBoundsException("cause"));
+        Assertions.assertNotNull(componentException.getCause());
+        Assertions.assertEquals("java.lang.IndexOutOfBoundsException", componentException.getOriginalType());
+        Assertions.assertEquals(ComponentException.ErrorOrigin.UNKNOWN, componentException.getErrorOrigin());
+
+        componentException = new ComponentException(ComponentException.ErrorOrigin.USER, "message");
+        Assertions.assertEquals(ComponentException.ErrorOrigin.USER, componentException.getErrorOrigin());
+    }
+
 }
