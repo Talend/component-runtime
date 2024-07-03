@@ -19,7 +19,6 @@ import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_MOCK_JOB;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -160,8 +159,9 @@ public class TaCoKitGuessSchema {
         }
     }
 
-    private DiscoverSchemaException transformException(final Exception e) {
+    private DiscoverSchemaException handleException(final Exception e) throws Exception {
         DiscoverSchemaException discoverSchemaException;
+        log.error(ERROR_THROUGH_ACTION, e);
         if (e instanceof DiscoverSchemaException) {
             discoverSchemaException = DiscoverSchemaException.class.cast(e);
         } else if (e instanceof ComponentException) {
@@ -170,12 +170,6 @@ public class TaCoKitGuessSchema {
             discoverSchemaException = new DiscoverSchemaException(e.getMessage(), e.getStackTrace(),
                     DiscoverSchemaException.HandleErrorWith.EXCEPTION);
         }
-        return discoverSchemaException;
-    }
-
-    private DiscoverSchemaException handleException(final Exception e) throws Exception {
-        log.error(ERROR_THROUGH_ACTION, e);
-        final DiscoverSchemaException discoverSchemaException = transformException(e);
         try (final Jsonb jsonb = JsonbBuilder.create()) {
             jsonb.toJson(discoverSchemaException, out);
         }
@@ -194,27 +188,22 @@ public class TaCoKitGuessSchema {
         } catch (Exception e) {
             throw handleException(e);
         }
-        throw handleException(new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND));
+        throw new Exception(ERROR_NO_AVAILABLE_SCHEMA_FOUND);
     }
 
     public void guessComponentSchema(final Schema incomingSchema, final String outgoingBranch,
             final Boolean isStartOfJob) throws Exception {
         try {
             executeDiscoverSchemaExtendedAction(incomingSchema, outgoingBranch);
+            return;
         } catch (Exception e) {
             // Case when a processor is the start of a studio job
             if (isStartOfJob) {
-                try {
-                    final DiscoverSchemaException dse = transformException(e);
-                    if (EXECUTE_MOCK_JOB.equals(dse.getPossibleHandleErrorWith())) {
-                        throw handleException(dse);
-                    }
-                    guessOutputComponentSchemaThroughResult();
-                } catch (Exception er) {
-                    throw handleException(e);
-                }
+                guessOutputComponentSchemaThroughResult();
+                return;
             } else {
-                throw handleException(e);
+                log.error(ERROR_INSTANCE_SCHEMA, e);
+                throw e;
             }
         }
     }
@@ -224,29 +213,33 @@ public class TaCoKitGuessSchema {
     }
 
     private void executeDiscoverSchemaExtendedAction(final Schema schema, final String branch) throws Exception {
-        final Collection<ServiceMeta> services = getPluginServices();
-        ServiceMeta.ActionMeta actionRef = services
-                .stream()
-                .flatMap(s -> s.getActions().stream())
-                .filter(a -> a.getFamily().equals(family) &&
-                        a.getType().equals(SCHEMA_EXTENDED_TYPE) &&
-                        componentName.equals(a.getAction()))
-                .findFirst()
-                .orElse(null);
-        // did not find action named like componentName, trying to find one matching action...
-        if (actionRef == null) {
-            actionRef = services
+        try {
+            final Collection<ServiceMeta> services = getPluginServices();
+            ServiceMeta.ActionMeta actionRef = services
                     .stream()
                     .flatMap(s -> s.getActions().stream())
-                    .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
+                    .filter(a -> a.getFamily().equals(family) &&
+                            a.getType().equals(SCHEMA_EXTENDED_TYPE) &&
+                            componentName.equals(a.getAction()))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "No action " + family + "#" + SCHEMA_EXTENDED_TYPE));
-        }
-        final Object schemaResult =
-                actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
-        if (schemaResult instanceof Schema) {
-            fromSchema(Schema.class.cast(schemaResult));
+                    .orElse(null);
+            // did not find action named like componentName, trying to find one matching action...
+            if (actionRef == null) {
+                actionRef = services
+                        .stream()
+                        .flatMap(s -> s.getActions().stream())
+                        .filter(a -> a.getFamily().equals(family) && a.getType().equals(SCHEMA_EXTENDED_TYPE))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "No action " + family + "#" + SCHEMA_EXTENDED_TYPE));
+            }
+            final Object schemaResult =
+                    actionRef.getInvoker().apply(buildActionConfig(actionRef, configuration, schema, branch));
+            if (schemaResult instanceof Schema && fromSchema(Schema.class.cast(schemaResult))) {
+                return;
+            }
+        } catch (Exception e) {
+            throw handleException(e);
         }
     }
 
@@ -456,11 +449,12 @@ public class TaCoKitGuessSchema {
     }
 
     private Collection<ServiceMeta> getPluginServices() {
-        return componentManager
+        final Collection<ServiceMeta> services = componentManager
                 .findPlugin(plugin)
                 .orElseThrow(() -> new IllegalArgumentException(NO_COMPONENT + plugin))
                 .get(ContainerComponentRegistry.class)
                 .getServices();
+        return services;
     }
 
     private boolean fromSchema(final Schema schema) {
@@ -607,14 +601,16 @@ public class TaCoKitGuessSchema {
                 fromOutputEmitterPojo(processorComponent, "FLOW");
                 return;
             }
-            if (row != null) {
-                guessSchemaThroughResult(row);
+            if (row != null && guessSchemaThroughResult(row)) {
+                return;
             }
         } finally {
-            try {
-                processor.stop();
-            } catch (RuntimeException re) {
-                // nop
+            if (processor != null) {
+                try {
+                    processor.stop();
+                } catch (RuntimeException re) {
+                    // nop
+                }
             }
         }
     }
