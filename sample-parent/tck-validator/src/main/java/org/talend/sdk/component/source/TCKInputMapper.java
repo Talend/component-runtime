@@ -30,7 +30,6 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.input.PartitionSize;
 import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.service.GenerateExceptionServices;
 import org.talend.sdk.component.service.TckValidatorService;
 
@@ -50,15 +49,11 @@ public class TCKInputMapper implements Serializable {
 
     private final GenerateExceptionServices exceptionServices;
 
-    private final RecordBuilderFactory recordBuilderFactory;
-
     public TCKInputMapper(@Option("configuration") final TCKInputMapperConfiguration configuration,
-            final TckValidatorService service, final GenerateExceptionServices generateExceptionServices,
-            final RecordBuilderFactory recordBuilderFactory) {
+            final TckValidatorService service, final GenerateExceptionServices generateExceptionServices) {
         this.configuration = configuration;
         this.service = service;
         this.exceptionServices = generateExceptionServices;
-        this.recordBuilderFactory = recordBuilderFactory;
     }
 
     @Assessor

@@ -49,13 +49,18 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>${deploy-plugin.version}</version>
-        <configuration>
-          <skip>true</skip>
-          <!-- just a sample, we don't want to deploy it -->
-        </configuration>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>talend-component-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <id>talend-component-bundle</id>
+            <goals>
+              <goal>car</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

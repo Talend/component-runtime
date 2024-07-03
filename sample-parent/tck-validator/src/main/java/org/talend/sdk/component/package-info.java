@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(family = "tck-sample", categories = "Misc")
-@Icon(value = CUSTOM, custom = "tck-sample") // icon is located at src/main/resources/icons/tck-sample.svg
+@Components(family = "tckSample", categories = "Misc")
+@Icon(value = CUSTOM, custom = "tckSample") // icon is located at src/main/resources/icons/tck-sample.svg
 package org.talend.sdk.component;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
