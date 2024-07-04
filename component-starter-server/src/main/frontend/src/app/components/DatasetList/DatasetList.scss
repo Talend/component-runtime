@@ -12,27 +12,30 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */// DatasetList styles
+ */ // DatasetList styles
+
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
+
 .container {
-    display: flex;
-    > * {
-        flex: 1;
-    }
+	display: flex;
+	> * {
+		flex: 1;
+	}
 }
 
 #add-new-dataset {
-    margin-bottom: $padding-normal;
+	margin-bottom: $padding-normal;
 }
 
-.li :global(.btn){
-    text-transform: initial;
+.li :global(.btn) {
+	text-transform: initial;
 }
 
 .column {
-    padding: 0 $padding-normal;
-    border-left: 1px solid #c6c6c6;
-    height: calc(100vh - 48px);
-    &:first-child {
-        border-left: none;
-    }
+	padding: 0 $padding-normal;
+	border-left: 1px solid #c6c6c6;
+	height: calc(100vh - 48px);
+	&:first-child {
+		border-left: none;
+	}
 }

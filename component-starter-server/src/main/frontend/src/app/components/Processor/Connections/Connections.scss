@@ -12,7 +12,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */.Connections {
+ */
+.Connections {
 	padding: 0;
 	height: 100%;
 	display: flex;
@@ -23,14 +24,14 @@
 }
 .ConnectionEnd {
 	position: relative;
-    height: 35px;
+	height: 35px;
 	text-align: left;
 	width: 100%;
 
 	&:before {
 		content: '\274C';
 		font-size: 20px;
-		color: $brand-blue;
+		color: var(--coral-color-accent-text);
 		position: absolute;
 		left: -8px;
 		top: 5px;

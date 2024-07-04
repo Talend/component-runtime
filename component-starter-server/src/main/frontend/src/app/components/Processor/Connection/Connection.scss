@@ -12,9 +12,9 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */// Connection styles
+ */ // Connection styles
 .Connection {
-    position: relative;
+	position: relative;
 	height: 35px;
 	:global(.btn-link) {
 		text-transform: none;
@@ -27,7 +27,7 @@
 :global(.processor-inputs) {
 	.Connection {
 		text-align: right;
-        width: 100%;
+		width: 100%;
 
 		> div {
 			margin-right: 1rem;
@@ -36,7 +36,7 @@
 		&:after {
 			content: '\25CF';
 			font-size: 20px;
-			color: $brand-blue;
+			color: var(--coral-color-accent-text);
 			position: absolute;
 			right: -5px;
 			top: 3px;
@@ -51,7 +51,7 @@
 			position: absolute;
 			right: 0;
 			top: 0;
-			border-left: 1px solid $brand-blue;
+			border-left: 1px solid var(--coral-color-accent-text);
 			margin-left: 5px;
 			height: 100%;
 		}
@@ -82,7 +82,7 @@
 		&:before {
 			content: '\25CF';
 			font-size: 20px;
-			color: $brand-blue;
+			color: var(--coral-color-accent-text);
 			position: absolute;
 			left: -5px;
 			top: 3px;
@@ -93,7 +93,7 @@
 			left: 0;
 			top: 0;
 			content: '';
-			border-left: 1px solid $brand-blue;
+			border-left: 1px solid var(--coral-color-accent-text);
 			height: 100%;
 		}
 

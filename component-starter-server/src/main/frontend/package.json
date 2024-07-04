@@ -26,10 +26,13 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@talend/scripts-config-react-webpack": "16.8.0",
+    "@talend/scripts-config-react-webpack": "^16.8.0",
     "@talend/scripts-core": "^16.5.1",
     "atob": "^2.1.2",
     "body-parser": "^1.18.3"
   },
-  "proxy": "http://localhost:8080/"
+  "proxy": "http://localhost:8080/",
+  "overrides": {
+    "webpack": "^5.92.0"
+  }
 }

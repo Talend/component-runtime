@@ -28,19 +28,19 @@ const setupBackend = require('./backend');
 
 // });
 module.exports = {
-	output: {
-		publicPath: './',
-	},
-	devServer: {
-		setupMiddlewares: setupBackend,
-		host: '0.0.0.0',
-		historyApiFallback: true,
-	},
-	resolve: {
-		symlinks: false,
-	},
-	watchOptions: {
-		ignored: '**/node_modules',
-		followSymlinks: true, // when symlinks.resolve is false, we need this to make sure dev server picks up the changes in the symlinked files and rebuilds
-	},
+	// output: {
+	// 	publicPath: './',
+	// },
+	// devServer: {
+	// 	setupMiddlewares: setupBackend,
+	// 	host: '0.0.0.0',
+	// 	historyApiFallback: true,
+	// },
+	// resolve: {
+	// 	symlinks: false,
+	// },
+	// watchOptions: {
+	// 	ignored: '**/node_modules',
+	// followSymlinks: true, // when symlinks.resolve is false, we need this to make sure dev server picks up the changes in the symlinked files and rebuilds
+	// },
 };

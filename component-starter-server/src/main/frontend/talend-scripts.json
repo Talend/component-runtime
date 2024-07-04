@@ -1,13 +1,11 @@
 {
   "cmf": false,
-  "sass": {
-    "theme": "tdp"
-  },
   "webpack": {
-    "debug": true,
+    "debug": false,
     "config": {
       "development": "./webpack.config.dev.js",
       "production": "./webpack.config.js"
     }
-  }
+  },
+  "dynamic-cdn-webpack-plugin": false
 }

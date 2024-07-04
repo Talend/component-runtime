@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 module.exports = {
-	output: {
-		publicPath: './',
-	},
+	// output: {
+	// 	publicPath: './',
+	// },
 };

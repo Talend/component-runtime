@@ -13,28 +13,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 .Component {
-  display: flex;
+	display: flex;
 
-  .hidden {
-    flex: 0;
-    width: 0;
-    display: none;
-  }
-  .column {
-    overflow-y: auto;
-    flex: 1;
-    max-width: 800px;
-    padding-right: $padding-large;
-    padding-top: $padding-smaller;
-    border-left: 1px solid $silver;
-    height: calc(100vh - 114px);  // 48px - 66px);
-    padding-left: $padding-large;
-    &:first-child {
-      border-left: none;
-    }
-    > button:first-child {
-      float: right;
-    }
-  }
+	.hidden {
+		flex: 0;
+		width: 0;
+		display: none;
+	}
+	.column {
+		overflow-y: auto;
+		flex: 1;
+		max-width: 800px;
+		padding-right: $padding-large;
+		padding-top: $padding-smaller;
+		border-left: 1px solid $silver;
+		height: calc(100vh - 114px); // 48px - 66px);
+		padding-left: $padding-large;
+		&:first-child {
+			border-left: none;
+		}
+		> button:first-child {
+			float: right;
+		}
+	}
 }

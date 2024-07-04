@@ -13,40 +13,41 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 .App {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
 
-   > svg:first-child {
-    flex: 0 0 48px;
-    display: block !important;
-    height: 0;
-  }
+	> svg:first-child {
+		flex: 0 0 48px;
+		display: block !important;
+		height: 0;
+	}
 
-  .header {
-    ul:last-of-type {
-      label {
-        color: white;
-        margin-bottom: 2px;
-      }
-      label:first-of-type {
-        margin-right: 1rem;
-      }
+	.header {
+		ul:last-of-type {
+			label {
+				color: white;
+				margin-bottom: 2px;
+			}
+			label:first-of-type {
+				margin-right: 1rem;
+			}
 
-      svg {
-        margin: 1rem;
-        fill: white;
-      }
-    }
+			svg {
+				margin: 1rem;
+				fill: white;
+			}
+		}
 
-    label[for="starter-mode-switcher"] > span {
-      padding-left: 5px;
-    }
-  }
+		label[for='starter-mode-switcher'] > span {
+			padding-left: 5px;
+		}
+	}
 
-  .content {
-    height: 100vh;
-    overflow: auto;
-  }
+	.content {
+		height: 100vh;
+		overflow: auto;
+	}
 }

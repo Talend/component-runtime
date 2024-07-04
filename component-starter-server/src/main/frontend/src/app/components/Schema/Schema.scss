@@ -13,37 +13,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 $grey: #aaa;
 $editHeight: 20px;
 
 .Schema {
-  .hiddenWrapper {
-    margin-left: -4rem;
-  }
+	.hiddenWrapper {
+		margin-left: -4rem;
+	}
 
-  li {
-    list-style-type: none;
-    font-size: 1rem;
-  }
+	li {
+		list-style-type: none;
+		font-size: 1rem;
+	}
 
-  label {
-    font-size: 1.5rem;
+	label {
+		font-size: 1.5rem;
 
-    input {
-      border-radius: 6px;
-      border: 1px solid $grey;
-      height: $editHeight;
-      padding: 5px 8px 5px;
-    }
+		input {
+			border-radius: 6px;
+			border: 1px solid $grey;
+			height: $editHeight;
+			padding: 5px 8px 5px;
+		}
 
-    select {
-      background-color: white;
-      border-radius: 6px;
-      border: 1px solid $grey;
-      width: auto;
-      height: $editHeight;
-      text-align: center;
-      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-    }
-  }
+		select {
+			background-color: white;
+			border-radius: 6px;
+			border: 1px solid $grey;
+			width: auto;
+			height: $editHeight;
+			text-align: center;
+			text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+		}
+	}
 }

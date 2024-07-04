@@ -13,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
+
 $grey: #ccc;
 
 .ProjectMetadata {
@@ -31,7 +33,7 @@ $grey: #ccc;
 	}
 
 	button.selected {
-		background-color: $brand-blue;
+		background-color: var(--coral-color-accent-text);
 		color: white;
 	}
 }

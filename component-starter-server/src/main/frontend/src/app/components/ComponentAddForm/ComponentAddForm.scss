@@ -13,13 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 .component-add-form_wrapper .panel {
-    flex: 1;
-    margin: 10px;
+	flex: 1;
+	margin: 10px;
 }
 .component-add-form_wrapper .panel-body {
-    height: 150px;
+	height: 150px;
 }
 .component-add-form_wrapper .panel-footer {
-    text-align: right;
+	text-align: right;
 }
