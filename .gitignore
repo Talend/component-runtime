@@ -45,8 +45,8 @@ coverage
 .env.production.local
 
 # generated from the filtered version
-component-starter-server/src/main/frontend/package.json
-component-tools-webapp/src/main/frontend/package.json
+# component-starter-server/src/main/frontend/package.json
+# component-tools-webapp/src/main/frontend/package.json
 documentation/src/main/frontend/package.json
 documentation/src/main/antora/site.yml
 documentation/src/main/antora/site-dev.yml

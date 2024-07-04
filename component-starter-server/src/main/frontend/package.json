@@ -1,0 +1,35 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "talend-scripts build",
+    "start": "talend-scripts start",
+    "lint": "talend-scripts lint:es"
+  },
+  "dependencies": {
+    "@talend/bootstrap-theme": "9.2.0",
+    "@talend/design-system": "11.0.5",
+    "@talend/icons": "7.10.2",
+    "@talend/react-bootstrap": "^3.0.2",
+    "@talend/react-components": "17.1.2",
+    "ace-builds": "^1.35.2",
+    "classnames": "^2.5.1",
+    "i18next": "^23.11.5",
+    "prop-types": "^15.8.1",
+    "react": "^18.3.1",
+    "react-ace": "^12.0.0",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^13.5.0",
+    "react-router": "~6.3.0",
+    "react-router-dom": "~6.3.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@talend/scripts-config-react-webpack": "16.8.0",
+    "@talend/scripts-core": "^16.5.1",
+    "atob": "^2.1.2",
+    "body-parser": "^1.18.3"
+  },
+  "proxy": "http://localhost:8080/"
+}
