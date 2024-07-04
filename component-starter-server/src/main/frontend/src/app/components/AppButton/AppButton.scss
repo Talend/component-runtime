@@ -13,13 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 // $grey: #999;
 
 .AppButton {
-  margin-top: 10px;
-  &.right {
-    display: flex;
-    flex-direction: row-reverse;
-    align-items: center;
-  }
+	margin-top: 10px;
+	&.right {
+		display: flex;
+		flex-direction: row-reverse;
+		align-items: center;
+	}
 }

@@ -16,28 +16,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Trans } from 'react-i18next';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from '@talend/react-bootstrap';
 import Icon from '@talend/react-components/lib/Icon';
 
 import theme from './Help.scss';
 
 function Help(props) {
 	const overlay = (
-		<Popover id={props.i18nKey} title={<Trans ns='Help' i18nKey={`${props.i18nKey}_title`}>{props.title}</Trans>}>
+		<Popover
+			id={props.i18nKey}
+			title={
+				<Trans ns="Help" i18nKey={`${props.i18nKey}_title`}>
+					{props.title}
+				</Trans>
+			}
+		>
 			<div className={theme.HelpContent}>
-				<Trans ns='Help' i18nKey={props.i18nKey}>{props.content}</Trans>
+				<Trans ns="Help" i18nKey={props.i18nKey}>
+					{props.content}
+				</Trans>
 			</div>
 		</Popover>
 	);
-	return <OverlayTrigger
-            trigger={['hover', 'focus']}
-            placement={props.placement || 'right'}
-            overlay={overlay}
-        >
-        <span className={theme.Help}>
-            <Icon name={props.icon} />
-        </span>
-    </OverlayTrigger>;
+	return (
+		<OverlayTrigger
+			trigger={['hover', 'focus']}
+			placement={props.placement || 'right'}
+			overlay={overlay}
+		>
+			<span className={theme.Help}>
+				<Icon name={props.icon} />
+			</span>
+		</OverlayTrigger>
+	);
 }
 
 export default Help;

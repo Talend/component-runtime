@@ -12,7 +12,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */.form-row {
+ */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
+
+.form-row {
 	margin-top: 1rem;
 	margin-bottom: 1rem;
 	border: 0;
@@ -80,16 +83,14 @@
 			flex-grow: 1;
 			padding-right: 0;
 			padding-left: 0;
-
 		}
-
 
 		.ComponentBox:global(.processor):after {
 			content: '';
 			position: absolute;
 			right: 0px;
 			bottom: 50%;
-			border-bottom: 1px solid $brand-blue;
+			border-bottom: 1px solid var(--coral-color-accent-text);
 			width: 50%;
 			z-index: 0;
 		}
@@ -104,7 +105,7 @@
 				content: '';
 				position: absolute;
 				bottom: 50%;
-				border-bottom: 1px solid $brand-blue;
+				border-bottom: 1px solid var(--coral-color-accent-text);
 				width: 50%;
 				z-index: 0;
 			}
@@ -115,12 +116,12 @@
 				display: flex;
 				justify-content: center;
 				flex-direction: column;
-				border: 1px solid $brand-blue;
+				border: 1px solid var(--coral-color-accent-text);
 				border-radius: 6px;
 				text-align: center;
 				font-weight: bolder;
 				font-size: 20px;
-				color: $brand-blue;
+				color: var(--coral-color-accent-text);
 				width: 150px;
 				margin: auto;
 				height: 2em;

@@ -13,12 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 .Summary {
-  padding-bottom: 1rem;
+	padding-bottom: 1rem;
 
-  .Info {
-    label {
-      margin-right: 0.5rem;
-    }
-  }
+	.Info {
+		label {
+			margin-right: 0.5rem;
+		}
+	}
 }

@@ -13,44 +13,45 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 
 .error {
-  color: red;
+	color: red;
 }
 
 .modal {
-  div.field {
-   padding-top: 1rem;
+	div.field {
+		padding-top: 1rem;
 
-   &:first-child {
-     padding-top: 0;
-   }
-  }
+		&:first-child {
+			padding-top: 0;
+		}
+	}
 
-  label {
-    font-size: 14px;
-    font-weight: bold;
-    color: #ccc;
-  }
+	label {
+		font-size: 14px;
+		font-weight: bold;
+		color: #ccc;
+	}
 }
 
 .Finish {
-  height: calc(100vh - 48px);
-  padding-left: $padding-normal;
+	height: calc(100vh - 48px);
+	padding-left: $padding-normal;
 
-  .bigButton {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+	.bigButton {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
 
-    i {
-      padding-right: 1rem;
-    }
+		i {
+			padding-right: 1rem;
+		}
 
-    button {
-      margin: 1rem;
-      font-size: 25px;
-    }
-  }
+		button {
+			margin: 1rem;
+			font-size: 25px;
+		}
+	}
 }

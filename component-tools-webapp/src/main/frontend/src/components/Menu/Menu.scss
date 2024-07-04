@@ -13,35 +13,37 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use "@talend/bootstrap-theme/src/theme/guidelines" as *;
 
 .menu {
-	width: 300px;
+  width: 300px;
 
-	li {
-		> div {
-			padding: 0 5px 0 5px;
-			height: 30px;
-		}
-	}
+  li {
+    > div {
+      padding: 0 5px 0 5px;
+      height: 30px;
+    }
+  }
 
-	.TreeViewHeader {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		color: #236192;
-		line-height: 6rem;
-		font-weight: bold;
-		text-transform: uppercase;
-		padding-left: $padding-normal;
-		padding-right: $padding-normal;
-		border-bottom: 1px rgba(0, 0, 0, 0.12) solid;
+  .TreeViewHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #236192;
+    line-height: 6rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-left: $padding-normal;
+    padding-right: $padding-normal;
+    border-bottom: 1px rgba(0, 0, 0, 0.12) solid;
 
-		:global(.checkbox) {
-			line-height: inherit;
+    :global(.checkbox) {
+      line-height: inherit;
 
-			label > span:before, label > span:after {
-				top: auto !important;
-			}
-		}
-	}
+      label > span:before,
+      label > span:after {
+        top: auto !important;
+      }
+    }
+  }
 }

@@ -12,7 +12,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */.vLine {
+ */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
+
+.vLine {
 	border-left: solid 1px #d5d5d5;
 	margin-left: 1.9rem;
 	padding-left: 1.6rem;
@@ -20,7 +23,7 @@
 }
 
 .btnplus {
-    margin-left: $padding-large;
+	margin-left: $padding-large;
 }
 
 .nodeView {

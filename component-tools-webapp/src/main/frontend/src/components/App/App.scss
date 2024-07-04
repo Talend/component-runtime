@@ -13,13 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use "@talend/bootstrap-theme/src/theme/guidelines" as *;
 
 .App {
-	:global(.tc-layout-two-columns-left) {
-		border: 1px solid #eee;
-		background: transparent;
-	}
-	:global(.tc-layout-two-columns-main) {
-		padding: $padding-normal $padding-larger;
-	}
+  :global(.tc-layout-two-columns-left) {
+    border: 1px solid #eee;
+    background: transparent;
+  }
+  :global(.tc-layout-two-columns-main) {
+    padding: $padding-normal $padding-larger;
+  }
 }
