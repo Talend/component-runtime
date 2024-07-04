@@ -150,8 +150,6 @@ public class Generator {
 
     private static final Pattern SNAPSHOT = Pattern.compile("(-SNAPSHOT|M\\d+-SNAPSHOT)");
 
-    private static final Pattern MILESTONE = Pattern.compile("(M\\d+|M\\d+-SNAPSHOT)$");
-
     public static void main(final String[] args) {
         if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
@@ -609,19 +607,16 @@ public class Generator {
 
             final String changelog = changelogPerVersion.entrySet()
                     .stream()
-                    .filter(v -> !MILESTONE.matcher(v.getKey()).find())
                     .sorted((v1, v2) -> {
                         if (v1.equals(v2)) {
                             return 0;
                         }
-                        final int[] parts1 =
-                                Stream.of(v1.getKey().replace(" (dev)", "").split("\\."))
-                                        .mapToInt(Integer::parseInt)
-                                        .toArray();
-                        final int[] parts2 =
-                                Stream.of(v2.getKey().replace(" (dev)", "").split("\\."))
-                                        .mapToInt(Integer::parseInt)
-                                        .toArray();
+                        final int[] parts1 = Stream.of(v1.getKey().replace(" (dev)", "").replace("M", ".").split("\\."))
+                                .mapToInt(Integer::parseInt)
+                                .toArray();
+                        final int[] parts2 = Stream.of(v2.getKey().replace(" (dev)", "").replace("M", ".").split("\\."))
+                                .mapToInt(Integer::parseInt)
+                                .toArray();
                         for (int i = 0; i < parts1.length; i++) {
                             if (parts2.length <= i) {
                                 return 1;
