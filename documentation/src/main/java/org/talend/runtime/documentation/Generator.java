@@ -607,27 +607,32 @@ public class Generator {
                                                     .append('\n'),
                                             StringBuilder::append)));
 
-            final String changelog = changelogPerVersion.entrySet().stream()
+            final String changelog = changelogPerVersion.entrySet()
+                    .stream()
                     .filter(v -> !MILESTONE.matcher(v.getKey()).find())
                     .sorted((v1, v2) -> {
-                if (v1.equals(v2)) {
-                    return 0;
-                }
-                final int[] parts1 =
-                        Stream.of(v1.getKey().replace(" (dev)", "").split("\\.")).mapToInt(Integer::parseInt).toArray();
-                final int[] parts2 =
-                        Stream.of(v2.getKey().replace(" (dev)", "").split("\\.")).mapToInt(Integer::parseInt).toArray();
-                for (int i = 0; i < parts1.length; i++) {
-                    if (parts2.length <= i) {
-                        return 1;
-                    }
-                    final int comp = parts2[i] - parts1[i];
-                    if (comp != 0) {
-                        return comp;
-                    }
-                }
-                return 0;
-            })
+                        if (v1.equals(v2)) {
+                            return 0;
+                        }
+                        final int[] parts1 =
+                                Stream.of(v1.getKey().replace(" (dev)", "").split("\\."))
+                                        .mapToInt(Integer::parseInt)
+                                        .toArray();
+                        final int[] parts2 =
+                                Stream.of(v2.getKey().replace(" (dev)", "").split("\\."))
+                                        .mapToInt(Integer::parseInt)
+                                        .toArray();
+                        for (int i = 0; i < parts1.length; i++) {
+                            if (parts2.length <= i) {
+                                return 1;
+                            }
+                            final int comp = parts2[i] - parts1[i];
+                            if (comp != 0) {
+                                return comp;
+                            }
+                        }
+                        return 0;
+                    })
                     .map(Map.Entry::getValue)
                     .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                     .toString();
