@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.65.0M5-SNAPSHOT</version>
+    <version>1.65.0M5</version>
   </parent>
 
   <artifactId>sample-connector</artifactId>
@@ -94,7 +94,8 @@
             <configuration>
               <validatePlaceholder>true</validatePlaceholder>
               <validateSvg>true</validateSvg>
-              <validateLegacyIcons>false</validateLegacyIcons> <!-- needed because this connector is use theme icons. -->
+              <validateLegacyIcons>false</validateLegacyIcons>
+              <!-- needed because this connector is use theme icons. -->
               <validateFamily>true</validateFamily>
               <validateSerializable>true</validateSerializable>
               <validateInternationalization>true</validateInternationalization>
