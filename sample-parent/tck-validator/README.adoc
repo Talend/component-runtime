@@ -1,2 +1,13 @@
-= A tck sample Family
+# TCK Validator
 
+## Description
+This module contains a an official rejector components,
+when need to ,
+or , it will be able to implement it in this connector and we will capitalize on it.
+
+
+## Goal
+This connector is used for
+- demonstrate a new tck function
+- generate a specific event for a manual or automatic test
+We will implement it in this connector and capitalize on it.
