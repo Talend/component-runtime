@@ -1,13 +1,14 @@
 # TCK Validator
 
 ## Description
-This module contains a an official rejector components,
-when need to ,
-or , it will be able to implement it in this connector and we will capitalize on it.
+This module contains an official tck-validator components.  
+It is used by the tck team for regression/rejection tests.
+
+It is use in manual and automated test cases to ba able to have a way to implement it in this connector any tck functionalities.
+We will capitalize on it, and use it a reference usage for demo.
 
 
-## Goal
-This connector is used for
-- demonstrate a new tck function
-- generate a specific event for a manual or automatic test
-We will implement it in this connector and capitalize on it.
+## Implemented in this connector
+Feature validation:
+- feat(TCOMP-2408): ComponentException should transform cause exception to low level exception
+
