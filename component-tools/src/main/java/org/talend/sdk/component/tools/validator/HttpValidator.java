@@ -31,7 +31,8 @@ public class HttpValidator implements Validator {
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
         // If the class extends HttpClient, it should use @Request.
         List<String> classErrors = components.stream()
-                .filter(c -> HttpClient.class.isAssignableFrom(c) && finder.findAnnotatedMethods(Request.class).isEmpty())
+                .filter(c -> HttpClient.class.isAssignableFrom(c)
+                        && finder.findAnnotatedMethods(Request.class).isEmpty())
                 .map(c -> c.getCanonicalName() + " extends HttpClient should use @Request on methods")
                 .collect(Collectors.toList());
 
