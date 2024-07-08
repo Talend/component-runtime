@@ -27,11 +27,11 @@ import org.talend.sdk.component.dataset.TCKDataset;
         // customize it as much as needed
         @GridLayout.Row({ "dataset" })
 })
-@Documentation("TODO fill the documentation for this configuration")
+@Documentation("Ouput configuration for TCK validator")
 public class TCKOutputOutputConfiguration implements Serializable {
 
     @Option
-    @Documentation("TODO fill the documentation for this parameter")
+    @Documentation("Dataset for TCK validator")
     private TCKDataset dataset;
 
     public TCKDataset getDataset() {

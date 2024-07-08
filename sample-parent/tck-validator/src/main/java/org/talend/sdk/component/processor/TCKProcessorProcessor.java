@@ -40,7 +40,7 @@ import org.talend.sdk.component.service.TckValidatorService;
             // migrationHandler
 @Icon(value = CUSTOM, custom = "TCKProcessor") // icon is located at src/main/resources/icons/TCKProcessor.svg
 @Processor(name = "TCKProcessor")
-@Documentation("TODO fill the documentation for this processor")
+@Documentation("Processor for TCK validator")
 public class TCKProcessorProcessor implements Serializable {
 
     private final TCKProcessorProcessorConfiguration configuration;

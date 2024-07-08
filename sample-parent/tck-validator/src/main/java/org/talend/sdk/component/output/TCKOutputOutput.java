@@ -38,7 +38,7 @@ import org.talend.sdk.component.service.TckValidatorService;
             // migrationHandler
 @Icon(value = CUSTOM, custom = "TCKOutput") // icon is located at src/main/resources/icons/TCKOutput.svg
 @Processor(name = "TCKOutput")
-@Documentation("TODO fill the documentation for this processor")
+@Documentation("Output for TCK validator")
 public class TCKOutputOutput implements Serializable {
 
     private final TCKOutputOutputConfiguration configuration;

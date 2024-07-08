@@ -29,11 +29,11 @@ import org.talend.sdk.component.datastore.TCKDatastore;
         // customize it as much as needed
         @GridLayout.Row({ "datastore" })
 })
-@Documentation("TODO fill the documentation for this configuration")
+@Documentation("Dataset for TCK validator")
 public class TCKDataset implements Serializable {
 
     @Option
-    @Documentation("TODO fill the documentation for this parameter")
+    @Documentation("Datastore for TCK validator")
     private TCKDatastore datastore;
 
     public TCKDatastore getDatastore() {

@@ -40,7 +40,7 @@ import org.talend.sdk.component.service.TckValidatorService;
             // migrationHandler
 @Icon(value = CUSTOM, custom = "TCKInput") // icon is located at src/main/resources/icons/TCKInput.svg
 @PartitionMapper(name = "TCKInput")
-@Documentation("TODO fill the documentation for this mapper")
+@Documentation("Input mapper for TCK validator")
 public class TCKInputMapper implements Serializable {
 
     private final TCKInputMapperConfiguration configuration;

@@ -26,6 +26,6 @@ import org.talend.sdk.component.api.meta.Documentation;
 // the generated layout put one configuration entry per line,
 // customize it as much as needed
 })
-@Documentation("TODO fill the documentation for this configuration")
+@Documentation("Datastore for TCK validator")
 public class TCKDatastore implements Serializable {
 }

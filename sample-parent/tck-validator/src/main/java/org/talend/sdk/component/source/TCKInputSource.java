@@ -27,7 +27,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.service.GenerateExceptionServices;
 import org.talend.sdk.component.service.TckValidatorService;
 
-@Documentation("TODO fill the documentation for this source")
+@Documentation("Input for TCK validator")
 public class TCKInputSource implements Serializable {
 
     private final TCKInputMapperConfiguration configuration;
