@@ -15,20 +15,27 @@
  */
 package org.talend.sdk.component.runtime.manager.test;
 
+import static org.talend.sdk.component.api.configuration.condition.ActiveIfs.Operator.AND;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
+import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
 import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
 import org.talend.sdk.component.api.configuration.constraint.Pattern;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
+import org.talend.sdk.component.api.meta.Documentation;
 
+import lombok.Data;
 import lombok.Getter;
 
 public class MethodsHolder {
@@ -78,6 +85,14 @@ public class MethodsHolder {
     }
 
     public void visibility(final RestDatastore value) {
+        // no-op
+    }
+
+    public void visibility(@Option("configuration") final FilterConfiguration filters) {
+        // no-op
+    }
+
+    public void visibility(@Option("configuration") final ConfigWithActiveIfEnum config) {
         // no-op
     }
 
@@ -167,6 +182,90 @@ public class MethodsHolder {
             @Required
             @Pattern("^https?://.+$")
             private String url = "";
+        }
+    }
+
+    @Data
+    public static class FilterConfiguration {
+
+        @Option
+        @Required
+        @Documentation("How to combine filters")
+        private String logicalOpType;
+
+        @Option
+        @Required
+        @ActiveIf(target = "logicalOpType", value = "ALL")
+        @Documentation("How to combine filters")
+        private String logicalOpValue;
+
+        @Option
+        @Documentation("The list of filters to apply")
+        private List<Criteria> filters = new ArrayList<>(Arrays.asList(new Criteria()));
+
+        @Data
+        @OptionsOrder({ "columnName", "function", "operator", "value" })
+        @Documentation("An unitary filter.")
+        public static class Criteria {
+
+            @Option
+            @Required
+            @Documentation("The input field path to use for this criteria")
+            private String columnName;
+
+            @Option
+            @Documentation("The operator")
+            private String operator;
+
+            @Option
+            @Required
+            @ActiveIfs(operator = AND, value = {
+                    @ActiveIf(negate = true, target = "operator", value = "IS_NULL"),
+                    @ActiveIf(negate = true, target = "operator", value = "IS_NOT_NULL"),
+                    @ActiveIf(negate = true, target = "operator", value = "IS_EMPTY"),
+                    @ActiveIf(negate = true, target = "operator", value = "IS_NOT_EMPTY") })
+            @Documentation("The value to compare to")
+            private String value;
+        }
+    }
+
+    @Data
+    public static class ConfigWithActiveIfEnum {
+
+        @Option
+        @Required
+        private boolean bool1;
+
+        @Option
+        @Required
+        private boolean bool2;
+
+        @Option
+        @Required
+        private boolean bool3;
+
+        @Option
+        @Required
+        private ActiveIfEnum enumRequired;
+
+        @Option
+        @Required
+        @ActiveIf(target = "bool1", value = "true")
+        private ActiveIfEnum enumIf;
+
+        @Option
+        @Required
+        @ActiveIfs({
+                @ActiveIf(target = "bool1", value = "true"),
+                @ActiveIf(target = "bool2", value = "false"),
+                @ActiveIf(target = "bool3", value = "true")
+        })
+        private ActiveIfEnum enumIfs;
+
+        enum ActiveIfEnum {
+            ONE,
+            TWO,
+            THREE
         }
     }
 }
