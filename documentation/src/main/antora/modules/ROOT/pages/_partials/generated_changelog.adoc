@@ -37,6 +37,33 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2692[TCOMP-2692^]: Upgrade jackson to 2.16.0 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2693[TCOMP-2693^]: Handle multiple viewpoints in svg validation mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2697[TCOMP-2697^]: Enable http client validation link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2747[TCOMP-2747^]: Upgrade netty to 4.1.111.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2750[TCOMP-2750^]: Switch user auth to token auth on ossrh link:search.html?query=build[build^,role='dockey']
+
+
+
+== Version 1.65.0M5
+
+=== Bug
+
+- link:https://jira.talendforge.org/browse/TCOMP-2567[TCOMP-2567^]: ZonedDateTime is not rendered in talend-component:web link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2694[TCOMP-2694^]: svg validation mojo fails on windows link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2700[TCOMP-2700^]: Array of Array of Elements doesn't have an element schema link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2712[TCOMP-2712^]: Error when creating component-server cache on RepositoryModel endpoint link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+
+
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2100[TCOMP-2100^]: Provide icons bundle endpoint link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2697[TCOMP-2697^]: Enable http client validation link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2747[TCOMP-2747^]: Upgrade netty to 4.1.111.Final link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2750[TCOMP-2750^]: Switch user auth to token auth on ossrh link:search.html?query=build[build^,role='dockey']
 
 
 
@@ -70,6 +97,8 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2751[TCOMP-2751^]: Revert feat(TCOMP-2475) link:search.html?query=build[build^,role='dockey']
+
+
 
 
 
@@ -1084,6 +1113,8 @@
 
 
 
+
+
 == Version 1.38.14
 
 === Work Item
@@ -1902,6 +1933,12 @@
 
 
 
+== Version 1.1.15.2
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
+
 == Version 1.1.15
 
 === Bug
@@ -1934,12 +1971,6 @@
 - link:https://jira.talendforge.org/browse/TCOMP-1577[TCOMP-1577^]: Upgrade to xbean 4.15
 - link:https://jira.talendforge.org/browse/TCOMP-1578[TCOMP-1578^]: Upgrade asciidoctor-pdf to v1.5.0-beta.7
 - link:https://jira.talendforge.org/browse/TCOMP-1581[TCOMP-1581^]: Support JUnit5 meta annotations for our extensions
-
-== Version 1.1.15.2
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-1752[TCOMP-1752^]: Make component-runtime class loader find classes in RemoteEngine JobServer
 
 == Version 1.1.15.1
 
