@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router';
+import { Navigate } from 'react-router';
 import { Action } from '@talend/react-components/lib/Actions';
 
 import ComponentEditForm from '../ComponentEditForm';
@@ -44,9 +44,9 @@ export default class Component extends React.Component {
 		const componentIndex = this.props.match.params.componentId;
 		return (
 			<ComponentsContext.Consumer>
-				{components => {
+				{(components) => {
 					if (componentIndex === 'last') {
-						return <Redirect to={`/component/${components.components.length - 1}`} />;
+						return <Navigate to={`/component/${components.components.length - 1}`} />;
 					}
 					if (componentIndex === 0 && components.components.length === 0) {
 						components.addComponent();
@@ -64,7 +64,7 @@ export default class Component extends React.Component {
 						<div className={theme.Component}>
 							<TileContext.Provider value={cols}>
 								<TileContext.Consumer>
-									{service =>
+									{(service) =>
 										service.tiles.map((col, index) => {
 											if (index < service.tiles.length - 2) {
 												return (

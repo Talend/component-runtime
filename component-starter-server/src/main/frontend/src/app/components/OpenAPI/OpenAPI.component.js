@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-chrome';
@@ -235,7 +235,7 @@ export default class OpenAPIWizard extends React.Component {
 					</div>
 					<div className={generatorTheme.content}>
 						<main>
-							<Switch>
+							<Routes>
 								<Route
 									exact
 									path="/openapi/project"
@@ -249,7 +249,7 @@ export default class OpenAPIWizard extends React.Component {
 										<Finish {...props} openapi={true} actionUrl={GENERATOR_OPENAPI_ZIP_URL} />
 									)}
 								/>
-							</Switch>
+							</Routes>
 						</main>
 					</div>
 				</div>

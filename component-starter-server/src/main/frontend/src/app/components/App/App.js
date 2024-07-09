@@ -14,9 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
-import PropTypes from 'prop-types';
-import { BrowserRouter as Router, Route, Switch, withRouter } from 'react-router-dom';
-import { withTranslation } from 'react-i18next';
+import { BrowserRouter as Router, Route, useLocation, useNavigate, Routes } from 'react-router-dom';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
 import Icon from '@talend/react-components/lib/Icon';
 import Toggle from '@talend/react-components/lib/Toggle';
@@ -30,31 +28,32 @@ import ProjectContext from '../../ProjectContext';
 
 import theme from './App.scss';
 
-function ModeSwitcher (props) {
-	const openapi = (props.history.location.pathname || '/').startsWith('/openapi');
+function ModeSwitcher() {
+	const navigate = useNavigate();
+	const openapi = (useLocation().pathname || '/').startsWith('/openapi');
+
 	return (
-		<React.Fragment>
-			<Icon name='talend-component-kit-negative' />
+		<>
+			<Icon name="talend-component-kit-negative" />
 			<label>Standard</label>
 			<Toggle
 				id="starter-mode-switcher"
 				onChange={() => {
 					if (openapi) {
-						props.history.push('/');
+						navigate('/');
 					} else {
-						props.history.push('/openapi/project');
+						navigate('/openapi/project');
 					}
 				}}
 				checked={openapi}
 			/>
 			<label>OpenAPI</label>
-			<Icon name='talend-rest' />
-		</React.Fragment>
+			<Icon name="talend-rest" />
+		</>
 	);
 }
-const ModeSwitcherRouterAware = withRouter(ModeSwitcher);
 
-function App (props) {
+function App() {
 	return (
 		<Router>
 			<div className={theme.App}>
@@ -62,7 +61,7 @@ function App (props) {
 
 				<div className={theme.header}>
 					<HeaderBar
-						id='heder-bar'
+						id="header-bar"
 						logo={{ isFull: true }}
 						brand={{
 							label: 'Starter Toolkit',
@@ -70,9 +69,9 @@ function App (props) {
 						user={{
 							className: theme.switcher,
 						}}
-						getComponent={component => {
+						getComponent={(component) => {
 							if (component == 'User') {
-								return ModeSwitcherRouterAware;
+								return ModeSwitcher;
 							}
 							throw new Error('get the default');
 						}}
@@ -85,10 +84,10 @@ function App (props) {
 						<DatastoreContext.Provider>
 							<DatasetContext.Provider>
 								<ComponentsContext.Provider>
-									<Switch>
+									<Routes>
 										<Route path="/openapi" component={OpenAPIWizard} />
 										<Route component={Generator} />
-									</Switch>
+									</Routes>
 								</ComponentsContext.Provider>
 							</DatasetContext.Provider>
 						</DatastoreContext.Provider>
@@ -99,8 +98,4 @@ function App (props) {
 	);
 }
 
-export default withTranslation('Help')(App);
-
-App.propTypes = {
-	t: PropTypes.func,
-};
+export default App;
