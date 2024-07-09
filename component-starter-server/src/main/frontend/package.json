@@ -5,7 +5,7 @@
   "scripts": {
     "build": "talend-scripts build",
     "start": "talend-scripts start",
-    "lint": "talend-scripts lint:es"
+    "lint": "talend-scripts lint"
   },
   "dependencies": {
     "@talend/bootstrap-theme": "9.2.0",
