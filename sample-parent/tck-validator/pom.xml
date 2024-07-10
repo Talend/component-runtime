@@ -29,6 +29,7 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.tck.validator</talend.build.name>
+    <sonar.skip>true</sonar.skip>
   </properties>
 
   <dependencies>
