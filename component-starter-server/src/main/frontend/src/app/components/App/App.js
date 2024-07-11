@@ -26,7 +26,7 @@ import DatasetContext from '../../DatasetContext';
 import ComponentsContext from '../../ComponentsContext';
 import ProjectContext from '../../ProjectContext';
 
-import theme from './App.scss';
+import theme from './App.module.scss';
 
 function ModeSwitcher() {
 	const navigate = useNavigate();
@@ -85,8 +85,8 @@ function App() {
 							<DatasetContext.Provider>
 								<ComponentsContext.Provider>
 									<Routes>
-										<Route path="/openapi" component={OpenAPIWizard} />
-										<Route component={Generator} />
+										<Route path="/" element={<Generator />} />
+										<Route path="/openapi" element={<OpenAPIWizard />} />
 									</Routes>
 								</ComponentsContext.Provider>
 							</DatasetContext.Provider>

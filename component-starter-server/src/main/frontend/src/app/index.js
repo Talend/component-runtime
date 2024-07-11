@@ -55,4 +55,4 @@ i18n.use(initReactI18next).init({
 });
 i18n.addResourceBundle('en', 'Help', helpTexts);
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('app'));

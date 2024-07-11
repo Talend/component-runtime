@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import theme from './Generator.scss';
 
@@ -38,13 +38,20 @@ export default function Generator() {
 				</div>
 				<div className={theme.content}>
 					<main>
-						<Route exact path="/" component={ProjectMetadata} />
-						<Route exact path="/project" component={ProjectMetadata} />
-						<Route exact path="/datastore" component={DatastoreList} />
-						<Route exact path="/dataset" component={DatasetList} />
-						<Route path="/component/:componentId" component={Component} />
-						<Route path="/add-component" component={ComponentAddForm} />
-						<Route path="/export" render={props => <Finish {...props} actionUrl={GENERATOR_ZIP_URL} openapi={false} />} />
+						<Routes>
+							<Route exact path="/" element={<ProjectMetadata />} />
+							<Route exact path="/project" element={<ProjectMetadata />} />
+							<Route exact path="/datastore" element={<DatastoreList />} />
+							<Route exact path="/dataset" element={<DatasetList />} />
+							<Route path="/component/:componentId" element={<Component />} />
+							<Route path="/add-component" element={<ComponentAddForm />} />
+							<Route
+								path="/export"
+								render={(props) => (
+									<Finish {...props} actionUrl={GENERATOR_ZIP_URL} openapi={false} />
+								)}
+							/>
+						</Routes>
 					</main>
 				</div>
 			</div>

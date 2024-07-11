@@ -31,11 +31,11 @@ module.exports = {
 	// output: {
 	// 	publicPath: './',
 	// },
-	// devServer: {
-	// 	setupMiddlewares: setupBackend,
-	// 	host: '0.0.0.0',
-	// 	historyApiFallback: true,
-	// },
+	devServer: {
+		setupMiddlewares: setupBackend,
+		host: '0.0.0.0',
+		historyApiFallback: true,
+	},
 	// resolve: {
 	// 	symlinks: false,
 	// },
