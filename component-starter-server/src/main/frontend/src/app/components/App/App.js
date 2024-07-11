@@ -25,8 +25,15 @@ import DatastoreContext from '../../DatastoreContext';
 import DatasetContext from '../../DatasetContext';
 import ComponentsContext from '../../ComponentsContext';
 import ProjectContext from '../../ProjectContext';
+import Component from '../Component';
 
 import theme from './App.module.scss';
+import ProjectMetadata from '../ProjectMetadata';
+import DatastoreList from '../DatastoreList';
+import DatasetList from '../DatasetList';
+import ComponentAddForm from '../ComponentAddForm';
+import Finish from '../Finish';
+import { GENERATOR_ZIP_URL } from '../../constants';
 
 function ModeSwitcher() {
 	const navigate = useNavigate();
@@ -85,7 +92,21 @@ function App() {
 							<DatasetContext.Provider>
 								<ComponentsContext.Provider>
 									<Routes>
-										<Route path="/" element={<Generator />} />
+										<Route path="/" element={<Generator />}>
+											<Route exact path="/" element={<ProjectMetadata />} />
+											<Route exact path="/project" element={<ProjectMetadata />} />
+											<Route exact path="/datastore" element={<DatastoreList />} />
+											<Route exact path="/dataset" element={<DatasetList />} />
+											<Route path="/component/:componentId" element={<Component />} />
+											<Route path="/add-component" element={<ComponentAddForm />} />
+											<Route
+												path="/export"
+												render={(props) => (
+													<Finish {...props} actionUrl={GENERATOR_ZIP_URL} openapi={false} />
+												)}
+											/>
+										</Route>
+
 										<Route path="/openapi" element={<OpenAPIWizard />} />
 									</Routes>
 								</ComponentsContext.Provider>
