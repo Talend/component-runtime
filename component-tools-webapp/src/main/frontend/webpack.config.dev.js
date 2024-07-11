@@ -15,9 +15,6 @@
  */
 
 module.exports = {
-  output: {
-    publicPath: "./",
-  },
   devServer: {
     host: "0.0.0.0",
     proxy: {

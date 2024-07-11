@@ -25,6 +25,6 @@ import reducer from "./store/reducers";
 cmf.bootstrap({
   components: { ComponentForm, ...components },
   reducer,
-  appId: "component-kit-tools-webapp",
+  appId: "app",
   RootComponent: components.App,
 });
