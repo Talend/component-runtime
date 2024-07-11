@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-chrome';
@@ -223,7 +223,7 @@ class OpenAPI extends React.Component {
 	}
 }
 
-const OpenAPITrans = withTranslation('Help')(OpenAPI);
+export const OpenAPITrans = withTranslation('Help')(OpenAPI);
 
 export default class OpenAPIWizard extends React.Component {
 	render() {
@@ -235,21 +235,7 @@ export default class OpenAPIWizard extends React.Component {
 					</div>
 					<div className={generatorTheme.content}>
 						<main>
-							<Routes>
-								<Route
-									exact
-									path="/openapi/project"
-									component={(props) => <ProjectMetadata hideFacets={true} hideCategory={true} />}
-								/>
-								<Route exact path="/openapi/design" component={OpenAPITrans} />
-								<Route
-									exact
-									path="/openapi/export"
-									render={(props) => (
-										<Finish {...props} openapi={true} actionUrl={GENERATOR_OPENAPI_ZIP_URL} />
-									)}
-								/>
-							</Routes>
+							<Outlet />
 						</main>
 					</div>
 				</div>

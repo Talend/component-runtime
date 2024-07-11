@@ -14,20 +14,11 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Outlet, Route, Routes } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 import theme from './Generator.module.scss';
 
-import ProjectMetadata from '../ProjectMetadata';
-import Component from '../Component';
-import ComponentAddForm from '../ComponentAddForm';
-
-import Finish from '../Finish';
 import SideMenu from '../SideMenu';
-import DatastoreList from '../DatastoreList';
-import DatasetList from '../DatasetList';
-
-import { GENERATOR_ZIP_URL } from '../../constants';
 
 export default function Generator() {
 	return (
