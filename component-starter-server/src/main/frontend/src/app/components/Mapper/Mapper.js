@@ -22,7 +22,7 @@ import Schema from '../Schema';
 import ComponentSchema from '../ComponentSchema';
 import TileContext from '../../tile';
 
-import theme from './Mapper.scss';
+import theme from './Mapper.module.scss';
 
 export default class Mapper extends React.Component {
 	static propTypes = {

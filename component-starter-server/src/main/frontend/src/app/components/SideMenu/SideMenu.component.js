@@ -23,7 +23,7 @@ import ComponentsContext from '../../ComponentsContext';
 import DatastoreContext from '../../DatastoreContext';
 import DatasetContext from '../../DatasetContext';
 
-import theme from './SideMenu.scss';
+import theme from './SideMenu.module.scss';
 
 function activateIO(service, datastore, dataset) {
 	return (event) => {

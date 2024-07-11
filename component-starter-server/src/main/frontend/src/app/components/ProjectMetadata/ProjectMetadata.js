@@ -25,7 +25,7 @@ import CategorySelector from '../CategorySelector';
 import Input from '../Input';
 import ProjectContext from '../../ProjectContext';
 
-import theme from './ProjectMetadata.scss';
+import theme from './ProjectMetadata.module.scss';
 
 function onCategoryUpdate(value, project) {
 	// eslint-disable-next-line no-param-reassign

@@ -23,7 +23,7 @@ import Help from '../Help';
 import Mapper from '../Mapper';
 import Processor from '../Processor';
 
-import theme from './ComponentEditForm.scss';
+import theme from './ComponentEditForm.module.scss';
 import { COMPONENT_TYPES, COMPONENT_TYPE_SOURCE, COMPONENT_TYPE_PROCESSOR, COMPONENT_TYPE_SINK } from '../../constants';
 
 function onComponentNameChange(service, component) {

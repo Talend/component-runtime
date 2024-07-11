@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import theme from './Summary.scss';
+import theme from './Summary.module.scss';
 
 function Info(props) {
 	return (

@@ -29,7 +29,7 @@ import {
 } from '../../constants';
 import FinishContext from './FinishContext';
 
-import theme from './Finish.scss';
+import theme from './Finish.module.scss';
 
 var githubProjectTypeUrl;
 

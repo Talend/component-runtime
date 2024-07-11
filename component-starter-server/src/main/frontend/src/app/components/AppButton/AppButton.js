@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Action } from '@talend/react-components/lib/Actions';
 
-import theme from './AppButton.scss';
+import theme from './AppButton.module.scss';
 
 export default class AppButton extends React.Component {
 	static propTypes = {

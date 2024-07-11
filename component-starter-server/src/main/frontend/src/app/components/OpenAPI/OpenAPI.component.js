@@ -26,8 +26,8 @@ import ProjectContext from '../../ProjectContext';
 import ProjectMetadata from '../ProjectMetadata';
 import Finish from '../Finish';
 import StepStep from './StepByStep';
-import theme from './OpenAPI.scss';
-import generatorTheme from '../Generator/Generator.scss';
+import theme from './OpenAPI.module.scss';
+import generatorTheme from '../Generator/Generator.module.scss';
 
 const defaultOpenAPIJson = JSON.stringify(
 	{

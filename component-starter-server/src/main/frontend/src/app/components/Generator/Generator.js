@@ -16,7 +16,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import theme from './Generator.scss';
+import theme from './Generator.module.scss';
 
 import ProjectMetadata from '../ProjectMetadata';
 import Component from '../Component';

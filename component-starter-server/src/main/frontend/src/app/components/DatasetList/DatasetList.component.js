@@ -17,7 +17,7 @@
 import { Action } from '@talend/react-components/lib/Actions';
 import DatasetContext from '../../DatasetContext';
 import DatasetForm from '../DatasetForm';
-import theme from './DatasetList.scss';
+import theme from './DatasetList.module.scss';
 import DatasetDelete from '../DatasetDelete';
 
 function DatasetList() {

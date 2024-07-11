@@ -22,7 +22,7 @@ import ComponentEditForm from '../ComponentEditForm';
 import TileContext from '../../tile';
 import ComponentsContext from '../../ComponentsContext';
 
-import theme from './Component.scss';
+import theme from './Component.module.scss';
 
 function getComponent(service, index) {
 	return service.components[parseInt(index, 10)];

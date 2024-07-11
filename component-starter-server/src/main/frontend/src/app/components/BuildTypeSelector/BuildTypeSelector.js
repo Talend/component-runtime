@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import Icon from '@talend/react-components/lib/Icon';
 import { Actions } from '@talend/react-components/lib/Actions';
 import Help from '../Help';
-import theme from './BuildTypeSelector.scss';
+import theme from './BuildTypeSelector.module.scss';
 
 export default class BuildTypeSelector extends React.Component {
 	static propTypes = {

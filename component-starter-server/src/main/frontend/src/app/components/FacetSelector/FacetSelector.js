@@ -19,7 +19,7 @@ import Badge from '@talend/react-components/lib/Badge';
 import Typeahead from '@talend/react-components/lib/Typeahead';
 import Help from '../Help';
 
-import theme from './FacetSelector.scss';
+import theme from './FacetSelector.module.scss';
 
 function escapeRegexCharacters(str) {
 	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

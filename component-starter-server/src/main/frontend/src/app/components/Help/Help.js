@@ -19,7 +19,7 @@ import { Trans } from 'react-i18next';
 import { OverlayTrigger, Popover } from '@talend/react-bootstrap';
 import Icon from '@talend/react-components/lib/Icon';
 
-import theme from './Help.scss';
+import theme from './Help.module.scss';
 
 function Help(props) {
 	const overlay = (

@@ -17,7 +17,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Typeahead from '@talend/react-components/lib/Typeahead';
 
-import theme from './CategorySelector.scss';
+import theme from './CategorySelector.module.scss';
 
 function escapeRegexCharacters(str) {
 	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

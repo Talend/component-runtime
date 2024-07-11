@@ -21,7 +21,7 @@ import Icon from '@talend/react-components/lib/Icon';
 import Help from '../Help';
 import Input from '../Input';
 
-import theme from './Node.scss';
+import theme from './Node.module.scss';
 
 /* eslint-disable no-underscore-dangle */
 
