@@ -17,52 +17,52 @@
 import React from "react";
 
 import {
-	IconsProvider,
-	HeaderBar,
-	Layout,
-	Notification,
+  IconsProvider,
+  HeaderBar,
+  Layout,
+  Notification,
 } from "@talend/react-components";
 
 import Menu from "../Menu";
 import Detail from "../Detail";
 
-import theme from "./App.scss";
+import theme from "./App.module.scss";
 
 class App extends React.Component {
-	constructor(props) {
-		super(props);
-		this.notificationLeaveFn = this.notificationLeaveFn.bind(this);
-	}
+  constructor(props) {
+    super(props);
+    this.notificationLeaveFn = this.notificationLeaveFn.bind(this);
+  }
 
-	notificationLeaveFn(notification) {
-		this.props.removeNotification(notification);
-	}
+  notificationLeaveFn(notification) {
+    this.props.removeNotification(notification);
+  }
 
-	render() {
-		const header = (
-			<HeaderBar
-				logo={{ isFull: true }}
-				brand={{
-					id: "header-brand",
-					label: "Talend Component Kit Web Tester",
-				}}
-			/>
-		);
-		const menu = <Menu />;
+  render() {
+    const header = (
+      <HeaderBar
+        logo={{ isFull: true }}
+        brand={{
+          id: "header-brand",
+          label: "Talend Component Kit Web Tester",
+        }}
+      />
+    );
+    const menu = <Menu />;
 
-		return (
-			<div className={theme.App}>
-				<IconsProvider />
-				<Layout mode={"TwoColumns"} header={header} one={menu}>
-					<Detail saga="Detail::start" />
-				</Layout>
-				<Notification
-					notifications={this.props.notifications}
-					leaveFn={this.notificationLeaveFn}
-				/>
-			</div>
-		);
-	}
+    return (
+      <div className={theme.App}>
+        <IconsProvider />
+        <Layout mode={"TwoColumns"} header={header} one={menu}>
+          <Detail saga="Detail::start" />
+        </Layout>
+        <Notification
+          notifications={this.props.notifications}
+          leaveFn={this.notificationLeaveFn}
+        />
+      </div>
+    );
+  }
 }
 
 export default App;

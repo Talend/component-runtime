@@ -18,77 +18,77 @@ import React from "react";
 import { CircularProgress, TreeView, Toggle } from "@talend/react-components";
 import { Modal } from "@talend/design-system";
 
-import theme from "./Menu.scss";
+import theme from "./Menu.module.scss";
 
 class Menu extends React.Component {
-	constructor(props) {
-		super(props);
-		this.onSelect = this.onSelect.bind(this);
-		this.onToggle = this.onToggle.bind(this);
-		this.onSwitch = this.onSwitch.bind(this);
-		this.noOp = () => {};
-	}
+  constructor(props) {
+    super(props);
+    this.onSelect = this.onSelect.bind(this);
+    this.onToggle = this.onToggle.bind(this);
+    this.onSwitch = this.onSwitch.bind(this);
+    this.noOp = () => {};
+  }
 
-	componentDidMount() {
-		this.props.getComponentsList();
-	}
+  componentDidMount() {
+    this.props.getComponentsList();
+  }
 
-	onToggle(event, node) {
-		this.props.toggleComponent(node);
-	}
+  onToggle(event, node) {
+    this.props.toggleComponent(node);
+  }
 
-	onSelect(event, node) {
-		if (node.$$type === "component" && node.selected) {
-			return;
-		}
-		this.props.selectComponent(node);
-	}
+  onSelect(event, node) {
+    if (node.$$type === "component" && node.selected) {
+      return;
+    }
+    this.props.selectComponent(node);
+  }
 
-	onSwitch() {
-		this.props.getComponentsList({
-			configuration: !this.props.configurationSelected,
-		});
-	}
+  onSwitch() {
+    this.props.getComponentsList({
+      configuration: !this.props.configurationSelected,
+    });
+  }
 
-	render() {
-		if (this.props.isLoading) {
-			return <CircularProgress light />;
-		}
-		return (
-			<div className={theme.menu}>
-				{this.props.error && <p>{this.props.error}</p>}
-				<div className={theme.TreeViewHeader}>
-					<div>Components</div>
-					<Toggle
-						id="index-switch"
-						onChange={this.onSwitch}
-						checked={this.props.configurationSelected}
-					/>
-					<div>Configurations</div>
-				</div>
-				<TreeView
-					id="menu"
-					noHeader={true}
-					className={theme.menu}
-					structure={this.props.categories || []}
-					selectedId={this.props.selectedId}
-					onSelect={this.onSelect}
-					onToggle={this.onToggle}
-					onToggleAllSiblings={this.noOp}
-				/>
-				{this.props.displayDocumentation && (
-					<Modal
-						header={{ title: "Documentation" }}
-						onClose={this.props.onDocumentationModalClose}
-					>
-						<div
-							dangerouslySetInnerHTML={{ __html: this.props.documentation }}
-						/>
-					</Modal>
-				)}
-			</div>
-		);
-	}
+  render() {
+    if (this.props.isLoading) {
+      return <CircularProgress light />;
+    }
+    return (
+      <div className={theme.menu}>
+        {this.props.error && <p>{this.props.error}</p>}
+        <div className={theme.TreeViewHeader}>
+          <div>Components</div>
+          <Toggle
+            id="index-switch"
+            onChange={this.onSwitch}
+            checked={this.props.configurationSelected}
+          />
+          <div>Configurations</div>
+        </div>
+        <TreeView
+          id="menu"
+          noHeader={true}
+          className={theme.menu}
+          structure={this.props.categories || []}
+          selectedId={this.props.selectedId}
+          onSelect={this.onSelect}
+          onToggle={this.onToggle}
+          onToggleAllSiblings={this.noOp}
+        />
+        {this.props.displayDocumentation && (
+          <Modal
+            header={{ title: "Documentation" }}
+            onClose={this.props.onDocumentationModalClose}
+          >
+            <div
+              dangerouslySetInnerHTML={{ __html: this.props.documentation }}
+            />
+          </Modal>
+        )}
+      </div>
+    );
+  }
 }
 
 export default Menu;

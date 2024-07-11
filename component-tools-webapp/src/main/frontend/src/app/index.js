@@ -15,15 +15,16 @@
  */
 
 import cmf from "@talend/react-cmf";
-import "@talend/bootstrap-theme";
+import "@talend/bootstrap-theme/dist/bootstrap.css";
+import "./index.scss";
 
 import components from "./components";
 import ComponentForm from "@talend/react-containers/lib/ComponentForm";
 import reducer from "./store/reducers";
 
 cmf.bootstrap({
-	components: { ComponentForm, ...components },
-	reducer,
-	appId: "component-kit-tools-webapp",
-	RootComponent: components.App,
+  components: { ComponentForm, ...components },
+  reducer,
+  appId: "component-kit-tools-webapp",
+  RootComponent: components.App,
 });
