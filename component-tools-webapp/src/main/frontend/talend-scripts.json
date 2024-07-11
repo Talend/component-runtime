@@ -1,11 +1,10 @@
 {
-	"cmf": false,
-	"webpack": {
-		"debug": false,
-		"config": {
-			"development": "./webpack.config.dev.js",
-			"production": "./webpack.config.js"
-		}
-	},
-	"dynamic-cdn-webpack-plugin": false
+  "cmf": false,
+  "webpack": {
+    "debug": false,
+    "config": {
+      "development": "./webpack.config.dev.js"
+    }
+  },
+  "dynamic-cdn-webpack-plugin": false
 }
