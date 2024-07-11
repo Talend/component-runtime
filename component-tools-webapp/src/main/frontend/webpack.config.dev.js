@@ -13,31 +13,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-// const webpack = require('webpack');
-// const config = require('./webpack.config');
-const setupBackend = require("./backend");
 
-// config.devServer = Object.assign(config, {
-//     before: setupBackend,
-//     mode: 'development',
-//     devServer: {
-//         port: 3000,
-//     },
-//     devtool: 'source-map',
-//     plugins: config.plugins.push(new webpack.EnvironmentPlugin([ 'NODE_ENV' ]))
-
-// });
 module.exports = {
   output: {
     publicPath: "./",
   },
   devServer: {
-    setupMiddlewares: setupBackend,
     host: "0.0.0.0",
+    proxy: {
+      "/api": {
+        target: process.env.API_URL || "http://localhost:10101",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
     historyApiFallback: true,
   },
   resolve: {
     symlinks: false,
+    fallback: {
+      querystring: false,
+    },
   },
   watchOptions: {
     ignored: "**/node_modules",
