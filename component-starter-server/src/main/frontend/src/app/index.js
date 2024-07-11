@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import '@talend/bootstrap-theme';
+import '@talend/bootstrap-theme/dist/bootstrap.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import i18n from 'i18next';
