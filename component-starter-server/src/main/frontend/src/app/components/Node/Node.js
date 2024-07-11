@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 // import { withRouter } from 'react-router';
-import Action from '@talend/react-components/lib/Actions/ActionButton';
+import { ActionButton as Action } from '@talend/react-components/lib/Actions';
 import Icon from '@talend/react-components/lib/Icon';
 import Help from '../Help';
 import Input from '../Input';
