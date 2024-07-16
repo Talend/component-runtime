@@ -13,15 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
 
-import { removeNotification } from '../../store/application/actions';
+import { removeNotification } from "../../store/application/actions";
 
-import App from './App.component';
+import App from "./App.component";
 
-export default connect(state => (state.app || {}).application || {}, dispatch => {
-  return {
-    removeNotification: bindActionCreators(removeNotification, dispatch),
-  };
-})(App);
+const mapStateToProps = (state) => {
+	return (state.app || {}).application || {};
+};
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		removeNotification: bindActionCreators(removeNotification, dispatch),
+	};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

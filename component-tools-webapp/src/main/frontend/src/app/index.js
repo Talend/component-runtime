@@ -23,8 +23,8 @@ import ComponentForm from "@talend/react-containers/lib/ComponentForm";
 import reducer from "./store/reducers";
 
 cmf.bootstrap({
-  components: { ComponentForm, ...components },
-  reducer,
-  appId: "app",
-  RootComponent: components.App,
+	components: { ComponentForm, ...components },
+	reducer,
+	appId: "app",
+	RootComponent: () => <components.App />,
 });
