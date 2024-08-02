@@ -356,7 +356,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }
     }
 
-    private Map<String, Collection<Object>> toCondition(final String path, final String strategy, final Object value,
+    protected Map<String, Collection<Object>> toCondition(final String path, final String strategy, final Object value,
             final SimplePropertyDefinition def) {
         switch (strategy) {
         case "length":
@@ -382,7 +382,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }
     }
 
-    private Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {
+    protected Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {
         if (definition == null) {
             return s -> s;
         }
@@ -416,5 +416,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             }
         }
         return schema;
+    }
+
+    protected AbsolutePathResolver getPathResolver() {
+        return pathResolver;
     }
 }

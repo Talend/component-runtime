@@ -37,6 +37,7 @@ class ActionParameterEnricherTest {
                 put("tcomp::action::update", "test");
                 put("tcomp::action::update::parameters", ".,foo,/bar/dummy");
                 put("tcomp::action::update::after", "propertyX");
+                put("tcomp::action::update::activeIf", "target = \"authenticationKind\", value = \"BASIC_AUTH\"");
             }
         }, new ActionParameterEnricher().onParameterAnnotation("testParam", String.class, new Updatable() {
 
@@ -53,6 +54,11 @@ class ActionParameterEnricherTest {
             @Override
             public String[] parameters() {
                 return new String[] { ".", "foo", "/bar/dummy" };
+            }
+
+            @Override
+            public String activeIf() {
+                return "target = \"authenticationKind\", value = \"BASIC_AUTH\"";
             }
 
             @Override
