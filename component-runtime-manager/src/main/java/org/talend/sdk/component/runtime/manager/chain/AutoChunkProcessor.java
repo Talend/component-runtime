@@ -31,6 +31,8 @@ public class AutoChunkProcessor implements Lifecycle {
 
     private int processedItemCount = 0;
 
+    private OutputFactory remains;
+
     public void onElement(final InputFactory ins, final OutputFactory outs) {
         if (processedItemCount == 0) {
             processor.beforeGroup();
@@ -43,6 +45,7 @@ public class AutoChunkProcessor implements Lifecycle {
                 processor.afterGroup(outs);
                 processedItemCount = 0;
             }
+            remains = outs;
         }
     }
 
@@ -55,6 +58,7 @@ public class AutoChunkProcessor implements Lifecycle {
 
     @Override
     public void stop() {
+        flush(remains);
         processor.stop();
     }
 

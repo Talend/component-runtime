@@ -283,7 +283,7 @@ class JobTest {
                     .components()
                     .component("users", "db://input?__version=1&tableName=users")
                     .component("outFile",
-                            "file://out?configuration.$maxBatchSize=2&__version=1&configuration.file="
+                            "file://out?configuration.$maxBatchSize=3&__version=1&configuration.file="
                                     + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
                     .from("users")
