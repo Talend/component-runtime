@@ -32,7 +32,6 @@
     <module>sample-beam</module>
     <module>documentation-sample</module>
     <module>sample-connector</module>
-    <module>tck-validator</module>
   </modules>
 
   <dependencies>
