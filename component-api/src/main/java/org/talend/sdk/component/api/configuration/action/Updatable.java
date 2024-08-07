@@ -86,6 +86,7 @@ public @interface Updatable {
     /**
      * @return If the evaluation of the element at the location matches value, then the button append 'after' is
      * considered active
+     * 
      * Example: "target = setRawUrl, value = { true }"
      * otherwise, the button should not be shown.
      */
