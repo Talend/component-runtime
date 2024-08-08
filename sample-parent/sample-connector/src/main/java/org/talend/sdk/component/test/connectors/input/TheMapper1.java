@@ -30,6 +30,7 @@ import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
 import org.talend.sdk.component.test.connectors.migration.AbstractMigrationHandler;
+import org.talend.sdk.component.test.connectors.service.GenerateExceptionServices;
 
 @Version(value = InputConfig.INPUT_CONFIG_VERSION,
         migrationHandler = AbstractMigrationHandler.InputMigrationHandler.class)
@@ -47,9 +48,12 @@ public class TheMapper1 implements Serializable {
 
     private InputConfig config;
 
-    public TheMapper1(final @Option("configin") InputConfig config) {
+    private GenerateExceptionServices exceptionServices;
 
+    public TheMapper1(final @Option("configin") InputConfig config,
+            final GenerateExceptionServices exceptionServices) {
         this.config = config;
+        this.exceptionServices = exceptionServices;
     }
 
     @Assessor
@@ -66,7 +70,7 @@ public class TheMapper1 implements Serializable {
     @Emitter
     public TheInput1 createSource() {
 
-        return new TheInput1(this.config);
+        return new TheInput1(this.config, this.exceptionServices);
     }
 
 }

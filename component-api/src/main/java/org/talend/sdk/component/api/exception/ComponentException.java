@@ -36,7 +36,8 @@ public class ComponentException extends RuntimeException {
 
     public ComponentException(final ErrorOrigin errorOrigin, final String type, final String message,
             final StackTraceElement[] stackTrace, final Throwable cause) {
-        super((type != null ? "(" + type + ") " : "") + message, cause);
+        super((type != null ? "(" + type + ") " : "") + message);
+        this.initCause(toGenericThrowable(cause));
         this.errorOrigin = errorOrigin;
         originalType = type;
         originalMessage = message;
@@ -68,6 +69,37 @@ public class ComponentException extends RuntimeException {
 
     public ComponentException(final Throwable cause) {
         this(ErrorOrigin.UNKNOWN, cause.getMessage(), cause);
+    }
+
+    /**
+     * Convert all exception stack to generic throwable stack to avoid unknown exception at deserialization time..
+     * 
+     * @param t
+     * @return An Throwable.
+     */
+    protected Throwable toGenericThrowable(final Throwable t) {
+        if (t == null) {
+            return null;
+        }
+        if (t instanceof ComponentException) {
+            return t;
+        }
+        Throwable generic = new Throwable(String.format("(%s) : %s", t.getClass().getName(), t.getMessage()));
+        generic.setStackTrace(t.getStackTrace());
+
+        Throwable cause = t.getCause();
+        Throwable genericCause = null;
+        if (cause != null) {
+            genericCause = toGenericThrowable(cause);
+        } else {
+            return generic;
+        }
+
+        if (genericCause != null) {
+            generic = new Throwable(generic.getMessage(), genericCause);
+        }
+
+        return generic;
     }
 
 }
