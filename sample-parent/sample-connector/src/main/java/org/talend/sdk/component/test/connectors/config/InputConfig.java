@@ -19,13 +19,18 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.meta.Documentation;
 
+import lombok.Data;
+
+@Data
 @GridLayout({
         @GridLayout.Row({ "date" }),
-        @GridLayout.Row({ "dataset" }) })
+        @GridLayout.Row({ "dataset" }),
+        @GridLayout.Row({ "generateException" }) })
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
         value = {
@@ -43,4 +48,13 @@ public class InputConfig implements Serializable {
     @Documentation("Doc: default date documentation without Internationalization.")
     private ZonedDateTime date;
 
+    @Option
+    @Documentation("Doc: Use the generate exception service or not.")
+    @DefaultValue("false")
+    private Boolean generateException = false;
+
+    @Option
+    @Documentation("Doc: Use the generate runtime exception service or not.")
+    @DefaultValue("false")
+    private Boolean generateRuntimeException = false;
 }
