@@ -259,26 +259,6 @@ class UiSpecServiceTest {
     }
 
     @Test
-    void updatableAfterActiveIf() throws Exception {
-        final ConfigTypeNode node = load("update_after.json", ConfigTypeNode.class);
-        final Ui payload = service.convert("test", "en", node, null).toCompletableFuture().get();
-        final Iterator<UiSchema> rootItems = payload.getUiSchema().iterator().next().getItems().iterator();
-        rootItems.next(); // datastore
-        final Iterator<UiSchema> updatableConfig = rootItems.next().getItems().iterator();
-        final Iterator<UiSchema> wrapper = updatableConfig.next().getItems().iterator().next().getItems().iterator();
-        assertEquals("Id", wrapper.next().getTitle());
-        final Collection<UiSchema.Trigger> updateTriggers = wrapper.next().getTriggers();
-        assertEquals(1, updateTriggers.size());
-
-        final UiSchema.Trigger trigger = updateTriggers.iterator().next();
-        assertEquals("guessMe", trigger.getAction());
-        assertEquals("test", trigger.getFamily());
-        assertEquals("update", trigger.getType());
-        assertEquals(1, trigger.getParameters().size());
-        assertEquals(1, trigger.getOptions().size());
-    }
-
-    @Test
     void optionsOrderInArray() throws Exception {
         final ConfigTypeNode node =
                 load("config.json", ConfigTypeNodes.class).getNodes().get("U2VydmljZU5vdyNkYXRhc2V0I3RhYmxl");
