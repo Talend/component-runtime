@@ -82,4 +82,13 @@ public @interface Updatable {
      * @return parameters for the action.
      */
     String[] parameters() default {};
+
+    /**
+     * @return If the evaluation of the element at the location matches value, then the button append 'after' is
+     * considered active
+     * 
+     * Example: "target = setRawUrl, value = { true }"
+     * otherwise, the button should not be shown.
+     */
+    String activeIf() default "";
 }

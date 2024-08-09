@@ -20,14 +20,17 @@ import static java.util.Collections.singletonList;
 import static java.util.Locale.ROOT;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
@@ -168,8 +171,33 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                                     : action.getDisplayName());
                     button.setWidget("button");
                     button.setTriggers(singletonList(trigger));
+
+                    final String activeIf = root.getProperty().getMetadata().get("action::update::activeIf");
+                    if (activeIf != null) {
+                        button.setCondition(getCondition(root, path, activeIf));
+                    }
+
                     return button;
                 });
+    }
+
+    private Map<String, Collection<Object>> getCondition(final PropertyContext<?> root, final String actionPath,
+            final String activeIf) {
+        final String[] split = activeIf.split(",");
+        final String keySuffix = split[0].split("=")[1].trim();
+        final String valueKey = "condition::if::value::" + keySuffix;
+        final String path = actionPath + "." + keySuffix;
+        final SimplePropertyDefinition definition =
+                properties.stream().filter(p -> p.getPath().equals(path)).findFirst().orElse(null);
+        final Function<String, Object> converter = findStringValueMapper(definition);
+
+        final List<Map<String, Collection<Object>>> values = Stream
+                .of(root.getProperty().getMetadata().getOrDefault(valueKey, "true").split(","))
+                .map(converter)
+                .map(val -> toCondition(path, "", val, definition))
+                .collect(toList());
+        return values.size() == 1 ? values.iterator().next()
+                : new UiSchema.ConditionBuilder().withOperator("or").withValues(values).build();
     }
 
     private void addHealthCheck(final PropertyContext<?> root, final Collection<UiSchema> items) {
