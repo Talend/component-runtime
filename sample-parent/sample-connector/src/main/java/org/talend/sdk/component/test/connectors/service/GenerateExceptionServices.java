@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.test.connectors.service;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
 import org.talend.sdk.component.api.exception.ComponentException;
@@ -22,7 +23,7 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.runtime.base.lang.exception.InvocationExceptionWrapper;
 
 @Service
-public class GenerateExceptionServices {
+public class GenerateExceptionServices implements Serializable {
 
     public void generateException() throws ComponentException {
         IndexOutOfBoundsException indexOutOfBoundsException =

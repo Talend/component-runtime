@@ -42,7 +42,7 @@ public class TheInput1 implements Serializable {
 
     InputConfig config;
 
-    private GenerateExceptionServices exceptionServices;
+    private final GenerateExceptionServices exceptionServices;
 
     public TheInput1(final @Option("configin") InputConfig config,
             final GenerateExceptionServices exceptionServices) {

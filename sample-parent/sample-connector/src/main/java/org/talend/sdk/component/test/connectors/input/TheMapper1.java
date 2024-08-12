@@ -48,7 +48,7 @@ public class TheMapper1 implements Serializable {
 
     private InputConfig config;
 
-    private GenerateExceptionServices exceptionServices;
+    private final GenerateExceptionServices exceptionServices;
 
     public TheMapper1(final @Option("configin") InputConfig config,
             final GenerateExceptionServices exceptionServices) {
