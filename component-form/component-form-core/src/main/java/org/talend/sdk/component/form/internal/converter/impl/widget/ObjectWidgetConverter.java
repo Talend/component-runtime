@@ -81,7 +81,6 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                     return element;
                 }).orElseGet(() -> { // unlikely
                     log.warn("Didn't find {} in {}", name, root.getProperty().getPath());
-                    buttons.add(button);
                     return null;
                 });
             }
