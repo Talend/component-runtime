@@ -46,10 +46,10 @@
       }
     },
     {
-      "displayName": "Name",
-      "name": "name",
-      "path": "root.datastore.name",
-      "type": "STRING",
+      "displayName": "SetBoolean",
+      "name": "setBoolean",
+      "path": "root.datastore.setBoolean",
+      "type": "BOOLEAN",
       "metadata": {},
       "validation": {}
     },
@@ -62,7 +62,8 @@
         "ui::gridlayout::Main::value": "id,name",
         "action::update": "guessMe",
         "action::update::after": "id",
-        "action::update::parameters": "."
+        "action::update::parameters": ".",
+        "action::update::activeIf": "target = setBoolean, value = { true }"
       }
     },
     {
