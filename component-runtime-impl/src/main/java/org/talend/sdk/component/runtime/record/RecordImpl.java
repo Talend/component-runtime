@@ -83,13 +83,14 @@ public final class RecordImpl implements Record {
 
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
-        final Object value = values.get(name);
+        final String entryName = Schema.sanitizeConnectionName(name);
+        final Object value = values.get(entryName);
         // here mean get(Object.class, name) return origin store type, like DATETIME return long, is expected?
         if (value == null || expectedType.isInstance(value)) {
             return expectedType.cast(value);
         }
 
-        return RECORD_CONVERTERS.coerce(expectedType, value, name);
+        return RECORD_CONVERTERS.coerce(expectedType, value, entryName);
     }
 
     @Override // for debug purposes, don't use it for anything else
@@ -284,10 +285,11 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findExistingEntry(final String name) {
             final Schema.Entry entry;
+            final String entryName = Schema.sanitizeConnectionName(name);
             if (this.providedSchema != null) {
-                entry = this.providedSchema.getEntry(name);
+                entry = this.providedSchema.getEntry(entryName);
             } else {
-                entry = this.entries.getValue(name);
+                entry = this.entries.getValue(entryName);
             }
             if (entry == null) {
                 throw new IllegalArgumentException(

@@ -80,6 +80,15 @@ class SchemaImplTest {
             .withNullable(true) //
             .build();
 
+    private final String nameSpace = "Un Nom Avec Espace";
+
+    private final Schema.Entry metaSpace = new SchemaImpl.EntryImpl.BuilderImpl() //
+            .withName(nameSpace) //
+            .withType(Schema.Type.STRING) //
+            .withMetadata(true) //
+            .withNullable(true) //
+            .build();
+
     @Test
     void checkEquals() {
         final RecordBuilderFactory f = new RecordBuilderFactoryImpl("test");
@@ -180,6 +189,20 @@ class SchemaImplTest {
         Assertions.assertEquals(34, record.getInt("record_id"));
         Assertions.assertEquals("Aloa", record.getString("field1"));
         Assertions.assertEquals("Hallo, wie gehst du ?", record.getString("field2"));
+    }
+
+    @Test
+    void testNameSpace() {
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(metaSpace) //
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        Record record = builder //
+                .withString(nameSpace, "Aloa space space") //
+                .build();
+
+        Assertions.assertEquals("Aloa space space", record.getString(nameSpace));
     }
 
     @Test
