@@ -33,52 +33,8 @@ def EXTRA_BUILD_ARGS = ""
 pipeline {
     agent {
         kubernetes {
-            label podLabel
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-    - name: docker-daemon
-      image: artifactory.datapwn.com/docker-io-remote/docker:23.0.6-dind
-      env:
-        - name: DOCKER_TLS_CERTDIR
-          value: ""
-      securityContext:
-        privileged: true
-    - name: main
-      image: '${tsbiImage}'
-      command: [cat]
-      tty: true
-      volumeMounts: [
-        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-        { name: dockercache, mountPath: /root/.dockercache}
-      ]
-      resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
-      env:
-        - name: DOCKER_HOST
-          value: tcp://localhost:2375
-    - name: jdk17
-      image: '${jdk17Image}'
-      command: [cat]
-      tty: true
-      volumeMounts: [ 
-        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
-        { name: dockercache, mountPath: /root/.dockercache}
-      ]
-      resources: {requests: {memory: 6G, cpu: '3.5'}, limits: {memory: 6G, cpu: '6.0'}}
-      env:
-        - name: DOCKER_HOST
-          value: tcp://localhost:2375
-  volumes:
-    - name: efs-jenkins-component-runtime-m2
-      persistentVolumeClaim: 
-        claimName: efs-jenkins-component-runtime-m2
-    - name: dockercache
-      hostPath: {path: /tmp/jenkins/component-runtime/docker}
-  imagePullSecrets:
-      - name: talend-registry
-"""
+            yamlFile '.jenkins/jenkins_pod.yml'
+            defaultContainer 'main'
         }
     }
 
@@ -107,7 +63,7 @@ spec:
         choice(name: 'Action',
                 choices: ['STANDARD', 'RELEASE'],
                 description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
-        booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17')
+        booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17, BROKEN TO BE FIXED')
         booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
         string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
         string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
@@ -120,7 +76,9 @@ spec:
 
                     script {
 
-                        wait_for_docker_to_be_ready()
+                        ///////////////////////////////////////////
+                        // Login tasks
+                        //////////////////////////////////////////
 
                         withCredentials([gitCredentials]) {
                             sh """
@@ -136,6 +94,14 @@ spec:
                             sh """
                                bash .jenkins/scripts/setup_gpg.sh
                                """
+                        }
+
+                        ///////////////////////////////////////////
+                        // asdf install
+                        ///////////////////////////////////////////
+                        script {
+                            println "asdf install the content of repository .tool-versions'\n"
+                            sh 'bash .jenkins/scripts/asdf_install.sh'
                         }
 
                         def pom = readMavenPom file: 'pom.xml'
@@ -173,7 +139,8 @@ spec:
                 container('jdk17') {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         script {
-                            sh "mvn clean package $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                            // TODO sh "bash mvn clean package $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                            error("The 17 build need to be implemented with custom builder with ticket https://jira.talendforge.org/browse/TCOMP-2797")
                         }
                     }
                 }
@@ -184,7 +151,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials]) {
-                        sh "mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                        sh "bash mvn clean install $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -212,7 +179,7 @@ spec:
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gpgCredentials]) {
-                        sh "mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                        sh "bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
                     }
                 }
             }
@@ -260,15 +227,16 @@ spec:
                 container('main') {
                     withCredentials([ossrhCredentials]) {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            sh """
+                            sh """\
+                                #!/usr/bin/env bash
                                 mvn ossindex:audit-aggregate -pl '!bom' -Dossindex.fail=false -Dossindex.reportFile=target/audit.txt -s .jenkins/settings.xml
                                 mvn versions:dependency-updates-report versions:plugin-updates-report versions:property-updates-report -pl '!bom'
-                               """
+                               """.stripIndent()
                         }
                     }
                     withCredentials([sonarCredentials]) {
                         catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            sh "mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
+                            sh "bash mvn -Dsonar.host.url=https://sonar-eks.datapwn.com -Dsonar.login='$SONAR_USER' -Dsonar.password='$SONAR_PASS' -Dsonar.branch.name=${env.BRANCH_NAME} sonar:sonar"
                         }
                     }
                 }
