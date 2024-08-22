@@ -179,7 +179,11 @@ pipeline {
             steps {
                 container('main') {
                     withCredentials([ossrhCredentials, gpgCredentials]) {
-                        sh "bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                        sh """\
+                        #!/usr/bin/env bash
+                        set -xe
+                        bash mvn deploy $DEPLOY_OPTS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml
+                        """.stripIndent()
                     }
                 }
             }
@@ -195,9 +199,11 @@ pipeline {
                 container('main') {
                     script {
                         configFileProvider([configFile(fileId: 'maven-settings-nexus-zl', variable: 'MAVEN_SETTINGS')]) {
-                            sh """
+                            sh """\
+                               #!/usr/bin/env bash
+                               set -xe
                                bash .jenkins/scripts/docker_build.sh ${env.PROJECT_VERSION}
-                               """
+                               """.stripIndent()
                         }
                     }
                 }
