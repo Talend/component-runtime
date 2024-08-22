@@ -63,7 +63,7 @@ pipeline {
         choice(name: 'Action',
                 choices: ['STANDARD', 'RELEASE'],
                 description: 'Kind of running : \nSTANDARD : (default) classical CI\nRELEASE : Build release')
-        booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17')
+        booleanParam(name: 'BUILD_W_JDK17', defaultValue: false, description: 'Test build with Java 17, BROKEN TO BE FIXED')
         booleanParam(name: 'FORCE_SONAR', defaultValue: false, description: 'Force Sonar analysis')
         string(name: 'EXTRA_BUILD_ARGS', defaultValue: "", description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
         string(name: 'POST_LOGIN_SCRIPT', defaultValue: "", description: 'Execute a shell command after login. Useful for maintenance.')
@@ -139,7 +139,8 @@ pipeline {
                 container('jdk17') {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         script {
-                            sh "bash mvn clean package $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                            // TODO sh "bash mvn clean package $BUILD_ARGS $EXTRA_BUILD_ARGS -s .jenkins/settings.xml"
+                            error("The 17 build need to be implemented with custom builder with ticket https://jira.talendforge.org/browse/TCOMP-2797")
                         }
                     }
                 }
