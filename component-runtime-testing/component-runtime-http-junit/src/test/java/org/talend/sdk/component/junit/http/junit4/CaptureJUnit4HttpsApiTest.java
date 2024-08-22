@@ -34,6 +34,10 @@ import java.nio.file.Path;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
+
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -41,10 +45,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpsConfigurator;
-import com.sun.net.httpserver.HttpsServer;
 
 import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
@@ -134,8 +134,7 @@ public class CaptureJUnit4HttpsApiTest {
             assertTrue(output.toFile().exists());
             final String lines = String.join("\n", Files.readAllLines(output));
             assertJSONEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
-                    + "        \"content-length\":\"0\",\n"
-                    + "        \"Accept\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\",\n"
+                    + "        \"content-length\":\"0\",\n" + "        \"Accept\":\"*/*\",\n"
                     + "        \"Connection\":\"keep-alive\"\n" + "      },\n" + "      \"method\":\"GET\",\n"
                     + "      \"uri\":\"https://localhost:" + server.getAddress().getPort() + "/supertest\"\n"
                     + "    },\n" + "    \"response\":{\n" + "      \"headers\":{\n"
