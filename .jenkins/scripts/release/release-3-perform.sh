@@ -18,27 +18,22 @@
 set -xe
 
 # Parameters:
-# $1: github username
-# $2: github password
+# $1: extra build args for all mvn cmd
 main() {
-  local username="${1?Missing github username}"
-  local password="${2?Missing github password}"
+  local extraBuildParams=("$@")
 
-  git config --global credential.username ${username}
-  git config --global credential.helper '!echo password=${password}; echo'
-  git config --global credential.name "jenkins-build"
+  printf ">> Maven perform release"
 
-  {
-    printf "machine github.com\n"
-    printf "login %s\n" "${username}"
-    printf "password %s\n" "${password}"
+  local release_profiles="release,ossrh,gpg2"
 
-    printf "machine api.github.com\n"
-    printf "login %s\n" "${username}"
-    printf "password %s\n" "${password}"
-  } > ~/.netrc
+  mvn release:perform \
+    --batch-mode \
+    --errors \
+    --define arguments="-DskipTests -DskipITs -Dcheckstyle.skip -Denforcer.skip=true -Drat.skip" \
+    --settings .jenkins/settings.xml \
+    --activate-profiles "$release_profiles" \
+    "${extraBuildParams[@]}"
 
-  chmod 600 ~/.netrc
 }
 
 main "$@"

@@ -17,28 +17,13 @@
 
 set -xe
 
-# Parameters:
-# $1: github username
-# $2: github password
+# This script allow to package the current project with maven on specific jenkins provided settings.xml
+# You can provide extra parameters to tune maven
+# $1: extra_mvn_parameters
 main() {
-  local username="${1?Missing github username}"
-  local password="${2?Missing github password}"
-
-  git config --global credential.username ${username}
-  git config --global credential.helper '!echo password=${password}; echo'
-  git config --global credential.name "jenkins-build"
-
-  {
-    printf "machine github.com\n"
-    printf "login %s\n" "${username}"
-    printf "password %s\n" "${password}"
-
-    printf "machine api.github.com\n"
-    printf "login %s\n" "${username}"
-    printf "password %s\n" "${password}"
-  } > ~/.netrc
-
-  chmod 600 ~/.netrc
+  _EXTRA_MVN_PARAMETERS=("$@")
+  
+  mvn package --batch-mode --settings .jenkins/settings.xml ${_EXTRA_MVN_PARAMETERS[*]}
 }
 
 main "$@"

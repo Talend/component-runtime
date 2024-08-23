@@ -17,28 +17,10 @@
 
 set -xe
 
-# Parameters:
-# $1: github username
-# $2: github password
-main() {
-  local username="${1?Missing github username}"
-  local password="${2?Missing github password}"
+main() (
 
-  git config --global credential.username ${username}
-  git config --global credential.helper '!echo password=${password}; echo'
-  git config --global credential.name "jenkins-build"
+  mvn versions:dependency-updates-report versions:plugin-updates-report -pl '!bom'
 
-  {
-    printf "machine github.com\n"
-    printf "login %s\n" "${username}"
-    printf "password %s\n" "${password}"
-
-    printf "machine api.github.com\n"
-    printf "login %s\n" "${username}"
-    printf "password %s\n" "${password}"
-  } > ~/.netrc
-
-  chmod 600 ~/.netrc
-}
+)
 
 main "$@"
