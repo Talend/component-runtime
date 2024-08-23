@@ -54,7 +54,7 @@ spec:
         { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository}, 
         { name: dockercache, mountPath: /root/.dockercache}
       ]
-      resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+      resources: {requests: {memory: 4G, cpu: '4.0'}}
       env:
         - name: DOCKER_HOST
           value: tcp://localhost:2375
