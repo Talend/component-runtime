@@ -274,7 +274,6 @@ pipeline {
                         sh """\
                         #!/usr/bin/env bash
                         mvn versions:set --define newVersion=${finalVersion}
-                        mvn versions:set --file bom/pom.xml --define newVersion=${finalVersion}
                         """.stripIndent()
                     }
 
@@ -344,7 +343,6 @@ pipeline {
                     sh """\
                     #!/usr/bin/env bash
                     set -xe
-                    mvn clean install --file bom/pom.xml
                     mvn clean install $BUILD_ARGS \
                                       $extraBuildParams \
                                       --settings .jenkins/settings.xml
