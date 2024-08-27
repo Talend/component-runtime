@@ -108,7 +108,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private final URLClassLoader classLoaderFromClasspath;
 
-    private boolean useCaches;
+    private boolean useURLConnectionCaches;
 
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
@@ -138,8 +138,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
         classLoaderFromClasspath = createClassLoaderFromClasspath();
     }
 
-    public void setUseURLConnectionCaches(final boolean useCaches) {
-        this.useCaches = useCaches;
+    public void setUseURLConnectionCaches(final boolean useURLConnectionCaches) {
+        this.useURLConnectionCaches = useURLConnectionCaches;
     }
 
     // load all in memory to avoid perf issues - should we try offheap?
@@ -759,7 +759,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         if (url != null) {
             try {
                 final URLConnection connection = url.openConnection();
-                connection.setUseCaches(useCaches);
+                connection.setUseCaches(useURLConnectionCaches);
 
                 // package
                 final int i = name.lastIndexOf('.');
