@@ -82,5 +82,8 @@ public interface Resolver {
          * @return the dependencies who matched the resolution and were used to create the classloader.
          */
         Collection<String> resolvedDependencies();
+
+        default void setUseCaches(final boolean useCaches) {
+        };
     }
 }

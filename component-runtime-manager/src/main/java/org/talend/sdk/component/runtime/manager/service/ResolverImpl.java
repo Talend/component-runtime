@@ -119,6 +119,11 @@ public class ResolverImpl implements Resolver, Serializable {
         }
 
         @Override
+        public void setUseCaches(final boolean useCaches) {
+            volatileLoader.setUseCaches(useCaches);
+        }
+
+        @Override
         public void close() throws Exception {
             volatileLoader.close();
         }

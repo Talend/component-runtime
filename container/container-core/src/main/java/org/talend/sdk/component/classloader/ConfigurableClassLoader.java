@@ -108,6 +108,8 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private final URLClassLoader classLoaderFromClasspath;
 
+    private boolean useCaches;
+
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final String[] nestedDependencies, final String[] jvmPrefixes) {
@@ -134,6 +136,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 .filter(it -> Stream.of(this.fullPathJvmPrefixes).noneMatch(it::equals))
                 .toArray(String[]::new);
         classLoaderFromClasspath = createClassLoaderFromClasspath();
+    }
+
+    public void setUseCaches(final boolean useCaches) {
+        this.useCaches = useCaches;
     }
 
     // load all in memory to avoid perf issues - should we try offheap?
@@ -753,7 +759,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         if (url != null) {
             try {
                 final URLConnection connection = url.openConnection();
-                connection.setUseCaches(false);
+                connection.setUseCaches(useCaches);
 
                 // package
                 final int i = name.lastIndexOf('.');
