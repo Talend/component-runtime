@@ -138,7 +138,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
         classLoaderFromClasspath = createClassLoaderFromClasspath();
     }
 
-    public void setUseCaches(final boolean useCaches) {
+    public void setUseURLConnectionCaches(final boolean useCaches) {
         this.useCaches = useCaches;
     }
 

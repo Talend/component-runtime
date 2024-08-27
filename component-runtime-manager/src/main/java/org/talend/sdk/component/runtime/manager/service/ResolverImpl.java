@@ -119,8 +119,8 @@ public class ResolverImpl implements Resolver, Serializable {
         }
 
         @Override
-        public void setUseCaches(final boolean useCaches) {
-            volatileLoader.setUseCaches(useCaches);
+        public void setUseURLConnectionCaches(final boolean useCaches) {
+            volatileLoader.setUseURLConnectionCaches(useCaches);
         }
 
         @Override

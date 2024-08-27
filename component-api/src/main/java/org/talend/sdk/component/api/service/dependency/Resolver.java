@@ -83,7 +83,7 @@ public interface Resolver {
          */
         Collection<String> resolvedDependencies();
 
-        default void setUseCaches(final boolean useCaches) {
+        default void setUseURLConnectionCaches(final boolean useCaches) {
         };
     }
 }
