@@ -23,9 +23,7 @@ function StepByStep(props) {
 	return (
 		<nav className={theme.menu}>
 			<ol>
-				<li
-					className={classnames({ [theme.active]: props.location.pathname === '/openapi/project' })}
-				>
+				<li className={classnames({ [theme.active]: location.pathname === '/openapi/project' })}>
 					<Link to="/openapi/project" id="step-start">
 						Start
 					</Link>
@@ -35,7 +33,7 @@ function StepByStep(props) {
 				</li>
 				<li
 					id="step-finish"
-					className={classnames({ [theme.active]: props.location.pathname === '/openapi/export' })}
+					className={classnames({ [theme.active]: location.pathname === '/openapi/export' })}
 				>
 					<Link to="/openapi/export" id="go-to-finish-button">
 						Finish
