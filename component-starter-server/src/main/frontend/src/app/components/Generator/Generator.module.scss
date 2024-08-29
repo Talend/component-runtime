@@ -1,4 +1,4 @@
- /**
+/**
   *  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
   *
   *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,43 +13,41 @@
   *  See the License for the specific language governing permissions and
   *  limitations under the License.
   */
-  .Generator {
-    margin-top: 48px;
-    $grey: #ccc;
+.Generator {
+	$grey: #ccc;
 
-    .container {
-      display: flex;
-      flex-direction: row;
-      max-height: calc(100vh - 48px);
+	.container {
+		display: flex;
+		flex-direction: row;
+		max-height: calc(100vh - 48px);
 
-      .content {
-        flex-grow: 1;
+		.content {
+			flex-grow: 1;
 
-        display: flex;
-        flex-direction: column;
-        height: auto;
+			display: flex;
+			flex-direction: column;
+			height: auto;
 
-        > main {
-          flex: 1;
-          overflow: auto;
-          // padding-left: 25px;
-        }
+			> main {
+				flex: 1;
+				overflow: auto;
+				// padding-left: 25px;
+			}
 
-        > footer {
-          flex: 0;
-          padding: 15px 25px 15px;
-          border-top: 1px solid $grey;
+			> footer {
+				flex: 0;
+				padding: 15px 25px 15px;
+				border-top: 1px solid $grey;
 
-          > button {
-            margin-right: 15px;
-          }
-        }
-      }
+				> button {
+					margin-right: 15px;
+				}
+			}
+		}
 
-      div.wizard {
-        border-right: 1px $grey solid;
-        height: calc(100vh - 48px);
-
-      }
-    }
- }
+		div.wizard {
+			border-right: 1px $grey solid;
+			height: calc(100vh - 48px);
+		}
+	}
+}
