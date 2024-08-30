@@ -149,7 +149,14 @@ class AbstractWidgetConverterTest {
                                 put("condition::if::negate::1", "false");
                                 put("condition::if::evaluationStrategy::1", "DEFAULT");
                             }
-                        }, "{\"and\":[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"==\":[1,1]}]}"));
+                        }, "{\"and\":[{\"===\":[{\"var\":\"foo\"},\"Bar\"]},{\"==\":[1,1]}]}"),
+
+                        new AbstractMap.SimpleEntry<>(new HashMap<String, String>() {
+
+                            {
+                                put("ui::hidden", "true");
+                            }
+                        }, "{\"==\":[1,1]}"));
     }
 
     @ParameterizedTest

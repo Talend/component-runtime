@@ -172,7 +172,7 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
                     button.setTriggers(singletonList(trigger));
 
                     final String activeIf = root.getProperty().getMetadata().get("action::update::activeIf");
-                    if (activeIf != null) {
+                    if (activeIf != null && !activeIf.isEmpty()) {
                         button.setCondition(getCondition(root, path, activeIf));
                     }
 
@@ -183,6 +183,9 @@ abstract class ObjectWidgetConverter extends AbstractWidgetConverter {
     private Map<String, Collection<Object>> getCondition(final PropertyContext<?> root, final String actionPath,
             final String activeIf) {
         final String[] split = activeIf.split(",");
+        if (split[0].split("=").length < 2) {
+            throw new IllegalStateException("The value for Updatable's activeIf is wrong ：" + split[0]);
+        }
         final String keySuffix = split[0].split("=")[1].trim();
         final String valueKey = "condition::if::value::" + keySuffix;
         final String path = actionPath + "." + keySuffix;

@@ -22,6 +22,7 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
+import org.talend.sdk.component.api.configuration.ui.widget.Hidden;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
@@ -30,7 +31,8 @@ import lombok.Data;
 @GridLayout({
         @GridLayout.Row({ "date" }),
         @GridLayout.Row({ "dataset" }),
-        @GridLayout.Row({ "generateException" }) })
+        @GridLayout.Row({ "generateException" }),
+        @GridLayout.Row({ "dbType" })})
 @GridLayout(
         names = GridLayout.FormType.ADVANCED,
         value = {
@@ -57,4 +59,10 @@ public class InputConfig implements Serializable {
     @Documentation("Doc: Use the generate runtime exception service or not.")
     @DefaultValue("false")
     private Boolean generateRuntimeException = false;
+
+    @Option
+    @Documentation("Data base type from the supported data base list.")
+    @DefaultValue("Mysql")
+    @Hidden
+    private String dbType;
 }
