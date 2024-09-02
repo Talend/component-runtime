@@ -26,6 +26,7 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
+import org.talend.sdk.component.test.connectors.service.GenerateExceptionServices;
 
 @Icon(value = Icon.IconType.CUSTOM, custom = "input")
 @Documentation("Doc: default TheInput1 documentation without Internationalization.")
@@ -41,12 +42,19 @@ public class TheInput1 implements Serializable {
 
     InputConfig config;
 
-    public TheInput1(final @Option("configin") InputConfig config) {
+    private final GenerateExceptionServices exceptionServices;
+
+    public TheInput1(final @Option("configin") InputConfig config,
+            final GenerateExceptionServices exceptionServices) {
         this.config = config;
+        this.exceptionServices = exceptionServices;
     }
 
     @PostConstruct
     public void init() {
+        if (config.getGenerateException()) {
+            exceptionServices.generateException();
+        }
     }
 
     @PreDestroy
@@ -55,7 +63,9 @@ public class TheInput1 implements Serializable {
 
     @Producer
     public Object next() {
-
+        if (config.getGenerateRuntimeException()) {
+            exceptionServices.generateRuntimeException();
+        }
         return LocalDate.now();
     }
 
