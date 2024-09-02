@@ -18,11 +18,9 @@ package org.talend.test;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
@@ -35,6 +33,8 @@ import lombok.Data;
 
 @Emitter(family = "db", name = "input")
 public class DataInput implements Serializable {
+
+    private final I18nService i18n;
 
     private static final Map<String, List<Object>> data = new HashMap<>();
 
@@ -76,9 +76,19 @@ public class DataInput implements Serializable {
 
     private final String tableName;
 
-    public DataInput(@Option("tableName") String tableName, Jsonb jsonb) {
+    public DataInput(final @Option("tableName") String tableName, final Jsonb jsonb, final I18nService i18n) {
         this.tableName = tableName;
         this.jsonb = jsonb;
+        this.i18n = i18n;
+        final Thread thread = Thread.currentThread();
+        final ClassLoader prev = thread.getContextClassLoader();
+        try {
+            // TCOMP-2800: force incorrect classloader and ensure bundle is found.
+            thread.setContextClassLoader(prev.getParent());
+            i18n.error();
+        } finally {
+            thread.setContextClassLoader(prev);
+        }
     }
 
     @Producer
