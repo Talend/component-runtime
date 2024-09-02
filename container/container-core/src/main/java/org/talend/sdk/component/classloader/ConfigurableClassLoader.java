@@ -108,6 +108,10 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     private final URLClassLoader classLoaderFromClasspath;
 
+    @Getter
+    private final List<String> cacheableClasses =
+            asList(System.getProperty("talend.tccl.cacheable.classes", "").replace('.', '/').split(","));
+
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final String[] nestedDependencies, final String[] jvmPrefixes) {
@@ -754,7 +758,9 @@ public class ConfigurableClassLoader extends URLClassLoader {
             try {
                 final URLConnection connection = url.openConnection();
                 connection.setUseCaches(false);
-
+                if (cacheableClasses.stream().anyMatch(s -> path.startsWith(s))) {
+                    connection.setUseCaches(true);
+                }
                 // package
                 final int i = name.lastIndexOf('.');
                 if (i != -1) {
