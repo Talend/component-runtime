@@ -109,8 +109,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
     private final URLClassLoader classLoaderFromClasspath;
 
     @Getter
-    private final List<String> cacheableClasses =
-            asList(System.getProperty("talend.tccl.cacheable.classes", "").replace('.', '/').split(","));
+    private final List<String> cacheableClasses;
 
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
@@ -138,6 +137,13 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 .filter(it -> Stream.of(this.fullPathJvmPrefixes).noneMatch(it::equals))
                 .toArray(String[]::new);
         classLoaderFromClasspath = createClassLoaderFromClasspath();
+
+        String useURLConnectionCacheClassList = System.getProperty("talend.tccl.cacheable.classes");
+        if (useURLConnectionCacheClassList != null) {
+            cacheableClasses = asList(useURLConnectionCacheClassList.replace('.', '/').split(","));
+        } else {
+            cacheableClasses = Collections.emptyList();
+        }
     }
 
     // load all in memory to avoid perf issues - should we try offheap?
