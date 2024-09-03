@@ -24,8 +24,7 @@ import java.lang.annotation.Target;
 
 import javax.inject.Qualifier;
 
-@Qualifier
-@Retention(RUNTIME)
+@Qualifier @Retention(RUNTIME)
 @Target({ FIELD, METHOD })
 public @interface ComponentServer {
 }

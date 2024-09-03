@@ -28,9 +28,6 @@ import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
-import routines.system.Dynamic;
-import routines.system.ParserUtils;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -66,6 +63,9 @@ import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.manager.service.DefaultServiceProvider;
 import org.talend.sdk.component.runtime.record.MappingUtils;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+
+import routines.system.Dynamic;
+import routines.system.ParserUtils;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -109,8 +109,8 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("di"), null)
-                            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null, null);
+                    .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                            RecordService.class, null, null);
 
     DiRecordVisitor(final Class<?> clzz, final java.util.Map<String, String> metadata) {
         clazz = clzz;

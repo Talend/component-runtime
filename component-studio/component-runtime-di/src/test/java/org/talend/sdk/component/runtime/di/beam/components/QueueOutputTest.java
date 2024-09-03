@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import javax.json.Json;
-import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;

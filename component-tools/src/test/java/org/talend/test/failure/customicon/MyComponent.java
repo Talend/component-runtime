@@ -16,7 +16,6 @@
 package org.talend.test.failure.customicon;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
-import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
 

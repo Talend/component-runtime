@@ -23,15 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
-import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
+import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
-
-import org.dom4j.DocumentHelper;
-import routines.system.Document;
-import routines.system.Dynamic;
-import routines.system.DynamicMetadata;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,12 +37,17 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
+import org.dom4j.DocumentHelper;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
+
+import routines.system.Document;
+import routines.system.Dynamic;
+import routines.system.DynamicMetadata;
 
 import lombok.Data;
 

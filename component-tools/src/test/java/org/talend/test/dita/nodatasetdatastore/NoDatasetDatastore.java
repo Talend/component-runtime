@@ -15,13 +15,12 @@
  */
 package org.talend.test.dita.nodatasetdatastore;
 
-import lombok.Data;
+import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
+
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.condition.ActiveIf;
-import org.talend.sdk.component.api.configuration.type.DataSet;
-import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.AfterGroup;
@@ -29,7 +28,7 @@ import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
-import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
+import lombok.Data;
 
 @Documentation("Component without layout")
 @Version

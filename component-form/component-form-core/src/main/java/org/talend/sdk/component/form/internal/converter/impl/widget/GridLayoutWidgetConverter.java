@@ -150,9 +150,9 @@ public class GridLayoutWidgetConverter extends ObjectWidgetConverter {
         if (line.getItems().length == 1 && childProperties.containsKey(line.getItems()[0])) {
             return new UiSchemaConverter(layoutFilter, family, line.getUiSchemas(), visitedProperties, client,
                     jsonSchema, properties, actions, lang, customPropertyConverters, idGenerator)
-                            .convert(completedFuture(new PropertyContext<>(childProperties.get(line.getItems()[0]),
-                                    root.getRootContext(), root.getConfiguration())))
-                            .thenApply(r -> line);
+                    .convert(completedFuture(new PropertyContext<>(childProperties.get(line.getItems()[0]),
+                            root.getRootContext(), root.getConfiguration())))
+                    .thenApply(r -> line);
         } else if (line.getItems().length > 1) {
             final UiSchema schema = new UiSchema();
             schema.setWidget("columns");

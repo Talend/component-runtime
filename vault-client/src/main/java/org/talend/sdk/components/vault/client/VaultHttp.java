@@ -25,8 +25,7 @@ import java.lang.annotation.Target;
 
 import javax.inject.Qualifier;
 
-@Qualifier
-@Target({ METHOD, FIELD, PARAMETER })
+@Qualifier @Target({ METHOD, FIELD, PARAMETER })
 @Retention(RUNTIME)
 public @interface VaultHttp {
 

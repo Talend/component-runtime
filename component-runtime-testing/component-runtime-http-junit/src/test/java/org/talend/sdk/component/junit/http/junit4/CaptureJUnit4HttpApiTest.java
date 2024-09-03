@@ -32,6 +32,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpServer;
+
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -39,9 +42,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
 
 public class CaptureJUnit4HttpApiTest {
 
@@ -80,7 +80,7 @@ public class CaptureJUnit4HttpApiTest {
                                 .map(k -> k + "=" + headers.getFirst(k))
                                 .collect(joining("/"))
                         + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
-                                .getBytes(StandardCharsets.UTF_8);
+                        .getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(200, bytes.length);
             httpExchange.getResponseBody().write(bytes);

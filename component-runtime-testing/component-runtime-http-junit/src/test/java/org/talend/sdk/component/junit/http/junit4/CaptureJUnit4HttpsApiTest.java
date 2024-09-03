@@ -34,6 +34,10 @@ import java.nio.file.Path;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
+
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -41,10 +45,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpsConfigurator;
-import com.sun.net.httpserver.HttpsServer;
 
 import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.JdkSslContext;
@@ -98,7 +98,7 @@ public class CaptureJUnit4HttpsApiTest {
                                 .map(k -> k + "=" + headers.getFirst(k))
                                 .collect(joining("/"))
                         + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
-                                .getBytes(StandardCharsets.UTF_8);
+                        .getBytes(StandardCharsets.UTF_8);
             }
             httpExchange.sendResponseHeaders(200, bytes.length);
             httpExchange.getResponseBody().write(bytes);

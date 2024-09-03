@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.runtime.manager.service.api;
 
+import java.util.*;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.runtime.base.Lifecycle;
@@ -24,9 +27,6 @@ import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
-
-import java.util.*;
-import java.util.stream.Stream;
 
 class ComponentInstantiatorTest {
 

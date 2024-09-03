@@ -24,8 +24,6 @@ import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 
-import scala.Tuple2;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -39,6 +37,8 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import lombok.NoArgsConstructor;
+
+import scala.Tuple2;
 
 public class SparkClusterRuleTest {
 

@@ -34,6 +34,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.GZIPOutputStream;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpServer;
+
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -41,9 +44,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpServer;
 
 public class CaptureJUnit4GzipHttpApiTest {
 
@@ -82,7 +82,7 @@ public class CaptureJUnit4GzipHttpApiTest {
                                 .map(k -> k + "=" + headers.getFirst(k))
                                 .collect(joining("/"))
                         + "@" + httpExchange.getRequestURI().toASCIIString() + "@" + in.lines().collect(joining("\n")))
-                                .getBytes(StandardCharsets.UTF_8);
+                        .getBytes(StandardCharsets.UTF_8);
             }
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             try (final GZIPOutputStream gzip = new GZIPOutputStream(out)) {
