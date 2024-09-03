@@ -138,7 +138,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
                 .toArray(String[]::new);
         classLoaderFromClasspath = createClassLoaderFromClasspath();
 
-        String useURLConnectionCacheClassList = System.getProperty("talend.tccl.cacheable.classes");
+        final String useURLConnectionCacheClassList = System.getProperty("talend.tccl.cacheable.classes");
         if (useURLConnectionCacheClassList != null) {
             cacheableClasses = asList(useURLConnectionCacheClassList.replace('.', '/').split(","));
         } else {
