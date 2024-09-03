@@ -17,8 +17,10 @@ package org.talend.sdk.component.runtime.manager.service;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.util.MissingResourceException;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -35,14 +37,17 @@ public class InternalizationServiceTest {
     @Test
     void wrongCL(@TempDir final File temporaryFolder) {
         final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID().toString());
-        System.err.println(pluginFolder);
         pluginFolder.mkdirs();
         final File plugin = pluginGenerator.createChainPlugin(pluginFolder, "plugin.jar");
         final File deps = new File("target/test-dependencies");
         try (final ComponentManager manager = new ComponentManager(deps, "META-INF/test/dependencies", null)) {
             manager.addPlugin(plugin.getAbsolutePath());
-            final Mapper mapper =
-                    manager.findMapper("db", "input", 1, emptyMap()).orElseThrow(IllegalStateException::new);
+            try {
+                final Mapper mapper =
+                        manager.findMapper("db", "input", 1, emptyMap()).orElseThrow(IllegalStateException::new);
+            } catch (MissingResourceException e) {
+                fail("Bundle should have been loaded.");
+            }
         } finally { // clean temp files
             Stream.of(pluginFolder.listFiles()).forEach(File::delete);
             if (ofNullable(pluginFolder.listFiles()).map(f -> f.length == 0).orElse(true)) {
