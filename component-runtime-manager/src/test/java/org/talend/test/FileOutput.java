@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -55,7 +54,7 @@ public class FileOutput implements Serializable {
     }
 
     @AfterGroup
-    public void commit(final Collection<JsonObject> records) {
+    public void commit() {
         final Writer writer = service.writerFor(new File(configuration.file).getAbsolutePath());
         buffer.forEach(data -> {
             synchronized (writer) {
