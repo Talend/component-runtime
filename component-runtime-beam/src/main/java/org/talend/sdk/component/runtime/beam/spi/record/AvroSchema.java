@@ -59,7 +59,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     static AvroSchema toAvroSchema(final org.talend.sdk.component.api.record.Schema schema) {
         // special handling for an empty schema that matches the one in AvroSchemaBuilder for records
-        if (schema.getType() == Type.RECORD && schema.getEntries().isEmpty()) {
+        if (schema.getType() == Type.RECORD && schema.getAllEntries().noneMatch(it -> true)) {
             return new AvroSchema(AvroSchemas.getEmptySchema());
         }
 
