@@ -586,7 +586,7 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase />
+            <phase/>
             <configuration>
               <skip>${component.front.build.skip}</skip>
               <arguments>run antora:${antora.dev.site.mode}</arguments>
@@ -758,11 +758,11 @@
                 <pdf-style>talend</pdf-style>
                 <pdf-stylesdir>${project.basedir}/src/main/asciidoctor/pdf/theme</pdf-stylesdir>
                 <pdf-fonts>${project.build.directory}/build-dependencies/asciidoctorj-pdf/gems/asciidoctor-pdf-${asciidoctor-pdf-gem.version}/data/fonts</pdf-fonts>
-                <pagenums />
-                <toc />
-                <numbered />
-                <hide-uri-scheme />
-                <idprefix />
+                <pagenums/>
+                <toc/>
+                <numbered/>
+                <hide-uri-scheme/>
+                <idprefix/>
                 <icons>font</icons>
                 <icon-set>fa</icon-set>
                 <idseparator>-</idseparator>
