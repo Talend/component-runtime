@@ -700,6 +700,14 @@ class UiSpecServiceTest {
         System.out.println(JsonbBuilder.create(new JsonbConfig().withFormatting(true)).toJson(payload));
     }
 
+    @Test
+    void healthCheck() throws Exception {
+        // Make sure this json file goes through all else parts in ObjectWidgetConverter's addHealthCheck method
+        final Ui payload = service.convert(load("healthcheck.json"), "en", null).toCompletableFuture().get();
+        final Collection<UiSchema> uiSchema = payload.getUiSchema();
+        assertNotNull(uiSchema);
+    }
+
     private void assertUiSchema(final UiSchema schema, final String widget, final String title, final String key,
             final int nestedSize, final Consumer<UiSchema> customValidator) {
         assertEquals(widget, schema.getWidget(), schema.toString());

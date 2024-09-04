@@ -47,6 +47,8 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public abstract class AbstractWidgetConverter implements PropertyConverter {
 
+    private static final String FALSE = "false";
+
     private final AbsolutePathResolver pathResolver = new AbsolutePathResolver();
 
     protected final Collection<UiSchema> schemas;
@@ -169,7 +171,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         if (ctx.getConfiguration().isIncludeDocumentationMetadata()) {
             schema.setDescription(ctx.getProperty().getMetadata().get("documentation::value"));
         }
-        if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("documentation::tooltip", "false"))) {
+        if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("documentation::tooltip", FALSE))) {
             schema.setTooltip(ctx.getProperty().getMetadata().get("documentation::value"));
         }
         if (actions != null) {
@@ -308,20 +310,13 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                             properties.stream().filter(p -> p.getPath().equals(path)).findFirst().orElse(null);
                     final Function<String, Object> converter = findStringValueMapper(definition);
                     final boolean shouldBe =
-                            !Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault(negateKey, "false"));
+                            !Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault(negateKey, FALSE));
                     final String strategy =
                             ctx.getProperty().getMetadata().getOrDefault(strategyKey, "default").toLowerCase(ROOT);
 
                     if ("ui.scope".equals(paramRef)) {
                         boolean cloud = ctx.getProperty().getMetadata().getOrDefault(valueKey, "").contains("cloud");
-                        if ((shouldBe && !cloud) || (!shouldBe && cloud)) {
-                            return new UiSchema.ConditionBuilder().withOperator("==")
-                                    .withValue(1)
-                                    .withValue(-1)
-                                    .build();
-                        } else {
-                            return new UiSchema.ConditionBuilder().withOperator("==").withValue(1).withValue(1).build();
-                        }
+                        return getUiScopeCondition(shouldBe, cloud);
                     }
 
                     final List<Map<String, Collection<Object>>> values = Stream
@@ -344,7 +339,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 .collect(toList());
 
         // Borrow the condition ({"==":[1,1]}) to make the widget be hidden when using the annotation "Hidden"
-        if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("ui::hidden", "false"))) {
+        if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("ui::hidden", FALSE))) {
             return new UiSchema.ConditionBuilder().withOperator("==").withValue(1).withValue(1).build();
         }
 
@@ -358,6 +353,17 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                     .orElse("AND")
                     .toLowerCase(ROOT);
             return new UiSchema.ConditionBuilder().withOperator(operator).withValues(conditions).build();
+        }
+    }
+
+    private static Map<String, Collection<Object>> getUiScopeCondition(final boolean shouldBe, final boolean cloud) {
+        if ((shouldBe && !cloud) || (!shouldBe && cloud)) {
+            return new UiSchema.ConditionBuilder().withOperator("==")
+                    .withValue(1)
+                    .withValue(-1)
+                    .build();
+        } else {
+            return new UiSchema.ConditionBuilder().withOperator("==").withValue(1).withValue(1).build();
         }
     }
 
