@@ -1343,7 +1343,6 @@
               <file>${maven.multiModuleProjectDirectory}/build/talend.importorder</file>
             </importOrder>
             <removeUnusedImports/>
-            <formatAnnotations/>
           </java>
           <pom>
             <sortPom>
