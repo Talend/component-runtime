@@ -45,7 +45,7 @@ function Help(props) {
 			overlay={overlay}
 		>
 			<span className={theme.Help}>
-				<Icon name={props.icon} />
+				<Icon name={props.icon || 'talend-question-circle'} />
 			</span>
 		</OverlayTrigger>
 	);
@@ -59,8 +59,4 @@ Help.propTypes = {
 	content: PropTypes.object,
 	placement: PropTypes.string,
 	title: PropTypes.string,
-};
-
-Help.defaultProps = {
-	icon: 'talend-question-circle',
 };
