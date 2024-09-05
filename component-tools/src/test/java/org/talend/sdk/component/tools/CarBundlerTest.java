@@ -48,12 +48,12 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+import com.sun.net.httpserver.HttpServer;
+
 import org.apache.ziplock.IO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-
-import com.sun.net.httpserver.HttpServer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -207,9 +207,9 @@ class CarBundlerTest {
                     "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus", "--url",
                     "http://localhost:" + server.getAddress().getPort() + "/nexus", "--repo", repoName, "--user",
                     "admin", "--pass", "admin123", "--threads", "1", "--dir", m2.getAbsolutePath())
-                            .inheritIO()
-                            .start()
-                            .waitFor());
+                    .inheritIO()
+                    .start()
+                    .waitFor());
         } finally {
             server.stop(0);
         }
@@ -240,9 +240,9 @@ class CarBundlerTest {
                     "-jar", configuration.getOutput().getAbsolutePath(), "deploy-to-nexus", "--url",
                     "http://localhost:" + server.getAddress().getPort(), "--repo", repoName, "--user", "admin",
                     "--pass", "admin123", "--threads", "1", "--dir", m2.getAbsolutePath())
-                            .inheritIO()
-                            .start()
-                            .waitFor());
+                    .inheritIO()
+                    .start()
+                    .waitFor());
         } finally {
             server.stop(0);
         }

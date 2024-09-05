@@ -350,7 +350,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out
                             .write(("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n\n"
                                     + "== output\n\n=== Configuration\n\nSomething else")
-                                            .getBytes(StandardCharsets.UTF_8));
+                                    .getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
                 } catch (final IOException e) {
                     fail(e.getMessage());

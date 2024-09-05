@@ -194,15 +194,15 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     private Stream<UiSchema.Trigger> createBuiltInSuggestionTriggers(final SimplePropertyDefinition property) {
         return ofNullable(
                 property.getMetadata().get("action::built_in_suggestable"))
-                        .map(ref -> Stream
-                                .of(toTrigger(properties, property,
-                                        new ActionReference("builtin_client", ref, "built_in_suggestable", null,
-                                                emptyList())))
-                                .peek(trigger -> {
-                                    trigger.setOnEvent("focus");
-                                    trigger.setRemote(false);
-                                }))
-                        .orElseGet(Stream::empty);
+                .map(ref -> Stream
+                        .of(toTrigger(properties, property,
+                                new ActionReference("builtin_client", ref, "built_in_suggestable", null,
+                                        emptyList())))
+                        .peek(trigger -> {
+                            trigger.setOnEvent("focus");
+                            trigger.setRemote(false);
+                        }))
+                .orElseGet(Stream::empty);
     }
 
     private Stream<UiSchema.Trigger> createSuggestionTriggers(final SimplePropertyDefinition property) {

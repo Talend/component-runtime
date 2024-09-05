@@ -82,25 +82,25 @@ public class EnvironmentalContext implements TestTemplateInvocationContext {
                                                     .of(of(AnnotationUtils
                                                             .findRepeatableAnnotations(context.getRequiredTestClass(),
                                                                     EnvironmentConfiguration.class))
-                                                                            .filter(it -> !it.isEmpty())
-                                                                            .map(l -> new Annotation[] {
-                                                                                    new EnvironmentConfigurations() {
+                                                            .filter(it -> !it.isEmpty())
+                                                            .map(l -> new Annotation[] {
+                                                                    new EnvironmentConfigurations() {
 
-                                                                                        @Override
-                                                                                        public Class<? extends Annotation>
-                                                                                                annotationType() {
-                                                                                            return EnvironmentConfigurations.class;
-                                                                                        }
+                                                                        @Override
+                                                                        public Class<? extends Annotation>
+                                                                                annotationType() {
+                                                                            return EnvironmentConfigurations.class;
+                                                                        }
 
-                                                                                        @Override
-                                                                                        public EnvironmentConfiguration[]
-                                                                                                value() {
-                                                                                            return l
-                                                                                                    .toArray(
-                                                                                                            new EnvironmentConfiguration[0]);
-                                                                                        }
-                                                                                    } })
-                                                                            .orElseGet(() -> new Annotation[0])))
+                                                                        @Override
+                                                                        public EnvironmentConfiguration[]
+                                                                                value() {
+                                                                            return l
+                                                                                    .toArray(
+                                                                                            new EnvironmentConfiguration[0]);
+                                                                        }
+                                                                    } })
+                                                            .orElseGet(() -> new Annotation[0])))
                                     .toArray(Annotation[]::new));
             ofNullable(componentExtension).ifPresent(c -> {
                 c.doStart(context);

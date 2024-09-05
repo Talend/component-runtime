@@ -15,17 +15,17 @@
  */
 package org.talend.sdk.component.runtime.manager.reflect;
 
-import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.component.Icon;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.Locale;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.component.Icon;
 
 class IconFinderTest {
 

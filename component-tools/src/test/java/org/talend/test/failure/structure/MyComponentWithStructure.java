@@ -18,8 +18,6 @@ package org.talend.test.failure.structure;
 import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
 
 import javax.json.JsonObject;
 
@@ -33,7 +31,6 @@ import org.talend.sdk.component.api.configuration.ui.widget.Structure.Type;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.test.valid.structure.MyComponentWithStructure.MyDataSet.MySchema;
 
 @Documentation("super my component")
 @Version

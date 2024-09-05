@@ -206,7 +206,7 @@ public class ComponentManager implements AutoCloseable {
 
                     parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
                             container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
-                                    .forEach(this::addPlugin);
+                            .forEach(this::addPlugin);
                     info("Components: " + availablePlugins());
                 }
 
@@ -590,9 +590,9 @@ public class ComponentManager implements AutoCloseable {
                 .concat(customizers.stream().flatMap(Customizer::containerClassesAndPackages),
                         ofNullable(
                                 System.getProperty("talend.component.manager.classloader.container.classesAndPackages"))
-                                        .map(s -> s.split(","))
-                                        .map(Stream::of)
-                                        .orElseGet(Stream::empty));
+                                .map(s -> s.split(","))
+                                .map(Stream::of)
+                                .orElseGet(Stream::empty));
     }
 
     public static Path findM2() {
@@ -741,8 +741,8 @@ public class ComponentManager implements AutoCloseable {
         }
         return find(pluginContainer -> Stream
                 .of(findInstance(plugin, name, componentType, version, configuration, pluginContainer)))
-                        .filter(Objects::nonNull)
-                        .findFirst();
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 
     public void autoDiscoverPlugins(final boolean callers, final boolean classpath) {
@@ -789,7 +789,7 @@ public class ComponentManager implements AutoCloseable {
                 () -> Stream.of(pluginContainer.get(ContainerComponentRegistry.class)));
         return ofNullable(
                 builder.build(pluginIdentifier, ComponentInstantiator.MetaFinder.ofComponent(name), componentType))
-                        .map((ComponentInstantiator instantiator) -> instantiator.instantiate(configuration, version));
+                .map((ComponentInstantiator instantiator) -> instantiator.instantiate(configuration, version));
     }
 
     private Optional<Object> findGenericInstance(final String plugin, final String name,
@@ -924,7 +924,7 @@ public class ComponentManager implements AutoCloseable {
             configurations
                     .addAll(toStream(
                             loadServiceProviders(LocalConfiguration.class, LocalConfiguration.class.getClassLoader()))
-                                    .collect(toList()));
+                            .collect(toList()));
         }
         configurations.addAll(asList(new LocalConfiguration() {
 
@@ -1023,7 +1023,7 @@ public class ComponentManager implements AutoCloseable {
         // it is "slow" for cold boots so let's delay it
         return config -> executeInContainer(plugin,
                 lazy(() -> reflections.parameterFactory(method, services, metas == null ? null : metas.get())))
-                        .apply(config);
+                .apply(config);
     }
 
     public enum ComponentType {

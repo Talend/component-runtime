@@ -57,8 +57,8 @@ class RecordServiceImplTest {
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> factory, null)
-                            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null, null));
+                    .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                            RecordService.class, null, null));
 
     private final Schema address = factory
             .newSchemaBuilder(RECORD)
