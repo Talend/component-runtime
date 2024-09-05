@@ -28,41 +28,29 @@ import Detail from "../Detail";
 
 import theme from "./App.module.scss";
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.notificationLeaveFn = this.notificationLeaveFn.bind(this);
-  }
+function App(props) {
+  const header = (
+    <HeaderBar
+      logo={{ isFull: true }}
+      brand={{
+        id: "header-brand",
+        label: "Talend Component Kit Web Tester",
+      }}
+    />
+  );
 
-  notificationLeaveFn(notification) {
-    this.props.removeNotification(notification);
-  }
-
-  render() {
-    const header = (
-      <HeaderBar
-        logo={{ isFull: true }}
-        brand={{
-          id: "header-brand",
-          label: "Talend Component Kit Web Tester",
-        }}
+  return (
+    <div className={theme.App}>
+      <IconsProvider />
+      <Layout mode={"TwoColumns"} header={header} one={<Menu />}>
+        <Detail saga="Detail::start" />
+      </Layout>
+      <Notification
+        leaveFn={props.removeNotification}
+        notifications={props.notifications}
       />
-    );
-    const menu = <Menu />;
-
-    return (
-      <div className={theme.App}>
-        <IconsProvider />
-        <Layout mode={"TwoColumns"} header={header} one={menu}>
-          <Detail saga="Detail::start" />
-        </Layout>
-        <Notification
-          notifications={this.props.notifications}
-          leaveFn={this.notificationLeaveFn}
-        />
-      </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default App;
