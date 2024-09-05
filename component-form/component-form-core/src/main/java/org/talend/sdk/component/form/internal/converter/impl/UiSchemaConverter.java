@@ -118,7 +118,7 @@ public class UiSchemaConverter implements PropertyConverter {
                                 if (!nested.isEmpty()) {
                                     return new ObjectArrayWidgetConverter(schemas, properties, actions, family, client,
                                             gridLayoutFilter, jsonSchema, lang, customConverters, metadata, idGenerator)
-                                                    .convert(CompletableFuture.completedFuture(context));
+                                            .convert(CompletableFuture.completedFuture(context));
                                 }
                                 return new MultiSelectWidgetConverter(schemas, properties, actions, client, family,
                                         jsonSchema, lang).convert(CompletableFuture.completedFuture(context));
@@ -148,7 +148,7 @@ public class UiSchemaConverter implements PropertyConverter {
                                 } else if (metadata.containsKey("ui::datetime")) {
                                     return new DateTimeConverter(schemas, properties, actions, jsonSchema, lang,
                                             metadata.get("ui::datetime"))
-                                                    .convert(CompletableFuture.completedFuture(context));
+                                            .convert(CompletableFuture.completedFuture(context));
                                 }
 
                                 return new TextWidgetConverter(schemas, properties, actions, jsonSchema, lang)
@@ -179,11 +179,11 @@ public class UiSchemaConverter implements PropertyConverter {
                             ? singletonMap(gridLayoutFilter, gridLayouts.get(gridLayoutFilter))
                             : gridLayouts,
                     jsonSchema, lang, customConverters, idGenerator)
-                            .convert(CompletableFuture.completedFuture(outputContext));
+                    .convert(CompletableFuture.completedFuture(outputContext));
         }
         final String forcedOrder = metadata.get("ui::optionsorder::value");
         return new FieldSetWidgetConverter(schemas, properties, actions, client, family, jsonSchema, forcedOrder, lang,
                 customConverters, parentUiSchema, idGenerator)
-                        .convert(CompletableFuture.completedFuture(outputContext));
+                .convert(CompletableFuture.completedFuture(outputContext));
     }
 }

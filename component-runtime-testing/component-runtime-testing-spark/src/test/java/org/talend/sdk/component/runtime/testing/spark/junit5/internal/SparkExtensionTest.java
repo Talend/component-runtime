@@ -24,8 +24,6 @@ import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 
-import scala.Tuple2;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -41,6 +39,8 @@ import org.talend.sdk.component.runtime.testing.spark.junit5.SparkInject;
 import org.talend.sdk.component.runtime.testing.spark.junit5.WithSpark;
 
 import lombok.NoArgsConstructor;
+
+import scala.Tuple2;
 
 @WithSpark
 class SparkExtensionTest {

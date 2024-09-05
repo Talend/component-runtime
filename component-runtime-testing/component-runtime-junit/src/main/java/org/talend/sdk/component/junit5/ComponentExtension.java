@@ -114,7 +114,7 @@ public class ComponentExtension extends BaseComponentsHandler
     public void doStop(final ExtensionContext extensionContext) {
         ofNullable(EmbeddedComponentManager.class
                 .cast(extensionContext.getStore(NAMESPACE).get(EmbeddedComponentManager.class.getName())))
-                        .ifPresent(EmbeddedComponentManager::close);
+                .ifPresent(EmbeddedComponentManager::close);
     }
 
     public void doInject(final ExtensionContext extensionContext) {

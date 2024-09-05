@@ -18,7 +18,6 @@ package org.talend.sdk.component.runtime.beam;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.ziplock.JarLocation.jarLocation;

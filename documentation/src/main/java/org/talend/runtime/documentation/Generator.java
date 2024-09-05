@@ -236,7 +236,7 @@ public class Generator {
                             .write(("== Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
                                     + "(window.talend " + "= (window.talend || {})).swaggerUi = " + newApi.toString()
                                     + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
-                                            .getBytes(StandardCharsets.UTF_8));
+                                    .getBytes(StandardCharsets.UTF_8));
                 }
             }
         }

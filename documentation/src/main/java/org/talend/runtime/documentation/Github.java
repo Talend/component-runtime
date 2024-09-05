@@ -89,7 +89,7 @@ public class Github {
                     .map(repo -> toStage(pool,
                             () -> contributors(client, token,
                                     "https://api.github.com/repos/talend/" + repo + "/contributors")
-                                            .collect(toList()))));
+                                    .collect(toList()))));
 
             return allOf(contributorLookups)
                     .thenApply(ignored -> toArray(Stream

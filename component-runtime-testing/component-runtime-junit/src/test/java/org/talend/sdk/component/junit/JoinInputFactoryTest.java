@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import javax.json.Json;
-import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;

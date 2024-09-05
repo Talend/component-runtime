@@ -20,8 +20,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Dependent
 @Provider
 public class TenantHeaderFilter implements ContainerRequestFilter {

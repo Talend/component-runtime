@@ -16,7 +16,6 @@
 package org.talend.test.valid.exceptions;
 
 import org.talend.sdk.component.api.exception.ComponentException;
-import org.talend.sdk.component.api.exception.ComponentException.ErrorOrigin;
 import org.talend.sdk.component.api.service.Service;
 
 @Service
