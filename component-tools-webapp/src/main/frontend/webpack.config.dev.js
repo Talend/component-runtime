@@ -14,8 +14,11 @@
  *  limitations under the License.
  */
 
+const setupBackend = require("./backend");
+
 module.exports = {
   devServer: {
+    setupMiddlewares: setupBackend,
     host: "0.0.0.0",
     proxy: {
       "/api": {
