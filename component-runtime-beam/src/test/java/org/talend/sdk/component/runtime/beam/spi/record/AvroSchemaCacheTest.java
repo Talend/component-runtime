@@ -15,14 +15,14 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 class AvroSchemaCacheTest {
 

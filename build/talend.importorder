@@ -1,0 +1,30 @@
+#  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#Organize Import Order
+#Tue Mar 24 10:40:36 CET 2015
+0=java
+1=javafx
+2=javax
+3=jdk
+4=com
+5=crawlercommons
+6=org
+7=orgomg
+8=brave
+9=com.jcraft
+10=freemarker
+11=io
+12=zipkin2
+13=routines
+14=lombok

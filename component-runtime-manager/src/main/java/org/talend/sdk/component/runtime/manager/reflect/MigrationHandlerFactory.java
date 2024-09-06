@@ -150,7 +150,7 @@ public class MigrationHandlerFactory {
                             .entrySet()
                             .stream()
                             .collect(toMap(e -> e.getKey().substring(prefix.length() + 1), Map.Entry::getValue))))
-                                    .orElseGet(Collections::emptyMap);
+                    .orElseGet(Collections::emptyMap);
             result
                     .putAll(migrated
                             .entrySet()

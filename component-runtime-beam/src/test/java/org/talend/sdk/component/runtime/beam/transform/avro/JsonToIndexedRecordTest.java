@@ -16,12 +16,8 @@
 package org.talend.sdk.component.runtime.beam.transform.avro;
 
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -29,7 +25,6 @@ import javax.json.JsonBuilderFactory;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
-import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.testing.PAssert;

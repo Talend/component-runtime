@@ -112,9 +112,9 @@ class UiSchemaConverterTest {
                     .get();
             new UiSchemaConverter(null, "test", schemas, properties, null, jsonSchema, properties, emptyList(), "en",
                     emptyList(), new AtomicInteger(1))
-                            .convert(completedFuture(propertyContext))
-                            .toCompletableFuture()
-                            .get();
+                    .convert(completedFuture(propertyContext))
+                    .toCompletableFuture()
+                    .get();
         }
         return schemas;
     }

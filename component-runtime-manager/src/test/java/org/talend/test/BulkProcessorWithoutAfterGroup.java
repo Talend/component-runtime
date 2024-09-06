@@ -19,7 +19,6 @@ import java.io.Serializable;
 
 import javax.json.JsonObject;
 
-import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;

@@ -113,8 +113,8 @@ public class OpenAPIGenerator {
         final String version = ofNullable(
                 ofNullable(openapi.getJsonString("openapi"))
                         .orElse(openapi.getJsonString("swagger")))
-                                .map(JsonString::getString)
-                                .orElse("");
+                .map(JsonString::getString)
+                .orElse("");
         return ApiType.fromVersion(version);
     }
 
@@ -376,9 +376,9 @@ public class OpenAPIGenerator {
     private void validateVersion(final JsonObject openapi) {
         ofNullable(ofNullable(openapi.getJsonString("openapi"))
                 .orElse(openapi.getJsonString("version")))
-                        .map(JsonString::getString)
-                        .filter(it -> it.startsWith("3.0."))
-                        .orElseThrow(() -> new IllegalArgumentException("Only OpenAPI version 3.0 are supported"));
+                .map(JsonString::getString)
+                .filter(it -> it.startsWith("3.0."))
+                .orElseThrow(() -> new IllegalArgumentException("Only OpenAPI version 3.0 are supported"));
     }
 
     @Data

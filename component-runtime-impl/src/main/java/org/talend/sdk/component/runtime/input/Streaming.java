@@ -97,26 +97,26 @@ public class Streaming {
                 .findFirst()
                 .map(e -> e.getValue())
                 .map(Long::parseLong)).get()
-                        .orElseGet(() -> ofNullable(System.getProperty(
-                                String.format("%s.talend.input.streaming.maxRecords", plugin)))
-                                        .map(Long::parseLong)
-                                        .orElseGet(() -> ofNullable(
-                                                configuration.get("talend.input.streaming.maxRecords"))
-                                                        .map(Long::parseLong)
-                                                        .orElseGet(() -> null)));
+                .orElseGet(() -> ofNullable(System.getProperty(
+                        String.format("%s.talend.input.streaming.maxRecords", plugin)))
+                        .map(Long::parseLong)
+                        .orElseGet(() -> ofNullable(
+                                configuration.get("talend.input.streaming.maxRecords"))
+                                .map(Long::parseLong)
+                                .orElseGet(() -> null)));
         Long maxActiveTime = ofNullable(internalConfiguration.entrySet()
                 .stream()
                 .filter(e -> e.getKey().startsWith("$maxDurationMs") || e.getKey().contains(".$maxDurationMs"))
                 .findFirst()
                 .map(e -> e.getValue())
                 .map(Long::parseLong)).get()
-                        .orElseGet(() -> ofNullable(System.getProperty(
-                                String.format("%s.talend.input.streaming.maxDurationMs", plugin)))
-                                        .map(Long::parseLong)
-                                        .orElseGet(() -> ofNullable(
-                                                configuration.get("talend.input.streaming.maxDurationMs"))
-                                                        .map(Long::parseLong)
-                                                        .orElseGet(() -> null)));
+                .orElseGet(() -> ofNullable(System.getProperty(
+                        String.format("%s.talend.input.streaming.maxDurationMs", plugin)))
+                        .map(Long::parseLong)
+                        .orElseGet(() -> ofNullable(
+                                configuration.get("talend.input.streaming.maxDurationMs"))
+                                .map(Long::parseLong)
+                                .orElseGet(() -> null)));
         log.debug("[loadStopStrategy] Records: {}; Duration: {}.", maxReadRecords, maxActiveTime);
         return new StopConfiguration(maxReadRecords, maxActiveTime, null);
     }
