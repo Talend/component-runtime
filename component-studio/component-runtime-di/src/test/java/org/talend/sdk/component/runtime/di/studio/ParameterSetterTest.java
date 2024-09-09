@@ -15,8 +15,11 @@
  */
 package org.talend.sdk.component.runtime.di.studio;
 
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Stream;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,10 +34,9 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.output.Processor;
-import java.io.File;
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Stream;
+
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ParameterSetterTest {

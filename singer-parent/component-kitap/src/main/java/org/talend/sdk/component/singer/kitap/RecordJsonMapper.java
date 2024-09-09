@@ -63,8 +63,8 @@ public class RecordJsonMapper implements Function<Record, JsonObject> {
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
                     Json.createParserFactory(emptyMap()), Json.createWriterFactory(emptyMap()), new JsonbConfig(),
                     JsonbProvider.provider(), null, null, emptyList(), t -> new RecordBuilderFactoryImpl("kitap"), null)
-                            .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
-                                    RecordService.class, null, null));
+                    .lookup(null, Thread.currentThread().getContextClassLoader(), null, null,
+                            RecordService.class, null, null));
 
     @Override
     public JsonObject apply(final Record record) {

@@ -15,6 +15,11 @@
  */
 package org.talend.test.valid.nestedconfigtypes;
 
+import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
+import static org.talend.sdk.component.api.configuration.ui.layout.GridLayout.FormType.ADVANCED;
+
+import java.io.Serializable;
+
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -25,11 +30,6 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
-
-import java.io.Serializable;
-
-import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
-import static org.talend.sdk.component.api.configuration.ui.layout.GridLayout.FormType.ADVANCED;
 
 @Documentation("super my component")
 @Version

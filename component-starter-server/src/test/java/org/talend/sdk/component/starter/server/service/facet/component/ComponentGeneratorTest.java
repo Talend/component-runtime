@@ -187,7 +187,7 @@ class ComponentGeneratorTest {
         assertEquals(
                 resourceFileToString(
                         "generated/ComponentGeneratorTest/withDataSetDataStore/MyDataStorePersonConfiguration.java")
-                                .trim(),
+                        .trim(),
                 files.get("src/main/java/com/foo/datastore/MyDataStorePersonConfiguration.java").trim());
 
         assertEquals(

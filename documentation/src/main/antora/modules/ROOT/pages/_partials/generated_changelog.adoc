@@ -25,6 +25,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1989[TCOMP-1989^]: On PDesigner forms, Have button position not set to bottom when linked property is not displayed link:search.html?query=component-form[component-form^,role='dockey'] link:search.html?query=ui[ui^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2100[TCOMP-2100^]: Provide icons bundle endpoint link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2408[TCOMP-2408^]: ComponentException should transform cause exception to low level exception link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2410[TCOMP-2410^]: Support of 'document' type link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2598[TCOMP-2598^]: Handle themes in component-server icon endpoints link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2635[TCOMP-2635^]: Schema/Record subtype handling link:search.html?query=cloud[cloud^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2679[TCOMP-2679^]: Handle svg icons in Studio link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
@@ -42,8 +44,10 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2693[TCOMP-2693^]: Handle multiple viewpoints in svg validation mojo link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2697[TCOMP-2697^]: Enable http client validation link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2739[TCOMP-2739^]: Create an  action validator for the @DynamicDependencies annotation link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2743[TCOMP-2743^]: Add missing httpclient validator unit test link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2747[TCOMP-2747^]: Upgrade netty to 4.1.111.Final link:search.html?query=testing[testing^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2750[TCOMP-2750^]: Switch user auth to token auth on ossrh link:search.html?query=build[build^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2770[TCOMP-2770^]: Upgrade cxf to 3.5.9 link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -59,6 +63,15 @@
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-1989[TCOMP-1989^]: On PDesigner forms, Have button position not set to bottom when linked property is not displayed link:search.html?query=component-form[component-form^,role='dockey'] link:search.html?query=ui[ui^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2408[TCOMP-2408^]: ComponentException should transform cause exception to low level exception link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2743[TCOMP-2743^]: Add missing httpclient validator unit test link:search.html?query=testing[testing^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2765[TCOMP-2765^]: Upgrade tomcat to from 9.0.87 to 9.0.93 link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2770[TCOMP-2770^]: Upgrade cxf to 3.5.9 link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -77,6 +90,7 @@
 === New Feature
 
 - link:https://jira.talendforge.org/browse/TCOMP-2100[TCOMP-2100^]: Provide icons bundle endpoint link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2410[TCOMP-2410^]: Support of 'document' type link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 
 
 
@@ -89,6 +103,14 @@
 
 
 
+== Version 1.64.7
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2770[TCOMP-2770^]: Upgrade cxf to 3.5.9 link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
 == Version 1.64.6
 
 === Bug
@@ -97,6 +119,12 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2694[TCOMP-2694^]: svg validation mojo fails on windows link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2710[TCOMP-2710^]: Unable to guess schema - improve workflow and exception throwing/handling link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2766[TCOMP-2766^]: Regression on SVG validation on connectors with only PNG images link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
+
+
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2765[TCOMP-2765^]: Upgrade tomcat to from 9.0.87 to 9.0.93 link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -122,6 +150,8 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2751[TCOMP-2751^]: Revert feat(TCOMP-2475) link:search.html?query=build[build^,role='dockey']
+
+
 
 
 
@@ -1141,6 +1171,24 @@
 
 
 
+
+
+
+
+
+== Version 1.38.16
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2770[TCOMP-2770^]: Upgrade cxf to 3.5.9 link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+== Version 1.38.15
+
+=== Work Item
+
+- link:https://jira.talendforge.org/browse/TCOMP-2765[TCOMP-2765^]: Upgrade tomcat to from 9.0.87 to 9.0.93 link:search.html?query=component-server[component-server^,role='dockey']
 
 
 

@@ -490,8 +490,8 @@ class AvroSchemaTest {
             assertEquals("fp4", indexedRecordSchema.getField("four").getProp("prop4"));
             assertEquals("es5", nonNullType(indexedRecordSchema.getField("four")
                     .schema())
-                            .getField("field")
-                            .getProp("prop5"));
+                    .getField("field")
+                    .getProp("prop5"));
             // recreate an AvroRecord from an IndexedRecord
             final AvroRecord avroRecordFromIdx = new AvroRecord(indexedRecord);
             assertEquals("value1", avroRecordFromIdx.getString("one"));
