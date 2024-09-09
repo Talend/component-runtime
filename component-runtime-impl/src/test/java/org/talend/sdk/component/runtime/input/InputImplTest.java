@@ -28,10 +28,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.serialization.Serializer;
-import org.talend.sdk.component.api.input.Producer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

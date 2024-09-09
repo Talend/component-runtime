@@ -18,7 +18,6 @@ package org.talend.sdk.component.tools;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

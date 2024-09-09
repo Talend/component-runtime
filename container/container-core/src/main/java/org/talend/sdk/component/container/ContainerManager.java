@@ -369,19 +369,19 @@ public class ContainerManager implements Lifecycle {
             return list(classLoaderConfiguration
                     .getParent()
                     .getResources("TALEND-INF/org.talend.sdk.component.container.ContainerManager.jvmMarkers.txt"))
-                            .stream()
-                            .flatMap(it -> {
-                                try (final BufferedReader reader =
-                                        new BufferedReader(new InputStreamReader(it.openStream()))) {
-                                    // tolist to materialize it before closing the resource
-                                    return reader.lines().collect(toList()).stream();
-                                } catch (final IOException e) {
-                                    throw new IllegalStateException(e);
-                                }
-                            })
-                            .map(String::trim)
-                            .filter(it -> !it.isEmpty())
-                            .filter(it -> !it.startsWith("#"));
+                    .stream()
+                    .flatMap(it -> {
+                        try (final BufferedReader reader =
+                                new BufferedReader(new InputStreamReader(it.openStream()))) {
+                            // tolist to materialize it before closing the resource
+                            return reader.lines().collect(toList()).stream();
+                        } catch (final IOException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    })
+                    .map(String::trim)
+                    .filter(it -> !it.isEmpty())
+                    .filter(it -> !it.startsWith("#"));
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

@@ -46,10 +46,11 @@ import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 
-import lombok.Getter;
-import lombok.ToString;
 import routines.system.Document;
 import routines.system.Dynamic;
+
+import lombok.Getter;
+import lombok.ToString;
 
 class DiRecordVisitorTest extends VisitorsTest {
 

@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.test.valid.customiconapi;
+package org.talend.sdk.component.api.configuration.ui.widget;
 
-import java.io.Serializable;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import org.talend.sdk.component.api.component.Version;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Processor;
-import org.talend.sdk.component.api.record.Record;
 
-@Documentation("super my component")
-@Version
-@MyIcon
-@Processor(family = "test", name = "my")
-public class MyComponent implements Serializable {
-
-    @ElementListener
-    public Record passthrough(final Record item) {
-        return item;
-    }
+@Ui
+@Documentation("Mark a option as being read-only widget. User cannot modify widget.")
+@Retention(RUNTIME)
+@Target({ PARAMETER, FIELD })
+public @interface ReadOnly {
 }

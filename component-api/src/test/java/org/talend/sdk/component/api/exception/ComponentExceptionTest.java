@@ -15,10 +15,10 @@
  */
 package org.talend.sdk.component.api.exception;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ComponentExceptionTest {
 
