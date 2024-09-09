@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.PreDestroy;
@@ -28,6 +30,8 @@ import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
+import org.talend.sdk.component.api.processor.AfterGroup;
+import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 
@@ -42,18 +46,36 @@ public class FileOutput implements Serializable {
 
     private final FileService service;
 
-    @ElementListener
-    public void length(final JsonObject data) throws IOException {
+    private List<JsonObject> buffer;
+
+    @BeforeGroup
+    public void init() {
+        buffer = new ArrayList<>();
+    }
+
+    @AfterGroup
+    public void commit() {
         final Writer writer = service.writerFor(new File(configuration.file).getAbsolutePath());
-        synchronized (writer) {
-            writer
-                    .write(data
-                            .keySet()
-                            .stream()
-                            .filter(k -> !k.toLowerCase(Locale.ROOT).contains("id"))
-                            .map(data::getString)
-                            .collect(joining(" ")) + System.lineSeparator());
-        }
+        buffer.forEach(data -> {
+            synchronized (writer) {
+                try {
+                    writer
+                            .write(data
+                                    .keySet()
+                                    .stream()
+                                    .filter(k -> !k.toLowerCase(Locale.ROOT).contains("id"))
+                                    .map(data::getString)
+                                    .collect(joining(" ")) + System.lineSeparator());
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        });
+    }
+
+    @ElementListener
+    public void length(final JsonObject data) {
+        buffer.add(data);
     }
 
     @PreDestroy
