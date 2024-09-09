@@ -26,7 +26,7 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
-@Documentation("Mark a option as being hidden widget. User cannot see widget.")
+@Documentation("Mark an @Option as being hidden.")
 @Retention(RUNTIME)
 @Target({ PARAMETER, FIELD })
 public @interface Hidden {
