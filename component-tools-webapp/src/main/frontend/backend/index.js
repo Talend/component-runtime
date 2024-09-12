@@ -14,12 +14,29 @@
  *  limitations under the License.
  */
 
+const fs = require("fs");
 const application = require("./application.json");
 const bodyParser = require("body-parser");
 const atob = require("atob");
 
 function getApplication(req, res) {
   res.json(application);
+}
+
+function getApplicationDetail(req, res) {
+  const { detailId } = req.params;
+  // const decoded = atob(detailId);
+  fs.readFile(
+    __dirname + `/details/${req.params.detailId.replaceAll("..", "")}.json`,
+    "utf8",
+    (err, data) => {
+      if (err) {
+        res.status(404).json({ message: "Not found" });
+        return;
+      }
+      res.json(JSON.parse(data));
+    }
+  );
 }
 
 function setup(middlewares, devServer) {
@@ -35,6 +52,12 @@ function setup(middlewares, devServer) {
     name: "project-configuration",
     path: "/api/v1/application/index",
     middleware: getApplication,
+  });
+
+  middlewares.unshift({
+    name: "project-configuration",
+    path: "/api/v1/application/detail/:detailId",
+    middleware: getApplicationDetail,
   });
   return middlewares;
 }
