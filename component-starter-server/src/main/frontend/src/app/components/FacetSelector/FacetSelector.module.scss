@@ -68,33 +68,7 @@ $tc-badge-margin: $padding-smaller !default;
 		width: 100%;
 	}
 
-	// 	:global(input) {
-	// 		padding-left: $tc-badge-margin;
-	// 	}
-
-	// 	.itemsContainer {
-	// 		position: absolute;
-	// 		margin-top: 2px;
-	// 		top: 100%;
-	// 		right: 0;
-	// 		left: 0;
-	// 		max-height: 70vh;
-	// 		min-width: $tf-typeahead-input-width;
-	// 		font-size: 1.5rem;
-	// 		background-color: $tf-datalist-items-background-color;
-	// 		border-radius: $border-radius-base;
-	// 		box-shadow: 0 1px 3px 0 $tf-datalist-items-shadow-color;
-	// 		overflow-y: auto;
-	// 		z-index: 999;
-	// }
-
-	// 	.itemsList {
-	// 		margin: 0;
-	// 		padding: 0;
-	// 		list-style-type: none;
-
-	// 		> li > div {
-	// 			padding: $padding-smaller;
-	// 		}
-	// 	}
+	.itemsContainer {
+		background-color: $tf-datalist-items-background-color;
+	}
 }
