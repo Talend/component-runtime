@@ -218,6 +218,7 @@
           <cdiConversation>false</cdiConversation>
           <watcherBouncing>-1</watcherBouncing>
           <properties>
+            <talend.component.starter.security.csp>default-src * 'unsafe-eval' 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; font-src * data: blob: 'unsafe-inline'; frame-ancestors 'none'</talend.component.starter.security.csp>
             <!-- for dev with livereload
             <talend.component.starter.security.csp>default-src 'self' data: http://localhost:35729/livereload.js; frame-ancestors 'none'</talend.component.starter.security.csp>
             -->
