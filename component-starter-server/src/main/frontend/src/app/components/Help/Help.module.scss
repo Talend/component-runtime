@@ -16,13 +16,14 @@
 @use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 
 .HelpContent {
+	padding: 12px;
 	svg {
 		color: $brand-success;
 	}
 }
 
 .Help {
-	padding: 0.3rem;
+	padding: 12px;
 
 	svg {
 		height: 1.2rem;
