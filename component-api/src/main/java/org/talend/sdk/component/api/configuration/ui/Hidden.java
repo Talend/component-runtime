@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.api.configuration.ui.widget;
+package org.talend.sdk.component.api.configuration.ui;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.PARAMETER;
@@ -26,8 +26,8 @@ import org.talend.sdk.component.api.configuration.ui.meta.Ui;
 import org.talend.sdk.component.api.meta.Documentation;
 
 @Ui
-@Documentation("Mark an @Option as being hidden.")
+@Documentation("Mark a option as being hidden widget. User cannot see widget.")
 @Retention(RUNTIME)
-@Target({ PARAMETER, FIELD })
+@Target({ FIELD, PARAMETER })
 public @interface Hidden {
 }

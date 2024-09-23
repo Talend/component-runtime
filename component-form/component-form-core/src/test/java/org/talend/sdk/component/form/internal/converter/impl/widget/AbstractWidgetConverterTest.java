@@ -156,7 +156,7 @@ class AbstractWidgetConverterTest {
                             {
                                 put("ui::hidden", "true");
                             }
-                        }, "{\"==\":[1,1]}"));
+                        }, "{\"==\":[1,-1]}"));
     }
 
     @ParameterizedTest

@@ -339,8 +339,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
                 .collect(toList());
 
         // Borrow the condition ({"==":[1,1]}) to make the widget be hidden when using the annotation "Hidden"
-        if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("ui::hidden", FALSE))) {
-            return new UiSchema.ConditionBuilder().withOperator("==").withValue(1).withValue(1).build();
+        if (ctx.getProperty().getMetadata().containsKey("ui::hidden")) {
+            return new UiSchema.ConditionBuilder().withOperator("==").withValue(1).withValue(-1).build();
         }
 
         switch (conditions.size()) {

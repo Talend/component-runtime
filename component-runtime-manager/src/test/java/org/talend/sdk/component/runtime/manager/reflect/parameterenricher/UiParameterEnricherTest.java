@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
+import org.talend.sdk.component.api.configuration.ui.Hidden;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayouts;
@@ -364,6 +365,18 @@ class UiParameterEnricherTest {
                     @Override
                     public Class<? extends Annotation> annotationType() {
                         return DefaultValue.class;
+                    }
+                }));
+    }
+
+    @Test
+    void hidden() {
+        assertEquals(singletonMap("tcomp::ui::hidden", "true"),
+                enricher.onParameterAnnotation("testParam", String.class, new Hidden() {
+
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return Hidden.class;
                     }
                 }));
     }
