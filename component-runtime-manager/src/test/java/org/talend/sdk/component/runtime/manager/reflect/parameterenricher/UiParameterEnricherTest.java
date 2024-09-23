@@ -42,6 +42,7 @@ import org.talend.sdk.component.api.configuration.ui.widget.Code;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 import org.talend.sdk.component.api.configuration.ui.widget.DateTime;
 import org.talend.sdk.component.api.configuration.ui.widget.ModuleList;
+import org.talend.sdk.component.api.configuration.ui.widget.ReadOnly;
 import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
 
@@ -411,4 +412,22 @@ class UiParameterEnricherTest {
             return true;
         }));
     }
+
+    @Test
+    void readOnly() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::readonly", "true");
+            }
+        }, enricher.onParameterAnnotation("testParam", String.class, new ReadOnly() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return ReadOnly.class;
+            }
+
+        }));
+    }
+
 }

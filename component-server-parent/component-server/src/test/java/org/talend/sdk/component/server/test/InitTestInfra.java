@@ -322,6 +322,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                                     "Documentation pour configurations description");
                             put("configuration.connection.configurations[].driver._documentation",
                                     "Documentation pour configurations conducteur");
+                            put("configuration.connection.configurations[].dependencies._documentation",
+                                    "Documentation pour configurations dependances");
                             put("configuration.connection.url._documentation", "Documentation pour hurle...");
                             put("configuration.driver._documentation", "Documentation pour conducteur...");
                             put("configuration.query._documentation", "Documentation pour requète...");
