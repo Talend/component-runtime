@@ -22,6 +22,7 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,6 +78,7 @@ class UiSchemaConverterTest {
     void moduleListWithBeanList() throws Exception {
         final Map<String, String> metadata = new HashMap<>();
         metadata.put("ui::modulelist", "true");
+        metadata.put("ui::readonly", "true");
         final List<SimplePropertyDefinition> properties = asList(
                 new SimplePropertyDefinition("configuration", "configuration", "configuration", "OBJECT", null, NVAL,
                         emptyMap(), null, NPROPS),
@@ -89,13 +91,16 @@ class UiSchemaConverterTest {
         assertEquals(1, schemas.size());
         final UiSchema configuration = schemas.iterator().next();
         assertNull(configuration.getKey());
+        assertNull(configuration.getReadOnly());
         assertEquals(1, configuration.getItems().size());
         final UiSchema list = configuration.getItems().iterator().next();
+        assertNull(list.getReadOnly());
         assertEquals("configuration.drivers", list.getKey());
         assertEquals("collapsibleFieldset", list.getItemWidget());
         assertEquals(1, list.getItems().size());
         final UiSchema name = list.getItems().iterator().next();
         assertEquals("configuration.drivers[].path", name.getKey());
+        assertTrue(name.getReadOnly());
         // use text type in react ui form for the item, it mean ignore @ModuleList which only works for studio now
         assertEquals("text", name.getWidget());
     }
@@ -112,9 +117,9 @@ class UiSchemaConverterTest {
                     .get();
             new UiSchemaConverter(null, "test", schemas, properties, null, jsonSchema, properties, emptyList(), "en",
                     emptyList(), new AtomicInteger(1))
-                            .convert(completedFuture(propertyContext))
-                            .toCompletableFuture()
-                            .get();
+                    .convert(completedFuture(propertyContext))
+                    .toCompletableFuture()
+                    .get();
         }
         return schemas;
     }

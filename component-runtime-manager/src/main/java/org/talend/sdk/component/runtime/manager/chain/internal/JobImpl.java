@@ -39,6 +39,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -368,6 +369,7 @@ public class JobImpl implements Job {
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
             final RecordConverters.MappingMetaRegistry registry = new RecordConverters.MappingMetaRegistry();
+            final AtomicReference<DataOutputFactory> outs = new AtomicReference<>();
             try {
                 final Map<String, AtomicBoolean> sourcesWithData = levels
                         .values()
@@ -460,10 +462,12 @@ public class JobImpl implements Job {
                                         .computeIfAbsent(key, k -> new ArrayList<>())
                                         .add(item);
                             }));
+                            outs.set(dataOutputFactory);
                         }
                     }));
                 } while (running.get());
             } finally {
+                processors.values().forEach(p -> p.flush(outs.get()));
                 processors.values().forEach(Lifecycle::stop);
                 inputs.values().forEach(InputRunner::stop);
                 levels

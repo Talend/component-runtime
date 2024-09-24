@@ -15,10 +15,6 @@
  */
 package org.talend.sdk.component.runtime.di.record;
 
-import org.dom4j.DocumentHelper;
-import routines.system.Document;
-import routines.system.Dynamic;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
@@ -34,6 +30,9 @@ import java.util.List;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
+
+import routines.system.Document;
+import routines.system.Dynamic;
 
 import lombok.AccessLevel;
 import lombok.Getter;

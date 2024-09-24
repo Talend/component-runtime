@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.65.0M4-SNAPSHOT</version>
+  <version>1.65.0M7-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -175,8 +175,8 @@
     <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.87</tomcat.version>
-    <cxf.version>3.5.8</cxf.version>
+    <tomcat.version>9.0.93</tomcat.version>
+    <cxf.version>3.5.9</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
 
@@ -250,7 +250,7 @@
     <jacoco.version>0.8.10</jacoco.version>
     <gpg-plugin.version>3.0.1</gpg-plugin.version>
     <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
-    <spotless.version>2.17.3</spotless.version>
+    <spotless.version>2.43.0</spotless.version>
     <jib.version>3.3.2</jib.version>
     <jib-core.version>0.24.0</jib-core.version>
 
@@ -1336,6 +1336,13 @@
  * limitations under the License.
  */]]></content>
             </licenseHeader>
+            <eclipse>
+              <file>${maven.multiModuleProjectDirectory}/build/talend_java_eclipse_formatter.xml</file>
+            </eclipse>
+            <importOrder>
+              <file>${maven.multiModuleProjectDirectory}/build/talend.importorder</file>
+            </importOrder>
+            <removeUnusedImports/>
           </java>
           <pom>
             <sortPom>
@@ -1535,7 +1542,7 @@
                 </module>
                 <module name="UpperEll"/>
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,lombok"/>
+                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,routines,lombok"/>
                   <property name="ordered" value="true"/>
                   <property name="separated" value="true"/>
                   <property name="option" value="top"/>

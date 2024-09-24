@@ -172,6 +172,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("documentation::tooltip", "false"))) {
             schema.setTooltip(ctx.getProperty().getMetadata().get("documentation::value"));
         }
+        if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("ui::readonly", "false"))) {
+            schema.setReadOnly(true);
+        }
         if (actions != null) {
             final List<UiSchema.Trigger> triggers = Stream
                     .concat(Stream
@@ -192,15 +195,15 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     private Stream<UiSchema.Trigger> createBuiltInSuggestionTriggers(final SimplePropertyDefinition property) {
         return ofNullable(
                 property.getMetadata().get("action::built_in_suggestable"))
-                        .map(ref -> Stream
-                                .of(toTrigger(properties, property,
-                                        new ActionReference("builtin_client", ref, "built_in_suggestable", null,
-                                                emptyList())))
-                                .peek(trigger -> {
-                                    trigger.setOnEvent("focus");
-                                    trigger.setRemote(false);
-                                }))
-                        .orElseGet(Stream::empty);
+                .map(ref -> Stream
+                        .of(toTrigger(properties, property,
+                                new ActionReference("builtin_client", ref, "built_in_suggestable", null,
+                                        emptyList())))
+                        .peek(trigger -> {
+                            trigger.setOnEvent("focus");
+                            trigger.setRemote(false);
+                        }))
+                .orElseGet(Stream::empty);
     }
 
     private Stream<UiSchema.Trigger> createSuggestionTriggers(final SimplePropertyDefinition property) {
@@ -356,7 +359,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }
     }
 
-    private Map<String, Collection<Object>> toCondition(final String path, final String strategy, final Object value,
+    protected Map<String, Collection<Object>> toCondition(final String path, final String strategy, final Object value,
             final SimplePropertyDefinition def) {
         switch (strategy) {
         case "length":
@@ -382,7 +385,7 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }
     }
 
-    private Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {
+    protected Function<String, Object> findStringValueMapper(final SimplePropertyDefinition definition) {
         if (definition == null) {
             return s -> s;
         }
@@ -416,5 +419,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             }
         }
         return schema;
+    }
+
+    protected AbsolutePathResolver getPathResolver() {
+        return pathResolver;
     }
 }

@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.api.record;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;

@@ -15,6 +15,12 @@
  */
 package org.talend.test.valid.record;
 
+import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
+
+import java.io.Serializable;
+
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -23,11 +29,6 @@ import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
-
-import javax.json.JsonObject;
-import java.io.Serializable;
-
-import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 @Version
 @Icon(FILE_JOB_O)

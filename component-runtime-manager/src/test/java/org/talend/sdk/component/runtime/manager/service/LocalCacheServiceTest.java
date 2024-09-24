@@ -15,9 +15,12 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,10 +46,6 @@ import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.runtime.manager.reflect.ReflectionService;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
 import org.talend.sdk.component.runtime.manager.util.MemoizingSupplier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.talend.sdk.component.runtime.manager.test.Serializer.roundTrip;
 
 class LocalCacheServiceTest {
 

@@ -325,6 +325,25 @@ class ConfigurableClassLoaderTest {
         }
     }
 
+    @Test
+    void cacheableClasses(@TempDir final File temporaryFolder) throws Exception {
+        System.setProperty("talend.tccl.cacheable.classes", "org.apache.ziplock.JarLocation,com.ctc.wstx.stax");
+        final ClassLoader parent = ConfigurableClassLoaderTest.class.getClassLoader();
+        try (final ConfigurableClassLoader loader =
+                new ConfigurableClassLoader("",
+                        new URL[] { new File(Constants.DEPENDENCIES_LOCATION,
+                                "org/apache/tomee/ziplock/8.0.14/ziplock-8.0.14.jar").toURI().toURL() },
+                        parent, name -> true, name -> false, null, new String[0])) {
+            final Package pck = loader.loadClass("org.apache.ziplock.JarLocation").getPackage();
+            assertNotNull(pck);
+            assertEquals("org.apache.ziplock", pck.getName());
+            assertEquals(pck, loader.loadClass("org.apache.ziplock.Archive").getPackage());
+            assertEquals(asList("org/apache/ziplock/JarLocation", "com/ctc/wstx/stax"), loader.getCacheableClasses());
+        } catch (final IOException | ClassNotFoundException e) {
+            fail(e.getMessage(), e);
+        }
+    }
+
     private void assertXmlReader() throws SAXException {
         final XMLReader xmlReader = XMLReaderFactory.createXMLReader();
         final Class<? extends XMLReader> clazz = xmlReader.getClass();

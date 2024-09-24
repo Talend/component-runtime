@@ -322,6 +322,8 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                                     "Documentation pour configurations description");
                             put("configuration.connection.configurations[].driver._documentation",
                                     "Documentation pour configurations conducteur");
+                            put("configuration.connection.configurations[].dependencies._documentation",
+                                    "Documentation pour configurations dependances");
                             put("configuration.connection.url._documentation", "Documentation pour hurle...");
                             put("configuration.driver._documentation", "Documentation pour conducteur...");
                             put("configuration.query._documentation", "Documentation pour requète...");
@@ -350,7 +352,7 @@ public class InitTestInfra implements Meecrowave.ConfigurationCustomizer {
                     out
                             .write(("== input\n\ndesc\n\n=== Configuration\n\nSomething1\n\n"
                                     + "== output\n\n=== Configuration\n\nSomething else")
-                                            .getBytes(StandardCharsets.UTF_8));
+                                    .getBytes(StandardCharsets.UTF_8));
                     out.closeEntry();
                 } catch (final IOException e) {
                     fail(e.getMessage());

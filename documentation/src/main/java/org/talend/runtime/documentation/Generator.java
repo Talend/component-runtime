@@ -150,8 +150,6 @@ public class Generator {
 
     private static final Pattern SNAPSHOT = Pattern.compile("(-SNAPSHOT|M\\d+-SNAPSHOT)");
 
-    private static final Pattern MILESTONE = Pattern.compile("(M\\d+|M\\d+-SNAPSHOT)$");
-
     public static void main(final String[] args) {
         if (Boolean.parseBoolean(args[7]) || Boolean.getBoolean(System.getenv("TRAVIS"))) {
             log.info("Skipping doc generation as requested");
@@ -238,7 +236,7 @@ public class Generator {
                             .write(("== Component Server API\n:page-talend_swaggerui:\n\n++++\n<script>\n"
                                     + "(window.talend " + "= (window.talend || {})).swaggerUi = " + newApi.toString()
                                     + ";</script>\n" + "<div id=\"swagger-ui\"></div>\n++++\n")
-                                            .getBytes(StandardCharsets.UTF_8));
+                                    .getBytes(StandardCharsets.UTF_8));
                 }
             }
         }
@@ -607,27 +605,29 @@ public class Generator {
                                                     .append('\n'),
                                             StringBuilder::append)));
 
-            final String changelog = changelogPerVersion.entrySet().stream()
-                    .filter(v -> !MILESTONE.matcher(v.getKey()).find())
+            final String changelog = changelogPerVersion.entrySet()
+                    .stream()
                     .sorted((v1, v2) -> {
-                if (v1.equals(v2)) {
-                    return 0;
-                }
-                final int[] parts1 =
-                        Stream.of(v1.getKey().replace(" (dev)", "").split("\\.")).mapToInt(Integer::parseInt).toArray();
-                final int[] parts2 =
-                        Stream.of(v2.getKey().replace(" (dev)", "").split("\\.")).mapToInt(Integer::parseInt).toArray();
-                for (int i = 0; i < parts1.length; i++) {
-                    if (parts2.length <= i) {
-                        return 1;
-                    }
-                    final int comp = parts2[i] - parts1[i];
-                    if (comp != 0) {
-                        return comp;
-                    }
-                }
-                return 0;
-            })
+                        if (v1.equals(v2)) {
+                            return 0;
+                        }
+                        final int[] parts1 = Stream.of(v1.getKey().replace(" (dev)", "").replace("M", ".").split("\\."))
+                                .mapToInt(Integer::parseInt)
+                                .toArray();
+                        final int[] parts2 = Stream.of(v2.getKey().replace(" (dev)", "").replace("M", ".").split("\\."))
+                                .mapToInt(Integer::parseInt)
+                                .toArray();
+                        for (int i = 0; i < parts1.length; i++) {
+                            if (parts2.length <= i) {
+                                return 1;
+                            }
+                            final int comp = parts2[i] - parts1[i];
+                            if (comp != 0) {
+                                return comp;
+                            }
+                        }
+                        return 0;
+                    })
                     .map(Map.Entry::getValue)
                     .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                     .toString();

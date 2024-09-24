@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.HeaderParam;

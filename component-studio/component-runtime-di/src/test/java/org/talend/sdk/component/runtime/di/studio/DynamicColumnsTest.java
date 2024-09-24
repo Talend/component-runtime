@@ -24,10 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
-import org.talend.sdk.component.api.context.RuntimeContext;
-import org.talend.sdk.component.api.context.RuntimeContextHolder;
-import routines.system.Dynamic;
-
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -55,6 +51,8 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.constraint.Required;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.context.RuntimeContext;
+import org.talend.sdk.component.api.context.RuntimeContextHolder;
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
@@ -86,6 +84,8 @@ import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry;
+
+import routines.system.Dynamic;
 
 import lombok.Data;
 import lombok.Getter;

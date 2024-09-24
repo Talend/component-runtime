@@ -45,10 +45,10 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 
 @Icon(Icon.IconType.DB_INPUT)
 @PartitionMapper(family = "Jdbc", name = "Input")

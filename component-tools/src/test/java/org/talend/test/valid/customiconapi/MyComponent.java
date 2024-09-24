@@ -15,13 +15,13 @@
  */
 package org.talend.test.valid.customiconapi;
 
+import java.io.Serializable;
+
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
-
-import java.io.Serializable;
 
 @Documentation("super my component")
 @Version
