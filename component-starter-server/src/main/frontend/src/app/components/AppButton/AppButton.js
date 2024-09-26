@@ -36,6 +36,7 @@ export default class AppButton extends React.Component {
 	}
 
 	render() {
+		const { side, text, ...rest } = this.props;
 		return (
 			<div
 				className={classnames(theme.AppButton, {
@@ -43,11 +44,11 @@ export default class AppButton extends React.Component {
 				})}
 			>
 				<Action
-					onClick={e => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}
-					icon={this.props.icon}
+					onClick={(e) => e.preventDefault() || (!!this.props.onClick && this.props.onClick())}
 					iconPosition={this.props.iconPosition || 'right'}
 					className="btn-inverse"
-					label={this.props.text || 'Schema'}
+					label={text || 'Schema'}
+					{...rest}
 				/>
 				{this.props.help}
 			</div>

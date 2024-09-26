@@ -22,6 +22,7 @@
 		max-height: calc(100vh - 48px);
 
 		.content {
+			padding-top: var(--coral-spacing-m);
 			flex-grow: 1;
 
 			display: flex;

@@ -29,6 +29,12 @@
 .nodeView {
 }
 
+.nodeConfig {
+	display: flex;
+	flex-direction: row;
+	gap: var(--coral-spacing-xxs);
+}
+
 .nodeName {
 	cursor: pointer;
 	// remove button styles
@@ -38,4 +44,8 @@
 
 .labelReadOnly {
 	padding: 1px 7px 2px; // same as button
+}
+
+.formcontrol {
+	padding: var(--coral-spacing-xxs);
 }

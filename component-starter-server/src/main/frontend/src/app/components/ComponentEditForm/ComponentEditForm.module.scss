@@ -12,9 +12,19 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */// ComponentEditForm styles
+ */ // ComponentEditForm styles
 .form-row {
+	display: flex;
+	gap: var(--coral-spacing-xs);
+	flex-direction: column;
 	margin-top: 1rem;
 	margin-bottom: 1rem;
 	border: 0;
+}
+.label {
+	display: flex;
+	gap: var(--coral-spacing-xs);
+	align-items: center;
+	font: var(--coral-paragraph-s-bold);
+	color: var(--coral-color-neutral-text);
 }

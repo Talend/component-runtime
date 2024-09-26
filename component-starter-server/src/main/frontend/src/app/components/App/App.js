@@ -71,7 +71,7 @@ function App() {
 					<div className={theme.header}>
 						<HeaderBar
 							id="header-bar"
-							logo={{ isFull: true }}
+							logo={{ isFull: false }}
 							brand={{
 								label: 'Starter Toolkit',
 							}}

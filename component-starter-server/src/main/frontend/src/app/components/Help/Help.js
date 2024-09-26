@@ -44,9 +44,13 @@ function Help(props) {
 			placement={props.placement || 'right'}
 			overlay={overlay}
 		>
-			<span className={theme.Help}>
-				<Icon name={props.icon || 'talend-question-circle'} />
-			</span>
+			{props.children ? (
+				props.children
+			) : (
+				<span className={theme.Help}>
+					<Icon name={props.icon || 'talend-question-circle'} />
+				</span>
+			)}
 		</OverlayTrigger>
 	);
 }

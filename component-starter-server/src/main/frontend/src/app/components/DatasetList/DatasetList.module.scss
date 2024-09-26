@@ -32,6 +32,10 @@
 }
 
 .column {
+	display: flex;
+	flex-direction: column;
+	gap: var(--coral-spacing-m);
+	align-items: start;
 	padding: 0 $padding-normal;
 	border-left: 1px solid #c6c6c6;
 	height: calc(100vh - 48px);

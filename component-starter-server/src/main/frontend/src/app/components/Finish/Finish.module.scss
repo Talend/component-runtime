@@ -41,18 +41,19 @@
 	padding-left: $padding-normal;
 
 	.bigButton {
+		gap: 1rem;
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
 
-		i {
-			padding-right: 1rem;
-		}
+		// i {
+		// 	padding-right: 1rem;
+		// }
 
-		button {
-			margin: 1rem;
-			font-size: 25px;
-		}
+		// button {
+		// 	margin: 1rem;
+		// 	font-size: 25px;
+		// }
 	}
 }

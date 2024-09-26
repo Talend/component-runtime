@@ -253,7 +253,7 @@ export default class Node extends React.Component {
 		const readOnly = this.props.readOnly; // || !isNativeType(this.state.type);
 		if (this.state.edited) {
 			nodeView = (
-				<span>
+				<div className={theme.nodeConfig}>
 					<Input
 						type="text"
 						placeholder="Enter the configuration name..."
@@ -264,8 +264,13 @@ export default class Node extends React.Component {
 						initialValue={this.props.node.name || this.props.name}
 						onChange={this.onNameChange}
 						onKeyDown={this.onEnterKey}
+						className={theme.formcontrol}
 					/>
-					<select value={this.state.type} onChange={this.onTypeChange}>
+					<select
+						value={this.state.type}
+						onChange={this.onTypeChange}
+						className={theme.formcontrol}
+					>
 						{this.nodeTypes.map((t) => (
 							<option value={t.value} key={t.value}>
 								{t.label}
@@ -273,7 +278,11 @@ export default class Node extends React.Component {
 						))}
 					</select>
 					{this.isRef(this.state.type) && (
-						<select value={this.props.node.reference} onChange={this.onReferenceChange}>
+						<select
+							value={this.props.node.reference}
+							onChange={this.onReferenceChange}
+							className={theme.formcontrol}
+						>
 							{/* <option value="add-new">+ Add new</option> */}
 							{this.props.references[this.state.type].map((t) => (
 								<option value={t.$id} key={t.$id}>
@@ -290,7 +299,7 @@ export default class Node extends React.Component {
 						icon="talend-check"
 						onClick={this.onSubmit}
 					/>
-				</span>
+				</div>
 			);
 		} else {
 			nodeView = (
