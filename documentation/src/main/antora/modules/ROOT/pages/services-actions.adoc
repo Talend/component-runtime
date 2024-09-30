@@ -12,7 +12,7 @@ To do so, you need to define an `@Action`, which is a method with a name (repres
 ----
 @Service
 public class MyDbTester {
-    @Action(family = "mycomp", "test")
+    @Action(family = "mycomp", value = "test")
     public Status doTest(final IncomingData data) {
         return ...;
     }

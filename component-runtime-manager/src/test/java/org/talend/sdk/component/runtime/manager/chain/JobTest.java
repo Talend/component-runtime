@@ -36,6 +36,8 @@ import javax.json.JsonObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -283,7 +285,7 @@ class JobTest {
                     .components()
                     .component("users", "db://input?__version=1&tableName=users")
                     .component("outFile",
-                            "file://out?configuration.$maxBatchSize=2&__version=1&configuration.file="
+                            "file://out?configuration.$maxBatchSize=3&__version=1&configuration.file="
                                     + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
                     .from("users")
@@ -296,8 +298,10 @@ class JobTest {
         }
     }
 
-    @Test
-    void contextualKeyProvider(final TestInfo info, @TempDir final Path temporaryFolder) throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = { "", "&configuration.$maxBatchSize=3", "&configuration.$maxBatchSize=300" })
+    void contextualKeyProvider(final String extraCfg, final TestInfo info, @TempDir final Path temporaryFolder)
+            throws IOException {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), plugin);
@@ -321,7 +325,8 @@ class JobTest {
                     .property(GroupKeyProvider.class.getName(), foreignKeyProvider)
                     .component("concat_2", "processor://concat?__version=1")
                     .component("outFile",
-                            "file://out?__version=1&configuration.file=" + encode(out.getAbsolutePath(), "utf-8"))
+                            "file://out?__version=1" + extraCfg + "&configuration.file="
+                                    + encode(out.getAbsolutePath(), "utf-8"))
                     .connections()
                     .from("users")
                     .to("concat", "str1")

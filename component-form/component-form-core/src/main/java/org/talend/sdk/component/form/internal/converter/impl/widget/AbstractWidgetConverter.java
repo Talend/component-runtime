@@ -172,6 +172,9 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("documentation::tooltip", "false"))) {
             schema.setTooltip(ctx.getProperty().getMetadata().get("documentation::value"));
         }
+        if (Boolean.parseBoolean(ctx.getProperty().getMetadata().getOrDefault("ui::readonly", "false"))) {
+            schema.setReadOnly(true);
+        }
         if (actions != null) {
             final List<UiSchema.Trigger> triggers = Stream
                     .concat(Stream
