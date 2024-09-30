@@ -14,9 +14,9 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2632[TCOMP-2632^]: Fix _placeholder validator and auto fix them and _displayName link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2633[TCOMP-2633^]: Load package-info class from nested sources link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2694[TCOMP-2694^]: svg validation mojo fails on windows link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2700[TCOMP-2700^]: Array of Array of Elements doesn't have an element schema link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2710[TCOMP-2710^]: Unable to guess schema - improve workflow and exception throwing/handling link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2712[TCOMP-2712^]: Error when creating component-server cache on RepositoryModel endpoint link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2700[TCOMP-2700^]: Array of Array of Elements doesn't have an element schema link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2710[TCOMP-2710^]: Unable to guess schema - improve workflow and exception throwing/handling link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2712[TCOMP-2712^]: Error when creating component-server cache on RepositoryModel endpoint link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2766[TCOMP-2766^]: Regression on SVG validation on connectors with only PNG images link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 
 
@@ -30,6 +30,7 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2598[TCOMP-2598^]: Handle themes in component-server icon endpoints link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2635[TCOMP-2635^]: Schema/Record subtype handling link:search.html?query=cloud[cloud^,role='dockey'] link:search.html?query=schema-record[schema-record^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2679[TCOMP-2679^]: Handle svg icons in Studio link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2798[TCOMP-2798^]: Allow ConfigurableClassLoader to use caching for specific classes link:search.html?query=component-manager[component-manager^,role='dockey']
 
 
 
@@ -55,7 +56,7 @@
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2710[TCOMP-2710^]: Unable to guess schema - improve workflow and exception throwing/handling link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2710[TCOMP-2710^]: Unable to guess schema - improve workflow and exception throwing/handling link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2766[TCOMP-2766^]: Regression on SVG validation on connectors with only PNG images link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
 
 
@@ -64,13 +65,13 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-1989[TCOMP-1989^]: On PDesigner forms, Have button position not set to bottom when linked property is not displayed link:search.html?query=component-form[component-form^,role='dockey'] link:search.html?query=ui[ui^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2408[TCOMP-2408^]: ComponentException should transform cause exception to low level exception link:search.html?query=component-server[component-server^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2798[TCOMP-2798^]: Allow ConfigurableClassLoader to use caching for specific classes link:search.html?query=component-manager[component-manager^,role='dockey']
 
 
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2743[TCOMP-2743^]: Add missing httpclient validator unit test link:search.html?query=testing[testing^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2765[TCOMP-2765^]: Upgrade tomcat to from 9.0.87 to 9.0.93 link:search.html?query=component-server[component-server^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2770[TCOMP-2770^]: Upgrade cxf to 3.5.9 link:search.html?query=component-server[component-server^,role='dockey']
 
 
@@ -82,8 +83,8 @@
 - link:https://jira.talendforge.org/browse/TCOMP-2475[TCOMP-2475^]: Migration from higher version not protected for a connector link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2567[TCOMP-2567^]: ZonedDateTime is not rendered in talend-component:web link:search.html?query=maven-plugin[maven-plugin^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2694[TCOMP-2694^]: svg validation mojo fails on windows link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2700[TCOMP-2700^]: Array of Array of Elements doesn't have an element schema link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2712[TCOMP-2712^]: Error when creating component-server cache on RepositoryModel endpoint link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2700[TCOMP-2700^]: Array of Array of Elements doesn't have an element schema link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2712[TCOMP-2712^]: Error when creating component-server cache on RepositoryModel endpoint link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey']
 
 
 
@@ -103,6 +104,14 @@
 
 
 
+== Version 1.64.8
+
+=== New Feature
+
+- link:https://jira.talendforge.org/browse/TCOMP-2798[TCOMP-2798^]: Allow ConfigurableClassLoader to use caching for specific classes link:search.html?query=component-manager[component-manager^,role='dockey']
+
+
+
 == Version 1.64.7
 
 === Work Item
@@ -117,14 +126,8 @@
 
 - link:https://jira.talendforge.org/browse/TCOMP-2475[TCOMP-2475^]: Migration from higher version not protected for a connector link:search.html?query=component-manager[component-manager^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2694[TCOMP-2694^]: svg validation mojo fails on windows link:search.html?query=build[build^,role='dockey'] link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2710[TCOMP-2710^]: Unable to guess schema - improve workflow and exception throwing/handling link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2710[TCOMP-2710^]: Unable to guess schema - improve workflow and exception throwing/handling link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
 - link:https://jira.talendforge.org/browse/TCOMP-2766[TCOMP-2766^]: Regression on SVG validation on connectors with only PNG images link:search.html?query=maven-plugin[maven-plugin^,role='dockey']
-
-
-
-=== Work Item
-
-- link:https://jira.talendforge.org/browse/TCOMP-2765[TCOMP-2765^]: Upgrade tomcat to from 9.0.87 to 9.0.93 link:search.html?query=component-server[component-server^,role='dockey']
 
 
 
@@ -132,8 +135,8 @@
 
 === Bug
 
-- link:https://jira.talendforge.org/browse/TCOMP-2700[TCOMP-2700^]: Array of Array of Elements doesn't have an element schema link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=studio[studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
-- link:https://jira.talendforge.org/browse/TCOMP-2712[TCOMP-2712^]: Error when creating component-server cache on RepositoryModel endpoint link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=studio[studio^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2700[TCOMP-2700^]: Array of Array of Elements doesn't have an element schema link:search.html?query=schema-record[schema-record^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey'] link:search.html?query=studio-integration[studio-integration^,role='dockey']
+- link:https://jira.talendforge.org/browse/TCOMP-2712[TCOMP-2712^]: Error when creating component-server cache on RepositoryModel endpoint link:search.html?query=component-server[component-server^,role='dockey'] link:search.html?query=Studio[Studio^,role='dockey']
 
 == Version 1.64.4
 
@@ -150,6 +153,10 @@
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2751[TCOMP-2751^]: Revert feat(TCOMP-2475) link:search.html?query=build[build^,role='dockey']
+
+
+
+
 
 
 
@@ -1176,19 +1183,25 @@
 
 
 
+
+
+
+
 == Version 1.38.16
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2770[TCOMP-2770^]: Upgrade cxf to 3.5.9 link:search.html?query=component-server[component-server^,role='dockey']
 
-
-
 == Version 1.38.15
 
 === Work Item
 
 - link:https://jira.talendforge.org/browse/TCOMP-2765[TCOMP-2765^]: Upgrade tomcat to from 9.0.87 to 9.0.93 link:search.html?query=component-server[component-server^,role='dockey']
+
+
+
+
 
 
 
