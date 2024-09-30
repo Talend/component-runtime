@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":804,
+    "commits":809,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -36,7 +36,7 @@
     "name":"Christophe Le Saec"
   },
   {
-    "commits":66,
+    "commits":67,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -156,6 +156,20 @@
   },
   {
     "commits":2,
+    "description":"Principal Cloud Software Architect",
+    "gravatar":"https://avatars.githubusercontent.com/u/783286?v=4",
+    "id":"sgandon",
+    "name":"Sébastien Gandon"
+  },
+  {
+    "commits":2,
+    "description":"",
+    "gravatar":"https://avatars.githubusercontent.com/u/7733973?v=4",
+    "id":"jzhao-talend",
+    "name":"jzhao"
+  },
+  {
+    "commits":2,
     "description":"\n\nBlog: https://www.linkedin.com/in/zoltantakacsdev/",
     "gravatar":"https://avatars.githubusercontent.com/u/2045409?v=4",
     "id":"ZoltanTakacs",
@@ -198,13 +212,6 @@
   },
   {
     "commits":1,
-    "description":"Principal Cloud Software Architect",
-    "gravatar":"https://avatars.githubusercontent.com/u/783286?v=4",
-    "id":"sgandon",
-    "name":"Sébastien Gandon"
-  },
-  {
-    "commits":1,
     "description":"Born in 2008 I joined Talend with my master in 2022, I am now the official ci-runner for the connectors team",
     "gravatar":"https://avatars.githubusercontent.com/u/108458118?v=4",
     "id":"ci-runner-connectors",
@@ -223,13 +230,6 @@
     "gravatar":"https://avatars.githubusercontent.com/u/35097656?v=4",
     "id":"aleboulanger",
     "name":"Aurélien Leboulanger"
-  },
-  {
-    "commits":1,
-    "description":"",
-    "gravatar":"https://avatars.githubusercontent.com/u/7733973?v=4",
-    "id":"jzhao-talend",
-    "name":"jzhao"
   },
   {
     "commits":1,
