@@ -132,7 +132,7 @@ pipeline {
                       'component-starter-server',
                       'remote-engine-customizer',
                       'all'],
-            description: 'Choose which docker image you want to build and push. (Only available if DOCKER_PUSH == True')
+            description: 'Choose which docker image you want to build and push. Only available if DOCKER_PUSH == True.')
         string(
           name: 'VERSION_QUALIFIER',
           defaultValue: 'DEFAULT',
