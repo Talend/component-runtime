@@ -426,8 +426,13 @@ pipeline {
                             job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer")
                         }
                         else{
-                            images_options = 'false component-server'
-                            job_description_append("Docker images deployed: component-server")
+                            String image_list
+                            if (params.DOCKER_CHOICE == 'All'){
+                                images_options = 'false'
+                            }else {
+                                images_options = 'false ' + params.DOCKER_CHOICE
+                            }
+                            job_description_append("Docker images deployed: $params.DOCKER_CHOICE")
                             job_description_append("As ${finalVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
 
                         }
