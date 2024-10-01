@@ -126,6 +126,13 @@ pipeline {
           description: '''
             Force DOCKER push stage for development branches. No effect on master and maintenance.
             INFO: master/maintenance and dev branches are deploying on <artifactory.datapwn.com>''')
+        choice(
+            name: 'DOCKER_CHOICE',
+            choices: ['component-server',
+                      'component-starter-server',
+                      'remote-engine-customizer',
+                      'all'],
+            description: 'Choose which docker image you want to build and push. (Only available if DOCKER_PUSH == True')
         string(
           name: 'VERSION_QUALIFIER',
           defaultValue: 'DEFAULT',
