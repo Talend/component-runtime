@@ -269,10 +269,10 @@ pipeline {
                           "$params.VERSION_QUALIFIER" as String)
 
                         echo """
-                          Configure the version qualifier for the curent branche: $branch_name
-                          requested qualifier: $params.VERSION_QUALIFIER
-                          with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description
-                          Qualified Version = $finalVersion"""
+                          Configure the version qualifier for the curent branche: $branch_name  
+                          requested qualifier: $params.VERSION_QUALIFIER  
+                          with User = $branch_user, Ticket = $branch_ticket, Description = $branch_description  
+                          Qualified Version = $finalVersion  """
 
                         // On development branches the connectors version shall be edited for deployment
                         // Maven documentation about maven_version:
@@ -307,10 +307,10 @@ pipeline {
 
                     // updating build description
                     String description = """
-                      Version = $finalVersion - $params.Action Build
-                      Disable Sonar: $params.DISABLE_SONAR - Script: $hasPostLoginScript
-                      Debug: $params.JENKINS_DEBUG
-                      Extra build args: $extraBuildParams""".stripIndent()
+                      Version = $finalVersion - $params.Action Build  
+                      Disable Sonar: $params.DISABLE_SONAR - Script: $hasPostLoginScript  
+                      Debug: $params.JENKINS_DEBUG  
+                      Extra build args: $extraBuildParams  """.stripIndent()
                     job_description_append(description)
                 }
             }
@@ -405,7 +405,7 @@ pipeline {
                                 'https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/']
                     }
 
-                    job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})")
+                    job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
                 }
             }
         }
@@ -423,7 +423,7 @@ pipeline {
                         String images_options = ''
                         if (isStdBranch){
                             // Build and push all images
-                            job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer")
+                            job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
                         }
                         else{
                             String image_list
@@ -432,8 +432,8 @@ pipeline {
                             }else {
                                 images_options = 'false ' + params.DOCKER_CHOICE
                             }
-                            job_description_append("Docker images deployed: $params.DOCKER_CHOICE")
-                            job_description_append("As ${finalVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)" as String)
+                            job_description_append("Docker images deployed: $params.DOCKER_CHOICE  ")
+                            job_description_append("As ${finalVersion}${buildTimestamp} on [artifactory.datapwn.com](https://artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit)  " as String)
 
                         }
 
@@ -444,7 +444,7 @@ pipeline {
                                 ${images_options}
                             """
 
-                        job_description_append("docker pull artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${finalVersion}${buildTimestamp}")
+                        job_description_append("docker pull artifactory.datapwn.com/tlnd-docker-dev/talend/common/tacokit/component-server:${finalVersion}${buildTimestamp}  ")
                     }
 
                 }
