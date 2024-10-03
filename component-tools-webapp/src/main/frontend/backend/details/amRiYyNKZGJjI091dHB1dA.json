@@ -1,0 +1,1041 @@
+{
+  "jsonSchema": {
+    "properties": {
+      "configuration": {
+        "properties": {
+          "dataSet": {
+            "properties": {
+              "advancedCommon": {
+                "properties": {
+                  "fetchSize": {
+                    "default": 1000.0,
+                    "maximum": 2.147483647e9,
+                    "minimum": 0.0,
+                    "title": "Fetch size",
+                    "type": "number"
+                  }
+                },
+                "title": "",
+                "type": "object"
+              },
+              "connection": {
+                "properties": {
+                  "authenticationType": {
+                    "default": "BASIC",
+                    "enum": ["BASIC", "KEY_PAIR", "OAUTH"],
+                    "title": "Authentication type",
+                    "type": "string"
+                  },
+                  "clientId": {
+                    "title": "Client ID",
+                    "type": "string"
+                  },
+                  "clientSecret": {
+                    "title": "Client secret",
+                    "type": "string"
+                  },
+                  "connectionTimeOut": {
+                    "default": 30.0,
+                    "minimum": 0.0,
+                    "title": "Connection timeout",
+                    "type": "number"
+                  },
+                  "connectionValidationTimeOut": {
+                    "default": 10.0,
+                    "minimum": 0.0,
+                    "title": "Connection validation timeout",
+                    "type": "number"
+                  },
+                  "database": {
+                    "title": "Database",
+                    "type": "string"
+                  },
+                  "dbType": {
+                    "enum": [
+                      "Snowflake",
+                      "Redshift",
+                      "Aurora",
+                      "SQLDWH",
+                      "MySQL",
+                      "MariaDB",
+                      "PostgreSQL",
+                      "Oracle",
+                      "MSSQL",
+                      "MSSQL_JTDS",
+                      "SingleStore",
+                      "DeltaLake",
+                      "Derby"
+                    ],
+                    "title": "Database",
+                    "type": "string"
+                  },
+                  "defineProtocol": {
+                    "default": false,
+                    "title": "Force protocol",
+                    "type": "boolean"
+                  },
+                  "grantType": {
+                    "default": "CLIENT_CREDENTIALS",
+                    "enum": ["CLIENT_CREDENTIALS", "PASSWORD"],
+                    "title": "Grant type",
+                    "type": "string"
+                  },
+                  "handler": {
+                    "title": "Connect with",
+                    "type": "string"
+                  },
+                  "host": {
+                    "title": "Host",
+                    "type": "string"
+                  },
+                  "jdbcUrl": {
+                    "title": "JDBC URL",
+                    "type": "string"
+                  },
+                  "oauthPassword": {
+                    "title": "OAuth password",
+                    "type": "string"
+                  },
+                  "oauthTokenEndpoint": {
+                    "title": "OAuth token endpoint",
+                    "type": "string"
+                  },
+                  "oauthUsername": {
+                    "title": "OAuth username",
+                    "type": "string"
+                  },
+                  "parameters": {
+                    "default": [],
+                    "items": {
+                      "properties": {
+                        "key": {
+                          "title": "Parameter",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "title": "Parameters",
+                    "type": "array"
+                  },
+                  "password": {
+                    "title": "Password",
+                    "type": "string"
+                  },
+                  "port": {
+                    "default": 80.0,
+                    "maximum": 2.147483647e9,
+                    "minimum": -2.147483648e9,
+                    "title": "Port",
+                    "type": "number"
+                  },
+                  "privateKey": {
+                    "title": "Private key",
+                    "type": "string"
+                  },
+                  "privateKeyPassword": {
+                    "title": "Private key password",
+                    "type": "string"
+                  },
+                  "protocol": {
+                    "title": "JDBC driver protocol",
+                    "type": "string"
+                  },
+                  "scope": {
+                    "title": "Scope",
+                    "type": "string"
+                  },
+                  "setRawUrl": {
+                    "default": false,
+                    "title": "Define JDBC URL",
+                    "type": "boolean"
+                  },
+                  "userId": {
+                    "title": "Username",
+                    "type": "string"
+                  }
+                },
+                "required": ["dbType"],
+                "title": "Connection",
+                "type": "object"
+              },
+              "sqlQuery": {
+                "title": "SQL query",
+                "type": "string"
+              }
+            },
+            "title": "",
+            "type": "object"
+          }
+        },
+        "title": "configuration",
+        "type": "object"
+      }
+    },
+    "required": [],
+    "title": "Query input",
+    "type": "object"
+  },
+  "properties": {
+    "configuration": {
+      "dataSet": {
+        "connection": {
+          "connectionValidationTimeOut": 10.0,
+          "port": 80.0,
+          "setRawUrl": false,
+          "authenticationType": "BASIC",
+          "grantType": "CLIENT_CREDENTIALS",
+          "connectionTimeOut": 30.0,
+          "parameters": [],
+          "defineProtocol": false
+        },
+        "advancedCommon": {
+          "fetchSize": 1000.0
+        }
+      }
+    }
+  },
+  "uiSchema": [
+    {
+      "description": "Query input configuration.",
+      "items": [
+        {
+          "description": "Query input configuration.",
+          "items": [
+            {
+              "description": "SQL query dataset.",
+              "items": [
+                {
+                  "description": "The connection information to execute the query.",
+                  "items": [
+                    {
+                      "items": [
+                        {
+                          "description": "Data base type from the supported data base list.",
+                          "key": "configuration.dataSet.connection.dbType",
+                          "placeholder": "Choose a database from the list",
+                          "required": true,
+                          "restricted": true,
+                          "title": "Database",
+                          "titleMap": [
+                            {
+                              "name": "Snowflake",
+                              "value": "Snowflake"
+                            },
+                            {
+                              "name": "Amazon Redshift",
+                              "value": "Redshift"
+                            },
+                            {
+                              "name": "Amazon Aurora",
+                              "value": "Aurora"
+                            },
+                            {
+                              "name": "Azure Synapse",
+                              "value": "SQLDWH"
+                            },
+                            {
+                              "name": "MySQL",
+                              "value": "MySQL"
+                            },
+                            {
+                              "name": "MariaDB",
+                              "value": "MariaDB"
+                            },
+                            {
+                              "name": "PostgreSQL",
+                              "value": "PostgreSQL"
+                            },
+                            {
+                              "name": "Oracle Database",
+                              "value": "Oracle"
+                            },
+                            {
+                              "name": "Microsoft SQL Server",
+                              "value": "MSSQL"
+                            },
+                            {
+                              "name": "Microsoft SQL Server - JTDS driver (Deprecated)",
+                              "value": "MSSQL_JTDS"
+                            },
+                            {
+                              "name": "SingleStore",
+                              "value": "SingleStore"
+                            },
+                            {
+                              "name": "Delta Lake",
+                              "value": "DeltaLake"
+                            },
+                            {
+                              "name": "Derby",
+                              "value": "Derby"
+                            }
+                          ],
+                          "widget": "datalist"
+                        },
+                        {
+                          "condition": {
+                            "or": [
+                              {
+                                "===": [
+                                  {
+                                    "var": "configuration.dataSet.connection.dbType"
+                                  },
+                                  "Aurora"
+                                ]
+                              },
+                              {
+                                "===": [
+                                  {
+                                    "var": "configuration.dataSet.connection.dbType"
+                                  },
+                                  "SingleStore"
+                                ]
+                              }
+                            ]
+                          },
+                          "description": "Database handlers, this configuration is for cloud databases that support the use of other databases drivers.",
+                          "key": "configuration.dataSet.connection.handler",
+                          "placeholder": "",
+                          "title": "Connect with",
+                          "titleMap": [],
+                          "triggers": [
+                            {
+                              "action": "ACTION_LIST_HANDLERS_DB",
+                              "family": "Jdbc",
+                              "onEvent": "focus",
+                              "parameters": [
+                                {
+                                  "key": "dbType",
+                                  "path": "configuration.dataSet.connection.dbType"
+                                }
+                              ],
+                              "type": "suggestions"
+                            },
+                            {
+                              "action": "ACTION_LIST_HANDLERS_DB",
+                              "family": "Jdbc",
+                              "onEvent": "change",
+                              "parameters": [
+                                {
+                                  "key": "dbType",
+                                  "path": "configuration.dataSet.connection.dbType"
+                                }
+                              ],
+                              "type": "suggestions"
+                            }
+                          ],
+                          "widget": "datalist"
+                        }
+                      ],
+                      "widget": "columns"
+                    },
+                    {
+                      "items": [
+                        {
+                          "description": "Let user define complete jdbc url or not.",
+                          "key": "configuration.dataSet.connection.setRawUrl",
+                          "placeholder": "setRawUrl",
+                          "title": "Define JDBC URL",
+                          "widget": "toggle"
+                        },
+                        {
+                          "key": "configuration.dataSet.connection_4",
+                          "title": "Load default values",
+                          "triggers": [
+                            {
+                              "action": "ACTION_DEFAULT_VALUES",
+                              "family": "Jdbc",
+                              "options": [
+                                {
+                                  "path": "configuration.dataSet.connection",
+                                  "type": "object"
+                                }
+                              ],
+                              "parameters": [
+                                {
+                                  "key": "connection",
+                                  "path": "configuration.dataSet.connection"
+                                }
+                              ],
+                              "type": "update"
+                            }
+                          ],
+                          "widget": "button"
+                        }
+                      ],
+                      "widget": "fieldset"
+                    },
+                    {
+                      "condition": {
+                        "===": [
+                          {
+                            "var": "configuration.dataSet.connection.setRawUrl"
+                          },
+                          true
+                        ]
+                      },
+                      "description": "Jdbc connection raw url.",
+                      "key": "configuration.dataSet.connection.jdbcUrl",
+                      "placeholder": "jdbc:sub-protocol://host:port/dbName?prop1=value1&prop2=value2",
+                      "title": "JDBC URL",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "===": [
+                          {
+                            "var": "configuration.dataSet.connection.setRawUrl"
+                          },
+                          false
+                        ]
+                      },
+                      "description": "Jdbc host.",
+                      "key": "configuration.dataSet.connection.host",
+                      "placeholder": "Localhost",
+                      "title": "Host",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "===": [
+                          {
+                            "var": "configuration.dataSet.connection.setRawUrl"
+                          },
+                          false
+                        ]
+                      },
+                      "description": "Jdbc port.",
+                      "key": "configuration.dataSet.connection.port",
+                      "placeholder": "5432",
+                      "title": "Port",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "===": [
+                          {
+                            "var": "configuration.dataSet.connection.setRawUrl"
+                          },
+                          false
+                        ]
+                      },
+                      "description": "Jdbc database.",
+                      "key": "configuration.dataSet.connection.database",
+                      "placeholder": "Database",
+                      "title": "Database",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "===": [
+                          {
+                            "var": "configuration.dataSet.connection.setRawUrl"
+                          },
+                          false
+                        ]
+                      },
+                      "description": "Jdbc parameters.",
+                      "itemWidget": "collapsibleFieldset",
+                      "items": [
+                        {
+                          "description": "The key.",
+                          "key": "configuration.dataSet.connection.parameters[].key",
+                          "placeholder": "",
+                          "title": "Parameter",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The value.",
+                          "key": "configuration.dataSet.connection.parameters[].value",
+                          "placeholder": "",
+                          "title": "Value",
+                          "widget": "text"
+                        }
+                      ],
+                      "key": "configuration.dataSet.connection.parameters",
+                      "placeholder": "parameters",
+                      "title": "Parameters"
+                    },
+                    {
+                      "condition": {
+                        "===": [
+                          {
+                            "var": "configuration.dataSet.connection.dbType"
+                          },
+                          "Snowflake"
+                        ]
+                      },
+                      "description": "Authentication type.",
+                      "key": "configuration.dataSet.connection.authenticationType",
+                      "placeholder": "authenticationType",
+                      "restricted": true,
+                      "title": "Authentication type",
+                      "titleMap": [
+                        {
+                          "name": "Basic",
+                          "value": "BASIC"
+                        },
+                        {
+                          "name": "Key pair",
+                          "value": "KEY_PAIR"
+                        },
+                        {
+                          "name": "OAuth 2.0",
+                          "value": "OAUTH"
+                        }
+                      ],
+                      "widget": "datalist"
+                    },
+                    {
+                      "condition": {
+                        "or": [
+                          {
+                            "==": [
+                              {
+                                "===": [
+                                  {
+                                    "var": "configuration.dataSet.connection.dbType"
+                                  },
+                                  "Snowflake"
+                                ]
+                              },
+                              false
+                            ]
+                          },
+                          {
+                            "==": [
+                              {
+                                "===": [
+                                  {
+                                    "var": "configuration.dataSet.connection.authenticationType"
+                                  },
+                                  "OAUTH"
+                                ]
+                              },
+                              false
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Database user.",
+                      "key": "configuration.dataSet.connection.userId",
+                      "placeholder": "",
+                      "title": "Username",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "or": [
+                          {
+                            "==": [
+                              {
+                                "===": [
+                                  {
+                                    "var": "configuration.dataSet.connection.dbType"
+                                  },
+                                  "Snowflake"
+                                ]
+                              },
+                              false
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "BASIC"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Database password.",
+                      "key": "configuration.dataSet.connection.password",
+                      "placeholder": "",
+                      "title": "Password",
+                      "type": "password",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "KEY_PAIR"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Private key.",
+                      "key": "configuration.dataSet.connection.privateKey",
+                      "placeholder": "Enter full content of private key file",
+                      "title": "Private key",
+                      "type": "password",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "KEY_PAIR"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Private key password.",
+                      "key": "configuration.dataSet.connection.privateKeyPassword",
+                      "placeholder": "Enter password for encrypted private key",
+                      "title": "Private key password",
+                      "type": "password",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "OAUTH"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Oauth token endpoint.",
+                      "key": "configuration.dataSet.connection.oauthTokenEndpoint",
+                      "placeholder": "Enter the token endpoint for the authorization server",
+                      "title": "OAuth token endpoint",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "OAUTH"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Client ID.",
+                      "key": "configuration.dataSet.connection.clientId",
+                      "placeholder": "Enter the public identifier of your app",
+                      "title": "Client ID",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "OAUTH"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Client secret.",
+                      "key": "configuration.dataSet.connection.clientSecret",
+                      "placeholder": "Enter the client secret of your app",
+                      "title": "Client secret",
+                      "type": "password",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "OAUTH"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Grant type.",
+                      "key": "configuration.dataSet.connection.grantType",
+                      "placeholder": "grantType",
+                      "restricted": true,
+                      "title": "Grant type",
+                      "titleMap": [
+                        {
+                          "name": "Client credentials",
+                          "value": "CLIENT_CREDENTIALS"
+                        },
+                        {
+                          "name": "Password",
+                          "value": "PASSWORD"
+                        }
+                      ],
+                      "widget": "datalist"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.grantType"
+                              },
+                              "PASSWORD"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "OAUTH"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "OAuth username.",
+                      "key": "configuration.dataSet.connection.oauthUsername",
+                      "placeholder": "Enter the OAuth username",
+                      "title": "OAuth username",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.grantType"
+                              },
+                              "PASSWORD"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "OAUTH"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "OAuth password.",
+                      "key": "configuration.dataSet.connection.oauthPassword",
+                      "placeholder": "Enter the OAuth password",
+                      "title": "OAuth password",
+                      "type": "password",
+                      "widget": "text"
+                    },
+                    {
+                      "condition": {
+                        "and": [
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.dbType"
+                              },
+                              "Snowflake"
+                            ]
+                          },
+                          {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.authenticationType"
+                              },
+                              "OAUTH"
+                            ]
+                          }
+                        ]
+                      },
+                      "description": "Scope.",
+                      "key": "configuration.dataSet.connection.scope",
+                      "placeholder": "Enter the role scope(s)",
+                      "title": "Scope",
+                      "widget": "text"
+                    },
+                    {
+                      "key": "configuration.dataSet.connection_3",
+                      "title": "Check connection",
+                      "triggers": [
+                        {
+                          "action": "ACTION_BASIC_HEALTH_CHECK",
+                          "family": "Jdbc",
+                          "parameters": [
+                            {
+                              "key": "datastore",
+                              "path": "configuration.dataSet.connection"
+                            }
+                          ],
+                          "type": "healthcheck"
+                        }
+                      ],
+                      "widget": "button"
+                    }
+                  ],
+                  "placeholder": "connection",
+                  "title": "Connection",
+                  "widget": "fieldset"
+                },
+                {
+                  "description": "A valid read only query is the source type is Query.",
+                  "key": "configuration.dataSet.sqlQuery",
+                  "options": {
+                    "language": "sql"
+                  },
+                  "placeholder": "Select * from table where ...",
+                  "title": "SQL query",
+                  "triggers": [
+                    {
+                      "action": "ACTION_VALIDATION_READONLY_QUERY",
+                      "family": "Jdbc",
+                      "parameters": [
+                        {
+                          "key": "query",
+                          "path": "configuration.dataSet.sqlQuery"
+                        }
+                      ],
+                      "type": "validation"
+                    }
+                  ],
+                  "widget": "code"
+                }
+              ],
+              "placeholder": "dataSet",
+              "title": "",
+              "widget": "fieldset"
+            }
+          ],
+          "placeholder": "configuration",
+          "title": "Main",
+          "widget": "fieldset"
+        },
+        {
+          "description": "Query input configuration.",
+          "items": [
+            {
+              "description": "SQL query dataset.",
+              "items": [
+                {
+                  "description": "The connection information to execute the query.",
+                  "items": [
+                    {
+                      "items": [
+                        {
+                          "condition": {
+                            "===": [
+                              {
+                                "var": "configuration.dataSet.connection.setRawUrl"
+                              },
+                              false
+                            ]
+                          },
+                          "description": "Let user define protocol of the jdbc url.",
+                          "key": "configuration.dataSet.connection.defineProtocol",
+                          "placeholder": "defineProtocol",
+                          "title": "Force protocol",
+                          "widget": "toggle"
+                        },
+                        {
+                          "condition": {
+                            "and": [
+                              {
+                                "===": [
+                                  {
+                                    "var": "configuration.dataSet.connection.setRawUrl"
+                                  },
+                                  false
+                                ]
+                              },
+                              {
+                                "===": [
+                                  {
+                                    "var": "configuration.dataSet.connection.defineProtocol"
+                                  },
+                                  true
+                                ]
+                              }
+                            ]
+                          },
+                          "description": "Protocol.",
+                          "key": "configuration.dataSet.connection.protocol",
+                          "placeholder": "jdbc:driver",
+                          "title": "JDBC driver protocol",
+                          "widget": "text"
+                        }
+                      ],
+                      "widget": "columns"
+                    },
+                    {
+                      "description": "Set the maximum number of seconds that a client will wait for a connection from the pool. If this time is exceeded without a connection becoming available, a SQLException will be thrown from DataSource.getConnection().",
+                      "key": "configuration.dataSet.connection.connectionTimeOut",
+                      "placeholder": "",
+                      "title": "Connection timeout",
+                      "widget": "text"
+                    },
+                    {
+                      "description": "Sets the maximum number of seconds that the pool will wait for a connection to be validated as alive.",
+                      "key": "configuration.dataSet.connection.connectionValidationTimeOut",
+                      "placeholder": "",
+                      "title": "Connection validation timeout",
+                      "widget": "text"
+                    },
+                    {
+                      "key": "configuration.dataSet.connection_1",
+                      "title": "Check connection",
+                      "triggers": [
+                        {
+                          "action": "ACTION_BASIC_HEALTH_CHECK",
+                          "family": "Jdbc",
+                          "parameters": [
+                            {
+                              "key": "datastore",
+                              "path": "configuration.dataSet.connection"
+                            }
+                          ],
+                          "type": "healthcheck"
+                        }
+                      ],
+                      "widget": "button"
+                    },
+                    {
+                      "key": "configuration.dataSet.connection_2",
+                      "title": "Load default values",
+                      "triggers": [
+                        {
+                          "action": "ACTION_DEFAULT_VALUES",
+                          "family": "Jdbc",
+                          "options": [
+                            {
+                              "path": "configuration.dataSet.connection",
+                              "type": "object"
+                            }
+                          ],
+                          "parameters": [
+                            {
+                              "key": "connection",
+                              "path": "configuration.dataSet.connection"
+                            }
+                          ],
+                          "type": "update"
+                        }
+                      ],
+                      "widget": "button"
+                    }
+                  ],
+                  "placeholder": "connection",
+                  "title": "Connection",
+                  "widget": "fieldset"
+                },
+                {
+                  "description": "Common input configuration.",
+                  "items": [
+                    {
+                      "description": "Gives the JDBC driver a hint as to the number of rows that should be fetched from the database when more rows are needed for ResultSet objects generated by this Statement. If the value specified is zero, then the hint is ignored.",
+                      "key": "configuration.dataSet.advancedCommon.fetchSize",
+                      "placeholder": "",
+                      "title": "Fetch size",
+                      "widget": "text"
+                    }
+                  ],
+                  "placeholder": "advancedCommon",
+                  "title": "",
+                  "widget": "fieldset"
+                }
+              ],
+              "placeholder": "dataSet",
+              "title": "",
+              "widget": "fieldset"
+            }
+          ],
+          "placeholder": "configuration",
+          "title": "Advanced",
+          "widget": "fieldset"
+        }
+      ],
+      "placeholder": "configuration",
+      "widget": "tabs"
+    }
+  ]
+}

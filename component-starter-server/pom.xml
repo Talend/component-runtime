@@ -29,8 +29,8 @@
 
   <properties>
     <!--TODO: bump node/npm when issue TCOMP-2059 Update talend/ui to 6.x will be done-->
-    <node.version>v12.13.0</node.version>
-    <npm.version>6.12.0</npm.version>
+    <node.version>v20.12.0</node.version>
+    <npm.version>10.5.0</npm.version>
     <talend.build.name>${talend.build.name.base}.starter</talend.build.name>
     <rat.numUnapprovedLicenses>10</rat.numUnapprovedLicenses>
   </properties>
@@ -218,6 +218,7 @@
           <cdiConversation>false</cdiConversation>
           <watcherBouncing>-1</watcherBouncing>
           <properties>
+            <talend.component.starter.security.csp>default-src * 'unsafe-eval' 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; font-src * data: blob: 'unsafe-inline'; frame-ancestors 'none'</talend.component.starter.security.csp>
             <!-- for dev with livereload
             <talend.component.starter.security.csp>default-src 'self' data: http://localhost:35729/livereload.js; frame-ancestors 'none'</talend.component.starter.security.csp>
             -->

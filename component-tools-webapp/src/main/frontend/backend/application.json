@@ -1,0 +1,111 @@
+{
+  "components": [
+    {
+      "categories": ["Databases/Jdbc"],
+      "displayName": "Query input",
+      "familyDisplayName": "JDBC",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "datastore-connector",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "datastore-family",
+        "theme": "light"
+      },
+      "id": {
+        "family": "Jdbc",
+        "familyId": "amRiYyNKZGJj",
+        "id": "amRiYyNKZGJjI1F1ZXJ5SW5wdXQ",
+        "name": "QueryInput",
+        "plugin": "jdbc",
+        "pluginLocation": "org.talend.components:jdbc:1.60.0"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/application/detail/amRiYyNKZGJjI1F1ZXJ5SW5wdXQ"
+        }
+      ],
+      "metadata": {
+        "mapper::infinite": "false",
+        "mapper::optionalRow": "false",
+        "documentation::value": "JDBC query input."
+      },
+      "type": "input",
+      "version": 3
+    },
+    {
+      "categories": ["Databases/Jdbc"],
+      "displayName": "Table name input",
+      "familyDisplayName": "JDBC",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "datastore-connector",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "datastore-family",
+        "theme": "light"
+      },
+      "id": {
+        "family": "Jdbc",
+        "familyId": "amRiYyNKZGJj",
+        "id": "amRiYyNKZGJjI1RhYmxlTmFtZUlucHV0",
+        "name": "TableNameInput",
+        "plugin": "jdbc",
+        "pluginLocation": "org.talend.components:jdbc:1.60.0"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/application/detail/amRiYyNKZGJjI1RhYmxlTmFtZUlucHV0"
+        }
+      ],
+      "metadata": {
+        "mapper::infinite": "false",
+        "mapper::optionalRow": "false",
+        "documentation::value": "JDBC input using table name."
+      },
+      "type": "input",
+      "version": 3
+    },
+    {
+      "categories": ["Databases/Jdbc"],
+      "displayName": "Database output",
+      "familyDisplayName": "JDBC",
+      "icon": {
+        "customIconType": "image/svg+xml",
+        "icon": "datastore-connector",
+        "theme": "light"
+      },
+      "iconFamily": {
+        "customIconType": "image/svg+xml",
+        "icon": "datastore-family",
+        "theme": "light"
+      },
+      "id": {
+        "family": "Jdbc",
+        "familyId": "amRiYyNKZGJj",
+        "id": "amRiYyNKZGJjI091dHB1dA",
+        "name": "Output",
+        "plugin": "jdbc",
+        "pluginLocation": "org.talend.components:jdbc:1.60.0"
+      },
+      "links": [
+        {
+          "contentType": "application/json",
+          "name": "Detail",
+          "path": "/application/detail/amRiYyNKZGJjI091dHB1dA"
+        }
+      ],
+      "metadata": { "documentation::value": "JDBC Output component." },
+      "type": "processor",
+      "version": 3
+    }
+  ]
+}

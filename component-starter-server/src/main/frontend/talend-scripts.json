@@ -1,18 +1,11 @@
 {
-	"cmf": false,
-	"sass": {
-    "data": {
-			"$brand-primary": "#215380",
-			"$brand-blue": "#266092",
-      "$brand-primary-t7": "#00A1B3",
-      "$brand-secondary-t7": "#168AA6"
-    },
-    "theme": "tdp"
+  "cmf": false,
+  "webpack": {
+    "debug": false,
+    "config": {
+      "development": "./webpack.config.dev.js",
+      "production": "./webpack.config.js"
+    }
   },
-	"webpack": {
-		"config": {
-			"development": "./webpack.config.dev.js",
-			"production": "./webpack.config.js"
-		}
-	}
+  "dynamic-cdn-webpack-plugin": false
 }
