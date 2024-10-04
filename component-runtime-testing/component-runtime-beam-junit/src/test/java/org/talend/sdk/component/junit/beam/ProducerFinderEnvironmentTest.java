@@ -16,18 +16,28 @@
 package org.talend.sdk.component.junit.beam;
 
 import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.Serializable;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
@@ -39,6 +49,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Assessor;
@@ -67,6 +78,7 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ComponentManager.AllServices;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 
+@Slf4j
 @Environment(ContextualEnvironment.class)
 @Environment(SparkRunnerEnvironment.class)
 @WithComponents("org.talend.sdk.component.junit.beam.test")
@@ -91,7 +103,8 @@ public class ProducerFinderEnvironmentTest implements Serializable {
      * + * 100000 1h34min 25min
      * +
      */
-    private final Integer recordCount = 5000; // 10 100 1000 10000 100000
+    private final Integer recordCount =
+            Integer.valueOf(System.getProperty("ProducerFinderEnvironmentTest.recordCount", "1000"));
 
     @BeforeAll
     static void forceManagerInit() {
@@ -106,48 +119,84 @@ public class ProducerFinderEnvironmentTest implements Serializable {
 
     @Test
     void finderWithTacokitFamily() {
-        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "TckFamily", recordCount);
-        recordIterator.forEachRemaining(Assertions::assertNotNull);
+        final Iterator<Record> recordIterator = getInterator(ComponentManager.instance(), "TckFamily", recordCount);
+        List<Record> records =
+                StreamSupport.stream(Spliterators.spliteratorUnknownSize(recordIterator, Spliterator.ORDERED), false)
+                        .collect(toList());
+        Assertions.assertEquals(recordCount, records.size());
     }
 
     @Test
-    void finderWithBeamFamily() {
-        final Iterator<Record> recordIterator = getFinder(ComponentManager.instance(), "BeamFamily", recordCount);
-        final int[] total = new int[1];
-        total[0] = 0;
-        recordIterator.forEachRemaining((Record rec) -> {
-            Assertions.assertNotNull(rec);
-            total[0]++;
-        });
-        Assertions.assertEquals(recordCount, total[0], "did not consume all records");
+    void interateWithBeamFamily() {
+        final Iterator<Record> recordIterator = getInterator(ComponentManager.instance(), "BeamFamily", recordCount);
+        List<Record> records =
+                StreamSupport.stream(Spliterators.spliteratorUnknownSize(recordIterator, Spliterator.ORDERED), false)
+                        .collect(toList());
+        Assertions.assertEquals(recordCount, records.size());
     }
 
     @EnvironmentalTest
     void runPipelineBeam() {
+        runPipelineBeam(recordCount, 10);
+    }
+
+    @Disabled // Execute manually
+    @EnvironmentalTest
+    void runPipelineBeamPerfs() {
+        FromConfig[] confs = new FromConfig[]{
+                FromConfig.of(100_000, 10),
+                FromConfig.of(100_000, 50),
+                FromConfig.of(200_000, 50)
+        };
+
+        List<PerfResult> results = new ArrayList<>();
+        for(FromConfig conf : confs) {
+            long start = System.currentTimeMillis();
+            runPipelineBeam(conf.getNbRows(), conf.getNbCols());
+            long end = System.currentTimeMillis();
+            results.add(new PerfResult(conf, (end - start)));
+        }
+
+        displayPerfResult("runPipelineBeamPerfs", results);
+    }
+
+    void runPipelineBeam(int nbRows, int nbCols) {
+        Map<String, String> config = new HashMap<>();
+        config.put("config.nbRows", String.valueOf(nbRows));
+        config.put("config.nbCols", String.valueOf(nbCols));
         Mapper mapper =
-                manager.findMapper("BeamFamily", "from", 1, singletonMap("count", recordCount.toString())).get();
+                manager.findMapper("BeamFamily", "from", 1, config).get();
         assertNotNull(mapper);
         final Object delegate = Delegated.class.cast(mapper).getDelegate();
         assertNotNull(delegate);
-        runPipeline((PTransform<PBegin, PCollection<Record>>) delegate);
+        runPipeline((PTransform<PBegin, PCollection<Record>>) delegate, nbRows, nbCols);
     }
 
     @EnvironmentalTest
     void runPipelineTacokt() {
-        Mapper mapper = manager.findMapper("TckFamily", "from", 1, singletonMap("count", recordCount.toString())).get();
+        Map<String, String> config = new HashMap<>();
+        config.put("config.nbRows", String.valueOf(recordCount));
+        config.put("config.nbCols", "10");
+
+        Mapper mapper = manager.findMapper("TckFamily", "from", 1, config).get();
         assertNotNull(mapper);
-        runPipeline(TalendIO.read(mapper));
+        runPipeline(TalendIO.read(mapper), recordCount, 10);
     }
 
-    private void runPipeline(PTransform<PBegin, PCollection<Record>> transform) {
+    private void runPipeline(PTransform<PBegin, PCollection<Record>> transform, int nbRows, int nbCols) {
         final Pipeline pipeline = Pipeline.create(PipelineOptionsFactory.create());
         final PTransform<PBegin, PCollection<Record>> start = transform;
         final PCollection<Record> out = pipeline.apply(start);
-        List<Record> records = IntStream.range(0, recordCount)
-                .mapToObj(i -> factory.newRecordBuilder()
-                        .withString("id", "id_" + i)
-                        .build())
+
+        List<Record> records = IntStream.rangeClosed(1, nbRows)
+                .mapToObj(row -> {
+                    Record.Builder builder = factory.newRecordBuilder();
+                    IntStream.rangeClosed(1, nbCols)
+                            .forEach(col -> builder.withString("col_" + col, "value_" + row + "_" + col));
+                    return builder.build();
+                })
                 .collect(toList());
+
         PAssert.that(out).containsInAnyOrder(records);
         Assert.assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
@@ -162,22 +211,89 @@ public class ProducerFinderEnvironmentTest implements Serializable {
         runJob(handler.asManager(), "BeamFamily");
     }
 
-    private Iterator<Record> getFinder(final ComponentManager manager, final String family, final int expectedNumber) {
+    @Disabled // Run manually
+    @EnvironmentalTest
+    void runJobWithBeamFamilyPerfs() {
+
+        FromConfig[] confs = new FromConfig[]{
+                FromConfig.of(100, 10),
+                FromConfig.of(100_000, 1),
+                FromConfig.of(1_000, 15),
+                FromConfig.of(100_000, 10),
+                FromConfig.of(100_000, 20),
+                FromConfig.of(100_000, 50)
+        };
+
+        List<PerfResult> results = new ArrayList<>();
+        for(FromConfig c : confs){
+            long start = System.currentTimeMillis();
+            runJob(handler.asManager(), "BeamFamily", c.getNbRows(), c.getNbCols());
+            long end = System.currentTimeMillis();
+            long totalMillis = end - start;
+            results.add(new PerfResult(c, totalMillis));
+        }
+
+        displayPerfResult("runJobWithBeamFamilyPerfs", results);
+
+    }
+
+    private void displayPerfResult(String name, List<PerfResult> results){
+        StringBuilder sb = new StringBuilder();
+        sb.append(System.lineSeparator());
+        sb.append("Performance test: " + name);
+        sb.append(System.lineSeparator());
+        for(PerfResult result : results){
+            Duration duration = Duration.ofMillis(result.getDuration());
+            long minutes = duration.toMinutes();
+            Duration durationSubMinutes = duration.minusMinutes(minutes);
+            long total = durationSubMinutes.toMillis();
+            long seconds = total / 1000;
+            long millis = total % 1000;
+            sb.append(
+                    String.format("\t- cols: %s, rows: %s, duration: %s:%s:%s (%s ms)",
+                            result.getConf().getNbCols(), result.getConf().getNbRows(), minutes, seconds, millis,
+                            result.getDuration())
+            );
+            sb.append(System.lineSeparator());
+        }
+        sb.append(System.lineSeparator());
+        log.info(sb.toString());
+    }
+
+    private Iterator<Record> getInterator(final ComponentManager manager, final String family,
+                                          final int nbRows) {
+        return getInterator(manager, family, nbRows, 10);
+    }
+
+    private Iterator<Record> getInterator(final ComponentManager manager, final String family,
+            final int nbRows, final int nbCols) {
         final Container container = manager.findPlugin("test-classes").get();
         ProducerFinder finder = (ProducerFinder) container.get(AllServices.class)
                 .getServices()
                 .get(ProducerFinder.class);
         assertNotNull(finder);
+
+        Map<String, String> config = new HashMap<>();
+        config.put("config.nbRows", String.valueOf(nbRows));
+        config.put("config.nbCols", String.valueOf(nbCols));
+
         final Iterator<Record> recordIterator = finder.find(family, "from", 1,
-                singletonMap("count", Integer.toString(expectedNumber)));
+                config);
+
         assertNotNull(recordIterator);
         return recordIterator;
     }
 
     private void runJob(final ComponentManager manager, final String family) {
-        final Iterator<Record> recordIterator = getFinder(manager, family, recordCount);
+        runJob(manager, family, recordCount, 10);
+    }
+
+    private void runJob(final ComponentManager manager, final String family, int nbRows, int nbCols) {
+        final Iterator<Record> recordIterator = getInterator(manager, family, nbRows, nbCols);
         assertNotNull(recordIterator);
-        handler.setInputData(toIterable(recordIterator));
+        Iterable<Record> iterable = toIterable(recordIterator);
+        handler.resetState();
+        handler.setInputData(iterable);
         Job
                 .components()
                 .component("emitter", "test://emitter")
@@ -187,7 +303,8 @@ public class ProducerFinderEnvironmentTest implements Serializable {
                 .to("output")
                 .build()
                 .run();
-        assertEquals(recordCount, handler.getCollectedData(Record.class).size());
+        List<Record> records = handler.getCollectedData(Record.class);
+        assertEquals(nbRows, records.size());
     }
 
     static <T> Iterable<T> toIterable(Iterator<T> it) {
@@ -199,25 +316,30 @@ public class ProducerFinderEnvironmentTest implements Serializable {
     @PartitionMapper(name = "from", family = "BeamFamily")
     public static class BeamFamilyFrom extends PTransform<PBegin, PCollection<Record>> {
 
-        private final int count;
+        private final FromConfig config;
 
         @Service
         private final RecordBuilderFactory recordBuilderFactory;
 
-        public BeamFamilyFrom(@Option("count") final int count, final RecordBuilderFactory factory) {
-            this.count = count;
+        public BeamFamilyFrom(@Option("config") final FromConfig config, final RecordBuilderFactory factory) {
+            this.config = config;
             recordBuilderFactory = factory;
         }
 
         @Override
         public PCollection<Record> expand(final PBegin input) {
-            return input.apply(Create.of(IntStream.range(0, count)
-                    .mapToObj(i -> recordBuilderFactory.newRecordBuilder()
-                            .withString("id", "id_" + i)
-                            .build())
-                    .collect(toList()))
+            PCollection<Record> apply = input.apply(Create.of(IntStream.rangeClosed(1, config.getNbRows())
+                            .mapToObj(row -> {
+                                Record.Builder builder = recordBuilderFactory.newRecordBuilder();
+                                IntStream.rangeClosed(1, config.getNbCols()).forEach(col ->
+                                        builder.withString("col_" + col, "value_" + row + "_" + col));
+                                return builder.build();
+                            })
+                            .collect(toList()))
                     .withCoder(SchemaRegistryCoder.of()));
+            return apply;
         }
+
     }
 
     @PartitionMapper(name = "from", family = "TckFamily")
@@ -226,12 +348,12 @@ public class ProducerFinderEnvironmentTest implements Serializable {
         @Service
         private final RecordBuilderFactory recordBuilderFactory;
 
-        private final int count;
+        private final FromConfig conf;
 
-        private int counted = 0;
+        private int counted = 1;
 
-        public TckFamilyFrom(@Option("count") final int count, final RecordBuilderFactory factory) {
-            this.count = count;
+        public TckFamilyFrom(@Option("config") final FromConfig conf, final RecordBuilderFactory factory) {
+            this.conf = conf;
             recordBuilderFactory = factory;
         }
 
@@ -252,11 +374,40 @@ public class ProducerFinderEnvironmentTest implements Serializable {
 
         @Producer
         public Record next() {
-            Record record = counted == count ? null
-                    : recordBuilderFactory.newRecordBuilder()
-                            .withString("id", "id_" + counted++)
-                            .build();
+            Record record = counted > this.conf.getNbRows() ? null : getRecord();
+            this.counted++;
             return record;
         }
+
+        private Record getRecord(){
+            Record.Builder builder = recordBuilderFactory.newRecordBuilder();
+            IntStream.rangeClosed(1, this.conf.getNbCols())
+                    .forEach(col -> builder.withString("col_"+ col, "value_"+ this.counted + "_"+ col));
+                    return builder.build();
+        }
     }
+
+    @AllArgsConstructor
+    @Data
+    private static class PerfResult{
+        private FromConfig conf;
+        private long duration;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class FromConfig implements Serializable{
+
+        @Option
+        private int nbRows;
+
+        @Option int nbCols;
+
+        private static FromConfig of(int nbRows, int nbCols){
+            return new FromConfig(nbRows, nbCols);
+        }
+
+    }
+
 }
