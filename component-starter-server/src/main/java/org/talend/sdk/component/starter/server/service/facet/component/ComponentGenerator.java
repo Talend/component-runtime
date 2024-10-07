@@ -123,7 +123,7 @@ public class ComponentGenerator {
                                 put("iconResources", iconResourcesDirectory);
                             }
                         })));
-        files.addAll(generateIcon(iconResourcesDirectory, usedFamily));
+        files.addAll(generateIcons(iconResourcesDirectory, usedFamily));
         files
                 .add(new FacetGenerator.InMemoryFile(mainJava + "/service/" + serviceName + ".java",
                         tpl.render("generator/component/Service.mustache", new HashMap<String, Object>() {
@@ -255,7 +255,7 @@ public class ComponentGenerator {
         });
     }
 
-    private List<FacetGenerator.InMemoryFile> generateIcon(final String iconResourcesDirectory, final String iconName) {
+    private List<FacetGenerator.InMemoryFile> generateIcons(final String iconResourcesDirectory, final String iconName) {
         return Arrays.asList(
                 new FacetGenerator.InMemoryFile(String.format("%s/%s.svg", iconResourcesDirectory, iconName),
                         defaultIconContent),
@@ -324,7 +324,7 @@ public class ComponentGenerator {
             generateConfiguration(null, processorPackage, mainJava, processor.getConfiguration(),
                     configurationClassName, files, null);
             String iconName = ofNullable(processor.getIcon()).filter(s -> !s.isEmpty()).orElse(processor.getName());
-            files.addAll(generateIcon(iconResourcesDirectory, iconName));
+            files.addAll(generateIcons(iconResourcesDirectory, iconName));
             files
                     .add(new FacetGenerator.InMemoryFile(
                             mainJava + "/" + processorFinalPackage + "/" + className + ".java",
@@ -372,7 +372,7 @@ public class ComponentGenerator {
 
             final Collection<FacetGenerator.InMemoryFile> files = new ArrayList<>();
             String iconName = ofNullable(source.getIcon()).filter(s -> !s.isEmpty()).orElse(source.getName());
-            files.addAll(generateIcon(iconResourcesDirectory, iconName));
+            files.addAll(generateIcons(iconResourcesDirectory, iconName));
             files
                     .add(new FacetGenerator.InMemoryFile(mainJava + "/source/" + mapperName + ".java",
                             tpl.render("generator/component/Mapper.mustache", new HashMap<String, Object>() {
