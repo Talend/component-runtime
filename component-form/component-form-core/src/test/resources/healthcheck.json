@@ -1,0 +1,152 @@
+{
+  "actions": [
+    {
+      "family": "jdbc",
+      "name": "default",
+      "properties": [
+        {
+          "displayName": "datastore2",
+          "metadata": {
+          },
+          "name": "datastore2",
+          "path": "datastore2",
+          "type": "OBJECT"
+        },
+        {
+          "displayName": "driver",
+          "metadata": {
+            "action::dynamic_values": "driver",
+            "action::validation": "driver",
+            "action::validation::parameters": "."
+          },
+          "name": "driver",
+          "path": "datastore.driver",
+          "type": "STRING"
+        },
+        {
+          "displayName": "password",
+          "metadata": {
+            "ui::credential": "true",
+            "ui::defaultvalue::value": ""
+          },
+          "name": "password",
+          "path": "datastore.password",
+          "type": "STRING"
+        },
+        {
+          "displayName": "url",
+          "metadata": {
+          },
+          "name": "url",
+          "path": "datastore.url",
+          "type": "STRING",
+          "validation": {
+            "minLength": 1
+          }
+        },
+        {
+          "displayName": "username",
+          "metadata": {
+            "ui::defaultvalue::value": "sa"
+          },
+          "name": "username",
+          "path": "datastore.username",
+          "type": "STRING"
+        }
+      ],
+      "type": "healthcheck"
+    }
+  ],
+  "displayName": "JDBC Input",
+  "icon": "db-input",
+  "id": {
+    "family": "jdbc",
+    "id": "Y29tcG9uZW50LWpkYmMjamRiYyNpbnB1dA",
+    "name": "input",
+    "plugin": "component-jdbc"
+  },
+  "links": [],
+  "properties": [
+    {
+      "displayName": "Configuration",
+      "metadata": {
+        "action::schema": "default",
+        "ui::optionsorder::value": "connection,query",
+        "dataset": "default"
+      },
+      "name": "configuration",
+      "path": "configuration",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "JDBC Connection",
+      "metadata": {
+        "action::healthcheck": "default",
+        "configurationtype::type": "dataset",
+        "configurationtype::name": "default",
+        "ui::optionsorder::value": "driver,url,username,password"
+      },
+      "name": "connection",
+      "path": "configuration.connection",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "driver",
+      "metadata": {
+        "action::healthcheck": "default",
+        "configurationtype::type": "datastore",
+        "configurationtype::name": "default",
+        "ui::optionsorder::value": ""
+      },
+      "name": "",
+      "path": "",
+      "type": ""
+    },
+    {
+      "displayName": "password",
+      "metadata": {
+        "ui::credential": "true",
+        "ui::defaultvalue::value": ""
+      },
+      "name": "password",
+      "path": "configuration.connection.password",
+      "type": "STRING"
+    },
+    {
+      "displayName": "url",
+      "metadata": {},
+      "name": "url",
+      "path": "configuration.connection.url",
+      "type": "STRING",
+      "validation": {
+        "minLength": 1
+      }
+    },
+    {
+      "displayName": "username",
+      "metadata": {
+        "ui::defaultvalue::value": "sa"
+      },
+      "name": "username",
+      "path": "configuration.connection.username",
+      "type": "STRING"
+    },
+    {
+      "displayName": "query",
+      "metadata": {
+        "ui::optionsorder::value": "query,timeout"
+      },
+      "name": "query",
+      "path": "configuration.query",
+      "type": "OBJECT"
+    },
+    {
+      "displayName": "timeout",
+      "metadata": {},
+      "name": "timeout",
+      "path": "configuration.query.timeout",
+      "type": "NUMBER"
+    }
+  ],
+  "type": "input"
+}
