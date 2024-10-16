@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":809,
+    "commits":813,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -36,7 +36,7 @@
     "name":"Christophe Le Saec"
   },
   {
-    "commits":67,
+    "commits":68,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -50,8 +50,8 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":51,
-    "description":"QA Automation @ Talend Nantes",
+    "commits":53,
+    "description":"QA Automation @ Qlik Talend Nantes",
     "gravatar":"https://avatars.githubusercontent.com/u/1255625?v=4",
     "id":"acatoire",
     "name":"Axel CATOIRE"
@@ -219,7 +219,7 @@
   },
   {
     "commits":1,
-    "description":"Information Architect, Product Manager",
+    "description":"Staff Documentation Engineer @ Contentsquare",
     "gravatar":"https://avatars.githubusercontent.com/u/19730806?v=4",
     "id":"fviolette",
     "name":"François Violette"

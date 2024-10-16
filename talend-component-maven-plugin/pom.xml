@@ -33,6 +33,7 @@
 
     <talend.build.name>${talend.build.name.base}.maven</talend.build.name>
 
+    <plexus-component-metadata.version>2.1.1</plexus-component-metadata.version>
     <!-- ITs -->
     <it-component-version>1.31.1</it-component-version>
     <it-component-artifact-id>jdbc</it-component-artifact-id>
@@ -175,7 +176,7 @@
       <plugin>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-component-metadata</artifactId>
-        <version>1.7.1</version>
+        <version>${plexus-component-metadata.version}</version>
         <executions>
           <execution>
             <goals>

@@ -127,7 +127,7 @@ public class CaptureJUnit4GzipHttpApiTest {
             final String lines = String.join("\n", Files.readAllLines(output));
             assertJSONEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
                     + "        \"content-length\":\"0\",\n"
-                    + "        \"Accept\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\",\n"
+                    + "        \"Accept\":\"*/*\",\n"
                     + "        \"Accept-Encoding\":\"gzip\",\n" + "        \"ok\":\"yes\",\n"
                     + "        \"Proxy-Connection\":\"keep-alive\"\n" + "      },\n" + "      \"method\":\"GET\",\n"
                     + "      \"uri\":\"http://localhost:" + server.getAddress().getPort() + "/supertest\"\n"

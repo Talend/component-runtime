@@ -255,7 +255,8 @@ public class ComponentGenerator {
         });
     }
 
-    private List<FacetGenerator.InMemoryFile> generateIcons(final String iconResourcesDirectory, final String iconName) {
+    private List<FacetGenerator.InMemoryFile> generateIcons(final String iconResourcesDirectory,
+            final String iconName) {
         return Arrays.asList(
                 new FacetGenerator.InMemoryFile(String.format("%s/%s.svg", iconResourcesDirectory, iconName),
                         defaultIconContent),

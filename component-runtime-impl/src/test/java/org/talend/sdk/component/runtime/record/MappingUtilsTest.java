@@ -47,7 +47,7 @@ class MappingUtilsTest {
         assertEquals(new Date(1000l), MappingUtils.coerce(Date.class, 1000l, name));
         // === non-matching types ===
         // number classes mapping
-        assertEquals(shorty, MappingUtils.coerce(short.class, new Short(shorty), name));
+        assertEquals(shorty, MappingUtils.coerce(short.class, shorty, name));
         assertEquals(shorty, MappingUtils.coerce(Short.class, shorty.shortValue(), name));
         assertEquals(Byte.valueOf("123"), MappingUtils.coerce(Byte.class, 123l, name));
         assertEquals(Byte.valueOf("123"), MappingUtils.coerce(byte.class, 123l, name));
@@ -55,21 +55,21 @@ class MappingUtilsTest {
         assertEquals(shorty.intValue(), MappingUtils.coerce(Integer.class, shorty, name));
         // ==== mapping primitive <-> Class ====
         assertEquals(Boolean.TRUE, MappingUtils.coerce(Boolean.class, true, name));
-        assertEquals('c', MappingUtils.coerce(char.class, new Character('c'), name));
-        assertEquals(new Character('c'), MappingUtils.coerce(Character.class, 'c', name));
-        assertEquals(123, MappingUtils.coerce(int.class, new Integer(123), name));
-        assertEquals(new Integer(123), MappingUtils.coerce(Integer.class, 123, name));
-        assertEquals(123l, MappingUtils.coerce(long.class, new Long(123), name));
-        assertEquals(new Long(123), MappingUtils.coerce(Long.class, 123, name));
-        assertEquals(123.456f, MappingUtils.coerce(float.class, new Float(123.456), name));
-        assertEquals(new Float(123.456), MappingUtils.coerce(Float.class, 123.456f, name));
-        assertEquals(123.456, MappingUtils.coerce(double.class, new Double(123.456), name));
-        assertEquals(new Double(123.456), MappingUtils.coerce(Double.class, 123.456, name));
+        assertEquals('c', MappingUtils.coerce(char.class, 'c', name));
+        assertEquals('c', MappingUtils.coerce(Character.class, 'c', name));
+        assertEquals(123, MappingUtils.coerce(int.class, 123, name));
+        assertEquals(123, MappingUtils.coerce(Integer.class, 123, name));
+        assertEquals(123l, MappingUtils.coerce(long.class, 123l, name));
+        assertEquals(123l, MappingUtils.coerce(Long.class, 123l, name));
+        assertEquals(123.456f, MappingUtils.coerce(float.class, 123.456, name));
+        assertEquals(123.456f, MappingUtils.coerce(Float.class, 123.456f, name));
+        assertEquals(123.456, MappingUtils.coerce(double.class, 123.456, name));
+        assertEquals(123.456, MappingUtils.coerce(Double.class, 123.456, name));
 
         assertEquals("1000", MappingUtils.coerce(String.class, 1000l, name));
         // string mapping
         assertEquals('c', MappingUtils.coerce(char.class, "c", name));
-        assertEquals(new Character('c'), MappingUtils.coerce(Character.class, "c", name));
+        assertEquals('c', MappingUtils.coerce(Character.class, "c", name));
         assertEquals(Character.MIN_VALUE, MappingUtils.coerce(Character.class, "", name));
         assertEquals(true, MappingUtils.coerce(Boolean.class, "true", name));
         assertEquals(true, MappingUtils.coerce(boolean.class, "true", name));
