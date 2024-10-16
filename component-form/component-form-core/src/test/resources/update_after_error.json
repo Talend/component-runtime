@@ -1,0 +1,86 @@
+{
+  "configurationType": "dataset",
+  "displayName": "UpdatableDataSet",
+  "edges": [],
+  "id": "update-id",
+  "name": "UpdatableDataSet",
+  "version": -1,
+  "actions": [
+    {
+      "family": "test",
+      "name": "guessMe",
+      "type": "update",
+      "properties": [
+        {
+          "displayName": "arg0",
+          "name": "arg0",
+          "path": "arg0",
+          "placeholder": "arg0",
+          "type": "STRING",
+          "metadata": {
+            "definition::parameter::index": "0"
+          }
+        }
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "displayName": "root",
+      "name": "root",
+      "path": "root",
+      "type": "OBJECT",
+      "metadata": {
+        "configurationtype::type": "dataset",
+        "configurationtype::name": "updateble-ds",
+        "ui::gridlayout::Main::value": "datastore|updatable_config"
+      }
+    },
+    {
+      "displayName": "datastore",
+      "name": "datastore",
+      "path": "root.datastore",
+      "type": "OBJECT",
+      "metadata": {
+        "ui::gridlayout::Main::value": "name"
+      }
+    },
+    {
+      "displayName": "SetBoolean",
+      "name": "setBoolean",
+      "path": "root.datastore.setBoolean",
+      "type": "BOOLEAN",
+      "metadata": {},
+      "validation": {}
+    },
+    {
+      "displayName": "updatable_config",
+      "name": "updatable_config",
+      "path": "root.updatable_config",
+      "type": "OBJECT",
+      "metadata": {
+        "ui::gridlayout::Main::value": "id,name",
+        "action::update": "guessMe",
+        "action::update::after": "id",
+        "action::update::parameters": ".",
+        "action::update::activeIf": "target"
+      }
+    },
+    {
+      "displayName": "Id",
+      "name": "id",
+      "path": "root.updatable_config.id",
+      "type": "STRING",
+      "metadata": {},
+      "validation": {}
+    },
+    {
+      "displayName": "Name",
+      "name": "name",
+      "path": "root.updatable_config.name",
+      "type": "STRING",
+      "metadata": {},
+      "validation": {}
+    }
+  ]
+}
