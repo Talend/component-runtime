@@ -18,22 +18,24 @@ package org.talend.sdk.component.tools.validator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.xbean.finder.AnnotationFinder;
-import org.junit.jupiter.api.Disabled;
+import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Emitter;
 
-@Disabled
 class OptionParameterValidatorTest {
+
+    private List<String> validate(final Class<?> testClass) {
+        final OptionParameterValidator validator = new OptionParameterValidator();
+        final AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(testClass));
+        return validator.validate(finder, Arrays.asList(testClass)).collect(Collectors.toUnmodifiableList());
+    }
 
     @Test
     void okMaxRecordsAndDuration() {
@@ -46,43 +48,20 @@ class OptionParameterValidatorTest {
             }
         }
 
-        final AnnotationFinder mockFinder = Mockito.mock(AnnotationFinder.class);
-        Mockito.when(mockFinder.findAnnotatedMethods(PostConstruct.class))
-                .thenReturn(Arrays.asList(MaxRecordAndMaxDurationEmitter.class.getDeclaredMethods()));
-        Mockito.when(mockFinder.findAnnotatedMethods(Emitter.class))
-                .thenReturn(Collections.emptyList());
-
-        final OptionParameterValidator validator = new OptionParameterValidator();
-        final Stream<String> result = validator.validate(mockFinder, Mockito.anyList());
-        System.err.println("*************************************");
-        System.err.println(result);
-        System.err.println("*************************************");
-        assertEquals(0L, result.count());
-    }
-
-    @Emitter
-    static class MaxRecordAndMaxDurationEmitter1 {
-
-        @PostConstruct
-        void start(@Option(Option.MAX_RECORDS_PARAMETER) long maxRecords) {
-        }
+        assertEquals(0L, validate(MaxRecordAndMaxDurationEmitter.class).size());
     }
 
     @Test
     void okMaxRecords() {
+        @Emitter
+        class MaxRecordAndMaxDurationEmitter {
 
-        final AnnotationFinder mockFinder = Mockito.mock(AnnotationFinder.class);
-        Mockito.when(mockFinder.findAnnotatedMethods(PostConstruct.class))
-                .thenReturn(Arrays.asList(MaxRecordAndMaxDurationEmitter1.class.getDeclaredMethods()));
-        Mockito.when(mockFinder.findAnnotatedMethods(Emitter.class))
-                .thenReturn(Collections.emptyList());
+            @PostConstruct
+            void start(@Option(Option.MAX_RECORDS_PARAMETER) long maxRecords) {
+            }
+        }
 
-        final OptionParameterValidator validator = new OptionParameterValidator();
-        final Stream<String> result = validator.validate(mockFinder, Mockito.anyList());
-        System.err.println("*************************************");
-        System.err.println(result);
-        System.err.println("*************************************");
-        assertEquals(0L, result.count());
+        assertEquals(0L, validate(MaxRecordAndMaxDurationEmitter.class).size());
     }
 
     @Test
@@ -95,18 +74,7 @@ class OptionParameterValidatorTest {
             }
         }
 
-        final AnnotationFinder mockFinder = Mockito.mock(AnnotationFinder.class);
-        Mockito.when(mockFinder.findAnnotatedMethods(PostConstruct.class))
-                .thenReturn(Arrays.asList(MaxRecordAndMaxDurationEmitter.class.getDeclaredMethods()));
-        Mockito.when(mockFinder.findAnnotatedMethods(Emitter.class))
-                .thenReturn(Collections.emptyList());
-
-        final OptionParameterValidator validator = new OptionParameterValidator();
-        final Stream<String> result = validator.validate(mockFinder, Mockito.anyList());
-        System.err.println("*************************************");
-        System.err.println(result);
-        System.err.println("*************************************");
-        assertEquals(0L, result.count());
+        assertEquals(0L, validate(MaxRecordAndMaxDurationEmitter.class).size());
     }
 
     @Test
@@ -119,18 +87,7 @@ class OptionParameterValidatorTest {
             }
         }
 
-        final AnnotationFinder mockFinder = Mockito.mock(AnnotationFinder.class);
-        Mockito.when(mockFinder.findAnnotatedMethods(PostConstruct.class))
-                .thenReturn(Arrays.asList(MaxRecordAndMaxDurationEmitter.class.getDeclaredMethods()));
-        Mockito.when(mockFinder.findAnnotatedMethods(Emitter.class))
-                .thenReturn(Collections.emptyList());
-
-        final OptionParameterValidator validator = new OptionParameterValidator();
-        final Stream<String> result = validator.validate(mockFinder, Mockito.anyList());
-        System.err.println("*************************************");
-        System.err.println(result);
-        System.err.println("*************************************");
-        assertEquals(0L, result.count());
+        assertEquals(0L, validate(MaxRecordAndMaxDurationEmitter.class).size());
     }
 
     @Test
@@ -143,19 +100,7 @@ class OptionParameterValidatorTest {
             }
         }
 
-        final AnnotationFinder mockFinder = Mockito.mock(AnnotationFinder.class);
-        Mockito.when(mockFinder.findAnnotatedMethods(PostConstruct.class))
-                .thenReturn(Arrays.asList(MaxRecordAndMaxDurationEmitter.class.getDeclaredMethods()));
-        Mockito.when(mockFinder.findAnnotatedMethods(Emitter.class))
-                .thenReturn(Collections.emptyList());
-
-        final OptionParameterValidator validator = new OptionParameterValidator();
-        final Stream<String> result = validator.validate(mockFinder, Mockito.anyList());
-        final List<String> strings = result.collect(Collectors.toList());
-        System.err.println("*************************************");
-        System.err.println(strings);
-        System.err.println("*************************************");
-
+        final List<String> strings = validate(MaxRecordAndMaxDurationEmitter.class);
         assertEquals(1, strings.size());
         assertEquals(
                 "Option value on the parameter 'maxDuration' is not acceptable. Acceptable values: [maxDurationMs,maxRecords]",
@@ -172,19 +117,7 @@ class OptionParameterValidatorTest {
             }
         }
 
-        final AnnotationFinder mockFinder = Mockito.mock(AnnotationFinder.class);
-        Mockito.when(mockFinder.findAnnotatedMethods(PostConstruct.class))
-                .thenReturn(Arrays.asList(MaxRecordAndMaxDurationEmitter.class.getDeclaredMethods()));
-        Mockito.when(mockFinder.findAnnotatedMethods(Emitter.class))
-                .thenReturn(Collections.emptyList());
-
-        final OptionParameterValidator validator = new OptionParameterValidator();
-        final Stream<String> result = validator.validate(mockFinder, Mockito.anyList());
-        final List<String> strings = result.collect(Collectors.toList());
-        System.err.println("*************************************");
-        System.err.println(strings);
-        System.err.println("*************************************");
-
+        final List<String> strings = validate(MaxRecordAndMaxDurationEmitter.class);
         assertEquals(1, strings.size());
         assertEquals("Parameter 'maxDuration' should be either annotated with @Option or removed", strings.get(0));
     }
@@ -200,19 +133,7 @@ class OptionParameterValidatorTest {
             }
         }
 
-        final AnnotationFinder mockFinder = Mockito.mock(AnnotationFinder.class);
-        Mockito.when(mockFinder.findAnnotatedMethods(PostConstruct.class))
-                .thenReturn(Arrays.asList(MaxRecordAndMaxDurationEmitter.class.getDeclaredMethods()));
-        Mockito.when(mockFinder.findAnnotatedMethods(Emitter.class))
-                .thenReturn(Collections.emptyList());
-
-        final OptionParameterValidator validator = new OptionParameterValidator();
-        final Stream<String> result = validator.validate(mockFinder, Mockito.anyList());
-        final List<String> strings = result.collect(Collectors.toList());
-        System.err.println("*************************************");
-        System.err.println(strings);
-        System.err.println("*************************************");
-
+        final List<String> strings = validate(MaxRecordAndMaxDurationEmitter.class);
         assertEquals(2, strings.size());
         assertEquals("The 'maxDuration' parameter's type is not acceptable. Acceptable types: [Integer,Long,int,long]",
                 strings.get(0));

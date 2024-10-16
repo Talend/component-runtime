@@ -209,7 +209,6 @@
     <geronimo-metrics.version>1.0.3</geronimo-metrics.version>
     <geronimo-config.version>1.2.2</geronimo-config.version>
     <junit5.version>5.10.0</junit5.version>
-    <mockito4.version>4.8.1</mockito4.version>
     <hamcrest.version>1.3</hamcrest.version>
     <jackson.version>2.16.0</jackson.version>
     <jackson-databind.version>2.16.0</jackson-databind.version>
@@ -893,12 +892,6 @@
         <groupId>org.tomitribe</groupId>
         <artifactId>tomitribe-crest</artifactId>
         <version>${tomitribe-crest.version}</version>
-      </dependency>
-      <!-- Test dependencies -->
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-junit-jupiter</artifactId>
-        <version>${mockito4.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
