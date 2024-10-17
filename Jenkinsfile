@@ -138,6 +138,12 @@ pipeline {
                         Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9  
                         """)
 
+    string(name: 'MAVEN_VERSION',
+           defaultValue: '3.8.8',
+           description: """Provided maven version will be installed with asdf  
+                        Examples: 3.8.8, 4.0.0-beta-4  
+                        """)
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "DEPLOY_CONFIG",
               sectionHeader: "Deployment configuration",
