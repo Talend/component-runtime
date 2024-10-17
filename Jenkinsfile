@@ -510,22 +510,22 @@ pipeline {
                 jenkinsJobTools.job_description_append("All docker images deployed  ")
 
                 jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                       "[artifactory.datapwn.com]" +
-                                       "($artifactoryAddr/$artifactoryPath)  ")
+                                                       "[artifactory.datapwn.com]" +
+                                                       "($artifactoryAddr/$artifactoryPath)  ")
                 jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                       "/component-server:${finalVersion}${buildTimestamp}  ")
+                                                       "/component-server:${finalVersion}${buildTimestamp}  ")
                 jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                       "/component-starter-server:${finalVersion}${buildTimestamp}  ")
+                                                       "/component-starter-server:${finalVersion}${buildTimestamp}  ")
                 jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                       "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
+                                                       "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
 
               }
               else {
                 jenkinsJobTools.job_description_append("Docker images deployed: $params.DOCKER_CHOICE  ")
                 jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                       "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
+                                                       "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
                 jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
-                                       "${finalVersion}${buildTimestamp}  ")
+                                                       "${finalVersion}${buildTimestamp}  ")
 
               }
 
@@ -705,13 +705,15 @@ pipeline {
       }
     }
     always {
-      alertingTools.slack_result(
-          env.SLACK_CI_CHANNEL,
-          currentBuild.result,
-          currentBuild.previousBuild.result,
-          true, // Post for success
-          true, // Post for failure
-          "Failure of $pomVersion $params.ACTION release.")
+      script {
+        alertingTools.slack_result(
+            env.SLACK_CI_CHANNEL,
+            currentBuild.result,
+            currentBuild.previousBuild.result,
+            true, // Post for success
+            true, // Post for failure
+            "Failure of $pomVersion $params.ACTION release.")
+      }
       recordIssues(
           enabledForFailure: false,
           tools: [
@@ -739,7 +741,7 @@ pipeline {
 
       script {
         if (params.JENKINS_DEBUG) {
-          jenkinsBreakpoint()
+          jenkinsJobTools.jenkinsBreakpoint()
         }
       }
     }
