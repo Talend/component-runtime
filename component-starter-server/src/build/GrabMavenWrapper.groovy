@@ -61,7 +61,7 @@ final int exit = new ProcessBuilder().inheritIO()
         .directory(fakeProject)
         .command(
         new File(System.getProperty('maven.home'), "bin/" + mvnCommand).getAbsolutePath(),
-        "-N", "io.takari:maven:wrapper", "-Dmaven=" + mvnVersion)
+        "-N", "-X", "io.takari:maven:wrapper")
         .start().waitFor()
 if (exit != 0) {
     throw new IllegalStateException("bad exit status generating maven wrapper: " + exit)

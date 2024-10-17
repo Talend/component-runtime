@@ -402,9 +402,7 @@
           </scripts>
           <properties>
             <gradleHome>${project.build.directory}/gradle-${gradle.version}</gradleHome>
-            <mvnVersion>${mvn.version}</mvnVersion>
           </properties>
-          <verbose>true</verbose>
         </configuration>
         <dependencies>
           <dependency>
