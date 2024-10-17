@@ -115,6 +115,7 @@ public class CaptureJUnit4GzipHttpApiTest {
                                             new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
+                    connection.setRequestProperty("Accept", "*/*");
                     connection.setRequestProperty("Accept-Encoding", "gzip");
                     connection.setRequestProperty("Authorization", "should be filtered");
                     connection.setRequestProperty("ok", "yes");

@@ -124,6 +124,7 @@ public class CaptureJUnit4HttpsApiTest {
                                             new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
+                    connection.setRequestProperty("Accept", "*/*");
                     connection.setHostnameVerifier((h, s) -> true);
                     connection.setSSLSocketFactory(server.getHttpsConfigurator().getSSLContext().getSocketFactory());
                     assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());

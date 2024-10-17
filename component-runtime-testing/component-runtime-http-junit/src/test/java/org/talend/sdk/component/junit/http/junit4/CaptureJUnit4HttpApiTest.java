@@ -106,6 +106,7 @@ public class CaptureJUnit4HttpApiTest {
                                             new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
+                    connection.setRequestProperty("Accept", "*/*");
                     connection.setRequestProperty("Authorization", "should be filtered");
                     connection.setRequestProperty("ok", "yes");
                     assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
