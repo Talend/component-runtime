@@ -30,7 +30,7 @@ spec:
       volumeMounts: [
         { name: efs-jenkins-component-runtime-m2-rootless,
           mountPath: /home/jenkins/.m2/ },
-        { name: efs-jenkins-component-runtime-asdf-rootless,
+        { name: efs-jenkins-connectors-asdf-rootless,
           mountPath: /home/jenkins/.asdf/installs},
       ]
       resources: { requests: { memory: 4G, cpu: '2' } }
@@ -49,6 +49,6 @@ spec:
     - name: efs-jenkins-component-runtime-m2-rootless
       persistentVolumeClaim:
         claimName: efs-jenkins-component-runtime-m2-rootless
-    - name: efs-jenkins-component-runtime-asdf-rootless
+    - name: efs-jenkins-connectors-asdf-rootless
       persistentVolumeClaim:
-        claimName: efs-jenkins-component-runtime-asdf-rootless
+        claimName: efs-jenkins-connectors-asdf-rootless
