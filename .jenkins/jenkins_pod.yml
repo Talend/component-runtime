@@ -33,7 +33,7 @@ spec:
         { name: efs-jenkins-component-runtime-asdf-rootless,
           mountPath: /home/jenkins/.asdf/installs},
       ]
-      resources: { requests: { memory: 6G, cpu: '4' } }
+      resources: { requests: { memory: 4G, cpu: '2' } }
       env:
         - name: DOCKER_HOST # Points the Docker client to the socket hosted by the docker-daemon container (see below)
           value: tcp://localhost:2375
