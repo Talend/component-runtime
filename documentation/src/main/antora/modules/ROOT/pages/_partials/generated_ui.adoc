@@ -16,6 +16,22 @@ Provide a default value the UI can use - only for primitive fields.
 ----
 
 
+= @Hidden
+
+Mark an @Option as being hidden.
+
+- API: `@org.talend.sdk.component.api.configuration.ui.Hidden`
+
+== Snippets
+
+[source,js]
+----
+{
+  "ui::hidden":"true"
+}
+----
+
+
 = @OptionsOrder
 
 Allows to sort a class properties.
