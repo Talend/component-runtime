@@ -50,7 +50,7 @@ if (System.properties['os.name'].toLowerCase(Locale.ENGLISH).contains('windows')
 }
 
 def fullMvnCommand =  new File(System.getProperty('maven.home'), "bin/" + mvnCommand).getAbsolutePath()
-System.out.println(fullMvnCommand + " "+ mvnVersion)
+System.out.println(fullMvnCommand)
 
 new ProcessBuilder().inheritIO()
         .directory(fakeProject)
