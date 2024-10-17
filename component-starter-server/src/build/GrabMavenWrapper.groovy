@@ -50,14 +50,6 @@ if (System.properties['os.name'].toLowerCase(Locale.ENGLISH).contains('windows')
     mvnCommand += ".cmd"
 }
 
-def fullMvnCommand =  new File(System.getProperty('maven.home'), "bin/" + mvnCommand).getAbsolutePath()
-System.out.println(fullMvnCommand)
-
-new ProcessBuilder().inheritIO()
-        .directory(fakeProject)
-        .command(fullMvnCommand, "-version")
-        .start().waitFor()
-
 final int exit = new ProcessBuilder().inheritIO()
         .directory(fakeProject)
         .command(
