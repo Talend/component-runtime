@@ -1,0 +1,104 @@
+
+
+// Credentials
+final def nexusCredentials = usernamePassword(
+    credentialsId: 'nexus-artifact-zl-credentials',
+    usernameVariable: 'NEXUS_USER',
+    passwordVariable: 'NEXUS_PASSWORD')
+
+
+pipeline {
+  agent {
+    kubernetes {
+      yamlFile '.jenkins/jenkins_pod.yml'
+      defaultContainer 'main'
+    }
+  }
+
+  environment {
+    MAVEN_OPTS = [
+        '-Dmaven.artifact.threads=128',
+        '-Dorg.slf4j.simpleLogger.showThreadName=true',
+        '-Dorg.slf4j.simpleLogger.showDateTime=true',
+        '-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss',
+        "-Dtalend.maven.decrypter.m2.location=${WORKSPACE}/.jenkins/",
+    ].join(' ')
+    TALEND_REGISTRY = 'registry.datapwn.com'
+  }
+
+  options {
+    buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: '10'))
+    timeout(time: 60, unit: 'MINUTES')
+    skipStagesAfterUnstable()
+  }
+
+  stages {
+    stage('Preliminary steps') {
+      steps {
+        script {
+          println "Installing tools using asdf"
+          sh 'bash .jenkins/asdf_install.sh'
+        }
+      }
+    }
+
+    stage('Build Project') {
+      steps {
+        withCredentials([nexusCredentials]) {
+          script {
+            sh """
+              echo "Building project with Maven:"
+              mvn clean install -DskipTests -B -U -V -s .jenkins/settings.xml --fail-at-end
+              """
+          }
+        }
+      }
+    }
+
+    stage('Security Scan with Trivy') {
+      steps {
+        script {
+          sh """
+            echo "Printing Trivy version:"
+            trivy --version
+            echo "Running Trivy scan:"
+            mkdir -p output
+            trivy fs . -f json --scanners vuln -o output/trivy-results.json --timeout 60m --debug
+            """
+        }
+      }
+      post {
+        always {
+          archiveArtifacts artifacts: 'output/trivy-results.json'
+        }
+      }
+    }
+
+    stage('Upload Scan Results to DefectDojo') {
+      steps {
+        withCredentials([string(credentialsId: 'defectdojo-token-common', variable: 'DEFECTDOJO_API_TOKEN')]) {
+          sh """#!/bin/sh
+					echo "Scan completed, now uploading to DefectDojo"
+					apk add curl
+					curl -s -X 'POST' -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
+					'https://defectdojo.dagali.talendinc.com/api/v2/reimport-scan/' \
+                    -H 'accept: application/json' \
+                    -H 'Content-Type: multipart/form-data' \
+                    -F 'close_old_findings=true' \
+                    -F 'engagement_name=trivy-sca_connectors-ee' \
+                    -F 'auto_create_context=true' \
+                    -F 'push_to_jira=false' \
+                    -F 'scan_date=' \
+                    -F 'do_not_reactivate=true' \
+                    -F 'minimum_severity=Low' \
+                    -F 'product_name=connectors-ee' \
+                    -F 'verified=true' \
+                    -F 'product_type_name=Talend' \
+                    -F 'scan_type=Trivy Scan' \
+                    -F 'file=@output/trivy-results.json'
+          """
+        }
+      }
+    }
+  }
+}
