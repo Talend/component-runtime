@@ -120,7 +120,6 @@ pipeline {
               sectionHeaderStyle: """ background-color: #ABEBC6;
                 text-align: center; font-size: 35px !important; font-weight : bold;
 			          """)
-    // TODO why font-size do not work
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     choice(
         name: 'Action',
@@ -174,7 +173,7 @@ pipeline {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "QUALIFIER_CONFIG",
-              sectionHeader: "Git configuration",
+              sectionHeader: "Qualifier configuration",
               sectionHeaderStyle: """ background-color: #AED6F1;
                 text-align: center; font-size: 35px !important; font-weight : bold;
 			          """)
@@ -254,6 +253,7 @@ pipeline {
             sh """ bash .jenkins/scripts/setup_gpg.sh """
           }
         }
+
         ///////////////////////////////////////////
         // edit java version
         ///////////////////////////////////////////
@@ -262,6 +262,8 @@ pipeline {
 
           asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
           jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
 
         }
 
