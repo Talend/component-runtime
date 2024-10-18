@@ -85,13 +85,13 @@ pipeline {
                     -H 'accept: application/json' \
                     -H 'Content-Type: multipart/form-data' \
                     -F 'close_old_findings=true' \
-                    -F 'engagement_name=trivy-sca_connectors-ee' \
+                    -F 'engagement_name=trivy-sca_component-runtime' \
                     -F 'auto_create_context=true' \
                     -F 'push_to_jira=false' \
                     -F 'scan_date=' \
                     -F 'do_not_reactivate=true' \
                     -F 'minimum_severity=Low' \
-                    -F 'product_name=connectors-ee' \
+                    -F 'product_name=component-runtime' \
                     -F 'verified=true' \
                     -F 'product_type_name=Talend' \
                     -F 'scan_type=Trivy Scan' \
