@@ -37,7 +37,7 @@ pipeline {
       steps {
         script {
           println "Installing tools using asdf"
-          sh 'bash .jenkins/asdf_install.sh'
+          sh 'bash .jenkins/scripts/asdf_install.sh'
         }
       }
     }
