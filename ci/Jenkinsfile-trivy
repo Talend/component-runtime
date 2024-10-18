@@ -22,6 +22,12 @@ final def nexusCredentials = usernamePassword(
 
 
 pipeline {
+  libraries {
+    // Externals libraries used in this job
+    // Connector lib from https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@1.0.0") // Defining jenkinsJobTools
+  }
+
   agent {
     kubernetes {
       yamlFile '.jenkins/jenkins_pod.yml'
@@ -44,6 +50,32 @@ pipeline {
     buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: '10'))
     timeout(time: 60, unit: 'MINUTES')
     skipStagesAfterUnstable()
+  }
+
+
+  parameters {
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "BASIC_CONFIG",
+              sectionHeader: "Basic configuration",
+              sectionHeaderStyle: """ background-color: #ABEBC6;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "DEBUG_CONFIG",
+              sectionHeader: "Jenkins job debug configuration ",
+              sectionHeaderStyle: """ background-color: #FF0000;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    booleanParam(
+        name: 'JENKINS_DEBUG',
+        defaultValue: false,
+        description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
   }
 
   stages {
@@ -111,6 +143,15 @@ pipeline {
                     -F 'scan_type=Trivy Scan' \
                     -F 'file=@output/trivy-results.json'
           """
+        }
+      }
+    }
+  }
+  post {
+    always {
+      script {
+        if (params.JENKINS_DEBUG) {
+          jenkinsJobTools.jenkinsBreakpoint()
         }
       }
     }
