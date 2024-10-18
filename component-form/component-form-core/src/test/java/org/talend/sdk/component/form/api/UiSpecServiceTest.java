@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
@@ -256,6 +257,13 @@ class UiSpecServiceTest {
         assertEquals("update", trigger.getType());
         assertEquals(1, trigger.getParameters().size());
         assertEquals(1, trigger.getOptions().size());
+    }
+
+    @Test
+    void updatableAfterError() throws Exception {
+        final ConfigTypeNode node = load("update_after_error.json", ConfigTypeNode.class);
+        assertThrows(java.util.concurrent.ExecutionException.class,
+                () -> service.convert("test", "en", node, null).toCompletableFuture().get());
     }
 
     @Test
@@ -698,6 +706,14 @@ class UiSpecServiceTest {
     void out() throws Exception {
         final Ui payload = service.convert(load("jdbc.json"), "en", null).toCompletableFuture().get();
         System.out.println(JsonbBuilder.create(new JsonbConfig().withFormatting(true)).toJson(payload));
+    }
+
+    @Test
+    void healthCheck() throws Exception {
+        // Make sure this json file goes through all else parts in ObjectWidgetConverter's addHealthCheck method
+        final Ui payload = service.convert(load("healthcheck.json"), "en", null).toCompletableFuture().get();
+        final Collection<UiSchema> uiSchema = payload.getUiSchema();
+        assertNotNull(uiSchema);
     }
 
     private void assertUiSchema(final UiSchema schema, final String widget, final String title, final String key,
