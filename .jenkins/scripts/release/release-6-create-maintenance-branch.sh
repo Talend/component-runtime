@@ -28,14 +28,6 @@ main() {
 
   git checkout -b "${maintenanceBranch}"
 
-  printf "Downgrade BOM to maintenance version\n"
-  mvn versions:set \
-    --batch-mode \
-    --settings .jenkins/settings.xml \
-    --define generateBackupPoms=false \
-    --define newVersion="${maintenanceVersion}" \
-    --file bom/pom.xml
-
   printf "Downgrade project to maintenance version\n"
   mvn versions:set \
     --batch-mode \

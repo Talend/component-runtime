@@ -19,7 +19,7 @@ set -xe
 
 main() (
 
-  mvn ossindex:audit-aggregate -pl '!bom' \
+  mvn ossindex:audit-aggregate \
     --define ossindex.fail=false \
     --define ossindex.reportFile=target/audit.txt \
     --settings .jenkins/settings.xml

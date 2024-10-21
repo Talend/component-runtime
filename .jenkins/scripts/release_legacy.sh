@@ -46,11 +46,6 @@ main() {
   fi
   local dev_version=${maj}.${min}.${rev}-SNAPSHOT
   ###
-  echo ">> Preparing and installing BOM to release ${release} from ${currentVersion}"
-  mvn versions:set --define newVersion="${release}" --define generateBackupPoms=false -f bom/pom.xml
-  mvn install -f bom/pom.xml
-  mvn versions:set --define newVersion="${currentVersion}" --define generateBackupPoms=false -f bom/pom.xml
-  ###
   echo ">> Maven prepare release $release (next-dev: ${dev_version}; maintenance: ${maintenance_branch} with ${maintenance_version})"
   mvn release:prepare \
     --batch-mode \
@@ -94,13 +89,6 @@ main() {
     echo ">> Creating ${maintenance_branch?Missing branch} with ${maintenance_version?Missing version}"
     git checkout -b "${maintenance_branch}"
     # downgrade to maintenance version
-    mvn versions:set \
-      --batch-mode \
-      --settings .jenkins/settings.xml \
-      --define generateBackupPoms=false \
-      --define newVersion="${maintenance_version}" \
-      -f bom/pom.xml
-
     mvn versions:set \
       --batch-mode \
       --settings .jenkins/settings.xml \
