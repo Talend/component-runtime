@@ -22,8 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +78,15 @@ class SchemaImplTest {
 
     private final Schema.Entry meta2 = new SchemaImpl.EntryImpl.BuilderImpl() //
             .withName("meta2") //
+            .withType(Schema.Type.STRING) //
+            .withMetadata(true) //
+            .withNullable(true) //
+            .build();
+
+    private final String nameSpace = "Un Nom Avec Espace";
+
+    private final Schema.Entry metaSpace = new SchemaImpl.EntryImpl.BuilderImpl() //
+            .withName(nameSpace) //
             .withType(Schema.Type.STRING) //
             .withMetadata(true) //
             .withNullable(true) //
@@ -180,6 +192,115 @@ class SchemaImplTest {
         Assertions.assertEquals(34, record.getInt("record_id"));
         Assertions.assertEquals("Aloa", record.getString("field1"));
         Assertions.assertEquals("Hallo, wie gehst du ?", record.getString("field2"));
+    }
+
+    @Test
+    void testNameSpace() {
+        final Entry entry1 = new EntryImpl.BuilderImpl() //
+                .withName(nameSpace + 0) //
+                .withType(Type.DATETIME) //
+                .withDefaultValue(null) //
+                .build();
+        final Entry entry2 = new EntryImpl.BuilderImpl() //
+                .withName(nameSpace + 1) //
+                .withType(Type.BOOLEAN) //
+                .withDefaultValue(null) //
+                .build();
+        final Entry entry3 = new EntryImpl.BuilderImpl() //
+                .withName(nameSpace + 2) //
+                .withType(Type.DECIMAL) //
+                .withDefaultValue(null) //
+                .build();
+        final Schema innerArray = new BuilderImpl().withType(Type.STRING).build();
+        final Entry arrayEntry = new EntryImpl.BuilderImpl() //
+                .withName("test test") //
+                .withRawName("test test") //
+                .withType(Type.ARRAY) //
+                .withNullable(true) //
+                .withElementSchema(innerArray) //
+                .build();
+
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(metaSpace) //
+                .withEntry(entry1) //
+                .withEntry(entry2) //
+                .withEntry(entry3) //
+                .withEntry(arrayEntry)
+                .build();
+        final List<String> arrayValue = new ArrayList<>();
+        arrayValue.add("value 1");
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        Record record = builder //
+                .withString(nameSpace, "Aloa space space")
+                .withDateTime(nameSpace + 0, new Date(1234567)) //
+                .withBoolean(nameSpace + 1, Boolean.TRUE) //
+                .withDecimal(nameSpace + 2, BigDecimal.ONE) //
+                .withArray(arrayEntry, arrayValue)
+                .build();
+
+        Assertions.assertEquals("Aloa space space", record.getString(nameSpace));
+        Assertions.assertEquals(Boolean.TRUE, record.getBoolean(nameSpace + 1));
+        Assertions.assertEquals(BigDecimal.ONE, record.getDecimal(nameSpace + 2));
+        Assertions.assertNotNull(record.getArray(String.class, "test test"));
+    }
+
+    @Test
+    void testNameSpace2() {
+        Map<String, String> data = new HashMap<>();
+        data.put("avroCompliant", "value 1");
+        data.put("not avro compliant", "value 2");
+        Schema.Builder schemaBuilder = new BuilderImpl().withType(Type.RECORD);
+        data.keySet()
+                .stream()
+                .forEach(k -> schemaBuilder
+                        .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                                .withName(k)
+                                .withType(Schema.Type.STRING)
+                                .build()));
+
+        Schema schema = schemaBuilder.build();
+        Record.Builder recordBuilder = new RecordImpl.BuilderImpl(schema);
+        data.entrySet().stream().forEach(e -> recordBuilder.withString(e.getKey(), e.getValue()));
+        Record record = recordBuilder.build();
+        Assertions.assertEquals("value 1", record.getString("avroCompliant"));
+        Assertions.assertEquals("value 2", record.getString("not avro compliant"));
+    }
+
+    @Test
+    void testNameSpace3() {
+        final Entry entry1 = new EntryImpl.BuilderImpl() //
+                .withName("1 name a") //
+                .withType(Type.DATETIME) //
+                .withDefaultValue(null) //
+                .build();
+        final Entry entry2 = new EntryImpl.BuilderImpl() //
+                .withName("2 name b") //
+                .withType(Type.DOUBLE) //
+                .withDefaultValue(11.11) //
+                .build();
+        final Entry entry3 = new EntryImpl.BuilderImpl() //
+                .withName("3 name c") //
+                .withType(Type.DECIMAL) //
+                .withDefaultValue(null) //
+                .build();
+        final Schema schema = new BuilderImpl() //
+                .withType(Type.RECORD) //
+                .withEntry(entry1) //
+                .withEntry(entry2) //
+                .withEntry(entry3) //
+                .build();
+
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        Record record = builder //
+                .withDateTime(entry1, new Date(1234567)) //
+                .withDouble(entry2, 12.33) //
+                .withDecimal(entry3, BigDecimal.ONE) //
+                .build();
+
+        Assertions.assertEquals("1234567", record.getString("1 name a"));
+        Assertions.assertEquals(12.33, record.getDouble("2 name b"));
+        Assertions.assertEquals(BigDecimal.ONE, record.getDecimal("3 name c"));
     }
 
     @Test
