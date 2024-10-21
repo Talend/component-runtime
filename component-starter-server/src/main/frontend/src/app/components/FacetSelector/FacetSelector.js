@@ -15,12 +15,11 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import keycode from 'keycode';
 import Badge from '@talend/react-components/lib/Badge';
 import Typeahead from '@talend/react-components/lib/Typeahead';
 import Help from '../Help';
 
-import theme from './FacetSelector.scss';
+import theme from './FacetSelector.module.scss';
 
 function escapeRegexCharacters(str) {
 	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -33,7 +32,7 @@ function escapeRegexCharacters(str) {
 function getSelected(props, typeaheadConfig) {
 	if (props.selected) {
 		return typeaheadConfig
-			.map(cat => cat.suggestions.filter(s => props.selected.indexOf(s.title) >= 0))
+			.map((cat) => cat.suggestions.filter((s) => props.selected.indexOf(s.title) >= 0))
 			.reduce((a, i) => a.concat(i), []);
 	}
 	return [];
@@ -47,12 +46,12 @@ export default class FacetSelector extends React.Component {
 	constructor(props) {
 		super(props);
 
-		const typeaheadConfig = Object.keys(this.props.facets).map(category => {
+		const typeaheadConfig = Object.keys(this.props.facets).map((category) => {
 			const facets = this.props.facets[category];
 			return {
 				// icon: {name: "talend-filter", title: "icon"},
 				title: category,
-				suggestions: facets.map(suggestion => ({
+				suggestions: facets.map((suggestion) => ({
 					title: suggestion.name,
 					description: suggestion.description,
 					// category: item,
@@ -74,19 +73,21 @@ export default class FacetSelector extends React.Component {
 	}
 
 	onKeyDown(event, { focusedItemIndex, newFocusedItemIndex }) {
-		switch (event.which) {
-			case keycode.codes.enter:
+		switch (event.key) {
+			case 'Enter':
 				event.preventDefault();
 				if (Number.isInteger(focusedItemIndex)) {
 					this.onAddTag(event, { itemIndex: focusedItemIndex });
 				}
 				break;
-			case keycode.codes.down:
-			case keycode.codes.up:
+			case 'ArrowDown':
+			case 'Down':
+			case 'ArrowUp':
+			case 'Up':
 				event.preventDefault();
 				this.setState({ focusedItemIndex: newFocusedItemIndex });
 				break;
-			case keycode.codes.backspace:
+			case 'Backspace':
 				if (!this.state.value && this.props.selected.length > 0) {
 					this.onRemoveTag(this.props.selected.length - 1);
 				}
@@ -106,7 +107,7 @@ export default class FacetSelector extends React.Component {
 
 	onAddTag(event, { sectionIndex, itemIndex }) {
 		this.props.selected.push(this.state.suggestions[sectionIndex].suggestions[itemIndex].title);
-		this.setState(state =>
+		this.setState((state) =>
 			state.selected.push(this.state.suggestions[sectionIndex].suggestions[itemIndex]),
 		);
 		this.updateSuggestions();
@@ -114,7 +115,7 @@ export default class FacetSelector extends React.Component {
 
 	onRemoveTag(itemIndex) {
 		this.props.selected.splice(itemIndex, 1);
-		this.setState(state => state.selected.splice(itemIndex, 1));
+		this.setState((state) => state.selected.splice(itemIndex, 1));
 	}
 
 	resetSuggestions() {
@@ -135,12 +136,12 @@ export default class FacetSelector extends React.Component {
 				const regex = new RegExp(escapedValue, 'i');
 
 				suggestions = this.state.facetTypeahead
-					.map(category => ({
+					.map((category) => ({
 						icon: category.icon,
 						title: category.title,
-						suggestions: category.suggestions.filter(item => regex.test(item.title)),
+						suggestions: category.suggestions.filter((item) => regex.test(item.title)),
 					}))
-					.filter(category => category.suggestions.length > 0);
+					.filter((category) => category.suggestions.length > 0);
 			}
 			return {
 				focusedItemIndex: suggestions.length ? 0 : undefined,

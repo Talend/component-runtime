@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 import React from 'react';
-import PropTypes from 'prop-types';
+
 import { ActionButton } from '@talend/react-components/lib/Actions';
 import './ComponentAddForm.scss';
 
@@ -24,12 +24,14 @@ import {
 	COMPONENT_TYPE_SINK,
 } from '../../constants';
 import ComponentsContext from '../../ComponentsContext';
+import { useNavigate } from 'react-router';
 
 export default function ComponentAddForm(props) {
+	const navigate = useNavigate();
 	const components = React.useContext(ComponentsContext.raw);
 	const [once, setOnce] = React.useState(false);
-	const callback = c => {
-		props.history.push(`/component/${components.components.indexOf(c)}`);
+	const callback = (c) => {
+		navigate(`/component/${components.components.indexOf(c)}`);
 	};
 	if (once) {
 		return null;
@@ -89,8 +91,3 @@ export default function ComponentAddForm(props) {
 		</div>
 	);
 }
-ComponentAddForm.propTypes = {
-	history: PropTypes.shape({
-		push: PropTypes.func,
-	}),
-};
