@@ -92,10 +92,17 @@ pipeline {
       steps {
         withCredentials([nexusCredentials]) {
           script {
-            sh """
+            sh """\
+              #!/usr/bin/env bash
               echo "Building project with Maven:"
-              mvn clean install -DskipTests -B -U -V -s .jenkins/settings.xml --fail-at-end
-              """
+              mvn clean install --define skipTests \
+                                --define gpg.skip=true \
+                                --define enforcer.skip=true\
+                                --batch-mode \
+                                --update-snapshots \
+                                --show-version \
+                                --settings .jenkins/settings.xml
+              """.stripIndent()
           }
         }
       }
@@ -104,13 +111,14 @@ pipeline {
     stage('Security Scan with Trivy') {
       steps {
         script {
-          sh """
+          sh """\
+            #!/usr/bin/env bash
             echo "Printing Trivy version:"
             trivy --version
             echo "Running Trivy scan:"
             mkdir -p output
             trivy fs . -f json --scanners vuln -o output/trivy-results.json --timeout 60m --debug
-            """
+            """.stripIndent()
         }
       }
       post {
@@ -123,7 +131,8 @@ pipeline {
     stage('Upload Scan Results to DefectDojo') {
       steps {
         withCredentials([string(credentialsId: 'defectdojo-token-common', variable: 'DEFECTDOJO_API_TOKEN')]) {
-          sh """#!/bin/sh
+          sh """\
+          #!/usr/bin/env bash
 					echo "Scan completed, now uploading to DefectDojo"
 					apk add curl
 					curl -s -X 'POST' -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
@@ -142,7 +151,7 @@ pipeline {
                     -F 'product_type_name=Talend' \
                     -F 'scan_type=Trivy Scan' \
                     -F 'file=@output/trivy-results.json'
-          """
+          """.stripIndent()
         }
       }
     }
