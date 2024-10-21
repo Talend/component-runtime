@@ -116,13 +116,28 @@ pipeline {
             trivy --version
             echo "Running Trivy scan:"
             mkdir -p output
-            trivy fs . -f json --scanners vuln -o output/trivy-results.json --timeout 60m --debug
+            trivy fs . -f json \
+                       --scanners vuln \
+                       -o output/trivy-results.json \
+                       --timeout 60m \
+                       --debug
             """.stripIndent()
         }
       }
       post {
         always {
           archiveArtifacts artifacts: 'output/trivy-results.json'
+
+          recordIssues(
+              enabledForFailure: true,
+              tools: [
+                  trivy(
+                      id: 'trivy',
+                      name: 'trivy scan',
+                      pattern : 'output/trivy-results.json',
+                  )
+              ]
+          )
         }
       }
     }
