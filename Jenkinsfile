@@ -84,6 +84,9 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 
 
 pipeline {
+  libraries {
+    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+  }
   agent {
     kubernetes {
       yamlFile '.jenkins/jenkins_pod.yml'
@@ -111,10 +114,42 @@ pipeline {
   }
 
   parameters {
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "BASIC_CONFIG",
+              sectionHeader: "Basic configuration",
+              sectionHeaderStyle: """ background-color: #ABEBC6;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     choice(
         name: 'Action',
         choices: ['STANDARD', 'RELEASE'],
         description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
+
+    booleanParam(
+        name: 'FORCE_DOC',
+        defaultValue: false,
+        description: 'Force documentation stage for development branches. No effect on master and maintenance.')
+
+    string(name: 'JAVA_VERSION',
+           defaultValue: 'adoptopenjdk-17.0.5+8',
+           description: """Provided java version will be installed with asdf  
+                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9  
+                        """)
+
+    string(name: 'MAVEN_VERSION',
+           defaultValue: '3.8.8',
+           description: """Provided maven version will be installed with asdf  
+                        Examples: 3.8.8, 4.0.0-beta-4  
+                        """)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "DEPLOY_CONFIG",
+              sectionHeader: "Deployment configuration",
+              sectionHeaderStyle: """ background-color: #F9E79F;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'MAVEN_DEPLOY',
         defaultValue: false,
@@ -135,6 +170,14 @@ pipeline {
                   'remote-engine-customizer',
                   'All'],
         description: 'Choose which docker image you want to build and push. Only available if DOCKER_PUSH == True.')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "QUALIFIER_CONFIG",
+              sectionHeader: "Qualifier configuration",
+              sectionHeaderStyle: """ background-color: #AED6F1;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(
         name: 'VERSION_QUALIFIER',
         defaultValue: 'DEFAULT',
@@ -142,6 +185,14 @@ pipeline {
             Deploy jars with the given version qualifier. No effect on master and maintenance.
              - DEFAULT means the qualifier will be the Jira id extracted from the branch name.
             From "user/JIRA-12345_some_information" the qualifier will be JIRA-12345.''')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "ADVANCED_CONFIG",
+              sectionHeader: "Advanced configuration",
+              sectionHeaderStyle: """ background-color: #F8C471;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(
         name: 'EXTRA_BUILD_PARAMS',
         defaultValue: '',
@@ -155,10 +206,6 @@ pipeline {
         defaultValue: false,
         description: 'Cancel the Sonar analysis stage execution')
     booleanParam(
-        name: 'FORCE_DOC',
-        defaultValue: false,
-        description: 'Force documentation stage for development branches. No effect on master and maintenance.')
-    booleanParam(
         name: 'FORCE_SECURITY_ANALYSIS',
         defaultValue: false,
         description: 'Force OSS security analysis stage for branches.')
@@ -166,6 +213,22 @@ pipeline {
         name: 'FORCE_DEPS_REPORT',
         defaultValue: false,
         description: 'Force dependencies report stage for branches.')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "EXPERT_CONFIG",
+              sectionHeader: "Expert configuration",
+              sectionHeaderStyle: """ background-color: #A9A9A9;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "DEBUG_CONFIG",
+              sectionHeader: "Jenkins job debug configuration ",
+              sectionHeaderStyle: """ background-color: #FF0000;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'JENKINS_DEBUG',
         defaultValue: false,
@@ -190,6 +253,20 @@ pipeline {
             sh """ bash .jenkins/scripts/setup_gpg.sh """
           }
         }
+
+        ///////////////////////////////////////////
+        // edit java version
+        ///////////////////////////////////////////
+        script {
+          echo "edit asdf tool version with version from jenkins param"
+
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
+          jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
+
+        }
+
         ///////////////////////////////////////////
         // asdf install
         ///////////////////////////////////////////
@@ -305,9 +382,7 @@ pipeline {
             deploy_info = deploy_info + '+DOCKER'
           }
 
-          currentBuild.displayName = (
-              "#$currentBuild.number-$params.Action" + deploy_info + ": $user_name"
-          )
+          jenkinsJobTools.job_name_creation("$params.Action" + deploy_info)
 
           // updating build description
           String description = """
@@ -315,7 +390,7 @@ pipeline {
                       Disable Sonar: $params.DISABLE_SONAR - Script: $hasPostLoginScript  
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
-          job_description_append(description)
+          jenkinsJobTools.job_description_append(description)
         }
       }
       post {
@@ -410,7 +485,7 @@ pipeline {
                     'https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/']
           }
 
-          job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
+          jenkinsJobTools.job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
         }
       }
     }
@@ -428,7 +503,7 @@ pipeline {
             String images_options = ''
             if (isStdBranch) {
               // Build and push all images
-              job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
+              jenkinsJobTools.job_description_append("Docker images deployed: component-server, component-starter-server and remote-engine-customizer  ")
             }
             else {
               String image_list
@@ -440,25 +515,25 @@ pipeline {
               }
 
               if (params.DOCKER_CHOICE == 'All') {
-                job_description_append("All docker images deployed  ")
+                jenkinsJobTools.job_description_append("All docker images deployed  ")
 
-                job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                       "[artifactory.datapwn.com]" +
-                                       "($artifactoryAddr/$artifactoryPath)  ")
-                job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                       "/component-server:${finalVersion}${buildTimestamp}  ")
-                job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                       "/component-starter-server:${finalVersion}${buildTimestamp}  ")
-                job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
-                                       "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
+                jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
+                                                       "[artifactory.datapwn.com]" +
+                                                       "($artifactoryAddr/$artifactoryPath)  ")
+                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                       "/component-server:${finalVersion}${buildTimestamp}  ")
+                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                       "/component-starter-server:${finalVersion}${buildTimestamp}  ")
+                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath" +
+                                                       "/remote-engine-customize:${finalVersion}${buildTimestamp}  ")
 
               }
               else {
-                job_description_append("Docker images deployed: $params.DOCKER_CHOICE  ")
-                job_description_append("As ${finalVersion}${buildTimestamp} on " +
-                                       "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
-                job_description_append("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
-                                       "${finalVersion}${buildTimestamp}  ")
+                jenkinsJobTools.job_description_append("Docker images deployed: $params.DOCKER_CHOICE  ")
+                jenkinsJobTools.job_description_append("As ${finalVersion}${buildTimestamp} on " +
+                                                       "[artifactory.datapwn.com]($artifactoryAddr/$artifactoryPath)  ")
+                jenkinsJobTools.job_description_append("docker pull $artifactoryAddr/$artifactoryPath/$params.DOCKER_CHOICE:" +
+                                                       "${finalVersion}${buildTimestamp}  ")
 
               }
 
@@ -621,16 +696,6 @@ pipeline {
   post {
     success {
       script {
-        //Only post results to Slack for Master and Maintenance branches
-        if (isStdBranch) {
-          slackSend(
-              color: '#00FF00',
-              message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-              channel: "${env.SLACK_CI_CHANNEL}"
-          )
-        }
-      }
-      script {
         println "====== Publish Coverage"
         publishCoverage adapters: [jacocoAdapter('**/jacoco-aggregate/*.xml')]
         publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
@@ -647,30 +712,16 @@ pipeline {
         ])
       }
     }
-    failure {
-      script {
-        //Only post results to Slack for Master and Maintenance branches
-        if (isStdBranch) {
-          //if previous build was a success, ping channel in the Slack message
-          if ("SUCCESS" == currentBuild.previousBuild.result) {
-            slackSend(
-                color: '#FF0000',
-                message: "@here : NEW FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-                channel: "${env.SLACK_CI_CHANNEL}"
-            )
-          }
-          else {
-            //else send notification without pinging channel
-            slackSend(
-                color: '#FF0000',
-                message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})",
-                channel: "${env.SLACK_CI_CHANNEL}"
-            )
-          }
-        }
-      }
-    }
     always {
+      script {
+        alertingTools.slack_result(
+            env.SLACK_CI_CHANNEL,
+            currentBuild.result,
+            currentBuild.previousBuild.result,
+            true, // Post for success
+            true, // Post for failure
+            "Failure of $pomVersion $params.ACTION release.")
+      }
       recordIssues(
           enabledForFailure: false,
           tools: [
@@ -698,29 +749,10 @@ pipeline {
 
       script {
         if (params.JENKINS_DEBUG) {
-          jenkinsBreakpoint()
+          jenkinsJobTools.jenkinsBreakpoint()
         }
       }
     }
-  }
-}
-
-
-/**
- * Append a new line to job description
- * This is MARKDOWN, do not forget double space at the end of line
- *
- * @param new line as String or Gstring
- * @return void
- */
-private void job_description_append(new_line) {
-  if (currentBuild.description == null) {
-    println "Create the job description with: \n$new_line"
-    currentBuild.description = new_line
-  }
-  else {
-    println "Edit the job description adding: $new_line"
-    currentBuild.description = currentBuild.description + '\n' + new_line
   }
 }
 
@@ -753,26 +785,6 @@ private String assemblyExtraBuildParams(Boolean skip_doc) {
   println "extraBuildParams: $extraBuildParams"
 
   return extraBuildParams
-}
-
-/**
- * Implement a simple breakpoint to stop actual job
- * Use the method anywhere you need to stop
- * The first usage is to keep the pod alive on post stage.
- * Change and restore the job description to be more visible
- *
- * @param none
- * @return void
- */
-private void jenkinsBreakpoint() {
-  // Backup the description
-  String job_description_backup = currentBuild.description
-  // updating build description
-  currentBuild.description = "ACTION NEEDED TO CONTINUE \n ${job_description_backup}"
-  // Request user action
-  input message: 'Finish the job?', ok: 'Yes'
-  // updating build description
-  currentBuild.description = "$job_description_backup"
 }
 
 /**

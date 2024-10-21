@@ -94,6 +94,14 @@ pipeline {
   }
 
   parameters {
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "BASIC_CONFIG",
+              sectionHeader: "Basic configuration",
+              sectionHeaderStyle: """ background-color: #ABEBC6;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     choice(
         name: 'ACTION',
         choices: ['TYPE_OF_RELEASE', 'MILESTONE', 'GA', 'MAINTENANCE'],
@@ -105,14 +113,47 @@ pipeline {
               ex: 1.63.0M9-SNAPSHOT is released as 1.63.0 and master branch is bumped as 1.64.0M1-SNAPSHOT
             MAINTENANCE: release for General Available of MAINTENANCE
               ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT''')
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "VERSION_CONFIG",
+              sectionHeader: "Version configuration",
+              sectionHeaderStyle: """ background-color: #F9E79F;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    string(name: 'JAVA_VERSION',
+           defaultValue: 'adoptopenjdk-17.0.5+8',
+           description: """Provided java version will be installed with asdf  
+                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9  
+                        """)
+
+    string(name: 'MAVEN_VERSION',
+           defaultValue: '3.8.8',
+           description: """Provided maven version will be installed with asdf  
+                        Examples: 3.8.8, 4.0.0-beta-4  
+                        """)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "ADVANCED_CONFIG",
+              sectionHeader: "Advanced configuration",
+              sectionHeaderStyle: """ background-color: #F8C471;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(
         name: 'EXTRA_BUILD_PARAMS',
         defaultValue: '',
         description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
-    booleanParam(
-        name: 'JENKINS_DEBUG',
-        defaultValue: false,
-        description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "EXPERT_CONFIG",
+              sectionHeader: "Expert configuration",
+              sectionHeaderStyle: """ background-color: #A9A9A9;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'NO_STAGING',
         defaultValue: false,
@@ -127,6 +168,14 @@ pipeline {
         description: '''Skip the docker stage.  
                         EXPERT USER ONLY: to solve specials case eg: release script test.  
                         ''')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "DEBUG_CONFIG",
+              sectionHeader: "Jenkins job debug configuration ",
+              sectionHeaderStyle: """ background-color: #FF0000;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'FAKE_RELEASE',
         defaultValue: false,
@@ -138,6 +187,11 @@ pipeline {
         name: 'FAKE_REPOSITORY',
         defaultValue: 'acatoire/component-runtime',
         description: '''For debug purposes, to indicate the FAKE_RELEASE git repository''')
+
+    booleanParam(
+        name: 'JENKINS_DEBUG',
+        defaultValue: false,
+        description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
   }
 
   stages {
@@ -158,6 +212,19 @@ pipeline {
           withCredentials([keyImportCredentials]) {
             sh """ bash .jenkins/scripts/setup_gpg.sh """
           }
+        }
+
+        ///////////////////////////////////////////
+        // edit java version
+        ///////////////////////////////////////////
+        script {
+          echo "edit asdf tool version with version from jenkins param"
+
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
+          jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
+
         }
 
         ///////////////////////////////////////////

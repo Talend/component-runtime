@@ -1,33 +1,54 @@
+
 apiVersion: v1
 kind: Pod
 spec:
+  ##
   imagePullSecrets:
     - name: talend-registry
+  ##
   containers:
-    - name: main
+    ##
+    - name: docker-daemon # Container that hosts the Docker daemon/socket
+      image: artifactory.datapwn.com/docker-io-remote/docker:24.0.7-dind-rootless # Rootless versions
+      command:
+        - 'dockerd-entrypoint.sh' # Override entry point to add parameters
+      args:
+        - '--tls=false' # De-activate TLS (not possible in rootless mode)
+      env:
+        - name: DOCKER_TLS_CERTDIR  # Don't generate the certificate since it's not used (faster startup)
+          value: ""
+      securityContext:
+        privileged: true # Needed to bootstrap the Docker image. as rootless, it uses a non-root user at startup
+    ###
+    - name: main # default container for jenkins job execution
       # 3.0.9-20220930152032 is the last root version of custom-builder
-      image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/custom-builder:3.0.9-20220930152032'
+      # If you use this pod you will be jenkins user
+      # TSBI customBuilder documentation: https://github.com/Talend/tsbi-images/blob/main/tsbi/custom-builder/README.md
+      image: 'artifactory.datapwn.com/tlnd-docker-dev/talend/common/tsbi/custom-builder:4.0.24-20241016140323'
       command: [ cat ]
       tty: true
       volumeMounts: [
-        { name: efs-jenkins-component-runtime-m2, mountPath: /root/.m2/repository},
-        { name: efs-jenkins-connectors-asdf, mountPath: /root/.asdf/installs, subPath: installs }
+        { name: efs-jenkins-component-runtime-m2-rootless,
+          mountPath: /home/jenkins/.m2/ },
+        { name: efs-jenkins-connectors-asdf-rootless,
+          mountPath: /home/jenkins/.asdf/installs},
       ]
-      resources: {requests: {memory: 6G, cpu: '4.0'}, limits: {memory: 8G, cpu: '5.0'}}
+      resources: { requests: { memory: 4G, cpu: '2' } }
       env:
-        - name: DOCKER_HOST
+        - name: DOCKER_HOST # Points the Docker client to the socket hosted by the docker-daemon container (see below)
           value: tcp://localhost:2375
-    - name: docker-daemon
-      image: artifactory.datapwn.com/docker-io-remote/docker:19.03.1-dind
-      env:
-        - name: DOCKER_TLS_CERTDIR
-          value: ""
-      securityContext:
-        privileged: true
-  volumes:
-    - name: efs-jenkins-component-runtime-m2
+      readinessProbe:
+        exec:
+          command:
+            - docker
+            - info
+        initialDelaySeconds: 5
+        periodSeconds: 5
+  ##
+  volumes: # Persistent volumes stored under Amazon Elastic File System (efs) defined in flux
+    - name: efs-jenkins-component-runtime-m2-rootless
       persistentVolumeClaim:
-        claimName: efs-jenkins-component-runtime-m2
-    - name: efs-jenkins-connectors-asdf
+        claimName: efs-jenkins-component-runtime-m2-rootless
+    - name: efs-jenkins-connectors-asdf-rootless
       persistentVolumeClaim:
-        claimName: efs-jenkins-connectors-asdf
+        claimName: efs-jenkins-connectors-asdf-rootless
