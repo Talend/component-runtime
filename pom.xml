@@ -281,7 +281,7 @@
     <coverage.fail>false</coverage.fail>
 
     <johnzon.version>1.2.21</johnzon.version>
-    <commons-io.version>2.13.0</commons-io.version>
+    <commons-io.version>2.14.0</commons-io.version>
     <commons-compress.version>1.26.0</commons-compress.version>
     <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.20.0</log4j2.version>
