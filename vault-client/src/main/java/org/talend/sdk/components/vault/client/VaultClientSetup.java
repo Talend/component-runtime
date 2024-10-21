@@ -158,6 +158,8 @@ public class VaultClientSetup {
         client.close();
     }
 
+    // as deprecation was introduced since = "17", can ignore it for now...
+    @SuppressWarnings({ "deprecation", "removal" })
     private ThreadPoolExecutor createExecutor(final int core, final int max, final long keepAlive,
             final String nameMarker) {
         return new ThreadPoolExecutor(core, max, keepAlive, MILLISECONDS, new LinkedBlockingQueue<>(),

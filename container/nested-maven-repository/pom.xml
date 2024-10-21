@@ -29,14 +29,15 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.container.maven</talend.build.name>
+    <maven-dependency-tree.version>3.1.0</maven-dependency-tree.version>
+    <maven-artifact-transfer.version>0.13.1</maven-artifact-transfer.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-shade-plugin</artifactId>
-      <version>${shade-plugin.version}</version>
-      <scope>provided</scope>
+      <version>${maven-shade-plugin.version}</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.guava</groupId>
@@ -69,17 +70,17 @@
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven.shared</groupId>
-          <artifactId>maven-shared-utils</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-shared-utils</artifactId>
-      <version>${maven-shared-utils.version}</version>
-      <scope>provided</scope>
+      <artifactId>maven-dependency-tree</artifactId>
+      <version>${maven-dependency-tree.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-artifact-transfer</artifactId>
+      <version>${maven-artifact-transfer.version}</version>
     </dependency>
   </dependencies>
 </project>
