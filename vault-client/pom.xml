@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.65.0M8-SNAPSHOT</version>
+    <version>1.65.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>vault-client</artifactId>
