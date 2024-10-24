@@ -1,4 +1,24 @@
+/**
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.talend.sdk.component.test.connectors.output;
+
+import java.io.Serializable;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
@@ -12,12 +32,7 @@ import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.Serializable;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +50,15 @@ import lombok.extern.slf4j.Slf4j;
 public class WithAfterGroupOnlyOnce implements Serializable {
 
     private final RecordBuilderFactory recordBuilderFactory;
+
     private final WithAfterGroupOnlyOnceConfig config;
 
     private int nbConsumedRecords;
+
     private boolean afterGroupCalled;
 
-
     public WithAfterGroupOnlyOnce(final @Option("configuration") WithAfterGroupOnlyOnceConfig config,
-                                  final RecordBuilderFactory recordBuilderFactory) {
+            final RecordBuilderFactory recordBuilderFactory) {
         this.recordBuilderFactory = recordBuilderFactory;
         this.config = config;
     }
@@ -54,7 +70,7 @@ public class WithAfterGroupOnlyOnce implements Serializable {
 
     @PreDestroy
     public void release() {
-        if(!this.afterGroupCalled){
+        if (!this.afterGroupCalled) {
             throw new RuntimeException("The @AfterGroup method has not been called.");
         }
     }
@@ -66,7 +82,7 @@ public class WithAfterGroupOnlyOnce implements Serializable {
 
     @AfterGroup
     public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected) {
-        if (this.afterGroupCalled){
+        if (this.afterGroupCalled) {
             Record error = this.recordBuilderFactory.newRecordBuilder()
                     .withString("error",
                             "The @AfterGroup method has been called more than once.")
@@ -74,7 +90,7 @@ public class WithAfterGroupOnlyOnce implements Serializable {
             rejected.emit(error);
         }
 
-        if (this.nbConsumedRecords != this.config.getExpectedNumberOfRecords()){
+        if (this.nbConsumedRecords != this.config.getExpectedNumberOfRecords()) {
             Record error = this.recordBuilderFactory.newRecordBuilder()
                     .withString("error",
                             String.format("The number of consumed records '%s' is not the expected one %s.",
@@ -87,11 +103,11 @@ public class WithAfterGroupOnlyOnce implements Serializable {
     }
 
     @Data
-    @GridLayout({@GridLayout.Row({"expectedNumberOfRecords"})})
+    @GridLayout({ @GridLayout.Row({ "expectedNumberOfRecords" }) })
     public static class WithAfterGroupOnlyOnceConfig implements Serializable {
 
         @Option
-        @Documentation("The number of expected record processed when @AfterGroup is called")
+        @Documentation("The number of expected record processed when @AfterGroup is called.")
         private int expectedNumberOfRecords;
 
     }
