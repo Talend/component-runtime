@@ -42,11 +42,6 @@ function downloadZip(req, res) {
 	});
 }
 
-function createOnGithub(req, res) {
-	console.log(req.body);
-	res.json({ success: true });
-}
-
 function setup(middlewares, devServer) {
 	if (!devServer) {
 		throw new Error('webpack-dev-server is not defined');
@@ -73,12 +68,6 @@ function setup(middlewares, devServer) {
 		name: 'project-openapi-zip',
 		path: '/api/project/openapi/zip/form',
 		middleware: downloadZip,
-	});
-
-	middlewares.unshift({
-		name: 'project-github',
-		path: '/api/project/github',
-		middleware: createOnGithub,
 	});
 
 	return middlewares;
