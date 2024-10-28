@@ -197,7 +197,7 @@ class ComponentValidatorTest {
             } catch (final IllegalStateException ise) {
                 if (fails) {
                     final String exMsg = ise.getMessage();
-                     assertTrue(exMsg.contains(expectedMessage), expectedMessage + "\n\n> " + exMsg);
+                    assertTrue(exMsg.contains(expectedMessage), expectedMessage + "\n\n> " + exMsg);
                 } else {
                     fail(ise);
                 }
