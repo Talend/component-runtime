@@ -197,7 +197,7 @@ class ComponentValidatorTest {
             } catch (final IllegalStateException ise) {
                 if (fails) {
                     final String exMsg = ise.getMessage();
-                    assertTrue(exMsg.contains(expectedMessage), expectedMessage + "\n\n> " + exMsg);
+                     assertTrue(exMsg.contains(expectedMessage), expectedMessage + "\n\n> " + exMsg);
                 } else {
                     fail(ise);
                 }
@@ -429,7 +429,9 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.customicon")
     void testFailureCustomIcon(final ExceptionSpec spec) {
-        spec.expectMessage("Some error were detected:\n- Missing icon(s) in resources.");// missing' found");
+        spec.expectMessage("Some error were detected:\n- Missing icon(s) in resources:\n" +
+                "- No 'icons\\dark\\missing.svg' found.\n" +
+                "- No 'icons\\light\\missing.svg' found.");// missing' found");
     }
 
     @Test
