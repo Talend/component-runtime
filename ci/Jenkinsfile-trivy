@@ -94,7 +94,7 @@ pipeline {
             sh """\
               #!/usr/bin/env bash
               echo "Building project with Maven:"
-              mvn clean install --define skipTests \
+              mvn clean install -pl '!talend-component-maven-plugin' --define skipTests \
                                 --define gpg.skip=true \
                                 --define enforcer.skip=true\
                                 --batch-mode \
@@ -143,31 +143,30 @@ pipeline {
     }
 
     stage('Upload Scan Results to DefectDojo') {
-      steps {
-        withCredentials([string(credentialsId: 'defectdojo-token-common', variable: 'DEFECTDOJO_API_TOKEN')]) {
-          sh """\
-          #!/usr/bin/env bash
-					echo "Scan completed, now uploading to DefectDojo"
-					apk add curl
-					curl -s -X 'POST' -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
-					'https://defectdojo.dagali.talendinc.com/api/v2/reimport-scan/' \
-                    -H 'accept: application/json' \
-                    -H 'Content-Type: multipart/form-data' \
-                    -F 'close_old_findings=true' \
-                    -F 'engagement_name=trivy-sca_component-runtime' \
-                    -F 'auto_create_context=true' \
-                    -F 'push_to_jira=false' \
-                    -F 'scan_date=' \
-                    -F 'do_not_reactivate=true' \
-                    -F 'minimum_severity=Low' \
-                    -F 'product_name=component-runtime' \
-                    -F 'verified=true' \
-                    -F 'product_type_name=Talend' \
-                    -F 'scan_type=Trivy Scan' \
-                    -F 'file=@output/trivy-results.json'
-          """.stripIndent()
+        steps {
+            withCredentials([string(credentialsId: 'defectdojo-token-common', variable: 'DEFECTDOJO_API_TOKEN')]) {
+				sh """#!/bin/sh
+				echo "Scan completed, now uploading to DefectDojo"
+				apk add curl
+				curl -s -X 'POST' -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
+				'https://defectdojo.dagali.talendinc.com/api/v2/reimport-scan/' \
+                -H 'accept: application/json' \
+                -H 'Content-Type: multipart/form-data' \
+                -F 'close_old_findings=true' \
+                -F 'engagement_name=trivy-sca_component-runtime' \
+                -F 'auto_create_context=true' \
+                -F 'push_to_jira=false' \
+                -F 'scan_date=' \
+                -F 'do_not_reactivate=true' \
+                -F 'minimum_severity=Low' \
+                -F 'product_name=component-runtime' \
+                -F 'verified=true' \
+                -F 'product_type_name=Talend' \
+                -F 'scan_type=Trivy Scan' \
+                -F 'file=@output/trivy-results.json'
+                """
+            }
         }
-      }
     }
   }
   post {
