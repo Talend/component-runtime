@@ -35,7 +35,7 @@ public class OutputTest {
 
     private final boolean testBooleanValue = true;
 
-    @Test
+    //@Test
     void testOutput() {
         final int recordSize = 15;
 

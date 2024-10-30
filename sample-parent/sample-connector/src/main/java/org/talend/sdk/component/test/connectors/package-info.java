@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 @Components(
-        family = "Sample",
-        categories = "Cloud")
+		family = "the_family",
+        categories = "the_category_1")
 @Icon(
         value = Icon.IconType.CUSTOM,
         custom = "family")
