@@ -38,7 +38,11 @@ public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager
             processor.onNext(ins, outs);
             processedItemCount++;
         } finally {
-            if (processedItemCount == chunkSize || chunkSize < 0) {
+            //QTDI- : when set chunkSize = -1, not separate by group. only trigger aftergroup once in flush()
+            if (chunkSize < 0) {
+                return;
+            }
+            if (processedItemCount == chunkSize) {
                 processor.afterGroup(outs);
                 processedItemCount = 0;
             }
