@@ -431,7 +431,7 @@ class ComponentValidatorTest {
     void testFailureCustomIcon(final ExceptionSpec spec) {
         spec.expectMessage("Some error were detected:\n- Missing icon(s) in resources:\n" +
                 "- No 'icons\\dark\\missing.svg' found.\n" +
-                "- No 'icons\\light\\missing.svg' found.");// missing' found");
+                "- No 'icons\\light\\missing.svg' found.");
     }
 
     @Test
