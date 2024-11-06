@@ -16,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.junit.BaseComponentsHandler;
+import org.talend.sdk.component.junit.SimpleFactory;
 import org.talend.sdk.component.junit5.Injected;
 import org.talend.sdk.component.junit5.WithComponents;
 import org.talend.sdk.component.runtime.manager.chain.Job;
@@ -38,6 +38,10 @@ public class OutputTest {
     //@Test
     void testOutput() {
         final int recordSize = 15;
+        WithAfterGroupOnlyOnce.WithAfterGroupOnlyOnceConfig config = new WithAfterGroupOnlyOnce.WithAfterGroupOnlyOnceConfig();
+        config.setExpectedNumberOfRecords(recordSize);
+        String sourceConfig =
+                SimpleFactory.configurationByExample().forInstance(config).configured().toQueryString();
 
         Record testRecord = componentsHandler
                 .findService(RecordBuilderFactory.class)
@@ -55,7 +59,7 @@ public class OutputTest {
         Job
                 .components()
                 .component("inputFlow", "test://emitter")
-                .component("outputComponent", "Sample://WithAfterGroupOnlyOnce?$maxBatchSize=-1")
+                .component("outputComponent", "SampleConnector://WithAfterGroupOnlyOnce?$maxBatchSize=-1&" + sourceConfig)
                 .connections()
                 .from("inputFlow")
                 .to("outputComponent")

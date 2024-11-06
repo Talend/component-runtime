@@ -55,7 +55,7 @@ public class MaxBatchSizeParamBuilder {
     }
 
     public ParameterMeta newBulkParameter() {
-        return defaultValue <= 0 ? null : new ParameterMeta(new ParameterMeta.Source() {
+        return defaultValue <= -3 ? null : new ParameterMeta(new ParameterMeta.Source() {
 
             @Override
             public String name() {
@@ -73,7 +73,7 @@ public class MaxBatchSizeParamBuilder {
 
                     {
                         put("tcomp::ui::defaultvalue::value", String.valueOf(defaultValue));
-                        put("tcomp::validation::min", "1");
+                        put("tcomp::validation::min", "-3");
                     }
                 }, true);
     }
