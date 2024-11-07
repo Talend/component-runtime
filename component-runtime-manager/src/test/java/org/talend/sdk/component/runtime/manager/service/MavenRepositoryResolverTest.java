@@ -23,6 +23,8 @@ import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryRe
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -124,6 +126,15 @@ class MavenRepositoryResolverTest {
     }
 
     @Test
+    void discoverFromSettingsOkWindows() {
+        setSettingsProperty("settings/settings-ok_windows.xml");
+        final Path m2 = resolver.discover();
+        assertNotNull(m2);
+        assertEquals("D:\\yyin\\.m2\\repository", m2.toString());
+        System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
+    }
+
+    @Test
     void discoverFromSettingsKo() {
         setSettingsProperty("settings/settings-ko.xml");
         final Path m2 = resolver.discover();
@@ -160,14 +171,10 @@ class MavenRepositoryResolverTest {
     }
 
     @Test
-    void discoverFromSettingsWindowsPath() {
-        setSettingsProperty("settings/settings-win.xml");
-        mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
-        final Path m2 = mavenSettingsOnlyResolver.discover();
+    void discoverFromSettingsWindowsPath() throws URISyntaxException {
+        System.setProperty("osgi.configuration.area", "file:/C:/Users/e105662/Applications/Talend-Studio-CICD_TEST/configuration/");
+        final Path m2 = resolver.discover();
         assertNotNull(m2);
-        assertEquals("C:" + File.separator + "Users" + File.separator + "maven" + File.separator + "repository",
-                m2.toString());
-        System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
     }
 
     @Test
