@@ -169,7 +169,7 @@ class MavenRepositoryResolverTest {
     }
 
     //@Test
-    void discoverFromSettingsWindowsPath() throws URISyntaxException {
+    void discoverFromSettingsWindowsPath() {
         System.setProperty("osgi.configuration.area", "file:/C:/Users/e105662/Applications/Talend-Studio-CICD_TEST/configuration/");
         final Path m2 = resolver.discover();
         assertNotNull(m2);
