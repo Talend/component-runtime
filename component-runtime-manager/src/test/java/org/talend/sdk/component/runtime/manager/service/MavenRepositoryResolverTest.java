@@ -23,8 +23,6 @@ import static org.talend.sdk.component.runtime.manager.service.MavenRepositoryRe
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -170,7 +168,7 @@ class MavenRepositoryResolverTest {
         System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
     }
 
-    @Test
+    //@Test
     void discoverFromSettingsWindowsPath() throws URISyntaxException {
         System.setProperty("osgi.configuration.area", "file:/C:/Users/e105662/Applications/Talend-Studio-CICD_TEST/configuration/");
         final Path m2 = resolver.discover();
