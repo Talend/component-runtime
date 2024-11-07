@@ -124,15 +124,6 @@ class MavenRepositoryResolverTest {
     }
 
     @Test
-    void discoverFromSettingsOkWindows() {
-        setSettingsProperty("settings/settings-ok_windows.xml");
-        final Path m2 = resolver.discover();
-        assertNotNull(m2);
-        assertEquals("D:\\yyin\\.m2\\repository", m2.toString());
-        System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
-    }
-
-    @Test
     void discoverFromSettingsKo() {
         setSettingsProperty("settings/settings-ko.xml");
         final Path m2 = resolver.discover();
@@ -168,12 +159,16 @@ class MavenRepositoryResolverTest {
         System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
     }
 
-    //@Test
-//    void discoverFromSettingsWindowsPath() {
-//        System.setProperty("osgi.configuration.area", "file:/C:/Users/e105662/Applications/Talend-Studio-CICD_TEST/configuration/");
-//        final Path m2 = resolver.discover();
-//        assertNotNull(m2);
-//    }
+    @Test
+    void discoverFromSettingsWindowsPath() {
+        setSettingsProperty("settings/settings-win.xml");
+        mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
+        final Path m2 = mavenSettingsOnlyResolver.discover();
+        assertNotNull(m2);
+        assertEquals("C:" + File.separator + "Users" + File.separator + "maven" + File.separator + "repository",
+                m2.toString());
+        System.clearProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS);
+    }
 
     @Test
     void discoverFromSettingsTildePath() {
