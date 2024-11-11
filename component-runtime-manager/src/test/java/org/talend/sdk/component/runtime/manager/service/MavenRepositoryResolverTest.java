@@ -171,6 +171,14 @@ class MavenRepositoryResolverTest {
     }
 
     @Test
+    void discoverFromWindowsPath() {
+        System.setProperty("osgi.configuration.area", "file:/C:/Users/Talend-Studio-CICD_TEST/configuration/");
+        final Path m2 = resolver.discover();
+        assertNotNull(m2);
+        System.clearProperty("osgi.configuration.area");
+    }
+
+    @Test
     void discoverFromSettingsTildePath() {
         setSettingsProperty("settings/settings-tilde.xml");
         mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);
