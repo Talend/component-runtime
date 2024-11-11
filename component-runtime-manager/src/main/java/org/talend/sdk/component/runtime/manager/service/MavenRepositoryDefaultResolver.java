@@ -80,11 +80,12 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
         // check if we are in the studio process if so just grab the studio config
         final String m2Repo = System.getProperty(STUDIO_MVN_REPOSITORY);
         if (!"global".equals(m2Repo)) {
-            String osgi = System.getProperty("osgi.configuration.area", "");
+            final String osgi = System.getProperty("osgi.configuration.area", "");
             try {
                 return osgi != null && osgi.startsWith("file") ? handler.get(Paths.get(new URI(osgi)).toString())
                         : handler.get(Paths.get(osgi, M2_REPOSITORY).toString());
             } catch (java.net.URISyntaxException e) {
+                log.debug("[fromStudioConfiguration] Could not get m2 from studio config." + e.getMessage());
                 return null;
             }
         }
