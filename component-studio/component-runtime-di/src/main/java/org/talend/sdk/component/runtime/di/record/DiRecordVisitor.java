@@ -472,7 +472,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         log.trace("[onRecordArray] visiting {}.", entry.getName());
         arrayOfRecordPrefix = entry.getName() + ".";
         array.ifPresent(value -> setField(entry, value));
-        return this;
+        return null;
     }
 
     @Override
