@@ -65,3 +65,4 @@ documentation/rebuildpdf.bat
 # direnv
 .envrc
 .env
+*.versionsBackup

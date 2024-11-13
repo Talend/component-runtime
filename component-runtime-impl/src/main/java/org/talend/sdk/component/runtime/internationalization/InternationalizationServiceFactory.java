@@ -27,6 +27,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -116,7 +117,7 @@ public class InternationalizationServiceFactory {
                     .computeIfAbsent(method, m -> new MethodMeta(createLocaleExtractor(m), createParameterFactory(m),
                             prefix + m.getName(), shortPrefix + m.getName(), m.getName()));
             final Locale locale = methodMeta.localeExtractor.apply(args);
-            final String template = getTemplate(locale, methodMeta);
+            final String template = getTemplate(locale, methodMeta, method.getDeclaringClass().getClassLoader());
             // note: if we need we could pool message formats but not sure we'll abuse of it
             // that much at runtime yet
             return new MessageFormat(template, locale).format(methodMeta.parameterFactory.apply(args));
@@ -161,10 +162,16 @@ public class InternationalizationServiceFactory {
             return p -> localeSupplier.get();
         }
 
-        private String getTemplate(final Locale locale, final MethodMeta methodMeta) {
-            final ResourceBundle bundle = bundles
-                    .computeIfAbsent(locale,
-                            l -> ResourceBundle.getBundle(messages, l, Thread.currentThread().getContextClassLoader()));
+        private String getTemplate(final Locale locale, final MethodMeta methodMeta,
+                final ClassLoader declaringLoader) {
+            ResourceBundle bundle;
+            try {
+                bundle = bundles.computeIfAbsent(locale,
+                        l -> ResourceBundle.getBundle(messages, l, Thread.currentThread().getContextClassLoader()));
+            } catch (MissingResourceException e) {
+                bundle = bundles.computeIfAbsent(locale,
+                        l -> ResourceBundle.getBundle(messages, l, declaringLoader));
+            }
             return bundle.containsKey(methodMeta.longName) ? bundle.getString(methodMeta.longName)
                     : (bundle.containsKey(methodMeta.shortName) ? bundle.getString(methodMeta.shortName)
                             : methodMeta.name);

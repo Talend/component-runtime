@@ -68,7 +68,7 @@ class ComponentGeneratorTest {
                 .create("com.foo", build, "superfamily", "supercategory", sources, emptyList(), emptyList())
                 .collect(toMap(FacetGenerator.InMemoryFile::getPath,
                         i -> new String(i.getContent(), StandardCharsets.UTF_8)));
-        assertEquals(10, files.size());
+        assertEquals(14, files.size());
 
         assertTrue(files.keySet().stream().anyMatch(k -> k.contains(".svg")));
 
@@ -95,6 +95,16 @@ class ComponentGeneratorTest {
 
         assertEquals("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M6 14L0 8l1.9-1.9L6 "
                 + "10.2 14.1 2 16 3.9z\"/></svg>", files.get("src/main/resources/icons/mycomp.svg"));
+        assertEquals("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M6 14L0 8l1.9-1.9L6 "
+                + "10.2 14.1 2 16 3.9z\"/></svg>", files.get("src/main/resources/icons/dark/mycomp.svg"));
+        assertEquals("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M6 14L0 8l1.9-1.9L6 "
+                + "10.2 14.1 2 16 3.9z\"/></svg>", files.get("src/main/resources/icons/light/mycomp.svg"));
+        assertEquals("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M6 14L0 8l1.9-1.9L6 "
+                + "10.2 14.1 2 16 3.9z\"/></svg>", files.get("src/main/resources/icons/superfamily.svg"));
+        assertEquals("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M6 14L0 8l1.9-1.9L6 "
+                + "10.2 14.1 2 16 3.9z\"/></svg>", files.get("src/main/resources/icons/dark/superfamily.svg"));
+        assertEquals("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path d=\"M6 14L0 8l1.9-1.9L6 "
+                + "10.2 14.1 2 16 3.9z\"/></svg>", files.get("src/main/resources/icons/light/superfamily.svg"));
 
         assertTrue(files.get("src/main/java/com/foo/source/MycompMapper.java").contains("custom = \"mycomp\""));
     }
