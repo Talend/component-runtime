@@ -35,6 +35,7 @@ import javax.json.bind.annotation.JsonbTransient;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
+import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
@@ -57,6 +58,11 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     static AvroSchema toAvroSchema(final org.talend.sdk.component.api.record.Schema schema) {
+        // special handling for an empty schema that matches the one in AvroSchemaBuilder for records
+        if (schema.getType() == Type.RECORD && schema.getAllEntries().noneMatch(it -> true)) {
+            return new AvroSchema(AvroSchemas.getEmptySchema());
+        }
+
         return AvroSchema.SCHEMA_CACHE.find(schema);
     }
 
