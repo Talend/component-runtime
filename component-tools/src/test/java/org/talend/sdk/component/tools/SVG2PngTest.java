@@ -21,7 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,5 +50,16 @@ class SVG2PngTest {
         assertTrue(Files.exists(expected));
         assertTrue(Files.exists(darkExpected));
         assertTrue(Files.exists(lightExpected));
+    }
+
+    @Test
+    void exception() {
+        String path = "D:\\works\\qlik";
+        Assertions.assertThrows(java.lang.IllegalStateException.class, () -> {
+            new SVG2Png(Paths.get(path), true, log).run();
+        });
+        Assertions.assertThrows(java.lang.IllegalArgumentException.class, () -> {
+            new SVG2Png(Paths.get(path), true, path).run();
+        });
     }
 }
