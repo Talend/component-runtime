@@ -467,7 +467,9 @@ public class JobImpl implements Job {
                     }));
                 } while (running.get());
             } finally {
-                processors.values().forEach(p -> p.flush(outs.get()));
+                if (outs.get() != null) {
+                    processors.values().forEach(p -> p.flush(outs.get()));
+                }
                 processors.values().forEach(Lifecycle::stop);
                 inputs.values().forEach(InputRunner::stop);
                 levels
