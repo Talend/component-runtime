@@ -19,7 +19,7 @@ set -xe
 
 main() (
 
-  mvn versions:dependency-updates-report versions:plugin-updates-report -pl '!bom'
+  mvn versions:dependency-updates-report versions:plugin-updates-report
 
 )
 

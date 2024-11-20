@@ -73,6 +73,7 @@ public abstract class ClasspathMojoBase extends AudienceAwareMojo {
         }
         return deps
                 .stream()
+                .filter(Objects::nonNull)
                 .map(it -> project
                         .getArtifacts()
                         .stream()
