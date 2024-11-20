@@ -289,33 +289,6 @@ pipeline {
       }
     }
 
-    stage('Install BOM') {
-      steps {
-        withCredentials([nexusCredentials,
-                         ossrhCredentials]) {
-
-          ///////////////////////////////////////////
-          // Manual validation of release action
-          ///////////////////////////////////////////
-          script {
-            String checkMsg = """
-              You will do a $params.ACTION release  
-              Actual Version $pomVersion will be release as $releaseVersion.  
-              After the release the repository will be bumped as $nextVersion.  
-              **Are you OK to continue?**""".stripIndent()
-
-            // Request user action
-            input message: "$checkMsg", ok: 'Yes'
-          }
-          script {
-
-            echo "Preparing and installing BOM to release $releaseVersion from $pomVersion"
-            sh "bash .jenkins/scripts/release/release-1-install-bom.sh $releaseVersion $pomVersion"
-          }
-        }
-      }
-    }
-
     stage('Maven release prepare') {
       steps {
         withCredentials([nexusCredentials,
