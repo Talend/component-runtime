@@ -570,7 +570,7 @@ private static ArrayList<String> get_release_info(String currentVersion,
 //println get_release_info("1.65.0M1-SNAPSHOT", false, true) // milestone
 // result should be: [1.65.0M1, 1.65.0M2-SNAPSHOT, none, none]
 //println get_release_info("1.65.0M5-SNAPSHOT", false, false) // ga
-// result should be: [1.65.0, 1.66.0M1-SNAPSHOT, 1.65.1-SNAPSHOT, maintenance/1.65]
+// result should be: [1.65.0, 1.66.0-SNAPSHOT, 1.65.1-SNAPSHOT, maintenance/1.65]
 //println get_release_info("1.65.3-SNAPSHOT", true, false) // maintenance
 // result should be: [1.65.3, 1.65.4-SNAPSHOT, 1.65.4-SNAPSHOT, maintenance/1.65]
 //println get_release_info("1.65.1M1-SNAPSHOT", true, false) // release maintenance, but version not valid
