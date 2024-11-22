@@ -118,6 +118,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.talend.ui</groupId>
+      <artifactId>talend-icon</artifactId>
+      <version>${talend-icon.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.tomee</groupId>
       <artifactId>ziplock</artifactId>
       <version>${ziplock.version}</version>
