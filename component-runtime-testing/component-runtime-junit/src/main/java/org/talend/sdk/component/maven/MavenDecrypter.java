@@ -55,6 +55,8 @@ public class MavenDecrypter {
 
     private static final String M2_HOME = "M2_HOME";
 
+    private static final String MAVEN_HOME = "MAVEN_HOME";
+
     private static final String USER_HOME = "user.home";
 
     private static final String FILE_SETTINGS = "settings.xml";
@@ -151,12 +153,17 @@ public class MavenDecrypter {
     private static List<File> findSettingsFiles() {
         return Stream.of(
                 new File(getM2(), FILE_SETTINGS),
-                ofNullable(System.getenv(M2_HOME))
-                        .map(File::new)
-                        .map(it -> new File(it, "conf/" + FILE_SETTINGS))
-                        .orElse(null))
+                findMavenHome(M2_HOME),
+                findMavenHome(MAVEN_HOME))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    private static File findMavenHome(final String mavenHome) {
+        return ofNullable(System.getenv(mavenHome))
+                .map(File::new)
+                .map(it -> new File(it, "conf/" + FILE_SETTINGS))
+                .orElse(null);
     }
 
     public static void main(final String[] args) {
