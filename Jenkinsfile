@@ -368,11 +368,6 @@ pipeline {
         // Updating build displayName and description
         ///////////////////////////////////////////
         script {
-          String user_name = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').userId[0]
-          if (user_name == null) {
-            user_name = "auto"
-          }
-
           String deploy_info = ''
           if (stdBranch_buildOnly || devBranch_mavenDeploy) {
             deploy_info = deploy_info + '+DEPLOY'
@@ -718,7 +713,7 @@ pipeline {
             currentBuild.previousBuild.result,
             true, // Post for success
             true, // Post for failure
-            "Failure of $pomVersion $params.ACTION release.")
+            "Failure of $pomVersion $params.ACTION.")
       }
       recordIssues(
           enabledForFailure: false,
