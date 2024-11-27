@@ -124,6 +124,23 @@ class SchemaTest {
     }
 
     @Test
+    void testDeactivateSanitize() {
+        System.setProperty("talend.component.sanitize", "false");
+        Assertions.assertNull(Schema.sanitizeConnectionName(null));
+        Assertions.assertEquals("", Schema.sanitizeConnectionName(""));
+        Assertions.assertEquals("$", Schema.sanitizeConnectionName("$"));
+        Assertions.assertEquals("1", Schema.sanitizeConnectionName("1"));
+        Assertions.assertEquals("é", Schema.sanitizeConnectionName("é"));
+        Assertions.assertEquals("éH", Schema.sanitizeConnectionName("éH"));
+        Assertions.assertEquals("é1", Schema.sanitizeConnectionName("é1"));
+        Assertions.assertEquals("HélloWorld", Schema.sanitizeConnectionName("HélloWorld"));
+        Assertions.assertEquals("$oid", Schema.sanitizeConnectionName("$oid"));
+        Assertions.assertEquals(" Hello World ", Schema.sanitizeConnectionName(" Hello World "));
+        Assertions.assertEquals("123HelloWorld", Schema.sanitizeConnectionName("123HelloWorld"));
+        System.clearProperty("talend.component.sanitize");
+    }
+
+    @Test
     void testTypes() {
         final Record rec = new Record() {
 
@@ -205,6 +222,12 @@ class SchemaTest {
         assertEquals("date", logicalDate.key());
         assertEquals(Type.DATETIME, logicalDate.storageType());
         assertThrows(IllegalArgumentException.class, () -> SchemaProperty.LogicalType.valueOf("TINYINT"));
+
+        SchemaProperty.LogicalType logicalTime = SchemaProperty.LogicalType.valueOf("TIMESTAMP");
+        assertNotNull(logicalTime);
+        assertEquals(SchemaProperty.LogicalType.TIMESTAMP, logicalTime);
+        assertEquals("timestamp", logicalTime.key());
+        assertEquals(Type.DATETIME, logicalTime.storageType());
     }
 
     @RequiredArgsConstructor
