@@ -25,11 +25,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AutoChunkProcessor implements Lifecycle {
 
-    protected final int chunkSize;
+    private final int chunkSize;
 
-    protected final Processor processor;
+    private final Processor processor;
 
-    protected int processedItemCount = 0;
+    private int processedItemCount = 0;
 
     public void onElement(final InputFactory ins, final OutputFactory outs) {
         if (processedItemCount == 0) {

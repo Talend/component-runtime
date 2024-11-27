@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.di;
 
-import org.talend.sdk.component.runtime.output.InputFactory;
-import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
 /*

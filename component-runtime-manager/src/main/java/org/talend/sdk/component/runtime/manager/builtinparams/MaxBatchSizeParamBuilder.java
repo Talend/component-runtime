@@ -40,7 +40,7 @@ public class MaxBatchSizeParamBuilder {
             final LocalConfiguration configuration) {
         this.root = root;
         this.layoutType = getLayoutType(root);
-        this.defaultValue = !isActive(componentSimpleClassName, configuration) ? -1
+        this.defaultValue = !isActive(componentSimpleClassName, configuration) ? -4
                 : Integer
                         .parseInt(ofNullable(configuration.get(componentSimpleClassName + "._maxBatchSize.value"))
                                 .orElseGet(() -> ofNullable(configuration.get("_maxBatchSize.value")).orElse("1000"))
@@ -74,6 +74,7 @@ public class MaxBatchSizeParamBuilder {
                     {
                         put("tcomp::ui::defaultvalue::value", String.valueOf(defaultValue));
                         put("tcomp::validation::min", "-3");
+                        put("tcomp::ui::hidden", "true");
                     }
                 }, true);
     }
