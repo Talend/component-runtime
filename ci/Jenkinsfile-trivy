@@ -93,6 +93,7 @@ pipeline {
           script {
             sh """\
               #!/usr/bin/env bash
+              set -xe
               echo "Building project with Maven:"
               mvn clean install -pl '!talend-component-maven-plugin' --define skipTests \
                                 --define gpg.skip=true \
@@ -112,6 +113,7 @@ pipeline {
         script {
           sh """\
             #!/usr/bin/env bash
+            set -xe
             echo "Printing Trivy version:"
             trivy --version
             echo "Running Trivy scan:"
@@ -135,7 +137,7 @@ pipeline {
                       id: 'trivy',
                       name: 'trivy scan',
                       pattern : 'output/trivy-results.json',
-                  )
+                      )
               ]
           )
         }
@@ -143,13 +145,15 @@ pipeline {
     }
 
     stage('Upload Scan Results to DefectDojo') {
-        steps {
-            withCredentials([string(credentialsId: 'defectdojo-token-common', variable: 'DEFECTDOJO_API_TOKEN')]) {
-				sh """#!/bin/sh
-				echo "Scan completed, now uploading to DefectDojo"
-				apk add curl
-				curl -s -X 'POST' -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
-				'https://defectdojo.dagali.talendinc.com/api/v2/reimport-scan/' \
+      steps {
+        withCredentials([string(credentialsId: 'defectdojo-token-common', variable: 'DEFECTDOJO_API_TOKEN')]) {
+          sh """\
+            #!/usr/bin/env bash
+            set -xe
+				    echo "Scan completed, now uploading to DefectDojo"
+				    apk add curl
+				    curl -s -X 'POST' -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
+				    'https://defectdojo.dagali.talendinc.com/api/v2/reimport-scan/' \
                 -H 'accept: application/json' \
                 -H 'Content-Type: multipart/form-data' \
                 -F 'close_old_findings=true' \
@@ -164,9 +168,9 @@ pipeline {
                 -F 'product_type_name=Talend' \
                 -F 'scan_type=Trivy Scan' \
                 -F 'file=@output/trivy-results.json'
-                """
-            }
+            """.stripIndent()
         }
+      }
     }
   }
   post {
