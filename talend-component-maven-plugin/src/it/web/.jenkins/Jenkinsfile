@@ -113,11 +113,10 @@ pipeline {
     MAVEN_SETTINGS = "${_ROOT_PATH}/talend-component-maven-plugin/src/it/web/.jenkins/settings.xml"
     DECRYPTER_ARG = "--define talend.maven.decrypter.m2.location=${_ROOT_PATH}/.jenkins/"
     MAVEN_OPTS = [
-      "-Dmaven.artifact.threads=128",
+      "-Dmaven.artifact.threads=256",
       "-Dorg.slf4j.simpleLogger.showDateTime=true",
       "-Dorg.slf4j.simpleLogger.showThreadName=true",
       "-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss",
-      "-Dtalend-image.layersCacheDirectory=/root/.dockercache"
     ].join(' ')
 
   }
@@ -241,7 +240,7 @@ pipeline {
                                                               "${_COVERAGE_DIR}" \
                                                               "${runtimeVersion}" \
                                                               '1.41.0' \
-                                                              '/root/.m2/repository' \
+                                                              '/home/jenkins/.m2/repository' \
                                                               "${_SERVER_PORT}"
               """.stripIndent()
           }
