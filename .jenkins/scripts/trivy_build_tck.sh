@@ -18,7 +18,7 @@
 set -xe
 
 main() {
-  echo "Building project with Maven:"
+  echo "Building project with Maven skipping most of the checks"
 
   mvn clean install -pl '!talend-component-maven-plugin' --define skipTests \
                                                     --define gpg.skip=true \
@@ -38,7 +38,6 @@ main() {
                                                     --define enforcer.skip=true \
                                                     --define invoker.skip=true \
                                                     --define maven.artifact.threads=25
-        #           --threads 4C"
 }
 
 main "$@"
