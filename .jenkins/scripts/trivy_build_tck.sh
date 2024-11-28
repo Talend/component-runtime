@@ -36,8 +36,8 @@ main() {
                                                     --define maven.test.skip=true \
                                                     --define maven.javadoc.skip=true \
                                                     --define enforcer.skip=true \
-        #           --define invoker.skip=true"
-        #           --define maven.artifact.threads=25 \
+                                                    --define invoker.skip=true \
+                                                    --define maven.artifact.threads=25
         #           --threads 4C"
 }
 
