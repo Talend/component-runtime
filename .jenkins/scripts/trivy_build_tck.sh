@@ -26,17 +26,11 @@ main() {
                                                     --batch-mode \
                                                     --update-snapshots \
                                                     --show-version \
-                                                    --settings .jenkins/settings.xml
-
-
-        #           --settings .jenkins/settings.xml \
-        #           --batch-mode \
-        #           --update-snapshots \
-        #           --show-version \
-        #           --define gpg.skip=true \
-        #           --define spotless.apply.skip=true \
-        #           --define spotbugs.skip=true \
-        #           --define checkstyle.skip=true \
+                                                    --settings .jenkins/settings.xml \
+                                                    --define gpg.skip=true \
+                                                    --define spotless.apply.skip=true \
+                                                    --define spotbugs.skip=true \
+                                                    --define checkstyle.skip=true
         #           --define rat.skip=true \
         #           --define skipTests \
         #           --define maven.test.skip=true \
