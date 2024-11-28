@@ -91,28 +91,7 @@ pipeline {
       steps {
         withCredentials([nexusCredentials]) {
           script {
-            sh """\
-              #!/usr/bin/env bash
-              set -xe
-              echo "Building project with Maven:"
-              mvn clean install -pl '!talend-component-maven-plugin' \
-                                --batch-mode \
-                                --update-snapshots \
-                                --show-version \
-                                --define gpg.skip=true \
-                                --define spotless.apply.skip=true \
-                                --define spotbugs.skip=true \
-                                --define checkstyle.skip=true \
-                                --define rat.skip=true \
-                                --define skipTests \
-                                --define maven.test.skip=true \
-                                --define maven.javadoc.skip=true \
-                                --define enforcer.skip=true \
-                                --define invoker.skip=true"
-                                --define maven.artifact.threads=25 \
-                                --threads 4C"
-                                --settings .jenkins/settings.xml
-              """.stripIndent()
+            sh 'bash .jenkins/scripts/trivy_build_tck.sh'
           }
         }
       }
@@ -121,19 +100,7 @@ pipeline {
     stage('Security Scan with Trivy') {
       steps {
         script {
-          sh """\
-            #!/usr/bin/env bash
-            set -xe
-            echo "Printing Trivy version:"
-            trivy --version
-            echo "Running Trivy scan:"
-            mkdir -p output
-            trivy fs . -f json \
-                       --scanners vuln \
-                       -o output/trivy-results.json \
-                       --timeout 60m \
-                       --debug
-            """.stripIndent()
+          sh 'bash .jenkins/scripts/trivy_scan.sh'
         }
       }
       post {
@@ -157,28 +124,7 @@ pipeline {
     stage('Upload Scan Results to DefectDojo') {
       steps {
         withCredentials([string(credentialsId: 'defectdojo-token-common', variable: 'DEFECTDOJO_API_TOKEN')]) {
-          sh """\
-            #!/usr/bin/env bash
-            set -xe
-				    echo "Scan completed, now uploading to DefectDojo"
-				    apk add curl
-				    curl -s -X 'POST' -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
-				    'https://defectdojo.dagali.talendinc.com/api/v2/reimport-scan/' \
-                -H 'accept: application/json' \
-                -H 'Content-Type: multipart/form-data' \
-                -F 'close_old_findings=true' \
-                -F 'engagement_name=trivy-sca_component-runtime' \
-                -F 'auto_create_context=true' \
-                -F 'push_to_jira=false' \
-                -F 'scan_date=' \
-                -F 'do_not_reactivate=true' \
-                -F 'minimum_severity=Low' \
-                -F 'product_name=component-runtime' \
-                -F 'verified=true' \
-                -F 'product_type_name=Talend' \
-                -F 'scan_type=Trivy Scan' \
-                -F 'file=@output/trivy-results.json'
-            """.stripIndent()
+          sh 'bash .jenkins/scripts/trivy_upload.sh'
         }
       }
     }
