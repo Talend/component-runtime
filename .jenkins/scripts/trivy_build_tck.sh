@@ -20,23 +20,31 @@ set -xe
 main() {
   echo "Building project with Maven:"
 
-  mvn clean install -pl '!talend-component-maven-plugin' \
-                    --settings .jenkins/settings.xml \
-                    --batch-mode \
-                    --update-snapshots \
-                    --show-version \
-                    --define gpg.skip=true \
-                    --define spotless.apply.skip=true \
-                    --define spotbugs.skip=true \
-                    --define checkstyle.skip=true \
-                    --define rat.skip=true \
-                    --define skipTests \
-                    --define maven.test.skip=true \
-                    --define maven.javadoc.skip=true \
-                    --define enforcer.skip=true \
-                    --define invoker.skip=true"
-                    --define maven.artifact.threads=25 \
-                    --threads 4C"
+  mvn clean install -pl '!talend-component-maven-plugin' --define skipTests \
+                                                    --define gpg.skip=true \
+                                                    --define enforcer.skip=true\
+                                                    --batch-mode \
+                                                    --update-snapshots \
+                                                    --show-version \
+                                                    --settings .jenkins/settings.xml
+
+
+        #           --settings .jenkins/settings.xml \
+        #           --batch-mode \
+        #           --update-snapshots \
+        #           --show-version \
+        #           --define gpg.skip=true \
+        #           --define spotless.apply.skip=true \
+        #           --define spotbugs.skip=true \
+        #           --define checkstyle.skip=true \
+        #           --define rat.skip=true \
+        #           --define skipTests \
+        #           --define maven.test.skip=true \
+        #           --define maven.javadoc.skip=true \
+        #           --define enforcer.skip=true \
+        #           --define invoker.skip=true"
+        #           --define maven.artifact.threads=25 \
+        #           --threads 4C"
 }
 
 main "$@"
