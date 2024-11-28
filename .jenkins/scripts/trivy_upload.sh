@@ -20,7 +20,7 @@ set -xe
 main() {
   echo "Scan completed, now uploading to DefectDojo"
 
-  apk add curl
+  #apk add curl
 
   curl -s -X 'POST' -H "Authorization: Token ${DEFECTDOJO_API_TOKEN}" \
   'https://defectdojo.dagali.talendinc.com/api/v2/reimport-scan/' \
