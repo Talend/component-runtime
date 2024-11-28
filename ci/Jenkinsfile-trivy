@@ -95,12 +95,22 @@ pipeline {
               #!/usr/bin/env bash
               set -xe
               echo "Building project with Maven:"
-              mvn clean install -pl '!talend-component-maven-plugin' --define skipTests \
-                                --define gpg.skip=true \
-                                --define enforcer.skip=true\
+              mvn clean install -pl '!talend-component-maven-plugin' \
                                 --batch-mode \
                                 --update-snapshots \
                                 --show-version \
+                                --define gpg.skip=true \
+                                --define spotless.apply.skip=true \
+                                --define spotbugs.skip=true \
+                                --define checkstyle.skip=true \
+                                --define rat.skip=true \
+                                --define skipTests \
+                                --define maven.test.skip=true \
+                                --define maven.javadoc.skip=true \
+                                --define enforcer.skip=true \
+                                --define invoker.skip=true"
+                                --define maven.artifact.threads=25 \
+                                --threads 4C"
                                 --settings .jenkins/settings.xml
               """.stripIndent()
           }
