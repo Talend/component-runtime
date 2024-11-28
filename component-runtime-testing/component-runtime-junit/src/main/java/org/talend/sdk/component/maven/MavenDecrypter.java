@@ -24,46 +24,66 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-@Data
-@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class MavenDecrypter {
 
-    private final File settings;
+    private static final String M2_HOME = "M2_HOME";
+
+    private static final String MAVEN_HOME = "MAVEN_HOME";
+
+    private static final String USER_HOME = "user.home";
+
+    private static final String FILE_SETTINGS = "settings.xml";
+
+    private static final String FILE_SECURITY = "settings-security.xml";
+
+    private final List<File> settings;
 
     private final File settingsSecurity;
 
     public MavenDecrypter() {
-        this(new File(getM2(), "settings.xml"), new File(getM2(), "settings-security.xml"));
+        this(findSettingsFiles(), new File(getM2(), FILE_SECURITY));
+    }
+
+    @Deprecated
+    public MavenDecrypter(final File settings, final File settingsSecurity) {
+        this(Collections.singletonList(settings), settingsSecurity);
+    }
+
+    public MavenDecrypter(final List<File> settings, final File settingsSecurity) {
+        this.settings = settings.stream().filter(File::exists).collect(Collectors.toList());
+        this.settingsSecurity = settingsSecurity;
     }
 
     public Server find(final String serverId) {
-        final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-        saxParserFactory.setNamespaceAware(false);
-        saxParserFactory.setValidating(false);
-        final SAXParser parser;
-        try {
-            parser = saxParserFactory.newSAXParser();
-        } catch (final ParserConfigurationException | SAXException e) {
-            throw new IllegalStateException(e);
-        }
-        if (!settings.exists()) {
+        final SAXParser parser = newSaxParser();
+        if (settings.isEmpty()) {
             throw new IllegalArgumentException(
                     "No " + settings + " found, ensure your credentials configuration is valid");
         }
@@ -82,21 +102,68 @@ public class MavenDecrypter {
         }
 
         final MvnServerExtractor extractor = new MvnServerExtractor(master, serverId);
-        try (final InputStream is = new FileInputStream(settings)) {
-            parser.parse(is, extractor);
-        } catch (final IOException | SAXException e) {
-            throw new IllegalArgumentException(e);
+        for (final File file : settings) {
+            try (final InputStream is = new FileInputStream(file)) {
+                parser.parse(is, extractor);
+            } catch (final IOException | SAXException e) {
+                throw new IllegalArgumentException(e);
+            }
+            if (extractor.server != null) {
+                return extractor.server;
+            }
         }
-        if (extractor.server == null) {
-            throw new IllegalArgumentException("Didn't find " + serverId + " in " + settings);
+
+        throw new IllegalArgumentException("Didn't find " + serverId + " in " + settings);
+    }
+
+    private static SAXParser newSaxParser() {
+        final SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(false);
+        factory.setValidating(false);
+        try {
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+        } catch (final ParserConfigurationException | SAXNotRecognizedException | SAXNotSupportedException ex) {
+            // ignore
         }
-        return extractor.server;
+
+        final SAXParser parser;
+        try {
+            parser = factory.newSAXParser();
+        } catch (final ParserConfigurationException | SAXException e) {
+            throw new IllegalStateException(e);
+        }
+
+        try {
+            parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        } catch (final SAXNotRecognizedException | SAXNotSupportedException e) {
+            // ignore
+        }
+
+        return parser;
     }
 
     private static File getM2() {
         return ofNullable(System.getProperty("talend.maven.decrypter.m2.location"))
                 .map(File::new)
-                .orElseGet(() -> new File(System.getProperty("user.home"), ".m2"));
+                .orElseGet(() -> new File(System.getProperty(USER_HOME), ".m2"));
+    }
+
+    private static List<File> findSettingsFiles() {
+        return Stream.of(
+                new File(getM2(), FILE_SETTINGS),
+                findMavenHome(M2_HOME),
+                findMavenHome(MAVEN_HOME))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private static File findMavenHome(final String mavenHome) {
+        return ofNullable(System.getenv(mavenHome))
+                .map(File::new)
+                .map(it -> new File(it, "conf/" + FILE_SETTINGS))
+                .orElse(null);
     }
 
     public static void main(final String[] args) {
@@ -159,20 +226,20 @@ public class MavenDecrypter {
                 }
             } else if (server != null && current != null) {
                 switch (qName) {
-                case "id":
-                    server.setId(current.toString());
-                    break;
-                case "username":
-                    try {
-                        server.setUsername(doDecrypt(current.toString(), passphrase));
-                    } catch (final RuntimeException re) {
-                        server.setUsername(current.toString());
-                    }
-                    break;
-                case "password":
-                    encryptedPassword = current.toString();
-                    break;
-                default:
+                    case "id":
+                        server.setId(current.toString());
+                        break;
+                    case "username":
+                        try {
+                            server.setUsername(doDecrypt(current.toString(), passphrase));
+                        } catch (final RuntimeException re) {
+                            server.setUsername(current.toString());
+                        }
+                        break;
+                    case "password":
+                        encryptedPassword = current.toString();
+                        break;
+                    default:
                 }
                 current = null;
             }
