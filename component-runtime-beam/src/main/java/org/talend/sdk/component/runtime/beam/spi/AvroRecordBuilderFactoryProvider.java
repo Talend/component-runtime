@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 package org.talend.sdk.component.runtime.beam.spi;
-
-import static java.util.Optional.ofNullable;
-
-import java.io.ObjectStreamException;
-import java.io.Serializable;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -31,7 +26,11 @@ import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFact
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.SerializableService;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
 import lombok.extern.slf4j.Slf4j;
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryProvider {
@@ -39,21 +38,24 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
     @Override
     public RecordBuilderFactory apply(final String containerId) {
         switch (System.getProperty("talend.component.beam.record.factory.impl", "auto")) {
-        case "memory":
-        case "default":
-            return new RecordBuilderFactoryImpl(containerId);
-        case "avro":
-            if (!hasAvroRecordBuilderFactory()) {
-                log.warn(
-                        "AvroRecordBuilderFactoryProvider if forced by System property but seems not available, this may lead to issues.");
-            }
-            return new AvroRecordBuilderFactory(containerId);
-        default:
-            if (hasAvroRecordBuilderFactory()) {
-                return new AvroRecordBuilderFactory(containerId);
-            } else {
+            case "memory":
+            case "default":
                 return new RecordBuilderFactoryImpl(containerId);
-            }
+            case "avro":
+
+
+
+                if (!hasAvroRecordBuilderFactory()) {
+                    log.warn(
+                            "AvroRecordBuilderFactoryProvider if forced by System property but seems not available, this may lead to issues.");
+                }
+                return new AvroRecordBuilderFactory(containerId);
+            default:
+                if (hasAvroRecordBuilderFactory()) {
+                    return new AvroRecordBuilderFactory(containerId);
+                } else {
+                    return new RecordBuilderFactoryImpl(containerId);
+                }
         }
     }
 
@@ -76,6 +78,9 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
 
         private AvroRecordBuilderFactory(final String plugin) {
             super(plugin);
+            if (Boolean.getBoolean("talend.component.record.sanitize")) {
+                throw new RuntimeException("beam impl needs `talend.component.record.sanitize` property to be false");
+            }
         }
 
         @Override

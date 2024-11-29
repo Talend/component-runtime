@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,10 +15,16 @@
  */
 package org.talend.sdk.component.api.record;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Schema.Builder;
+import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.Schema.Type;
 
+import javax.json.Json;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
@@ -33,18 +39,10 @@ import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import javax.json.Json;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import javax.json.JsonValue.ValueType;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.record.Schema.Builder;
-import org.talend.sdk.component.api.record.Schema.Entry;
-import org.talend.sdk.component.api.record.Schema.Type;
-
 import lombok.RequiredArgsConstructor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SchemaTest {
 
@@ -141,15 +139,15 @@ class SchemaTest {
         Assertions.assertFalse(Type.RECORD.isCompatible(1234));
 
         Assertions.assertTrue(Type.ARRAY.isCompatible(Collections.emptyList()));
-        Assertions.assertFalse(Schema.Type.ARRAY.isCompatible(new int[] {}));
+        Assertions.assertFalse(Schema.Type.ARRAY.isCompatible(new int[]{}));
 
         Assertions.assertTrue(Type.STRING.isCompatible("Hello"));
         Assertions.assertTrue(Schema.Type.STRING.isCompatible(new Object()));
-        Assertions.assertTrue(Schema.Type.STRING.isCompatible(new int[] {}));
+        Assertions.assertTrue(Schema.Type.STRING.isCompatible(new int[]{}));
 
         Assertions.assertTrue(Type.BYTES.isCompatible("Hello".getBytes()));
-        Assertions.assertTrue(Type.BYTES.isCompatible(new Byte[] {}));
-        Assertions.assertFalse(Schema.Type.BYTES.isCompatible(new int[] {}));
+        Assertions.assertTrue(Type.BYTES.isCompatible(new Byte[]{}));
+        Assertions.assertFalse(Schema.Type.BYTES.isCompatible(new int[]{}));
 
         Assertions.assertTrue(Schema.Type.INT.isCompatible(null));
         Assertions.assertTrue(Schema.Type.INT.isCompatible(123));

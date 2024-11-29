@@ -49,6 +49,8 @@ import lombok.ToString;
 
 public interface Schema {
 
+    public static boolean SANITIZE = Boolean.getBoolean("talend.component.record.sanitize");
+
     /**
      * @return the type of this schema.
      */
@@ -472,7 +474,7 @@ public interface Schema {
      * @return avro compatible name.
      */
     static String sanitizeConnectionName(final String name) {
-        if (name == null || name.isEmpty()) {
+        if (!SANITIZE || name == null || name.isEmpty()) {
             return name;
         }
 
@@ -672,6 +674,12 @@ public interface Schema {
     static Schema.Entry avoidCollision(final Schema.Entry newEntry,
             final Function<String, Entry> entryGetter,
             final BiConsumer<String, Entry> replaceFunction) {
+
+        if(!SANITIZE){
+            return newEntry;
+        }
+
+
         final Optional<Entry> collisionedEntry = Optional.ofNullable(entryGetter //
                 .apply(newEntry.getName())) //
                 .filter((final Entry field) -> !Objects.equals(field, newEntry));

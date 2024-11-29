@@ -31,13 +31,21 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.Context;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleEvent;
+import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.filters.AddDefaultCharsetFilter;
 import org.apache.catalina.filters.HttpHeaderSecurityFilter;
+import org.apache.catalina.startup.Tomcat;
 
 public class ServletConfigurer implements ServletContainerInitializer {
 
     @Override
     public void onStartup(final Set<Class<?>> set, final ServletContext servletContext) {
+
+
         addFilter(servletContext, "security-filter", HttpHeaderSecurityFilter.class);
         addFilter(servletContext, "encoding-filter", AddDefaultCharsetFilter.class);
         addFilter(servletContext, "csp-filter", CSPFilter.class);
@@ -63,4 +71,5 @@ public class ServletConfigurer implements ServletContainerInitializer {
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
+
 }

@@ -147,6 +147,52 @@ class SchemaImplTest {
     }
 
     @Test
+    void testSanitizeDuplicates(){
+        System.setProperty()
+        Entry toto1 = new EntryImpl.BuilderImpl().withType(Type.STRING).withName("totoé").build();
+        Entry toto2 = new EntryImpl.BuilderImpl().withType(Type.STRING).withName("toto ").build();
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(toto1)
+                .withEntry(toto2)
+                .build();
+
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        builder.withString(toto1.getName(), "Aloa1");
+        builder.withString("toto ", "Aloa2");
+        Record record = builder.build();
+
+        System.out.println("end.");
+    }
+
+    @Test
+    void testSanitizeDuplicates2(){
+        final Record record = new RecordImpl.BuilderImpl()
+                .withString("toto ", "Aloa1")
+                .withString("totoé", "Aloa2")
+                .build();
+        System.out.printf("sss");
+    }
+
+    @Test
+    void testSanitizeDuplicates3() {
+        Entry toto1 = new EntryImpl.BuilderImpl().withType(Type.STRING).withName("totoé").build();
+        Entry toto2 = new EntryImpl.BuilderImpl().withType(Type.STRING).withName("toto ").build();
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(toto1)
+                .withEntry(toto2)
+                .build();
+
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        builder.withString("totoé", "Aloa1");
+        builder.withString("toto ", "Aloa2");
+        Record record = builder.build();
+
+        System.out.println("end.");
+    }
+
+    @Test
     void testRecordWithMetadataFields() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
