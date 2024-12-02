@@ -139,6 +139,16 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>clirr-maven-plugin</artifactId>
         <version>${clirr-plugin.version}</version>
+        <configuration>
+          <ignored>
+            <difference>
+              <className>org/talend/sdk/component/maven/MavenDecrypter</className>
+              <differenceType>7002</differenceType>
+              <method>*get*</method>
+              <justification>we don't need this method</justification>
+            </difference>
+          </ignored>
+        </configuration>
         <executions>
           <execution>
             <id>check compatibility</id>
