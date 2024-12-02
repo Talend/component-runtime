@@ -55,7 +55,6 @@ main() (
   --projects component-server-parent/component-server \
   --projects talend-component-maven-plugin \
   --projects sample-parent \
-  --projects bom \
   --also-make \
   ${_MAVEN_TEST_SKIP} \
   ${_MAVEN_FAST}
