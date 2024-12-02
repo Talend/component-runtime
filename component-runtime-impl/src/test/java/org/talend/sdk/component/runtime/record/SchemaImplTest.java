@@ -147,6 +147,57 @@ class SchemaImplTest {
     }
 
     @Test
+    void testSanitizeDuplicates(){
+        System.setProperty(Schema.SKIP_SANITIZE_PROPERTY, "true");
+        Entry toto1 = new EntryImpl.BuilderImpl().withType(Type.STRING).withName("totoé").build();
+        Entry toto2 = new EntryImpl.BuilderImpl().withType(Type.STRING).withName("toto ").build();
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(toto1)
+                .withEntry(toto2)
+                .build();
+
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        builder.withString(toto1.getName(), "Aloa1");
+        builder.withString("toto ", "Aloa2");
+        Record record = builder.build();
+
+        System.out.println("end.");
+        System.clearProperty(Schema.SKIP_SANITIZE_PROPERTY);
+    }
+
+    @Test
+    void testSanitizeDuplicates2(){
+        System.setProperty(Schema.SKIP_SANITIZE_PROPERTY, "true");
+        final Record record = new RecordImpl.BuilderImpl()
+                .withString("toto ", "Aloa1")
+                .withString("totoé", "Aloa2")
+                .build();
+        System.out.printf("sss");
+        System.clearProperty(Schema.SKIP_SANITIZE_PROPERTY);
+    }
+
+    @Test
+    void testSanitizeDuplicates3() {
+        System.setProperty(Schema.SKIP_SANITIZE_PROPERTY, "true");
+        Entry toto1 = new EntryImpl.BuilderImpl().withType(Type.STRING).withName("totoé").build();
+        Entry toto2 = new EntryImpl.BuilderImpl().withType(Type.STRING).withName("toto ").build();
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(toto1)
+                .withEntry(toto2)
+                .build();
+
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        builder.withString("totoé", "Aloa1");
+        builder.withString("toto ", "Aloa2");
+        Record record = builder.build();
+
+        System.out.println("end.");
+        System.clearProperty(Schema.SKIP_SANITIZE_PROPERTY);
+    }
+
+    @Test
     void testRecordWithMetadataFields() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
