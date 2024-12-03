@@ -1,0 +1,141 @@
+/**
+ * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Credentials
+final def nexusCredentials = usernamePassword(
+    credentialsId: 'nexus-artifact-zl-credentials',
+    usernameVariable: 'NEXUS_USER',
+    passwordVariable: 'NEXUS_PASSWORD')
+
+
+pipeline {
+  libraries {
+    // Externals libraries used in this job
+    // Connector lib from https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@1.0.0") // Defining jenkinsJobTools
+  }
+
+  agent {
+    kubernetes {
+      yamlFile '.jenkins/jenkins_pod.yml'
+      defaultContainer 'main'
+    }
+  }
+
+  environment {
+    MAVEN_OPTS = [
+        '-Dmaven.artifact.threads=128',
+        '-Dorg.slf4j.simpleLogger.showThreadName=true',
+        '-Dorg.slf4j.simpleLogger.showDateTime=true',
+        '-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss',
+    ].join(' ')
+    TALEND_REGISTRY = 'registry.datapwn.com'
+  }
+
+  options {
+    buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: '10'))
+    timeout(time: 60, unit: 'MINUTES')
+    skipStagesAfterUnstable()
+  }
+
+
+  parameters {
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "BASIC_CONFIG",
+              sectionHeader: "Basic configuration",
+              sectionHeaderStyle: """ background-color: #ABEBC6;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "DEBUG_CONFIG",
+              sectionHeader: "Jenkins job debug configuration ",
+              sectionHeaderStyle: """ background-color: #FF0000;
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    booleanParam(
+        name: 'JENKINS_DEBUG',
+        defaultValue: false,
+        description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+  }
+
+  stages {
+    stage('Preliminary steps') {
+      steps {
+        script {
+          println "Installing tools using asdf"
+          sh 'bash .jenkins/scripts/asdf_install.sh'
+        }
+      }
+    }
+
+    stage('Build Project') {
+      steps {
+        withCredentials([nexusCredentials]) {
+          script {
+            sh 'bash .jenkins/scripts/trivy_build_tck.sh'
+          }
+        }
+      }
+    }
+
+    stage('Security Scan with Trivy') {
+      steps {
+        script {
+          sh 'bash .jenkins/scripts/trivy_scan.sh'
+        }
+      }
+      post {
+        always {
+          archiveArtifacts artifacts: 'output/trivy-results.json'
+
+          recordIssues(
+              enabledForFailure: true,
+              tools: [
+                  trivy(
+                      id: 'trivy',
+                      name: 'trivy scan',
+                      pattern : 'output/trivy-results.json',
+                      )
+              ]
+          )
+        }
+      }
+    }
+
+    stage('Upload Scan Results to DefectDojo') {
+      steps {
+        withCredentials([string(credentialsId: 'defectdojo-token-common', variable: 'DEFECTDOJO_API_TOKEN')]) {
+          sh 'bash .jenkins/scripts/trivy_upload.sh'
+        }
+      }
+    }
+  }
+  post {
+    always {
+      script {
+        if (params.JENKINS_DEBUG) {
+          jenkinsJobTools.jenkinsBreakpoint()
+        }
+      }
+    }
+  }
+}
