@@ -252,6 +252,20 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
     }
 
     @Override
+    public void afterGroup(final OutputFactory output, boolean last) {
+        afterGroup
+                .forEach(after -> doInvoke(after,
+                        Stream.concat(parameterBuilderAfterGroup
+                                .get(after)
+                                .stream()
+                                .map(b -> b.apply(output)), Stream.of(last))
+                                .toArray(Object[]::new)));
+        if (records != null) {
+            records = null;
+        }
+    }
+
+    @Override
     public void onNext(final InputFactory inputFactory, final OutputFactory outputFactory) {
         if (process == null) {
             // todo: handle @Input there too? less likely it becomes useful

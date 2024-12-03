@@ -15,7 +15,17 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import org.talend.sdk.component.api.processor.AfterGroup;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.LastGroup;
+import org.talend.sdk.component.runtime.output.InputFactory;
+import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
+
+import java.util.Arrays;
+import java.util.stream.Stream;
+
+import static java.util.stream.Stream.of;
 
 /*
  * This class is kept for backward compatibility with the studio
@@ -23,7 +33,41 @@ import org.talend.sdk.component.runtime.output.Processor;
  */
 public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager.chain.AutoChunkProcessor {
 
+    private boolean isLastGroupUsed = false;
+
     public AutoChunkProcessor(final int chunkSize, final Processor processor) {
         super(chunkSize, processor);
+        isLastGroupUsed = isLastGroupUsed();
+    }
+
+    public void onElement(final InputFactory ins, final OutputFactory outs) {
+        if (processedItemCount == 0) {
+            processor.beforeGroup();
+        }
+        try {
+            processor.onNext(ins, outs);
+            processedItemCount++;
+        } finally {
+            if (processedItemCount == chunkSize) {
+                processor.afterGroup(outs, false);
+                processedItemCount = 0;
+            }
+        }
+    }
+
+    private boolean isLastGroupUsed() {
+        of(processor.getClass().getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class))
+                .forEach(after -> Stream.of(after.getParameters()).anyMatch(param -> {
+                    return param.isAnnotationPresent(LastGroup.class);
+                }));
+        return false;
+    }
+
+
+    public void flush(final OutputFactory outs) {
+        if (processedItemCount > 0) {
+            isLastGroupUsed ? processor.afterGroup(outs, true) : processor.afterGroup(outs);
+            processedItemCount = 0;
+        }
     }
 }

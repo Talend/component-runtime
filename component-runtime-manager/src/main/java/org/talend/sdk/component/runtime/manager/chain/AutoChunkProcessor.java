@@ -25,11 +25,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AutoChunkProcessor implements Lifecycle {
 
-    private final int chunkSize;
+    protected final int chunkSize;
 
-    private final Processor processor;
+    protected final Processor processor;
 
-    private int processedItemCount = 0;
+    protected int processedItemCount = 0;
 
     public void onElement(final InputFactory ins, final OutputFactory outs) {
         if (processedItemCount == 0) {
@@ -40,7 +40,7 @@ public class AutoChunkProcessor implements Lifecycle {
             processedItemCount++;
         } finally {
             if (processedItemCount == chunkSize) {
-                processor.afterGroup(outs);
+                processor.afterGroup(outs, false);
                 processedItemCount = 0;
             }
         }
@@ -48,7 +48,7 @@ public class AutoChunkProcessor implements Lifecycle {
 
     public void flush(final OutputFactory outs) {
         if (processedItemCount > 0) {
-            processor.afterGroup(outs);
+            processor.afterGroup(outs, true);
             processedItemCount = 0;
         }
     }
