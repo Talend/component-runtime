@@ -239,27 +239,26 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     @Override
     public void afterGroup(final OutputFactory output) {
-        afterGroup
-                .forEach(after -> doInvoke(after,
-                        parameterBuilderAfterGroup
-                                .get(after)
-                                .stream()
-                                .map(b -> b.apply(output))
-                                .toArray(Object[]::new)));
+        afterGroup.forEach(after -> {
+            Object[] params = parameterBuilderAfterGroup.get(after)
+                    .stream()
+                    .map(b -> b.apply(output))
+                    .toArray(Object[]::new);
+            doInvoke(after, params);
+        });
         if (records != null) {
             records = null;
         }
     }
 
     @Override
-    public void afterGroup(final OutputFactory output, boolean last) {
-        afterGroup
-                .forEach(after -> doInvoke(after,
-                        Stream.concat(parameterBuilderAfterGroup
-                                .get(after)
-                                .stream()
-                                .map(b -> b.apply(output)), Stream.of(last))
-                                .toArray(Object[]::new)));
+    public void afterGroup(final OutputFactory output, final boolean last) {
+        afterGroup.forEach(after -> {
+            Object[] params = Stream.concat(
+                    parameterBuilderAfterGroup.get(after).stream().map(b -> b.apply(output)),
+                    Stream.of(last)).toArray(Object[]::new);
+            doInvoke(after, params);
+        });
         if (records != null) {
             records = null;
         }

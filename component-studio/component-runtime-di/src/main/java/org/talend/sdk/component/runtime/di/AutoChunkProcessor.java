@@ -15,17 +15,15 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import static java.util.stream.Stream.of;
+
+import java.util.stream.Stream;
+
 import org.talend.sdk.component.api.processor.AfterGroup;
-import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
-
-import java.util.Arrays;
-import java.util.stream.Stream;
-
-import static java.util.stream.Stream.of;
 
 /*
  * This class is kept for backward compatibility with the studio
@@ -56,17 +54,19 @@ public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager
     }
 
     private boolean isLastGroupUsed() {
-        of(processor.getClass().getMethods()).filter(m -> m.isAnnotationPresent(AfterGroup.class))
-                .forEach(after -> Stream.of(after.getParameters()).anyMatch(param -> {
-                    return param.isAnnotationPresent(LastGroup.class);
-                }));
-        return false;
+        return of(processor.getClass().getMethods())
+                .filter(m -> m.isAnnotationPresent(AfterGroup.class))
+                .anyMatch(after -> Stream.of(after.getParameters())
+                        .anyMatch(param -> param.isAnnotationPresent(LastGroup.class)));
     }
-
 
     public void flush(final OutputFactory outs) {
         if (processedItemCount > 0) {
-            isLastGroupUsed ? processor.afterGroup(outs, true) : processor.afterGroup(outs);
+            if (isLastGroupUsed) {
+                processor.afterGroup(outs, true);
+            } else {
+                processor.afterGroup(outs);
+            }
             processedItemCount = 0;
         }
     }
