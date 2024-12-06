@@ -18,7 +18,7 @@ import { Action } from '@talend/react-components/lib/Actions';
 import DatastoreContext from '../../DatastoreContext';
 import DatastoreForm from '../DatastoreForm';
 import DatastoreDelete from '../DatastoreDelete';
-import theme from './DatastoreList.scss';
+import theme from './DatastoreList.module.scss';
 
 function DatastoreList() {
 	return (

@@ -20,7 +20,7 @@ import Dialog from '@talend/react-components/lib/Dialog';
 import Help from '../../Help';
 import Input from '../../Input';
 import EmbeddableToggle from '../../EmbeddableToggle';
-import theme from './Connection.scss';
+import theme from './Connection.module.scss';
 
 export default class Connection extends React.Component {
 	static propTypes = {

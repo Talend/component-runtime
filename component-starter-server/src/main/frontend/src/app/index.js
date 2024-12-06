@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+import '@talend/bootstrap-theme/dist/bootstrap.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import i18n from 'i18next';
@@ -33,13 +34,13 @@ i18n.use(initReactI18next).init({
 	lng: 'en',
 	resources: {
 		en: {
-            Help: helpTexts,
+			Help: helpTexts,
 			'tui-components': {
-			    HEADERBAR_GO_PORTAL: 'Go to Portal',
-			    NO_RESULT_FOUND: 'No result.',
-			    TYPEAHEAD_SEARCHING: 'Searching for matches...',
-			    TYPEAHEAD_LOADING: "Loading...",
-			}
+				HEADERBAR_GO_PORTAL: 'Go to Portal',
+				NO_RESULT_FOUND: 'No result.',
+				TYPEAHEAD_SEARCHING: 'Searching for matches...',
+				TYPEAHEAD_LOADING: 'Loading...',
+			},
 		},
 	},
 	/*
@@ -54,4 +55,4 @@ i18n.use(initReactI18next).init({
 });
 i18n.addResourceBundle('en', 'Help', helpTexts);
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('app'));
