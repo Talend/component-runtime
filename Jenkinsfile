@@ -707,6 +707,11 @@ pipeline {
     }
     always {
       script {
+        String postResult = null
+        if (currentBuild.previousBuild) {
+          postResult = currentBuild.previousBuild.result
+        }
+
         alertingTools.slack_result(
             env.SLACK_CI_CHANNEL,
             currentBuild.result,
