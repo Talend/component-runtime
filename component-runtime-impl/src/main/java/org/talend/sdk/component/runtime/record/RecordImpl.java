@@ -83,13 +83,14 @@ public final class RecordImpl implements Record {
 
     @Override
     public <T> T get(final Class<T> expectedType, final String name) {
-        final Object value = values.get(name);
+        final String entryName = Schema.sanitizeConnectionName(name);
+        final Object value = values.get(entryName);
         // here mean get(Object.class, name) return origin store type, like DATETIME return long, is expected?
         if (value == null || expectedType.isInstance(value)) {
             return expectedType.cast(value);
         }
 
-        return RECORD_CONVERTERS.coerce(expectedType, value, name);
+        return RECORD_CONVERTERS.coerce(expectedType, value, entryName);
     }
 
     @Override // for debug purposes, don't use it for anything else
@@ -166,7 +167,7 @@ public final class RecordImpl implements Record {
 
         @Override
         public Object getValue(final String name) {
-            return this.values.get(name);
+            return this.values.get(Schema.sanitizeConnectionName(name));
         }
 
         @Override
@@ -200,10 +201,11 @@ public final class RecordImpl implements Record {
 
         @Override
         public Entry getEntry(final String name) {
+            final String entryName = Schema.sanitizeConnectionName(name);
             if (this.providedSchema != null) {
-                return this.providedSchema.getEntry(name);
+                return this.providedSchema.getEntry(entryName);
             } else {
-                return this.entries.getValue(name);
+                return this.entries.getValue(entryName);
             }
         }
 
@@ -230,26 +232,27 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder updateEntryByName(final String name, final Schema.Entry schemaEntry) {
+            final String entryName = Schema.sanitizeConnectionName(name);
             if (this.providedSchema == null) {
-                if (this.entries.getValue(name) == null) {
+                if (this.entries.getValue(entryName) == null) {
                     throw new IllegalArgumentException(
                             "No entry '" + schemaEntry.getName() + "' expected in entries");
                 }
 
-                final Object value = this.values.get(name);
+                final Object value = this.values.get(entryName);
                 if (!schemaEntry.getType().isCompatible(value)) {
                     throw new IllegalArgumentException(String
                             .format("Entry '%s' of type %s is not compatible with value of type '%s'",
                                     schemaEntry.getName(), schemaEntry.getType(), value.getClass()
                                             .getName()));
                 }
-                this.entries.replace(name, schemaEntry);
+                this.entries.replace(entryName, schemaEntry);
 
                 if (this.orderState != null) {
-                    this.orderState.orderedEntries.replace(name, schemaEntry);
+                    this.orderState.orderedEntries.replace(entryName, schemaEntry);
                 }
 
-                this.values.remove(name);
+                this.values.remove(entryName);
                 this.values.put(schemaEntry.getName(), value);
                 return this;
             }
@@ -257,15 +260,16 @@ public final class RecordImpl implements Record {
             final BuilderImpl builder =
                     new BuilderImpl(this.providedSchema.getAllEntries().collect(Collectors.toList()),
                             this.values);
-            return builder.updateEntryByName(name, schemaEntry);
+            return builder.updateEntryByName(entryName, schemaEntry);
         }
 
         @Override
         public Builder updateEntryByName(final String name, final Entry schemaEntry,
                 final Function<Object, Object> valueCastFunction) {
-            Object currentValue = this.values.get(name);
-            this.values.put(name, valueCastFunction.apply(currentValue));
-            return updateEntryByName(name, schemaEntry);
+            final String entryName = Schema.sanitizeConnectionName(name);
+            Object currentValue = this.values.get(entryName);
+            this.values.put(entryName, valueCastFunction.apply(currentValue));
+            return updateEntryByName(entryName, schemaEntry);
         }
 
         @Override
@@ -284,10 +288,11 @@ public final class RecordImpl implements Record {
 
         private Schema.Entry findExistingEntry(final String name) {
             final Schema.Entry entry;
+            final String entryName = Schema.sanitizeConnectionName(name);
             if (this.providedSchema != null) {
-                entry = this.providedSchema.getEntry(name);
+                entry = this.providedSchema.getEntry(entryName);
             } else {
-                entry = this.entries.getValue(name);
+                entry = this.entries.getValue(entryName);
             }
             if (entry == null) {
                 throw new IllegalArgumentException(
