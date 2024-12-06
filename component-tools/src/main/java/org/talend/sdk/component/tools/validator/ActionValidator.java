@@ -228,8 +228,8 @@ public class ActionValidator implements Validator {
         final Stream<String> optionParameter = finder
                 .findAnnotatedMethods(DynamicDependencies.class)
                 .stream()
-                .filter(m -> !hasOption(m) || !hasDatasetParameter(m))
-                .map(m -> m + " should have a Dataset parameter marked with @Option")
+                .filter(m -> !hasOption(m) || !hasObjectParameter(m))
+                .map(m -> m + " should have an Object parameter marked with @Option")
                 .sorted();
 
         final Stream<String> returnType = finder
@@ -322,9 +322,9 @@ public class ActionValidator implements Validator {
                 .count() == 1;
     }
 
-    private boolean hasDatasetParameter(final Method method) {
+    private boolean hasObjectParameter(final Method method) {
         return Arrays.stream(method.getParameters())
-                .filter(p -> p.getType().isAnnotationPresent(DataSet.class))
+                .filter(p -> !isPrimitiveLike(p.getType()))
                 .count() == 1;
     }
 
