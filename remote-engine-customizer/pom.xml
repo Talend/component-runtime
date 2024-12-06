@@ -58,7 +58,6 @@
     <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest</artifactId>
-      <version>0.16</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.xbean</groupId>
