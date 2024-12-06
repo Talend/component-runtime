@@ -15,7 +15,7 @@
     <meta name="description" content="How to access studio's schema in your component.">
     <meta name="keywords" content="studio, studio-integration, schema, metadata, dynamic, columns, output, sink, connector, record-schema, guess, discover, guess-schema, discover-schema">
     <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2024-12-05T00:47:12.360Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2024-12-06T00:49:17.945Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -1200,6 +1200,80 @@ As you may pass other parameters to method, ensure to use the above naming : <em
 </li>
 </ol>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_fixed_schema"><a class="anchor" href="#_fixed_schema"></a>Fixed schema</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In some cases, the schema will always use the same scheme.
+Having a fixed schema will prevent Studio to display the Guess schema button and the reject UI part.
+The annotation&#8217;s value should point to a <code>@DiscoverSchema</code> or <code>@DiscoverSchemaExtended</code> action.</p>
+</div>
+<div class="paragraph">
+<p>Example with an emitter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@FixedSchema("my_fixed_input_schema")
+@Emitter(family = "test", name = "myEmitter")
+public class MyEmitter implements Serializable {
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In service class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Service
+public class UiServices {
+
+    @DiscoverSchema("my_fixed_input_schema")
+    public Schema guessSchema(@Option final MyDataSet dataset) {
+       retrurn factory.newSchemaBuilder(Schema.Type.RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withName("header")
+                        .withType(Schema.Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("message")
+                        .withType(Schema.Type.DATETIME)
+                        .withNullable(true)
+                        .build())
+                .build();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example for a handling a processor with an eventual reject flow:</p>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Service
+public class UiServices {
+
+    @DiscoverSchemaExtended("my_fixed_processor_schema")
+    public Schema discoverProcessorSchema(final Schema in,
+                                          @Option final MyConf conf,
+                                          final String branch) {
+        final Schema.Builder out = factory.newSchemaBuilder(in);
+        if ("REJECT".equals(branch.toUpperCase())) {
+            out.withEntry(factory.newEntryBuilder()
+                    .withName("ERROR_MESSAGE")
+                    .withType(Type.STRING)
+                    .build());
+        }
+        return out.build();
+    }
+}</code></pre>
 </div>
 </div>
 </div>
