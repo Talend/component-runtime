@@ -429,7 +429,9 @@ class ComponentValidatorTest {
     @Test
     @ComponentPackage("org.talend.test.failure.customicon")
     void testFailureCustomIcon(final ExceptionSpec spec) {
-        spec.expectMessage("Some error were detected:\n- Missing icon(s) in resources.");// missing' found");
+        spec.expectMessage("Some error were detected:\n- Missing icon(s) in resources:\n" +
+                "- No 'icons" + File.separator + "dark" + File.separator + "missing.svg' found.\n" +
+                "- No 'icons" + File.separator + "light" + File.separator + "missing.svg' found.");
     }
 
     @Test
