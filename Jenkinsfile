@@ -715,7 +715,7 @@ pipeline {
         alertingTools.slack_result(
             env.SLACK_CI_CHANNEL,
             currentBuild.result,
-            currentBuild.previousBuild.result,
+            postResult,
             true, // Post for success
             true, // Post for failure
             "Failure of $pomVersion $params.ACTION.")
