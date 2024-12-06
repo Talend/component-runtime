@@ -15,25 +15,26 @@
  */
 import React from 'react';
 import classnames from 'classnames';
-import { withRouter, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-import theme from '../SideMenu/SideMenu.scss';
+import theme from '../SideMenu/SideMenu.module.scss';
 
 function StepByStep(props) {
 	return (
 		<nav className={theme.menu}>
 			<ol>
-				<li className={classnames({ [theme.active]: props.location.pathname === '/openapi/project' })}>
+				<li className={classnames({ [theme.active]: location.pathname === '/openapi/project' })}>
 					<Link to="/openapi/project" id="step-start">
 						Start
 					</Link>
 				</li>
 				<li id="step-openapi">
-					<Link to="/openapi/design">
-						API
-					</Link>
+					<Link to="/openapi/design">API</Link>
 				</li>
-				<li id="step-finish" className={classnames({ [theme.active]: props.location.pathname === '/openapi/export' })}>
+				<li
+					id="step-finish"
+					className={classnames({ [theme.active]: location.pathname === '/openapi/export' })}
+				>
 					<Link to="/openapi/export" id="go-to-finish-button">
 						Finish
 					</Link>
@@ -43,4 +44,4 @@ function StepByStep(props) {
 	);
 }
 
-export default withRouter(StepByStep);
+export default StepByStep;

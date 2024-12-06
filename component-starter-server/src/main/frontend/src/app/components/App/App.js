@@ -14,12 +14,9 @@
  *  limitations under the License.
  */
 import React from 'react';
-import PropTypes from 'prop-types';
-import { BrowserRouter as Router, Route, Switch, withRouter } from 'react-router-dom';
-import { withTranslation } from 'react-i18next';
+import { BrowserRouter as Router, Route, useLocation, useNavigate, Routes } from 'react-router-dom';
+import { ThemeProvider } from '@talend/design-system';
 import IconsProvider from '@talend/react-components/lib/IconsProvider';
-import Icon from '@talend/react-components/lib/Icon';
-import Toggle from '@talend/react-components/lib/Toggle';
 import HeaderBar from '@talend/react-components/lib/HeaderBar';
 import Generator from '../Generator';
 import OpenAPIWizard from '../OpenAPI';
@@ -27,80 +24,109 @@ import DatastoreContext from '../../DatastoreContext';
 import DatasetContext from '../../DatasetContext';
 import ComponentsContext from '../../ComponentsContext';
 import ProjectContext from '../../ProjectContext';
+import Component from '../Component';
 
-import theme from './App.scss';
+import theme from './App.module.scss';
+import ProjectMetadata from '../ProjectMetadata';
+import DatastoreList from '../DatastoreList';
+import DatasetList from '../DatasetList';
+import ComponentAddForm from '../ComponentAddForm';
+import Finish from '../Finish';
+import { GENERATOR_OPENAPI_ZIP_URL, GENERATOR_ZIP_URL } from '../../constants';
+import { OpenAPITrans } from '../OpenAPI/OpenAPI.component';
 
-function ModeSwitcher (props) {
-	const openapi = (props.history.location.pathname || '/').startsWith('/openapi');
+const FinishZip = () => <Finish actionUrl={GENERATOR_ZIP_URL} openapi={false} />;
+
+function ModeSwitcher() {
+	const navigate = useNavigate();
+	const openapi = (useLocation().pathname || '/').startsWith('/openapi');
+
 	return (
-		<React.Fragment>
-			<Icon name='talend-component-kit-negative' />
-			<label>Standard</label>
-			<Toggle
+		<>
+			<button
 				id="starter-mode-switcher"
-				onChange={() => {
+				class="btn btn-link"
+				onClick={() => {
 					if (openapi) {
-						props.history.push('/');
+						navigate('/');
 					} else {
-						props.history.push('/openapi/project');
+						navigate('/openapi/project');
 					}
 				}}
 				checked={openapi}
-			/>
-			<label>OpenAPI</label>
-			<Icon name='talend-rest' />
-		</React.Fragment>
+			>
+				{openapi ? 'Switch to Starter' : 'Switch to OpenAPI'}
+			</button>
+		</>
 	);
 }
-const ModeSwitcherRouterAware = withRouter(ModeSwitcher);
 
-function App (props) {
+function App() {
 	return (
-		<Router>
-			<div className={theme.App}>
-				<IconsProvider />
+		<ThemeProvider>
+			<Router>
+				<div className={theme.App}>
+					<IconsProvider />
 
-				<div className={theme.header}>
-					<HeaderBar
-						id='heder-bar'
-						logo={{ isFull: true }}
-						brand={{
-							label: 'Starter Toolkit',
-						}}
-						user={{
-							className: theme.switcher,
-						}}
-						getComponent={component => {
-							if (component == 'User') {
-								return ModeSwitcherRouterAware;
-							}
-							throw new Error('get the default');
-						}}
-						app="Starter Toolkit"
-					/>
-				</div>
+					<div className={theme.header}>
+						<HeaderBar
+							id="header-bar"
+							logo={{ isFull: false }}
+							brand={{
+								label: 'Starter Toolkit',
+							}}
+							user={{
+								className: theme.switcher,
+							}}
+							getComponent={(component) => {
+								if (component == 'User') {
+									return ModeSwitcher;
+								}
+								throw new Error('get the default');
+							}}
+							app="Starter Toolkit"
+						/>
+					</div>
 
-				<div className={theme.content}>
-					<ProjectContext.Provider>
-						<DatastoreContext.Provider>
-							<DatasetContext.Provider>
-								<ComponentsContext.Provider>
-									<Switch>
-										<Route path="/openapi" component={OpenAPIWizard} />
-										<Route component={Generator} />
-									</Switch>
-								</ComponentsContext.Provider>
-							</DatasetContext.Provider>
-						</DatastoreContext.Provider>
-					</ProjectContext.Provider>
+					<div className={theme.content}>
+						<ProjectContext.Provider>
+							<DatastoreContext.Provider>
+								<DatasetContext.Provider>
+									<ComponentsContext.Provider>
+										<Routes>
+											<Route path="/" element={<Generator />}>
+												<Route exact path="/" element={<ProjectMetadata />} />
+												<Route exact path="/project" element={<ProjectMetadata />} />
+												<Route exact path="/datastore" element={<DatastoreList />} />
+												<Route exact path="/dataset" element={<DatasetList />} />
+												<Route path="/component/:componentId" element={<Component />} />
+												<Route path="/add-component" element={<ComponentAddForm />} />
+												<Route path="/export" element={<FinishZip />} />
+											</Route>
+
+											<Route path="/openapi" element={<OpenAPIWizard />}>
+												<Route
+													exact
+													path="/openapi/project"
+													element={<ProjectMetadata hideFacets={true} hideCategory={true} />}
+												/>
+												<Route exact path="/openapi/design" element={<OpenAPITrans />} />
+												<Route
+													exact
+													path="/openapi/export"
+													element={<Finish openapi={true} actionUrl={GENERATOR_OPENAPI_ZIP_URL} />}
+												/>
+											</Route>
+										</Routes>
+									</ComponentsContext.Provider>
+								</DatasetContext.Provider>
+							</DatastoreContext.Provider>
+						</ProjectContext.Provider>
+					</div>
 				</div>
-			</div>
-		</Router>
+			</Router>
+		</ThemeProvider>
 	);
 }
 
-export default withTranslation('Help')(App);
-
-App.propTypes = {
-	t: PropTypes.func,
-};
+export default App;

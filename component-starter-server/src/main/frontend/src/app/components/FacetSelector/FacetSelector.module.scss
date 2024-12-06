@@ -1,0 +1,74 @@
+/**
+ *  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
+
+$tf-datalist-items-background-color: $white !default;
+$tf-datalist-items-shadow-color: $shadow !default;
+$tf-typeahead-input-width: 135px !default;
+$tc-badge-margin: $padding-smaller !default;
+
+.wrapper {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+
+	border: 0;
+	border-radius: 0;
+	height: auto;
+	padding: 0;
+
+	> div:first-child {
+		display: flex;
+		flex-direction: row;
+		width: 100%;
+
+		> div:first-child {
+			flex: 1;
+			display: block;
+
+			&:focus-within {
+				box-shadow: var(--coral-elevation-shadow-accent);
+			}
+		}
+
+		> div:last-child {
+			flex: 0;
+			padding-top: 0.6rem;
+		}
+	}
+
+	.badges {
+		.tc-badge {
+			display: inline-flex;
+			width: 100%;
+		}
+	}
+}
+
+// for typeahead theme props
+.container {
+	flex-grow: 1;
+	width: 100%;
+
+	> div {
+		width: 100%;
+	}
+
+	.itemsContainer {
+		background-color: $tf-datalist-items-background-color;
+	}
+}

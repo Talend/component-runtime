@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import theme from './Input.scss';
+import theme from './Input.module.scss';
 
 /* eslint-disable no-param-reassign */
 

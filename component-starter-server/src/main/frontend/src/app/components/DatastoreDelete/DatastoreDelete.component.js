@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import ActionButton from '@talend/react-components/lib/Actions/ActionButton';
+import { ActionButton } from '@talend/react-components/lib/Actions';
 import { withTranslation } from 'react-i18next';
 import DatastoreContext from '../../DatastoreContext';
 import DatasetContext from '../../DatasetContext';
@@ -63,7 +63,6 @@ DoDelete.propTypes = {
 
 const DoDeleteTrans = withTranslation('Help')(DoDelete);
 
-
 export default class DatastoreDelete extends React.Component {
 	static propTypes = {
 		item: PropTypes.shape({
@@ -84,7 +83,7 @@ export default class DatastoreDelete extends React.Component {
 	}
 
 	onDelete() {
-		return event => {
+		return (event) => {
 			event.preventDefault();
 			this.datastore.delete(this.props.item);
 		};
@@ -94,8 +93,8 @@ export default class DatastoreDelete extends React.Component {
 		// is their a dataset ?
 		return (
 			this.dataset.datasets.filter(
-				dataset =>
-					dataset.structure.entries.filter(entry => entry.reference === this.props.item.$id)
+				(dataset) =>
+					dataset.structure.entries.filter((entry) => entry.reference === this.props.item.$id)
 						.length > 0,
 			).length > 0
 		);
@@ -104,11 +103,11 @@ export default class DatastoreDelete extends React.Component {
 	render() {
 		return (
 			<DatastoreContext.Consumer>
-				{datastore => (
+				{(datastore) => (
 					<DatasetContext.Consumer>
-						{dataset => (
+						{(dataset) => (
 							<ComponentsContext.Consumer>
-								{components => {
+								{(components) => {
 									this.onService(datastore, dataset, components);
 									if (this.isUsed()) {
 										return <AlreadyUsedWarning />;

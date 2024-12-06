@@ -16,23 +16,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { withRouter, Link } from 'react-router-dom';
-import ActionButton from '@talend/react-components/lib/Actions/ActionButton';
+import { Link, useLocation } from 'react-router-dom';
+import { ActionButton } from '@talend/react-components/lib/Actions';
 
 import ComponentsContext from '../../ComponentsContext';
 import DatastoreContext from '../../DatastoreContext';
 import DatasetContext from '../../DatasetContext';
 
-import theme from './SideMenu.scss';
+import theme from './SideMenu.module.scss';
 
 function activateIO(service, datastore, dataset) {
-	return event => {
+	return (event) => {
 		event.preventDefault();
 		service.activateIO(datastore, dataset);
 	};
 }
 
-function SideMenu(props) {
+function SideMenu() {
+	const pathname = useLocation().pathname;
 	const components = React.useContext(ComponentsContext.raw);
 	const dataset = React.useContext(DatasetContext.raw);
 	const datastore = React.useContext(DatastoreContext.raw);
@@ -41,8 +42,7 @@ function SideMenu(props) {
 			<ol>
 				<li
 					className={classnames({
-						[theme.active]:
-							props.location.pathname === '/' || props.location.pathname === '/project',
+						[theme.active]: pathname === '/' || pathname === '/project',
 					})}
 				>
 					<Link to="/project" id="step-start">
@@ -50,11 +50,11 @@ function SideMenu(props) {
 					</Link>
 				</li>
 				{components.withIO ? (
-					<React.Fragment>
+					<>
 						<li
 							id="step-datastore"
 							className={classnames({
-								[theme.active]: props.location.pathname === '/datastore',
+								[theme.active]: pathname === '/datastore',
 							})}
 						>
 							<Link to="/datastore">Datastore</Link>
@@ -62,12 +62,12 @@ function SideMenu(props) {
 						<li
 							id="step-dataset"
 							className={classnames({
-								[theme.active]: props.location.pathname === '/dataset',
+								[theme.active]: pathname === '/dataset',
 							})}
 						>
 							<Link to="/dataset">Dataset</Link>
 						</li>
-					</React.Fragment>
+					</>
 				) : (
 					<li id="step-activate-io">
 						<a href="#/createNew" onClick={activateIO(components, datastore, dataset)}>
@@ -79,7 +79,7 @@ function SideMenu(props) {
 					<li
 						id={`step-component-${i}`}
 						className={classnames({
-							[theme.active]: props.location.pathname === `/component/${i}`,
+							[theme.active]: pathname === `/component/${i}`,
 						})}
 						key={i}
 					>
@@ -95,14 +95,12 @@ function SideMenu(props) {
 					</li>
 				))}
 				<li id="step-add-component">
-					<Link to="/add-component">
-						Add A Component
-					</Link>
+					<Link to="/add-component">Add A Component</Link>
 				</li>
 				<li
 					id="step-finish"
 					className={classnames({
-						[theme.active]: props.location.pathname === '/export',
+						[theme.active]: pathname === '/export',
 					})}
 				>
 					<Link to="/export" id="go-to-finish-button">
@@ -115,10 +113,5 @@ function SideMenu(props) {
 }
 
 SideMenu.displayName = 'SideMenu';
-SideMenu.propTypes = {
-	location: PropTypes.shape({
-		pathname: PropTypes.string,
-	}),
-};
 
-export default withRouter(SideMenu);
+export default SideMenu;
