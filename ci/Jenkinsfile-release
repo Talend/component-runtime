@@ -112,7 +112,6 @@ pipeline {
               ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT''')
 
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "VERSION_CONFIG",
               sectionHeader: "Version configuration",
@@ -515,8 +514,8 @@ private static ArrayList<String> get_release_info(String currentVersion,
     println("This is a GA release")
   }
 
-  // Split the version (ex: "1.65.0M1-SNAPSHOT") on 'M' '.' and '-'
-  def parts = currentVersion.split(/[\.M-]/)
+  // Split the version (ex: "1.65.0M1-SNAPSHOT") on '.' and '-'
+  def parts = currentVersion.split(/[\.-]/)
   int maj = parts[0] as int
   int min = parts[1] as int
   int rev = parts[2] as int
