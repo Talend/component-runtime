@@ -16,7 +16,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import theme from './Summary.scss';
+import theme from './Summary.module.scss';
 
 function Info(props) {
 	return (
@@ -38,16 +38,17 @@ export default function Summary(props) {
 	if (!p) {
 		return <div />;
 	}
-	const outputLength = p.processors.filter(proc => proc.outputStructures.length === 0).length;
+	const outputLength = p.processors.filter((proc) => proc.outputStructures.length === 0).length;
 	const processorsLength = p.processors.length - outputLength;
-	const endpointsLength = props.openapi && props.openapi.selectedEndpoints ? props.openapi.selectedEndpoints.length : 0;
+	const endpointsLength =
+		props.openapi && props.openapi.selectedEndpoints ? props.openapi.selectedEndpoints.length : 0;
 	return (
 		<div className={theme.Summary}>
 			<Info name="Name" value={p.name} />
 			<Info name="Build Tool" value={p.buildType} />
 			<Info name="Coordinates" value={`${p.group}:${p.artifact}:${p.version}`} />
 			{!props.useOpenAPI && (
-				<React.Fragment>
+				<>
 					<Info
 						name="Datasets"
 						value={`${p.datasets.length} datasets and ${p.datastores.length} datastores`}
@@ -56,9 +57,11 @@ export default function Summary(props) {
 						name="Components"
 						value={`${p.sources.length} inputs, ${processorsLength} processors and ${outputLength} outputs`}
 					/>
-				</React.Fragment>
+				</>
 			)}
-			{!!props.useOpenAPI && (<Info name="Endpoints" value={`${endpointsLength} endpoints selected`} />)}
+			{!!props.useOpenAPI && (
+				<Info name="Endpoints" value={`${endpointsLength} endpoints selected`} />
+			)}
 		</div>
 	);
 }

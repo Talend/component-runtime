@@ -13,40 +13,42 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- :global{
-     form {
-        .form-group {
-            padding-top: 5px;
-            margin-bottom: 10px;
-        }
-        .form-control {
-            // reset to get sth more bootstrapish
-            border: 1px solid #ccc!important;
-            box-shadow: none!important;
-            // padding: 10px 15px !important;
-            padding-left: 15px !important;
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
+:global {
+	form {
+		.form-group {
+			padding-top: 5px;
+			margin-bottom: 10px;
+		}
+		.form-control {
+			// reset to get sth more bootstrapish
+			border: 1px solid #ccc !important;
+			box-shadow: none !important;
+			// padding: 10px 15px !important;
+			padding-left: 15px !important;
 
-            font-size: 14px!important;
-            &:focus{
-                box-shadow: none!important;
-            }
-            margin-bottom: 15px;
-            border-radius: 5px!important;
-        }
-        label,
-        label.control-label {
-            color: $black!important;
-            font-size: 14px!important;
-            font-weight: 700!important;
-            margin-bottom: 5px!important;
-        }
-        .tc-typeahead-container {
-            input {
-                margin-bottom: 0;
-            }
-            > .tc-typeahead-typeahead-input-icon > div { //icon
-                margin: 0 0 0 -23px;
-            }
-        }
-    }
+			font-size: 14px !important;
+			&:focus {
+				box-shadow: none !important;
+			}
+			margin-bottom: 15px;
+			border-radius: 5px !important;
+		}
+		label,
+		label.control-label {
+			color: $black !important;
+			font-size: 14px !important;
+			font-weight: 700 !important;
+			margin-bottom: 5px !important;
+		}
+		.tc-typeahead-container {
+			input {
+				margin-bottom: 0;
+			}
+			> .tc-typeahead-typeahead-input-icon > div {
+				//icon
+				margin: 0 0 0 -23px;
+			}
+		}
+	}
 }
