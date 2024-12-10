@@ -15,10 +15,9 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import keycode from 'keycode';
 import Typeahead from '@talend/react-components/lib/Typeahead';
 
-import theme from './CategorySelector.scss';
+import theme from './CategorySelector.module.scss';
 
 function escapeRegexCharacters(str) {
 	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -96,12 +95,12 @@ export default class CategorySelector extends React.Component {
 	}
 
 	onKeyDown(event, { focusedItemIndex, newFocusedItemIndex }) {
-		switch (event.which) {
-			case keycode.codes.esc:
+		switch (event.key) {
+			case 'Escape':
 				event.preventDefault();
 				this.resetValue();
 				break;
-			case keycode.codes.enter:
+			case 'Enter':
 				if (!this.state.suggestions) {
 					break;
 				}
@@ -116,7 +115,8 @@ export default class CategorySelector extends React.Component {
 				}
 				this.resetSuggestions();
 				break;
-			case keycode.codes.down:
+			case 'ArrowDown':
+			case 'Down':
 				event.preventDefault();
 				if (!this.state.suggestions) {
 					// display all suggestions when they are not displayed
@@ -124,7 +124,8 @@ export default class CategorySelector extends React.Component {
 				}
 				this.setState({ focusedItemIndex: newFocusedItemIndex });
 				break;
-			case keycode.codes.up:
+			case 'ArrowUp':
+			case 'Up':
 				event.preventDefault();
 				this.setState({ focusedItemIndex: newFocusedItemIndex });
 				break;
@@ -162,7 +163,7 @@ export default class CategorySelector extends React.Component {
 			const escapedValue = escapeRegexCharacters(value.trim());
 			const regex = new RegExp(escapedValue, 'i');
 			suggestions = suggestions.filter(
-				itemValue => regex.test(itemValue.title) || regex.test(itemValue.description),
+				(itemValue) => regex.test(itemValue.title) || regex.test(itemValue.description),
 			);
 		}
 
