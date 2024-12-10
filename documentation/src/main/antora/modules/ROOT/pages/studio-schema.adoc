@@ -249,6 +249,69 @@ Example:
 .. search an action of type `@DiscoverSchemaExtended`.
 
 
+== Fixed schema
+In some cases, the schema will always use the same scheme.
+Having a fixed schema will prevent Studio to display the Guess schema button and the reject UI part.
+The annotation's value should point to a `@DiscoverSchema` or `@DiscoverSchemaExtended` action.
+
+Example with an emitter:
+
+[source,java]
+----
+@FixedSchema("my_fixed_input_schema")
+@Emitter(family = "test", name = "myEmitter")
+public class MyEmitter implements Serializable {
+...
+----
+In service class:
+[source,java]
+----
+@Service
+public class UiServices {
+
+    @DiscoverSchema("my_fixed_input_schema")
+    public Schema guessSchema(@Option final MyDataSet dataset) {
+       retrurn factory.newSchemaBuilder(Schema.Type.RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withName("header")
+                        .withType(Schema.Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("message")
+                        .withType(Schema.Type.DATETIME)
+                        .withNullable(true)
+                        .build())
+                .build();
+    }
+}
+----
+
+Example for a handling a processor with an eventual reject flow:
+
+Example:
+[source,java]
+----
+@Service
+public class UiServices {
+
+    @DiscoverSchemaExtended("my_fixed_processor_schema")
+    public Schema discoverProcessorSchema(final Schema in,
+                                          @Option final MyConf conf,
+                                          final String branch) {
+        final Schema.Builder out = factory.newSchemaBuilder(in);
+        if ("REJECT".equals(branch.toUpperCase())) {
+            out.withEntry(factory.newEntryBuilder()
+                    .withName("ERROR_MESSAGE")
+                    .withType(Type.STRING)
+                    .build());
+        }
+        return out.build();
+    }
+}
+----
+
+
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
