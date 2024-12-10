@@ -472,7 +472,8 @@ public interface Schema {
      * @return avro compatible name.
      */
     static String sanitizeConnectionName(final String name) {
-        if (name == null || name.isEmpty()) {
+        if (name == null || name.isEmpty()
+                || "false".equals(System.getProperty("talend.component.sanitize"))) {
             return name;
         }
 
