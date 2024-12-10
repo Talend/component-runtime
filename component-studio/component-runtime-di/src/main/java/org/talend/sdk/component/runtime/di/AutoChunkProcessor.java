@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.di;
 
-import static java.util.stream.Stream.of;
-
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.processor.AfterGroup;
@@ -31,11 +29,8 @@ import org.talend.sdk.component.runtime.output.Processor;
  */
 public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager.chain.AutoChunkProcessor {
 
-    private boolean isLastGroupUsed = false;
-
     public AutoChunkProcessor(final int chunkSize, final Processor processor) {
         super(chunkSize, processor);
-        isLastGroupUsed = isLastGroupUsed();
     }
 
     public void onElement(final InputFactory ins, final OutputFactory outs) {
@@ -54,7 +49,7 @@ public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager
     }
 
     private boolean isLastGroupUsed() {
-        return of(processor.getClass().getMethods())
+        return Stream.of(processor.getClass().getMethods())
                 .filter(m -> m.isAnnotationPresent(AfterGroup.class))
                 .anyMatch(after -> Stream.of(after.getParameters())
                         .anyMatch(param -> param.isAnnotationPresent(LastGroup.class)));
@@ -62,7 +57,7 @@ public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager
 
     public void flush(final OutputFactory outs) {
         if (processedItemCount > 0) {
-            if (isLastGroupUsed) {
+            if (isLastGroupUsed()) {
                 processor.afterGroup(outs, true);
             } else {
                 processor.afterGroup(outs);

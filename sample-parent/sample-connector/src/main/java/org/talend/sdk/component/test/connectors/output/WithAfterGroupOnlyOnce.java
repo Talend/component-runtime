@@ -28,6 +28,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
@@ -80,25 +81,31 @@ public class WithAfterGroupOnlyOnce implements Serializable {
         this.nbConsumedRecords++;
     }
 
+//    @AfterGroup
+//    public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected) {
+//        //Do nothing;
+//        log.error("after group -- no Last");
+//    }
+
     @AfterGroup
-    public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected) {
-        if (this.afterGroupCalled) {
-            Record error = this.recordBuilderFactory.newRecordBuilder()
-                    .withString("error",
-                            "The @AfterGroup method has been called more than once.")
-                    .build();
-            rejected.emit(error);
-        }
-
-        if (this.nbConsumedRecords != this.config.getExpectedNumberOfRecords()) {
-            Record error = this.recordBuilderFactory.newRecordBuilder()
-                    .withString("error",
-                            String.format("The number of consumed records '%s' is not the expected one %s.",
-                                    this.nbConsumedRecords, this.config.getExpectedNumberOfRecords()))
-                    .build();
-            rejected.emit(error);
-        }
-
+    public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup final boolean isLast) {
+//        if (this.afterGroupCalled) {
+//            Record error = this.recordBuilderFactory.newRecordBuilder()
+//                    .withString("error",
+//                            "The @AfterGroup method has been called more than once.")
+//                    .build();
+//            rejected.emit(error);
+//        }
+//
+//        if (this.nbConsumedRecords != this.config.getExpectedNumberOfRecords()) {
+//            Record error = this.recordBuilderFactory.newRecordBuilder()
+//                    .withString("error",
+//                            String.format("The number of consumed records '%s' is not the expected one %s.",
+//                                    this.nbConsumedRecords, this.config.getExpectedNumberOfRecords()))
+//                    .build();
+//            rejected.emit(error);
+//        }
+        log.trace("last = " + isLast + ", record count = " + nbConsumedRecords);
         this.afterGroupCalled = true;
     }
 
