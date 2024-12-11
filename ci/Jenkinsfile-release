@@ -69,7 +69,7 @@ pipeline {
   libraries {
     // Externals libraries used in this job
     // Connector lib from https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("connectors-lib@1.0.0") // Defining jenkinsJobTools
+    lib("connectors-lib@1.1.0") // Defining jenkinsJobTools
   }
 
   agent {
