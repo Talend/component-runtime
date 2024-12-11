@@ -84,7 +84,7 @@ class ActionValidatorTest {
 
         finder = new AnnotationFinder(new ClassesArchive(ActionDynamicDependenciesKO.class));
         final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDynamicDependenciesKO.class));
-        assertEquals(10, errors.count());
+        assertEquals(9, errors.count());
     }
 
     @Test
