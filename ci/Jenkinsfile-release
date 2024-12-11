@@ -331,11 +331,16 @@ pipeline {
                                                                     isMaintenanceRelease)
           tagName = "component-runtime-${releaseVersion}"
         }
+      }
+    }
 
-        ///////////////////////////////////////////
-        // Updating build description and name with calculated info
-        ///////////////////////////////////////////
+    stage('Version validation') {
+      steps {
         script {
+
+          ///////////////////////////////////////////
+          // Updating build description and name with calculated info
+          ///////////////////////////////////////////
           jenkinsJobTools.job_name_creation("$releaseVersion")
 
           String description = """
@@ -346,6 +351,19 @@ pipeline {
             
             """.stripIndent()
           jenkinsJobTools.job_description_append(description)
+
+          ///////////////////////////////////////////
+          // Manual validation of release action
+          ///////////////////////////////////////////
+
+          String checkMsg = """
+              You will do a $params.ACTION release  
+              Actual Version $pomVersion will be release as $releaseVersion.  
+              After the release the repository will be bumped as $nextVersion.  
+              **Are you OK to continue?**""".stripIndent()
+
+          // Request user action
+          input message: "$checkMsg", ok: 'Yes'
         }
       }
     }
