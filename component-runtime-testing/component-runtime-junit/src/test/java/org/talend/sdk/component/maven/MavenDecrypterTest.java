@@ -18,8 +18,11 @@ package org.talend.sdk.component.maven;
 import static org.apache.ziplock.JarLocation.jarLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +32,7 @@ class MavenDecrypterTest {
     void env() {
         final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
         final File settingsSecurity = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security.xml");
-        MavenDecrypter decrypter = new MavenDecrypter(settings, settingsSecurity);
+        final MavenDecrypter decrypter = new MavenDecrypter(Collections.singletonList(settings), settingsSecurity);
         final Server encrypted = decrypter.find("envpass");
         assertEquals("langCauseItIsOnWinAndLin", encrypted.getUsername());
         assertEquals(System.getenv("LANG"), encrypted.getPassword());
@@ -39,7 +42,7 @@ class MavenDecrypterTest {
     void encrypted() {
         final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
         final File settingsSecurity = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security.xml");
-        MavenDecrypter decrypter = new MavenDecrypter(settings, settingsSecurity);
+        final MavenDecrypter decrypter = new MavenDecrypter(Collections.singletonList(settings), settingsSecurity);
         final Server encrypted = decrypter.find("encrypted");
         assertEquals("repouser", encrypted.getUsername());
         assertEquals("encrypted", encrypted.getPassword());
@@ -49,7 +52,7 @@ class MavenDecrypterTest {
     void clear() {
         final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
         final File settingsSecurity = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security.xml");
-        MavenDecrypter decrypter = new MavenDecrypter(settings, settingsSecurity);
+        final MavenDecrypter decrypter = new MavenDecrypter(Collections.singletonList(settings), settingsSecurity);
         final Server encrypted = decrypter.find("clear");
         assertEquals("repouser", encrypted.getUsername());
         assertEquals("repopwd", encrypted.getPassword());
@@ -57,25 +60,46 @@ class MavenDecrypterTest {
 
     @Test
     void noMasterPassword() {
-        final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
-            final File settingsSecurity =
-                    new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security-null.xml");
-            MavenDecrypter decrypter = new MavenDecrypter(settings, settingsSecurity);
-            decrypter.find("encrypted");
-        });
+        final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
+        final File settingsSecurity =
+                new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security-null.xml");
+        final MavenDecrypter decrypter = new MavenDecrypter(Collections.singletonList(settings), settingsSecurity);
+        final IllegalArgumentException ex =
+                assertThrows(IllegalArgumentException.class, () -> decrypter.find("encrypted"));
         assertEquals("Master password can't be null or empty.", ex.getMessage());
     }
 
     @Test
     void emptyMasterPassword() {
-        final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-empty.xml");
-            final File settingsSecurity =
-                    new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security-empty.xml");
-            MavenDecrypter decrypter = new MavenDecrypter(settings, settingsSecurity);
-            decrypter.find("encrypted-empty-master");
-        });
+        final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-empty.xml");
+        final File settingsSecurity =
+                new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security-empty.xml");
+        final MavenDecrypter decrypter = new MavenDecrypter(Collections.singletonList(settings), settingsSecurity);
+        final IllegalArgumentException ex =
+                assertThrows(IllegalArgumentException.class, () -> decrypter.find("encrypted-empty-master"));
         assertEquals("Master password can't be null or empty.", ex.getMessage());
+    }
+
+    @Test
+    void twoSettings() {
+        final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
+        final File baseSettings = new File(jarLocation(MavenDecrypterTest.class), "maven/base/settings.xml");
+        final File settingsSecurity = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security.xml");
+        final MavenDecrypter decrypter = new MavenDecrypter(Arrays.asList(settings, baseSettings), settingsSecurity);
+        final Server encrypted = decrypter.find("foo");
+        assertEquals("bar", encrypted.getUsername());
+        assertEquals("kek", encrypted.getPassword());
+    }
+
+    @Test
+    void missingEntity() {
+        final File settings = new File(jarLocation(MavenDecrypterTest.class), "maven/settings.xml");
+        final File settingsSecurity = new File(jarLocation(MavenDecrypterTest.class), "maven/settings-security.xml");
+        final MavenDecrypter decrypter = new MavenDecrypter(Collections.singletonList(settings), settingsSecurity);
+
+        final String entityName = "foo";
+        final IllegalArgumentException ex =
+                assertThrows(IllegalArgumentException.class, () -> decrypter.find(entityName));
+        assertTrue(ex.getMessage().startsWith("Didn't find " + entityName + " in"));
     }
 }
