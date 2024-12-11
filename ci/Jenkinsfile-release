@@ -315,6 +315,10 @@ pipeline {
                 error("On master branch, you can only execute a GA release action")
             }
           }
+
+          if (!isMasterBranch && !isMaintenanceBranch) {
+            error("You can only execute a release action on master or maintenance branch")
+          }
         }
 
         ///////////////////////////////////////////
