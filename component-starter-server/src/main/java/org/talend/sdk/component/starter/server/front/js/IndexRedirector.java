@@ -35,24 +35,18 @@ public class IndexRedirector implements Filter {
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
             final FilterChain filterChain) throws IOException, ServletException {
         final HttpServletRequest httpServletRequest = HttpServletRequest.class.cast(servletRequest);
-        System.out.printf("Encoding Request : %s\n", servletRequest.getCharacterEncoding());
-        System.out.printf("Encoding Response: %s\n", servletResponse.getCharacterEncoding());
-        System.out.println("doFilter with request : " + httpServletRequest.getRequestURI());
         if (exists(httpServletRequest.getRequestURI())) {
-            System.out.println("doFilter : exists");
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             filterChain.doFilter(new HttpServletRequestWrapper(httpServletRequest) {
 
                 @Override
                 public String getPathInfo() {
-                    System.out.println("doFilter : not exists - path");
                     return "";
                 }
 
                 @Override
                 public String getServletPath() {
-                    System.out.println("doFilter : not exists - servlet path");
                     return "/index.html";
                 }
             }, servletResponse);
@@ -60,10 +54,8 @@ public class IndexRedirector implements Filter {
     }
 
     private boolean exists(final String requestURI) {
-        Boolean found = requestURI.startsWith("/api") || Stream
+        return requestURI.startsWith("/api") || Stream
                 .of(".png", ".html", ".js", ".js.map", ".css", ".css.map", ".json", ".ico", ".woff", ".woff2")
                 .anyMatch(requestURI::contains);
-        System.out.println(requestURI + " -> " + found);
-        return found;
     }
 }
