@@ -60,6 +60,8 @@ public class ServletConfigurer implements ServletContainerInitializer {
             HttpServletResponse.class
                     .cast(servletResponse)
                     .addHeader("Content-Security-Policy", configuration.getCsp());
+            servletRequest.setCharacterEncoding("UTF-8");
+            servletResponse.setCharacterEncoding("UTF-8");
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }

@@ -35,6 +35,8 @@ public class IndexRedirector implements Filter {
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
             final FilterChain filterChain) throws IOException, ServletException {
         final HttpServletRequest httpServletRequest = HttpServletRequest.class.cast(servletRequest);
+        System.out.printf("Encoding Request : %s\n", servletRequest.getCharacterEncoding());
+        System.out.printf("Encoding Response: %s\n", servletResponse.getCharacterEncoding());
         System.out.println("doFilter with request : " + httpServletRequest.getRequestURI());
         if (exists(httpServletRequest.getRequestURI())) {
             System.out.println("doFilter : exists");
