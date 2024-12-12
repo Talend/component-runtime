@@ -173,6 +173,9 @@ public class Validators {
         if (configuration.isValidateSchema()) {
             activeValidators.add(new SchemaValidator());
         }
+        if (configuration.isValidateFixedSchema()) {
+            activeValidators.add(new FixedSchemaValidator());
+        }
 
         return new Validators(activeValidators);
 

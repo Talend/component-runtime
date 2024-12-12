@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,7 +80,14 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
         // check if we are in the studio process if so just grab the studio config
         final String m2Repo = System.getProperty(STUDIO_MVN_REPOSITORY);
         if (!"global".equals(m2Repo)) {
-            return handler.get(Paths.get(System.getProperty("osgi.configuration.area", ""), M2_REPOSITORY).toString());
+            final String osgi = System.getProperty("osgi.configuration.area", "");
+            try {
+                return osgi != null && osgi.startsWith("file") ? handler.get(Paths.get(new URI(osgi)).toString())
+                        : handler.get(Paths.get(osgi, M2_REPOSITORY).toString());
+            } catch (java.net.URISyntaxException e) {
+                log.debug("[fromStudioConfiguration] Could not get m2 from studio config." + e.getMessage());
+                return null;
+            }
         }
         log.debug("[fromStudioConfiguration] Could not get m2 from studio config.");
         return null;

@@ -36,7 +36,6 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -166,15 +165,11 @@ public class ComponentValidator extends BaseTask {
         if (annotation.value() == Icon.IconType.CUSTOM) {
             final String icon = annotation.custom();
             Set<File> svgs;
-            Set<File> pngs;
             // legacy checks
             if (configuration.isValidateLegacyIcons()) {
                 svgs = of(classes)
                         .map(it -> new File(it, ICONS + icon + ".svg"))
                         .collect(toSet());
-                pngs = Stream.of(classes)
-                        .map(it -> new File(it, ICONS + icon + "_icon32.png"))
-                        .collect(Collectors.toSet());
             } else {
                 // themed icons check
                 List<String> prefixes = new ArrayList<>();
@@ -183,25 +178,20 @@ public class ComponentValidator extends BaseTask {
                     prefixes.add(s + File.separator + ICONS + "dark" + File.separator + icon);
                 });
                 svgs = prefixes.stream().map(s -> new File(s + ".svg")).collect(toSet());
-                pngs = prefixes.stream().map(s -> new File(s + "_icon32.png")).collect(toSet());
             }
 
-            svgs.stream()
-                    .filter(f -> !f.exists())
-                    .forEach(
-                            svg -> log.error("No '" + stripPath(svg)
-                                    + "' found, this will run in degraded mode in Talend Cloud"));
             if (configuration.isValidateSvg()) {
                 errors.addAll(svgs.stream().filter(File::exists).flatMap(this::validateSvg).collect(toSet()));
             }
-            List<File> missingPngs = pngs.stream().filter(f -> !f.exists()).collect(toList());
-            if (!missingPngs.isEmpty()) {
-                errors.addAll(missingPngs.stream()
+
+            List<File> missingSvgs = svgs.stream().filter(f -> !f.exists()).collect(toList());
+            if (!missingSvgs.isEmpty()) {
+                errors.addAll(missingSvgs.stream()
                         .map(p -> String.format(
-                                "No icon: '%s' found, did you create - or generated with svg2png in resources?",
+                                "No '%s' found.",
                                 stripPath(p)))
                         .collect(toList()));
-                return "Missing icon(s) in resources.";
+                return "Missing icon(s) in resources:";
             }
         }
         return null;
@@ -309,6 +299,8 @@ public class ComponentValidator extends BaseTask {
         private boolean validateRecord;
 
         private boolean validateSchema;
+
+        private boolean validateFixedSchema;
 
     }
 }
