@@ -13,6 +13,11 @@
  */
 package org.talend.sdk.component.runtime.record;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.List;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -33,42 +38,50 @@ public class SchemaWithoutSanitizeTest {
         System.clearProperty(Schema.SKIP_SANITIZE_PROPERTY);
     }
 
-    final Entry toto1 = new EntryImpl.BuilderImpl().withType(Schema.Type.STRING).withName("totoé").build();
-    final Entry toto2 = new EntryImpl.BuilderImpl().withType(Schema.Type.STRING).withName("toto ").build();
-
     @Test
-    void testSanitizeDuplicates() {
+    void noSanitizeSchemaRecord() {
+        final Entry entry1 = new EntryImpl.BuilderImpl().withType(Schema.Type.STRING).withName("entryé").build();
+        final Entry entry2 = new EntryImpl.BuilderImpl().withType(Schema.Type.STRING).withName("entry ").build();
+
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(toto1)
-                .withEntry(toto2)
+                .withEntry(entry1)
+                .withEntry(entry2)
                 .build();
+        assertEquals("entryé", schema.getEntries().get(0).getName());
+        assertEquals("entryé", schema.getEntries().get(0).getOriginalFieldName());
+        assertNull(schema.getEntries().get(0).getRawName());
+        assertEquals("entry ", schema.getEntries().get(1).getName());
+        assertEquals("entry ", schema.getEntries().get(1).getOriginalFieldName());
+        assertNull(schema.getEntries().get(1).getRawName());
 
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
-        builder.withString(toto1.getName(), "Aloa1");
-        builder.withString("toto ", "Aloa2");
-        Record record = builder.build();
+        builder.withString(entry1.getName(), "Aloa1");
+        builder.withString(entry2.getName(), "Aloa2");
+        final Record record = builder.build();
+        final List<Entry> entries = record.getSchema().getEntries();
+        assertEquals(2, entries.size());
+        assertEquals(entry1, entries.get(0));
+        assertEquals(entry2, entries.get(1));
+        assertEquals("Aloa1", record.getString(entry1.getName()));
+        assertEquals("Aloa2", record.getString(entry2.getName()));
     }
 
     @Test
-    void testSanitizeDuplicates2() {
+    void noSanitizeWithRecordBuilder() {
         final Record record = new RecordImpl.BuilderImpl()
-                .withString("toto ", "Aloa1")
-                .withString("totoé", "Aloa2")
+                .withString("スイートホーム", "Aloa1")
+                .withString("田舎万歳", "Aloa2")
                 .build();
-    }
+        assertEquals("Aloa1", record.getString("スイートホーム"));
+        assertEquals("Aloa2", record.getString("田舎万歳"));
 
-    @Test
-    void testSanitizeDuplicates3() {
-        final Schema schema = new SchemaImpl.BuilderImpl()
-                .withType(Schema.Type.RECORD)
-                .withEntry(toto1)
-                .withEntry(toto2)
-                .build();
-
-        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
-        builder.withString("totoé", "Aloa1");
-        builder.withString("toto ", "Aloa2");
-        Record record = builder.build();
+        final List<Entry> entries = record.getSchema().getEntries();
+        assertEquals("スイートホーム", entries.get(0).getName());
+        assertEquals("スイートホーム", entries.get(0).getOriginalFieldName());
+        assertNull(entries.get(0).getRawName());
+        assertEquals("田舎万歳", entries.get(1).getName());
+        assertEquals("田舎万歳", entries.get(1).getOriginalFieldName());
+        assertNull(entries.get(1).getRawName());
     }
 }
