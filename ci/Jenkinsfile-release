@@ -54,7 +54,6 @@ final String branchName = env.BRANCH_NAME
 // Job config
 final Boolean isMasterBranch = branchName == 'master'
 final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
-final Boolean isMilestoneRelease = false
 final Boolean isMaintenanceRelease = false
 final String extraBuildParams = ""
 
@@ -70,7 +69,7 @@ pipeline {
   libraries {
     // Externals libraries used in this job
     // Connector lib from https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("connectors-lib@1.0.0") // Defining jenkinsJobTools
+    lib("connectors-lib@1.1.0") // Defining jenkinsJobTools
   }
 
   agent {
@@ -104,16 +103,13 @@ pipeline {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     choice(
         name: 'ACTION',
-        choices: ['TYPE_OF_RELEASE', 'MILESTONE', 'GA', 'MAINTENANCE'],
+        choices: ['TYPE_OF_RELEASE', 'GA', 'MAINTENANCE'],
         description: '''
           Type of release:
-            MILESTONE: classical milestone release 
-              ex: 1.63.0M1-SNAPSHOT is released as 1.63.0M1 and master branch is bumped as 1.63.0M2-SNAPSHOT
             GA: release for General Available
-              ex: 1.63.0M9-SNAPSHOT is released as 1.63.0 and master branch is bumped as 1.64.0M1-SNAPSHOT
+              ex: 1.63.0-SNAPSHOT is released as 1.63.0 and master branch is bumped as 1.64.0-SNAPSHOT
             MAINTENANCE: release for General Available of MAINTENANCE
               ex: 1.63.1-SNAPSHOT is released as 1.63.1 and branch is bumped as 1.63.2-SNAPSHOT''')
-
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,7 +254,7 @@ pipeline {
             """.stripIndent()
           jenkinsJobTools.job_description_append(description)
 
-          if(params.FAKE_RELEASE){
+          if (params.FAKE_RELEASE) {
             // updating build description
             description = """
             ---------------------------------------------------  
@@ -283,7 +279,7 @@ pipeline {
                          jiraCredentials,
                          gpgCredentials]) {
           script {
-             sh """\
+            sh """\
                #!/usr/bin/env bash
                bash .jenkins/scripts/npm_fix.sh
              """.stripIndent()
@@ -303,7 +299,8 @@ pipeline {
             if (params.ACTION == 'MAINTENANCE') {
               echo("GA release on maintenance branch")
               isMaintenanceRelease = true
-            } else {
+            }
+            else {
               error("On maintenance branch, you can only execute a MAINTENANCE release action")
             }
           }
@@ -311,37 +308,43 @@ pipeline {
           // Check on maintenance branch
           if (isMasterBranch) {
             switch (action) {
-              case 'MILESTONE':
-                echo("Milestone release on master branch")
-                isMilestoneRelease = true
-                break
               case 'GA':
                 echo("GA release on master branch")
                 break
               default:
-                error("On master branch, you can only execute a MILESTONE or GA release action")
+                error("On master branch, you can only execute a GA release action")
             }
+          }
+
+          if (!isMasterBranch && !isMaintenanceBranch) {
+            error("You can only execute a release action on master or maintenance branch")
           }
         }
 
         ///////////////////////////////////////////
         // Pom version management
         ///////////////////////////////////////////
-        script{
+        script {
           echo 'Read the actual version in the pom'
           final def pom = readMavenPom file: 'pom.xml'
           pomVersion = pom.version
 
           echo 'Manage the release version '
           (releaseVersion, nextVersion,
-          maintenanceVersion, maintenanceBranch) = get_release_info(pomVersion, isMaintenanceRelease, isMilestoneRelease)
+          maintenanceVersion, maintenanceBranch) = get_release_info(pomVersion,
+                                                                    isMaintenanceRelease)
           tagName = "component-runtime-${releaseVersion}"
         }
+      }
+    }
 
-        ///////////////////////////////////////////
-        // Updating build description and name with calculated info
-        ///////////////////////////////////////////
+    stage('Version validation') {
+      steps {
         script {
+
+          ///////////////////////////////////////////
+          // Updating build description and name with calculated info
+          ///////////////////////////////////////////
           jenkinsJobTools.job_name_creation("$releaseVersion")
 
           String description = """
@@ -352,33 +355,19 @@ pipeline {
             
             """.stripIndent()
           jenkinsJobTools.job_description_append(description)
-        }
-      }
-    }
-
-    stage('Install BOM') {
-      steps {
-        withCredentials([nexusCredentials,
-                         ossrhCredentials]) {
 
           ///////////////////////////////////////////
           // Manual validation of release action
           ///////////////////////////////////////////
-          script {
-            String checkMsg = """
+
+          String checkMsg = """
               You will do a $params.ACTION release  
               Actual Version $pomVersion will be release as $releaseVersion.  
               After the release the repository will be bumped as $nextVersion.  
               **Are you OK to continue?**""".stripIndent()
 
-            // Request user action
-            input message: "$checkMsg", ok: 'Yes'
-          }
-          script {
-
-            echo "Preparing and installing BOM to release $releaseVersion from $pomVersion"
-            sh "bash .jenkins/scripts/release/release-1-install-bom.sh $releaseVersion $pomVersion"
-          }
+          // Request user action
+          input message: "$checkMsg", ok: 'Yes'
         }
       }
     }
@@ -526,103 +515,57 @@ private String assemblyExtraBuildParams(Boolean fakeRelease, Boolean noStaging) 
 
 
 /**
- * Retrieves release and milestone information based on the provided current version.
+ * Retrieves release information based on the provided current version.
  *
- * @param currentVersion       The current version string to evaluate (e.g., "1.65.0M1-SNAPSHOT").
- * @param maintenance          Indicates whether it is a maintenance release (true) or a main branch release (false).
- * @param milestoneIncrement   Indicates whether to increment the milestone number for the next version
- *                             (applicable for main branch releases).
- * @return                     An ArrayList containing release and milestone information:
+ * @param currentVersion The current version string to evaluate (e.g., "1.65.0M1-SNAPSHOT").
+ * @param maintenance Indicates whether it is a maintenance release (true) or a main branch release (false).
+ * @return An ArrayList containing release information:
  *                               - Index 0: Release version.
  *                               - Index 1: Next development version.
  *                               - Index 2: Maintenance version (empty string for main branch releases).
  *                               - Index 3: Maintenance branch name (empty string for main branch releases).
- * @throws RuntimeException    Throws an exception if the provided version is invalid or incompatible.
  */
 private static ArrayList<String> get_release_info(String currentVersion,
-                                                  Boolean maintenance,
-                                                  Boolean milestoneIncrement) {
+                                                  Boolean maintenance) {
 
   println("Evaluate release name from current version: $currentVersion")
-
-
-  if(milestoneIncrement){
-    println("This is a Milestone release")
-    if(maintenance){
-      throw new RuntimeException("It is not possible to release a milestone for maintenance branch.")
-    }
+  if (maintenance) {
+    println("This is a Maintenance release")
   }
-  else{
-    if(maintenance){
-      println("This is a Maintenance release")
-    }
-    else{
-      println("This is a GA release")
-    }
+  else {
+    println("This is a GA release")
   }
 
-  if (! maintenance){
-    if (! currentVersion.matches(/.*(M[0-9]+).*/)){
-      // The version is not correct, raise error
-      throw new RuntimeException("Provided version $currentVersion is not a milestone version (no 'M').")
-    }
-  }
-  else{
-    if (currentVersion.matches(/.*(M[0-9]+).*/)){
-      // The version is not correct, raise error
-      throw new RuntimeException("Provided version $currentVersion is not a maintenance version (contains 'M').")
-    }
-  }
-
-  // Split the version (ex: "1.65.0M1-SNAPSHOT") on 'M' '.' and '-'
-  def parts = currentVersion.split(/[\.M-]/)
+  // Split the version (ex: "1.65.0M1-SNAPSHOT") on '.' and '-'
+  def parts = currentVersion.split(/[\.-]/)
   int maj = parts[0] as int
   int min = parts[1] as int
   int rev = parts[2] as int
-  int milestoneNumber = 0
 
   String releaseVersion
-  if (milestoneIncrement) {
-    milestoneNumber = parts[3] as int
-    releaseVersion  = "${maj}.${min}.${rev}M${milestoneNumber}"
-  }
-  else{
-    releaseVersion  = "${maj}.${min}.${rev}"
-  }
+  releaseVersion = "${maj}.${min}.${rev}"
+
   println("Release version : $releaseVersion")
 
+  // New maintenance branch need to be created.
+  String maintenanceBranch = "maintenance/${maj}.${min}"
+  String maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
+  println("Maintenance version : $releaseVersion")
+  println("Maintenance branch name : $maintenanceBranch")
+
+
   // Calculate variables according to branch
-  String maintenanceBranch = "none"
-  String maintenanceVersion = "none"
   String nextVersion
+  if (!maintenance) {
+    // master release
+    min++
+    rev = 0
 
-
-  if (! milestoneIncrement) {
-    // This is a GA release the maintenance branch will need to be created.
-    println("Milestone number : $milestoneNumber")
-
-    maintenanceBranch = "maintenance/${maj}.${min}"
-    maintenanceVersion = "${maj}.${min}.${rev + 1}-SNAPSHOT"
-
-    println("Maintenance version : $releaseVersion")
-    println("Maintenance branch name : $maintenanceBranch")
-  }
-
-  if (! maintenance) {
-    // master relase
-
-    if(milestoneIncrement){
-      milestoneNumber++
-    }
-    else{
-      min++
-      rev = 0
-      milestoneNumber = 1
-    }
     // Calculate the next development version
-    nextVersion = "${maj}.${min}.${rev}M${milestoneNumber}-SNAPSHOT"
+    nextVersion = "${maj}.${min}.${rev}-SNAPSHOT"
 
-  } else {
+  }
+  else {
     // Maintenance release
     rev++
     // Calculate the next development version
@@ -633,18 +576,3 @@ private static ArrayList<String> get_release_info(String currentVersion,
 
   return [releaseVersion, nextVersion, maintenanceVersion, maintenanceBranch]
 }
-// Use those to test the method:
-//println get_release_info("1.65.0M1-SNAPSHOT", false, true) // milestone
-// result should be: [1.65.0M1, 1.65.0M2-SNAPSHOT, none, none]
-//println get_release_info("1.65.0M5-SNAPSHOT", false, false) // ga
-// result should be: [1.65.0, 1.66.0-SNAPSHOT, 1.65.1-SNAPSHOT, maintenance/1.65]
-//println get_release_info("1.65.3-SNAPSHOT", true, false) // maintenance
-// result should be: [1.65.3, 1.65.4-SNAPSHOT, 1.65.4-SNAPSHOT, maintenance/1.65]
-//println get_release_info("1.65.1M1-SNAPSHOT", true, false) // release maintenance, but version not valid
-// should raise a java.lang.RuntimeException: Provided version 1.65.1M1-SNAPSHOT is not a maintenance version (contains 'M').
-//println get_release_info("1.65.1-SNAPSHOT", true, true) // release milestone but on maintenance branch
-// should raise a java.lang.RuntimeException: It is not possible to release a milestone for maintenance branch.
-//println get_release_info("1.65.1-SNAPSHOT", false, true) // release milestone, but version not valid
-// should raise a java.lang.RuntimeException: Provided version 1.65.1-SNAPSHOT is not a milestone version (no 'M').
-//println get_release_info("1.65.1-SNAPSHOT", false, false) // release GA, but version not valid
-// should raise a java.lang.RuntimeException: Provided version 1.65.1-SNAPSHOT is not a milestone version (no 'M').
