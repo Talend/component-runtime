@@ -39,7 +39,8 @@ public class StarterConfiguration {
 
     @Inject
     @ConfigProperty(name = "talend.component.starter.security.csp",
-            defaultValue = "default-src * 'unsafe-eval' 'unsafe-inline' data:; img-src * data: blob: 'unsafe-inline'; font-src * data: blob: 'unsafe-inline'; frame-ancestors 'none'")
+            defaultValue = "default-src * 'unsafe-eval' 'unsafe-inline' data:; img-src * data: blob: 'unsafe-inline';" +
+                    " font-src * data: blob: 'unsafe-inline'; frame-ancestors 'none'")
     private String csp;
 
     @Inject

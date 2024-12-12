@@ -66,8 +66,8 @@ public class ServletConfigurer implements ServletContainerInitializer {
     public static class EncodingFilter implements Filter {
 
         @Override
-        public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
-            request.setCharacterEncoding("UTF-8");
+        public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
+                throws IOException, ServletException {
             response.setCharacterEncoding("UTF-8");
             chain.doFilter(request, response);
         }
