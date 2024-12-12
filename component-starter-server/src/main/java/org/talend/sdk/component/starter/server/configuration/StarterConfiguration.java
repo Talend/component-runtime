@@ -38,28 +38,6 @@ public class StarterConfiguration {
     private String workDir;
 
     @Inject
-    @ConfigProperty(name = "talend.component.starter.github.repository.pattern",
-            defaultValue = "https://github.com/%s/%s")
-    private String githubRepository;
-
-    @Inject
-    @ConfigProperty(name = "talend.component.starter.github.api.base", defaultValue = "https://api.github.com")
-    private String githubBaseApi;
-
-    @Inject
-    @ConfigProperty(name = "talend.component.starter.github.api.project.user.create.path", defaultValue = "/user/repos")
-    private String githubCreateProjectPath;
-
-    @Inject
-    @ConfigProperty(name = "talend.component.starter.github.api.project.org.create.path",
-            defaultValue = "/orgs/{name}/repos")
-    private String githubOrgCreateProjectPath;
-
-    @Inject
-    @ConfigProperty(name = "talend.component.starter.github.api.project.create.method", defaultValue = "POST")
-    private String githubCreateProjectMethod;
-
-    @Inject
     @ConfigProperty(name = "talend.component.starter.security.csp",
             defaultValue = "default-src * 'unsafe-eval' 'unsafe-inline' data:; img-src * data: blob: 'unsafe-inline';" +
                     " font-src * data: blob: 'unsafe-inline'; frame-ancestors 'none'")
