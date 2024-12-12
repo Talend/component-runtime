@@ -22,7 +22,8 @@ import Schema from '../Schema';
 import ComponentSchema from '../ComponentSchema';
 import TileContext from '../../tile';
 
-import theme from './Mapper.scss';
+import theme from './Mapper.module.scss';
+import { Tooltip } from '@talend/design-system/lib/';
 
 export default class Mapper extends React.Component {
 	static propTypes = {
@@ -40,7 +41,7 @@ export default class Mapper extends React.Component {
 			'onConfigurationButtonClick',
 			'onRecordTypeChange',
 			'onRecordButtonClick',
-		].forEach(i => (this[i] = this[i].bind(this)));
+		].forEach((i) => (this[i] = this[i].bind(this)));
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -106,7 +107,7 @@ export default class Mapper extends React.Component {
 		return (
 			<div className={theme.Mapper}>
 				<TileContext.Consumer>
-					{tileService => (
+					{(tileService) => (
 						<AppButton
 							text="Configuration Model"
 							onClick={() => this.onConfigurationButtonClick(tileService)}
@@ -177,16 +178,12 @@ export default class Mapper extends React.Component {
 						value={this.state.recordType}
 						onChange={this.onRecordTypeChange}
 					>
-						<option value="generic">
-							Generic
-						</option>
-						<option value="custom">
-							Custom
-						</option>
+						<option value="generic">Generic</option>
+						<option value="custom">Custom</option>
 					</select>
 					{!this.props.component.source.genericOutput && (
 						<TileContext.Consumer>
-							{tileService => (
+							{(tileService) => (
 								<AppButton
 									text="Record Model"
 									onClick={() => this.onRecordButtonClick(tileService)}

@@ -12,17 +12,16 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- */import React from 'react';
+ */ import React from 'react';
 import PropTypes from 'prop-types';
-import keycode from 'keycode';
 import classnames from 'classnames';
 // import { withRouter } from 'react-router';
-import Action from '@talend/react-components/lib/Actions/ActionButton';
+import { ActionButton as Action } from '@talend/react-components/lib/Actions';
 import Icon from '@talend/react-components/lib/Icon';
 import Help from '../Help';
 import Input from '../Input';
 
-import theme from './Node.scss';
+import theme from './Node.module.scss';
 
 /* eslint-disable no-underscore-dangle */
 
@@ -56,7 +55,7 @@ const NODE_TYPES = ['object', 'boolean', 'double', 'integer', 'uri', 'url', 'str
 
 function getReferenceName(id, values) {
 	if (values) {
-		const found = values.find(v => v.$id === id);
+		const found = values.find((v) => v.$id === id);
 		if (found) {
 			return found.name;
 		}
@@ -97,13 +96,13 @@ export default class Node extends React.Component {
 			entries: (this.props.node.model || this.props.node).entries,
 		};
 
-		this.nodeTypes = NODE_TYPES.map(i => ({
+		this.nodeTypes = NODE_TYPES.map((i) => ({
 			value: i,
 			label: i.substring(0, 1).toUpperCase() + i.substring(1),
 		}));
 		if (props.extraTypes) {
 			this.nodeTypes = this.nodeTypes.concat(
-				props.extraTypes.map(t => ({
+				props.extraTypes.map((t) => ({
 					value: t,
 					label: t.substring(0, 1).toUpperCase() + t.substring(1),
 				})),
@@ -165,7 +164,7 @@ export default class Node extends React.Component {
 
 	onClickAddChild() {
 		this.onChangeValidate();
-		this.setState(state => {
+		this.setState((state) => {
 			state.entries.push({
 				name: `configuration${state.entries.length + 1}`,
 				type: 'string',
@@ -195,7 +194,7 @@ export default class Node extends React.Component {
 	onDeleteChild(node) {
 		const idx = this.state.entries.indexOf(node);
 		if (idx >= 0) {
-			this.setState(state => {
+			this.setState((state) => {
 				state.entries.splice(idx, 1);
 				(this.props.node.model || this.props.node).entries = state.entries;
 			}, this.onChangeValidate);
@@ -212,7 +211,7 @@ export default class Node extends React.Component {
 	}
 
 	onEnterKey(event) {
-		if (event.which === keycode.codes.enter) {
+		if (event.key === 'Enter') {
 			this.onSubmit();
 		}
 	}
@@ -254,7 +253,7 @@ export default class Node extends React.Component {
 		const readOnly = this.props.readOnly; // || !isNativeType(this.state.type);
 		if (this.state.edited) {
 			nodeView = (
-				<span>
+				<div className={theme.nodeConfig}>
 					<Input
 						type="text"
 						placeholder="Enter the configuration name..."
@@ -265,18 +264,27 @@ export default class Node extends React.Component {
 						initialValue={this.props.node.name || this.props.name}
 						onChange={this.onNameChange}
 						onKeyDown={this.onEnterKey}
+						className={theme.formcontrol}
 					/>
-					<select value={this.state.type} onChange={this.onTypeChange}>
-						{this.nodeTypes.map(t => (
+					<select
+						value={this.state.type}
+						onChange={this.onTypeChange}
+						className={theme.formcontrol}
+					>
+						{this.nodeTypes.map((t) => (
 							<option value={t.value} key={t.value}>
 								{t.label}
 							</option>
 						))}
 					</select>
 					{this.isRef(this.state.type) && (
-						<select value={this.props.node.reference} onChange={this.onReferenceChange}>
+						<select
+							value={this.props.node.reference}
+							onChange={this.onReferenceChange}
+							className={theme.formcontrol}
+						>
 							{/* <option value="add-new">+ Add new</option> */}
-							{this.props.references[this.state.type].map(t => (
+							{this.props.references[this.state.type].map((t) => (
 								<option value={t.$id} key={t.$id}>
 									{t.name}
 								</option>
@@ -291,7 +299,7 @@ export default class Node extends React.Component {
 						icon="talend-check"
 						onClick={this.onSubmit}
 					/>
-				</span>
+				</div>
 			);
 		} else {
 			nodeView = (
@@ -308,10 +316,11 @@ export default class Node extends React.Component {
 					) : (
 						<button onClick={() => this.onEdit()} className={theme.nodeName}>
 							{this.props.node.name || this.props.name} (
-							{this.props.node.reference ? `${getReferenceName(
-								this.props.node.reference,
-								this.props.references[this.state.type],
-							)}: ${this.props.node.type}`
+							{this.props.node.reference
+								? `${getReferenceName(
+										this.props.node.reference,
+										this.props.references[this.state.type],
+									)}: ${this.props.node.type}`
 								: `${this.props.node.type || 'object'}`}
 							)
 						</button>

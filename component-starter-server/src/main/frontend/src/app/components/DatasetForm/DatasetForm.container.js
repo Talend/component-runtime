@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import { Action } from '@talend/react-components/lib/Actions';
 // import { Prompt } from 'react-router';
 
-// import theme from './DatasetForm.scss';
+// import theme from './DatasetForm.module.scss';
 import DatasetContext from '../../DatasetContext';
 // import Node from '../Node';
 import DatasetSchema from '../DatasetSchema/DatasetSchema.container';

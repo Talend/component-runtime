@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import Node from '../Node';
 
-// import theme from './Schema.scss';
+// import theme from './Schema.module.scss';
 
 export default class Schema extends React.Component {
 	static propTypes = {

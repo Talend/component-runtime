@@ -14,7 +14,7 @@
  *  limitations under the License.
  */import React from 'react';
 import PropTypes from 'prop-types';
-import theme from './SelectDataset.scss';
+import theme from './SelectDataset.module.scss';
 
 function getOptionProps(selectProps, dataset, index) {
 	const props = {

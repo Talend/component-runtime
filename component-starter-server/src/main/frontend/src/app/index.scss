@@ -13,24 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@use '@talend/bootstrap-theme/src/theme/guidelines' as *;
 
 @import './forms';
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
 }
 
 :global {
-  .popover {
-    max-width: 100%
-  }
-  .btn {
-    text-transform: none;
-  }
+	.popover {
+		max-width: 100%;
+	}
+	.btn {
+		text-transform: none;
+	}
 
-  a.btn-link:hover {
-    text-decoration: none;
-  }
+	a.btn-link:hover {
+		text-decoration: none;
+	}
 }
