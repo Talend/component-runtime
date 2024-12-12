@@ -60,4 +60,20 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- specific surefire configuration for SchemaWithoutSanitizeTest -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkCount>5</forkCount>
+          <!-- we need to disable fork (separate jvm) for SchemaWithoutSanitizeTests as it uses Schema.SKIP_SANITIZE static field -->
+          <reuseForks>false</reuseForks>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
