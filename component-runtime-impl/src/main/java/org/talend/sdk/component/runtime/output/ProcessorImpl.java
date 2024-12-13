@@ -33,6 +33,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +54,7 @@ import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -122,7 +124,8 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                     : Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).collect(toList());
             parameterBuilderAfterGroup = afterGroup
                     .stream()
-                    .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters()).map(param -> {
+                    .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters())
+                            .map(param -> {
                         if (isGroupBuffer(param.getParameterizedType())) {
                             expectedRecordType = Class.class
                                     .cast(ParameterizedType.class
@@ -162,6 +165,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private Function<OutputFactory, Object> toOutputParamBuilder(final Parameter parameter) {
         return outputs -> {
+            if (parameter.isAnnotationPresent(LastGroup.class)) {
+                return false;
+            }
             final String name = parameter.getAnnotation(Output.class).value();
             return outputs.create(name);
         };
@@ -251,11 +257,24 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
         }
     }
 
+    public boolean isLastGroupUsed() {
+        for (Method after : afterGroup) {
+            for (Parameter param : after.getParameters()) {
+                if (param.isAnnotationPresent(LastGroup.class)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public void afterGroup(final OutputFactory output, final boolean last) {
         afterGroup.forEach(after -> {
             Object[] params = Stream.concat(
-                    parameterBuilderAfterGroup.get(after).stream().map(b -> b.apply(output)),
+                    parameterBuilderAfterGroup.get(after).stream()
+                            .map(b -> b.apply(output))
+                            .filter(b -> !b.equals(false)),
                     Stream.of(last)).toArray(Object[]::new);
             doInvoke(after, params);
         });

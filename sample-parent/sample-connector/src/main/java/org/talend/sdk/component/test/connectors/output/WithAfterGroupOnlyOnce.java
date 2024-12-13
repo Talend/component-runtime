@@ -83,29 +83,13 @@ public class WithAfterGroupOnlyOnce implements Serializable {
 
 //    @AfterGroup
 //    public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected) {
-//        //Do nothing;
-//        log.error("after group -- no Last");
+//        log.error("after group -- no Last" + ", record count = " + nbConsumedRecords);
+//        this.afterGroupCalled = true;
 //    }
 
     @AfterGroup
     public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup final boolean isLast) {
-//        if (this.afterGroupCalled) {
-//            Record error = this.recordBuilderFactory.newRecordBuilder()
-//                    .withString("error",
-//                            "The @AfterGroup method has been called more than once.")
-//                    .build();
-//            rejected.emit(error);
-//        }
-//
-//        if (this.nbConsumedRecords != this.config.getExpectedNumberOfRecords()) {
-//            Record error = this.recordBuilderFactory.newRecordBuilder()
-//                    .withString("error",
-//                            String.format("The number of consumed records '%s' is not the expected one %s.",
-//                                    this.nbConsumedRecords, this.config.getExpectedNumberOfRecords()))
-//                    .build();
-//            rejected.emit(error);
-//        }
-        log.trace("last = " + isLast + ", record count = " + nbConsumedRecords);
+        log.error("--------last = " + isLast + ", record count = " + nbConsumedRecords);
         this.afterGroupCalled = true;
     }
 

@@ -54,7 +54,7 @@ public class OutputTest {
         Job
                 .components()
                 .component("inputFlow", "test://emitter")
-                .component("outputComponent", "Sample://WithAfterGroupOnlyOnce?$maxBatchSize=10")
+                .component("outputComponent", "Sample://WithAfterGroupOnlyOnce?$maxBatchSize=5")
                 .connections()
                 .from("inputFlow")
                 .to("outputComponent")
