@@ -16,9 +16,12 @@
 package org.talend.sdk.component.runtime.beam.spi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.talend.sdk.component.api.record.Schema;
 
 class AvroRecordBuilderFactoryProviderTest {
 
@@ -39,5 +42,12 @@ class AvroRecordBuilderFactoryProviderTest {
                 System.setProperty("talend.component.beam.record.factory.impl", old);
             }
         }
+    }
+
+    @Test
+    void noSanitizeThrowsException() {
+        System.setProperty(Schema.SKIP_SANITIZE_PROPERTY, "true");
+        assertThrows(RuntimeException.class, () -> new AvroRecordBuilderFactoryProvider().apply("test"));
+        System.clearProperty(Schema.SKIP_SANITIZE_PROPERTY);
     }
 }

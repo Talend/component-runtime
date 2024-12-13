@@ -147,6 +147,18 @@ class SchemaImplTest {
     }
 
     @Test
+    void testSanitizeDuplicates() {
+        final Schema schema = new BuilderImpl()
+                .withType(Type.RECORD)
+                .withEntry(new EntryImpl.BuilderImpl().withType(Type.STRING).withName("entryé").build())
+                .withEntry(new EntryImpl.BuilderImpl().withType(Type.STRING).withName("entry ").build())
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        assertThrows(IllegalArgumentException.class, () -> builder.withString("entryé", "Aloa1"));
+        assertThrows(IllegalArgumentException.class, () -> builder.withString("entry ", "Aloa2"));
+    }
+
+    @Test
     void testRecordWithMetadataFields() {
         final Schema schema = new BuilderImpl() //
                 .withType(Type.RECORD) //
