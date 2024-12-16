@@ -191,7 +191,7 @@
     <commons-cli.version>1.4</commons-cli.version>
     <commons-codec.version>1.15</commons-codec.version>
     <commons-compress.version>1.26.0</commons-compress.version>
-    <commons-io.version>2.13.0</commons-io.version>
+    <commons-io.version>2.18.0</commons-io.version>
     <commons-lang3.version>3.11</commons-lang3.version>
     <commons-logging.version>1.2</commons-logging.version>
     <commons-text.version>1.10.0</commons-text.version>
@@ -284,8 +284,6 @@
     <coverage.fail>false</coverage.fail>
 
     <johnzon.version>1.2.21</johnzon.version>
-    <commons-io.version>2.13.0</commons-io.version>
-    <commons-compress.version>1.26.0</commons-compress.version>
     <slf4j.version>1.7.34</slf4j.version>
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
