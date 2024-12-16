@@ -18,6 +18,7 @@ package org.talend.sdk.component.runtime.di.record;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
@@ -438,7 +439,7 @@ class DiRecordVisitorTest extends VisitorsTest {
     }
 
     @Test
-    public void testConflictingSubRecord() {
+    void testConflictingSubRecord() {
         final Record record = factory
                 .newRecordBuilder()
                 .withString("id", "id01")
@@ -458,8 +459,40 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertNotNull(rowStruct);
         assertEquals("name01", rowStruct.name);
         assertEquals("{\"id\":\"createdById01\",\"user\":\"createUser01\"}", rowStruct.createdBy.toString());
-        assertTrue(RecordImpl.class.isInstance(rowStruct.createdBy));
+        assertInstanceOf(RecordImpl.class, rowStruct.createdBy);
         assertEquals("id01", rowStruct.id);
+    }
+
+    @Test
+    void arrayWithRecords() {
+        final Record record = factory.newRecordBuilder()
+                .withArray(factory.newEntryBuilder()
+                                .withName("field")
+                                .withType(Type.ARRAY)
+                                .withElementSchema(factory.newSchemaBuilder(Type.RECORD)
+                                        .withEntry(factory.newEntryBuilder().withName("id").withType(Type.DOUBLE).build())
+                                        .withEntry(factory.newEntryBuilder().withName("name").withType(Type.STRING).build())
+                                        .build())
+                                .build(),
+                        Arrays.asList(
+                                factory.newRecordBuilder().withDouble("id", 1.0).withString("name", "paddle").build(),
+                                factory.newRecordBuilder().withDouble("id", 2.0).withString("name", "pickle").build(),
+                                factory.newRecordBuilder().withDouble("id", 3.0).withString("name", "scheme").build()))
+                .build();
+
+        final DiRecordVisitor visitor = new DiRecordVisitor(RowStructWithArrayRecord.class, Collections.emptyMap());
+        final RowStructWithArrayRecord rowStruct = RowStructWithArrayRecord.class.cast(visitor.visit(record));
+        assertNotNull(rowStruct);
+        assertEquals(3, rowStruct.field.size());
+        assertInstanceOf(Record.class, rowStruct.field.get(0));
+        assertInstanceOf(Record.class, rowStruct.field.get(1));
+        assertInstanceOf(Record.class, rowStruct.field.get(2));
+        assertEquals(1.0, ((Record) rowStruct.field.get(0)).getDouble("id"));
+        assertEquals("paddle", ((Record) rowStruct.field.get(0)).getString("name"));
+        assertEquals(2.0, ((Record) rowStruct.field.get(1)).getDouble("id"));
+        assertEquals("pickle", ((Record) rowStruct.field.get(1)).getString("name"));
+        assertEquals(3.0, ((Record) rowStruct.field.get(2)).getDouble("id"));
+        assertEquals("scheme", ((Record) rowStruct.field.get(2)).getString("name"));
     }
 
     @Test
@@ -542,6 +575,21 @@ class DiRecordVisitorTest extends VisitorsTest {
         public String name;
 
         public Object createdBy;
+
+        @Override
+        public void writeData(ObjectOutputStream objectOutputStream) {
+        }
+
+        @Override
+        public void readData(ObjectInputStream objectInputStream) {
+        }
+    }
+
+    @Getter
+    @ToString
+    public static class RowStructWithArrayRecord implements routines.system.IPersistableRow {
+
+        public List field;
 
         @Override
         public void writeData(ObjectOutputStream objectOutputStream) {

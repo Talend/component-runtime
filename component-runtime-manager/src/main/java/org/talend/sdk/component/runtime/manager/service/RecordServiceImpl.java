@@ -174,13 +174,15 @@ public class RecordServiceImpl implements RecordService, Serializable {
                 case RECORD:
                     final Optional<Collection<Record>> array = record.getOptionalArray(Record.class, entry.getName());
                     final RecordVisitor<T> recordArrayVisitor = visitor.onRecordArray(entry, array);
-                    array.ifPresent(a -> a.forEach(r -> {
-                        final T visited = visit(recordArrayVisitor, r);
-                        if (visited != null) {
-                            final T current = out.get();
-                            out.set(current == null ? visited : visitor.apply(current, visited));
-                        }
-                    }));
+                    if (recordArrayVisitor != null) {
+                        array.ifPresent(a -> a.forEach(r -> {
+                            final T visited = visit(recordArrayVisitor, r);
+                            if (visited != null) {
+                                final T current = out.get();
+                                out.set(current == null ? visited : visitor.apply(current, visited));
+                            }
+                        }));
+                    }
                     break;
                 // array of array is not yet supported!
                 default:
