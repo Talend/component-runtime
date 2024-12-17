@@ -463,7 +463,7 @@ public class ConfigurableClassLoader extends URLClassLoader {
 
     @Override
     public URL[] getURLs() {
-        List<URL> urls = new ArrayList<>(Arrays.asList(super.getURLs()));
+        final List<URL> urls = new ArrayList<>(Arrays.asList(super.getURLs()));
         if (!nestedURLs.isEmpty()) {
             urls.addAll(nestedURLs);
         }
