@@ -1120,10 +1120,10 @@ public class ComponentManager implements AutoCloseable {
                 // we need to scan the nested repository
                 if (container.hasNestedRepository()) {
                     try {
-                        final Iterator<URL> urls = loader.getResources("TALEND-INF/scanning.properties").asIterator();
+                        final Enumeration<URL> urls = loader.getResources("TALEND-INF/scanning.properties");
                         final Properties config = new Properties();
-                        while (urls.hasNext()) {
-                            final URL url = urls.next();
+                        while (urls.hasMoreElements()) {
+                            final URL url = urls.nextElement();
                             // ensure we scan the correct classes of plugin in the nested repository
                             if ("nested".equals(url.getProtocol())
                                     && url.getPath().contains(container.getRootModule())) {
