@@ -25,7 +25,7 @@ import CategorySelector from '../CategorySelector';
 import Input from '../Input';
 import ProjectContext from '../../ProjectContext';
 
-import theme from './ProjectMetadata.scss';
+import theme from './ProjectMetadata.module.scss';
 
 function onCategoryUpdate(value, project) {
 	// eslint-disable-next-line no-param-reassign
@@ -64,20 +64,22 @@ export default class ProjectMetadata extends React.Component {
 	render() {
 		return (
 			<ProjectContext.Consumer>
-				{project => (
+				{(project) => (
 					<div className={theme.ProjectMetadata}>
 						<h1>{this.props.title || 'Create a Talend Component Family Project'}</h1>
 						<form className={theme.main} noValidate>
 							<BuildTypeSelector project={project} />
 
-							{!this.props.hideFacets && <div className="form-group">
-								{!!project.configuration && (
-									<FacetSelector
-										facets={project.configuration.facets}
-										selected={project.project.facets}
-									/>
-								)}
-							</div>}
+							{!this.props.hideFacets && (
+								<div className="form-group">
+									{!!project.configuration && (
+										<FacetSelector
+											facets={project.configuration.facets}
+											selected={project.project.facets}
+										/>
+									)}
+								</div>
+							)}
 
 							<div className="form-group">
 								<h2>Component Metadata</h2>
@@ -107,7 +109,7 @@ export default class ProjectMetadata extends React.Component {
 										accessor="family"
 									/>
 								</div>
-								{!this.props.hideCategory &&
+								{!this.props.hideCategory && (
 									<div className="form-group">
 										<label htmlFor="projectCategory">Category</label>
 										<Help
@@ -131,10 +133,10 @@ export default class ProjectMetadata extends React.Component {
 
 										<CategorySelector
 											initialValue={project.project.category}
-											onChange={value => onCategoryUpdate(value, project)}
+											onChange={(value) => onCategoryUpdate(value, project)}
 										/>
 									</div>
-								}
+								)}
 							</div>
 
 							<h2>Project Metadata</h2>
@@ -237,7 +239,7 @@ export default class ProjectMetadata extends React.Component {
 							)}
 
 							{this.state.showAll && (
-								<React.Fragment>
+								<>
 									<div className="form-group">
 										<label htmlFor="projectVersion">Version</label>
 										<Help
@@ -315,7 +317,7 @@ export default class ProjectMetadata extends React.Component {
 										className="btn-xs"
 										onClick={this.showLight}
 									/>
-								</React.Fragment>
+								</>
 							)}
 						</form>
 					</div>

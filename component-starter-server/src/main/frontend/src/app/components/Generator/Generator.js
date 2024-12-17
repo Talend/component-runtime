@@ -14,20 +14,11 @@
  *  limitations under the License.
  */
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
-import theme from './Generator.scss';
+import theme from './Generator.module.scss';
 
-import ProjectMetadata from '../ProjectMetadata';
-import Component from '../Component';
-import ComponentAddForm from '../ComponentAddForm';
-
-import Finish from '../Finish';
 import SideMenu from '../SideMenu';
-import DatastoreList from '../DatastoreList';
-import DatasetList from '../DatasetList';
-
-import { GENERATOR_ZIP_URL } from '../../constants';
 
 export default function Generator() {
 	return (
@@ -38,13 +29,7 @@ export default function Generator() {
 				</div>
 				<div className={theme.content}>
 					<main>
-						<Route exact path="/" component={ProjectMetadata} />
-						<Route exact path="/project" component={ProjectMetadata} />
-						<Route exact path="/datastore" component={DatastoreList} />
-						<Route exact path="/dataset" component={DatasetList} />
-						<Route path="/component/:componentId" component={Component} />
-						<Route path="/add-component" component={ComponentAddForm} />
-						<Route path="/export" render={props => <Finish {...props} actionUrl={GENERATOR_ZIP_URL} openapi={false} />} />
+						<Outlet />
 					</main>
 				</div>
 			</div>

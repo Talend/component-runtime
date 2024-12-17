@@ -27,19 +27,20 @@ const setupBackend = require('./backend');
 //     plugins: config.plugins.push(new webpack.EnvironmentPlugin([ 'NODE_ENV' ]))
 
 // });
-const webpackConfig = {
-	output: {
-		publicPath: '/',
-	},
+module.exports = {
+	// output: {
+	// 	publicPath: './',
+	// },
 	devServer: {
-		before: setupBackend,
+		setupMiddlewares: setupBackend,
 		host: '0.0.0.0',
-		disableHostCheck: true,
 		historyApiFallback: true,
 	},
-	resolve: {
-		symlinks: false,
-	},
+	// resolve: {
+	// 	symlinks: false,
+	// },
+	// watchOptions: {
+	// 	ignored: '**/node_modules',
+	// followSymlinks: true, // when symlinks.resolve is false, we need this to make sure dev server picks up the changes in the symlinked files and rebuilds
+	// },
 };
-
-module.exports = webpackConfig;

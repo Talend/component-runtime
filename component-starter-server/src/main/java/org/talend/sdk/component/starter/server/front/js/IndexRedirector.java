@@ -55,7 +55,7 @@ public class IndexRedirector implements Filter {
 
     private boolean exists(final String requestURI) {
         return requestURI.startsWith("/api") || Stream
-                .of(".png", ".html", ".js", ".js.map", ".css", ".css.map", ".json", ".ico")
+                .of(".png", ".html", ".js", ".js.map", ".css", ".css.map", ".json", ".ico", ".woff", ".woff2")
                 .anyMatch(requestURI::contains);
     }
 }
