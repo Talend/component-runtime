@@ -1124,30 +1124,19 @@ public class ComponentManager implements AutoCloseable {
                         final Properties config = new Properties();
                         while (urls.hasNext()) {
                             final URL url = urls.next();
-                            // ensure we scan the correct classes of the nested repository
-                            if ("nested".equals(url.getProtocol())&& container.getRootModule().contains(url.getPath())) {
+                            // ensure we scan the correct classes of plugin in the nested repository
+                            if ("nested".equals(url.getProtocol())
+                                    && url.getPath().contains(container.getRootModule())) {
                                 try (final BufferedReader reader =
                                         new BufferedReader(new InputStreamReader(url.openStream()))) {
-                                    final Properties scanned = new Properties();
-                                    scanned.load(reader);
-                                    scanned.entrySet()
-                                            .stream()
-                                            .filter(e -> e.getKey() != null && !e.getKey().toString().isEmpty())
-                                            .filter(e -> e.getValue() != null && !e.getValue().toString().isEmpty())
-                                            .forEach(e -> config.merge(e.getKey(), e.getValue(),
-                                                    (v1, v2) -> v1.equals(v2) ? v1 : v1 + "," + v2));
+                                    config.load(reader);
+                                    filter = createScanningFilter(config);
+                                    alreadyScannedClasses = config.getProperty("classes.list");
                                 }
                             }
                         }
-                        log.warn("[onCreate] {}",
-                                config.entrySet()
-                                        .stream()
-                                        .map(e -> e.getKey() + "=" + e.getValue())
-                                        .collect(joining("\n")));
-                        filter = createScanningFilter(config);
-                        alreadyScannedClasses = config.getProperty("classes.list");
                     } catch (IOException e) {
-                        log.warn("[onCreate] Can't read nested scanning.properties: {}", e.getMessage());
+                        log.info("[onCreate] Can't read nested scanning.properties: {}", e.getMessage());
                     }
                 }
                 // normal scanning or nested scan failed
