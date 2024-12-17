@@ -37,9 +37,11 @@ import static org.talend.sdk.component.runtime.manager.ComponentManager.Componen
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -1115,16 +1117,52 @@ public class ComponentManager implements AutoCloseable {
             try {
                 String alreadyScannedClasses = null;
                 Filter filter = KnownClassesFilter.INSTANCE;
-                try (final InputStream containerFilterConfig =
-                        container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
-                    if (containerFilterConfig != null) {
+                // we need to scan the nested repository
+                if (container.hasNestedRepository()) {
+                    try {
+                        final Iterator<URL> urls = loader.getResources("TALEND-INF/scanning.properties").asIterator();
                         final Properties config = new Properties();
-                        config.load(containerFilterConfig);
+                        while (urls.hasNext()) {
+                            final URL url = urls.next();
+                            // ensure we scan the correct classes of the nested repository
+                            if ("nested".equals(url.getProtocol())&& container.getRootModule().contains(url.getPath())) {
+                                try (final BufferedReader reader =
+                                        new BufferedReader(new InputStreamReader(url.openStream()))) {
+                                    final Properties scanned = new Properties();
+                                    scanned.load(reader);
+                                    scanned.entrySet()
+                                            .stream()
+                                            .filter(e -> e.getKey() != null && !e.getKey().toString().isEmpty())
+                                            .filter(e -> e.getValue() != null && !e.getValue().toString().isEmpty())
+                                            .forEach(e -> config.merge(e.getKey(), e.getValue(),
+                                                    (v1, v2) -> v1.equals(v2) ? v1 : v1 + "," + v2));
+                                }
+                            }
+                        }
+                        log.warn("[onCreate] {}",
+                                config.entrySet()
+                                        .stream()
+                                        .map(e -> e.getKey() + "=" + e.getValue())
+                                        .collect(joining("\n")));
                         filter = createScanningFilter(config);
                         alreadyScannedClasses = config.getProperty("classes.list");
+                    } catch (IOException e) {
+                        log.warn("[onCreate] Can't read nested scanning.properties: {}", e.getMessage());
                     }
-                } catch (final IOException e) {
-                    log.debug(e.getMessage(), e);
+                }
+                // normal scanning or nested scan failed
+                if (alreadyScannedClasses == null) {
+                    try (final InputStream containerFilterConfig =
+                            container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
+                        if (containerFilterConfig != null) {
+                            final Properties config = new Properties();
+                            config.load(containerFilterConfig);
+                            filter = createScanningFilter(config);
+                            alreadyScannedClasses = config.getProperty("classes.list");
+                        }
+                    } catch (final IOException e) {
+                        log.debug(e.getMessage(), e);
+                    }
                 }
 
                 AnnotationFinder optimizedFinder = null;
