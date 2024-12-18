@@ -31,6 +31,6 @@
     "atob": "^2.1.2",
     "body-parser": "^1.18.3",
     "cross-env": "^7.0.3",
-    "webpack": "5.92.1"
+    "webpack": "5.97.1"
   }
 }
