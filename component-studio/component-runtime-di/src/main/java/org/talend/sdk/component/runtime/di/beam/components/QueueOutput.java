@@ -77,15 +77,6 @@ public class QueueOutput implements Processor, JobStateAware, Supplier<DIPipelin
     @Override
     public void afterGroup(final OutputFactory output) {
         // no-op
-        // TODO : remove me
-        log.warn("[QueueOutput#afterGroup] {}", output);
-    }
-
-    // TODO : remove me
-    @Override
-    public void afterGroup(final OutputFactory output, final @LastGroup boolean last) {
-        // no-op
-        log.warn("[QueueOutput#afterGroup] last: {} outputs: {}", last, output);
     }
 
     @Override

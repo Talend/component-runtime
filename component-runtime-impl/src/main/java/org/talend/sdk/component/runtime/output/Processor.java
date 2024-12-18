@@ -30,7 +30,7 @@ public interface Processor extends Lifecycle {
         afterGroup(output);
     }
 
-    boolean isLastGroupUsed();
+    default boolean isLastGroupUsed() { return false; }
 
     void onNext(InputFactory input, OutputFactory output);
 }

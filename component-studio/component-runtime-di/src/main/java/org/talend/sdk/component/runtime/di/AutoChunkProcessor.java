@@ -42,27 +42,19 @@ public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager
             processedItemCount++;
         } finally {
             if (processedItemCount == chunkSize) {
-                processor.afterGroup(outs, false);
+                processor.afterGroup(outs);
                 processedItemCount = 0;
             }
         }
     }
 
-    private boolean isLastGroupUsed() {
-        return Stream.of(processor.getClass().getMethods())
-                .filter(m -> m.isAnnotationPresent(AfterGroup.class))
-                .anyMatch(after -> Stream.of(after.getParameters())
-                        .anyMatch(param -> param.isAnnotationPresent(LastGroup.class)));
-    }
-
     public void flush(final OutputFactory outs) {
-        if (processedItemCount > 0) {
-            if (isLastGroupUsed()) {
-                processor.afterGroup(outs, true);
-            } else {
-                processor.afterGroup(outs);
-            }
-            processedItemCount = 0;
+        if (processor.isLastGroupUsed()) {
+            processor.afterGroup(outs, true);
         }
+        if (processedItemCount > 0) {
+            processor.afterGroup(outs);
+        }
+        processedItemCount = 0;
     }
 }

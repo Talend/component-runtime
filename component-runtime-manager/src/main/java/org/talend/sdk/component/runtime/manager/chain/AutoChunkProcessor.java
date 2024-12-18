@@ -15,11 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import org.talend.sdk.component.api.processor.AfterGroup;
-import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
@@ -52,9 +47,6 @@ public class AutoChunkProcessor implements Lifecycle {
     }
 
      public void flush(final OutputFactory outs) {
-        if (processor.isLastGroupUsed()) {
-            processor.afterGroup(outs, true);
-        }
         if (processedItemCount > 0) {
             processor.afterGroup(outs);
         }
