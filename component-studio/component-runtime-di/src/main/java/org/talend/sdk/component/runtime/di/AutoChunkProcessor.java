@@ -26,4 +26,5 @@ public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager
     public AutoChunkProcessor(final int chunkSize, final Processor processor) {
         super(chunkSize, processor);
     }
+
 }
