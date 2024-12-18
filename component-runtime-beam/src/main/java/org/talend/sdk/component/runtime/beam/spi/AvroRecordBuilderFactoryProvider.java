@@ -78,7 +78,8 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
         private AvroRecordBuilderFactory(final String plugin) {
             super(plugin);
             if (Boolean.getBoolean(SKIP_SANITIZE_PROPERTY)) {
-                throw new RuntimeException("component-runtime-beam environment needs `" + SKIP_SANITIZE_PROPERTY + "` property to be false.");
+                throw new RuntimeException("component-runtime-beam environment needs `" + SKIP_SANITIZE_PROPERTY
+                        + "` property to be false.");
             }
         }
 
