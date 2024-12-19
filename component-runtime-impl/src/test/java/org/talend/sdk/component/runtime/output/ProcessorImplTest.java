@@ -21,8 +21,10 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,6 +39,9 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.LastGroup;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.serialization.Serializer;
@@ -66,6 +71,23 @@ class ProcessorImplTest {
             processor.afterGroup(null);
             assertEquals(data, Bufferized.RECORDS);
             Bufferized.RECORDS = null;
+        }
+        processor.stop();
+    }
+
+    @Test
+    void bulkGroupWithLastGroup() {
+        Bufferized.RECORDS = null;
+        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new SampleLastGroupOutput());
+        processor.start();
+        for (int i = 0; i < 3; i++) {
+            final Collection<Record> data = IntStream
+                    .rangeClosed(1, 3)
+                    .mapToObj(idx -> new RecordImpl.BuilderImpl().withInt("value", idx).build())
+                    .collect(toList());
+            processor.beforeGroup();
+            assertTrue(processor.isLastGroupUsed());
+            assertFalse(SampleLastGroupOutput.isCalled);
         }
         processor.stop();
     }
@@ -186,4 +208,19 @@ class ProcessorImplTest {
 
         private int data;
     }
+
+    public static class SampleLastGroupOutput  implements Serializable {
+        private static boolean isCalled = false;
+
+        @ElementListener
+        public void onNext(final Sample sample) {
+
+        }
+
+        @AfterGroup
+        public void afterGroup(@Output("REJECT") final OutputEmitter<Record> records, @LastGroup final boolean isLast) {
+            isCalled = isLast;
+        }
+    }
+
 }
