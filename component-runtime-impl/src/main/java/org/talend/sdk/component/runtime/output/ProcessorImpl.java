@@ -257,6 +257,7 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
         }
     }
 
+    @Override
     public boolean isLastGroupUsed() {
         for (Method after : afterGroup) {
             for (Parameter param : after.getParameters()) {

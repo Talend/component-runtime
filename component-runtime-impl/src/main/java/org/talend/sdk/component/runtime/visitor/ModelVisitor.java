@@ -215,6 +215,19 @@ public class ModelVisitor {
                     + " must have a single @AfterGroup method with @LastGroup parameter");
         }
 
+        validateProducer(input, afterGroups);
+
+        Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(BeforeGroup.class)).forEach(m -> {
+            if (m.getParameterCount() > 0) {
+                throw new IllegalArgumentException(m + " must not have any parameter");
+            }
+        });
+
+        validateAfterVariableAnnotationDeclaration(input);
+        validateAfterVariableContainer(input);
+    }
+
+    private void validateProducer(Class<?> input, List<Method> afterGroups) {
         final List<Method> producers = Stream
                 .of(input.getMethods())
                 .filter(m -> m.isAnnotationPresent(ElementListener.class))
@@ -236,15 +249,6 @@ public class ModelVisitor {
         }).filter(p -> !p.isAnnotationPresent(Output.class)).count() < 1) {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
         }
-
-        Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(BeforeGroup.class)).forEach(m -> {
-            if (m.getParameterCount() > 0) {
-                throw new IllegalArgumentException(m + " must not have any parameter");
-            }
-        });
-
-        validateAfterVariableAnnotationDeclaration(input);
-        validateAfterVariableContainer(input);
     }
 
     private boolean validOutputParam(final Parameter p) {
