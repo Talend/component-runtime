@@ -200,6 +200,7 @@ public class ModelVisitor {
                 }
             })
                     .filter(p -> !p.isAnnotationPresent(Output.class))
+                    .filter(p -> !p.isAnnotationPresent(LastGroup.class))
                     .filter(p -> !Parameters.isGroupBuffer(p.getParameterizedType()))
                     .collect(toList());
             if (!invalidParams.isEmpty()) {
