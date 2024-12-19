@@ -46,7 +46,6 @@ public class AutoChunkProcessor implements Lifecycle {
         }
     }
 
-
     public void flush(final OutputFactory outs) {
         if (processedItemCount > 0) {
             processor.afterGroup(outs);
