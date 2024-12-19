@@ -20,7 +20,7 @@
 import os
 
 # The specials_characters dict is used to add languages dependant specials characters to some entries for test purposes
-# For now we only do it for Sample.TheOutput1._displayName
+# For now we only do it for the_family.TheOutput1._displayName
 specials_characters = {"fr": u"é",
                        "uk": u"Ж",
                        "ja": u"愛",
@@ -47,7 +47,7 @@ class I18nMessagePropertiesGenerator:
                         # Documentation shall always end with a '.'
                         f.write(".")
 
-                    if line.__contains__('Sample.TheOutput1._displayName') and special_character:
+                    if line.__contains__('the_family.TheOutput1._displayName') and special_character:
                         # Inject special character for test purpose
 
                         f.write(' +')
