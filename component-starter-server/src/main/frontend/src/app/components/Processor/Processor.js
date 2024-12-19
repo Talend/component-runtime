@@ -20,7 +20,7 @@ import Icon from '@talend/react-components/lib/Icon';
 import Help from '../Help';
 import AppButton from '../AppButton';
 import TileContext from '../../tile';
-import theme from './Processor.scss';
+import theme from './Processor.module.scss';
 import Connections from './Connections';
 import ComponentSchema from '../ComponentSchema';
 

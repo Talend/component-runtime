@@ -31,7 +31,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.catalina.filters.AddDefaultCharsetFilter;
 import org.apache.catalina.filters.HttpHeaderSecurityFilter;
 
 public class ServletConfigurer implements ServletContainerInitializer {
@@ -39,7 +38,7 @@ public class ServletConfigurer implements ServletContainerInitializer {
     @Override
     public void onStartup(final Set<Class<?>> set, final ServletContext servletContext) {
         addFilter(servletContext, "security-filter", HttpHeaderSecurityFilter.class);
-        addFilter(servletContext, "encoding-filter", AddDefaultCharsetFilter.class);
+        addFilter(servletContext, "encoding-filter", EncodingFilter.class);
         addFilter(servletContext, "csp-filter", CSPFilter.class);
     }
 
@@ -61,6 +60,16 @@ public class ServletConfigurer implements ServletContainerInitializer {
                     .cast(servletResponse)
                     .addHeader("Content-Security-Policy", configuration.getCsp());
             filterChain.doFilter(servletRequest, servletResponse);
+        }
+    }
+
+    public static class EncodingFilter implements Filter {
+
+        @Override
+        public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
+                throws IOException, ServletException {
+            response.setCharacterEncoding("UTF-8");
+            chain.doFilter(request, response);
         }
     }
 }

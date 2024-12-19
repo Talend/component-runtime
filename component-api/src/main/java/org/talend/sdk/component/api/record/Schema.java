@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,6 +47,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 public interface Schema {
+
+    String SKIP_SANITIZE_PROPERTY = "talend.component.record.skip.sanitize";
+
+    boolean SKIP_SANITIZE = Boolean.getBoolean(SKIP_SANITIZE_PROPERTY);
 
     /**
      * @return the type of this schema.
@@ -472,7 +475,7 @@ public interface Schema {
      * @return avro compatible name.
      */
     static String sanitizeConnectionName(final String name) {
-        if (name == null || name.isEmpty()) {
+        if (SKIP_SANITIZE || name == null || name.isEmpty()) {
             return name;
         }
 
@@ -656,22 +659,12 @@ public interface Schema {
         }
     }
 
-    // use new avoid collision with entry getter.
-    @Deprecated
-    static Schema.Entry avoidCollision(final Schema.Entry newEntry,
-            final Supplier<Stream<Schema.Entry>> allEntriesSupplier,
-            final BiConsumer<String, Entry> replaceFunction) {
-        final Function<String, Entry> entryGetter = (String name) -> allEntriesSupplier //
-                .get() //
-                .filter((final Entry field) -> field.getName().equals(name))
-                .findFirst()
-                .orElse(null);
-        return avoidCollision(newEntry, entryGetter, replaceFunction);
-    }
-
     static Schema.Entry avoidCollision(final Schema.Entry newEntry,
             final Function<String, Entry> entryGetter,
             final BiConsumer<String, Entry> replaceFunction) {
+        if (SKIP_SANITIZE) {
+            return newEntry;
+        }
         final Optional<Entry> collisionedEntry = Optional.ofNullable(entryGetter //
                 .apply(newEntry.getName())) //
                 .filter((final Entry field) -> !Objects.equals(field, newEntry));

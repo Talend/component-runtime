@@ -171,6 +171,40 @@ class MavenRepositoryResolverTest {
     }
 
     @Test
+    void discoverFromWindowsPathWithFile() {
+        System.setProperty("osgi.configuration.area", "file:/C:/Users/Talend-Studio-CICD_TEST/configuration/");
+        System.setProperty(STUDIO_MVN_REPOSITORY, "studio");
+        final Path m2 = resolver.discover();
+        assertNotNull(m2);
+        System.clearProperty("osgi.configuration.area");
+        System.clearProperty(STUDIO_MVN_REPOSITORY);
+    }
+
+    @Test
+    void discoverFromWindowsPathWithoutFile() {
+        System.setProperty("osgi.configuration.area", "C:/Users/Talend-Studio-CICD_TEST/configuration/");
+        final Path m3 = resolver.discover();
+        assertNotNull(m3);
+        System.clearProperty("osgi.configuration.area");
+    }
+
+    @Test
+    void discoverFromWindowsPathWrongURI() {
+        System.setProperty("osgi.configuration.area", "file://example .com");
+        final Path m4 = resolver.discover();
+        assertNotNull(m4);
+        System.clearProperty("osgi.configuration.area");
+    }
+
+    @Test
+    void discoverFromWindowsPathGlobal() {
+        System.setProperty(STUDIO_MVN_REPOSITORY, "global");
+        final Path m5 = resolver.discover();
+        assertNotNull(m5);
+        System.clearProperty(STUDIO_MVN_REPOSITORY);
+    }
+
+    @Test
     void discoverFromSettingsTildePath() {
         setSettingsProperty("settings/settings-tilde.xml");
         mavenSettingsOnlyResolver.setHandler(handlerNoExistCheck);

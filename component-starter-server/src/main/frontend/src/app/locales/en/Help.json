@@ -48,7 +48,5 @@
   "openapi_overview": "<0><0>The right editor enables you to edit the OpenAPI document.</0><1>The left list will list the available endpoints and let you select the ones you want to handle in your generated component.</1><2>Once you are ready, hit the button <1>Download as ZIP</1> to download a ready to run component project.</2></0>",
   "openapi_metadata_family": "Family",
   "openapi_metadata_coordinates": "Coordinates",
-  "openapi_metadata_build": "Build Type",
-  "finish_github_organization_title": "Github Organization",
-  "finish_github_organization": "<0><p>The Github organization to use to create the project.</p></0>"
+  "openapi_metadata_build": "Build Type"
 }

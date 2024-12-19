@@ -16,6 +16,7 @@
 package org.talend.sdk.component.runtime.beam.spi;
 
 import static java.util.Optional.ofNullable;
+import static org.talend.sdk.component.api.record.Schema.SKIP_SANITIZE_PROPERTY;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -76,6 +77,10 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
 
         private AvroRecordBuilderFactory(final String plugin) {
             super(plugin);
+            if (Boolean.getBoolean(SKIP_SANITIZE_PROPERTY)) {
+                throw new RuntimeException("component-runtime-beam environment needs `" + SKIP_SANITIZE_PROPERTY
+                        + "` property to be false.");
+            }
         }
 
         @Override

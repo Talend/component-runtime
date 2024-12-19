@@ -15,7 +15,7 @@
  */import React from 'react';
 import PropTypes from 'prop-types';
 import Toggle from '@talend/react-components/lib/Toggle';
-import theme from './EmbeddableToggle.scss';
+import theme from './EmbeddableToggle.module.scss';
 import Help from '../Help';
 import Schema from '../Schema';
 
