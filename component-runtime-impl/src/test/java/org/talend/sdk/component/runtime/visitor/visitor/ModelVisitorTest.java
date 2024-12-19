@@ -40,6 +40,9 @@ import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.LastGroup;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.standalone.DriverRunner;
@@ -65,6 +68,18 @@ class ModelVisitorTest {
         assertEquals(singletonList(
                 "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$ProcessorBulk$Out)"),
                 visit(ProcessorBulk.class));
+
+    }
+    @Test
+    void validAfterGroupWithLastGroup() {
+        assertEquals(singletonList(
+                        "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$ProcessorOneAfterGroup$Out)"),
+                visit(ProcessorOneAfterGroup.class));
+    }
+
+    @Test
+    void afterGroupWithLastGroupMoreThanOne() {
+        assertThrows(IllegalArgumentException.class, () -> visit(ProcessorTwoAfterGroup.class));
     }
 
     @Test
@@ -584,6 +599,39 @@ class ModelVisitorTest {
 
             @AfterGroup
             public void commit(final Collection<Record> records) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorOneAfterGroup {
+
+        @Processor(family = "comp", name = "Bulk")
+        public static class Out {
+
+            @ElementListener
+            public void onNext(final In in) {
+                // no-op
+            }
+            @AfterGroup
+            public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup final boolean isLast) {
+                // no-op
+            }
+        }
+    }
+
+    public static class ProcessorTwoAfterGroup {
+
+        @Processor(family = "comp", name = "Bulk")
+        public static class Out {
+
+            @AfterGroup
+            public void commit(final Collection<Record> records) {
+                // no-op
+            }
+
+            @AfterGroup
+            public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup final boolean isLast) {
                 // no-op
             }
         }

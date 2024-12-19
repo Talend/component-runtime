@@ -207,6 +207,13 @@ public class ModelVisitor {
                 throw new IllegalArgumentException("Parameter of AfterGroup method need to be annotated with Output");
             }
         });
+        if (afterGroups
+                .stream()
+                .anyMatch(m -> Stream.of(m.getParameters()).anyMatch(p -> p.isAnnotationPresent(LastGroup.class)))
+                && afterGroups.size() > 1) {
+            throw new IllegalArgumentException(input
+                    + " must have a single @AfterGroup method with @LastGroup parameter");
+        }
 
         final List<Method> producers = Stream
                 .of(input.getMethods())
