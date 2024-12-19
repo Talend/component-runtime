@@ -22,7 +22,6 @@ import java.util.function.Supplier;
 
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
-import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.di.JobStateAware;
 import org.talend.sdk.component.runtime.di.beam.InMemoryQueueIO;
