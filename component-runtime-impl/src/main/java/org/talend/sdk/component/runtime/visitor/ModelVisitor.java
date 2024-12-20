@@ -45,6 +45,7 @@ import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
@@ -199,13 +200,34 @@ public class ModelVisitor {
                 }
             })
                     .filter(p -> !p.isAnnotationPresent(Output.class))
+                    .filter(p -> !p.isAnnotationPresent(LastGroup.class))
                     .filter(p -> !Parameters.isGroupBuffer(p.getParameterizedType()))
                     .collect(toList());
             if (!invalidParams.isEmpty()) {
                 throw new IllegalArgumentException("Parameter of AfterGroup method need to be annotated with Output");
             }
         });
+        if (afterGroups
+                .stream()
+                .anyMatch(m -> Stream.of(m.getParameters()).anyMatch(p -> p.isAnnotationPresent(LastGroup.class)))
+                && afterGroups.size() > 1) {
+            throw new IllegalArgumentException(input
+                    + " must have a single @AfterGroup method with @LastGroup parameter");
+        }
 
+        validateProducer(input, afterGroups);
+
+        Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(BeforeGroup.class)).forEach(m -> {
+            if (m.getParameterCount() > 0) {
+                throw new IllegalArgumentException(m + " must not have any parameter");
+            }
+        });
+
+        validateAfterVariableAnnotationDeclaration(input);
+        validateAfterVariableContainer(input);
+    }
+
+    private void validateProducer(Class<?> input, List<Method> afterGroups) {
         final List<Method> producers = Stream
                 .of(input.getMethods())
                 .filter(m -> m.isAnnotationPresent(ElementListener.class))
@@ -227,15 +249,6 @@ public class ModelVisitor {
         }).filter(p -> !p.isAnnotationPresent(Output.class)).count() < 1) {
             throw new IllegalArgumentException(input + " doesn't have the input parameter on its producer method");
         }
-
-        Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(BeforeGroup.class)).forEach(m -> {
-            if (m.getParameterCount() > 0) {
-                throw new IllegalArgumentException(m + " must not have any parameter");
-            }
-        });
-
-        validateAfterVariableAnnotationDeclaration(input);
-        validateAfterVariableContainer(input);
     }
 
     private boolean validOutputParam(final Parameter p) {
