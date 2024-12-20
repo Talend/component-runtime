@@ -57,21 +57,21 @@ abstract class BaseValidation implements Function<JsonValue, Stream<ValidationEr
         }
 
         switch (value.getValueType()) {
-        case STRING:
-            return onString(JsonString.class.cast(value));
-        case TRUE:
-        case FALSE:
-            return onBoolean(JsonValue.TRUE.equals(value));
-        case NUMBER:
-            return onNumber(JsonNumber.class.cast(value));
-        case OBJECT:
-            return onObject(value.asJsonObject());
-        case ARRAY:
-            return onArray(value.asJsonArray());
-        case NULL:
-            return Stream.empty();
-        default:
-            throw new IllegalArgumentException("Unsupported value type: " + value);
+            case STRING:
+                return onString(JsonString.class.cast(value));
+            case TRUE:
+            case FALSE:
+                return onBoolean(JsonValue.TRUE.equals(value));
+            case NUMBER:
+                return onNumber(JsonNumber.class.cast(value));
+            case OBJECT:
+                return onObject(value.asJsonObject());
+            case ARRAY:
+                return onArray(value.asJsonArray());
+            case NULL:
+                return Stream.empty();
+            default:
+                throw new IllegalArgumentException("Unsupported value type: " + value);
         }
     }
 

@@ -137,49 +137,51 @@ public class RecordJsonGenerator implements JsonGenerator {
     @Override
     public JsonGenerator write(final String name, final JsonValue value) {
         switch (value.getValueType()) {
-        case ARRAY:
-            JsonValue jv = JsonValue.class.cast(Collection.class.cast(value).iterator().next());
-            if (jv.getValueType().equals(ValueType.TRUE) || jv.getValueType().equals(ValueType.FALSE)) {
-                objectBuilder
-                        .withArray(
-                                factory
-                                        .newEntryBuilder()
-                                        .withName(name)
-                                        .withType(Type.ARRAY)
-                                        .withElementSchema(factory.newSchemaBuilder(Type.BOOLEAN).build())
-                                        .build(),
-                                Collection.class
-                                        .cast(Collection.class
-                                                .cast(value)
-                                                .stream()
-                                                .map(v -> JsonValue.class.cast(v).getValueType().equals(ValueType.TRUE))
-                                                .collect(toList())));
-            } else {
-                objectBuilder
-                        .withArray(createEntryForJsonArray(name, Collection.class.cast(value)),
-                                Collection.class.cast(value));
-            }
-            break;
-        case OBJECT:
-            Record r = recordConverters.toRecord(mappingRegistry, value, () -> jsonb, () -> factory);
-            objectBuilder.withRecord(name, r);
-            break;
-        case STRING:
-            objectBuilder.withString(name, JsonString.class.cast(value).getString());
-            break;
-        case NUMBER:
-            objectBuilder.withDouble(name, JsonNumber.class.cast(value).numberValue().doubleValue());
-            break;
-        case TRUE:
-            objectBuilder.withBoolean(name, true);
-            break;
-        case FALSE:
-            objectBuilder.withBoolean(name, false);
-            break;
-        case NULL:
-            break;
-        default:
-            throw new IllegalStateException("Unexpected value: " + value.getValueType());
+            case ARRAY:
+                JsonValue jv = JsonValue.class.cast(Collection.class.cast(value).iterator().next());
+                if (jv.getValueType().equals(ValueType.TRUE) || jv.getValueType().equals(ValueType.FALSE)) {
+                    objectBuilder
+                            .withArray(
+                                    factory
+                                            .newEntryBuilder()
+                                            .withName(name)
+                                            .withType(Type.ARRAY)
+                                            .withElementSchema(factory.newSchemaBuilder(Type.BOOLEAN).build())
+                                            .build(),
+                                    Collection.class
+                                            .cast(Collection.class
+                                                    .cast(value)
+                                                    .stream()
+                                                    .map(v -> JsonValue.class.cast(v)
+                                                            .getValueType()
+                                                            .equals(ValueType.TRUE))
+                                                    .collect(toList())));
+                } else {
+                    objectBuilder
+                            .withArray(createEntryForJsonArray(name, Collection.class.cast(value)),
+                                    Collection.class.cast(value));
+                }
+                break;
+            case OBJECT:
+                Record r = recordConverters.toRecord(mappingRegistry, value, () -> jsonb, () -> factory);
+                objectBuilder.withRecord(name, r);
+                break;
+            case STRING:
+                objectBuilder.withString(name, JsonString.class.cast(value).getString());
+                break;
+            case NUMBER:
+                objectBuilder.withDouble(name, JsonNumber.class.cast(value).numberValue().doubleValue());
+                break;
+            case TRUE:
+                objectBuilder.withBoolean(name, true);
+                break;
+            case FALSE:
+                objectBuilder.withBoolean(name, false);
+                break;
+            case NULL:
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + value.getValueType());
         }
         return this;
     }
@@ -235,29 +237,29 @@ public class RecordJsonGenerator implements JsonGenerator {
     @Override
     public JsonGenerator write(final JsonValue value) {
         switch (value.getValueType()) {
-        case ARRAY:
-            arrayBuilder.add(Collection.class.cast(value));
-            break;
-        case OBJECT:
-            Record r = recordConverters.toRecord(mappingRegistry, value, () -> jsonb, () -> factory);
-            arrayBuilder.add(factory.newRecordBuilder(r.getSchema(), r));
-            break;
-        case STRING:
-            arrayBuilder.add(JsonString.class.cast(value).getString());
-            break;
-        case NUMBER:
-            arrayBuilder.add(JsonNumber.class.cast(value).numberValue().doubleValue());
-            break;
-        case TRUE:
-            arrayBuilder.add(true);
-            break;
-        case FALSE:
-            arrayBuilder.add(false);
-            break;
-        case NULL:
-            break;
-        default:
-            throw new IllegalStateException("Unexpected value: " + value.getValueType());
+            case ARRAY:
+                arrayBuilder.add(Collection.class.cast(value));
+                break;
+            case OBJECT:
+                Record r = recordConverters.toRecord(mappingRegistry, value, () -> jsonb, () -> factory);
+                arrayBuilder.add(factory.newRecordBuilder(r.getSchema(), r));
+                break;
+            case STRING:
+                arrayBuilder.add(JsonString.class.cast(value).getString());
+                break;
+            case NUMBER:
+                arrayBuilder.add(JsonNumber.class.cast(value).numberValue().doubleValue());
+                break;
+            case TRUE:
+                arrayBuilder.add(true);
+                break;
+            case FALSE:
+                arrayBuilder.add(false);
+                break;
+            case NULL:
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + value.getValueType());
         }
         return this;
     }

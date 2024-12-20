@@ -80,44 +80,52 @@ class MaxBatchSizeParamTest {
                             assertEquals(ParameterMeta.Type.NUMBER, maxBatchSize.getType());
                             assertEquals(Integer.class, maxBatchSize.getJavaType());
                             switch (c.getName()) {
-                            case "BulkProcessorWithNoConfig":
-                                assertEquals("$configuration", parent.getPath());
-                                assertEquals("$configuration.$maxBatchSize", maxBatchSize.getPath());
-                                assertEquals("$maxBatchSize",
-                                        parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
-                                break;
-                            case "BulkProcessorWithAutoLayoutConfig":
-                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
-                                assertEquals("true", parent.getMetadata().get("tcomp::ui::autolayout"));
-                                break;
-                            case "BulkProcessorWithHorizontalLayoutConfig":
-                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
-                                assertEquals("true", parent.getMetadata().get("tcomp::ui::horizontallayout"));
-                                break;
-                            case "BulkProcessorWithVerticalLayoutConfig":
-                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
-                                assertEquals("true", parent.getMetadata().get("tcomp::ui::verticallayout"));
-                                break;
-                            case "BulkProcessorWithOptionOrderConfig":
-                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
-                                assertEquals("true", parent.getMetadata().get("tcomp::ui::optionsorder"));
-                                break;
-                            case "BulkProcessorWithGridLayoutConfig":
-                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
-                                assertEquals("$maxBatchSize",
-                                        parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
-                                break;
-                            case "BulkProcessorWithAdvancedGridLayoutConfig":
-                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
-                                assertEquals("$maxBatchSize|config",
-                                        parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
-                                break;
-                            case "BulkProcessorWithoutLayout":
-                                assertEquals(parent.getPath() + "." + maxBatchSize.getName(), maxBatchSize.getPath());
-                                assertEquals("config", parent.getMetadata().get("tcomp::ui::gridlayout::Main::value"));
-                                assertEquals("$maxBatchSize",
-                                        parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
-                                break;
+                                case "BulkProcessorWithNoConfig":
+                                    assertEquals("$configuration", parent.getPath());
+                                    assertEquals("$configuration.$maxBatchSize", maxBatchSize.getPath());
+                                    assertEquals("$maxBatchSize",
+                                            parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
+                                    break;
+                                case "BulkProcessorWithAutoLayoutConfig":
+                                    assertEquals(parent.getPath() + "." + maxBatchSize.getName(),
+                                            maxBatchSize.getPath());
+                                    assertEquals("true", parent.getMetadata().get("tcomp::ui::autolayout"));
+                                    break;
+                                case "BulkProcessorWithHorizontalLayoutConfig":
+                                    assertEquals(parent.getPath() + "." + maxBatchSize.getName(),
+                                            maxBatchSize.getPath());
+                                    assertEquals("true", parent.getMetadata().get("tcomp::ui::horizontallayout"));
+                                    break;
+                                case "BulkProcessorWithVerticalLayoutConfig":
+                                    assertEquals(parent.getPath() + "." + maxBatchSize.getName(),
+                                            maxBatchSize.getPath());
+                                    assertEquals("true", parent.getMetadata().get("tcomp::ui::verticallayout"));
+                                    break;
+                                case "BulkProcessorWithOptionOrderConfig":
+                                    assertEquals(parent.getPath() + "." + maxBatchSize.getName(),
+                                            maxBatchSize.getPath());
+                                    assertEquals("true", parent.getMetadata().get("tcomp::ui::optionsorder"));
+                                    break;
+                                case "BulkProcessorWithGridLayoutConfig":
+                                    assertEquals(parent.getPath() + "." + maxBatchSize.getName(),
+                                            maxBatchSize.getPath());
+                                    assertEquals("$maxBatchSize",
+                                            parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
+                                    break;
+                                case "BulkProcessorWithAdvancedGridLayoutConfig":
+                                    assertEquals(parent.getPath() + "." + maxBatchSize.getName(),
+                                            maxBatchSize.getPath());
+                                    assertEquals("$maxBatchSize|config",
+                                            parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
+                                    break;
+                                case "BulkProcessorWithoutLayout":
+                                    assertEquals(parent.getPath() + "." + maxBatchSize.getName(),
+                                            maxBatchSize.getPath());
+                                    assertEquals("config",
+                                            parent.getMetadata().get("tcomp::ui::gridlayout::Main::value"));
+                                    assertEquals("$maxBatchSize",
+                                            parent.getMetadata().get("tcomp::ui::gridlayout::Advanced::value"));
+                                    break;
                             }
                         }
                     });

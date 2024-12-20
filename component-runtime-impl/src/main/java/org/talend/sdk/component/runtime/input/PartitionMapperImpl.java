@@ -137,18 +137,18 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
             inputFactory = findMethods(Emitter.class).findFirst().get();
 
             switch (split.getParameterCount()) {
-            case 1:
-                if (int.class == split.getParameterTypes()[0]) {
-                    splitArgSupplier = desiredSize -> new Object[] { desiredSize.intValue() };
-                } else if (long.class == split.getParameterTypes()[0]) {
-                    splitArgSupplier = desiredSize -> new Object[] { desiredSize };
-                } else {
-                    throw new IllegalArgumentException("@PartitionSize only supports int and long");
-                }
-                break;
-            case 0:
-            default:
-                splitArgSupplier = desiredSize -> NO_ARG;
+                case 1:
+                    if (int.class == split.getParameterTypes()[0]) {
+                        splitArgSupplier = desiredSize -> new Object[] { desiredSize.intValue() };
+                    } else if (long.class == split.getParameterTypes()[0]) {
+                        splitArgSupplier = desiredSize -> new Object[] { desiredSize };
+                    } else {
+                        throw new IllegalArgumentException("@PartitionSize only supports int and long");
+                    }
+                    break;
+                case 0:
+                default:
+                    splitArgSupplier = desiredSize -> NO_ARG;
             }
         }
     }

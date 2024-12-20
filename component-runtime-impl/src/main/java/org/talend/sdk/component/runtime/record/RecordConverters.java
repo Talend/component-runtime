@@ -97,44 +97,44 @@ public class RecordConverters implements Serializable {
         final Record.Builder builder = factory.newRecordBuilder();
         object.forEach((key, value) -> {
             switch (value.getValueType()) {
-            case ARRAY: {
-                final List<Object> items =
-                        value.asJsonArray().stream().map(it -> mapJson(factory, it)).collect(toList());
-                builder
-                        .withArray(factory
-                                .newEntryBuilder()
-                                .withName(key)
-                                .withType(Schema.Type.ARRAY)
-                                .withElementSchema(getArrayElementSchema(factory, items))
-                                .build(), items);
-                break;
-            }
-            case OBJECT: {
-                final Record record = json2Record(factory, value.asJsonObject());
-                builder
-                        .withRecord(factory
-                                .newEntryBuilder()
-                                .withName(key)
-                                .withType(Schema.Type.RECORD)
-                                .withElementSchema(record.getSchema())
-                                .build(), record);
-                break;
-            }
-            case TRUE:
-            case FALSE:
-                builder.withBoolean(key, JsonValue.TRUE.equals(value));
-                break;
-            case STRING:
-                builder.withString(key, JsonString.class.cast(value).getString());
-                break;
-            case NUMBER:
-                final JsonNumber number = JsonNumber.class.cast(value);
-                builder.withDouble(key, number.doubleValue());
-                break;
-            case NULL:
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported value type: " + value);
+                case ARRAY: {
+                    final List<Object> items =
+                            value.asJsonArray().stream().map(it -> mapJson(factory, it)).collect(toList());
+                    builder
+                            .withArray(factory
+                                    .newEntryBuilder()
+                                    .withName(key)
+                                    .withType(Schema.Type.ARRAY)
+                                    .withElementSchema(getArrayElementSchema(factory, items))
+                                    .build(), items);
+                    break;
+                }
+                case OBJECT: {
+                    final Record record = json2Record(factory, value.asJsonObject());
+                    builder
+                            .withRecord(factory
+                                    .newEntryBuilder()
+                                    .withName(key)
+                                    .withType(Schema.Type.RECORD)
+                                    .withElementSchema(record.getSchema())
+                                    .build(), record);
+                    break;
+                }
+                case TRUE:
+                case FALSE:
+                    builder.withBoolean(key, JsonValue.TRUE.equals(value));
+                    break;
+                case STRING:
+                    builder.withString(key, JsonString.class.cast(value).getString());
+                    break;
+                case NUMBER:
+                    final JsonNumber number = JsonNumber.class.cast(value);
+                    builder.withDouble(key, number.doubleValue());
+                    break;
+                case NULL:
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported value type: " + value);
             }
         });
         return builder.build();
@@ -146,28 +146,28 @@ public class RecordConverters implements Serializable {
         }
         final Schema firstSchema = toSchema(factory, items.iterator().next());
         switch (firstSchema.getType()) {
-        case RECORD:
-            return items.stream().map(it -> toSchema(factory, it)).reduce(null, (s1, s2) -> {
-                if (s1 == null) {
-                    return s2;
-                }
-                if (s2 == null) { // unlikely
+            case RECORD:
+                return items.stream().map(it -> toSchema(factory, it)).reduce(null, (s1, s2) -> {
+                    if (s1 == null) {
+                        return s2;
+                    }
+                    if (s2 == null) { // unlikely
+                        return s1;
+                    }
+                    final Set<String> names1 = s1.getAllEntries().map(Schema.Entry::getName).collect(toSet());
+                    final Set<String> names2 = s2.getAllEntries().map(Schema.Entry::getName).collect(toSet());
+                    if (!names1.equals(names2)) {
+                        // here we are not good since values will not be right anymore,
+                        // forbidden for current version anyway but potentially supported later
+                        final Schema.Builder builder = factory.newSchemaBuilder(Schema.Type.RECORD);
+                        s1.getAllEntries().forEach(builder::withEntry);
+                        s2.getAllEntries().filter(it -> !(names1.contains(it.getName()))).forEach(builder::withEntry);
+                        return builder.build();
+                    }
                     return s1;
-                }
-                final Set<String> names1 = s1.getAllEntries().map(Schema.Entry::getName).collect(toSet());
-                final Set<String> names2 = s2.getAllEntries().map(Schema.Entry::getName).collect(toSet());
-                if (!names1.equals(names2)) {
-                    // here we are not good since values will not be right anymore,
-                    // forbidden for current version anyway but potentially supported later
-                    final Schema.Builder builder = factory.newSchemaBuilder(Schema.Type.RECORD);
-                    s1.getAllEntries().forEach(builder::withEntry);
-                    s2.getAllEntries().filter(it -> !(names1.contains(it.getName()))).forEach(builder::withEntry);
-                    return builder.build();
-                }
-                return s1;
-            });
-        default:
-            return firstSchema;
+                });
+            default:
+                return firstSchema;
         }
     }
 
@@ -299,138 +299,133 @@ public class RecordConverters implements Serializable {
         schema.getEntries().forEach(entry -> {
             final String name = entry.getName();
             switch (entry.getType()) {
-            case STRING: {
-                final String value = record.get(String.class, name);
-                if (value != null) {
-                    builder.add(name, value);
-                }
-                break;
-            }
-            case INT: {
-                final Integer value = record.get(Integer.class, name);
-                if (value != null) {
-                    builder.add(name, value);
-                }
-                break;
-            }
-            case LONG: {
-                final Long value = record.get(Long.class, name);
-                if (value != null) {
-                    builder.add(name, value);
-                }
-                break;
-            }
-            case FLOAT: {
-                final Float value = record.get(Float.class, name);
-                if (value != null) {
-                    builder.add(name, value);
-                }
-                break;
-            }
-            case DOUBLE: {
-                final Double value = record.get(Double.class, name);
-                if (value != null) {
-                    builder.add(name, value);
-                }
-                break;
-            }
-            case BOOLEAN: {
-                final Boolean value = record.get(Boolean.class, name);
-                if (value != null) {
-                    builder.add(name, value);
-                }
-                break;
-            }
-            case BYTES: {
-                final byte[] value = record.get(byte[].class, name);
-                if (value != null) {
-                    builder.add(name, Base64.getEncoder().encodeToString(value));
-                }
-                break;
-            }
-            case DATETIME: {
-                final ZonedDateTime value = record.get(ZonedDateTime.class, name);
-                if (value != null) {
-                    builder.add(name, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
-                }
-                break;
-            }
-            case DECIMAL: {
-                final BigDecimal value = record.get(BigDecimal.class, name);
-                if (value != null) {
-                    builder.add(name, value.toString());
-                }
-                break;
-            }
-            case RECORD: {
-                final Record value = record.get(Record.class, name);
-                if (value != null) {
-                    builder.add(name, buildRecord(factory, providerSupplier, value));
-                }
-                break;
-            }
-            case ARRAY:
-                final Collection<?> collection = record.get(Collection.class, name);
-                if (collection == null) {
+                case STRING: {
+                    final String value = record.get(String.class, name);
+                    if (value != null) {
+                        builder.add(name, value);
+                    }
                     break;
                 }
-                if (collection.isEmpty()) {
-                    builder.add(name, factory.createArrayBuilder().build());
-                } else { // only homogeneous collections
-                    final Object item = collection.iterator().next();
-                    if (String.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name, toArray(factory, v -> jsonProvider.createValue(String.class.cast(v)),
-                                        collection));
-                    } else if (Double.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name, toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)),
-                                        collection));
-                    } else if (Float.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name, toArray(factory, v -> jsonProvider.createValue(Float.class.cast(v)),
-                                        collection));
-                    } else if (Integer.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name, toArray(factory, v -> jsonProvider.createValue(Integer.class.cast(v)),
-                                        collection));
-                    } else if (Long.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name, toArray(factory, v -> jsonProvider.createValue(Long.class.cast(v)),
-                                        collection));
-                    } else if (Boolean.class.isInstance(item)) {
-                        builder
-                                .add(name, toArray(factory,
-                                        v -> Boolean.class.cast(v) ? JsonValue.TRUE : JsonValue.FALSE, collection));
-                    } else if (ZonedDateTime.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name,
-                                        toArray(factory, v -> jsonProvider
-                                                .createValue(ZonedDateTime.class.cast(v).toInstant().toEpochMilli()),
-                                                collection));
-                    } else if (Date.class.isInstance(item)) {
-                        final JsonProvider jsonProvider = providerSupplier.get();
-                        builder
-                                .add(name, toArray(factory, v -> jsonProvider.createValue(Date.class.cast(v).getTime()),
-                                        collection));
-                    } else if (Record.class.isInstance(item)) {
-                        builder
-                                .add(name, toArray(factory,
-                                        v -> buildRecord(factory, providerSupplier, Record.class.cast(v)).build(),
-                                        collection));
-                    } else if (JsonValue.class.isInstance(item)) {
-                        builder.add(name, toArray(factory, JsonValue.class::cast, collection));
-                    } // else throw?
+                case INT: {
+                    final Integer value = record.get(Integer.class, name);
+                    if (value != null) {
+                        builder.add(name, value);
+                    }
+                    break;
                 }
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported type: " + entry.getType() + " for '" + name + "'");
+                case LONG: {
+                    final Long value = record.get(Long.class, name);
+                    if (value != null) {
+                        builder.add(name, value);
+                    }
+                    break;
+                }
+                case FLOAT: {
+                    final Float value = record.get(Float.class, name);
+                    if (value != null) {
+                        builder.add(name, value);
+                    }
+                    break;
+                }
+                case DOUBLE: {
+                    final Double value = record.get(Double.class, name);
+                    if (value != null) {
+                        builder.add(name, value);
+                    }
+                    break;
+                }
+                case BOOLEAN: {
+                    final Boolean value = record.get(Boolean.class, name);
+                    if (value != null) {
+                        builder.add(name, value);
+                    }
+                    break;
+                }
+                case BYTES: {
+                    final byte[] value = record.get(byte[].class, name);
+                    if (value != null) {
+                        builder.add(name, Base64.getEncoder().encodeToString(value));
+                    }
+                    break;
+                }
+                case DATETIME: {
+                    final ZonedDateTime value = record.get(ZonedDateTime.class, name);
+                    if (value != null) {
+                        builder.add(name, value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                    }
+                    break;
+                }
+                case DECIMAL: {
+                    final BigDecimal value = record.get(BigDecimal.class, name);
+                    if (value != null) {
+                        builder.add(name, value.toString());
+                    }
+                    break;
+                }
+                case RECORD: {
+                    final Record value = record.get(Record.class, name);
+                    if (value != null) {
+                        builder.add(name, buildRecord(factory, providerSupplier, value));
+                    }
+                    break;
+                }
+                case ARRAY:
+                    final Collection<?> collection = record.get(Collection.class, name);
+                    if (collection == null) {
+                        break;
+                    }
+                    if (collection.isEmpty()) {
+                        builder.add(name, factory.createArrayBuilder().build());
+                    } else { // only homogeneous collections
+                        final Object item = collection.iterator().next();
+                        if (String.class.isInstance(item)) {
+                            final JsonProvider jsonProvider = providerSupplier.get();
+                            builder.add(name,
+                                    toArray(factory, v -> jsonProvider.createValue(String.class.cast(v)), collection));
+                        } else if (Double.class.isInstance(item)) {
+                            final JsonProvider jsonProvider = providerSupplier.get();
+                            builder.add(name,
+                                    toArray(factory, v -> jsonProvider.createValue(Double.class.cast(v)), collection));
+                        } else if (Float.class.isInstance(item)) {
+                            final JsonProvider jsonProvider = providerSupplier.get();
+                            builder.add(name,
+                                    toArray(factory, v -> jsonProvider.createValue(Float.class.cast(v)), collection));
+                        } else if (Integer.class.isInstance(item)) {
+                            final JsonProvider jsonProvider = providerSupplier.get();
+                            builder.add(name,
+                                    toArray(factory, v -> jsonProvider.createValue(Integer.class.cast(v)), collection));
+                        } else if (Long.class.isInstance(item)) {
+                            final JsonProvider jsonProvider = providerSupplier.get();
+                            builder.add(name,
+                                    toArray(factory, v -> jsonProvider.createValue(Long.class.cast(v)), collection));
+                        } else if (Boolean.class.isInstance(item)) {
+                            builder.add(name, toArray(factory,
+                                    v -> Boolean.class.cast(v) ? JsonValue.TRUE : JsonValue.FALSE, collection));
+                        } else if (ZonedDateTime.class.isInstance(item)) {
+                            final JsonProvider jsonProvider = providerSupplier.get();
+                            builder.add(name,
+                                    toArray(factory,
+                                            v -> jsonProvider.createValue(
+                                                    ZonedDateTime.class.cast(v).toInstant().toEpochMilli()),
+                                            collection));
+                        } else if (Date.class.isInstance(item)) {
+                            final JsonProvider jsonProvider = providerSupplier.get();
+                            builder.add(name,
+                                    toArray(factory,
+                                            v -> jsonProvider.createValue(Date.class.cast(v).getTime()),
+                                            collection));
+                        } else if (Record.class.isInstance(item)) {
+                            builder.add(name,
+                                    toArray(factory,
+                                            v -> buildRecord(factory, providerSupplier, Record.class.cast(v)).build(),
+                                            collection));
+                        } else if (JsonValue.class.isInstance(item)) {
+                            builder.add(name, toArray(factory, JsonValue.class::cast, collection));
+                        } // else throw?
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported type: " + entry.getType() + " for '" + name + "'");
             }
         });
         return builder;

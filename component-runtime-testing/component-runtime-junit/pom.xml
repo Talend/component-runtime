@@ -63,7 +63,8 @@
       <!-- just here for the reactor order -->
       <optional>true</optional>
     </dependency>
-    <dependency><!-- cause of previous dependency -->
+    <dependency>
+      <!-- cause of previous dependency -->
       <groupId>org.apache.avro</groupId>
       <artifactId>avro</artifactId>
       <version>${avro.version}</version>

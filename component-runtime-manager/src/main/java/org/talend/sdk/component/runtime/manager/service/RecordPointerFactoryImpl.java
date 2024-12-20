@@ -144,30 +144,30 @@ public class RecordPointerFactoryImpl implements RecordPointerFactory, Serializa
 
         private Object getRecordEntry(final Schema.Entry entry, final Record record) {
             switch (entry.getType()) {
-            case STRING:
-                return record.getString(entry.getName());
-            case INT:
-                return record.getInt(entry.getName());
-            case LONG:
-                return record.getLong(entry.getName());
-            case FLOAT:
-                return record.getFloat(entry.getName());
-            case DOUBLE:
-                return record.getDouble(entry.getName());
-            case BOOLEAN:
-                return record.getBoolean(entry.getName());
-            case BYTES:
-                return record.getBytes(entry.getName());
-            case DATETIME:
-                return record.getDateTime(entry.getName());
-            case DECIMAL:
-                return record.getDecimal(entry.getName());
-            case RECORD:
-                return record.getRecord(entry.getName());
-            case ARRAY:
-                return record.getArray(Object.class, entry.getName());
-            default:
-                throw new IllegalArgumentException("Unsupported entry type for: " + entry);
+                case STRING:
+                    return record.getString(entry.getName());
+                case INT:
+                    return record.getInt(entry.getName());
+                case LONG:
+                    return record.getLong(entry.getName());
+                case FLOAT:
+                    return record.getFloat(entry.getName());
+                case DOUBLE:
+                    return record.getDouble(entry.getName());
+                case BOOLEAN:
+                    return record.getBoolean(entry.getName());
+                case BYTES:
+                    return record.getBytes(entry.getName());
+                case DATETIME:
+                    return record.getDateTime(entry.getName());
+                case DECIMAL:
+                    return record.getDecimal(entry.getName());
+                case RECORD:
+                    return record.getRecord(entry.getName());
+                case ARRAY:
+                    return record.getArray(Object.class, entry.getName());
+                default:
+                    throw new IllegalArgumentException("Unsupported entry type for: " + entry);
             }
         }
 

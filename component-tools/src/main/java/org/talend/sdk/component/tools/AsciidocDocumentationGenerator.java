@@ -93,24 +93,24 @@ public class AsciidocDocumentationGenerator extends DocBaseGenerator {
 
     private String doRenderConditions(final Conditions conditions) {
         switch (conditions.getConditions().size()) {
-        case 0:
-            return "Always enabled";
-        case 1:
-            return renderCondition(conditions.getConditions().iterator().next());
-        default:
-            final String conds = conditions
-                    .getConditions()
-                    .stream()
-                    .map(this::renderCondition)
-                    .map(c -> "- " + c)
-                    .collect(joining("\n", "\n", "\n"));
-            switch (conditions.getOperator().toUpperCase(ROOT)) {
-            case "OR":
-                return "One of these conditions is meet:\n" + conds;
-            case "AND":
+            case 0:
+                return "Always enabled";
+            case 1:
+                return renderCondition(conditions.getConditions().iterator().next());
             default:
-                return "All of the following conditions are met:\n" + conds;
-            }
+                final String conds = conditions
+                        .getConditions()
+                        .stream()
+                        .map(this::renderCondition)
+                        .map(c -> "- " + c)
+                        .collect(joining("\n", "\n", "\n"));
+                switch (conditions.getOperator().toUpperCase(ROOT)) {
+                    case "OR":
+                        return "One of these conditions is meet:\n" + conds;
+                    case "AND":
+                    default:
+                        return "All of the following conditions are met:\n" + conds;
+                }
         }
     }
 
@@ -118,33 +118,33 @@ public class AsciidocDocumentationGenerator extends DocBaseGenerator {
         final String values =
                 Stream.of(condition.getValue().split(",")).map(v -> '`' + v + '`').collect(joining(" or "));
         switch (ofNullable(condition.getStrategy()).orElse("default").toLowerCase(ROOT)) {
-        case "length":
-            if (condition.isNegate()) {
-                if (values.equals("`0`")) {
-                    return '`' + condition.getPath() + "` is not empty";
+            case "length":
+                if (condition.isNegate()) {
+                    if (values.equals("`0`")) {
+                        return '`' + condition.getPath() + "` is not empty";
+                    }
+                    return "the length of `" + condition.getPath() + "` is not " + values;
                 }
-                return "the length of `" + condition.getPath() + "` is not " + values;
-            }
-            if (values.equals("`0`")) {
-                return '`' + condition.getPath() + "` is empty";
-            }
-            return "the length of `" + condition.getPath() + "` is " + values;
-        case "contains":
-            if (condition.isNegate()) {
-                return '`' + condition.getPath() + "` does not contain " + values;
-            }
-            return '`' + condition.getPath() + "` contains " + values;
-        case "contains(lowercase=true)":
-            if (condition.isNegate()) {
-                return "the lowercase value of `" + condition.getPath() + "` does not contain " + values;
-            }
-            return "the lowercase value of `" + condition.getPath() + "` contains " + values;
-        case "default":
-        default:
-            if (condition.isNegate()) {
-                return '`' + condition.getPath() + "` is not equal to " + values;
-            }
-            return '`' + condition.getPath() + "` is equal to " + values;
+                if (values.equals("`0`")) {
+                    return '`' + condition.getPath() + "` is empty";
+                }
+                return "the length of `" + condition.getPath() + "` is " + values;
+            case "contains":
+                if (condition.isNegate()) {
+                    return '`' + condition.getPath() + "` does not contain " + values;
+                }
+                return '`' + condition.getPath() + "` contains " + values;
+            case "contains(lowercase=true)":
+                if (condition.isNegate()) {
+                    return "the lowercase value of `" + condition.getPath() + "` does not contain " + values;
+                }
+                return "the lowercase value of `" + condition.getPath() + "` contains " + values;
+            case "default":
+            default:
+                if (condition.isNegate()) {
+                    return '`' + condition.getPath() + "` is not equal to " + values;
+                }
+                return '`' + condition.getPath() + "` is equal to " + values;
         }
     }
 
@@ -152,18 +152,18 @@ public class AsciidocDocumentationGenerator extends DocBaseGenerator {
         try (final AsciidoctorExecutor asciidoctorExecutor = new AsciidoctorExecutor()) {
             ofNullable(formats).ifPresent(f -> f.forEach((format, output) -> {
                 switch (format.toLowerCase(ENGLISH)) {
-                case "html":
-                    asciidoctorExecutor
-                            .render(workDir, version, log, "html5", this.output, new File(output), title, attributes,
-                                    templateDir, templateEngine);
-                    break;
-                case "pdf":
-                    asciidoctorExecutor
-                            .render(workDir, version, log, "pdf", this.output, new File(output), title, attributes,
-                                    templateDir, templateEngine);
-                    break;
-                default:
-                    throw new IllegalArgumentException("unknown format: '" + format + "', supported: [html, pdf]");
+                    case "html":
+                        asciidoctorExecutor
+                                .render(workDir, version, log, "html5", this.output, new File(output), title,
+                                        attributes, templateDir, templateEngine);
+                        break;
+                    case "pdf":
+                        asciidoctorExecutor
+                                .render(workDir, version, log, "pdf", this.output, new File(output), title,
+                                        attributes, templateDir, templateEngine);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("unknown format: '" + format + "', supported: [html, pdf]");
                 }
             }));
         }

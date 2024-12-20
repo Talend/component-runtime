@@ -117,16 +117,16 @@ class RecordServiceImplTest {
                                                                                             .isInstance(it))
                                                                                     .collect(Collectors.toList())));
                                                     switch (method.getName()) {
-                                                    case "get":
-                                                        return out.incrementAndGet();
-                                                    case "apply":
-                                                        return asList(args)
-                                                                .stream()
-                                                                .mapToInt(Integer.class::cast)
-                                                                .sum();
-                                                    default:
-                                                        return method.getReturnType() == RecordVisitor.class ? proxy
-                                                                : null;
+                                                        case "get":
+                                                            return out.incrementAndGet();
+                                                        case "apply":
+                                                            return asList(args)
+                                                                    .stream()
+                                                                    .mapToInt(Integer.class::cast)
+                                                                    .sum();
+                                                        default:
+                                                            return method.getReturnType() == RecordVisitor.class ? proxy
+                                                                    : null;
                                                     }
                                                 })),
                                 baseRecord));

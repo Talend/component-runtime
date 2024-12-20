@@ -40,21 +40,21 @@ public class AvroRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
     @Override
     public RecordBuilderFactory apply(final String containerId) {
         switch (System.getProperty("talend.component.beam.record.factory.impl", "auto")) {
-        case "memory":
-        case "default":
-            return new RecordBuilderFactoryImpl(containerId);
-        case "avro":
-            if (!hasAvroRecordBuilderFactory()) {
-                log.warn(
-                        "AvroRecordBuilderFactoryProvider if forced by System property but seems not available, this may lead to issues.");
-            }
-            return new AvroRecordBuilderFactory(containerId);
-        default:
-            if (hasAvroRecordBuilderFactory()) {
-                return new AvroRecordBuilderFactory(containerId);
-            } else {
+            case "memory":
+            case "default":
                 return new RecordBuilderFactoryImpl(containerId);
-            }
+            case "avro":
+                if (!hasAvroRecordBuilderFactory()) {
+                    log.warn(
+                            "AvroRecordBuilderFactoryProvider if forced by System property but seems not available, this may lead to issues.");
+                }
+                return new AvroRecordBuilderFactory(containerId);
+            default:
+                if (hasAvroRecordBuilderFactory()) {
+                    return new AvroRecordBuilderFactory(containerId);
+                } else {
+                    return new RecordBuilderFactoryImpl(containerId);
+                }
         }
     }
 

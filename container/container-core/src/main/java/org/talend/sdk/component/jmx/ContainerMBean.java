@@ -53,12 +53,12 @@ public class ContainerMBean implements DynamicMBean {
             throw new IllegalArgumentException("Attribute name can't be null");
         }
         switch (attribute) {
-        case "closed":
-            return delegate.isClosed();
-        case "created":
-            return delegate.getCreated();
-        default:
-            throw new AttributeNotFoundException(attribute);
+            case "closed":
+                return delegate.isClosed();
+            case "created":
+                return delegate.getCreated();
+            default:
+                throw new AttributeNotFoundException(attribute);
         }
     }
 
@@ -95,11 +95,11 @@ public class ContainerMBean implements DynamicMBean {
             throw new IllegalArgumentException("Action can't be null");
         }
         switch (actionName) {
-        case "reload":
-            delegate.get(ContainerManager.Actions.class).reload();
-            break;
-        default:
-            throw new UnsupportedOperationException("Unknown action: '" + actionName + "'");
+            case "reload":
+                delegate.get(ContainerManager.Actions.class).reload();
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown action: '" + actionName + "'");
         }
         return null;
     }

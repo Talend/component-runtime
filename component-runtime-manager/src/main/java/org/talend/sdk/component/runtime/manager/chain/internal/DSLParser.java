@@ -64,39 +64,39 @@ public class DSLParser {
 
             do {
                 switch (bytes[pos]) {
-                case '=':
-                    if (parsingName) {
-                        nameEnd = pos;
-                        parsingName = false;
-                        valueStart = ++pos;
-                    } else {
+                    case '=':
+                        if (parsingName) {
+                            nameEnd = pos;
+                            parsingName = false;
+                            valueStart = ++pos;
+                        } else {
+                            pos++;
+                        }
+                        break;
+                    case '&':
+                        if (parsingName) {
+                            // Name finished. No value.
+                            nameEnd = pos;
+                        } else {
+                            // Value finished
+                            valueEnd = pos;
+                        }
+                        parameterComplete = true;
                         pos++;
-                    }
-                    break;
-                case '&':
-                    if (parsingName) {
-                        // Name finished. No value.
-                        nameEnd = pos;
-                    } else {
-                        // Value finished
-                        valueEnd = pos;
-                    }
-                    parameterComplete = true;
-                    pos++;
-                    break;
-                case '%':
-                case '+':
-                    // Decoding required
-                    if (parsingName) {
-                        decodeName = true;
-                    } else {
-                        decodeValue = true;
-                    }
-                    pos++;
-                    break;
-                default:
-                    pos++;
-                    break;
+                        break;
+                    case '%':
+                    case '+':
+                        // Decoding required
+                        if (parsingName) {
+                            decodeName = true;
+                        } else {
+                            decodeValue = true;
+                        }
+                        pos++;
+                        break;
+                    default:
+                        pos++;
+                        break;
                 }
             } while (!parameterComplete && pos < end);
 

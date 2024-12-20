@@ -97,14 +97,14 @@ public class VirtualDependenciesService {
     private void init() {
         final String m2 = configuration.getUserExtensionsAutoM2Provisioning();
         switch (m2) {
-        case "skip":
-            provisioningM2Base = null;
-            break;
-        case "auto":
-            provisioningM2Base = findStudioM2();
-            break;
-        default:
-            provisioningM2Base = PathFactory.get(m2);
+            case "skip":
+                provisioningM2Base = null;
+                break;
+            case "auto":
+                provisioningM2Base = findStudioM2();
+                break;
+            default:
+                provisioningM2Base = PathFactory.get(m2);
         }
         log.debug("m2 provisioning base: {}", provisioningM2Base);
     }

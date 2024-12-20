@@ -81,24 +81,24 @@ public class DefaultValueInspector {
         }
         final ParameterMeta.Type type = param.getType();
         switch (type) {
-        case OBJECT:
-            return null;
-        case ENUM:
-            return Enum.class.cast(instance).name();
-        case STRING:
-        case NUMBER:
-        case BOOLEAN:
-            return String.valueOf(instance);
-        case ARRAY: // can be enhanced
-            if (!param.getNestedParameters().isEmpty()) {
+            case OBJECT:
                 return null;
-            } else if (Collection.class.isInstance(instance)) {
-                return ((Collection<Object>) instance).stream().map(String::valueOf).collect(joining(","));
-            } else { // primitives
+            case ENUM:
+                return Enum.class.cast(instance).name();
+            case STRING:
+            case NUMBER:
+            case BOOLEAN:
                 return String.valueOf(instance);
-            }
-        default:
-            throw new IllegalArgumentException("Unsupported type: " + param.getType());
+            case ARRAY: // can be enhanced
+                if (!param.getNestedParameters().isEmpty()) {
+                    return null;
+                } else if (Collection.class.isInstance(instance)) {
+                    return ((Collection<Object>) instance).stream().map(String::valueOf).collect(joining(","));
+                } else { // primitives
+                    return String.valueOf(instance);
+                }
+            default:
+                throw new IllegalArgumentException("Unsupported type: " + param.getType());
         }
     }
 

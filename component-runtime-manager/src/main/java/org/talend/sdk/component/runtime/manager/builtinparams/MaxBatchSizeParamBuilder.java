@@ -94,19 +94,19 @@ public class MaxBatchSizeParamBuilder {
                 .findFirst()
                 .orElse("default");
         switch (rootLayoutType.toLowerCase(Locale.ROOT)) {
-        case "verticallayout":
-            return "tcomp::ui::verticallayout";
-        case "horizontallayout":
-            return "tcomp::ui::horizontallayout";
-        case "autolayout":
-            return "tcomp::ui::autolayout";
-        case "optionsorder":
-            return "tcomp::ui::optionsorder";
-        case "default":
-            return null;
-        case "gridlayout":
-        default:
-            return "tcomp::ui::gridlayout::Advanced::value";
+            case "verticallayout":
+                return "tcomp::ui::verticallayout";
+            case "horizontallayout":
+                return "tcomp::ui::horizontallayout";
+            case "autolayout":
+                return "tcomp::ui::autolayout";
+            case "optionsorder":
+                return "tcomp::ui::optionsorder";
+            case "default":
+                return null;
+            case "gridlayout":
+            default:
+                return "tcomp::ui::gridlayout::Advanced::value";
         }
     }
 

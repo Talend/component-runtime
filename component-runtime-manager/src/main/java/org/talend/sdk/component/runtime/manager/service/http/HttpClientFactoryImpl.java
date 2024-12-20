@@ -140,21 +140,21 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             final String methodName = method.getName();
             if (Object.class == method.getDeclaringClass()) {
                 switch (methodName) {
-                case "equals":
-                    return args[0] != null && Proxy.isProxyClass(args[0].getClass())
-                            && equals(Proxy.getInvocationHandler(args[0]));
-                case "toString":
-                    return "@Request " + base;
-                default:
-                    return delegate(method, args);
+                    case "equals":
+                        return args[0] != null && Proxy.isProxyClass(args[0].getClass())
+                                && equals(Proxy.getInvocationHandler(args[0]));
+                    case "toString":
+                        return "@Request " + base;
+                    default:
+                        return delegate(method, args);
                 }
             } else if (HttpClient.class == method.getDeclaringClass()) {
                 switch (methodName) {
-                case "base":
-                    this.base = String.valueOf(args[0]);
-                    return null;
-                default:
-                    throw new UnsupportedOperationException("HttpClient." + methodName);
+                    case "base":
+                        this.base = String.valueOf(args[0]);
+                        return null;
+                    default:
+                        throw new UnsupportedOperationException("HttpClient." + methodName);
                 }
             }
 

@@ -61,28 +61,28 @@ public class JsonSchemaConverter implements PropertyConverter {
             jsonSchema.setTitle(context.getProperty().getDisplayName());
             final String type = context.getProperty().getType();
             switch (type.toLowerCase(ROOT)) {
-            case "enum":
-                return new EnumPropertyConverter(jsonSchema)
-                        .convert(CompletableFuture.completedFuture(context))
-                        .thenCompose(c -> postHandling(context, jsonSchema, type));
-            case "array":
-                return new ArrayPropertyConverter(jsonb, jsonSchema, properties)
-                        .convert(CompletableFuture.completedFuture(context))
-                        .thenCompose(c -> postHandling(context, jsonSchema, type));
-            default:
-                if (context.getProperty().getPath().endsWith("[]")) {
-                    return CompletableFuture.completedFuture(context);
-                }
-                jsonSchema.setType(type.toLowerCase(ROOT));
-                of(context
-                        .findDirectChild(properties)
-                        .filter(nested -> new PropertyContext<>(nested, context.getRootContext(),
-                                context.getConfiguration()).isRequired())
-                        .map(SimplePropertyDefinition::getName)
-                        .collect(toSet())).filter(s -> !s.isEmpty()).ifPresent(jsonSchema::setRequired);
-                return CompletableFuture
-                        .completedFuture(context)
-                        .thenCompose(c -> postHandling(context, jsonSchema, type));
+                case "enum":
+                    return new EnumPropertyConverter(jsonSchema)
+                            .convert(CompletableFuture.completedFuture(context))
+                            .thenCompose(c -> postHandling(context, jsonSchema, type));
+                case "array":
+                    return new ArrayPropertyConverter(jsonb, jsonSchema, properties)
+                            .convert(CompletableFuture.completedFuture(context))
+                            .thenCompose(c -> postHandling(context, jsonSchema, type));
+                default:
+                    if (context.getProperty().getPath().endsWith("[]")) {
+                        return CompletableFuture.completedFuture(context);
+                    }
+                    jsonSchema.setType(type.toLowerCase(ROOT));
+                    of(context
+                            .findDirectChild(properties)
+                            .filter(nested -> new PropertyContext<>(nested, context.getRootContext(),
+                                    context.getConfiguration()).isRequired())
+                            .map(SimplePropertyDefinition::getName)
+                            .collect(toSet())).filter(s -> !s.isEmpty()).ifPresent(jsonSchema::setRequired);
+                    return CompletableFuture
+                            .completedFuture(context)
+                            .thenCompose(c -> postHandling(context, jsonSchema, type));
             }
         });
     }

@@ -88,10 +88,10 @@ public class BaseComponentsHandler implements ComponentsHandler {
 
     private static Local<State> loadStateHolder() {
         switch (System.getProperty("talend.component.junit.handler.state", "thread").toLowerCase(ROOT)) {
-        case "static":
-            return new Local.StaticImpl<>();
-        default:
-            return new Local.ThreadLocalImpl<>();
+            case "static":
+                return new Local.StaticImpl<>();
+            default:
+                return new Local.ThreadLocalImpl<>();
         }
     }
 
@@ -227,107 +227,108 @@ public class BaseComponentsHandler implements ComponentsHandler {
         final int proc = Math.max(1, concurrency);
         final List<Mapper> mappers = mapper.split(Math.max(assess / proc, 1));
         switch (mappers.size()) {
-        case 0:
-            return Stream.empty();
-        case 1:
-            return StreamDecorator
-                    .decorate(asStream(asIterator(mappers.iterator().next().create(), new AtomicInteger(maxRecords))),
-                            collect -> {
-                                try {
-                                    collect.run();
-                                } finally {
-                                    mapper.stop();
-                                }
-                            });
-        default: // N producers-1 consumer pattern
-            final AtomicInteger threadCounter = new AtomicInteger(0);
-            final ExecutorService es = Executors.newFixedThreadPool(mappers.size(), r -> new Thread(r) {
-
-                {
-                    setName(BaseComponentsHandler.this.getClass().getSimpleName() + "-pool-" + abs(mapper.hashCode())
-                            + "-" + threadCounter.incrementAndGet());
-                }
-            });
-            final AtomicInteger recordCounter = new AtomicInteger(maxRecords);
-            final Semaphore permissions = new Semaphore(0);
-            final Queue<T> records = new ConcurrentLinkedQueue<>();
-            final CountDownLatch latch = new CountDownLatch(mappers.size());
-            final List<? extends Future<?>> tasks = mappers
-                    .stream()
-                    .map(Mapper::create)
-                    .map(input -> (Iterator<T>) asIterator(input, recordCounter))
-                    .map(it -> es.submit(() -> {
-                        try {
-                            while (it.hasNext()) {
-                                final T next = it.next();
-                                records.add(next);
-                                permissions.release();
+            case 0:
+                return Stream.empty();
+            case 1:
+                return StreamDecorator.decorate(
+                        asStream(asIterator(mappers.iterator().next().create(), new AtomicInteger(maxRecords))),
+                        collect -> {
+                            try {
+                                collect.run();
+                            } finally {
+                                mapper.stop();
                             }
-                        } finally {
-                            latch.countDown();
-                        }
-                    }))
-                    .collect(toList());
-            es.shutdown();
+                        });
+            default: // N producers-1 consumer pattern
+                final AtomicInteger threadCounter = new AtomicInteger(0);
+                final ExecutorService es = Executors.newFixedThreadPool(mappers.size(), r -> new Thread(r) {
 
-            final int timeout = Integer.getInteger("talend.component.junit.timeout", 5);
-            new Thread() {
-
-                {
-                    setName(BaseComponentsHandler.class.getSimpleName() + "-monitor_" + abs(mapper.hashCode()));
-                }
-
-                @Override
-                public void run() {
-                    try {
-                        latch.await(timeout, MINUTES);
-                    } catch (final InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    } finally {
-                        permissions.release();
+                    {
+                        setName(BaseComponentsHandler.this.getClass().getSimpleName() + "-pool-"
+                                + abs(mapper.hashCode())
+                                + "-" + threadCounter.incrementAndGet());
                     }
-                }
-            }.start();
-            return StreamDecorator.decorate(asStream(new Iterator<T>() {
+                });
+                final AtomicInteger recordCounter = new AtomicInteger(maxRecords);
+                final Semaphore permissions = new Semaphore(0);
+                final Queue<T> records = new ConcurrentLinkedQueue<>();
+                final CountDownLatch latch = new CountDownLatch(mappers.size());
+                final List<? extends Future<?>> tasks = mappers
+                        .stream()
+                        .map(Mapper::create)
+                        .map(input -> (Iterator<T>) asIterator(input, recordCounter))
+                        .map(it -> es.submit(() -> {
+                            try {
+                                while (it.hasNext()) {
+                                    final T next = it.next();
+                                    records.add(next);
+                                    permissions.release();
+                                }
+                            } finally {
+                                latch.countDown();
+                            }
+                        }))
+                        .collect(toList());
+                es.shutdown();
 
-                @Override
-                public boolean hasNext() {
-                    try {
-                        permissions.acquire();
-                    } catch (final InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        fail(e.getMessage());
-                    }
-                    return !records.isEmpty();
-                }
+                final int timeout = Integer.getInteger("talend.component.junit.timeout", 5);
+                new Thread() {
 
-                @Override
-                public T next() {
-                    final T poll = records.poll();
-                    if (poll != null) {
-                        return mapRecord(state, recordType, poll);
+                    {
+                        setName(BaseComponentsHandler.class.getSimpleName() + "-monitor_" + abs(mapper.hashCode()));
                     }
-                    return null;
-                }
-            }), task -> {
-                try {
-                    task.run();
-                } finally {
-                    tasks.forEach(f -> {
+
+                    @Override
+                    public void run() {
                         try {
-                            f.get(5, SECONDS);
+                            latch.await(timeout, MINUTES);
                         } catch (final InterruptedException e) {
                             Thread.currentThread().interrupt();
-                        } catch (final ExecutionException | TimeoutException e) {
-                            // no-op
                         } finally {
-                            if (!f.isDone() && !f.isCancelled()) {
-                                f.cancel(true);
-                            }
+                            permissions.release();
                         }
-                    });
-                }
-            });
+                    }
+                }.start();
+                return StreamDecorator.decorate(asStream(new Iterator<T>() {
+
+                    @Override
+                    public boolean hasNext() {
+                        try {
+                            permissions.acquire();
+                        } catch (final InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            fail(e.getMessage());
+                        }
+                        return !records.isEmpty();
+                    }
+
+                    @Override
+                    public T next() {
+                        final T poll = records.poll();
+                        if (poll != null) {
+                            return mapRecord(state, recordType, poll);
+                        }
+                        return null;
+                    }
+                }), task -> {
+                    try {
+                        task.run();
+                    } finally {
+                        tasks.forEach(f -> {
+                            try {
+                                f.get(5, SECONDS);
+                            } catch (final InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            } catch (final ExecutionException | TimeoutException e) {
+                                // no-op
+                            } finally {
+                                if (!f.isDone() && !f.isCancelled()) {
+                                    f.cancel(true);
+                                }
+                            }
+                        });
+                    }
+                });
         }
     }
 
