@@ -29,41 +29,41 @@ public final class RecordCollectors {
         final Record toInclude = b2.build();
         toInclude.getSchema().getAllEntries().forEach(e -> {
             switch (e.getType()) {
-            case RECORD:
-                b1.withRecord(e, toInclude.getRecord(e.getName()));
-                break;
-            case ARRAY:
-                b1.withArray(e, toInclude.getArray(Object.class, e.getName()));
-                break;
-            case DATETIME:
-                b1.withDateTime(e, toInclude.getDateTime(e.getName()));
-                break;
-            case DECIMAL:
-                b1.withDecimal(e, toInclude.getDecimal(e.getName()));
-                break;
-            case BYTES:
-                b1.withBytes(e, toInclude.getBytes(e.getName()));
-                break;
-            case STRING:
-                b1.withString(e, toInclude.getString(e.getName()));
-                break;
-            case DOUBLE:
-                b1.withDouble(e, toInclude.getDouble(e.getName()));
-                break;
-            case INT:
-                b1.withInt(e, toInclude.getInt(e.getName()));
-                break;
-            case LONG:
-                b1.withLong(e, toInclude.getLong(e.getName()));
-                break;
-            case FLOAT:
-                b1.withFloat(e, toInclude.getFloat(e.getName()));
-                break;
-            case BOOLEAN:
-                b1.withBoolean(e, toInclude.getBoolean(e.getName()));
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported: " + e.getType());
+                case RECORD:
+                    b1.withRecord(e, toInclude.getRecord(e.getName()));
+                    break;
+                case ARRAY:
+                    b1.withArray(e, toInclude.getArray(Object.class, e.getName()));
+                    break;
+                case DATETIME:
+                    b1.withDateTime(e, toInclude.getDateTime(e.getName()));
+                    break;
+                case DECIMAL:
+                    b1.withDecimal(e, toInclude.getDecimal(e.getName()));
+                    break;
+                case BYTES:
+                    b1.withBytes(e, toInclude.getBytes(e.getName()));
+                    break;
+                case STRING:
+                    b1.withString(e, toInclude.getString(e.getName()));
+                    break;
+                case DOUBLE:
+                    b1.withDouble(e, toInclude.getDouble(e.getName()));
+                    break;
+                case INT:
+                    b1.withInt(e, toInclude.getInt(e.getName()));
+                    break;
+                case LONG:
+                    b1.withLong(e, toInclude.getLong(e.getName()));
+                    break;
+                case FLOAT:
+                    b1.withFloat(e, toInclude.getFloat(e.getName()));
+                    break;
+                case BOOLEAN:
+                    b1.withBoolean(e, toInclude.getBoolean(e.getName()));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported: " + e.getType());
             }
         });
     }

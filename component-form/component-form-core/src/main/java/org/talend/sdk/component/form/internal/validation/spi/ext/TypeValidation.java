@@ -54,19 +54,19 @@ public class TypeValidation implements ValidationExtension {
 
     private Stream<? extends JsonValue.ValueType> mapType(final JsonValue value) {
         switch (JsonString.class.cast(value).getString()) {
-        case "null":
-            return Stream.of(JsonValue.ValueType.NULL);
-        case "string":
-            return Stream.of(JsonValue.ValueType.STRING);
-        case "number":
-            return Stream.of(JsonValue.ValueType.NUMBER);
-        case "array":
-            return Stream.of(JsonValue.ValueType.ARRAY);
-        case "boolean":
-            return Stream.of(JsonValue.ValueType.FALSE, JsonValue.ValueType.TRUE);
-        case "object":
-        default:
-            return Stream.of(JsonValue.ValueType.OBJECT);
+            case "null":
+                return Stream.of(JsonValue.ValueType.NULL);
+            case "string":
+                return Stream.of(JsonValue.ValueType.STRING);
+            case "number":
+                return Stream.of(JsonValue.ValueType.NUMBER);
+            case "array":
+                return Stream.of(JsonValue.ValueType.ARRAY);
+            case "boolean":
+                return Stream.of(JsonValue.ValueType.FALSE, JsonValue.ValueType.TRUE);
+            case "object":
+            default:
+                return Stream.of(JsonValue.ValueType.OBJECT);
         }
     }
 

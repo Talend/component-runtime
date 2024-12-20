@@ -172,12 +172,12 @@ public class ContainerManager implements Lifecycle {
 
     private void info(final String msg) {
         switch (logInfoLevelMapping.intValue()) {
-        case 500: // FINE
-            log.debug(msg);
-            break;
-        case 800: // INFO
-        default:
-            log.info(msg);
+            case 500: // FINE
+                log.debug(msg);
+                break;
+            case 800: // INFO
+            default:
+                log.info(msg);
         }
     }
 
@@ -291,12 +291,12 @@ public class ContainerManager implements Lifecycle {
                 }
                 final boolean valid;
                 switch (i) {
-                case 2:
-                    valid = autoId.charAt(end) == '-';
-                    break;
-                default:
-                    valid = autoId.charAt(end) == '.';
-                    break;
+                    case 2:
+                        valid = autoId.charAt(end) == '-';
+                        break;
+                    default:
+                        valid = autoId.charAt(end) == '.';
+                        break;
                 }
                 if (!valid) {
                     if (i < 1) {

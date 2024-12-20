@@ -295,13 +295,13 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
 
         switch (studioType) {
-        case StudioTypes.DATE:
-            metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
-            metadata.getDynamicMetadata().setFormat(pattern);
-            break;
-        default:
-            // nop
-            break;
+            case StudioTypes.DATE:
+                metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
+                metadata.getDynamicMetadata().setFormat(pattern);
+                break;
+            default:
+                // nop
+                break;
         }
         return metadata;
     }

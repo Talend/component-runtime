@@ -81,35 +81,35 @@ public class JdbcInput implements Serializable {
                 final int idx = i;
                 final String name = metaData.getColumnLabel(i);
                 switch (metaData.getColumnType(i)) { // todo: real impl would use a mapper and not do it here
-                case Types.VARCHAR:
-                    mapper.put(name, () -> {
-                        try {
-                            return resultSet.getString(idx);
-                        } catch (final SQLException e) {
-                            log.warn(e.getMessage(), e);
-                            return null;
-                        }
-                    });
-                    break;
-                case Types.DOUBLE:
-                    mapper.put(name, () -> {
-                        try {
-                            return resultSet.getDouble(idx);
-                        } catch (final SQLException e) {
-                            log.warn(e.getMessage(), e);
-                            return null;
-                        }
-                    });
-                    break;
-                default:
-                    mapper.put(name, () -> {
-                        try {
-                            return resultSet.getObject(idx);
-                        } catch (final SQLException e) {
-                            log.warn(e.getMessage(), e);
-                            return null;
-                        }
-                    });
+                    case Types.VARCHAR:
+                        mapper.put(name, () -> {
+                            try {
+                                return resultSet.getString(idx);
+                            } catch (final SQLException e) {
+                                log.warn(e.getMessage(), e);
+                                return null;
+                            }
+                        });
+                        break;
+                    case Types.DOUBLE:
+                        mapper.put(name, () -> {
+                            try {
+                                return resultSet.getDouble(idx);
+                            } catch (final SQLException e) {
+                                log.warn(e.getMessage(), e);
+                                return null;
+                            }
+                        });
+                        break;
+                    default:
+                        mapper.put(name, () -> {
+                            try {
+                                return resultSet.getObject(idx);
+                            } catch (final SQLException e) {
+                                log.warn(e.getMessage(), e);
+                                return null;
+                            }
+                        });
                 }
             }
         }

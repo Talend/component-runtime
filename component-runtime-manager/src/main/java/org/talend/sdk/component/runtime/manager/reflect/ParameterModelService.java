@@ -172,34 +172,34 @@ public class ParameterModelService {
         final List<ParameterMeta> nested = new ArrayList<>();
         final List<String> proposals = new ArrayList<>();
         switch (type) {
-        case OBJECT:
-            addI18nPackageIfPossible(i18nPackages, genericType);
-            final List<ParameterMeta> meta = buildParametersMetas(name, normalizedPrefix + ".", genericType,
-                    annotations, i18nPackages, ignoreI18n, context);
-            meta.sort(Comparator.comparing(ParameterMeta::getName));
-            nested.addAll(meta);
-            break;
-        case ARRAY:
-            final Type nestedType = Class.class.isInstance(genericType) && Class.class.cast(genericType).isArray()
-                    ? Class.class.cast(genericType).getComponentType()
-                    : ParameterizedType.class.cast(genericType).getActualTypeArguments()[0];
-            addI18nPackageIfPossible(i18nPackages, nestedType);
-            nested
-                    .addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].", nestedType,
-                            Class.class.isInstance(nestedType) ? Class.class.cast(nestedType).getAnnotations()
-                                    : NO_ANNOTATIONS,
-                            i18nPackages, ignoreI18n, context));
-            break;
-        case ENUM:
-            addI18nPackageIfPossible(i18nPackages, genericType);
-            proposals
-                    .addAll(Stream
-                            .of(((Class<? extends Enum<?>>) genericType).getEnumConstants())
-                            .map(Enum::name)
-                            // sorted() // don't sort, let the dev use the order he wants
-                            .collect(toList()));
-            break;
-        default:
+            case OBJECT:
+                addI18nPackageIfPossible(i18nPackages, genericType);
+                final List<ParameterMeta> meta = buildParametersMetas(name, normalizedPrefix + ".", genericType,
+                        annotations, i18nPackages, ignoreI18n, context);
+                meta.sort(Comparator.comparing(ParameterMeta::getName));
+                nested.addAll(meta);
+                break;
+            case ARRAY:
+                final Type nestedType = Class.class.isInstance(genericType) && Class.class.cast(genericType).isArray()
+                        ? Class.class.cast(genericType).getComponentType()
+                        : ParameterizedType.class.cast(genericType).getActualTypeArguments()[0];
+                addI18nPackageIfPossible(i18nPackages, nestedType);
+                nested
+                        .addAll(buildParametersMetas(name + "[${index}]", normalizedPrefix + "[${index}].", nestedType,
+                                Class.class.isInstance(nestedType) ? Class.class.cast(nestedType).getAnnotations()
+                                        : NO_ANNOTATIONS,
+                                i18nPackages, ignoreI18n, context));
+                break;
+            case ENUM:
+                addI18nPackageIfPossible(i18nPackages, genericType);
+                proposals
+                        .addAll(Stream
+                                .of(((Class<? extends Enum<?>>) genericType).getEnumConstants())
+                                .map(Enum::name)
+                                // sorted() // don't sort, let the dev use the order he wants
+                                .collect(toList()));
+                break;
+            default:
         }
         // don't sort here to ensure we don't mess up parameter method ordering
         return new ParameterMeta(source, genericType, type, normalizedPrefix, name,
@@ -308,23 +308,23 @@ public class ParameterModelService {
         }
         if (Class.class.isInstance(type)) {
             switch (findType(type)) {
-            case ENUM:
-            case STRING:
-            case NUMBER:
-            case BOOLEAN:
-                return singletonList(buildParameter(name, prefix, new ParameterMeta.Source() {
+                case ENUM:
+                case STRING:
+                case NUMBER:
+                case BOOLEAN:
+                    return singletonList(buildParameter(name, prefix, new ParameterMeta.Source() {
 
-                    @Override
-                    public String name() {
-                        return name;
-                    }
+                        @Override
+                        public String name() {
+                            return name;
+                        }
 
-                    @Override
-                    public Class<?> declaringClass() {
-                        return Class.class.cast(type);
-                    }
-                }, type, annotations, i18nPackages, ignoreI18n, context));
-            default:
+                        @Override
+                        public Class<?> declaringClass() {
+                            return Class.class.cast(type);
+                        }
+                    }, type, annotations, i18nPackages, ignoreI18n, context));
+                default:
             }
             return buildObjectParameters(prefix, Class.class.cast(type), i18nPackages, ignoreI18n, context);
         }

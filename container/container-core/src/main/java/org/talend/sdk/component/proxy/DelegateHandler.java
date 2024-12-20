@@ -47,11 +47,11 @@ public class DelegateHandler implements InvocationHandler {
     protected Object doHandleObjectMethods(final Method method, final Object[] args)
             throws IllegalAccessException, InvocationTargetException {
         switch (method.getName()) {
-        case "equals":
-            return args[0] != null && Proxy.isProxyClass(args[0].getClass())
-                    && this == Proxy.getInvocationHandler(args[0]);
-        default:
-            return method.invoke(this, args);
+            case "equals":
+                return args[0] != null && Proxy.isProxyClass(args[0].getClass())
+                        && this == Proxy.getInvocationHandler(args[0]);
+            default:
+                return method.invoke(this, args);
         }
     }
 }

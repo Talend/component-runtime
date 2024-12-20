@@ -34,10 +34,10 @@ public final class AvroSchemas {
 
     public static Schema unwrapUnion(final Schema schema) {
         switch (schema.getType()) {
-        case UNION:
-            return schema.getTypes().stream().filter(it -> it.getType() != NULL).findFirst().orElse(null);
-        default:
-            return schema;
+            case UNION:
+                return schema.getTypes().stream().filter(it -> it.getType() != NULL).findFirst().orElse(null);
+            default:
+                return schema;
         }
     }
 

@@ -75,51 +75,51 @@ public class PayloadMapper {
         final String name = definition.getName();
         final String newPath = contextualPrefix + (contextualPrefix.isEmpty() ? "" : ".") + name;
         switch (definition.getType()) {
-        case OBJECT: {
-            onObject(definitions, definition, config, json, name, newPath);
-            break;
-        }
-        case ARRAY: {
-            onArray(definition.getNestedParameters(), definition, config, newPath, json, name);
-            break;
-        }
-        case BOOLEAN:
-            final String boolValue = config.get(newPath);
-            if (boolValue == null || boolValue.isEmpty()) {
-                parameterVisitor.onParameter(definition, JsonValue.NULL);
-            } else {
-                final boolean value = Boolean.parseBoolean(boolValue.trim());
-                parameterVisitor.onParameter(definition, value ? JsonValue.TRUE : JsonValue.FALSE);
-                json.add(name, value);
+            case OBJECT: {
+                onObject(definitions, definition, config, json, name, newPath);
+                break;
             }
-            ofNullable(boolValue)
-                    .map(String::trim)
-                    .filter(v -> !v.isEmpty())
-                    .ifPresent(v -> json.add(name, Boolean.parseBoolean(v)));
-            break;
-        case NUMBER:
-            final String numberValue = config.get(newPath);
-            if (numberValue == null || numberValue.isEmpty()) {
-                parameterVisitor.onParameter(definition, JsonValue.NULL);
-            } else {
-                final Double value = Double.valueOf(numberValue.trim());
-                parameterVisitor.onParameter(definition, jsonp.createValue(value));
-                final long asLong = value.longValue();
-                if (value == asLong) {
-                    json.add(name, asLong);
+            case ARRAY: {
+                onArray(definition.getNestedParameters(), definition, config, newPath, json, name);
+                break;
+            }
+            case BOOLEAN:
+                final String boolValue = config.get(newPath);
+                if (boolValue == null || boolValue.isEmpty()) {
+                    parameterVisitor.onParameter(definition, JsonValue.NULL);
                 } else {
+                    final boolean value = Boolean.parseBoolean(boolValue.trim());
+                    parameterVisitor.onParameter(definition, value ? JsonValue.TRUE : JsonValue.FALSE);
                     json.add(name, value);
                 }
+                ofNullable(boolValue)
+                        .map(String::trim)
+                        .filter(v -> !v.isEmpty())
+                        .ifPresent(v -> json.add(name, Boolean.parseBoolean(v)));
+                break;
+            case NUMBER:
+                final String numberValue = config.get(newPath);
+                if (numberValue == null || numberValue.isEmpty()) {
+                    parameterVisitor.onParameter(definition, JsonValue.NULL);
+                } else {
+                    final Double value = Double.valueOf(numberValue.trim());
+                    parameterVisitor.onParameter(definition, jsonp.createValue(value));
+                    final long asLong = value.longValue();
+                    if (value == asLong) {
+                        json.add(name, asLong);
+                    } else {
+                        json.add(name, value);
+                    }
+                }
+                break;
+            case ENUM:
+            case STRING: {
+                final String value = config.get(newPath);
+                parameterVisitor.onParameter(definition, value == null ? JsonValue.NULL : jsonp.createValue(value));
+                ofNullable(value).ifPresent(v -> json.add(name, v));
+                break;
             }
-            break;
-        case ENUM:
-        case STRING: {
-            final String value = config.get(newPath);
-            parameterVisitor.onParameter(definition, value == null ? JsonValue.NULL : jsonp.createValue(value));
-            ofNullable(value).ifPresent(v -> json.add(name, v));
-            break;
-        }
-        default:
+            default:
         }
     }
 
@@ -181,16 +181,16 @@ public class PayloadMapper {
     private JsonValue onArrayPrimitive(final ParameterMeta itemDef, final ArrayEntry e) {
         final String value = e.entry.getValue();
         switch (itemDef.getType()) {
-        case BOOLEAN:
-            return Boolean.parseBoolean(value.trim()) ? JsonValue.TRUE : JsonValue.FALSE;
-        case NUMBER:
-            final Double number = Double.valueOf(value.trim());
-            return number == number.longValue() ? jsonp.createValue(number.longValue()) : jsonp.createValue(number);
-        case ENUM:
-        case STRING:
-            return jsonp.createValue(value);
-        default:
-            throw new IllegalArgumentException("Unsupported structure in " + "array: " + itemDef.getType());
+            case BOOLEAN:
+                return Boolean.parseBoolean(value.trim()) ? JsonValue.TRUE : JsonValue.FALSE;
+            case NUMBER:
+                final Double number = Double.valueOf(value.trim());
+                return number == number.longValue() ? jsonp.createValue(number.longValue()) : jsonp.createValue(number);
+            case ENUM:
+            case STRING:
+                return jsonp.createValue(value);
+            default:
+                throw new IllegalArgumentException("Unsupported structure in " + "array: " + itemDef.getType());
         }
     }
 

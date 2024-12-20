@@ -50,24 +50,25 @@ public class MvnCoordinateToFileConverter {
         }
 
         switch (segments.length) {
-        case 3:
-            // g:a:v
-            segments = new String[] { segments[0], segments[1], "jar", null, segments[2], "compile" };
-            break;
-        case 4:
-            // g:a:t:v
-            segments = new String[] { segments[0], segments[1], segments[2], null, segments[3], "compile" };
-            break;
-        case 5:
-            if (SCOPES.contains(segments[4])) {
-                // g:a:t:v:s
-                segments = new String[] { segments[0], segments[1], segments[2], null, segments[3], segments[4] };
-            } else {
-                // g:a:t:c:v
-                segments = new String[] { segments[0], segments[1], segments[2], segments[3], segments[4], "compile" };
-            }
-            break;
-        default:
+            case 3:
+                // g:a:v
+                segments = new String[] { segments[0], segments[1], "jar", null, segments[2], "compile" };
+                break;
+            case 4:
+                // g:a:t:v
+                segments = new String[] { segments[0], segments[1], segments[2], null, segments[3], "compile" };
+                break;
+            case 5:
+                if (SCOPES.contains(segments[4])) {
+                    // g:a:t:v:s
+                    segments = new String[] { segments[0], segments[1], segments[2], null, segments[3], segments[4] };
+                } else {
+                    // g:a:t:c:v
+                    segments =
+                            new String[] { segments[0], segments[1], segments[2], segments[3], segments[4], "compile" };
+                }
+                break;
+            default:
         }
 
         // group:artifact:type[:classifier]:version:scope
