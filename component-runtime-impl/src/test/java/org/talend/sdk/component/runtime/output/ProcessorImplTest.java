@@ -69,6 +69,7 @@ class ProcessorImplTest {
             data.forEach(it -> processor.onNext(n -> it, null));
             assertNull(Bufferized.RECORDS);
             processor.afterGroup(null);
+            assertFalse(processor.isLastGroupUsed());
             assertEquals(data, Bufferized.RECORDS);
             Bufferized.RECORDS = null;
         }
@@ -77,18 +78,12 @@ class ProcessorImplTest {
 
     @Test
     void bulkGroupWithLastGroup() {
-        Bufferized.RECORDS = null;
         final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new SampleLastGroupOutput());
         processor.start();
-        for (int i = 0; i < 3; i++) {
-            final Collection<Record> data = IntStream
-                    .rangeClosed(1, 3)
-                    .mapToObj(idx -> new RecordImpl.BuilderImpl().withInt("value", idx).build())
-                    .collect(toList());
-            processor.beforeGroup();
-            assertTrue(processor.isLastGroupUsed());
-            assertFalse(SampleLastGroupOutput.isCalled);
-        }
+        processor.beforeGroup();
+        assertTrue(processor.isLastGroupUsed());
+        processor.afterGroup(NO_OUTPUT, true);
+        assertTrue(SampleLastGroupOutput.isCalled);
         processor.stop();
     }
 
