@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -799,40 +800,18 @@ class ReflectionServiceTest {
 
     @Test
     void nestedRequiredActiveIf_Rest() throws NoSuchMethodException {
-        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
-        final List<ParameterMeta> metas = service
-                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
-                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
-        final Object[] params = reflectionService
-                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
-                        emptyMap(), metas)
-                .apply(new HashMap<String, String>() {
-
-                    {
-                        put("value.apiDesc.loadAPI", "false");
-                    }
-                });
-
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("value.apiDesc.loadAPI", "false");
+        final Object[] params = buildObjectParams("visibility", payload, MethodsHolder.RestDatastore.class);
         assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
     }
 
     @Test
     void nestedRequiredActiveIfTrue_Rest() throws NoSuchMethodException {
-        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
-        final List<ParameterMeta> metas = service
-                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
-                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
-        final Object[] params = reflectionService
-                .parameterFactory(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
-                        emptyMap(), metas)
-                .apply(new HashMap<String, String>() {
-
-                    {
-                        put("value.apiDesc.loadAPI", "true");
-                        put("value.complexConfiguration.url", "https://talend.com");
-                    }
-                });
-
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("value.apiDesc.loadAPI", "true");
+        payload.put("value.complexConfiguration.url", "https://talend.com");
+        final Object[] params = buildObjectParams("visibility", payload, MethodsHolder.RestDatastore.class);
         assertTrue(MethodsHolder.RestDatastore.class.isInstance(params[0]));
         final MethodsHolder.RestDatastore value = MethodsHolder.RestDatastore.class.cast(params[0]);
         assertTrue(value.getApiDesc().isLoadAPI());
@@ -841,22 +820,149 @@ class ReflectionServiceTest {
 
     @Test
     void nestedRequiredActiveIfWrong_Rest() throws NoSuchMethodException {
-        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
-        final List<ParameterMeta> metas = service
-                .buildParameterMetas(MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
-                        "def", new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("value.apiDesc.loadAPI", "true");
+        payload.put("value.complexConfiguration.url", "");
         assertThrows(IllegalArgumentException.class,
-                () -> reflectionService
-                        .parameterFactory(
-                                MethodsHolder.class.getMethod("visibility", MethodsHolder.RestDatastore.class),
-                                emptyMap(), metas)
-                        .apply(new HashMap<String, String>() {
+                () -> buildObjectParams("visibility", payload, MethodsHolder.RestDatastore.class));
+    }
 
-                            {
-                                put("value.apiDesc.loadAPI", "true");
-                                put("value.complexConfiguration.url", " ");
-                            }
-                        }));
+    @Test
+    void simpleRequiredActiveIfFiltersOk() throws NoSuchMethodException {
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("configuration.logicalOpType", "ALL");
+        payload.put("configuration.logicalOpValue", "ALL");
+        final Object[] params = buildObjectParams("visibility", payload, MethodsHolder.FilterConfiguration.class);
+        assertTrue(MethodsHolder.FilterConfiguration.class.isInstance(params[0]));
+        final MethodsHolder.FilterConfiguration value = MethodsHolder.FilterConfiguration.class.cast(params[0]);
+        assertEquals("ALL", value.getLogicalOpType());
+        assertEquals("ALL", value.getLogicalOpValue());
+    }
+
+    @Test
+    void simpleRequiredActiveIfFiltersKo() throws NoSuchMethodException {
+        final String expected = "- Property 'configuration.logicalOpValue' is required.";
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("configuration.logicalOpType", "ALL");
+        try {
+            buildObjectParams("visibility", payload, MethodsHolder.FilterConfiguration.class);
+        } catch (IllegalArgumentException e) {
+            assertEquals(expected, e.getMessage());
+        }
+    }
+
+    @Test
+    void simpleNestedRequiredActiveIfFiltersOk() throws NoSuchMethodException {
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("configuration.logicalOpType", "AL");
+        payload.put("configuration.filters[0].columnName", "col1");
+        payload.put("configuration.filters[0].operator", "IS_VALID");
+        payload.put("configuration.filters[0].value", "VALID");
+        final Object[] params = buildObjectParams("visibility", payload, MethodsHolder.FilterConfiguration.class);
+        assertTrue(MethodsHolder.FilterConfiguration.class.isInstance(params[0]));
+        final MethodsHolder.FilterConfiguration value = MethodsHolder.FilterConfiguration.class.cast(params[0]);
+        assertEquals("VALID", value.getFilters().get(0).getValue());
+    }
+
+    @Test
+    void simpleNestedRequiredActiveIfFiltersKo() throws NoSuchMethodException {
+        final String expected = "- Property 'configuration.filters[${index}].value' is required.";
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("configuration.logicalOpType", "AL");
+        payload.put("configuration.filters[0].columnName", "col1");
+        payload.put("configuration.filters[0].operator", "IS_VALID");
+        try {
+            buildObjectParams("visibility", payload, MethodsHolder.FilterConfiguration.class);
+            fail("Cannot reach here!");
+        } catch (IllegalArgumentException e) {
+            assertEquals(expected, e.getMessage());
+        }
+    }
+
+    @Test
+    void nestedRequiredActiveIfFiltersOk() throws NoSuchMethodException {
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("configuration.logicalOpType", "AL");
+        // visibility (false) should not throw Property 'configuration.filters[${index}].value' is required.
+        payload.put("configuration.filters[0].columnName", "col0");
+        payload.put("configuration.filters[0].operator", "IS_NULL");
+        payload.put("configuration.filters[1].columnName", "col1");
+        payload.put("configuration.filters[1].operator", "IS_EMPTY");
+        payload.put("configuration.filters[2].columnName", "col2");
+        payload.put("configuration.filters[2].operator", "IS_NOT_NULL");
+        payload.put("configuration.filters[3].columnName", "col3");
+        payload.put("configuration.filters[3].operator", "IS_NOT_EMPTY");
+        final Object[] params = buildObjectParams("visibility", payload, MethodsHolder.FilterConfiguration.class);
+        assertTrue(MethodsHolder.FilterConfiguration.class.isInstance(params[0]));
+        final MethodsHolder.FilterConfiguration value = MethodsHolder.FilterConfiguration.class.cast(params[0]);
+        assertEquals("AL", value.getLogicalOpType());
+        assertEquals("col0", value.getFilters().get(0).getColumnName());
+    }
+
+    @Test
+    void nestedRequiredActiveIfFiltersKo() throws NoSuchMethodException {
+        final String expected = "- Property 'configuration.filters[${index}].value' is required.";
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("configuration.logicalOpType", "AL");
+        payload.put("configuration.filters[0].columnName", "col0");
+        payload.put("configuration.filters[0].operator", "IS_NULL");
+        payload.put("configuration.filters[0].value", "V");
+        payload.put("configuration.filters[1].columnName", "col1");
+        payload.put("configuration.filters[1].operator", "IS_EMPTY");
+        payload.put("configuration.filters[1].value", "V");
+        // this array element SHOULD BE VISIBLE and its value required
+        payload.put("configuration.filters[2].columnName", "col2");
+        payload.put("configuration.filters[2].operator", "IS_VALID");
+        try {
+            buildObjectParams("visibility", payload, MethodsHolder.FilterConfiguration.class);
+            fail("configuration.filters[2].operator=IS_VALID should be visible!");
+        } catch (IllegalArgumentException e) {
+            assertEquals(expected, e.getMessage());
+        }
+    }
+
+    @Test
+    void configWithActiveIfEnumOK() throws NoSuchMethodException {
+        final Map<String, String> payload = new HashMap<String, String>();
+        payload.put("configuration.bool1", "true");
+        payload.put("configuration.bool2", "false");
+        payload.put("configuration.bool3", "true");
+        payload.put("configuration.enumRequired", "ONE");
+        payload.put("configuration.enumIf", "ONE");
+        payload.put("configuration.enumIfs", "ONE");
+        final Object[] params = buildObjectParams("visibility", payload, MethodsHolder.ConfigWithActiveIfEnum.class);
+        assertTrue(MethodsHolder.ConfigWithActiveIfEnum.class.isInstance(params[0]));
+        final MethodsHolder.ConfigWithActiveIfEnum value = MethodsHolder.ConfigWithActiveIfEnum.class.cast(params[0]);
+        assertTrue(value.isBool1());
+    }
+
+    @Test
+    void configWithActiveIfEnumKoAll() throws NoSuchMethodException {
+        final String expected =
+                "- Property 'configuration.enumIf' is required.\n- Property 'configuration.enumIfs' is required.\n- Property 'configuration.enumRequired' is required.";
+        final Map<String, String> payload = new HashMap();
+        payload.put("configuration.bool1", "true");
+        payload.put("configuration.bool2", "false");
+        payload.put("configuration.bool3", "true");
+        try {
+            buildObjectParams("visibility", payload, MethodsHolder.ConfigWithActiveIfEnum.class);
+            fail("Cannot reach here!");
+        } catch (IllegalArgumentException e) {
+            assertEquals(expected, e.getMessage());
+        }
+    }
+
+    private Object[] buildObjectParams(final String method, final Map<String, String> payload, final Class<?>... args)
+            throws NoSuchMethodException {
+        return buildObjectParams(MethodsHolder.class.getMethod(method, args), payload);
+    }
+
+    private Object[] buildObjectParams(final Method factory, final Map<String, String> payload)
+            throws NoSuchMethodException {
+        final ParameterModelService service = new ParameterModelService(new PropertyEditorRegistry());
+        final List<ParameterMeta> metas = service.buildParameterMetas(factory, "def",
+                new BaseParameterEnricher.Context(new LocalConfigurationService(emptyList(), "test")));
+        return reflectionService.parameterFactory(factory, emptyMap(), metas).apply(payload);
     }
 
     private Function<Map<String, String>, Object[]> getComponentFactory(final Class<?> param,
