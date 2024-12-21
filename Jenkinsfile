@@ -707,10 +707,15 @@ pipeline {
     }
     always {
       script {
+        String prevResult = null
+        if (currentBuild.previousBuild) {
+          prevResult = currentBuild.previousBuild.result
+        }
+
         alertingTools.slack_result(
             env.SLACK_CI_CHANNEL,
             currentBuild.result,
-            currentBuild.previousBuild.result,
+            prevResult,
             true, // Post for success
             true, // Post for failure
             "Failure of $pomVersion $params.ACTION.")
