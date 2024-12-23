@@ -227,7 +227,7 @@ public class ModelVisitor {
         validateAfterVariableContainer(input);
     }
 
-    private void validateProducer(Class<?> input, List<Method> afterGroups) {
+    private void validateProducer(final Class<?> input, final List<Method> afterGroups) {
         final List<Method> producers = Stream
                 .of(input.getMethods())
                 .filter(m -> m.isAnnotationPresent(ElementListener.class))
