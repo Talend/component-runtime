@@ -560,22 +560,22 @@ public abstract class DocBaseGenerator extends BaseTask {
             }
 
             switch (p.getType()) {
-            case NUMBER:
-            case BOOLEAN:
-            case STRING:
-            case ENUM:
-                return ofNullable(instance.getValue())
-                        .map(String::valueOf)
-                        .map(it -> it.isEmpty() ? "<empty>" : it)
-                        .orElse(null);
-            case ARRAY:
-                return String
-                        .valueOf(Collection.class.isInstance(instance.getValue())
-                                ? Collection.class.cast(instance.getValue()).size()
-                                : Array.getLength(instance.getValue()));
-            case OBJECT:
-            default:
-                return null;
+                case NUMBER:
+                case BOOLEAN:
+                case STRING:
+                case ENUM:
+                    return ofNullable(instance.getValue())
+                            .map(String::valueOf)
+                            .map(it -> it.isEmpty() ? "<empty>" : it)
+                            .orElse(null);
+                case ARRAY:
+                    return String
+                            .valueOf(Collection.class.isInstance(instance.getValue())
+                                    ? Collection.class.cast(instance.getValue()).size()
+                                    : Array.getLength(instance.getValue()));
+                case OBJECT:
+                default:
+                    return null;
             }
         }
 

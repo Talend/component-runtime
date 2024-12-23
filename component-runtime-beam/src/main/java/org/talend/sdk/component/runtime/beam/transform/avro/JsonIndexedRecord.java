@@ -53,25 +53,25 @@ public class JsonIndexedRecord extends GenericData.Record {
             return null;
         }
         switch (jsonValue.getValueType()) {
-        case TRUE:
-            return true;
-        case FALSE:
-            return false;
-        case NUMBER:
-            return JsonNumber.class.cast(jsonValue).numberValue();
-        case STRING:
-            return JsonString.class.cast(jsonValue).getString();
-        case ARRAY:
-            return jsonValue
-                    .asJsonArray()
-                    .stream()
-                    .map(it -> toObject(jsonValue, schema.getElementType()))
-                    .collect(toList());
-        case OBJECT:
-            return new JsonIndexedRecord(jsonValue.asJsonObject(), schema);
-        case NULL:
-        default:
-            return null;
+            case TRUE:
+                return true;
+            case FALSE:
+                return false;
+            case NUMBER:
+                return JsonNumber.class.cast(jsonValue).numberValue();
+            case STRING:
+                return JsonString.class.cast(jsonValue).getString();
+            case ARRAY:
+                return jsonValue
+                        .asJsonArray()
+                        .stream()
+                        .map(it -> toObject(jsonValue, schema.getElementType()))
+                        .collect(toList());
+            case OBJECT:
+                return new JsonIndexedRecord(jsonValue.asJsonObject(), schema);
+            case NULL:
+            default:
+                return null;
         }
     }
 }

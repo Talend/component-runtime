@@ -51,12 +51,12 @@ public class BaseMavenDecrypter {
             }
         });
         switch (conditions.combination()) {
-        case AND:
-            return evaluations.allMatch(c -> c);
-        case OR:
-            return evaluations.anyMatch(c -> c);
-        default:
-            throw new IllegalArgumentException("Unsupported: " + conditions.combination());
+            case AND:
+                return evaluations.allMatch(c -> c);
+            case OR:
+                return evaluations.anyMatch(c -> c);
+            default:
+                throw new IllegalArgumentException("Unsupported: " + conditions.combination());
         }
     }
 }

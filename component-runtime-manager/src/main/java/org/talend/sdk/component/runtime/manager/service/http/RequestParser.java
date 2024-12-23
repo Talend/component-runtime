@@ -419,12 +419,12 @@ public class RequestParser {
                         .map(String::valueOf)
                         .map(q -> config.isEncode() ? queryEncode(q) : q);
                 switch (config.format) {
-                case MULTI:
-                    return collection.map(q -> new AbstractMap.SimpleEntry<>(key, q));
-                case CSV:
-                    return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.collect(toList()))));
-                default:
-                    throw new IllegalArgumentException("Unsupported formatting: " + config);
+                    case MULTI:
+                        return collection.map(q -> new AbstractMap.SimpleEntry<>(key, q));
+                    case CSV:
+                        return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.collect(toList()))));
+                    default:
+                        throw new IllegalArgumentException("Unsupported formatting: " + config);
                 }
             }
 

@@ -52,27 +52,27 @@ public class KitapSource implements Serializable {
         if (remaining > 0) {
             remaining--;
             switch (remaining) {
-            case 9:
-                final org.apache.logging.log4j.Logger log4j2 = LogManager.getLogger("log4j2");
-                log4j2.info("log4j2 info");
-                log4j2.error("log4j2 error");
-                break;
-            case 8:
-                final Logger log4j = Logger.getLogger("log4j");
-                log4j.info("log4j info");
-                log4j.error("log4j error");
-                break;
-            case 7:
-                final org.slf4j.Logger slf4jLogback = LoggerFactory.getLogger("logback");
-                slf4jLogback.info("logback info");
-                slf4jLogback.error("logback error");
-                break;
-            case 6:
-                final java.util.logging.Logger jul = java.util.logging.Logger.getLogger("jul");
-                jul.info("jul info");
-                jul.severe("jul error");
-                break;
-            default:
+                case 9:
+                    final org.apache.logging.log4j.Logger log4j2 = LogManager.getLogger("log4j2");
+                    log4j2.info("log4j2 info");
+                    log4j2.error("log4j2 error");
+                    break;
+                case 8:
+                    final Logger log4j = Logger.getLogger("log4j");
+                    log4j.info("log4j info");
+                    log4j.error("log4j error");
+                    break;
+                case 7:
+                    final org.slf4j.Logger slf4jLogback = LoggerFactory.getLogger("logback");
+                    slf4jLogback.info("logback info");
+                    slf4jLogback.error("logback error");
+                    break;
+                case 6:
+                    final java.util.logging.Logger jul = java.util.logging.Logger.getLogger("jul");
+                    jul.info("jul info");
+                    jul.severe("jul error");
+                    break;
+                default:
             }
             return factory.newRecordBuilder().withInt("record_number", configuration.recordCount - remaining).build();
         }
