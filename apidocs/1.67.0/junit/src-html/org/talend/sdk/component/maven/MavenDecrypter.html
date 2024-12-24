@@ -239,20 +239,20 @@
 <span class="source-line-no">226</span><span id="line-226">                }</span>
 <span class="source-line-no">227</span><span id="line-227">            } else if (server != null &amp;&amp; current != null) {</span>
 <span class="source-line-no">228</span><span id="line-228">                switch (qName) {</span>
-<span class="source-line-no">229</span><span id="line-229">                case "id":</span>
-<span class="source-line-no">230</span><span id="line-230">                    server.setId(current.toString());</span>
-<span class="source-line-no">231</span><span id="line-231">                    break;</span>
-<span class="source-line-no">232</span><span id="line-232">                case "username":</span>
-<span class="source-line-no">233</span><span id="line-233">                    try {</span>
-<span class="source-line-no">234</span><span id="line-234">                        server.setUsername(doDecrypt(current.toString(), passphrase));</span>
-<span class="source-line-no">235</span><span id="line-235">                    } catch (final RuntimeException re) {</span>
-<span class="source-line-no">236</span><span id="line-236">                        server.setUsername(current.toString());</span>
-<span class="source-line-no">237</span><span id="line-237">                    }</span>
-<span class="source-line-no">238</span><span id="line-238">                    break;</span>
-<span class="source-line-no">239</span><span id="line-239">                case "password":</span>
-<span class="source-line-no">240</span><span id="line-240">                    encryptedPassword = current.toString();</span>
-<span class="source-line-no">241</span><span id="line-241">                    break;</span>
-<span class="source-line-no">242</span><span id="line-242">                default:</span>
+<span class="source-line-no">229</span><span id="line-229">                    case "id":</span>
+<span class="source-line-no">230</span><span id="line-230">                        server.setId(current.toString());</span>
+<span class="source-line-no">231</span><span id="line-231">                        break;</span>
+<span class="source-line-no">232</span><span id="line-232">                    case "username":</span>
+<span class="source-line-no">233</span><span id="line-233">                        try {</span>
+<span class="source-line-no">234</span><span id="line-234">                            server.setUsername(doDecrypt(current.toString(), passphrase));</span>
+<span class="source-line-no">235</span><span id="line-235">                        } catch (final RuntimeException re) {</span>
+<span class="source-line-no">236</span><span id="line-236">                            server.setUsername(current.toString());</span>
+<span class="source-line-no">237</span><span id="line-237">                        }</span>
+<span class="source-line-no">238</span><span id="line-238">                        break;</span>
+<span class="source-line-no">239</span><span id="line-239">                    case "password":</span>
+<span class="source-line-no">240</span><span id="line-240">                        encryptedPassword = current.toString();</span>
+<span class="source-line-no">241</span><span id="line-241">                        break;</span>
+<span class="source-line-no">242</span><span id="line-242">                    default:</span>
 <span class="source-line-no">243</span><span id="line-243">                }</span>
 <span class="source-line-no">244</span><span id="line-244">                current = null;</span>
 <span class="source-line-no">245</span><span id="line-245">            }</span>
