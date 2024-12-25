@@ -17,10 +17,9 @@ package org.talend.sdk.component.runtime.di.beam.components;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -57,7 +56,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
@@ -79,9 +78,7 @@ import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
-import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordConverters;
-import org.talend.sdk.component.runtime.record.RecordImpl;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -170,7 +167,7 @@ public class DIBulkAutoChunkTest {
                 .filter(actionMeta -> "create_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object connnection = actionMeta.getInvoker().apply(runtimeParams);
-//                    assertEquals("v1100connection_1value", connnection);
+                    assertEquals("v1200connection_1value", connnection);
 
                     globalMap.put("conn_tS3Connection_1", connnection);
                 });
@@ -206,7 +203,7 @@ public class DIBulkAutoChunkTest {
                             .getServices()
                             .get(Jsonb.class));
 
-            final AutoChunkProcessor processorProcessor = new AutoChunkProcessor(-1, processor);
+            final AutoChunkProcessor processorProcessor = new AutoChunkProcessor(200, processor);
 
             processorProcessor.start();
             globalMap.put("processorProcessor", processorProcessor);
@@ -305,6 +302,8 @@ public class DIBulkAutoChunkTest {
                 return read;
             }, outputsProcessor);
         }
+
+        processorProcessor.flush(outputsProcessor);
     }
 
     private void doClose(final Map<String, Object> globalMap) {
@@ -340,13 +339,11 @@ public class DIBulkAutoChunkTest {
 
     @org.talend.sdk.component.api.processor.Processor(name = "outputDi", family = "DIBulkAutoChunkTest")
     public static class OutputComponentDi implements Serializable {
-
-        @RuntimeContext
-        private transient RuntimeContextHolder context;
+//
+//        @RuntimeContext
+//        private transient RuntimeContextHolder context;
 
         int counter;
-
-        int groupCounter;
 
         @Connection
         Object conn;
@@ -357,25 +354,18 @@ public class DIBulkAutoChunkTest {
             assertNotNull(conn);
 
             counter++;
-//            if (counter % 100 == 0) {
-//                System.err.println("--on element: " + counter);
-//            }
         }
 
         @BeforeGroup
         public void beforeGroup() {
-            if (counter % 100 == 0) {
-                System.err.println("--before : " + counter);
-            }
         }
 
         @AfterGroup
-        public void afterGroup(@Output("reject") final OutputEmitter<Record> reject) {
-            groupCounter++;
-            if (groupCounter % 100 == 0) {
-                System.err.println("--after group: " + groupCounter);
+        public void afterGroup(@Output("reject") final OutputEmitter<Record> reject, @LastGroup boolean isLast) {
+            if (isLast) {
+                assertTrue(counter == 1000);
             }
-        }
+         }
     }
 
     @Data
@@ -416,7 +406,7 @@ public class DIBulkAutoChunkTest {
                 public boolean close() throws ComponentException {
                     assertEquals("value4Close", context.get("key"));
 
-                    return "v1100connection_1value".equals(this.getConnection())
+                    return "v1200connection_1value".equals(this.getConnection())
                             && "value".equals(context.getGlobal("key"))
                             && "close_1".equals(context.getConnectorId());
                 }
