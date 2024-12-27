@@ -97,7 +97,7 @@ public class DIBulkAutoChunkTest {
     static void forceManagerInit() {
         final ComponentManager manager = ComponentManager.instance();
         if (manager.find(Stream::of).count() == 0) {
-            manager.addPlugin(new File("target" + File.separator + "test-classes").getAbsolutePath());
+            manager.addPlugin(new File("target/test-classes").getAbsolutePath());
         }
     }
 
@@ -135,7 +135,7 @@ public class DIBulkAutoChunkTest {
                 .getServices()
                 .stream()
                 .flatMap(c -> c.getActions().stream())
-                .filter(actionMeta -> "close_connection".equals(actionMeta.getType()))
+                .filter(actionMeta -> "DIBulkAutoChunkTest".equals(actionMeta.getFamily()) && "close_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object result = actionMeta.getInvoker().apply(null);
                     CloseConnectionObject cco = (CloseConnectionObject) result;
@@ -164,7 +164,7 @@ public class DIBulkAutoChunkTest {
                 .getServices()
                 .stream()
                 .flatMap(c -> c.getActions().stream())
-                .filter(actionMeta -> "create_connection".equals(actionMeta.getType()))
+                .filter(actionMeta -> "DIBulkAutoChunkTest".equals(actionMeta.getFamily()) && "create_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object connnection = actionMeta.getInvoker().apply(runtimeParams);
                     assertEquals("v2200connection_1value", connnection);
@@ -339,9 +339,9 @@ public class DIBulkAutoChunkTest {
 
     @org.talend.sdk.component.api.processor.Processor(name = "outputDi", family = "DIBulkAutoChunkTest")
     public static class OutputComponentDi implements Serializable {
-//
-//        @RuntimeContext
-//        private transient RuntimeContextHolder context;
+
+        @RuntimeContext
+        private transient RuntimeContextHolder context;
 
         int counter;
 
@@ -405,7 +405,6 @@ public class DIBulkAutoChunkTest {
 
                 public boolean close() throws ComponentException {
                     assertEquals("value4Close", context.get("key"));
-System.err.println("close connection--" + this.getConnection());
                     return "v2200connection_1value".equals(this.getConnection())
                             && "value".equals(context.getGlobal("key"))
                             && "close_1".equals(context.getConnectorId());
