@@ -139,7 +139,7 @@ public class DIBulkAutoChunkTest {
                 .forEach(actionMeta -> {
                     Object result = actionMeta.getInvoker().apply(null);
                     CloseConnectionObject cco = (CloseConnectionObject) result;
-                    Object conn = globalMap.get("conn_tS3Connection_1");
+                    Object conn = globalMap.get("conn_tS3Connection_2");
 
                     injectValue(cco, conn);
 
@@ -150,7 +150,7 @@ public class DIBulkAutoChunkTest {
 
     private void callConnectionComponent(final ComponentManager manager) {
         final Map<String, String> runtimeParams = new HashMap<>();
-        runtimeParams.put("conn.para1", "v1");
+        runtimeParams.put("conn.para1", "v2");
         runtimeParams.put("conn.para2", "200");
 
         String plugin = "test-classes";
@@ -167,9 +167,9 @@ public class DIBulkAutoChunkTest {
                 .filter(actionMeta -> "create_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object connnection = actionMeta.getInvoker().apply(runtimeParams);
-                    assertEquals("v1200connection_1value", connnection);
+                    assertEquals("v2200connection_1value", connnection);
 
-                    globalMap.put("conn_tS3Connection_1", connnection);
+                    globalMap.put("conn_tS3Connection_2", connnection);
                 });
     }
 
@@ -186,7 +186,7 @@ public class DIBulkAutoChunkTest {
                     field.setAccessible(true);
                 }
                 Object v = field.get(processor);
-                Object conn = globalMap.get("conn_tS3Connection_1");
+                Object conn = globalMap.get("conn_tS3Connection_2");
 
                 injectValue(v, conn);
 
@@ -405,8 +405,8 @@ public class DIBulkAutoChunkTest {
 
                 public boolean close() throws ComponentException {
                     assertEquals("value4Close", context.get("key"));
-
-                    return "v1200connection_1value".equals(this.getConnection())
+System.err.println("close connection--" + this.getConnection());
+                    return "v2200connection_1value".equals(this.getConnection())
                             && "value".equals(context.getGlobal("key"))
                             && "close_1".equals(context.getConnectorId());
                 }
