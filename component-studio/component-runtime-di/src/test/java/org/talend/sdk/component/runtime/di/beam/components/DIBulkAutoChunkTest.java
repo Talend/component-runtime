@@ -86,7 +86,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-public class DIBulkAutoChunkTest {
+class DIBulkAutoChunkTest {
 
     protected static RecordBuilderFactory builderFactory;
 
@@ -363,7 +363,7 @@ public class DIBulkAutoChunkTest {
         @AfterGroup
         public void afterGroup(@Output("reject") final OutputEmitter<Record> reject, @LastGroup boolean isLast) {
             if (isLast) {
-                assertTrue(counter == 1000);
+                assertEquals(1000, counter);
             }
          }
     }

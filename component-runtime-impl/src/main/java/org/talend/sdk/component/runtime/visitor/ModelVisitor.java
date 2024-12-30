@@ -58,6 +58,7 @@ public class ModelVisitor {
     private static final Set<Class<?>> SUPPORTED_AFTER_VARIABLES_TYPES = new HashSet<>(Arrays
             .asList(Boolean.class, Byte.class, byte[].class, Character.class, Date.class, Double.class, Float.class,
                     BigDecimal.class, Integer.class, Long.class, Object.class, Short.class, String.class, List.class));
+    public static final String MUST_NOT_HAVE_ANY_PARAMETER = " must not have any parameter";
 
     public void visit(final Class<?> type, final ModelListener listener, final boolean validate) {
         if (getSupportedComponentTypes().noneMatch(type::isAnnotationPresent)) { // unlikely but just in case
@@ -113,7 +114,7 @@ public class ModelVisitor {
         if (!infinite) {
             Stream.of(type.getMethods()).filter(m -> m.isAnnotationPresent(Assessor.class)).forEach(m -> {
                 if (m.getParameterCount() > 0) {
-                    throw new IllegalArgumentException(m + " must not have any parameter");
+                    throw new IllegalArgumentException(m + MUST_NOT_HAVE_ANY_PARAMETER);
                 }
             });
         }
@@ -150,7 +151,7 @@ public class ModelVisitor {
                     // for now we don't support injection propagation since the mapper should
                     // already own all the config
                     if (m.getParameterCount() > 0) {
-                        throw new IllegalArgumentException(m + " must not have any parameter");
+                        throw new IllegalArgumentException(m + MUST_NOT_HAVE_ANY_PARAMETER);
                     }
                 });
 
@@ -166,7 +167,7 @@ public class ModelVisitor {
         }
 
         if (producers.get(0).getParameterCount() > 0) {
-            throw new IllegalArgumentException(producers.get(0) + " must not have any parameter");
+            throw new IllegalArgumentException(producers.get(0) + MUST_NOT_HAVE_ANY_PARAMETER);
         }
 
         validateAfterVariableAnnotationDeclaration(input);
@@ -183,7 +184,7 @@ public class ModelVisitor {
         }
 
         if (driverRunners.get(0).getParameterCount() > 0) {
-            throw new IllegalArgumentException(driverRunners.get(0) + " must not have any parameter");
+            throw new IllegalArgumentException(driverRunners.get(0) + MUST_NOT_HAVE_ANY_PARAMETER);
         }
 
         validateAfterVariableAnnotationDeclaration(standalone);
@@ -219,7 +220,7 @@ public class ModelVisitor {
 
         Stream.of(input.getMethods()).filter(m -> m.isAnnotationPresent(BeforeGroup.class)).forEach(m -> {
             if (m.getParameterCount() > 0) {
-                throw new IllegalArgumentException(m + " must not have any parameter");
+                throw new IllegalArgumentException(m + MUST_NOT_HAVE_ANY_PARAMETER);
             }
         });
 
