@@ -576,12 +576,12 @@ public class ComponentManager implements AutoCloseable {
 
     protected void info(final String msg) {
         switch (logInfoLevelMapping.intValue()) {
-        case 500: // FINE
-            log.debug(msg);
-            break;
-        case 800: // INFo
-        default:
-            log.info(msg);
+            case 500: // FINE
+                log.debug(msg);
+                break;
+            case 800: // INFo
+            default:
+                log.info(msg);
         }
     }
 
@@ -655,27 +655,27 @@ public class ComponentManager implements AutoCloseable {
         if (url != null) {
             Path plugin = null;
             switch (url.getProtocol()) {
-            case "bundleresource": // studio on equinox, this is the definition part so we don't register it
-                break;
-            case "file":
-                plugin = toFile(resource, url);
-                break;
-            case "jar":
-                if (url.getPath() != null && url.getPath().startsWith("mvn:")) { // pax mvn
-                    // studio temporary integration, to drop when studio integrates correctly tcomp
+                case "bundleresource": // studio on equinox, this is the definition part so we don't register it
                     break;
-                }
-                final String spec = url.getFile();
-                final int separator = spec.indexOf('!');
-                if (separator > 0) {
-                    try {
-                        plugin = PathFactory.get(decode(new URL(spec.substring(0, separator)).getFile()));
-                    } catch (final MalformedURLException e) {
-                        // no-op
+                case "file":
+                    plugin = toFile(resource, url);
+                    break;
+                case "jar":
+                    if (url.getPath() != null && url.getPath().startsWith("mvn:")) { // pax mvn
+                        // studio temporary integration, to drop when studio integrates correctly tcomp
+                        break;
                     }
-                }
-                break;
-            default:
+                    final String spec = url.getFile();
+                    final int separator = spec.indexOf('!');
+                    if (separator > 0) {
+                        try {
+                            plugin = PathFactory.get(decode(new URL(spec.substring(0, separator)).getFile()));
+                        } catch (final MalformedURLException e) {
+                            // no-op
+                        }
+                    }
+                    break;
+                default:
             }
             if (plugin == null) {
                 log.warn("Can't find " + url);

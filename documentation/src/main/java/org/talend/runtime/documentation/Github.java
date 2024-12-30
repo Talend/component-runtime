@@ -203,12 +203,12 @@ public class Github {
     private String normalizeLogin(final String login) {
         if (login != null) {
             switch (login.toLowerCase(ROOT)) {
-            case "jsomsanith-tlnd":
-            case "jso-technologies":
-                return "jsomsanith";
-            case "toutpt":
-                return "jmfrancois";
-            default:
+                case "jsomsanith-tlnd":
+                case "jso-technologies":
+                    return "jsomsanith";
+                case "toutpt":
+                    return "jmfrancois";
+                default:
             }
         }
         return login;

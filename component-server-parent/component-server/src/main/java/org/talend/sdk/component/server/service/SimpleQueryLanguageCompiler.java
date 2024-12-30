@@ -58,49 +58,49 @@ public class SimpleQueryLanguageCompiler {
             index = moveIndex(buffer, token, true);
 
             switch (token.type) {
-            case VALUE: {
-                // expecting operator and value
-                final Token opToken = nextToken(buffer, index);
-                if (opToken.type != TokenType.OPERATOR) {
-                    throw new IllegalArgumentException(
-                            "Expected an operator after token '" + token.value + "' at index " + token.end);
-                }
-                index = moveIndex(buffer, opToken, true);
-                final Token expectedValueToken = nextToken(buffer, index);
-                if (expectedValueToken.type == TokenType.VALUE) {
-                    index = moveIndex(buffer, expectedValueToken, false);
-                    final Predicate<T> expr =
-                            toPredicate(token.value, opToken.value, expectedValueToken.value, evaluators);
+                case VALUE: {
+                    // expecting operator and value
+                    final Token opToken = nextToken(buffer, index);
+                    if (opToken.type != TokenType.OPERATOR) {
+                        throw new IllegalArgumentException(
+                                "Expected an operator after token '" + token.value + "' at index " + token.end);
+                    }
+                    index = moveIndex(buffer, opToken, true);
+                    final Token expectedValueToken = nextToken(buffer, index);
+                    if (expectedValueToken.type == TokenType.VALUE) {
+                        index = moveIndex(buffer, expectedValueToken, false);
+                        final Predicate<T> expr =
+                                toPredicate(token.value, opToken.value, expectedValueToken.value, evaluators);
 
-                    validateCombiner(predicate, combiner, token);
-                    predicate = predicate == null ? expr : combiner.apply(predicate, expr);
-                    combiner = null;
-                    break;
+                        validateCombiner(predicate, combiner, token);
+                        predicate = predicate == null ? expr : combiner.apply(predicate, expr);
+                        combiner = null;
+                        break;
+                    }
+                    throw new IllegalArgumentException("Unsupported token: " + token.type + " at index " + token.end);
                 }
-                throw new IllegalArgumentException("Unsupported token: " + token.type + " at index " + token.end);
-            }
-            case SUB_EXPRESSION_START:
-                final SubExpression<T> expr = doCompile(buffer, index, evaluators, TokenType.SUB_EXPRESSION_END);
-                validateCombiner(predicate, combiner, token);
-                predicate = predicate == null ? expr.predicate : combiner.apply(predicate, expr.predicate);
-                combiner = null;
-                index = expr.end + 1;
-                break;
-            case COMBINER:
-                switch (token.value) {
-                case "AND":
-                    combiner = Predicate::and;
+                case SUB_EXPRESSION_START:
+                    final SubExpression<T> expr = doCompile(buffer, index, evaluators, TokenType.SUB_EXPRESSION_END);
+                    validateCombiner(predicate, combiner, token);
+                    predicate = predicate == null ? expr.predicate : combiner.apply(predicate, expr.predicate);
+                    combiner = null;
+                    index = expr.end + 1;
                     break;
-                case "OR":
-                    combiner = Predicate::or;
+                case COMBINER:
+                    switch (token.value) {
+                        case "AND":
+                            combiner = Predicate::and;
+                            break;
+                        case "OR":
+                            combiner = Predicate::or;
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unsupported combiner operator: " + token.type
+                                    + " at index " + token.end + ", expected 'OR' or 'AND'");
+                    }
                     break;
                 default:
-                    throw new IllegalArgumentException("Unsupported combiner operator: " + token.type + " at index "
-                            + token.end + ", expected 'OR' or 'AND'");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported token: " + token.type + " at index " + token.end);
+                    throw new IllegalArgumentException("Unsupported token: " + token.type + " at index " + token.end);
             }
         }
         return new SubExpression<>(index, predicate == null ? t -> true : predicate);
@@ -126,14 +126,14 @@ public class SimpleQueryLanguageCompiler {
             final Map<String, Function<T, Object>> evaluators) {
         final BiPredicate<String, String> comparator;
         switch (operator) {
-        case "=":
-            comparator = EQUAL_PREDICATE;
-            break;
-        case "!=":
-            comparator = DIFFERENT_PREDICATE;
-            break;
-        default:
-            throw new IllegalArgumentException("unknown operator: '" + operator + "'");
+            case "=":
+                comparator = EQUAL_PREDICATE;
+                break;
+            case "!=":
+                comparator = DIFFERENT_PREDICATE;
+                break;
+            default:
+                throw new IllegalArgumentException("unknown operator: '" + operator + "'");
         }
         final int mapExpr = key.indexOf('[');
         if (mapExpr > 0) {
@@ -166,55 +166,55 @@ public class SimpleQueryLanguageCompiler {
         int idx = from;
         while (idx < buffer.length) {
             switch (buffer[idx]) {
-            case '(':
-                if (from == idx) {
-                    return new Token(idx, TokenType.SUB_EXPRESSION_START, null);
-                }
-                return new Token(idx - 1, TokenType.VALUE, new String(buffer, actualFrom, idx - actualFrom));
-            case ')':
-                if (from == idx) {
-                    return new Token(idx, TokenType.SUB_EXPRESSION_END, null);
-                }
-                return new Token(idx - 1, TokenType.VALUE, new String(buffer, actualFrom, idx - actualFrom));
-            case ' ':
-                if (idx == from) { // foo = bar, we are at the whitespace before bar
+                case '(':
+                    if (from == idx) {
+                        return new Token(idx, TokenType.SUB_EXPRESSION_START, null);
+                    }
+                    return new Token(idx - 1, TokenType.VALUE, new String(buffer, actualFrom, idx - actualFrom));
+                case ')':
+                    if (from == idx) {
+                        return new Token(idx, TokenType.SUB_EXPRESSION_END, null);
+                    }
+                    return new Token(idx - 1, TokenType.VALUE, new String(buffer, actualFrom, idx - actualFrom));
+                case ' ':
+                    if (idx == from) { // foo = bar, we are at the whitespace before bar
+                        idx++;
+                        actualFrom = from + 1;
+                        continue;
+                    }
+                    final String string = new String(buffer, actualFrom, idx - actualFrom);
+                    switch (string) {
+                        case "AND":
+                        case "OR":
+                            return new Token(idx, TokenType.COMBINER, string);
+                        default:
+                            return new Token(idx, TokenType.VALUE, string);
+                    }
+                case '=':
+                    return new Token(idx, TokenType.OPERATOR, "=");
+                case '!':
                     idx++;
-                    actualFrom = from + 1;
-                    continue;
-                }
-                final String string = new String(buffer, actualFrom, idx - actualFrom);
-                switch (string) {
-                case "AND":
-                case "OR":
-                    return new Token(idx, TokenType.COMBINER, string);
+                    if (idx < buffer.length && buffer[idx] == '=') {
+                        return new Token(idx, TokenType.OPERATOR, "!=");
+                    }
+                    break;
+                case 'A':
+                    if (idx == from && idx + 3 < buffer.length && buffer[idx + 1] == 'N' && buffer[idx + 2] == 'D'
+                            && buffer[idx + 3] == ' ') {
+                        idx += 3;
+                        return new Token(idx, TokenType.COMBINER, "AND");
+                    }
+                    idx++;
+                    break;
+                case 'O':
+                    if (idx == from && idx + 2 < buffer.length && buffer[idx + 1] == 'R' && buffer[idx + 2] == ' ') {
+                        idx += 2;
+                        return new Token(idx, TokenType.COMBINER, "OR");
+                    }
+                    idx++;
+                    break;
                 default:
-                    return new Token(idx, TokenType.VALUE, string);
-                }
-            case '=':
-                return new Token(idx, TokenType.OPERATOR, "=");
-            case '!':
-                idx++;
-                if (idx < buffer.length && buffer[idx] == '=') {
-                    return new Token(idx, TokenType.OPERATOR, "!=");
-                }
-                break;
-            case 'A':
-                if (idx == from && idx + 3 < buffer.length && buffer[idx + 1] == 'N' && buffer[idx + 2] == 'D'
-                        && buffer[idx + 3] == ' ') {
-                    idx += 3;
-                    return new Token(idx, TokenType.COMBINER, "AND");
-                }
-                idx++;
-                break;
-            case 'O':
-                if (idx == from && idx + 2 < buffer.length && buffer[idx + 1] == 'R' && buffer[idx + 2] == ' ') {
-                    idx += 2;
-                    return new Token(idx, TokenType.COMBINER, "OR");
-                }
-                idx++;
-                break;
-            default:
-                idx++;
+                    idx++;
             }
         }
         return new Token(idx, TokenType.VALUE, new String(buffer, actualFrom, buffer.length - actualFrom));

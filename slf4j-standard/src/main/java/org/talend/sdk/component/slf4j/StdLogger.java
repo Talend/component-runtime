@@ -44,28 +44,28 @@ public class StdLogger extends MarkerIgnoringBase {
 
         final String level = System.getProperty(getClass().getName() + ".level", "info");
         switch (level.toLowerCase(ROOT)) {
-        case "trace":
-            trace = debug = info = warn = error = true;
-            break;
-        case "debug":
-            trace = false;
-            debug = info = warn = error = true;
-            break;
-        case "info":
-            trace = debug = false;
-            info = warn = error = true;
-            break;
-        case "warn":
-            trace = debug = info = false;
-            warn = error = true;
-            break;
-        case "error":
-            trace = debug = info = warn = false;
-            error = true;
-            break;
-        default:
-            trace = debug = false;
-            info = warn = error = true;
+            case "trace":
+                trace = debug = info = warn = error = true;
+                break;
+            case "debug":
+                trace = false;
+                debug = info = warn = error = true;
+                break;
+            case "info":
+                trace = debug = false;
+                info = warn = error = true;
+                break;
+            case "warn":
+                trace = debug = info = false;
+                warn = error = true;
+                break;
+            case "error":
+                trace = debug = info = warn = false;
+                error = true;
+                break;
+            default:
+                trace = debug = false;
+                info = warn = error = true;
         }
     }
 

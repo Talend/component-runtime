@@ -226,20 +226,20 @@ public class MavenDecrypter {
                 }
             } else if (server != null && current != null) {
                 switch (qName) {
-                case "id":
-                    server.setId(current.toString());
-                    break;
-                case "username":
-                    try {
-                        server.setUsername(doDecrypt(current.toString(), passphrase));
-                    } catch (final RuntimeException re) {
-                        server.setUsername(current.toString());
-                    }
-                    break;
-                case "password":
-                    encryptedPassword = current.toString();
-                    break;
-                default:
+                    case "id":
+                        server.setId(current.toString());
+                        break;
+                    case "username":
+                        try {
+                            server.setUsername(doDecrypt(current.toString(), passphrase));
+                        } catch (final RuntimeException re) {
+                            server.setUsername(current.toString());
+                        }
+                        break;
+                    case "password":
+                        encryptedPassword = current.toString();
+                        break;
+                    default:
                 }
                 current = null;
             }

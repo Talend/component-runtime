@@ -92,11 +92,11 @@ public class PersonReader implements Serializable {
         @Override
         public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
             switch (incomingVersion) {
-            case 1:
-                log.info("Migration incoming data to version 2 from version 1");
-                return migrationV1V2.migrate(incomingData);
-            default:
-                log.info("No active migration from version " + incomingData);
+                case 1:
+                    log.info("Migration incoming data to version 2 from version 1");
+                    return migrationV1V2.migrate(incomingData);
+                default:
+                    log.info("No active migration from version " + incomingData);
             }
             return incomingData;
         }
