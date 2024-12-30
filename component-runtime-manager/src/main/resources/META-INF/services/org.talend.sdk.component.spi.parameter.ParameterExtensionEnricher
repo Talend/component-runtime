@@ -7,3 +7,4 @@ org.talend.sdk.component.runtime.manager.reflect.parameterenricher.ActionParamet
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.UiParameterEnricher
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.DocumentationParameterEnricher
 org.talend.sdk.component.runtime.manager.reflect.parameterenricher.DependencyParameterEnricher
+org.talend.sdk.component.runtime.manager.reflect.parameterenricher.SchemaParameterEnricher
