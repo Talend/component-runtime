@@ -13,38 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.manager.reflect.parameterenricher;
+package org.talend.sdk.component.runtime.manager.extension;
 
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.schema.FixedSchema;
+import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
-public class SchemaParameterEnricherTest {
+public class ComponentSchemaEnricherTest {
 
-    private final SchemaParameterEnricher enricher = new SchemaParameterEnricher();
+    private final ComponentMetadataEnricher enricher = new ComponentSchemaEnricher();
 
     @Test
-    void validateConnectorReference() throws ReflectiveOperationException {
+    void fixedSchemaMetadataPresent() {
         assertEquals(new HashMap<String, String>() {
 
             {
                 put("tcomp::ui::schema::fixed", "discover");
             }
-        }, enricher.onParameterAnnotation("testParam", null, new FixedSchema() {
+        }, enricher.onComponent(ProcessorWithFixedSchema.class, ProcessorWithFixedSchema.class.getAnnotations()));
+    }
 
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return FixedSchema.class;
-            }
+    @Test
+    void fixedSchemaMetadataNotPresent() {
+        assertEquals(emptyMap(), enricher.onComponent(MyProcessor.class, MyProcessor.class.getAnnotations()));
+    }
 
-            @Override
-            public String value() {
-                return "discover";
-            }
-        }));
+    @Processor
+    @FixedSchema("discover")
+    private static class ProcessorWithFixedSchema {
+
+    }
+
+    @Processor
+    private static class MyProcessor {
+
     }
 }
