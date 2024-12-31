@@ -61,7 +61,6 @@ final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRA
 // Job config
 final Boolean isMasterBranch = branch_name == "master"
 final Boolean isStdBranch = (branch_name == "master" || branch_name.startsWith("maintenance/"))
-final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDateTime.now())
 final String artifactoryAddr = "https://artifactory.datapwn.com"
@@ -197,10 +196,6 @@ pipeline {
         name: 'EXTRA_BUILD_PARAMS',
         defaultValue: '',
         description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
-    string(
-        name: 'POST_LOGIN_SCRIPT',
-        defaultValue: '',
-        description: 'Execute a shell command after login. Useful for maintenance.')
     booleanParam(
         name: 'DISABLE_SONAR',
         defaultValue: false,
@@ -403,15 +398,17 @@ pipeline {
                          jiraCredentials,
                          gpgCredentials]) {
           script {
-            try {
-              sh """\
-                            #!/usr/bin/env bash
-                            bash "${params.POST_LOGIN_SCRIPT}"
-                            bash .jenkins/scripts/npm_fix.sh
-                            """.stripIndent()
-            } catch (ignored) {
-              //
-            }
+            sh """\
+              #!/usr/bin/env bash
+              bash .jenkins/scripts/npm_fix.sh
+              """.stripIndent()
+
+            // Uncomment this and add bash command if needed using replay function
+            // This replace the POST_LOGIN_SCRIPT variable used prior to https://qlik-dev.atlassian.net/browse/QTDI-740
+            // sh """\
+            //  #!/usr/bin/env bash
+            //  bash but anything needed here
+            //  """.stripIndent()
           }
         }
       }
