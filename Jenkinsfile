@@ -403,7 +403,7 @@ pipeline {
               bash .jenkins/scripts/npm_fix.sh
               """.stripIndent()
 
-            // Uncomment this and add bash command if needed using replay function
+            // If needed, use jenkins replay function then uncomment this to add your temporary bash command
             // This replace the POST_LOGIN_SCRIPT variable used prior to https://qlik-dev.atlassian.net/browse/QTDI-740
             // sh """\
             //  #!/usr/bin/env bash
@@ -419,12 +419,12 @@ pipeline {
         withCredentials([ossrhCredentials,
                          nexusCredentials]) {
           sh """\
-                    #!/usr/bin/env bash
-                    set -xe
-                    mvn clean install $BUILD_ARGS \
-                                      $extraBuildParams \
-                                      --settings .jenkins/settings.xml
-                    """.stripIndent()
+            #!/usr/bin/env bash
+            set -xe
+            mvn clean install $BUILD_ARGS \
+                              $extraBuildParams \
+                              --settings .jenkins/settings.xml
+            """.stripIndent()
         }
       }
       post {
@@ -455,12 +455,12 @@ pipeline {
                            gpgCredentials,
                            nexusCredentials]) {
             sh """\
-                        #!/usr/bin/env bash
-                        set -xe
-                        bash mvn deploy $deployOptions \
-                                        $extraBuildParams \
-                                        --settings .jenkins/settings.xml
-                        """.stripIndent()
+              #!/usr/bin/env bash
+              set -xe
+              bash mvn deploy $deployOptions \
+                              $extraBuildParams \
+                              --settings .jenkins/settings.xml
+              """.stripIndent()
           }
         }
         // Add description to job
@@ -531,10 +531,10 @@ pipeline {
 
             // Build and push specific image
             sh """
-                              bash .jenkins/scripts/docker_build.sh \
-                                ${finalVersion}${buildTimestamp} \
-                                ${images_options}
-                            """
+                bash .jenkins/scripts/docker_build.sh \
+                  ${finalVersion}${buildTimestamp} \
+                  ${images_options}
+              """
           }
 
         }
@@ -549,15 +549,15 @@ pipeline {
       steps {
         withCredentials([ossrhCredentials, gitCredentials]) {
           sh """\
-                    #!/usr/bin/env bash 
-                    set -xe                       
-                    mvn verify pre-site --file documentation/pom.xml \
-                                        --settings .jenkins/settings.xml \
-                                        --activate-profiles gh-pages \
-                                        --define gpg.skip=true \
-                                        $skipOptions \
-                                        $extraBuildParams 
-                    """.stripIndent()
+            #!/usr/bin/env bash 
+            set -xe                       
+            mvn verify pre-site --file documentation/pom.xml \
+                                --settings .jenkins/settings.xml \
+                                --activate-profiles gh-pages \
+                                --define gpg.skip=true \
+                                $skipOptions \
+                                $extraBuildParams 
+            """.stripIndent()
         }
       }
     }
@@ -572,8 +572,8 @@ pipeline {
         withCredentials([ossrhCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             sh """
-                            bash .jenkins/scripts/mvn-ossindex-audit.sh
-                        """
+               bash .jenkins/scripts/mvn-ossindex-audit.sh
+               """
           }
         }
       }
