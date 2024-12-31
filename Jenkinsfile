@@ -376,7 +376,7 @@ pipeline {
           // updating build description
           String description = """
                       Version = $finalVersion - $params.Action Build  
-                      Disable Sonar: $params.DISABLE_SONAR - Script: $hasPostLoginScript  
+                      Disable Sonar: $params.DISABLE_SONAR  
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
           jenkinsJobTools.job_description_append(description)
