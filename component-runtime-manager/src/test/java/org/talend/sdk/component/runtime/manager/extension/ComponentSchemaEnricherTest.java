@@ -25,7 +25,7 @@ import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.schema.FixedSchema;
 import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
-public class ComponentSchemaEnricherTest {
+class ComponentSchemaEnricherTest {
 
     private final ComponentMetadataEnricher enricher = new ComponentSchemaEnricher();
 
