@@ -310,7 +310,7 @@ public class CarMain {
                 if (entry.getName().startsWith("MAVEN-INF/repository/")) {
                     final String path = entry.getName().substring("MAVEN-INF/repository/".length());
                     final File output = new File(m2Root, path);
-                    if (!output.getCanonicalPath().startsWith(m2Root.getCanonicalPath())) {
+                    if (!output.getCanonicalPath().startsWith(m2Root.getCanonicalPath() + File.separator)) {
                         throw new IOException("The output file is not contained in the destination directory");
                     }
                     if (!output.exists() || forceOverwrite) {
