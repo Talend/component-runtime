@@ -299,21 +299,21 @@ public class RemoteEngineCustomizer {
         try (final ProgressEventDispatcher progressEventDispatcher =
                 ProgressEventDispatcher.newRoot(EventHandlers.builder().add(LogEvent.class, le -> {
                     switch (le.getLevel()) {
-                    case WARN:
-                        log.warn(le.getMessage());
-                        break;
-                    case DEBUG:
-                        log.debug(le.getMessage());
-                        break;
-                    case ERROR:
-                        log.error(le.getMessage());
-                        break;
-                    case INFO:
-                        log.error(le.getMessage());
-                        break;
-                    default:
-                        log.info("(" + le.getLevel() + ") " + le.getMessage());
-                        break;
+                        case WARN:
+                            log.warn(le.getMessage());
+                            break;
+                        case DEBUG:
+                            log.debug(le.getMessage());
+                            break;
+                        case ERROR:
+                            log.error(le.getMessage());
+                            break;
+                        case INFO:
+                            log.error(le.getMessage());
+                            break;
+                        default:
+                            log.info("(" + le.getLevel() + ") " + le.getMessage());
+                            break;
                     }
                 }).build(), description, stepsInstance.size())) {
             asAccessible(StepsRunner.class.getDeclaredField("rootProgressDispatcher"))

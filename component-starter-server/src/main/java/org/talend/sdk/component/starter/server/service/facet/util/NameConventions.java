@@ -67,26 +67,26 @@ public class NameConventions {
             return "String";
         }
         switch (type.toLowerCase(ENGLISH)) {
-        case "boolean":
-            return "boolean";
-        case "double":
-            return "double";
-        case "int":
-        case "integer":
-            return "int";
-        case "uri": // todo: import
-            return "java.net.URI";
-        case "url": // todo: import
-            return "java.net.URL";
-        case "file": // todo: import
-            return "java.io.File";
-        case "string":
-        default:
-            final String reference = entry.getReference();
-            if (reference != null && !reference.trim().isEmpty()) {
-                return reference.substring(reference.lastIndexOf('.') + 1);
-            }
-            return "String";
+            case "boolean":
+                return "boolean";
+            case "double":
+                return "double";
+            case "int":
+            case "integer":
+                return "int";
+            case "uri": // todo: import
+                return "java.net.URI";
+            case "url": // todo: import
+                return "java.net.URL";
+            case "file": // todo: import
+                return "java.io.File";
+            case "string":
+            default:
+                final String reference = entry.getReference();
+                if (reference != null && !reference.trim().isEmpty()) {
+                    return reference.substring(reference.lastIndexOf('.') + 1);
+                }
+                return "String";
         }
     }
 

@@ -99,17 +99,18 @@ public class InternationalizationServiceFactory {
 
             if (Object.class == method.getDeclaringClass()) {
                 switch (method.getName()) {
-                case "equals":
-                    return args != null && args.length == 1 && args[0] != null && Proxy.isProxyClass(args[0].getClass())
-                            && this == Proxy.getInvocationHandler(args[0]);
-                case "hashCode":
-                    return hashCode();
-                default:
-                    try {
-                        return method.invoke(this, args);
-                    } catch (final InvocationTargetException ite) {
-                        throw ite.getTargetException();
-                    }
+                    case "equals":
+                        return args != null && args.length == 1 && args[0] != null
+                                && Proxy.isProxyClass(args[0].getClass())
+                                && this == Proxy.getInvocationHandler(args[0]);
+                    case "hashCode":
+                        return hashCode();
+                    default:
+                        try {
+                            return method.invoke(this, args);
+                        } catch (final InvocationTargetException ite) {
+                            throw ite.getTargetException();
+                        }
                 }
             }
 

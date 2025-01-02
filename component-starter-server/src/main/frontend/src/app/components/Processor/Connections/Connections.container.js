@@ -15,7 +15,7 @@
  */import React from 'react';
 import PropTypes from 'prop-types';
 import Connection from '../Connection';
-import theme from './Connections.scss';
+import theme from './Connections.module.scss';
 import ComponentsContext from '../../../ComponentsContext';
 
 export default class Connections extends React.Component {

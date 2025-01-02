@@ -347,15 +347,15 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
         }
 
         switch (conditions.size()) {
-        case 0:
-            return null;
-        case 1:
-            return conditions.iterator().next();
-        default:
-            final String operator = ofNullable(ctx.getProperty().getMetadata().get("condition::ifs::operator"))
-                    .orElse("AND")
-                    .toLowerCase(ROOT);
-            return new UiSchema.ConditionBuilder().withOperator(operator).withValues(conditions).build();
+            case 0:
+                return null;
+            case 1:
+                return conditions.iterator().next();
+            default:
+                final String operator = ofNullable(ctx.getProperty().getMetadata().get("condition::ifs::operator"))
+                        .orElse("AND")
+                        .toLowerCase(ROOT);
+                return new UiSchema.ConditionBuilder().withOperator(operator).withValues(conditions).build();
         }
     }
 
@@ -373,26 +373,26 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     protected Map<String, Collection<Object>> toCondition(final String path, final String strategy, final Object value,
             final SimplePropertyDefinition def) {
         switch (strategy) {
-        case "length":
-            return new UiSchema.ConditionBuilder()
-                    .withOperator("===")
-                    .withVar(path + ".length")
-                    .withValue(String.class.isInstance(value) ? Integer.parseInt(String.valueOf(value)) : value)
-                    .build();
-        case "contains":
-        case "contains(lowercase=true)":
-            final UiSchema.ConditionValuesBuilder in = new UiSchema.ConditionBuilder().withOperator("in");
-            final Object val =
-                    strategy.endsWith("(lowercase=true)") ? String.class.cast(value).toLowerCase(ROOT) : value;
-            if (def != null && "array".equalsIgnoreCase(def.getType())) {
-                in.withVar(path).withValue(val).up();
-            } else {
-                in.withValue(val).withVar(path).up();
-            }
-            return in.build();
-        case "default":
-        default:
-            return new UiSchema.ConditionBuilder().withOperator("===").withVar(path).withValue(value).build();
+            case "length":
+                return new UiSchema.ConditionBuilder()
+                        .withOperator("===")
+                        .withVar(path + ".length")
+                        .withValue(String.class.isInstance(value) ? Integer.parseInt(String.valueOf(value)) : value)
+                        .build();
+            case "contains":
+            case "contains(lowercase=true)":
+                final UiSchema.ConditionValuesBuilder in = new UiSchema.ConditionBuilder().withOperator("in");
+                final Object val =
+                        strategy.endsWith("(lowercase=true)") ? String.class.cast(value).toLowerCase(ROOT) : value;
+                if (def != null && "array".equalsIgnoreCase(def.getType())) {
+                    in.withVar(path).withValue(val).up();
+                } else {
+                    in.withValue(val).withVar(path).up();
+                }
+                return in.build();
+            case "default":
+            default:
+                return new UiSchema.ConditionBuilder().withOperator("===").withVar(path).withValue(value).build();
         }
     }
 
@@ -401,14 +401,14 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
             return s -> s;
         }
         switch (definition.getType().toLowerCase(ROOT)) {
-        case "boolean":
-            return Boolean::parseBoolean;
-        case "number":
-            return Double::parseDouble;
+            case "boolean":
+                return Boolean::parseBoolean;
+            case "number":
+                return Double::parseDouble;
 
-        // assume object and array are not supported
-        default:
-            return s -> s;
+            // assume object and array are not supported
+            default:
+                return s -> s;
         }
     }
 

@@ -23,11 +23,16 @@ import Help from '../Help';
 import Mapper from '../Mapper';
 import Processor from '../Processor';
 
-import theme from './ComponentEditForm.scss';
-import { COMPONENT_TYPES, COMPONENT_TYPE_SOURCE, COMPONENT_TYPE_PROCESSOR, COMPONENT_TYPE_SINK } from '../../constants';
+import theme from './ComponentEditForm.module.scss';
+import {
+	COMPONENT_TYPES,
+	COMPONENT_TYPE_SOURCE,
+	COMPONENT_TYPE_PROCESSOR,
+	COMPONENT_TYPE_SINK,
+} from '../../constants';
 
 function onComponentNameChange(service, component) {
-	return newName => {
+	return (newName) => {
 		// eslint-disable-next-line no-param-reassign
 		component.name = newName;
 		service.updateComponent();
@@ -48,22 +53,26 @@ function ComponentEditForm(props) {
 
 			<div className={theme['form-row']}>
 				<h2>Configuration</h2>
-				<form noValidate onSubmit={e => e.preventDefault()} className="form">
+				<form noValidate onSubmit={(e) => e.preventDefault()} className="form">
 					<div className="form-group">
-						<label className="control-label" htmlFor="componentName">Name</label>
-						<Help
-							title="Component Name"
-							i18nKey="component_name"
-							content={
-								<div>
-									<p>Each component has a name which must be unique into a family.</p>
-									<p>
-										<Icon name="talend-info-circle" /> The name must be a valid java name (no space,
-										special characters, ...).
-									</p>
-								</div>
-							}
-						/>
+						<div className={theme.label}>
+							<label className="control-label" htmlFor="componentName">
+								Name
+							</label>
+							<Help
+								title="Component Name"
+								i18nKey="component_name"
+								content={
+									<div>
+										<p>Each component has a name which must be unique into a family.</p>
+										<p>
+											<Icon name="talend-info-circle" /> The name must be a valid java name (no
+											space, special characters, ...).
+										</p>
+									</div>
+								}
+							/>
+						</div>
 						<Input
 							className="form-control"
 							id="componentName"
@@ -87,11 +96,7 @@ function ComponentEditForm(props) {
 				/>
 			)}
 			{props.component.type === COMPONENT_TYPE_SINK && (
-				<Processor
-					component={props.component}
-					addInput={props.service.addInput}
-					sink
-				/>
+				<Processor component={props.component} addInput={props.service.addInput} sink />
 			)}
 		</div>
 	);

@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Action } from '@talend/react-components/lib/Actions';
 
-// import theme from './DatastoreForm.scss';
+// import theme from './DatastoreForm.module.scss';
 import DatastoreContext from '../../DatastoreContext';
 import Node from '../Node';
 import getUUID from '../../uuid';

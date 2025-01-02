@@ -152,51 +152,51 @@ public class AvroSchemaBuilder implements Schema.Builder {
     private Field entryToAvroField(final Schema.Entry entry) {
         final Unwrappable unwrappable;
         switch (entry.getType()) {
-        case RECORD:
-            unwrappable = Unwrappable.class.cast(entry.getElementSchema());
-            break;
-        case ARRAY:
-            unwrappable = new Unwrappable() {
+            case RECORD:
+                unwrappable = Unwrappable.class.cast(entry.getElementSchema());
+                break;
+            case ARRAY:
+                unwrappable = new Unwrappable() {
 
-                @Override
-                public <T> T unwrap(final Class<T> type) {
-                    return type
-                            .cast(org.apache.avro.Schema
-                                    .createArray(Unwrappable.class
-                                            .cast(entry.getElementSchema())
-                                            .unwrap(org.apache.avro.Schema.class)));
-                }
-            };
-            break;
-        case BOOLEAN:
-            unwrappable = !entry.isNullable() ? BOOLEAN_SCHEMA : BOOLEAN_SCHEMA_NULLABLE;
-            break;
-        case DOUBLE:
-            unwrappable = !entry.isNullable() ? DOUBLE_SCHEMA : DOUBLE_SCHEMA_NULLABLE;
-            break;
-        case INT:
-            unwrappable = !entry.isNullable() ? INT_SCHEMA : INT_SCHEMA_NULLABLE;
-            break;
-        case FLOAT:
-            unwrappable = !entry.isNullable() ? FLOAT_SCHEMA : FLOAT_SCHEMA_NULLABLE;
-            break;
-        case BYTES:
-            unwrappable = !entry.isNullable() ? BYTES_SCHEMA : BYTES_SCHEMA_NULLABLE;
-            break;
-        case LONG:
-            unwrappable = !entry.isNullable() ? LONG_SCHEMA : LONG_SCHEMA_NULLABLE;
-            break;
-        case STRING:
-            unwrappable = !entry.isNullable() ? STRING_SCHEMA : STRING_SCHEMA_NULLABLE;
-            break;
-        case DATETIME:
-            unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
-            break;
-        case DECIMAL:
-            unwrappable = !entry.isNullable() ? DECIMAL_SCHEMA : DECIMAL_SCHEMA_NULLABLE;
-            break;
-        default:
-            unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
+                    @Override
+                    public <T> T unwrap(final Class<T> type) {
+                        return type
+                                .cast(org.apache.avro.Schema
+                                        .createArray(Unwrappable.class
+                                                .cast(entry.getElementSchema())
+                                                .unwrap(org.apache.avro.Schema.class)));
+                    }
+                };
+                break;
+            case BOOLEAN:
+                unwrappable = !entry.isNullable() ? BOOLEAN_SCHEMA : BOOLEAN_SCHEMA_NULLABLE;
+                break;
+            case DOUBLE:
+                unwrappable = !entry.isNullable() ? DOUBLE_SCHEMA : DOUBLE_SCHEMA_NULLABLE;
+                break;
+            case INT:
+                unwrappable = !entry.isNullable() ? INT_SCHEMA : INT_SCHEMA_NULLABLE;
+                break;
+            case FLOAT:
+                unwrappable = !entry.isNullable() ? FLOAT_SCHEMA : FLOAT_SCHEMA_NULLABLE;
+                break;
+            case BYTES:
+                unwrappable = !entry.isNullable() ? BYTES_SCHEMA : BYTES_SCHEMA_NULLABLE;
+                break;
+            case LONG:
+                unwrappable = !entry.isNullable() ? LONG_SCHEMA : LONG_SCHEMA_NULLABLE;
+                break;
+            case STRING:
+                unwrappable = !entry.isNullable() ? STRING_SCHEMA : STRING_SCHEMA_NULLABLE;
+                break;
+            case DATETIME:
+                unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
+                break;
+            case DECIMAL:
+                unwrappable = !entry.isNullable() ? DECIMAL_SCHEMA : DECIMAL_SCHEMA_NULLABLE;
+                break;
+            default:
+                unwrappable = Unwrappable.class.cast(new AvroSchemaBuilder().withType(entry.getType()).build());
         }
         final org.apache.avro.Schema schema = Unwrappable.class.cast(unwrappable).unwrap(org.apache.avro.Schema.class);
         return AvroHelper.toField(schema, entry);
@@ -338,56 +338,57 @@ public class AvroSchemaBuilder implements Schema.Builder {
     @Override
     public Schema build(final Comparator<Entry> order) {
         switch (type) {
-        case BYTES:
-            return BYTES_SCHEMA;
-        case INT:
-            return INT_SCHEMA;
-        case LONG:
-            return LONG_SCHEMA;
-        case STRING:
-            return STRING_SCHEMA;
-        case DOUBLE:
-            return DOUBLE_SCHEMA;
-        case FLOAT:
-            return FLOAT_SCHEMA;
-        case BOOLEAN:
-            return BOOLEAN_SCHEMA;
-        case DATETIME:
-            return DATETIME_SCHEMA;
-        case DECIMAL:
-            return DECIMAL_SCHEMA;
-        case RECORD:
-            if (fields == null) {
-                return new AvroSchema(AvroSchemas.getEmptySchema());
-            }
-            final List<Field> avroFields =
-                    this.fields.streams().map(this::entryToAvroField).collect(Collectors.toList());
-            final org.apache.avro.Schema record = org.apache.avro.Schema
-                    .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
-                            false);
-            record.setFields(avroFields);
-            if (order != null) {
-                final String entriesOrder = fields.streams().sorted(order).map(Entry::getName).collect(joining(","));
-                record.addProp(ENTRIES_ORDER_PROP, entriesOrder);
-            } else {
-                record.addProp(ENTRIES_ORDER_PROP,
-                        fields.streams().map(Entry::getName).collect(joining(",")));
-            }
-            this.props.entrySet()
-                    .stream()
-                    .filter((Map.Entry<String, String> e) -> !ENTRIES_ORDER_PROP.equals(e.getKey()))
-                    .forEach((Map.Entry<String, String> e) -> record.addProp(e.getKey(), e.getValue()));
-            return new AvroSchema(record);
-        case ARRAY:
-            if (elementSchema == null) {
-                throw new IllegalStateException("No elementSchema set for this ARRAY schema");
-            }
-            // FIXME: 7/12/21 => TCOMP-1957
-            final org.apache.avro.Schema elementType = elementSchema == EMPTY_RECORD ? AvroSchemas.getEmptySchema()
-                    : Unwrappable.class.cast(elementSchema).unwrap(org.apache.avro.Schema.class);
-            return new AvroSchema(org.apache.avro.Schema.createArray(elementType));
-        default:
-            throw new IllegalArgumentException("Unsupported: " + type);
+            case BYTES:
+                return BYTES_SCHEMA;
+            case INT:
+                return INT_SCHEMA;
+            case LONG:
+                return LONG_SCHEMA;
+            case STRING:
+                return STRING_SCHEMA;
+            case DOUBLE:
+                return DOUBLE_SCHEMA;
+            case FLOAT:
+                return FLOAT_SCHEMA;
+            case BOOLEAN:
+                return BOOLEAN_SCHEMA;
+            case DATETIME:
+                return DATETIME_SCHEMA;
+            case DECIMAL:
+                return DECIMAL_SCHEMA;
+            case RECORD:
+                if (fields == null) {
+                    return new AvroSchema(AvroSchemas.getEmptySchema());
+                }
+                final List<Field> avroFields =
+                        this.fields.streams().map(this::entryToAvroField).collect(Collectors.toList());
+                final org.apache.avro.Schema record = org.apache.avro.Schema
+                        .createRecord(SchemaIdGenerator.generateRecordName(avroFields), null, "talend.component.schema",
+                                false);
+                record.setFields(avroFields);
+                if (order != null) {
+                    final String entriesOrder =
+                            fields.streams().sorted(order).map(Entry::getName).collect(joining(","));
+                    record.addProp(ENTRIES_ORDER_PROP, entriesOrder);
+                } else {
+                    record.addProp(ENTRIES_ORDER_PROP,
+                            fields.streams().map(Entry::getName).collect(joining(",")));
+                }
+                this.props.entrySet()
+                        .stream()
+                        .filter((Map.Entry<String, String> e) -> !ENTRIES_ORDER_PROP.equals(e.getKey()))
+                        .forEach((Map.Entry<String, String> e) -> record.addProp(e.getKey(), e.getValue()));
+                return new AvroSchema(record);
+            case ARRAY:
+                if (elementSchema == null) {
+                    throw new IllegalStateException("No elementSchema set for this ARRAY schema");
+                }
+                // FIXME: 7/12/21 => TCOMP-1957
+                final org.apache.avro.Schema elementType = elementSchema == EMPTY_RECORD ? AvroSchemas.getEmptySchema()
+                        : Unwrappable.class.cast(elementSchema).unwrap(org.apache.avro.Schema.class);
+                return new AvroSchema(org.apache.avro.Schema.createArray(elementType));
+            default:
+                throw new IllegalArgumentException("Unsupported: " + type);
         }
     }
 

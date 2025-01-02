@@ -62,27 +62,27 @@ public class Streaming {
 
     public static RetryStrategy getStrategy(final LocalConfiguration configuration) {
         switch (ofNullable(configuration.get("talend.input.streaming.retry.strategy")).orElse("constant")) {
-        case "exponential":
-            return new RetryConfiguration.ExponentialBackoff(
-                    ofNullable(configuration.get("talend.input.streaming.retry.exponential.exponent"))
-                            .map(Double::parseDouble)
-                            .orElse(1.5),
-                    ofNullable(configuration.get("talend.input.streaming.retry.exponential.randomizationFactor"))
-                            .map(Double::parseDouble)
-                            .orElse(.5),
-                    ofNullable(configuration.get("talend.input.streaming.retry.exponential.maxDuration"))
-                            .map(Long::parseLong)
-                            .orElse(TimeUnit.MINUTES.toMillis(5)),
-                    ofNullable(configuration.get("talend.input.streaming.retry.exponential.initialBackOff"))
-                            .map(Long::parseLong)
-                            .orElse(TimeUnit.SECONDS.toMillis(1)),
-                    0);
-        case "constant":
-        default:
-            return new RetryConfiguration.Constant(
-                    ofNullable(configuration.get("talend.input.streaming.retry.constant.timeout"))
-                            .map(Long::parseLong)
-                            .orElse(500L));
+            case "exponential":
+                return new RetryConfiguration.ExponentialBackoff(
+                        ofNullable(configuration.get("talend.input.streaming.retry.exponential.exponent"))
+                                .map(Double::parseDouble)
+                                .orElse(1.5),
+                        ofNullable(configuration.get("talend.input.streaming.retry.exponential.randomizationFactor"))
+                                .map(Double::parseDouble)
+                                .orElse(.5),
+                        ofNullable(configuration.get("talend.input.streaming.retry.exponential.maxDuration"))
+                                .map(Long::parseLong)
+                                .orElse(TimeUnit.MINUTES.toMillis(5)),
+                        ofNullable(configuration.get("talend.input.streaming.retry.exponential.initialBackOff"))
+                                .map(Long::parseLong)
+                                .orElse(TimeUnit.SECONDS.toMillis(1)),
+                        0);
+            case "constant":
+            default:
+                return new RetryConfiguration.Constant(
+                        ofNullable(configuration.get("talend.input.streaming.retry.constant.timeout"))
+                                .map(Long::parseLong)
+                                .orElse(500L));
         }
     }
 

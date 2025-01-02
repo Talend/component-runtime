@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.66.0-SNAPSHOT</version>
+    <version>1.67.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-runtime-impl</artifactId>
@@ -60,4 +60,19 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- specific surefire configuration for SchemaWithoutSanitizeTest -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkCount>5</forkCount>
+          <!-- we need to disable fork (separate jvm) for SchemaWithoutSanitizeTests as it uses Schema.SKIP_SANITIZE static field -->
+          <reuseForks>false</reuseForks>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -295,13 +295,13 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
 
         switch (studioType) {
-        case StudioTypes.DATE:
-            metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
-            metadata.getDynamicMetadata().setFormat(pattern);
-            break;
-        default:
-            // nop
-            break;
+            case StudioTypes.DATE:
+                metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
+                metadata.getDynamicMetadata().setFormat(pattern);
+                break;
+            default:
+                // nop
+                break;
         }
         return metadata;
     }
@@ -486,7 +486,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         log.trace("[onRecordArray] visiting {}.", entry.getName());
         arrayOfRecordPrefix = entry.getName() + ".";
         array.ifPresent(value -> setField(entry, value));
-        return this;
+        return null;
     }
 
     @Override

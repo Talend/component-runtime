@@ -305,30 +305,30 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
 
     private void renderConditions(final Document xml, final Element container, final Conditions conditions) {
         switch (conditions.getConditions().size()) {
-        case 0:
-            container.setTextContent("Always enabled");
-            break;
-        case 1:
-            renderCondition(xml, container, conditions.getConditions().iterator().next(), "or");
-            break;
-        default:
-            final Element listWrapper = xml.createElement("ul");
-            final Runnable conditionAppender = () -> conditions.getConditions().forEach(cond -> {
-                final Element li = xml.createElement("li");
-                renderCondition(xml, li, cond, conditions.getOperator());
-                listWrapper.appendChild(li);
-            });
-            switch (conditions.getOperator().toUpperCase(ROOT)) {
-            case "OR":
-                container.setTextContent("One of these conditions is meet:");
-                conditionAppender.run();
+            case 0:
+                container.setTextContent("Always enabled");
                 break;
-            case "AND":
+            case 1:
+                renderCondition(xml, container, conditions.getConditions().iterator().next(), "or");
+                break;
             default:
-                container.setTextContent("All of the following conditions are met:");
-                conditionAppender.run();
-            }
-            container.appendChild(listWrapper);
+                final Element listWrapper = xml.createElement("ul");
+                final Runnable conditionAppender = () -> conditions.getConditions().forEach(cond -> {
+                    final Element li = xml.createElement("li");
+                    renderCondition(xml, li, cond, conditions.getOperator());
+                    listWrapper.appendChild(li);
+                });
+                switch (conditions.getOperator().toUpperCase(ROOT)) {
+                    case "OR":
+                        container.setTextContent("One of these conditions is meet:");
+                        conditionAppender.run();
+                        break;
+                    case "AND":
+                    default:
+                        container.setTextContent("All of the following conditions are met:");
+                        conditionAppender.run();
+                }
+                container.appendChild(listWrapper);
         }
     }
 
@@ -354,57 +354,57 @@ public class DitaDocumentationGenerator extends DocBaseGenerator {
             container.appendChild(parmname);
         };
         switch (ofNullable(condition.getStrategy()).orElse("default").toLowerCase(ROOT)) {
-        case "length":
-            if (condition.isNegate()) {
-                if ("0".equals(condition.getValue())) {
+            case "length":
+                if (condition.isNegate()) {
+                    if ("0".equals(condition.getValue())) {
+                        appendPath.run();
+                        container.appendChild(xml.createTextNode(" is not empty"));
+                    } else {
+                        container.appendChild(xml.createTextNode("the length of "));
+                        appendPath.run();
+                        container.appendChild(xml.createTextNode(" is not "));
+                        valuesAppender.run();
+                    }
+                } else if ("0".equals(condition.getValue())) {
                     appendPath.run();
-                    container.appendChild(xml.createTextNode(" is not empty"));
+                    container.appendChild(xml.createTextNode(" is empty"));
                 } else {
                     container.appendChild(xml.createTextNode("the length of "));
                     appendPath.run();
-                    container.appendChild(xml.createTextNode(" is not "));
+                    container.appendChild(xml.createTextNode(" is "));
                     valuesAppender.run();
                 }
-            } else if ("0".equals(condition.getValue())) {
+                break;
+            case "contains": {
                 appendPath.run();
-                container.appendChild(xml.createTextNode(" is empty"));
-            } else {
-                container.appendChild(xml.createTextNode("the length of "));
-                appendPath.run();
-                container.appendChild(xml.createTextNode(" is "));
+                if (condition.isNegate()) {
+                    container.appendChild(xml.createTextNode(" does not contain "));
+                } else {
+                    container.appendChild(xml.createTextNode(" contains "));
+                }
                 valuesAppender.run();
+                break;
             }
-            break;
-        case "contains": {
-            appendPath.run();
-            if (condition.isNegate()) {
-                container.appendChild(xml.createTextNode(" does not contain "));
-            } else {
-                container.appendChild(xml.createTextNode(" contains "));
+            case "contains(lowercase=true)": {
+                container.appendChild(xml.createTextNode("the lowercase value of "));
+                appendPath.run();
+                if (condition.isNegate()) {
+                    container.appendChild(xml.createTextNode(" does not contain "));
+                } else {
+                    container.appendChild(xml.createTextNode(" contains "));
+                }
+                valuesAppender.run();
+                break;
             }
-            valuesAppender.run();
-            break;
-        }
-        case "contains(lowercase=true)": {
-            container.appendChild(xml.createTextNode("the lowercase value of "));
-            appendPath.run();
-            if (condition.isNegate()) {
-                container.appendChild(xml.createTextNode(" does not contain "));
-            } else {
-                container.appendChild(xml.createTextNode(" contains "));
-            }
-            valuesAppender.run();
-            break;
-        }
-        case "default":
-        default:
-            appendPath.run();
-            if (condition.isNegate()) {
-                container.appendChild(xml.createTextNode(" is not equal to "));
-            } else {
-                container.appendChild(xml.createTextNode(" is equal to "));
-            }
-            valuesAppender.run();
+            case "default":
+            default:
+                appendPath.run();
+                if (condition.isNegate()) {
+                    container.appendChild(xml.createTextNode(" is not equal to "));
+                } else {
+                    container.appendChild(xml.createTextNode(" is equal to "));
+                }
+                valuesAppender.run();
         }
     }
 
