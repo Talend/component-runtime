@@ -70,10 +70,11 @@ class ModelVisitorTest {
                 visit(ProcessorBulk.class));
 
     }
+
     @Test
     void validAfterGroupWithLastGroup() {
         assertEquals(singletonList(
-                        "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$ProcessorOneAfterGroup$Out)"),
+                "@Processor(org.talend.sdk.component.runtime.visitor.visitor.ModelVisitorTest$ProcessorOneAfterGroup$Out)"),
                 visit(ProcessorOneAfterGroup.class));
     }
 
@@ -613,8 +614,10 @@ class ModelVisitorTest {
             public void onNext(final In in) {
                 // no-op
             }
+
             @AfterGroup
-            public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup final boolean isLast) {
+            public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected,
+                    @LastGroup final boolean isLast) {
                 // no-op
             }
         }
@@ -631,7 +634,8 @@ class ModelVisitorTest {
             }
 
             @AfterGroup
-            public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup final boolean isLast) {
+            public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected,
+                    @LastGroup final boolean isLast) {
                 // no-op
             }
         }

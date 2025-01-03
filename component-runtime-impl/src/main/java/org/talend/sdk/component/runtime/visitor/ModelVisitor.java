@@ -58,6 +58,7 @@ public class ModelVisitor {
     private static final Set<Class<?>> SUPPORTED_AFTER_VARIABLES_TYPES = new HashSet<>(Arrays
             .asList(Boolean.class, Byte.class, byte[].class, Character.class, Date.class, Double.class, Float.class,
                     BigDecimal.class, Integer.class, Long.class, Object.class, Short.class, String.class, List.class));
+
     public static final String MUST_NOT_HAVE_ANY_PARAMETER = " must not have any parameter";
 
     public void visit(final Class<?> type, final ModelListener listener, final boolean validate) {

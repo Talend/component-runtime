@@ -33,11 +33,12 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -126,15 +127,16 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                     .stream()
                     .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters())
                             .map(param -> {
-                        if (isGroupBuffer(param.getParameterizedType())) {
-                            expectedRecordType = Class.class
-                                    .cast(ParameterizedType.class
-                                            .cast(param.getParameterizedType())
-                                            .getActualTypeArguments()[0]);
-                            return (Function<OutputFactory, Object>) o -> records;
-                        }
-                        return toOutputParamBuilder(param);
-                    }).collect(toList())))
+                                if (isGroupBuffer(param.getParameterizedType())) {
+                                    expectedRecordType = Class.class
+                                            .cast(ParameterizedType.class
+                                                    .cast(param.getParameterizedType())
+                                                    .getActualTypeArguments()[0]);
+                                    return (Function<OutputFactory, Object>) o -> records;
+                                }
+                                return toOutputParamBuilder(param);
+                            })
+                            .collect(toList())))
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
             forwardReturn = process != null && process.getReturnType() != void.class;
 
@@ -259,21 +261,25 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     @Override
     public boolean isLastGroupUsed() {
-        for (Method after : afterGroup) {
-            for (Parameter param : after.getParameters()) {
-                if (param.isAnnotationPresent(LastGroup.class)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        AtomicReference<Boolean> hasLastGroup = new AtomicReference<>(false);
+        Optional.ofNullable(afterGroup)
+                .orElse(new ArrayList<>())
+                .forEach(after -> {
+                    for (Parameter param : after.getParameters()) {
+                        if (param.isAnnotationPresent(LastGroup.class)) {
+                            hasLastGroup.set(true);
+                        }
+                    }
+                });
+        return hasLastGroup.get();
     }
 
     @Override
     public void afterGroup(final OutputFactory output, final boolean last) {
         afterGroup.forEach(after -> {
             Object[] params = Stream.concat(
-                    parameterBuilderAfterGroup.get(after).stream()
+                    parameterBuilderAfterGroup.get(after)
+                            .stream()
                             .map(b -> b.apply(output))
                             .filter(b -> !b.equals(false)),
                     Stream.of(last)).toArray(Object[]::new);

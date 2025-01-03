@@ -25,10 +25,7 @@ import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.meta.Documentation;
-import org.talend.sdk.component.api.processor.AfterGroup;
-import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
-import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
@@ -36,31 +33,16 @@ import org.talend.sdk.component.api.processor.Processor;
 @Documentation("super my component")
 @Version
 @Icon(FILE_JOB_O)
-@Processor(family = "test", name = "my5")
-public class MyComponent5 implements Serializable {
+@Processor(family = "test", name = "my6")
+public class MyComponent6 implements Serializable {
 
-    public MyComponent5(@Option("configuration") final MyConfig config) {
+    public MyComponent6(@Option("configuration") final MyConfig config) {
         // no-op
-    }
-
-    @BeforeGroup
-    public void beforeGroup() {
-
     }
 
     @ElementListener
     public Foo passthrough(final Foo item, final @Output("out1") OutputEmitter<JsonObject> out) {
         return item;
-    }
-
-    @AfterGroup
-    public void afterGroup(@Output("out1") final OutputEmitter<Foo> main) {
-
-    }
-
-    @AfterGroup
-    public void afterGroup(@Output("out1") final OutputEmitter<Foo> main, @LastGroup boolean last) {
-
     }
 
     public static class Foo {

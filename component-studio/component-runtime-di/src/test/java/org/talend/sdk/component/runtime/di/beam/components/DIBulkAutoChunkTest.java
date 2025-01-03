@@ -19,7 +19,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -124,6 +123,52 @@ class DIBulkAutoChunkTest {
         callCloseComponent(manager);
     }
 
+    @Test
+    void fromRecordToRowStructToRecordWithoutAftergroup() {
+        final ComponentManager manager = ComponentManager.instance();
+        final Collection<Object> sourceData = new ArrayList<>();
+        final Collection<Object> processorData = new ArrayList<>();
+
+        globalMap.put("key", "value");
+        globalMap.put("outputDi_1_key", "value4Output");
+        globalMap.put("inputDi_1_key", "value4Input");
+        globalMap.put("connection_1_key", "value4Connection");
+        globalMap.put("close_1_key", "value4Close");
+
+        callConnectionComponent(manager);
+
+        doDi(manager, sourceData, processorData,
+                manager.findProcessor("DIBulkAutoChunkTest", "outputDi_noAfterGroup", 1, emptyMap()),
+                manager.findMapper("DIBulkAutoChunkTest", "inputDi", 1, singletonMap("count", "1000")));
+        assertEquals(1000, sourceData.size());
+        assertEquals(1000, processorData.size());
+
+        callCloseComponent(manager);
+    }
+
+    @Test
+    void aftergroupNoParameter() {
+        final ComponentManager manager = ComponentManager.instance();
+        final Collection<Object> sourceData = new ArrayList<>();
+        final Collection<Object> processorData = new ArrayList<>();
+
+        globalMap.put("key", "value");
+        globalMap.put("outputDi_1_key", "value4Output");
+        globalMap.put("inputDi_1_key", "value4Input");
+        globalMap.put("connection_1_key", "value4Connection");
+        globalMap.put("close_1_key", "value4Close");
+
+        callConnectionComponent(manager);
+
+        doDi(manager, sourceData, processorData,
+                manager.findProcessor("DIBulkAutoChunkTest", "outputDi_noParameter", 1, emptyMap()),
+                manager.findMapper("DIBulkAutoChunkTest", "inputDi", 1, singletonMap("count", "1000")));
+        assertEquals(1000, sourceData.size());
+        assertEquals(1000, processorData.size());
+
+        callCloseComponent(manager);
+    }
+
     private void callCloseComponent(final ComponentManager manager) {
         String plugin = "test-classes";
         RuntimeContextInjector.injectService(manager, plugin, new RuntimeContextHolder("close_1", globalMap));
@@ -135,7 +180,8 @@ class DIBulkAutoChunkTest {
                 .getServices()
                 .stream()
                 .flatMap(c -> c.getActions().stream())
-                .filter(actionMeta -> "DIBulkAutoChunkTest".equals(actionMeta.getFamily()) && "close_connection".equals(actionMeta.getType()))
+                .filter(actionMeta -> "DIBulkAutoChunkTest".equals(actionMeta.getFamily())
+                        && "close_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object result = actionMeta.getInvoker().apply(null);
                     CloseConnectionObject cco = (CloseConnectionObject) result;
@@ -164,7 +210,8 @@ class DIBulkAutoChunkTest {
                 .getServices()
                 .stream()
                 .flatMap(c -> c.getActions().stream())
-                .filter(actionMeta -> "DIBulkAutoChunkTest".equals(actionMeta.getFamily()) && "create_connection".equals(actionMeta.getType()))
+                .filter(actionMeta -> "DIBulkAutoChunkTest".equals(actionMeta.getFamily())
+                        && "create_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object connnection = actionMeta.getInvoker().apply(runtimeParams);
                     assertEquals("v2200connection_1value", connnection);
@@ -174,7 +221,7 @@ class DIBulkAutoChunkTest {
     }
 
     private void doDi(final ComponentManager manager, final Collection<Object> sourceData,
-                      final Collection<Object> processorData, final Optional<Processor> proc, final Optional<Mapper> mapper) {
+            final Collection<Object> processorData, final Optional<Processor> proc, final Optional<Mapper> mapper) {
         try {
             final Processor processor = proc.orElseThrow(() -> new IllegalStateException("scanning failed"));
 
@@ -249,9 +296,9 @@ class DIBulkAutoChunkTest {
     }
 
     private void doRun(final ComponentManager manager, final Collection<Object> sourceData,
-                       final Collection<Object> processorData, final AutoChunkProcessor processorProcessor,
-                       final InputsHandler inputsHandlerProcessor, final OutputsHandler outputHandlerProcessor,
-                       final InputFactory inputsProcessor, final OutputFactory outputsProcessor, final Mapper tempMapperMapper) {
+            final Collection<Object> processorData, final AutoChunkProcessor processorProcessor,
+            final InputsHandler inputsHandlerProcessor, final OutputsHandler outputHandlerProcessor,
+            final InputFactory inputsProcessor, final OutputFactory outputsProcessor, final Mapper tempMapperMapper) {
         row1Struct row1;
         tempMapperMapper.start();
         final ChainedMapper mapperMapper;
@@ -294,7 +341,7 @@ class DIBulkAutoChunkTest {
             inputsHandlerProcessor.setInputValue("FLOW", row1);
             outputHandlerProcessor.reset();
             processorProcessor.onElement(name -> {
-//                assertEquals(Branches.DEFAULT_BRANCH, name);
+                // assertEquals(Branches.DEFAULT_BRANCH, name);
 
                 final Object read = inputsProcessor.read(name);
                 processorData.add(read);
@@ -365,7 +412,55 @@ class DIBulkAutoChunkTest {
             if (isLast) {
                 assertEquals(1000, counter);
             }
-         }
+        }
+    }
+
+    @org.talend.sdk.component.api.processor.Processor(name = "outputDi_noParameter", family = "DIBulkAutoChunkTest")
+    public static class OutputComponentDi3 implements Serializable {
+
+        @RuntimeContext
+        private transient RuntimeContextHolder context;
+
+        int counter;
+
+        @Connection
+        Object conn;
+
+        @ElementListener
+        public void onElement(final Record record) {
+            // can get connection, if not null, can use it directly instead of creating again
+            assertNotNull(conn);
+
+            counter++;
+        }
+
+        @BeforeGroup
+        public void beforeGroup() {
+        }
+
+        @AfterGroup
+        public void afterGroup() {
+        }
+    }
+
+    @org.talend.sdk.component.api.processor.Processor(name = "outputDi_noAfterGroup", family = "DIBulkAutoChunkTest")
+    public static class OutputComponentDi2 implements Serializable {
+
+        @RuntimeContext
+        private transient RuntimeContextHolder context;
+
+        int counter;
+
+        @Connection
+        Object conn;
+
+        @ElementListener
+        public void onElement(final Record record) {
+            // can get connection, if not null, can use it directly instead of creating again
+            assertNotNull(conn);
+
+            counter++;
+        }
     }
 
     @Data
