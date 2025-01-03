@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.di;
 
+import org.talend.sdk.component.runtime.output.InputFactory;
+import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
 
 /*
@@ -25,5 +27,32 @@ public class AutoChunkProcessor extends org.talend.sdk.component.runtime.manager
 
     public AutoChunkProcessor(final int chunkSize, final Processor processor) {
         super(chunkSize, processor);
+    }
+
+    @Override
+    public void onElement(final InputFactory ins, final OutputFactory outs) {
+        if (processedItemCount == 0) {
+            processor.beforeGroup();
+        }
+        try {
+            processor.onNext(ins, outs);
+            processedItemCount++;
+        } finally {
+            if (processedItemCount == chunkSize) {
+                processor.afterGroup(outs);
+                processedItemCount = 0;
+            }
+        }
+    }
+
+    @Override
+    public void flush(final OutputFactory outs) {
+        if (processor.isLastGroupUsed()) {
+            processor.afterGroup(outs, true);
+        }
+        if (processedItemCount > 0) {
+            processor.afterGroup(outs);
+        }
+        processedItemCount = 0;
     }
 }
