@@ -27,8 +27,18 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Retention(RUNTIME)
 @Documentation("Mark a connector as having a fixed schema. " +
         "Annotation's value must match the name of a DiscoverSchema or a DiscoverSchemaExtended annotation. " +
-        "The related action will return the fixed schema.")
+        "The related action will return the fixed schema for the specified flows.")
 public @interface FixedSchema {
 
     String value() default "";
+
+    /**
+     * The flows to apply the fixed schema.
+     * With an Input component, it will always concern the main flow. So you can omit it.
+     * With an Output component, it will concern either concern the main flow and/or the reject output flows.
+     *
+     * @return the flows concerned by fixed schema. Default to none.
+     */
+    String[] flows() default {};
+
 }

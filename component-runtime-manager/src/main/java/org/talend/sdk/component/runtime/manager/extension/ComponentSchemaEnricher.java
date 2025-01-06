@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import static java.util.Collections.emptyMap;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +38,8 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
 
     public static final String FIXED_SCHEMA_META_PREFIX = "tcomp::ui::schema::fixed";
 
+    public static final String FIXED_SCHEMA_FLOWS_META_PREFIX = "tcomp::ui::schema::flows::fixed";
+
     private static final Set<Class<? extends Annotation>> SUPPORTED_ANNOTATIONS =
             new HashSet<>(Arrays.asList(PartitionMapper.class, Emitter.class, Processor.class, DriverRunner.class));
 
@@ -47,16 +49,22 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
             return emptyMap();
         }
 
-        final Optional<String> fixed = Arrays.stream(annotations)
+        final Optional<FixedSchema> fixed = Arrays.stream(annotations)
                 .filter(a -> a.annotationType().equals(FixedSchema.class))
                 .findFirst()
-                .map(FixedSchema.class::cast)
-                .map(FixedSchema::value);
+                .map(FixedSchema.class::cast);
 
         if (!fixed.isPresent()) {
             return emptyMap();
         }
 
-        return Collections.singletonMap(FIXED_SCHEMA_META_PREFIX, fixed.get());
+        final FixedSchema fixedSchema = fixed.get();
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put(FIXED_SCHEMA_META_PREFIX, fixedSchema.value());
+        if (fixedSchema.flows().length > 0) {
+            metadata.put(FIXED_SCHEMA_FLOWS_META_PREFIX, String.join(",", fixedSchema.flows()));
+        }
+
+        return metadata;
     }
 }

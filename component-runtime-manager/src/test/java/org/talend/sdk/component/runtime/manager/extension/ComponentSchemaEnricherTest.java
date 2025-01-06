@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.schema.FixedSchema;
 import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
@@ -35,8 +36,19 @@ class ComponentSchemaEnricherTest {
 
             {
                 put("tcomp::ui::schema::fixed", "discover");
+                put("tcomp::ui::schema::flows::fixed", "main,reject");
             }
         }, enricher.onComponent(ProcessorWithFixedSchema.class, ProcessorWithFixedSchema.class.getAnnotations()));
+    }
+
+    @Test
+    void fixedSchemaMetadataNoFlowPresent() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::schema::fixed", "discover");
+            }
+        }, enricher.onComponent(MyEmitter.class, MyEmitter.class.getAnnotations()));
     }
 
     @Test
@@ -45,13 +57,19 @@ class ComponentSchemaEnricherTest {
     }
 
     @Processor
-    @FixedSchema("discover")
+    @FixedSchema(value = "discover", flows = { "main", "reject" })
     private static class ProcessorWithFixedSchema {
 
     }
 
     @Processor
     private static class MyProcessor {
+
+    }
+
+    @Emitter
+    @FixedSchema(value = "discover")
+    private static class MyEmitter {
 
     }
 }

@@ -24,6 +24,7 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Processor;
+import org.talend.sdk.component.api.service.schema.FixedSchema;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Icon(Icon.IconType.DB_INPUT)
 @Processor(family = "jdbc", name = "output")
+@FixedSchema(value = "jdbc_discover_schema", flows = { "reject" })
 public class JdbcOutput implements Serializable {
 
     private final ConfigWrapper dataset;

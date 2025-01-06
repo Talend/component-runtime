@@ -183,6 +183,24 @@ class ComponentResourceImplTest {
         final ComponentIndex index = components.iterator().next();
         assertEquals("jdbc#input", index.getId().getFamily() + "#" + index.getId().getName());
         assertEquals("jdbc_discover_schema", index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_META_PREFIX));
+        assertNull(index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_FLOWS_META_PREFIX));
+    }
+
+    @Test()
+    void getFixedSchemaMetadataWithRejectFlow() {
+        final List<ComponentIndex> components = base
+                .path("component/index")
+                .queryParam("includeIconContent", false)
+                .queryParam("q", "(id = " + client.getJdbcOutputId() + ") AND (plugin = jdbc-component)")
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ComponentIndices.class)
+                .getComponents();
+        assertEquals(1, components.size());
+        final ComponentIndex index = components.iterator().next();
+        assertEquals("jdbc#output", index.getId().getFamily() + "#" + index.getId().getName());
+        assertEquals("jdbc_discover_schema", index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_META_PREFIX));
+        assertEquals("reject", index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_FLOWS_META_PREFIX));
     }
 
     @Test
