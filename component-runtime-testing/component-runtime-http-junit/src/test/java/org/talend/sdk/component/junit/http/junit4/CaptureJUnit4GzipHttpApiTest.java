@@ -115,6 +115,7 @@ public class CaptureJUnit4GzipHttpApiTest {
                                             new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
+                    connection.setRequestProperty("Accept", "*/*");
                     connection.setRequestProperty("Accept-Encoding", "gzip");
                     connection.setRequestProperty("Authorization", "should be filtered");
                     connection.setRequestProperty("ok", "yes");
@@ -127,7 +128,7 @@ public class CaptureJUnit4GzipHttpApiTest {
             final String lines = String.join("\n", Files.readAllLines(output));
             assertJSONEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
                     + "        \"content-length\":\"0\",\n"
-                    + "        \"Accept\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\",\n"
+                    + "        \"Accept\":\"*/*\",\n"
                     + "        \"Accept-Encoding\":\"gzip\",\n" + "        \"ok\":\"yes\",\n"
                     + "        \"Proxy-Connection\":\"keep-alive\"\n" + "      },\n" + "      \"method\":\"GET\",\n"
                     + "      \"uri\":\"http://localhost:" + server.getAddress().getPort() + "/supertest\"\n"

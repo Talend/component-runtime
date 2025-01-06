@@ -16,8 +16,10 @@
 package org.talend.sdk.component.starter.server.service.openapi.model.openapi;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Header extends Parameter {
 
 }
