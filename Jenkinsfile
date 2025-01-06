@@ -61,7 +61,6 @@ final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRA
 // Job config
 final Boolean isMasterBranch = branch_name == "master"
 final Boolean isStdBranch = (branch_name == "master" || branch_name.startsWith("maintenance/"))
-final Boolean hasPostLoginScript = params.POST_LOGIN_SCRIPT != ""
 final String extraBuildParams = ""
 final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDateTime.now())
 final String artifactoryAddr = "https://artifactory.datapwn.com"
@@ -197,10 +196,6 @@ pipeline {
         name: 'EXTRA_BUILD_PARAMS',
         defaultValue: '',
         description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
-    string(
-        name: 'POST_LOGIN_SCRIPT',
-        defaultValue: '',
-        description: 'Execute a shell command after login. Useful for maintenance.')
     booleanParam(
         name: 'DISABLE_SONAR',
         defaultValue: false,
@@ -381,7 +376,7 @@ pipeline {
           // updating build description
           String description = """
                       Version = $finalVersion - $params.Action Build  
-                      Disable Sonar: $params.DISABLE_SONAR - Script: $hasPostLoginScript  
+                      Disable Sonar: $params.DISABLE_SONAR  
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
           jenkinsJobTools.job_description_append(description)
@@ -403,15 +398,17 @@ pipeline {
                          jiraCredentials,
                          gpgCredentials]) {
           script {
-            try {
-              sh """\
-                            #!/usr/bin/env bash
-                            bash "${params.POST_LOGIN_SCRIPT}"
-                            bash .jenkins/scripts/npm_fix.sh
-                            """.stripIndent()
-            } catch (ignored) {
-              //
-            }
+            sh """\
+              #!/usr/bin/env bash
+              bash .jenkins/scripts/npm_fix.sh
+              """.stripIndent()
+
+            // If needed, use jenkins replay function then uncomment this to add your temporary bash command
+            // This replace the POST_LOGIN_SCRIPT variable used prior to https://qlik-dev.atlassian.net/browse/QTDI-740
+            // sh """\
+            //  #!/usr/bin/env bash
+            //  bash but anything needed here
+            //  """.stripIndent()
           }
         }
       }
@@ -422,12 +419,12 @@ pipeline {
         withCredentials([ossrhCredentials,
                          nexusCredentials]) {
           sh """\
-                    #!/usr/bin/env bash
-                    set -xe
-                    mvn clean install $BUILD_ARGS \
-                                      $extraBuildParams \
-                                      --settings .jenkins/settings.xml
-                    """.stripIndent()
+            #!/usr/bin/env bash
+            set -xe
+            mvn clean install $BUILD_ARGS \
+                              $extraBuildParams \
+                              --settings .jenkins/settings.xml
+            """.stripIndent()
         }
       }
       post {
@@ -458,12 +455,12 @@ pipeline {
                            gpgCredentials,
                            nexusCredentials]) {
             sh """\
-                        #!/usr/bin/env bash
-                        set -xe
-                        bash mvn deploy $deployOptions \
-                                        $extraBuildParams \
-                                        --settings .jenkins/settings.xml
-                        """.stripIndent()
+              #!/usr/bin/env bash
+              set -xe
+              bash mvn deploy $deployOptions \
+                              $extraBuildParams \
+                              --settings .jenkins/settings.xml
+              """.stripIndent()
           }
         }
         // Add description to job
@@ -534,10 +531,10 @@ pipeline {
 
             // Build and push specific image
             sh """
-                              bash .jenkins/scripts/docker_build.sh \
-                                ${finalVersion}${buildTimestamp} \
-                                ${images_options}
-                            """
+                bash .jenkins/scripts/docker_build.sh \
+                  ${finalVersion}${buildTimestamp} \
+                  ${images_options}
+              """
           }
 
         }
@@ -552,15 +549,15 @@ pipeline {
       steps {
         withCredentials([ossrhCredentials, gitCredentials]) {
           sh """\
-                    #!/usr/bin/env bash 
-                    set -xe                       
-                    mvn verify pre-site --file documentation/pom.xml \
-                                        --settings .jenkins/settings.xml \
-                                        --activate-profiles gh-pages \
-                                        --define gpg.skip=true \
-                                        $skipOptions \
-                                        $extraBuildParams 
-                    """.stripIndent()
+            #!/usr/bin/env bash 
+            set -xe                       
+            mvn verify pre-site --file documentation/pom.xml \
+                                --settings .jenkins/settings.xml \
+                                --activate-profiles gh-pages \
+                                --define gpg.skip=true \
+                                $skipOptions \
+                                $extraBuildParams 
+            """.stripIndent()
         }
       }
     }
@@ -575,8 +572,8 @@ pipeline {
         withCredentials([ossrhCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             sh """
-                            bash .jenkins/scripts/mvn-ossindex-audit.sh
-                        """
+               bash .jenkins/scripts/mvn-ossindex-audit.sh
+               """
           }
         }
       }
@@ -707,10 +704,15 @@ pipeline {
     }
     always {
       script {
+        String prevResult = null
+        if (currentBuild.previousBuild) {
+          prevResult = currentBuild.previousBuild.result
+        }
+
         alertingTools.slack_result(
             env.SLACK_CI_CHANNEL,
             currentBuild.result,
-            currentBuild.previousBuild.result,
+            prevResult,
             true, // Post for success
             true, // Post for failure
             "Failure of $pomVersion $params.ACTION.")
