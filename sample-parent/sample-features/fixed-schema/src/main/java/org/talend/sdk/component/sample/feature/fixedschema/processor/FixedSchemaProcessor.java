@@ -56,25 +56,25 @@ public class FixedSchemaProcessor implements Serializable {
 
         int modulo = id % 3;
         if (modulo == 0) {
-            Record even = factory.newRecordBuilder()
+            Record zero = factory.newRecordBuilder()
                     .withInt("id", id)
                     .withString("input", "modulo == 0")
                     .withString("another", "dummy value")
                     .withBoolean("aBoolean", true)
                     .build();
-            main.emit(even);
+            main.emit(zero);
         } else if (modulo == 1) {
-            Record odd = factory.newRecordBuilder()
+            Record one = factory.newRecordBuilder()
                     .withInt("second", id)
                     .withString("flow", "Second flow since module == 1")
                     .build();
-            second.emit(odd);
+            second.emit(one);
         } else {
-            Record thirdFlow = factory.newRecordBuilder()
+            Record three = factory.newRecordBuilder()
                     .withString(config.getDse().getDso().getInput(), String.valueOf(id))
                     .withString(config.getDse().getAnotherInput(), "Third flow since module == 2")
                     .build();
-            third.emit(thirdFlow);
+            third.emit(three);
         }
 
     }
