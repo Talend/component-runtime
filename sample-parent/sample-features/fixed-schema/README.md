@@ -17,4 +17,4 @@ designed by this annotation should:
 - Have the `@DiscoverSChema` or ``@DiscoverSChemaExtended` automatically called and the schema set silently
 
 ## In an input connector
-This sample connector has the `@FixedSchema` annotation set on its `@Emitter` [here](./src/main/java/org/talend/sdk/component/sample/feature/fixedschema/input/FixedSchemaInput.java#32).
+This sample connector has the `@FixedSchema` annotation set on its `@Emitter` [here](./src/main/java/org/talend/sdk/component/sample/feature/fixedschema/input/FixedSchemaInput.java#L32).
