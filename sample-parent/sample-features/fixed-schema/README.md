@@ -72,11 +72,11 @@ the `guessSchema4Processors` return a different schema for each flow.
 ## Sample connector behavior
 Since it's a simple sample, both [Input](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/input/FixedSchemaInput.java#L35)
 and [Processor](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.java#L39)
-connector use the
+connectors use the
 [same configuration](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/config/Config.java#L34).
 
 ### The @Emitter
-The intput connector generates 5 record with those attribute:
+The intput connector generates 5 records with those attributes:
 - `id`: the [index](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/input/FixedSchemaInput.javaL#57)
 of the record
 - `input`: the value set in [Datastore#input](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/config/Datastore.java#L34)
@@ -98,16 +98,16 @@ Here is an example of ouptut:
 It has only 1 output flow `__default__`.
 
 ### The processor
-The processor will process all received input record. The input record has to contain a `id` attribut of `Integer` type.
-It will compute the `module 3` on this id:
+The processor will process all received input records. The input record has to contain a `id` attribute of `Integer` type.
+It will compute the `modulo 3` on this `id`:
 - If the result is `0`, 
-[a record will be sent sent to the](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.javaL#59)
+[a record will be sent sent to the](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.java#L59)
 `__default__` flow
 - If the result is `1`,
-[a record will be sent sent to the](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.javaL#67)
+[a record will be sent sent to the](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.java#L67)
 `second` flow
 - If the result is `2`,
-[a record will be sent sent to the](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.javaL#73)
+[a record will be sent sent to the](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.java#L73)
 `third` flow
 
 Each flow has it own output schema:
