@@ -183,7 +183,7 @@ class ComponentResourceImplTest {
         final ComponentIndex index = components.iterator().next();
         assertEquals("jdbc#input", index.getId().getFamily() + "#" + index.getId().getName());
         assertEquals("jdbc_discover_schema", index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_META_PREFIX));
-        assertNull(index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_FLOWS_META_PREFIX));
+        assertEquals(ComponentSchemaEnricher.SCHEMA_FLOW_DEFAULT, index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_FLOWS_META_PREFIX));
     }
 
     @Test()
