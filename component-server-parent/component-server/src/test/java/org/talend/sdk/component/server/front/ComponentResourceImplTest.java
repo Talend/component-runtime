@@ -65,6 +65,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.runtime.manager.extension.ComponentSchemaEnricher;
+import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
@@ -183,7 +184,7 @@ class ComponentResourceImplTest {
         final ComponentIndex index = components.iterator().next();
         assertEquals("jdbc#input", index.getId().getFamily() + "#" + index.getId().getName());
         assertEquals("jdbc_discover_schema", index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_META_PREFIX));
-        assertEquals(ComponentSchemaEnricher.SCHEMA_FLOW_DEFAULT, index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_FLOWS_META_PREFIX));
+        assertEquals(Branches.DEFAULT_BRANCH, index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_FLOWS_META_PREFIX));
     }
 
     @Test()

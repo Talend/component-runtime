@@ -32,6 +32,7 @@ import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.schema.FixedSchema;
 import org.talend.sdk.component.api.standalone.DriverRunner;
+import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
 public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
@@ -66,7 +67,7 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
         if (fixedSchema.flows().length > 0) {
             metadata.put(FIXED_SCHEMA_FLOWS_META_PREFIX, String.join(",", fixedSchema.flows()));
         } else {
-            metadata.put(FIXED_SCHEMA_FLOWS_META_PREFIX, SCHEMA_FLOW_DEFAULT);
+            metadata.put(FIXED_SCHEMA_FLOWS_META_PREFIX, Branches.DEFAULT_BRANCH);
         }
 
         return metadata;
