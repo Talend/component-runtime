@@ -35,7 +35,8 @@ public @interface FixedSchema {
     /**
      * The flows to apply the fixed schema.
      * With an Input component, it will always concern the main flow. So you can omit it.
-     * With an Output component, it will concern either concern the main flow and/or the reject output flows.
+     * With an Output component, it will concern the main, reject and/or any other flow.
+     * In Studio, the main flow's value is "__default__".
      *
      * @return the flows concerned by fixed schema. Default to none.
      */

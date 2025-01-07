@@ -47,6 +47,7 @@ class ComponentSchemaEnricherTest {
 
             {
                 put("tcomp::ui::schema::fixed", "discover");
+                put("tcomp::ui::schema::flows::fixed", "__default__");
             }
         }, enricher.onComponent(MyEmitter.class, MyEmitter.class.getAnnotations()));
     }

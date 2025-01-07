@@ -40,6 +40,8 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
 
     public static final String FIXED_SCHEMA_FLOWS_META_PREFIX = "tcomp::ui::schema::flows::fixed";
 
+    public static final String SCHEMA_FLOW_DEFAULT = "__default__";
+
     private static final Set<Class<? extends Annotation>> SUPPORTED_ANNOTATIONS =
             new HashSet<>(Arrays.asList(PartitionMapper.class, Emitter.class, Processor.class, DriverRunner.class));
 
@@ -63,6 +65,8 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
         metadata.put(FIXED_SCHEMA_META_PREFIX, fixedSchema.value());
         if (fixedSchema.flows().length > 0) {
             metadata.put(FIXED_SCHEMA_FLOWS_META_PREFIX, String.join(",", fixedSchema.flows()));
+        } else {
+            metadata.put(FIXED_SCHEMA_FLOWS_META_PREFIX, SCHEMA_FLOW_DEFAULT);
         }
 
         return metadata;
