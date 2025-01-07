@@ -157,7 +157,7 @@ Each flow has it own output schema:
 '---+----------------------------'
 ```
 
-### Studio screenshot
+### In the studio
 Here is a screenshot of the usage of this sample connector in a studio:
 ![tSampleFixedSchema](./resources/studio_flows.png)
 
@@ -206,3 +206,9 @@ And the output of its execution:
 |8  |Third flow since module == 2|
 '---+----------------------------'
 ```
+
+The output schema of the input connector should be automatically set and set readonly:
+![studio_input_flow](./resources/studio_input_flow.png)
+
+The output schemas of `__default__` and `second` should be automatically set, and set readonly, while the schema for `third` should remain as it is:
+![studio_processor_flows](./resources/studio_processor_flows.png)
