@@ -10,7 +10,7 @@ Then deploy it into a studio:
 java -jar sample-parent/sample-features/fixed-schema/target/fixedschema-<version>.car studio-deploy --location <path to a studio> -f
 ```
 
-# @FixedSchema feature
+# @FixedSchema integration
 The `@FixedSchema` is used to inform final application (_application where TCK is integrated_), that the output flow
 designed by this annotation should:
 - Have its `Guess schema` button hidden
