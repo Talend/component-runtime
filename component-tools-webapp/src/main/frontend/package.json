@@ -10,7 +10,7 @@
     "@talend/bootstrap-theme": "9.2.0",
     "@talend/design-system": "11.0.5",
     "@talend/icons": "7.10.2",
-    "@talend/react-cmf": "10.0.1",
+    "@talend/react-cmf": "10.1.0",
     "@talend/react-components": "17.1.2",
     "@talend/react-forms": "15.0.2",
     "@talend/react-containers": "11.0.4",
