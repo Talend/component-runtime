@@ -14,7 +14,7 @@ java -jar sample-parent/sample-features/fixed-schema/target/fixedschema-<version
 The `@FixedSchema` is used to inform final application (_application where TCK is integrated_), that the output flow
 designed by this annotation should:
 - Have its `Guess schema` button hidden
-- Have the `@DiscoverSChema` or ``@DiscoverSChemaExtended` automatically called and the schema set silently
+- Have the `@DiscoverSChema` or `@DiscoverSChemaExtended` automatically called and the schema set silently
 
 ## In an input connector
 This sample connector has the `@FixedSchema` annotation set on its `@Emitter`
@@ -25,7 +25,7 @@ to be called is explicitly `fixedschemadse` and since it is an `@Emitter` it is 
 The parameter `final Dataset dse` of the service should be set with values defined in the form. Since the call should be
 done when the form is open, it should be only default values.
 
-You can see that the schema is build with static values, and the `dse` parameter is not used:
+You can see that the schema is built with static values, and the `dse` parameter is not used:
 ```java
 factory.newSchemaBuilder(Schema.Type.RECORD)
                 .withEntry(factory.newEntryBuilder().withName("id").withType(Schema.Type.INT).build())
@@ -38,11 +38,11 @@ factory.newSchemaBuilder(Schema.Type.RECORD)
 ## In a processor
 This sample processor has the `@FixedSchema` annotation set on its `@Processor`
 [here](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.java#L38). Its 
-value is `fixedschemaextended` and so point to the  `@DiscoverSchemaExtended` service (_since it's a processor__) named
+value is `fixedschemaextended` and so point to the  `@DiscoverSchemaExtended` service (_since it's a processor_) named
 `fixedschemaextended`.
 
 It that, an additional parameter is set in the annotation `flows = { "__default__", "second" }`. Indeed, a processor can
-have multiple output flows, and the `@FixedSchema` annotation is enabled all the given ones. Output flow are defined
+have multiple output flows, and the `@FixedSchema` annotation is enabled for all the given ones in that `flows` attribute. Output flows are defined
 int the `@ElementListener` method. In the sample, the `@Emitter`
 [manages 3 output flows](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.java#L52):
 - The unnamed is `__default__` (_the `main` flow in the studio_)
@@ -66,7 +66,7 @@ That means for:
     - No service is called
         - The schema is remained empty until the user set it manually or click on guess schema button
 
-[As you can see](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.java#L50),
+[As you can see](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/service/UIService.java#L50),
 the `guessSchema4Processors` return a different schema for each flow.
 
 ## Sample connector behavior
