@@ -14,7 +14,7 @@ java -jar sample-parent/sample-features/fixed-schema/target/fixedschema-<version
 The `@FixedSchema` is used to inform final application (_application where TCK is integrated_), that the output flow
 designed by this annotation should:
 - Have its `Guess schema` button hidden
-- Have the `@DiscoverSChema` or `@DiscoverSChemaExtended` automatically called and the schema set silently
+- Have the `@DiscoverSchema` or `@DiscoverSchemaExtended` automatically called and the schema set silently
 
 ## In an input connector
 This sample connector has the `@FixedSchema` annotation set on its `@Emitter`
