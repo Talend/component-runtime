@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.sample.feature.fixedschema.service;
 
-import java.util.Objects;
-
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
@@ -25,6 +23,8 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.sample.feature.fixedschema.config.Config;
 import org.talend.sdk.component.sample.feature.fixedschema.config.Dataset;
+
+import lombok.NonNull;
 
 @Service
 public class UIService {
@@ -47,9 +47,7 @@ public class UIService {
     }
 
     @DiscoverSchemaExtended("fixedschemaextended")
-    public Schema guessSchema4Processors(final @Option("config") Config config, final String branch) {
-        Objects.nonNull(branch);
-
+    public Schema guessSchema4Processors(final @Option("config") @NonNull Config config, final @NonNull String branch) {
         if (branch.equals(SECOND_FLOW_NAME)) {
             return factory.newSchemaBuilder(Schema.Type.RECORD)
                     .withEntry(factory.newEntryBuilder().withName("second").withType(Schema.Type.INT).build())
