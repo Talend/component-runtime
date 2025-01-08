@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-  <rect x="5.903" y="3.524" width="1.406" height="1.782" style="stroke: rgb(255, 255, 255); fill: rgb(255, 255, 255);"/>
-  <rect x="7.481" y="7.26" width="2.674" height="1.851" style="stroke: rgb(255, 255, 255); fill: rgb(255, 255, 255);"/>
-  <path d="M 10.158 1.826 L 2.651 1.826 L 2.651 15.313 L 14.852 15.313 L 14.852 6.04 L 10.158 1.826 Z M 9.69 2.669 L 13.444 6.04 L 9.69 6.04 L 9.69 2.669 Z M 13.912 14.472 L 3.592 14.472 L 3.592 2.669 L 8.751 2.669 L 8.751 6.882 L 13.912 6.882 L 13.912 14.472 Z" style="vector-effect: non-scaling-stroke; stroke-width: 5px; fill: rgb(32, 50, 210);"/>
+  <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 3.23595px; font-weight: 700; line-height: 5.17751px; text-anchor: middle; white-space: pre;" transform="matrix(1.211007, 0, 0.029195, 2.152172, 3.935322, -2.805911)"><tspan x="3.067" y="4.345">Fixed</tspan><tspan x="3.067" dy="1em">​</tspan><tspan>Schema</tspan></text>
 </svg>

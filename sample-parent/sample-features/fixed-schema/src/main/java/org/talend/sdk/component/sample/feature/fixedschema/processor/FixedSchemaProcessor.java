@@ -59,7 +59,7 @@ public class FixedSchemaProcessor implements Serializable {
             Record zero = factory.newRecordBuilder()
                     .withInt("id", id)
                     .withString("input", "modulo == 0")
-                    .withString("another", "dummy value")
+                    .withString("another", "Fixed value")
                     .withBoolean("aBoolean", true)
                     .build();
             main.emit(zero);

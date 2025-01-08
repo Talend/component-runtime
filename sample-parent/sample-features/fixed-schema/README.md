@@ -114,15 +114,15 @@ Each flow has it own output schema:
 - `__default__`: 
     - `id`: the input record `id` value
     - `input`: will always contain `"modulo == 0"`
-    - `another`: will always contain `"dummy value"`
+    - `another`: will always contain `"Fixed value"`
     - `aBoolean`: will always contain `true`
 ```text
 |=-+-----------+-----------+-------=|
 |id|input      |another    |aBoolean|
 |=-+-----------+-----------+-------=|
-|3 |modulo == 0|dummy value|true    |
-|6 |modulo == 0|dummy value|true    |
-|9 |modulo == 0|dummy value|true    |
+|3 |modulo == 0|Fixed value|true    |
+|6 |modulo == 0|Fixed value|true    |
+|9 |modulo == 0|Fixed value|true    |
 '--+-----------+-----------+--------'
 ```
 
