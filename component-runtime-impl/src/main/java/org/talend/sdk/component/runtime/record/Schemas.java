@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,28 +111,28 @@ public abstract class Schemas implements Schema, Schema.Builder {
 
     public static Builder valueOf(final String name) {
         switch (name) {
-        case "STRING":
-            return STRING;
-        case "BYTES":
-            return BYTES;
-        case "INT":
-            return INT;
-        case "LONG":
-            return LONG;
-        case "FLOAT":
-            return FLOAT;
-        case "DOUBLE":
-            return DOUBLE;
-        case "BOOLEAN":
-            return BOOLEAN;
-        case "DATETIME":
-            return DATETIME;
-        case "DECIMAL":
-            return DECIMAL;
-        case "EMPTY_RECORD":
-            return EMPTY_RECORD;
-        default:
-            throw new IllegalArgumentException(name);
+            case "STRING":
+                return STRING;
+            case "BYTES":
+                return BYTES;
+            case "INT":
+                return INT;
+            case "LONG":
+                return LONG;
+            case "FLOAT":
+                return FLOAT;
+            case "DOUBLE":
+                return DOUBLE;
+            case "BOOLEAN":
+                return BOOLEAN;
+            case "DATETIME":
+                return DATETIME;
+            case "DECIMAL":
+                return DECIMAL;
+            case "EMPTY_RECORD":
+                return EMPTY_RECORD;
+            default:
+                throw new IllegalArgumentException(name);
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,16 +117,16 @@ class RecordServiceImplTest {
                                                                                             .isInstance(it))
                                                                                     .collect(Collectors.toList())));
                                                     switch (method.getName()) {
-                                                    case "get":
-                                                        return out.incrementAndGet();
-                                                    case "apply":
-                                                        return asList(args)
-                                                                .stream()
-                                                                .mapToInt(Integer.class::cast)
-                                                                .sum();
-                                                    default:
-                                                        return method.getReturnType() == RecordVisitor.class ? proxy
-                                                                : null;
+                                                        case "get":
+                                                            return out.incrementAndGet();
+                                                        case "apply":
+                                                            return asList(args)
+                                                                    .stream()
+                                                                    .mapToInt(Integer.class::cast)
+                                                                    .sum();
+                                                        default:
+                                                            return method.getReturnType() == RecordVisitor.class ? proxy
+                                                                    : null;
                                                     }
                                                 })),
                                 baseRecord));

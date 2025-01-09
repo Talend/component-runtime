@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -278,40 +278,40 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     private Type doMapType(final Schema schema) {
         switch (schema.getType()) {
-        case LONG:
-            if (Boolean.parseBoolean(readProp(schema, Type.DATETIME.name()))
-                    || LogicalTypes.timestampMillis().equals(LogicalTypes.fromSchemaIgnoreInvalid(schema))) {
-                return Type.DATETIME;
-            }
-            return Type.LONG;
-        case STRING:
-            if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
-                    || (Decimal.logicalType().equals(schema.getLogicalType()))) {
-                return Type.DECIMAL;
-            }
-            return Type.STRING;
-        case ENUM:
-            return Type.STRING;
-        case FIXED:
-            final String logicalType = schema.getLogicalType() != null ? schema.getLogicalType().getName() : "";
-            if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
-                    || (Decimal.logicalType().getName().equals(logicalType))) {
-                return Type.DECIMAL;
-            }
-            if (LogicalTypes.uuid().getName().equals(logicalType)) {
+            case LONG:
+                if (Boolean.parseBoolean(readProp(schema, Type.DATETIME.name()))
+                        || LogicalTypes.timestampMillis().equals(LogicalTypes.fromSchemaIgnoreInvalid(schema))) {
+                    return Type.DATETIME;
+                }
+                return Type.LONG;
+            case STRING:
+                if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
+                        || (Decimal.logicalType().equals(schema.getLogicalType()))) {
+                    return Type.DECIMAL;
+                }
                 return Type.STRING;
-            }
-            return Type.BYTES;
-        // very unlikely to happen but treat all available types
-        case MAP:
-        case UNION:
-        case NULL:
-            log.warn("[doMapType] unmanaged avro type {}. Storing as Object.", schema.getType());
-            // the storage will be an object so returning record kind...
-            return Type.RECORD;
-        // remaining iso types: RECORD, BYTES, ARRAY, INT, FLOAT, DOUBLE, BOOLEAN,
-        default:
-            return Type.valueOf(schema.getType().name());
+            case ENUM:
+                return Type.STRING;
+            case FIXED:
+                final String logicalType = schema.getLogicalType() != null ? schema.getLogicalType().getName() : "";
+                if (Boolean.parseBoolean(readProp(schema, Type.DECIMAL.name()))
+                        || (Decimal.logicalType().getName().equals(logicalType))) {
+                    return Type.DECIMAL;
+                }
+                if (LogicalTypes.uuid().getName().equals(logicalType)) {
+                    return Type.STRING;
+                }
+                return Type.BYTES;
+            // very unlikely to happen but treat all available types
+            case MAP:
+            case UNION:
+            case NULL:
+                log.warn("[doMapType] unmanaged avro type {}. Storing as Object.", schema.getType());
+                // the storage will be an object so returning record kind...
+                return Type.RECORD;
+            // remaining iso types: RECORD, BYTES, ARRAY, INT, FLOAT, DOUBLE, BOOLEAN,
+            default:
+                return Type.valueOf(schema.getType().name());
         }
     }
 }

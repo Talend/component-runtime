@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,12 +180,12 @@ public class ContainerManager implements Lifecycle {
 
     private void info(final String msg) {
         switch (logInfoLevelMapping.intValue()) {
-        case 500: // FINE
-            log.debug(msg);
-            break;
-        case 800: // INFO
-        default:
-            log.info(msg);
+            case 500: // FINE
+                log.debug(msg);
+                break;
+            case 800: // INFO
+            default:
+                log.info(msg);
         }
     }
 
@@ -299,12 +299,12 @@ public class ContainerManager implements Lifecycle {
                 }
                 final boolean valid;
                 switch (i) {
-                case 2:
-                    valid = autoId.charAt(end) == '-';
-                    break;
-                default:
-                    valid = autoId.charAt(end) == '.';
-                    break;
+                    case 2:
+                        valid = autoId.charAt(end) == '-';
+                        break;
+                    default:
+                        valid = autoId.charAt(end) == '.';
+                        break;
                 }
                 if (!valid) {
                     if (i < 1) {

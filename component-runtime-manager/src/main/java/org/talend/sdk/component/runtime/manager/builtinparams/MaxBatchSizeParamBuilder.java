@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,19 +94,19 @@ public class MaxBatchSizeParamBuilder {
                 .findFirst()
                 .orElse("default");
         switch (rootLayoutType.toLowerCase(Locale.ROOT)) {
-        case "verticallayout":
-            return "tcomp::ui::verticallayout";
-        case "horizontallayout":
-            return "tcomp::ui::horizontallayout";
-        case "autolayout":
-            return "tcomp::ui::autolayout";
-        case "optionsorder":
-            return "tcomp::ui::optionsorder";
-        case "default":
-            return null;
-        case "gridlayout":
-        default:
-            return "tcomp::ui::gridlayout::Advanced::value";
+            case "verticallayout":
+                return "tcomp::ui::verticallayout";
+            case "horizontallayout":
+                return "tcomp::ui::horizontallayout";
+            case "autolayout":
+                return "tcomp::ui::autolayout";
+            case "optionsorder":
+                return "tcomp::ui::optionsorder";
+            case "default":
+                return null;
+            case "gridlayout":
+            default:
+                return "tcomp::ui::gridlayout::Advanced::value";
         }
     }
 

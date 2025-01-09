@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,14 +120,14 @@ public class OpenAPIGenerator {
 
     private ApiModel getApiModel(final ApiType api, final JsonObject json) {
         switch (api) {
-        case OAS20:
-            return jsonb.fromJson(json.toString(), SwaggerAPI.class);
-        case OAS30:
-            return jsonb.fromJson(json.toString(), OpenAPI.class);
-        case UNKNOWN:
-        default:
-            throw new IllegalArgumentException(
-                    String.format("UNKNOWN API! Only %s are supported", api.getSupportedAPIs()));
+            case OAS20:
+                return jsonb.fromJson(json.toString(), SwaggerAPI.class);
+            case OAS30:
+                return jsonb.fromJson(json.toString(), OpenAPI.class);
+            case UNKNOWN:
+            default:
+                throw new IllegalArgumentException(
+                        String.format("UNKNOWN API! Only %s are supported", api.getSupportedAPIs()));
         }
     }
 
@@ -277,47 +277,47 @@ public class OpenAPIGenerator {
                 getObject(it, "schema").map(this::mapJavaType).orElse("String"),
                 getObject(it, "schema").map(schema -> schema.get("default")).map(defaultValue -> {
                     switch (defaultValue.getValueType()) {
-                    case TRUE:
-                    case FALSE:
-                    case NUMBER:
-                        return String.valueOf(defaultValue);
-                    case STRING:
-                        return JsonString.class.cast(defaultValue).getString();
-                    default:
-                        return null;
+                        case TRUE:
+                        case FALSE:
+                        case NUMBER:
+                            return String.valueOf(defaultValue);
+                        case STRING:
+                            return JsonString.class.cast(defaultValue).getString();
+                        default:
+                            return null;
                     }
                 }).orElse(null), null);
     }
 
     private String getMarkerImportForParameter(final String name, final String type) {
         switch (type) {
-        case "query":
-            return "org.talend.sdk.component.api.service.http.Query";
-        case "path":
-            return "org.talend.sdk.component.api.service.http.Path";
-        case "header":
-            return "org.talend.sdk.component.api.service.http.Header";
-        case "body":
-        case "formData":
-            return null;
-        default:
-            throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
+            case "query":
+                return "org.talend.sdk.component.api.service.http.Query";
+            case "path":
+                return "org.talend.sdk.component.api.service.http.Path";
+            case "header":
+                return "org.talend.sdk.component.api.service.http.Header";
+            case "body":
+            case "formData":
+                return null;
+            default:
+                throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
         }
     }
 
     private String getJavaMarkerForParameter(final String name, final String type) {
         switch (type) {
-        case "query":
-            return "@Query(\"" + name + "\") ";
-        case "path":
-            return "@Path(\"" + name + "\") ";
-        case "header":
-            return "@Header(\"" + name + "\") ";
-        case "body":
-        case "formData":
-            return "";
-        default:
-            throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
+            case "query":
+                return "@Query(\"" + name + "\") ";
+            case "path":
+                return "@Path(\"" + name + "\") ";
+            case "header":
+                return "@Header(\"" + name + "\") ";
+            case "body":
+            case "formData":
+                return "";
+            default:
+                throw new IllegalArgumentException("Unsupported parameter: " + type + "(" + name + ")");
         }
     }
 
@@ -327,26 +327,26 @@ public class OpenAPIGenerator {
         final String jsonType = jsonObject.getString("type", "unknown");
 
         switch (jsonType) {
-        case "number":
-            return "double";
-        case "integer":
-            return "int";
-        case "boolean":
-            return "boolean";
-        case "string":
-            return "String";
-        case "array": {
-            final JsonObject subSchema = jsonObject.getJsonObject("items");
-            return "List<" + mapJavaType(subSchema) + ">";
-        }
-        case "object":
-            return "List<JsonObject>";
-        case "unknown": {
-            System.out.println("Maybe a ref: " + jsonObject.getString("$ref", "noref"));
-            return "JsonObject";
-        }
-        default:
-            throw new IllegalArgumentException("Unsupported type: " + jsonObject);
+            case "number":
+                return "double";
+            case "integer":
+                return "int";
+            case "boolean":
+                return "boolean";
+            case "string":
+                return "String";
+            case "array": {
+                final JsonObject subSchema = jsonObject.getJsonObject("items");
+                return "List<" + mapJavaType(subSchema) + ">";
+            }
+            case "object":
+                return "List<JsonObject>";
+            case "unknown": {
+                System.out.println("Maybe a ref: " + jsonObject.getString("$ref", "noref"));
+                return "JsonObject";
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported type: " + jsonObject);
         }
     }
 

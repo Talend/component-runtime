@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,17 +117,17 @@ public class JdbcService {
     public List<String> getExportDependencies(@Option("configuration") final JdbcDataSet dataset) {
         final List<String> dependencies = new ArrayList<>();
         switch (dataset.getDriver()) {
-        case "derby":
-            dependencies.add("org.apache.derby:derbyclient:jar:10.12.1.1");
-            break;
-        case "mysql":
-            dependencies.add("com.mysql:mysql-connector-j:jar:8.0.33");
-            break;
-        case "zorglub":
-            dependencies.add("org.zorglub:zorglub-client:1.0.0");
-            dependencies.add("org.bouncycastle:bcpkix-jdk15to18:jar:4.5.8");
-            dependencies.add("org.json:json:jar:2.0.0");
-        default:
+            case "derby":
+                dependencies.add("org.apache.derby:derbyclient:jar:10.12.1.1");
+                break;
+            case "mysql":
+                dependencies.add("com.mysql:mysql-connector-j:jar:8.0.33");
+                break;
+            case "zorglub":
+                dependencies.add("org.zorglub:zorglub-client:1.0.0");
+                dependencies.add("org.bouncycastle:bcpkix-jdk15to18:jar:4.5.8");
+                dependencies.add("org.json:json:jar:2.0.0");
+            default:
         }
         return dependencies;
     }

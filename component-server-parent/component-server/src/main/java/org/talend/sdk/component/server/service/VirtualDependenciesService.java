@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,14 +97,14 @@ public class VirtualDependenciesService {
     private void init() {
         final String m2 = configuration.getUserExtensionsAutoM2Provisioning();
         switch (m2) {
-        case "skip":
-            provisioningM2Base = null;
-            break;
-        case "auto":
-            provisioningM2Base = findStudioM2();
-            break;
-        default:
-            provisioningM2Base = PathFactory.get(m2);
+            case "skip":
+                provisioningM2Base = null;
+                break;
+            case "auto":
+                provisioningM2Base = findStudioM2();
+                break;
+            default:
+                provisioningM2Base = PathFactory.get(m2);
         }
         log.debug("m2 provisioning base: {}", provisioningM2Base);
     }

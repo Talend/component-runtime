@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,15 +198,15 @@ public final class Kitap implements Runnable {
                 .filter(e -> !JsonValue.NULL.equals(e.getValue()))
                 .collect(toMap(Map.Entry::getKey, e -> {
                     switch (e.getValue().getValueType()) {
-                    case STRING:
-                        return JsonString.class.cast(e.getValue()).getString();
-                    case NUMBER:
-                        return String.valueOf(JsonNumber.class.cast(e.getValue()).doubleValue());
-                    case TRUE:
-                    case FALSE:
-                        return String.valueOf(JsonValue.TRUE.equals(e.getValue()));
-                    default:
-                        throw new IllegalArgumentException("Unsupported json entry: " + e);
+                        case STRING:
+                            return JsonString.class.cast(e.getValue()).getString();
+                        case NUMBER:
+                            return String.valueOf(JsonNumber.class.cast(e.getValue()).doubleValue());
+                        case TRUE:
+                        case FALSE:
+                            return String.valueOf(JsonValue.TRUE.equals(e.getValue()));
+                        default:
+                            throw new IllegalArgumentException("Unsupported json entry: " + e);
                     }
                 }));
     }

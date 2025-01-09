@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -295,13 +295,13 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         }
 
         switch (studioType) {
-        case StudioTypes.DATE:
-            metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
-            metadata.getDynamicMetadata().setFormat(pattern);
-            break;
-        default:
-            // nop
-            break;
+            case StudioTypes.DATE:
+                metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
+                metadata.getDynamicMetadata().setFormat(pattern);
+                break;
+            default:
+                // nop
+                break;
         }
         return metadata;
     }

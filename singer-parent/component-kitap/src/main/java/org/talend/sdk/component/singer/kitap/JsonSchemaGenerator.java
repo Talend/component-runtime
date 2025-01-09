@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,47 +51,56 @@ public class JsonSchemaGenerator implements Supplier<JsonObject> {
     private Map.Entry<String, JsonValue> toJson(final Schema.Entry entry) {
         final JsonObject schema;
         switch (entry.getType()) {
-        case BYTES:
-        case STRING:
-            schema = jsonBuilderFactory.createObjectBuilder().add("type", types("string", entry.isNullable())).build();
-            break;
-        case DATETIME:
-            schema = jsonBuilderFactory
-                    .createObjectBuilder()
-                    .add("type", types("string", entry.isNullable()))
-                    .add("format", "date-time")
-                    .build();
-            break;
-        case DECIMAL: // use string as JSON number data loss risk for decimal
-            schema = jsonBuilderFactory
-                    .createObjectBuilder()
-                    .add("type", types("string", entry.isNullable()))
-                    .build();
-            break;
-        case BOOLEAN:
-            schema = jsonBuilderFactory.createObjectBuilder().add("type", types("boolean", entry.isNullable())).build();
-            break;
-        case FLOAT:
-        case DOUBLE:
-            schema = jsonBuilderFactory.createObjectBuilder().add("type", types("number", entry.isNullable())).build();
-            break;
-        case INT:
-        case LONG:
-            schema = jsonBuilderFactory.createObjectBuilder().add("type", types("integer", entry.isNullable())).build();
-            break;
-        case RECORD:
-            schema = new JsonSchemaGenerator(entry.getElementSchema().getEntries(), jsonBuilderFactory).get();
-            break;
-        case ARRAY:
-            schema = jsonBuilderFactory
-                    .createObjectBuilder()
-                    .add("type", types("array", entry.isNullable()))
-                    .add("items",
-                            new JsonSchemaGenerator(entry.getElementSchema().getEntries(), jsonBuilderFactory).get())
-                    .build();
-            break;
-        default:
-            throw new IllegalArgumentException("Invalid entry: " + entry);
+            case BYTES:
+            case STRING:
+                schema = jsonBuilderFactory.createObjectBuilder()
+                        .add("type", types("string", entry.isNullable()))
+                        .build();
+                break;
+            case DATETIME:
+                schema = jsonBuilderFactory
+                        .createObjectBuilder()
+                        .add("type", types("string", entry.isNullable()))
+                        .add("format", "date-time")
+                        .build();
+                break;
+            case DECIMAL: // use string as JSON number data loss risk for decimal
+                schema = jsonBuilderFactory
+                        .createObjectBuilder()
+                        .add("type", types("string", entry.isNullable()))
+                        .build();
+                break;
+            case BOOLEAN:
+                schema = jsonBuilderFactory.createObjectBuilder()
+                        .add("type", types("boolean", entry.isNullable()))
+                        .build();
+                break;
+            case FLOAT:
+            case DOUBLE:
+                schema = jsonBuilderFactory.createObjectBuilder()
+                        .add("type", types("number", entry.isNullable()))
+                        .build();
+                break;
+            case INT:
+            case LONG:
+                schema = jsonBuilderFactory.createObjectBuilder()
+                        .add("type", types("integer", entry.isNullable()))
+                        .build();
+                break;
+            case RECORD:
+                schema = new JsonSchemaGenerator(entry.getElementSchema().getEntries(), jsonBuilderFactory).get();
+                break;
+            case ARRAY:
+                schema = jsonBuilderFactory
+                        .createObjectBuilder()
+                        .add("type", types("array", entry.isNullable()))
+                        .add("items",
+                                new JsonSchemaGenerator(entry.getElementSchema().getEntries(), jsonBuilderFactory)
+                                        .get())
+                        .build();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid entry: " + entry);
         }
         return new AbstractMap.SimpleImmutableEntry<>(entry.getName(), schema);
     }

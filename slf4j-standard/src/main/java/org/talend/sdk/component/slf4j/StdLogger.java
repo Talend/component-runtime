@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,28 +44,28 @@ public class StdLogger extends MarkerIgnoringBase {
 
         final String level = System.getProperty(getClass().getName() + ".level", "info");
         switch (level.toLowerCase(ROOT)) {
-        case "trace":
-            trace = debug = info = warn = error = true;
-            break;
-        case "debug":
-            trace = false;
-            debug = info = warn = error = true;
-            break;
-        case "info":
-            trace = debug = false;
-            info = warn = error = true;
-            break;
-        case "warn":
-            trace = debug = info = false;
-            warn = error = true;
-            break;
-        case "error":
-            trace = debug = info = warn = false;
-            error = true;
-            break;
-        default:
-            trace = debug = false;
-            info = warn = error = true;
+            case "trace":
+                trace = debug = info = warn = error = true;
+                break;
+            case "debug":
+                trace = false;
+                debug = info = warn = error = true;
+                break;
+            case "info":
+                trace = debug = false;
+                info = warn = error = true;
+                break;
+            case "warn":
+                trace = debug = info = false;
+                warn = error = true;
+                break;
+            case "error":
+                trace = debug = info = warn = false;
+                error = true;
+                break;
+            default:
+                trace = debug = false;
+                info = warn = error = true;
         }
     }
 

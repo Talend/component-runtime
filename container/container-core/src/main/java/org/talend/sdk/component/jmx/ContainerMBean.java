@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,12 +53,12 @@ public class ContainerMBean implements DynamicMBean {
             throw new IllegalArgumentException("Attribute name can't be null");
         }
         switch (attribute) {
-        case "closed":
-            return delegate.isClosed();
-        case "created":
-            return delegate.getCreated();
-        default:
-            throw new AttributeNotFoundException(attribute);
+            case "closed":
+                return delegate.isClosed();
+            case "created":
+                return delegate.getCreated();
+            default:
+                throw new AttributeNotFoundException(attribute);
         }
     }
 
@@ -95,11 +95,11 @@ public class ContainerMBean implements DynamicMBean {
             throw new IllegalArgumentException("Action can't be null");
         }
         switch (actionName) {
-        case "reload":
-            delegate.get(ContainerManager.Actions.class).reload();
-            break;
-        default:
-            throw new UnsupportedOperationException("Unknown action: '" + actionName + "'");
+            case "reload":
+                delegate.get(ContainerManager.Actions.class).reload();
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown action: '" + actionName + "'");
         }
         return null;
     }

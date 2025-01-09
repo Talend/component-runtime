@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -326,27 +326,27 @@ public class DocumentationResourceImpl implements DocumentationResource {
             return "";
         }
         switch (segment) {
-        case DESCRIPTION: {
-            final String configTitle = getConfigTitle(prefixTitle);
-            final int configIndex = endOfLines.indexOf(configTitle);
-            final boolean skipFirst = endOfLines.get(0).startsWith(prefixTitle);
-            final int lastIndex = configIndex < 0 ? endOfLines.size() : configIndex;
-            final int firstIndex = skipFirst ? 1 : 0;
-            if (lastIndex - firstIndex <= 0) {
-                return "";
+            case DESCRIPTION: {
+                final String configTitle = getConfigTitle(prefixTitle);
+                final int configIndex = endOfLines.indexOf(configTitle);
+                final boolean skipFirst = endOfLines.get(0).startsWith(prefixTitle);
+                final int lastIndex = configIndex < 0 ? endOfLines.size() : configIndex;
+                final int firstIndex = skipFirst ? 1 : 0;
+                if (lastIndex - firstIndex <= 0) {
+                    return "";
+                }
+                return String.join("\n", endOfLines.subList(firstIndex, lastIndex));
             }
-            return String.join("\n", endOfLines.subList(firstIndex, lastIndex));
-        }
-        case CONFIGURATION: {
-            final String configTitle = getConfigTitle(prefixTitle);
-            final int configIndex = endOfLines.indexOf(configTitle);
-            if (configIndex < 0 || configIndex + 1 >= endOfLines.size()) {
-                return "";
+            case CONFIGURATION: {
+                final String configTitle = getConfigTitle(prefixTitle);
+                final int configIndex = endOfLines.indexOf(configTitle);
+                if (configIndex < 0 || configIndex + 1 >= endOfLines.size()) {
+                    return "";
+                }
+                return String.join("\n", endOfLines.subList(configIndex + 1, endOfLines.size()));
             }
-            return String.join("\n", endOfLines.subList(configIndex + 1, endOfLines.size()));
-        }
-        default:
-            return String.join("\n", endOfLines);
+            default:
+                return String.join("\n", endOfLines);
         }
     }
 
@@ -355,36 +355,37 @@ public class DocumentationResourceImpl implements DocumentationResource {
             return "";
         }
         switch (segment) {
-        case DESCRIPTION: {
-            final int configStartIndex = lines.indexOf("//configuration_start");
-            final int start = lines.get(0).startsWith("=") ? 1 : 0;
-            if (configStartIndex > start) {
-                return String.join("\n", lines.subList(start, configStartIndex)).trim();
+            case DESCRIPTION: {
+                final int configStartIndex = lines.indexOf("//configuration_start");
+                final int start = lines.get(0).startsWith("=") ? 1 : 0;
+                if (configStartIndex > start) {
+                    return String.join("\n", lines.subList(start, configStartIndex)).trim();
+                }
+                if (lines.get(0).startsWith("=")) {
+                    return String.join("\n", lines.subList(1, lines.size()));
+                }
+                return String.join("\n", lines);
             }
-            if (lines.get(0).startsWith("=")) {
-                return String.join("\n", lines.subList(1, lines.size()));
-            }
-            return String.join("\n", lines);
-        }
-        case CONFIGURATION: {
-            int configStartIndex = lines.indexOf("//configuration_start");
-            if (configStartIndex > 0) {
-                configStartIndex++;
-                final int configEndIndex = lines.indexOf("//configuration_end");
-                if (configEndIndex > configStartIndex) {
-                    while (configStartIndex > 0 && configStartIndex < configEndIndex
-                            && (lines.get(configStartIndex).isEmpty() || lines.get(configStartIndex).startsWith("="))) {
-                        configStartIndex++;
-                    }
-                    if (configStartIndex > 0 && configEndIndex > configStartIndex + 2) {
-                        return String.join("\n", lines.subList(configStartIndex, configEndIndex)).trim();
+            case CONFIGURATION: {
+                int configStartIndex = lines.indexOf("//configuration_start");
+                if (configStartIndex > 0) {
+                    configStartIndex++;
+                    final int configEndIndex = lines.indexOf("//configuration_end");
+                    if (configEndIndex > configStartIndex) {
+                        while (configStartIndex > 0 && configStartIndex < configEndIndex
+                                && (lines.get(configStartIndex).isEmpty()
+                                        || lines.get(configStartIndex).startsWith("="))) {
+                            configStartIndex++;
+                        }
+                        if (configStartIndex > 0 && configEndIndex > configStartIndex + 2) {
+                            return String.join("\n", lines.subList(configStartIndex, configEndIndex)).trim();
+                        }
                     }
                 }
+                return "";
             }
-            return "";
-        }
-        default:
-            return String.join("\n", lines);
+            default:
+                return String.join("\n", lines);
         }
     }
 

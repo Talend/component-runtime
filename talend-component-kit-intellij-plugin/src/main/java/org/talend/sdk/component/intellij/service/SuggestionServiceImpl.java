@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,17 +144,17 @@ public class SuggestionServiceImpl implements SuggestionService {
     public List<LookupElement> computeValueSuggestions(final String text) {
         final String[] segments = text.split("\\.");
         switch (segments.length) {
-        case 2:
-            return singletonList(new Suggestion(toHumanString(segments[0]), null)
-                    .newLookupElement(withPriority(Suggestion.Type.Family)));
-        case 3:
-            return singletonList(new Suggestion(toHumanString(segments[1]), null)
-                    .newLookupElement(withPriority(Suggestion.Type.Configuration)));
-        case 5: // action format
-            return singletonList(new Suggestion(toHumanString(segments[3]), null)
-                    .newLookupElement(withPriority(Suggestion.Type.Action)));
-        default:
-            return emptyList();
+            case 2:
+                return singletonList(new Suggestion(toHumanString(segments[0]), null)
+                        .newLookupElement(withPriority(Suggestion.Type.Family)));
+            case 3:
+                return singletonList(new Suggestion(toHumanString(segments[1]), null)
+                        .newLookupElement(withPriority(Suggestion.Type.Configuration)));
+            case 5: // action format
+                return singletonList(new Suggestion(toHumanString(segments[3]), null)
+                        .newLookupElement(withPriority(Suggestion.Type.Action)));
+            default:
+                return emptyList();
         }
     }
 

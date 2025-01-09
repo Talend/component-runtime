@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +51,12 @@ public class BaseMavenDecrypter {
             }
         });
         switch (conditions.combination()) {
-        case AND:
-            return evaluations.allMatch(c -> c);
-        case OR:
-            return evaluations.anyMatch(c -> c);
-        default:
-            throw new IllegalArgumentException("Unsupported: " + conditions.combination());
+            case AND:
+                return evaluations.allMatch(c -> c);
+            case OR:
+                return evaluations.anyMatch(c -> c);
+            default:
+                throw new IllegalArgumentException("Unsupported: " + conditions.combination());
         }
     }
 }

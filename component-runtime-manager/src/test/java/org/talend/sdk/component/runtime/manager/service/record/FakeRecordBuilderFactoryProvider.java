@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,20 +29,20 @@ public class FakeRecordBuilderFactoryProvider implements RecordBuilderFactoryPro
                         : "org.talend.sdk.component.runtime.beam.TalendIO";
 
         switch (System.getProperty("talend.component.beam.record.factory.impl", "auto")) {
-        case "memory":
-        case "default":
-            return new RecordBuilderFactoryImpl(containerId);
-        case "avro":
-            return new FakeRecordBuilderFactory(containerId);
-        default:
-            try {
-                ofNullable(Thread.currentThread().getContextClassLoader())
-                        .orElseGet(ClassLoader::getSystemClassLoader)
-                        .loadClass(loadClazz);
-                return new FakeRecordBuilderFactory(containerId);
-            } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
+            case "memory":
+            case "default":
                 return new RecordBuilderFactoryImpl(containerId);
-            }
+            case "avro":
+                return new FakeRecordBuilderFactory(containerId);
+            default:
+                try {
+                    ofNullable(Thread.currentThread().getContextClassLoader())
+                            .orElseGet(ClassLoader::getSystemClassLoader)
+                            .loadClass(loadClazz);
+                    return new FakeRecordBuilderFactory(containerId);
+                } catch (final ClassNotFoundException | NoClassDefFoundError cnfe) {
+                    return new RecordBuilderFactoryImpl(containerId);
+                }
         }
     }
 }

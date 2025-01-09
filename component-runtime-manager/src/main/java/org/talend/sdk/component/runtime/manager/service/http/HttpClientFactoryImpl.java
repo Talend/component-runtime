@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,21 +140,21 @@ public class HttpClientFactoryImpl implements HttpClientFactory, Serializable {
             final String methodName = method.getName();
             if (Object.class == method.getDeclaringClass()) {
                 switch (methodName) {
-                case "equals":
-                    return args[0] != null && Proxy.isProxyClass(args[0].getClass())
-                            && equals(Proxy.getInvocationHandler(args[0]));
-                case "toString":
-                    return "@Request " + base;
-                default:
-                    return delegate(method, args);
+                    case "equals":
+                        return args[0] != null && Proxy.isProxyClass(args[0].getClass())
+                                && equals(Proxy.getInvocationHandler(args[0]));
+                    case "toString":
+                        return "@Request " + base;
+                    default:
+                        return delegate(method, args);
                 }
             } else if (HttpClient.class == method.getDeclaringClass()) {
                 switch (methodName) {
-                case "base":
-                    this.base = String.valueOf(args[0]);
-                    return null;
-                default:
-                    throw new UnsupportedOperationException("HttpClient." + methodName);
+                    case "base":
+                        this.base = String.valueOf(args[0]);
+                        return null;
+                    default:
+                        throw new UnsupportedOperationException("HttpClient." + methodName);
                 }
             }
 

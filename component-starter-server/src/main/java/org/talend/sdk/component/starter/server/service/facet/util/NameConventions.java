@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,26 +67,26 @@ public class NameConventions {
             return "String";
         }
         switch (type.toLowerCase(ENGLISH)) {
-        case "boolean":
-            return "boolean";
-        case "double":
-            return "double";
-        case "int":
-        case "integer":
-            return "int";
-        case "uri": // todo: import
-            return "java.net.URI";
-        case "url": // todo: import
-            return "java.net.URL";
-        case "file": // todo: import
-            return "java.io.File";
-        case "string":
-        default:
-            final String reference = entry.getReference();
-            if (reference != null && !reference.trim().isEmpty()) {
-                return reference.substring(reference.lastIndexOf('.') + 1);
-            }
-            return "String";
+            case "boolean":
+                return "boolean";
+            case "double":
+                return "double";
+            case "int":
+            case "integer":
+                return "int";
+            case "uri": // todo: import
+                return "java.net.URI";
+            case "url": // todo: import
+                return "java.net.URL";
+            case "file": // todo: import
+                return "java.io.File";
+            case "string":
+            default:
+                final String reference = entry.getReference();
+                if (reference != null && !reference.trim().isEmpty()) {
+                    return reference.substring(reference.lastIndexOf('.') + 1);
+                }
+                return "String";
         }
     }
 

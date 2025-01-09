@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -247,39 +247,39 @@ public class Generator {
             return false;
         }
         switch (oldValue.getValueType()) {
-        case STRING:
-            return JsonString.class.cast(oldValue).getString().equals(JsonString.class.cast(newValue).getString());
-        case NUMBER:
-            return JsonNumber.class.cast(oldValue).doubleValue() == JsonNumber.class.cast(newValue).doubleValue();
-        case OBJECT:
-            final JsonObject oldObject = oldValue.asJsonObject();
-            final JsonObject newObject = newValue.asJsonObject();
-            if (!oldObject.keySet().equals(newObject.keySet())) {
-                return false;
-            }
-            return oldObject
-                    .keySet()
-                    .stream()
-                    .map(key -> areEqualsIgnoringOrder(oldObject.get(key), newObject.get(key)))
-                    .reduce(true, (a, b) -> a && b);
-        case ARRAY:
-            final JsonArray oldArray = oldValue.asJsonArray();
-            final JsonArray newArray = newValue.asJsonArray();
-            if (oldArray.size() != newArray.size()) {
-                return false;
-            }
-            if (oldArray.isEmpty()) {
-                return true;
-            }
-            for (final JsonValue oldItem : oldArray) {
-                if (newArray.stream().noneMatch(newitem -> areEqualsIgnoringOrder(oldItem, newitem))) {
+            case STRING:
+                return JsonString.class.cast(oldValue).getString().equals(JsonString.class.cast(newValue).getString());
+            case NUMBER:
+                return JsonNumber.class.cast(oldValue).doubleValue() == JsonNumber.class.cast(newValue).doubleValue();
+            case OBJECT:
+                final JsonObject oldObject = oldValue.asJsonObject();
+                final JsonObject newObject = newValue.asJsonObject();
+                if (!oldObject.keySet().equals(newObject.keySet())) {
                     return false;
                 }
-            }
-            return true;
-        default:
-            // value type check was enough
-            return true;
+                return oldObject
+                        .keySet()
+                        .stream()
+                        .map(key -> areEqualsIgnoringOrder(oldObject.get(key), newObject.get(key)))
+                        .reduce(true, (a, b) -> a && b);
+            case ARRAY:
+                final JsonArray oldArray = oldValue.asJsonArray();
+                final JsonArray newArray = newValue.asJsonArray();
+                if (oldArray.size() != newArray.size()) {
+                    return false;
+                }
+                if (oldArray.isEmpty()) {
+                    return true;
+                }
+                for (final JsonValue oldItem : oldArray) {
+                    if (newArray.stream().noneMatch(newitem -> areEqualsIgnoringOrder(oldItem, newitem))) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                // value type check was enough
+                return true;
         }
     }
 
@@ -349,16 +349,16 @@ public class Generator {
 
     private static String mapTitle(final String title) {
         switch (title) {
-        case "Talend Components Definitions Documentation":
-            return "Programming Model";
-        case "Components Packaging":
-            return "Package";
-        case ".Build tools":
-            return "Build";
-        case "Talend Component Testing Documentation":
-            return "Testing";
-        default:
-            return title;
+            case "Talend Components Definitions Documentation":
+                return "Programming Model";
+            case "Components Packaging":
+                return "Package";
+            case ".Build tools":
+                return "Build";
+            case "Talend Component Testing Documentation":
+                return "Testing";
+            default:
+                return title;
         }
     }
 

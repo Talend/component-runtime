@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,62 +95,62 @@ public class CarMain {
         }
 
         switch (args[0].toLowerCase(ROOT)) {
-        case "studio-deploy":
-            final String studioPath;
-            if (args.length == 2) {
-                studioPath = args[1];
-            } else {
-                studioPath = getArgument("--location", args);
-            }
-            if (studioPath == null || studioPath.isEmpty()) {
-                System.err.println("Path to studio is not set. Use '--location <location>' to set it.");
-                help();
+            case "studio-deploy":
+                final String studioPath;
+                if (args.length == 2) {
+                    studioPath = args[1];
+                } else {
+                    studioPath = getArgument("--location", args);
+                }
+                if (studioPath == null || studioPath.isEmpty()) {
+                    System.err.println("Path to studio is not set. Use '--location <location>' to set it.");
+                    help();
+                    break;
+                }
+                deployInStudio(studioPath, forceOverwrite);
                 break;
-            }
-            deployInStudio(studioPath, forceOverwrite);
-            break;
-        case "maven-deploy":
-            final String mavenPath;
-            if (args.length == 2) {
-                mavenPath = args[1];
-            } else {
-                mavenPath = getArgument("--location", args);
-            }
-            if (mavenPath == null || mavenPath.isEmpty()) {
-                System.err.println("Path to maven repository is not set. Use '--location <location>' to set it.");
-                help();
+            case "maven-deploy":
+                final String mavenPath;
+                if (args.length == 2) {
+                    mavenPath = args[1];
+                } else {
+                    mavenPath = getArgument("--location", args);
+                }
+                if (mavenPath == null || mavenPath.isEmpty()) {
+                    System.err.println("Path to maven repository is not set. Use '--location <location>' to set it.");
+                    help();
+                    break;
+                }
+                deployInM2(mavenPath, forceOverwrite);
                 break;
-            }
-            deployInM2(mavenPath, forceOverwrite);
-            break;
-        case "deploy-to-nexus":
-            final String url = getArgument("--url", args);
-            final String repo = getArgument("--repo", args);
-            final String user = getArgument("--user", args);
-            final String pass = getArgument("--pass", args);
-            final String threads = getArgument("--threads", args);
-            final int threadsNum;
-            if (threads == null) {
-                threadsNum = Runtime.getRuntime().availableProcessors();
-            } else {
-                threadsNum = Integer.parseInt(threads);
-            }
-            final String dir = getArgument("--dir", args);
-            if (url == null || url.isEmpty()) {
-                System.err.println("Nexus url is not set. Use '--url <url>' to set it");
-                help();
+            case "deploy-to-nexus":
+                final String url = getArgument("--url", args);
+                final String repo = getArgument("--repo", args);
+                final String user = getArgument("--user", args);
+                final String pass = getArgument("--pass", args);
+                final String threads = getArgument("--threads", args);
+                final int threadsNum;
+                if (threads == null) {
+                    threadsNum = Runtime.getRuntime().availableProcessors();
+                } else {
+                    threadsNum = Integer.parseInt(threads);
+                }
+                final String dir = getArgument("--dir", args);
+                if (url == null || url.isEmpty()) {
+                    System.err.println("Nexus url is not set. Use '--url <url>' to set it");
+                    help();
+                    break;
+                }
+                if (repo == null || repo.isEmpty()) {
+                    System.err.println("Nexus repo is not set. Use '--repo <repository>' to set it");
+                    help();
+                    break;
+                }
+                deployToNexus(url, repo, user, pass, threadsNum, dir);
                 break;
-            }
-            if (repo == null || repo.isEmpty()) {
-                System.err.println("Nexus repo is not set. Use '--repo <repository>' to set it");
+            default:
                 help();
-                break;
-            }
-            deployToNexus(url, repo, user, pass, threadsNum, dir);
-            break;
-        default:
-            help();
-            throw new IllegalArgumentException("Unknown command '" + args[0] + "'");
+                throw new IllegalArgumentException("Unknown command '" + args[0] + "'");
         }
     }
 

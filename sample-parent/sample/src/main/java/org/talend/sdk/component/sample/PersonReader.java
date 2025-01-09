@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,11 +92,11 @@ public class PersonReader implements Serializable {
         @Override
         public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
             switch (incomingVersion) {
-            case 1:
-                log.info("Migration incoming data to version 2 from version 1");
-                return migrationV1V2.migrate(incomingData);
-            default:
-                log.info("No active migration from version " + incomingData);
+                case 1:
+                    log.info("Migration incoming data to version 2 from version 1");
+                    return migrationV1V2.migrate(incomingData);
+                default:
+                    log.info("No active migration from version " + incomingData);
             }
             return incomingData;
         }

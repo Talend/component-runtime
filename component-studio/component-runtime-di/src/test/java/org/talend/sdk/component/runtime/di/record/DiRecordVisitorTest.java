@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -467,13 +467,13 @@ class DiRecordVisitorTest extends VisitorsTest {
     void arrayWithRecords() {
         final Record record = factory.newRecordBuilder()
                 .withArray(factory.newEntryBuilder()
-                                .withName("field")
-                                .withType(Type.ARRAY)
-                                .withElementSchema(factory.newSchemaBuilder(Type.RECORD)
-                                        .withEntry(factory.newEntryBuilder().withName("id").withType(Type.DOUBLE).build())
-                                        .withEntry(factory.newEntryBuilder().withName("name").withType(Type.STRING).build())
-                                        .build())
-                                .build(),
+                        .withName("field")
+                        .withType(Type.ARRAY)
+                        .withElementSchema(factory.newSchemaBuilder(Type.RECORD)
+                                .withEntry(factory.newEntryBuilder().withName("id").withType(Type.DOUBLE).build())
+                                .withEntry(factory.newEntryBuilder().withName("name").withType(Type.STRING).build())
+                                .build())
+                        .build(),
                         Arrays.asList(
                                 factory.newRecordBuilder().withDouble("id", 1.0).withString("name", "paddle").build(),
                                 factory.newRecordBuilder().withDouble("id", 2.0).withString("name", "pickle").build(),

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,30 +69,30 @@ public class SingerArgs {
                 continue;
             }
             switch (arg) {
-            case "--config":
-                config = args[i + 1];
-                i++;
-                break;
-            case "--state":
-                state = args[i + 1];
-                i++;
-                break;
-            case "--catalog":
-                catalog = args[i + 1];
-                i++;
-                break;
-            case "--component-family":
-                family = args[i + 1];
-                i++;
-                break;
-            case "--discover":
-                discover = true;
-                break;
-            default:
-                if (arg.startsWith("--")) {
-                    otherArgs.put(arg, i + 1 < args.length ? args[i + 1] : "true");
+                case "--config":
+                    config = args[i + 1];
                     i++;
-                } // else fail?
+                    break;
+                case "--state":
+                    state = args[i + 1];
+                    i++;
+                    break;
+                case "--catalog":
+                    catalog = args[i + 1];
+                    i++;
+                    break;
+                case "--component-family":
+                    family = args[i + 1];
+                    i++;
+                    break;
+                case "--discover":
+                    discover = true;
+                    break;
+                default:
+                    if (arg.startsWith("--")) {
+                        otherArgs.put(arg, i + 1 < args.length ? args[i + 1] : "true");
+                        i++;
+                    } // else fail?
             }
         }
         if (config == null) {

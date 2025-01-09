@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,41 +75,40 @@ public class SchemalessJsonToIndexedRecord extends PTransform<PCollection<JsonOb
 
         private Schema guessSchema(final String recordName, final JsonValue element) {
             switch (element.getValueType()) {
-            case STRING:
-                return STRING;
-            case NUMBER:
-                final Number number = JsonNumber.class.cast(element).numberValue();
-                if (Long.class.isInstance(number)) {
-                    return LONG;
-                }
-                if (Integer.class.isInstance(number)) {
-                    return INT;
-                }
-                return DOUBLE;
-            case FALSE:
-            case TRUE:
-                return BOOLEAN;
-            case NULL:
-                return NULL;
-            case OBJECT:
-                final Schema record = Schema.createRecord(recordName, null, NAMESPACE, false);
-                record
-                        .setFields(element
-                                .asJsonObject()
-                                .entrySet()
-                                .stream()
-                                .map(it -> new Schema.Field(it.getKey(),
-                                        guessSchema(buildNextName(recordName, it.getKey()), it.getValue()), null, null))
-                                .collect(toList()));
-                return record;
-            case ARRAY:
-                final JsonArray array = element.asJsonArray();
-                if (!array.isEmpty()) {
-                    return Schema.createArray(guessSchema(buildNextName(recordName, "Array"), array.iterator().next()));
-                }
-                return Schema.createArray(Schema.create(Schema.Type.NULL));
-            default:
-                throw new IllegalArgumentException("Unsupported: " + element.toString());
+                case STRING:
+                    return STRING;
+                case NUMBER:
+                    final Number number = JsonNumber.class.cast(element).numberValue();
+                    if (Long.class.isInstance(number)) {
+                        return LONG;
+                    }
+                    if (Integer.class.isInstance(number)) {
+                        return INT;
+                    }
+                    return DOUBLE;
+                case FALSE:
+                case TRUE:
+                    return BOOLEAN;
+                case NULL:
+                    return NULL;
+                case OBJECT:
+                    final Schema record = Schema.createRecord(recordName, null, NAMESPACE, false);
+                    record.setFields(element.asJsonObject()
+                            .entrySet()
+                            .stream()
+                            .map(it -> new Schema.Field(it.getKey(),
+                                    guessSchema(buildNextName(recordName, it.getKey()), it.getValue()), null, null))
+                            .collect(toList()));
+                    return record;
+                case ARRAY:
+                    final JsonArray array = element.asJsonArray();
+                    if (!array.isEmpty()) {
+                        return Schema
+                                .createArray(guessSchema(buildNextName(recordName, "Array"), array.iterator().next()));
+                    }
+                    return Schema.createArray(Schema.create(Schema.Type.NULL));
+                default:
+                    throw new IllegalArgumentException("Unsupported: " + element.toString());
             }
         }
 

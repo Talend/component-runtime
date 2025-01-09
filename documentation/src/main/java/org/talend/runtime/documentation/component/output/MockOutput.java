@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,48 +75,49 @@ public class MockOutput implements Serializable {
                 sysId = record.getString("sys_id");
             }
             switch (outputConfig.getActionOnTable()) {
-            case Insert:
-                final JsonObject copy = sysId != null && sysId.isEmpty() ? record
-                        .entrySet()
-                        .stream()
-                        .filter(e -> !e.getKey().equals("sys_id"))
-                        .collect(factory::createObjectBuilder, (b, a) -> b.add(a.getKey(), a.getValue()),
-                                JsonObjectBuilder::addAll)
-                        .build() : record;
-                newRec = client
-                        .create(outputConfig.getCommonConfig().getTableName().name(),
-                                outputConfig.getDataStore().getAuthorizationHeader(), outputConfig.isNoResponseBody(),
-                                copy);
-                if (newRec != null) {
-                    success.emit(newRec);
-                }
-                break;
-            case Update:
-                if (sysId == null || sysId.isEmpty()) {
-                    reject.emit(new Reject(1, "sys_id is required to update the record", null, record));
-                } else {
+                case Insert:
+                    final JsonObject copy = sysId != null && sysId.isEmpty() ? record
+                            .entrySet()
+                            .stream()
+                            .filter(e -> !e.getKey().equals("sys_id"))
+                            .collect(factory::createObjectBuilder, (b, a) -> b.add(a.getKey(), a.getValue()),
+                                    JsonObjectBuilder::addAll)
+                            .build() : record;
                     newRec = client
-                            .update(outputConfig.getCommonConfig().getTableName().name(), sysId,
+                            .create(outputConfig.getCommonConfig().getTableName().name(),
                                     outputConfig.getDataStore().getAuthorizationHeader(),
-                                    outputConfig.isNoResponseBody(), record);
-
+                                    outputConfig.isNoResponseBody(),
+                                    copy);
                     if (newRec != null) {
                         success.emit(newRec);
                     }
-                }
-                break;
-            case Delete:
-                if (sysId == null || sysId.isEmpty()) {
-                    reject.emit(new Reject(2, "sys_id is required to delete the record", null, record));
-                } else {
-                    client
-                            .deleteRecordById(outputConfig.getCommonConfig().getTableName().name(), sysId,
-                                    outputConfig.getDataStore().getAuthorizationHeader());
-                    success.emit(record);
-                }
-                break;
-            default:
-                throw new UnsupportedOperationException(outputConfig.getActionOnTable() + " is not supported yet");
+                    break;
+                case Update:
+                    if (sysId == null || sysId.isEmpty()) {
+                        reject.emit(new Reject(1, "sys_id is required to update the record", null, record));
+                    } else {
+                        newRec = client
+                                .update(outputConfig.getCommonConfig().getTableName().name(), sysId,
+                                        outputConfig.getDataStore().getAuthorizationHeader(),
+                                        outputConfig.isNoResponseBody(), record);
+
+                        if (newRec != null) {
+                            success.emit(newRec);
+                        }
+                    }
+                    break;
+                case Delete:
+                    if (sysId == null || sysId.isEmpty()) {
+                        reject.emit(new Reject(2, "sys_id is required to delete the record", null, record));
+                    } else {
+                        client
+                                .deleteRecordById(outputConfig.getCommonConfig().getTableName().name(), sysId,
+                                        outputConfig.getDataStore().getAuthorizationHeader());
+                        success.emit(record);
+                    }
+                    break;
+                default:
+                    throw new UnsupportedOperationException(outputConfig.getActionOnTable() + " is not supported yet");
             }
 
         } catch (HttpException httpError) {

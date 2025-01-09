@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,17 +99,18 @@ public class InternationalizationServiceFactory {
 
             if (Object.class == method.getDeclaringClass()) {
                 switch (method.getName()) {
-                case "equals":
-                    return args != null && args.length == 1 && args[0] != null && Proxy.isProxyClass(args[0].getClass())
-                            && this == Proxy.getInvocationHandler(args[0]);
-                case "hashCode":
-                    return hashCode();
-                default:
-                    try {
-                        return method.invoke(this, args);
-                    } catch (final InvocationTargetException ite) {
-                        throw ite.getTargetException();
-                    }
+                    case "equals":
+                        return args != null && args.length == 1 && args[0] != null
+                                && Proxy.isProxyClass(args[0].getClass())
+                                && this == Proxy.getInvocationHandler(args[0]);
+                    case "hashCode":
+                        return hashCode();
+                    default:
+                        try {
+                            return method.invoke(this, args);
+                        } catch (final InvocationTargetException ite) {
+                            throw ite.getTargetException();
+                        }
                 }
             }
 

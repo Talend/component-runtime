@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,19 +54,19 @@ public class TypeValidation implements ValidationExtension {
 
     private Stream<? extends JsonValue.ValueType> mapType(final JsonValue value) {
         switch (JsonString.class.cast(value).getString()) {
-        case "null":
-            return Stream.of(JsonValue.ValueType.NULL);
-        case "string":
-            return Stream.of(JsonValue.ValueType.STRING);
-        case "number":
-            return Stream.of(JsonValue.ValueType.NUMBER);
-        case "array":
-            return Stream.of(JsonValue.ValueType.ARRAY);
-        case "boolean":
-            return Stream.of(JsonValue.ValueType.FALSE, JsonValue.ValueType.TRUE);
-        case "object":
-        default:
-            return Stream.of(JsonValue.ValueType.OBJECT);
+            case "null":
+                return Stream.of(JsonValue.ValueType.NULL);
+            case "string":
+                return Stream.of(JsonValue.ValueType.STRING);
+            case "number":
+                return Stream.of(JsonValue.ValueType.NUMBER);
+            case "array":
+                return Stream.of(JsonValue.ValueType.ARRAY);
+            case "boolean":
+                return Stream.of(JsonValue.ValueType.FALSE, JsonValue.ValueType.TRUE);
+            case "object":
+            default:
+                return Stream.of(JsonValue.ValueType.OBJECT);
         }
     }
 

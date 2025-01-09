@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,14 +65,14 @@ public class AvroSchemaConverter {
     private org.apache.avro.Schema doToSchema(final Schema.Entry entry) {
         final Schema.Builder builder = new AvroSchemaBuilder().withType(entry.getType());
         switch (entry.getType()) {
-        case ARRAY:
-            ofNullable(entry.getElementSchema()).ifPresent(builder::withElementSchema);
-            break;
-        case RECORD:
-            ofNullable(entry.getElementSchema()).ifPresent(s -> s.getAllEntries().forEach(builder::withEntry));
-            break;
-        default:
-            // no-op
+            case ARRAY:
+                ofNullable(entry.getElementSchema()).ifPresent(builder::withElementSchema);
+                break;
+            case RECORD:
+                ofNullable(entry.getElementSchema()).ifPresent(s -> s.getAllEntries().forEach(builder::withEntry));
+                break;
+            default:
+                // no-op
         }
         return Unwrappable.class.cast(builder.build()).unwrap(org.apache.avro.Schema.class);
     }

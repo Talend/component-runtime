@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,11 @@ public class DelegateHandler implements InvocationHandler {
     protected Object doHandleObjectMethods(final Method method, final Object[] args)
             throws IllegalAccessException, InvocationTargetException {
         switch (method.getName()) {
-        case "equals":
-            return args[0] != null && Proxy.isProxyClass(args[0].getClass())
-                    && this == Proxy.getInvocationHandler(args[0]);
-        default:
-            return method.invoke(this, args);
+            case "equals":
+                return args[0] != null && Proxy.isProxyClass(args[0].getClass())
+                        && this == Proxy.getInvocationHandler(args[0]);
+            default:
+                return method.invoke(this, args);
         }
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,30 +56,30 @@ public class DateTimeConverter extends AbstractWidgetConverter {
         final boolean useUTC =
                 Boolean.parseBoolean(context.getProperty().getMetadata().getOrDefault("ui::datetime::useUTC", "true"));
         switch (format) {
-        case "time": {
-            schema.setWidget("datetime"); // todo: move to "time" widget when existing
-            final Map<String, Object> options = new HashMap<>();
-            options.put("useSeconds", useSeconds);
-            schema.setOptions(options);
-            break;
-        }
-        case "date":
-            schema.setWidget("date");
-            schema.setOptions(singletonMap("dateFormat", dateFormat));
-            break;
-        case "datetime":
-        case "zoneddatetime": {
-            schema.setWidget("datetime");
-            final Map<String, Object> options = new HashMap<>();
-            options.put("useSeconds", useSeconds);
-            options.put("useUTC", useUTC);
-            options.put("dateFormat", dateFormat);
-            schema.setOptions(options);
-            break;
-        }
-        default:
-            throw new IllegalArgumentException(
-                    "Unsupported date format: '" + format + "' on '" + context.getProperty().getPath() + "'");
+            case "time": {
+                schema.setWidget("datetime"); // todo: move to "time" widget when existing
+                final Map<String, Object> options = new HashMap<>();
+                options.put("useSeconds", useSeconds);
+                schema.setOptions(options);
+                break;
+            }
+            case "date":
+                schema.setWidget("date");
+                schema.setOptions(singletonMap("dateFormat", dateFormat));
+                break;
+            case "datetime":
+            case "zoneddatetime": {
+                schema.setWidget("datetime");
+                final Map<String, Object> options = new HashMap<>();
+                options.put("useSeconds", useSeconds);
+                options.put("useUTC", useUTC);
+                options.put("dateFormat", dateFormat);
+                schema.setOptions(options);
+                break;
+            }
+            default:
+                throw new IllegalArgumentException(
+                        "Unsupported date format: '" + format + "' on '" + context.getProperty().getPath() + "'");
         }
     }
 }

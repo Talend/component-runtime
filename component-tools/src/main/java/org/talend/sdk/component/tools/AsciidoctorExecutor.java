@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,27 +179,27 @@ public class AsciidoctorExecutor implements AutoCloseable {
             extractResources(workDir, log);
         }
         switch (backend.toLowerCase(ENGLISH)) {
-        case "html":
-        case "html5":
-            if (!attributes.containsKey("stylesheet")) {
-                attrs.attribute("stylesheet", "talend.css");
-            }
-            if (!attributes.containsKey("stylesdir")) {
-                attrs.attribute("stylesdir", new File(extractedResources, "resources/html").getAbsolutePath());
-            }
-            if (!attributes.containsKey("data-uri")) {
-                attrs.attribute("data-uri");
-            }
-            break;
-        case "pdf":
-            if (!attributes.containsKey("pdf-style")) {
-                attrs.attribute("pdf-style", "talend.yml");
-            }
-            if (!attributes.containsKey("pdf-stylesdir")) {
-                attrs.attribute("pdf-stylesdir", new File(extractedResources, "resources/pdf").getAbsolutePath());
-            }
-            break;
-        default:
+            case "html":
+            case "html5":
+                if (!attributes.containsKey("stylesheet")) {
+                    attrs.attribute("stylesheet", "talend.css");
+                }
+                if (!attributes.containsKey("stylesdir")) {
+                    attrs.attribute("stylesdir", new File(extractedResources, "resources/html").getAbsolutePath());
+                }
+                if (!attributes.containsKey("data-uri")) {
+                    attrs.attribute("data-uri");
+                }
+                break;
+            case "pdf":
+                if (!attributes.containsKey("pdf-style")) {
+                    attrs.attribute("pdf-style", "talend.yml");
+                }
+                if (!attributes.containsKey("pdf-stylesdir")) {
+                    attrs.attribute("pdf-stylesdir", new File(extractedResources, "resources/pdf").getAbsolutePath());
+                }
+                break;
+            default:
         }
 
         if (!attributes.containsKey("icons")) {

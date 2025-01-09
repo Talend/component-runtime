@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,11 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
     @Override
     public Schema.Builder newSchemaBuilder(final Schema.Type type) {
         switch (type) {
-        case RECORD:
-        case ARRAY:
-            return new SchemaImpl.BuilderImpl().withType(type);
-        default:
-            return Schemas.valueOf(type.name());
+            case RECORD:
+            case ARRAY:
+                return new SchemaImpl.BuilderImpl().withType(type);
+            default:
+                return Schemas.valueOf(type.name());
         }
     }
 
@@ -49,13 +49,13 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
     public Schema.Builder newSchemaBuilder(final Schema schema) {
         final Schema.Builder builder = newSchemaBuilder(schema.getType());
         switch (schema.getType()) {
-        case RECORD:
-            schema.getAllEntries().forEach(builder::withEntry);
-            break;
-        case ARRAY:
-            builder.withElementSchema(schema.getElementSchema());
-            break;
-        default:
+            case RECORD:
+                schema.getAllEntries().forEach(builder::withEntry);
+                break;
+            case ARRAY:
+                builder.withElementSchema(schema.getElementSchema());
+                break;
+            default:
         }
         return builder;
     }
@@ -67,63 +67,63 @@ public class RecordBuilderFactoryImpl implements RecordBuilderFactory, Serializa
                 schema.getAllEntries().collect(toMap(Schema.Entry::getName, identity()));
         record.getSchema().getAllEntries().filter(e -> entriesIndex.containsKey(e.getName())).forEach(entry -> {
             switch (entry.getType()) {
-            case STRING:
-                record
-                        .getOptionalString(entry.getName())
-                        .ifPresent(v -> builder.withString(entriesIndex.get(entry.getName()), v));
-                break;
-            case LONG:
-                record
-                        .getOptionalLong(entry.getName())
-                        .ifPresent(v -> builder.withLong(entriesIndex.get(entry.getName()), v));
-                break;
-            case INT:
-                record
-                        .getOptionalInt(entry.getName())
-                        .ifPresent(v -> builder.withInt(entriesIndex.get(entry.getName()), v));
-                break;
-            case DOUBLE:
-                record
-                        .getOptionalDouble(entry.getName())
-                        .ifPresent(v -> builder.withDouble(entriesIndex.get(entry.getName()), v));
-                break;
-            case FLOAT:
-                record
-                        .getOptionalFloat(entry.getName())
-                        .ifPresent(v -> builder.withFloat(entriesIndex.get(entry.getName()), (float) v));
-                break;
-            case BOOLEAN:
-                record
-                        .getOptionalBoolean(entry.getName())
-                        .ifPresent(v -> builder.withBoolean(entriesIndex.get(entry.getName()), v));
-                break;
-            case BYTES:
-                record
-                        .getOptionalBytes(entry.getName())
-                        .ifPresent(v -> builder.withBytes(entriesIndex.get(entry.getName()), v));
-                break;
-            case DATETIME:
-                record
-                        .getOptionalDateTime(entry.getName())
-                        .ifPresent(v -> builder.withDateTime(entriesIndex.get(entry.getName()), v));
-                break;
-            case DECIMAL:
-                record
-                        .getOptionalDecimal(entry.getName())
-                        .ifPresent(v -> builder.withDecimal(entriesIndex.get(entry.getName()), v));
-                break;
-            case RECORD:
-                record
-                        .getOptionalRecord(entry.getName())
-                        .ifPresent(v -> builder.withRecord(entriesIndex.get(entry.getName()), v));
-                break;
-            case ARRAY:
-                record
-                        .getOptionalArray(Object.class, entry.getName())
-                        .ifPresent(v -> builder.withArray(entriesIndex.get(entry.getName()), v));
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported entry type: " + entry);
+                case STRING:
+                    record
+                            .getOptionalString(entry.getName())
+                            .ifPresent(v -> builder.withString(entriesIndex.get(entry.getName()), v));
+                    break;
+                case LONG:
+                    record
+                            .getOptionalLong(entry.getName())
+                            .ifPresent(v -> builder.withLong(entriesIndex.get(entry.getName()), v));
+                    break;
+                case INT:
+                    record
+                            .getOptionalInt(entry.getName())
+                            .ifPresent(v -> builder.withInt(entriesIndex.get(entry.getName()), v));
+                    break;
+                case DOUBLE:
+                    record
+                            .getOptionalDouble(entry.getName())
+                            .ifPresent(v -> builder.withDouble(entriesIndex.get(entry.getName()), v));
+                    break;
+                case FLOAT:
+                    record
+                            .getOptionalFloat(entry.getName())
+                            .ifPresent(v -> builder.withFloat(entriesIndex.get(entry.getName()), (float) v));
+                    break;
+                case BOOLEAN:
+                    record
+                            .getOptionalBoolean(entry.getName())
+                            .ifPresent(v -> builder.withBoolean(entriesIndex.get(entry.getName()), v));
+                    break;
+                case BYTES:
+                    record
+                            .getOptionalBytes(entry.getName())
+                            .ifPresent(v -> builder.withBytes(entriesIndex.get(entry.getName()), v));
+                    break;
+                case DATETIME:
+                    record
+                            .getOptionalDateTime(entry.getName())
+                            .ifPresent(v -> builder.withDateTime(entriesIndex.get(entry.getName()), v));
+                    break;
+                case DECIMAL:
+                    record
+                            .getOptionalDecimal(entry.getName())
+                            .ifPresent(v -> builder.withDecimal(entriesIndex.get(entry.getName()), v));
+                    break;
+                case RECORD:
+                    record
+                            .getOptionalRecord(entry.getName())
+                            .ifPresent(v -> builder.withRecord(entriesIndex.get(entry.getName()), v));
+                    break;
+                case ARRAY:
+                    record
+                            .getOptionalArray(Object.class, entry.getName())
+                            .ifPresent(v -> builder.withArray(entriesIndex.get(entry.getName()), v));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported entry type: " + entry);
             }
         });
         return builder;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -560,22 +560,22 @@ public abstract class DocBaseGenerator extends BaseTask {
             }
 
             switch (p.getType()) {
-            case NUMBER:
-            case BOOLEAN:
-            case STRING:
-            case ENUM:
-                return ofNullable(instance.getValue())
-                        .map(String::valueOf)
-                        .map(it -> it.isEmpty() ? "<empty>" : it)
-                        .orElse(null);
-            case ARRAY:
-                return String
-                        .valueOf(Collection.class.isInstance(instance.getValue())
-                                ? Collection.class.cast(instance.getValue()).size()
-                                : Array.getLength(instance.getValue()));
-            case OBJECT:
-            default:
-                return null;
+                case NUMBER:
+                case BOOLEAN:
+                case STRING:
+                case ENUM:
+                    return ofNullable(instance.getValue())
+                            .map(String::valueOf)
+                            .map(it -> it.isEmpty() ? "<empty>" : it)
+                            .orElse(null);
+                case ARRAY:
+                    return String
+                            .valueOf(Collection.class.isInstance(instance.getValue())
+                                    ? Collection.class.cast(instance.getValue()).size()
+                                    : Array.getLength(instance.getValue()));
+                case OBJECT:
+                default:
+                    return null;
             }
         }
 

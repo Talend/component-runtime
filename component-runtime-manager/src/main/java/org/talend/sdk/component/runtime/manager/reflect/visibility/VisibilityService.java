@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,69 +141,69 @@ public class VisibilityService {
         private boolean evaluate(final String expected, final JsonObject payload) {
             final Object actual = extractValue(payload);
             switch (evaluationStrategy) {
-            case "DEFAULT":
-                return expected.equals(TO_STRING.apply(actual));
-            case "LENGTH":
-                if (actual == null) {
-                    return "0".equals(expected);
-                }
-                final int expectedSize = Integer.parseInt(expected);
-                if (Collection.class.isInstance(actual)) {
-                    return expectedSize == Collection.class.cast(actual).size();
-                }
-                if (actual.getClass().isArray()) {
-                    return expectedSize == Array.getLength(actual);
-                }
-                if (String.class.isInstance(actual)) {
-                    return expectedSize == String.class.cast(actual).length();
-                }
-                return false;
-            default:
-                Function<Object, String> preprocessor = TO_STRING;
-                if (evaluationStrategy.startsWith("CONTAINS")) {
-                    final int start = evaluationStrategy.indexOf('(');
-                    if (start >= 0) {
-                        final int end = evaluationStrategy.indexOf(')', start);
-                        if (end >= 0) {
-                            final Map<String, String> configuration = Stream
-                                    .of(evaluationStrategy.substring(start + 1, end).split(","))
-                                    .map(String::trim)
-                                    .filter(it -> !it.isEmpty())
-                                    .map(it -> {
-                                        final int sep = it.indexOf('=');
-                                        if (sep > 0) {
-                                            return new String[] { it.substring(0, sep), it.substring(sep + 1) };
-                                        }
-                                        return new String[] { "value", it };
-                                    })
-                                    .collect(toMap(a -> a[0], a -> a[1]));
-                            if (Boolean.parseBoolean(configuration.getOrDefault("lowercase", "false"))) {
-                                preprocessor = TO_LOWERCASE;
-                            }
-                        }
-                    }
+                case "DEFAULT":
+                    return expected.equals(TO_STRING.apply(actual));
+                case "LENGTH":
                     if (actual == null) {
-                        return false;
+                        return "0".equals(expected);
                     }
-                    if (CharSequence.class.isInstance(actual)) {
-                        return ofNullable(preprocessor.apply(TO_STRING.apply(actual)))
-                                .map(it -> it.contains(expected))
-                                .orElse(false);
-                    }
+                    final int expectedSize = Integer.parseInt(expected);
                     if (Collection.class.isInstance(actual)) {
-                        final Collection<?> collection = Collection.class.cast(actual);
-                        return collection.stream().map(preprocessor).anyMatch(it -> it.contains(expected));
+                        return expectedSize == Collection.class.cast(actual).size();
                     }
                     if (actual.getClass().isArray()) {
-                        return IntStream
-                                .range(0, Array.getLength(actual))
-                                .mapToObj(i -> Array.get(actual, i))
-                                .map(preprocessor)
-                                .anyMatch(it -> it.contains(expected));
+                        return expectedSize == Array.getLength(actual);
+                    }
+                    if (String.class.isInstance(actual)) {
+                        return expectedSize == String.class.cast(actual).length();
                     }
                     return false;
-                }
-                throw new IllegalArgumentException("Not supported operation '" + evaluationStrategy + "'");
+                default:
+                    Function<Object, String> preprocessor = TO_STRING;
+                    if (evaluationStrategy.startsWith("CONTAINS")) {
+                        final int start = evaluationStrategy.indexOf('(');
+                        if (start >= 0) {
+                            final int end = evaluationStrategy.indexOf(')', start);
+                            if (end >= 0) {
+                                final Map<String, String> configuration = Stream
+                                        .of(evaluationStrategy.substring(start + 1, end).split(","))
+                                        .map(String::trim)
+                                        .filter(it -> !it.isEmpty())
+                                        .map(it -> {
+                                            final int sep = it.indexOf('=');
+                                            if (sep > 0) {
+                                                return new String[] { it.substring(0, sep), it.substring(sep + 1) };
+                                            }
+                                            return new String[] { "value", it };
+                                        })
+                                        .collect(toMap(a -> a[0], a -> a[1]));
+                                if (Boolean.parseBoolean(configuration.getOrDefault("lowercase", "false"))) {
+                                    preprocessor = TO_LOWERCASE;
+                                }
+                            }
+                        }
+                        if (actual == null) {
+                            return false;
+                        }
+                        if (CharSequence.class.isInstance(actual)) {
+                            return ofNullable(preprocessor.apply(TO_STRING.apply(actual)))
+                                    .map(it -> it.contains(expected))
+                                    .orElse(false);
+                        }
+                        if (Collection.class.isInstance(actual)) {
+                            final Collection<?> collection = Collection.class.cast(actual);
+                            return collection.stream().map(preprocessor).anyMatch(it -> it.contains(expected));
+                        }
+                        if (actual.getClass().isArray()) {
+                            return IntStream
+                                    .range(0, Array.getLength(actual))
+                                    .mapToObj(i -> Array.get(actual, i))
+                                    .map(preprocessor)
+                                    .anyMatch(it -> it.contains(expected));
+                        }
+                        return false;
+                    }
+                    throw new IllegalArgumentException("Not supported operation '" + evaluationStrategy + "'");
             }
         }
 
@@ -217,21 +217,21 @@ public class VisibilityService {
 
         private Object mapValue(final JsonValue value) {
             switch (value.getValueType()) {
-            case ARRAY:
-                return value.asJsonArray().stream().map(this::mapValue).collect(toList());
-            case STRING:
-                return JsonString.class.cast(value).getString();
-            case TRUE:
-                return true;
-            case FALSE:
-                return false;
-            case NUMBER:
-                return JsonNumber.class.cast(value).doubleValue();
-            case NULL:
-                return null;
-            case OBJECT:
-            default:
-                return value;
+                case ARRAY:
+                    return value.asJsonArray().stream().map(this::mapValue).collect(toList());
+                case STRING:
+                    return JsonString.class.cast(value).getString();
+                case TRUE:
+                    return true;
+                case FALSE:
+                    return false;
+                case NUMBER:
+                    return JsonNumber.class.cast(value).doubleValue();
+                case NULL:
+                    return null;
+                case OBJECT:
+                default:
+                    return value;
             }
         }
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,37 +54,43 @@ public class ConfigurationMapper {
             }
 
             switch (param.getType()) {
-            case OBJECT:
-                return map(param.getNestedParameters(), value, indexes);
-            case ARRAY:
-                final Collection<Object> values = Collection.class.isInstance(value) ? Collection.class.cast(value)
-                        : /* array */asList(Object[].class.cast(value));
-                final int arrayIndex = indexes.keySet().size();
-                final AtomicInteger valuesIndex = new AtomicInteger(0);
-                final Map<String, String> config = values.stream().map((Object item) -> {
-                    indexes.put(arrayIndex, valuesIndex.getAndIncrement());
-                    final Map<String, String> res = param
-                            .getNestedParameters()
-                            .stream()
-                            .filter(ConfigurationMapper::isPrimitive)
-                            .map(p -> new AbstractMap.SimpleImmutableEntry<>(evaluateIndexes(p.getPath(), indexes),
-                                    getValue(item, p.getName())))
-                            .filter(p -> p.getValue() != null)
-                            .collect(
-                                    toMap(AbstractMap.SimpleImmutableEntry::getKey, p -> String.valueOf(p.getValue())));
+                case OBJECT:
+                    return map(param.getNestedParameters(), value, indexes);
+                case ARRAY:
+                    final Collection<Object> values = Collection.class.isInstance(value) ? Collection.class.cast(value)
+                            : /* array */asList(Object[].class.cast(value));
+                    final int arrayIndex = indexes.keySet().size();
+                    final AtomicInteger valuesIndex = new AtomicInteger(0);
+                    final Map<String, String> config = values.stream()
+                            .map((Object item) -> {
+                                indexes.put(arrayIndex, valuesIndex.getAndIncrement());
+                                final Map<String, String> res = param
+                                        .getNestedParameters()
+                                        .stream()
+                                        .filter(ConfigurationMapper::isPrimitive)
+                                        .map(p -> new AbstractMap.SimpleImmutableEntry<>(
+                                                evaluateIndexes(p.getPath(), indexes),
+                                                getValue(item, p.getName())))
+                                        .filter(p -> p.getValue() != null)
+                                        .collect(toMap(AbstractMap.SimpleImmutableEntry::getKey,
+                                                p -> String.valueOf(p.getValue())));
 
-                    res
-                            .putAll(map(
-                                    param.getNestedParameters().stream().filter(p -> !isPrimitive(p)).collect(toList()),
-                                    item, indexes));
-                    return res;
-                }).flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                                res.putAll(map(
+                                        param.getNestedParameters()
+                                                .stream()
+                                                .filter(p -> !isPrimitive(p))
+                                                .collect(toList()),
+                                        item, indexes));
+                                return res;
+                            })
+                            .flatMap(m -> m.entrySet().stream())
+                            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                indexes.remove(arrayIndex); // clear index after the end of array handling
-                return config;
+                    indexes.remove(arrayIndex); // clear index after the end of array handling
+                    return config;
 
-            default: // primitives
-                return singletonMap(evaluateIndexes(param.getPath(), indexes), value.toString());
+                default: // primitives
+                    return singletonMap(evaluateIndexes(param.getPath(), indexes), value.toString());
             }
         }).flatMap(m -> m.entrySet().stream()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }

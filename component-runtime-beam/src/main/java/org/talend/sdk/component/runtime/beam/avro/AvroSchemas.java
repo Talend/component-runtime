@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@ public final class AvroSchemas {
 
     public static Schema unwrapUnion(final Schema schema) {
         switch (schema.getType()) {
-        case UNION:
-            return schema.getTypes().stream().filter(it -> it.getType() != NULL).findFirst().orElse(null);
-        default:
-            return schema;
+            case UNION:
+                return schema.getTypes().stream().filter(it -> it.getType() != NULL).findFirst().orElse(null);
+            default:
+                return schema;
         }
     }
 

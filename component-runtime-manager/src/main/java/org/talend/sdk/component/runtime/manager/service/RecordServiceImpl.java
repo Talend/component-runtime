@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,101 +96,103 @@ public class RecordServiceImpl implements RecordService, Serializable {
         final AtomicReference<T> out = new AtomicReference<>();
         record.getSchema().getAllEntries().forEach(entry -> {
             switch (entry.getType()) {
-            case INT:
-                visitor.onInt(entry, record.getOptionalInt(entry.getName()));
-                break;
-            case LONG:
-                visitor.onLong(entry, record.getOptionalLong(entry.getName()));
-                break;
-            case FLOAT:
-                visitor.onFloat(entry, record.getOptionalFloat(entry.getName()));
-                break;
-            case DOUBLE:
-                visitor.onDouble(entry, record.getOptionalDouble(entry.getName()));
-                break;
-            case BOOLEAN:
-                visitor.onBoolean(entry, record.getOptionalBoolean(entry.getName()));
-                break;
-            case STRING:
-                String insideType = entry.getProp(SchemaProperty.STUDIO_TYPE);
-                if ("id_Object".equals(insideType)) {
-                    visitor.onObject(entry, Optional.ofNullable(record.get(Object.class, entry.getName())));
-                } else {
-                    visitor.onString(entry, record.getOptionalString(entry.getName()));
-                }
-                break;
-            case DATETIME:
-                visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));
-                break;
-            case DECIMAL:
-                visitor.onDecimal(entry, record.getOptionalDecimal(entry.getName()));
-                break;
-            case BYTES:
-                visitor.onBytes(entry, record.getOptionalBytes(entry.getName()));
-                break;
-            case RECORD:
-                final Optional<Record> optionalRecord = record.getOptionalRecord(entry.getName());
-                final RecordVisitor<T> recordVisitor = visitor.onRecord(entry, optionalRecord);
-                if (recordVisitor != null) {
-                    optionalRecord.ifPresent(r -> {
-                        final T visited = visit(recordVisitor, r);
-                        if (visited != null) {
-                            final T current = out.get();
-                            out.set(current == null ? visited : visitor.apply(current, visited));
-                        }
-                    });
-                }
-                break;
-            case ARRAY:
-                final Schema schema = entry.getElementSchema();
-                switch (schema.getType()) {
                 case INT:
-                    visitor.onIntArray(entry, record.getOptionalArray(int.class, entry.getName()));
+                    visitor.onInt(entry, record.getOptionalInt(entry.getName()));
                     break;
                 case LONG:
-                    visitor.onLongArray(entry, record.getOptionalArray(long.class, entry.getName()));
+                    visitor.onLong(entry, record.getOptionalLong(entry.getName()));
                     break;
                 case FLOAT:
-                    visitor.onFloatArray(entry, record.getOptionalArray(float.class, entry.getName()));
+                    visitor.onFloat(entry, record.getOptionalFloat(entry.getName()));
                     break;
                 case DOUBLE:
-                    visitor.onDoubleArray(entry, record.getOptionalArray(double.class, entry.getName()));
+                    visitor.onDouble(entry, record.getOptionalDouble(entry.getName()));
                     break;
                 case BOOLEAN:
-                    visitor.onBooleanArray(entry, record.getOptionalArray(boolean.class, entry.getName()));
+                    visitor.onBoolean(entry, record.getOptionalBoolean(entry.getName()));
                     break;
                 case STRING:
-                    visitor.onStringArray(entry, record.getOptionalArray(String.class, entry.getName()));
+                    String insideType = entry.getProp(SchemaProperty.STUDIO_TYPE);
+                    if ("id_Object".equals(insideType)) {
+                        visitor.onObject(entry, Optional.ofNullable(record.get(Object.class, entry.getName())));
+                    } else {
+                        visitor.onString(entry, record.getOptionalString(entry.getName()));
+                    }
                     break;
                 case DATETIME:
-                    visitor.onDatetimeArray(entry, record.getOptionalArray(ZonedDateTime.class, entry.getName()));
+                    visitor.onDatetime(entry, record.getOptionalDateTime(entry.getName()));
                     break;
                 case DECIMAL:
-                    visitor.onDecimalArray(entry, record.getOptionalArray(BigDecimal.class, entry.getName()));
+                    visitor.onDecimal(entry, record.getOptionalDecimal(entry.getName()));
                     break;
                 case BYTES:
-                    visitor.onBytesArray(entry, record.getOptionalArray(byte[].class, entry.getName()));
+                    visitor.onBytes(entry, record.getOptionalBytes(entry.getName()));
                     break;
                 case RECORD:
-                    final Optional<Collection<Record>> array = record.getOptionalArray(Record.class, entry.getName());
-                    final RecordVisitor<T> recordArrayVisitor = visitor.onRecordArray(entry, array);
-                    if (recordArrayVisitor != null) {
-                        array.ifPresent(a -> a.forEach(r -> {
-                            final T visited = visit(recordArrayVisitor, r);
+                    final Optional<Record> optionalRecord = record.getOptionalRecord(entry.getName());
+                    final RecordVisitor<T> recordVisitor = visitor.onRecord(entry, optionalRecord);
+                    if (recordVisitor != null) {
+                        optionalRecord.ifPresent(r -> {
+                            final T visited = visit(recordVisitor, r);
                             if (visited != null) {
                                 final T current = out.get();
                                 out.set(current == null ? visited : visitor.apply(current, visited));
                             }
-                        }));
+                        });
                     }
                     break;
-                // array of array is not yet supported!
+                case ARRAY:
+                    final Schema schema = entry.getElementSchema();
+                    switch (schema.getType()) {
+                        case INT:
+                            visitor.onIntArray(entry, record.getOptionalArray(int.class, entry.getName()));
+                            break;
+                        case LONG:
+                            visitor.onLongArray(entry, record.getOptionalArray(long.class, entry.getName()));
+                            break;
+                        case FLOAT:
+                            visitor.onFloatArray(entry, record.getOptionalArray(float.class, entry.getName()));
+                            break;
+                        case DOUBLE:
+                            visitor.onDoubleArray(entry, record.getOptionalArray(double.class, entry.getName()));
+                            break;
+                        case BOOLEAN:
+                            visitor.onBooleanArray(entry, record.getOptionalArray(boolean.class, entry.getName()));
+                            break;
+                        case STRING:
+                            visitor.onStringArray(entry, record.getOptionalArray(String.class, entry.getName()));
+                            break;
+                        case DATETIME:
+                            visitor.onDatetimeArray(entry,
+                                    record.getOptionalArray(ZonedDateTime.class, entry.getName()));
+                            break;
+                        case DECIMAL:
+                            visitor.onDecimalArray(entry, record.getOptionalArray(BigDecimal.class, entry.getName()));
+                            break;
+                        case BYTES:
+                            visitor.onBytesArray(entry, record.getOptionalArray(byte[].class, entry.getName()));
+                            break;
+                        case RECORD:
+                            final Optional<Collection<Record>> array =
+                                    record.getOptionalArray(Record.class, entry.getName());
+                            final RecordVisitor<T> recordArrayVisitor = visitor.onRecordArray(entry, array);
+                            if (recordArrayVisitor != null) {
+                                array.ifPresent(a -> a.forEach(r -> {
+                                    final T visited = visit(recordArrayVisitor, r);
+                                    if (visited != null) {
+                                        final T current = out.get();
+                                        out.set(current == null ? visited : visitor.apply(current, visited));
+                                    }
+                                }));
+                            }
+                            break;
+                        // array of array is not yet supported!
+                        default:
+                            throw new IllegalStateException("Unsupported entry type: " + entry);
+                    }
+                    break;
                 default:
                     throw new IllegalStateException("Unsupported entry type: " + entry);
-                }
-                break;
-            default:
-                throw new IllegalStateException("Unsupported entry type: " + entry);
             }
         });
         final T value = out.get();
@@ -218,52 +220,52 @@ public class RecordServiceImpl implements RecordService, Serializable {
     public boolean forwardEntry(final Record source, final Record.Builder builder, final String sourceColumn,
             final Schema.Entry entry) {
         switch (entry.getType()) {
-        case INT:
-            final OptionalInt optionalInt = source.getOptionalInt(sourceColumn);
-            optionalInt.ifPresent(v -> builder.withInt(entry, v));
-            return optionalInt.isPresent();
-        case LONG:
-            final OptionalLong optionalLong = source.getOptionalLong(sourceColumn);
-            optionalLong.ifPresent(v -> builder.withLong(entry, v));
-            return optionalLong.isPresent();
-        case FLOAT:
-            final OptionalDouble optionalFloat = source.getOptionalFloat(sourceColumn);
-            optionalFloat.ifPresent(v -> builder.withFloat(entry, (float) v));
-            return optionalFloat.isPresent();
-        case DOUBLE:
-            final OptionalDouble optionalDouble = source.getOptionalDouble(sourceColumn);
-            optionalDouble.ifPresent(v -> builder.withDouble(entry, v));
-            return optionalDouble.isPresent();
-        case BOOLEAN:
-            final Optional<Boolean> optionalBoolean = source.getOptionalBoolean(sourceColumn);
-            optionalBoolean.ifPresent(v -> builder.withBoolean(entry, v));
-            return optionalBoolean.isPresent();
-        case STRING:
-            final Optional<String> optionalString = source.getOptionalString(sourceColumn);
-            optionalString.ifPresent(v -> builder.withString(entry, v));
-            return optionalString.isPresent();
-        case DATETIME:
-            final Optional<ZonedDateTime> optionalDateTime = source.getOptionalDateTime(sourceColumn);
-            optionalDateTime.ifPresent(v -> builder.withDateTime(entry, v));
-            return optionalDateTime.isPresent();
-        case DECIMAL:
-            final Optional<BigDecimal> optionalDecimal = source.getOptionalDecimal(sourceColumn);
-            optionalDecimal.ifPresent(v -> builder.withDecimal(entry, v));
-            return optionalDecimal.isPresent();
-        case BYTES:
-            final Optional<byte[]> optionalBytes = source.getOptionalBytes(sourceColumn);
-            optionalBytes.ifPresent(v -> builder.withBytes(entry, v));
-            return optionalBytes.isPresent();
-        case RECORD:
-            final Optional<Record> optionalRecord = source.getOptionalRecord(sourceColumn);
-            optionalRecord.ifPresent(v -> builder.withRecord(entry, v));
-            return optionalRecord.isPresent();
-        case ARRAY:
-            final Optional<Collection<Object>> optionalArray = source.getOptionalArray(Object.class, sourceColumn);
-            optionalArray.ifPresent(v -> builder.withArray(entry, v));
-            return optionalArray.isPresent();
-        default:
-            throw new IllegalStateException("Unsupported entry type: " + entry);
+            case INT:
+                final OptionalInt optionalInt = source.getOptionalInt(sourceColumn);
+                optionalInt.ifPresent(v -> builder.withInt(entry, v));
+                return optionalInt.isPresent();
+            case LONG:
+                final OptionalLong optionalLong = source.getOptionalLong(sourceColumn);
+                optionalLong.ifPresent(v -> builder.withLong(entry, v));
+                return optionalLong.isPresent();
+            case FLOAT:
+                final OptionalDouble optionalFloat = source.getOptionalFloat(sourceColumn);
+                optionalFloat.ifPresent(v -> builder.withFloat(entry, (float) v));
+                return optionalFloat.isPresent();
+            case DOUBLE:
+                final OptionalDouble optionalDouble = source.getOptionalDouble(sourceColumn);
+                optionalDouble.ifPresent(v -> builder.withDouble(entry, v));
+                return optionalDouble.isPresent();
+            case BOOLEAN:
+                final Optional<Boolean> optionalBoolean = source.getOptionalBoolean(sourceColumn);
+                optionalBoolean.ifPresent(v -> builder.withBoolean(entry, v));
+                return optionalBoolean.isPresent();
+            case STRING:
+                final Optional<String> optionalString = source.getOptionalString(sourceColumn);
+                optionalString.ifPresent(v -> builder.withString(entry, v));
+                return optionalString.isPresent();
+            case DATETIME:
+                final Optional<ZonedDateTime> optionalDateTime = source.getOptionalDateTime(sourceColumn);
+                optionalDateTime.ifPresent(v -> builder.withDateTime(entry, v));
+                return optionalDateTime.isPresent();
+            case DECIMAL:
+                final Optional<BigDecimal> optionalDecimal = source.getOptionalDecimal(sourceColumn);
+                optionalDecimal.ifPresent(v -> builder.withDecimal(entry, v));
+                return optionalDecimal.isPresent();
+            case BYTES:
+                final Optional<byte[]> optionalBytes = source.getOptionalBytes(sourceColumn);
+                optionalBytes.ifPresent(v -> builder.withBytes(entry, v));
+                return optionalBytes.isPresent();
+            case RECORD:
+                final Optional<Record> optionalRecord = source.getOptionalRecord(sourceColumn);
+                optionalRecord.ifPresent(v -> builder.withRecord(entry, v));
+                return optionalRecord.isPresent();
+            case ARRAY:
+                final Optional<Collection<Object>> optionalArray = source.getOptionalArray(Object.class, sourceColumn);
+                optionalArray.ifPresent(v -> builder.withArray(entry, v));
+                return optionalArray.isPresent();
+            default:
+                throw new IllegalStateException("Unsupported entry type: " + entry);
         }
     }
 

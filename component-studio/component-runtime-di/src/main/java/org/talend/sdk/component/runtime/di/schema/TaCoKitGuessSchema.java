@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -486,60 +486,60 @@ public class TaCoKitGuessSchema {
             }
             String typeName;
             switch (entryType) {
-            case BOOLEAN:
-                typeName = javaTypesManager.BOOLEAN.getId();
-                break;
-            case DOUBLE:
-                typeName = javaTypesManager.DOUBLE.getId();
-                break;
-            case INT:
-                if (talendType.equals(javaTypesManager.SHORT.getId())) {
-                    typeName = javaTypesManager.SHORT.getId();
-                } else {
-                    typeName = javaTypesManager.INTEGER.getId();
-                }
-                break;
-            case LONG:
-                typeName = javaTypesManager.LONG.getId();
-                break;
-            case FLOAT:
-                typeName = javaTypesManager.FLOAT.getId();
-                break;
-            case BYTES:
-                if (talendType.equals(StudioTypes.BYTE)) {
-                    typeName = javaTypesManager.BYTE.getId();
-                } else {
-                    typeName = javaTypesManager.BYTE_ARRAY.getId();
-                }
-                break;
-            case DATETIME:
-                typeName = javaTypesManager.DATE.getId();
-                isDateTime = true;
-                break;
-            case RECORD:
-                if (talendType.equals(StudioTypes.DYNAMIC)) {
-                    typeName = StudioTypes.DYNAMIC;
-                } else if (talendType.equals(StudioTypes.DOCUMENT)) {
-                    typeName = StudioTypes.DOCUMENT;
-                } else {
-                    typeName = javaTypesManager.OBJECT.getId();
-                }
-                break;
-            case ARRAY:
-                typeName = javaTypesManager.LIST.getId();
-                break;
-            case DECIMAL:
-                typeName = javaTypesManager.BIGDECIMAL.getId();
-                break;
-            default:
-                if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
-                    typeName = javaTypesManager.CHARACTER.getId();
-                } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
-                    typeName = javaTypesManager.BYTE.getId();
-                } else {
-                    typeName = javaTypesManager.STRING.getId();
-                }
-                break;
+                case BOOLEAN:
+                    typeName = javaTypesManager.BOOLEAN.getId();
+                    break;
+                case DOUBLE:
+                    typeName = javaTypesManager.DOUBLE.getId();
+                    break;
+                case INT:
+                    if (talendType.equals(javaTypesManager.SHORT.getId())) {
+                        typeName = javaTypesManager.SHORT.getId();
+                    } else {
+                        typeName = javaTypesManager.INTEGER.getId();
+                    }
+                    break;
+                case LONG:
+                    typeName = javaTypesManager.LONG.getId();
+                    break;
+                case FLOAT:
+                    typeName = javaTypesManager.FLOAT.getId();
+                    break;
+                case BYTES:
+                    if (talendType.equals(StudioTypes.BYTE)) {
+                        typeName = javaTypesManager.BYTE.getId();
+                    } else {
+                        typeName = javaTypesManager.BYTE_ARRAY.getId();
+                    }
+                    break;
+                case DATETIME:
+                    typeName = javaTypesManager.DATE.getId();
+                    isDateTime = true;
+                    break;
+                case RECORD:
+                    if (talendType.equals(StudioTypes.DYNAMIC)) {
+                        typeName = StudioTypes.DYNAMIC;
+                    } else if (talendType.equals(StudioTypes.DOCUMENT)) {
+                        typeName = StudioTypes.DOCUMENT;
+                    } else {
+                        typeName = javaTypesManager.OBJECT.getId();
+                    }
+                    break;
+                case ARRAY:
+                    typeName = javaTypesManager.LIST.getId();
+                    break;
+                case DECIMAL:
+                    typeName = javaTypesManager.BIGDECIMAL.getId();
+                    break;
+                default:
+                    if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
+                        typeName = javaTypesManager.CHARACTER.getId();
+                    } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
+                        typeName = javaTypesManager.BYTE.getId();
+                    } else {
+                        typeName = javaTypesManager.STRING.getId();
+                    }
+                    break;
             }
 
             final Column column = new Column();
@@ -838,26 +838,26 @@ public class TaCoKitGuessSchema {
 
     protected String getTalendType(final JsonValue value) {
         switch (value.getValueType()) {
-        case TRUE:
-        case FALSE:
-            return javaTypesManager.BOOLEAN.getId();
-        case NUMBER:
-            final Number number = JsonNumber.class.cast(value).numberValue();
-            if (Long.class.isInstance(number)) {
-                return javaTypesManager.LONG.getId();
-            }
-            if (BigDecimal.class.isInstance(number)) {
-                return javaTypesManager.BIGDECIMAL.getId();
-            } else {
-                return javaTypesManager.DOUBLE.getId();
-            }
-        case STRING:
-            return javaTypesManager.STRING.getId();
-        case NULL:
-            return EMPTY;
-        case OBJECT:
-        default:
-            return javaTypesManager.OBJECT.getId();
+            case TRUE:
+            case FALSE:
+                return javaTypesManager.BOOLEAN.getId();
+            case NUMBER:
+                final Number number = JsonNumber.class.cast(value).numberValue();
+                if (Long.class.isInstance(number)) {
+                    return javaTypesManager.LONG.getId();
+                }
+                if (BigDecimal.class.isInstance(number)) {
+                    return javaTypesManager.BIGDECIMAL.getId();
+                } else {
+                    return javaTypesManager.DOUBLE.getId();
+                }
+            case STRING:
+                return javaTypesManager.STRING.getId();
+            case NULL:
+                return EMPTY;
+            case OBJECT:
+            default:
+                return javaTypesManager.OBJECT.getId();
         }
     }
 

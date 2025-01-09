@@ -1,4 +1,4 @@
-
+Since release 1.65.0, the release changelog is available at the link:https://github.com/Talend/component-runtime/releases[github releases page].
 
 == Version 1.65.0
 

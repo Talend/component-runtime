@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -224,20 +224,20 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
                         .addListener((ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
                                 Worker.State newValue) -> {
                             switch (newValue) {
-                            case FAILED:
-                            case CANCELLED:
-                                panelLoaded
-                                        .completeExceptionally(
-                                                new IllegalStateException("failed loading panel: " + newValue));
-                                document
-                                        .completeExceptionally(
-                                                new IllegalStateException("Didn't load the starter properly"));
-                                break;
-                            case SUCCEEDED:
-                                webEngine.setUserStyleSheetLocation("data:text/css;charset=utf-8;base64," + css);
-                                panelLoaded.complete(StarterPanel.this);
-                                break;
-                            default:
+                                case FAILED:
+                                case CANCELLED:
+                                    panelLoaded
+                                            .completeExceptionally(
+                                                    new IllegalStateException("failed loading panel: " + newValue));
+                                    document
+                                            .completeExceptionally(
+                                                    new IllegalStateException("Didn't load the starter properly"));
+                                    break;
+                                case SUCCEEDED:
+                                    webEngine.setUserStyleSheetLocation("data:text/css;charset=utf-8;base64," + css);
+                                    panelLoaded.complete(StarterPanel.this);
+                                    break;
+                                default:
                             }
                         });
                 webEngine

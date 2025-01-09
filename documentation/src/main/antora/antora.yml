@@ -1,4 +1,4 @@
-#  Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+#  Copyright (C) 2006-2025 Talend Inc. - www.talend.com
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -13,6 +13,6 @@
 #  limitations under the License.
 name: main
 title: Talend Component Kit Developer Reference Guide
-version: '1.66.0'
+version: '1.67.0'
 nav:
 - modules/ROOT/nav.adoc

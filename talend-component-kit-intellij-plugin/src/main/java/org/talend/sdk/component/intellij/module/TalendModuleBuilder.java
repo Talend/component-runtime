@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,30 +136,33 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
 
             final Project moduleProject = module.getProject();
             switch (jsonProject.get("buildType").getAsString()) {
-            case "Maven":
-                final VirtualFile pomFile = findFileUnderRootInModule(module, "pom.xml");
-                if (pomFile != null) {
-                    final MavenProjectsManager mavenProjectsManager = MavenProjectsManager.getInstance(moduleProject);
-                    mavenProjectsManager.addManagedFiles(singletonList(pomFile));
-                }
-                break;
-            case "Gradle":
-                final VirtualFile gradleFile = findFileUnderRootInModule(module, "build.gradle");
-                if (gradleFile != null) {
-                    final ProjectDataManager projectDataManager = getService(ProjectDataManager.class);
-                    // todo: move to JavaGradleProjectImportBuilder
-                    final GradleProjectImportBuilder importBuilder = new GradleProjectImportBuilder(projectDataManager);
-                    final GradleProjectImportProvider importProvider = new GradleProjectImportProvider(importBuilder);
-                    final AddModuleWizard addModuleWizard =
-                            new AddModuleWizard(moduleProject, gradleFile.getPath(), importProvider);
-                    if (addModuleWizard.getStepCount() == 0 && addModuleWizard.showAndGet()) {
-                        // user chose to import via the gradle import prompt
-                        importBuilder.commit(moduleProject, null, null);
+                case "Maven":
+                    final VirtualFile pomFile = findFileUnderRootInModule(module, "pom.xml");
+                    if (pomFile != null) {
+                        final MavenProjectsManager mavenProjectsManager =
+                                MavenProjectsManager.getInstance(moduleProject);
+                        mavenProjectsManager.addManagedFiles(singletonList(pomFile));
                     }
-                }
-                break;
-            default:
-                break;
+                    break;
+                case "Gradle":
+                    final VirtualFile gradleFile = findFileUnderRootInModule(module, "build.gradle");
+                    if (gradleFile != null) {
+                        final ProjectDataManager projectDataManager = getService(ProjectDataManager.class);
+                        // todo: move to JavaGradleProjectImportBuilder
+                        final GradleProjectImportBuilder importBuilder =
+                                new GradleProjectImportBuilder(projectDataManager);
+                        final GradleProjectImportProvider importProvider =
+                                new GradleProjectImportProvider(importBuilder);
+                        final AddModuleWizard addModuleWizard =
+                                new AddModuleWizard(moduleProject, gradleFile.getPath(), importProvider);
+                        if (addModuleWizard.getStepCount() == 0 && addModuleWizard.showAndGet()) {
+                            // user chose to import via the gradle import prompt
+                            importBuilder.commit(moduleProject, null, null);
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
 
         }, ModalityState.current());

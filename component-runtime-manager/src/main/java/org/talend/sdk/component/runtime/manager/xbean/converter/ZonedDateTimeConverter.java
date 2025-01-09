@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,33 +42,33 @@ public class ZonedDateTimeConverter extends AbstractConverter {
         }
         String text = data.replace('/', '-'); // sanitize date format
         switch (text.length()) {
-        case 10: // YYYY-MM-dd
-            return ZonedDateTime.of(LocalDate.parse(text), NO_TIME, ZoneId.of("UTC"));
-        case 18: // HH:mm:ss.SSSSSSSSS
-        case 15: // HH:mm:ss.SSSSSS
-        case 12: // HH:mm:ss.SSS
-        case 8: // HH:mm:ss
-        case 5: // HH:mm
-            return ZonedDateTime.of(NO_DATE, LocalTime.parse(text), UTC);
-        case 29: // YYYY-MM-dd HH:mm:ss.SSSSSSSSS
-        case 26: // YYYY-MM-dd HH:mm:ss.SSSSSS
-        case 23: // YYYY-MM-dd HH:mm:ss.SSS
-        case 19: // YYYY-MM-dd HH:mm:ss
-        case 16: // YYYY-MM-dd HH:mm
-        default: // YYYY-MM-dd HH:mm.ss+HH:mm[...]
-            text = text.replace(' ', 'T');
-            if (text.contains("+") || text.contains("[")) {
-                int keepAsIt = text.indexOf('+');
-                if (keepAsIt < 0) {
-                    keepAsIt = text.indexOf('[');
+            case 10: // YYYY-MM-dd
+                return ZonedDateTime.of(LocalDate.parse(text), NO_TIME, ZoneId.of("UTC"));
+            case 18: // HH:mm:ss.SSSSSSSSS
+            case 15: // HH:mm:ss.SSSSSS
+            case 12: // HH:mm:ss.SSS
+            case 8: // HH:mm:ss
+            case 5: // HH:mm
+                return ZonedDateTime.of(NO_DATE, LocalTime.parse(text), UTC);
+            case 29: // YYYY-MM-dd HH:mm:ss.SSSSSSSSS
+            case 26: // YYYY-MM-dd HH:mm:ss.SSSSSS
+            case 23: // YYYY-MM-dd HH:mm:ss.SSS
+            case 19: // YYYY-MM-dd HH:mm:ss
+            case 16: // YYYY-MM-dd HH:mm
+            default: // YYYY-MM-dd HH:mm.ss+HH:mm[...]
+                text = text.replace(' ', 'T');
+                if (text.contains("+") || text.contains("[")) {
+                    int keepAsIt = text.indexOf('+');
+                    if (keepAsIt < 0) {
+                        keepAsIt = text.indexOf('[');
+                    }
+                    // ensure we don't loose / in the []
+                    text = text.substring(0, keepAsIt) + data.substring(keepAsIt);
+                    return ZonedDateTime.parse(text);
                 }
-                // ensure we don't loose / in the []
-                text = text.substring(0, keepAsIt) + data.substring(keepAsIt);
-                return ZonedDateTime.parse(text);
-            }
-            final LocalDateTime dateTime =
-                    LocalDateTime.parse(text.endsWith("Z") ? text.substring(0, text.length() - 1) : text);
-            return ZonedDateTime.of(dateTime.toLocalDate(), dateTime.toLocalTime(), UTC);
+                final LocalDateTime dateTime =
+                        LocalDateTime.parse(text.endsWith("Z") ? text.substring(0, text.length() - 1) : text);
+                return ZonedDateTime.of(dateTime.toLocalDate(), dateTime.toLocalTime(), UTC);
         }
     }
 }

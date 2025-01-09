@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -419,12 +419,12 @@ public class RequestParser {
                         .map(String::valueOf)
                         .map(q -> config.isEncode() ? queryEncode(q) : q);
                 switch (config.format) {
-                case MULTI:
-                    return collection.map(q -> new AbstractMap.SimpleEntry<>(key, q));
-                case CSV:
-                    return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.collect(toList()))));
-                default:
-                    throw new IllegalArgumentException("Unsupported formatting: " + config);
+                    case MULTI:
+                        return collection.map(q -> new AbstractMap.SimpleEntry<>(key, q));
+                    case CSV:
+                        return of(new AbstractMap.SimpleEntry<>(key, String.join(",", collection.collect(toList()))));
+                    default:
+                        throw new IllegalArgumentException("Unsupported formatting: " + config);
                 }
             }
 
