@@ -52,11 +52,11 @@ public class FixedSchemaProcessor implements Serializable {
             @Output final OutputEmitter<Record> main,
             @Output(UIService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
             @Output(UIService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
-        int id = input.getOptionalInt("id").orElse(0);
+        final int id = input.getOptionalInt("id").orElse(0);
 
-        int modulo = id % 3;
+        final int modulo = id % 3;
         if (modulo == 0) {
-            Record zero = factory.newRecordBuilder()
+            final Record zero = factory.newRecordBuilder()
                     .withInt("id", id)
                     .withString("input", "modulo == 0")
                     .withString("another", "Fixed value")
@@ -64,13 +64,13 @@ public class FixedSchemaProcessor implements Serializable {
                     .build();
             main.emit(zero);
         } else if (modulo == 1) {
-            Record one = factory.newRecordBuilder()
+            final Record one = factory.newRecordBuilder()
                     .withInt("second", id)
                     .withString("flow", "Second flow since module == 1")
                     .build();
             second.emit(one);
         } else {
-            Record three = factory.newRecordBuilder()
+            final Record three = factory.newRecordBuilder()
                     .withString(config.getDse().getDso().getInput(), String.valueOf(id))
                     .withString(config.getDse().getAnotherInput(), "Third flow since module == 2")
                     .build();

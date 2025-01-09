@@ -38,7 +38,7 @@ public class FixedSchemaInput implements Serializable {
 
     private final RecordBuilderFactory factory;
 
-    private int max = 5;
+    private final int max = 5;
 
     private int current = 0;
 
