@@ -64,6 +64,8 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
+import org.talend.sdk.component.runtime.manager.extension.ComponentSchemaEnricher;
+import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
@@ -164,6 +166,42 @@ class ComponentResourceImplTest {
 
         final ComponentId id = components.iterator().next().getId();
         assertEquals("jdbc#input", id.getFamily() + "#" + id.getName());
+    }
+
+    @Test()
+    void getFixedSchemaMetadata() {
+        final List<ComponentIndex> components = base
+                .path("component/index")
+                .queryParam("includeIconContent", false)
+                .queryParam("q",
+                        "(id = " + client.getJdbcId() + ") AND " + "(metadata[configurationtype::type] = dataset) AND "
+                                + "(plugin = jdbc-component) AND (name = input)")
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ComponentIndices.class)
+                .getComponents();
+        assertEquals(1, components.size());
+        final ComponentIndex index = components.iterator().next();
+        assertEquals("jdbc#input", index.getId().getFamily() + "#" + index.getId().getName());
+        assertEquals("jdbc_discover_schema", index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_META_PREFIX));
+        assertEquals(Branches.DEFAULT_BRANCH, index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_FLOWS_META_PREFIX));
+    }
+
+    @Test()
+    void getFixedSchemaMetadataWithRejectFlow() {
+        final List<ComponentIndex> components = base
+                .path("component/index")
+                .queryParam("includeIconContent", false)
+                .queryParam("q", "(id = " + client.getJdbcOutputId() + ") AND (plugin = jdbc-component)")
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ComponentIndices.class)
+                .getComponents();
+        assertEquals(1, components.size());
+        final ComponentIndex index = components.iterator().next();
+        assertEquals("jdbc#output", index.getId().getFamily() + "#" + index.getId().getName());
+        assertEquals("jdbc_discover_schema", index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_META_PREFIX));
+        assertEquals("reject", index.getMetadata().get(ComponentSchemaEnricher.FIXED_SCHEMA_FLOWS_META_PREFIX));
     }
 
     @Test
