@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.service.schema.FixedSchema;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Icon(Icon.IconType.DB_INPUT)
 @Version(value = 2, migrationHandler = JdbcInput.JdbcTestHandler.class)
 @Emitter(family = "jdbc", name = "input")
+@FixedSchema("jdbc_discover_schema")
 public class JdbcInput implements Serializable {
 
     private final JdbcDataSet dataset;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import org.talend.sdk.component.runtime.manager.reflect.MigrationHandlerFactory;
 import org.talend.sdk.component.runtime.manager.util.IdGenerator;
 
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of

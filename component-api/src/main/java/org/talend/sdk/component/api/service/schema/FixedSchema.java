@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2006-2024 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,19 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Retention(RUNTIME)
 @Documentation("Mark a connector as having a fixed schema. " +
         "Annotation's value must match the name of a DiscoverSchema or a DiscoverSchemaExtended annotation. " +
-        "The related action will return the fixed schema.")
+        "The related action will return the fixed schema for the specified flows.")
 public @interface FixedSchema {
 
     String value() default "";
+
+    /**
+     * The flows to apply the fixed schema.
+     * With an Input component, it will always concern the main flow. So you can omit it.
+     * With an Output component, it will concern the main, reject and/or any other flow.
+     * In Studio, the main flow's value is "__default__".
+     *
+     * @return the flows concerned by fixed schema. Default to none.
+     */
+    String[] flows() default {};
+
 }
