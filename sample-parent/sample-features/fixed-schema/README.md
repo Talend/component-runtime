@@ -35,7 +35,64 @@ factory.newSchemaBuilder(Schema.Type.RECORD)
                 .build();
 ```
 
+### Component-server payload
+You can retrieve the detailled information of the `tSampleFixedSchemaInput` with this `curl` call:
+```sh
+curl http://127.0.0.1:9876/api/v1/component/details?identifiers=Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjSW5wdXQ | jq . > /tmp/out
+```
+(_In the example, I have configured the studio component-server to be binded on `9876` port_)
+
+It will returns:
+
+```json
+{
+  "details": [
+    {
+      "actions": [],
+      "displayName": "Fixed Schema Input",
+      "icon": "icon",
+      "id": {
+        "family": "sampleFixedSchema",
+        "familyId": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWE",
+        "id": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjSW5wdXQ",
+        "name": "Input",
+        "plugin": "fixedschema",
+        "pluginLocation": "org.talend.sdk.component:fixedschema:2.0.0-SNAPSHOT"
+      },
+      "inputFlows": [],
+      "links": [],
+      "metadata": {
+        "tcomp::ui::schema::fixed": "fixedschemadse",
+        "tcomp::ui::schema::flows::fixed": "__default__",
+        "mapper::infinite": "false",
+        "mapper::optionalRow": "false",
+        "documentation::value": "Fixed schema sample input connector."
+      },
+      "outputFlows": [
+        "__default__"
+      ],
+      "properties": [
+        {
+          "displayName": "config",
+          "metadata": {
+            "ui::gridlayout::Main::value": "dse|aBoolean",
+            "definition::parameter::index": "0"
+          },
+          "name": "config",
+          "path": "config",
+          "placeholder": "config",
+          "type": "OBJECT"
+        },
+[.......]
+```
+The information related to `@FixedSchema("fixedschemadse")` is:
+```json
+"tcomp::ui::schema::fixed": "fixedschemadse",
+"tcomp::ui::schema::flows::fixed": "__default__",
+```
+
 ## In a processor
+
 This sample processor has the `@FixedSchema` annotation set on its `@Processor`
 [here](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/processor/FixedSchemaProcessor.java#L38). Its 
 value is `fixedschemaextended` and so point to the  `@DiscoverSchemaExtended` service (_since it's a processor_) named
@@ -68,6 +125,56 @@ That means for:
 
 [As you can see](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/service/UIService.java#L50),
 the `guessSchema4Processors` return a different schema for each flow.
+
+### Component-server payload
+You can retrieve the detailled information of the `tSampleFixedSchemaProcessor` with this `curl` call:
+```sh
+curl http://127.0.0.1:9876/api/v1/component/details?identifiers=Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjUHJvY2Vzc29y | jq . > /tmp/out
+```
+(_In the example, I have configured the studio component-server to be binded on `9876` port_)
+
+It will returns:
+```json
+{
+  "details": [
+    {
+      "actions": [],
+      "displayName": "Fixed Schema Processor",
+      "icon": "icon",
+      "id": {
+        "family": "sampleFixedSchema",
+        "familyId": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWE",
+        "id": "Zml4ZWRzY2hlbWEjc2FtcGxlRml4ZWRTY2hlbWEjUHJvY2Vzc29y",
+        "name": "Processor",
+        "plugin": "fixedschema",
+        "pluginLocation": "org.talend.sdk.component:fixedschema:2.0.0-SNAPSHOT"
+      },
+      "inputFlows": [
+        "__default__"
+      ],
+      "links": [],
+      "metadata": {
+        "tcomp::ui::schema::fixed": "fixedschemaextended",
+        "tcomp::ui::schema::flows::fixed": "__default__,second",
+        "documentation::value": "Fixed schema sample processor connector."
+      },
+      "outputFlows": [
+        "__default__",
+        "second",
+        "third"
+      ],
+      "properties": [
+        {
+          "displayName": "config",
+          "metadata": {
+            "ui::gridlayout::Main::value": "dse|aBoolean",
+[.......]
+```
+The information related to `@FixedSchema(value = "fixedschemaextended", flows = { "__default__", "second" })` is:
+```json
+"tcomp::ui::schema::fixed": "fixedschemaextended",
+"tcomp::ui::schema::flows::fixed": "__default__,second"
+```
 
 ## Sample connector behavior
 Since it's a simple sample, both [Input](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/input/FixedSchemaInput.java#L35)
@@ -142,10 +249,10 @@ Each flow has it own output schema:
 
 - `third`:
     - A first column that has its name coming from
-[Datastore#input](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/config/Datastore.java#L34)
+      [Datastore#input](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/config/Datastore.java#L34)
         - Containing the input record `id` value
     - A second column that has its name coming from
-[Dataset#anotherInput](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/config/Dataset.java#L41)
+      [Dataset#anotherInput](src/main/java/org/talend/sdk/component/sample/feature/fixedschema/config/Dataset.java#L41)
         - It always contains `"Third flow since module == 2"`
 ```text
 |=--+---------------------------=|
