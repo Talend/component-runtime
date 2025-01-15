@@ -23,7 +23,7 @@
   </parent>
 
   <groupId>org.talend.sdk.component.sample.feature</groupId>
-  <artifactId>fixedschema</artifactId>
+  <artifactId>lastGroup</artifactId>
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Feature @AfterGroup / @LastGroup</name>
