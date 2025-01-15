@@ -90,7 +90,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-install-plugin</artifactId>
-        <version>@maven-install-plugin.version@</version>
+        <version>2.5.2</version>
         <configuration>
           <skip>true</skip>
         </configuration>
@@ -98,7 +98,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>@maven-deploy-plugin.version@</version>
+        <version>@deploy-plugin.version@</version>
         <configuration>
           <skip>true</skip>
         </configuration>
@@ -121,7 +121,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>@maven-shade-plugin.version@</version>
+        <version>@shade-plugin.version@</version>
         <executions>
           <execution>
             <phase>package</phase>

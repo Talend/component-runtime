@@ -38,7 +38,6 @@
 
   <properties>
     <wagon.version>3.4.0</wagon.version>
-    <shrinkwrap.version>3.3.1</shrinkwrap.version>
   </properties>
 
   <dependencyManagement>
@@ -46,7 +45,7 @@
       <dependency>
         <groupId>org.jboss.shrinkwrap.resolver</groupId>
         <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-        <version>${shrinkwrap.version}</version>
+        <version>3.1.4</version>
         <exclusions>
           <exclusion>
             <groupId>org.jsoup</groupId>

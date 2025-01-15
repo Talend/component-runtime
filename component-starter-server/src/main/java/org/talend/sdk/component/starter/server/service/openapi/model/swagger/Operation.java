@@ -25,10 +25,8 @@ import org.talend.sdk.component.starter.server.service.openapi.model.openapi.Par
 import org.talend.sdk.component.starter.server.service.openapi.model.openapi.Response;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 public class Operation extends OperationBase {
 
     /**
