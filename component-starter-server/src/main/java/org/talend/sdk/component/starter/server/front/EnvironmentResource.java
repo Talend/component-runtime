@@ -15,10 +15,11 @@
  */
 package org.talend.sdk.component.starter.server.front;
 
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 
 import org.talend.sdk.component.starter.server.model.Environment;
 import org.talend.sdk.component.starter.server.service.info.ServerInfo;

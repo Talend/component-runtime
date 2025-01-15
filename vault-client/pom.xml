@@ -74,6 +74,16 @@
       <artifactId>log4j-jul</artifactId>
       <version>${log4j2.version}</version>
     </dependency>
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>${jakarta.ws.rs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet.version}</version>
+    </dependency>
     <!-- specific deps -->
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>

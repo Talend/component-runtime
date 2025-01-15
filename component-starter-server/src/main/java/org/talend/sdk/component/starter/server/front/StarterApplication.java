@@ -15,9 +15,10 @@
  */
 package org.talend.sdk.component.starter.server.front;
 
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
+
 import javax.enterprise.context.Dependent;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
 
 @Dependent
 @ApplicationPath("api")

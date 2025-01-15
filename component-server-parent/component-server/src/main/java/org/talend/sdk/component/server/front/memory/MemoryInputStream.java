@@ -15,11 +15,11 @@
  */
 package org.talend.sdk.component.server.front.memory;
 
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.servlet.ReadListener;
-import javax.servlet.ServletInputStream;
 
 public class MemoryInputStream extends ServletInputStream {
 

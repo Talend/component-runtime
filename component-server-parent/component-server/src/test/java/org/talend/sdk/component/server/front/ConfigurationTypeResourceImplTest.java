@@ -17,7 +17,7 @@ package org.talend.sdk.component.server.front;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,8 +31,8 @@ import javax.inject.Inject;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.spi.JsonProvider;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Assertions;

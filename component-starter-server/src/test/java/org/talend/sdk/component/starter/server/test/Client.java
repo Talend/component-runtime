@@ -23,8 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import javax.enterprise.inject.spi.CDI;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 
 import org.apache.meecrowave.Meecrowave;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -48,26 +48,26 @@ public class Client {
 
         @Override
         public void afterAll(final ExtensionContext context) {
-            javax.ws.rs.client.Client.class
-                    .cast(context.getStore(NAMESPACE).get(javax.ws.rs.client.Client.class.getName()))
+            jakarta.ws.rs.client.Client.class
+                    .cast(context.getStore(NAMESPACE).get(jakarta.ws.rs.client.Client.class.getName()))
                     .close();
         }
 
         @Override
         public void beforeAll(final ExtensionContext context) {
-            final javax.ws.rs.client.Client client = ClientBuilder.newClient();
-            context.getStore(NAMESPACE).put(javax.ws.rs.client.Client.class.getName(), client);
+            final jakarta.ws.rs.client.Client client = ClientBuilder.newClient();
+            context.getStore(NAMESPACE).put(jakarta.ws.rs.client.Client.class.getName(), client);
             context.getStore(NAMESPACE).put(WebTarget.class.getName(), target(client));
         }
 
-        private WebTarget target(final javax.ws.rs.client.Client client) {
+        private WebTarget target(final jakarta.ws.rs.client.Client client) {
             final Meecrowave.Builder config = CDI.current().select(Meecrowave.Builder.class).get();
             return client.target("http://localhost:" + config.getHttpPort() + "/api");
         }
 
         @Override
         public boolean supports(final Class<?> type) {
-            return WebTarget.class == type || javax.ws.rs.client.Client.class == type;
+            return WebTarget.class == type || jakarta.ws.rs.client.Client.class == type;
         }
 
         @Override

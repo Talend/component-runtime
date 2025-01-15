@@ -22,6 +22,9 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
 
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.UriInfo;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -50,8 +53,6 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
 
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.container.ContainerListener;

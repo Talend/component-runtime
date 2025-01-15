@@ -15,6 +15,11 @@
  */
 package org.talend.sdk.component.server.service.jcache;
 
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Request;
+import jakarta.ws.rs.core.UriInfo;
+
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -25,10 +30,6 @@ import javax.cache.annotation.CacheKeyInvocationContext;
 import javax.cache.annotation.GeneratedCacheKey;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.UriInfo;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -15,14 +15,14 @@
  */
 package org.talend.sdk.component.server.configuration;
 
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterRegistration;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+
 import java.util.EnumSet;
 import java.util.Set;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
 import org.talend.sdk.component.server.mdc.MdcRequestBinder;
 

@@ -108,7 +108,16 @@
       <artifactId>rrd4j</artifactId>
       <version>3.7</version>
     </dependency>
-
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>${jakarta.ws.rs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.meecrowave</groupId>
       <artifactId>meecrowave-junit</artifactId>

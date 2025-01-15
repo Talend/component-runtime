@@ -15,22 +15,22 @@
  */
 package org.talend.sdk.component.form.internal.jaxrs;
 
+import static jakarta.ws.rs.client.Entity.entity;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.util.stream.Collectors.toMap;
-import static javax.ws.rs.client.Entity.entity;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericType;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 
 import org.talend.sdk.component.form.api.Client;
 
 public class JAXRSClient<T> implements Client<T> {
 
-    private final javax.ws.rs.client.Client delegate;
+    private final jakarta.ws.rs.client.Client delegate;
 
     private final WebTarget target;
 
@@ -42,7 +42,7 @@ public class JAXRSClient<T> implements Client<T> {
         this(newClient(), base, true);
     }
 
-    public JAXRSClient(final javax.ws.rs.client.Client client, final String base, final boolean closeClient) {
+    public JAXRSClient(final jakarta.ws.rs.client.Client client, final String base, final boolean closeClient) {
         this.delegate = client;
         this.closeClient = closeClient;
         this.target = client.target(base);
@@ -74,8 +74,8 @@ public class JAXRSClient<T> implements Client<T> {
         }
     }
 
-    private static javax.ws.rs.client.Client newClient() {
-        final javax.ws.rs.client.Client instance = ClientBuilder.newClient();
+    private static jakarta.ws.rs.client.Client newClient() {
+        final jakarta.ws.rs.client.Client instance = ClientBuilder.newClient();
         System
                 .getProperties()
                 .stringPropertyNames()

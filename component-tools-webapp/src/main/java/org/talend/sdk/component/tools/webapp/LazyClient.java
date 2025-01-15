@@ -17,6 +17,16 @@ package org.talend.sdk.component.tools.webapp;
 
 import static java.util.Optional.ofNullable;
 
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,15 +39,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.jaxrs.JAXRSClient;
@@ -74,7 +75,7 @@ public class LazyClient implements Client<Object> {
                                     return thread;
                                 }
                             });
-                    final javax.ws.rs.client.Client jaxrsClient =
+                    final jakarta.ws.rs.client.Client jaxrsClient =
                             ClientBuilder.newBuilder().property("executorService", executorService).build();
                     webTarget = jaxrsClient.target(baseValue);
                     client = new JAXRSClient<>(jaxrsClient, baseValue, true);
