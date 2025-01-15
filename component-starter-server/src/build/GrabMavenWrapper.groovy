@@ -27,15 +27,14 @@ def validateWrapperFile(File baseDir, String file){
         case "mvnw":
             if(!from.text.contains('exec "$JAVACMD" \\\n' +
                     '  $MAVEN_OPTS \\\n' +
-                    '  $MAVEN_DEBUG_OPTS \\\n' +
                     '  -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \\\n' +
-                    '  "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \\\n' +
+                    '  "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \\\n' +
                     '  ${WRAPPER_LAUNCHER} $MAVEN_CONFIG "$@"')){
                 throw new IllegalStateException("Invalid file: " + file);
             }
             break
         case "mvnw.cmd":
-            if(!from.text.contains('%MAVEN_JAVA_EXE% ^')){
+            if(!from.text.contains('%MAVEN_JAVA_EXE% %JVM_CONFIG_MAVEN_PROPS% %MAVEN_OPTS% %MAVEN_DEBUG_OPTS% -classpath %WRAPPER_JAR% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*')){
                 throw new IllegalStateException("Invalid file: " + file);
             }
             break
@@ -54,7 +53,7 @@ final int exit = new ProcessBuilder().inheritIO()
         .directory(fakeProject)
         .command(
         new File(System.getProperty('maven.home'), "bin/" + mvnCommand).getAbsolutePath(),
-        "-N", "-Dtype=bin", "wrapper:wrapper")
+        "-N", "io.takari:maven:wrapper", "-Dmaven=" + mvnVersion)
         .start().waitFor()
 if (exit != 0) {
     throw new IllegalStateException("bad exit status generating maven wrapper: " + exit)

@@ -21,10 +21,8 @@ import javax.json.bind.annotation.JsonbProperty;
 import org.talend.sdk.component.starter.server.service.openapi.model.common.ParameterBase;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 public class Parameter extends ParameterBase {
 
     /**

@@ -131,15 +131,15 @@ pipeline {
         description: 'Force documentation stage for development branches. No effect on master and maintenance.')
 
     string(name: 'JAVA_VERSION',
-           defaultValue: 'from .tool-versions',
+           defaultValue: 'adoptopenjdk-17.0.5+8',
            description: """Provided java version will be installed with asdf  
                         Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9  
                         """)
 
     string(name: 'MAVEN_VERSION',
-           defaultValue: 'from .tool-versions',
+           defaultValue: '3.8.8',
            description: """Provided maven version will be installed with asdf  
-                        Examples: 3.8.8, 3.9.9, 4.0.0-beta-4  
+                        Examples: 3.8.8, 4.0.0-beta-4  
                         """)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -250,19 +250,14 @@ pipeline {
         }
 
         ///////////////////////////////////////////
-        // edit mvn and java version
+        // edit java version
         ///////////////////////////////////////////
         script {
           echo "edit asdf tool version with version from jenkins param"
 
-          if (params.JAVA_VERSION != 'from .tool-versions') {
-            asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
-          }
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
           jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
-
-          if (params.MAVEN_VERSION != 'from .tool-versions') {
-            asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
-          }
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
           jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
 
         }

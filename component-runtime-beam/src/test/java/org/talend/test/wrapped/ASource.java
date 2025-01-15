@@ -37,7 +37,6 @@ import org.talend.sdk.component.classloader.ConfigurableClassLoader;
 import org.talend.sdk.component.runtime.beam.coder.JsonpJsonObjectCoder;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 public class ASource extends BoundedSource<JsonObject> {
 
@@ -79,7 +78,6 @@ public class ASource extends BoundedSource<JsonObject> {
     }
 
     @Data
-    @EqualsAndHashCode(callSuper = true)
     private static class AReader extends BoundedReader<JsonObject> {
 
         private final ASource source;
