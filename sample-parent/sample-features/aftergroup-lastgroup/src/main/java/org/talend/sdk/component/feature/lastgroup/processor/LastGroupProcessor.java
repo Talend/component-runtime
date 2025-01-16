@@ -68,8 +68,6 @@ public class LastGroupProcessor implements Serializable {
             buffer.stream().forEach(main::emit);
             buffer.clear();
         }
-
-        buffer.clear();
     }
 
 }
