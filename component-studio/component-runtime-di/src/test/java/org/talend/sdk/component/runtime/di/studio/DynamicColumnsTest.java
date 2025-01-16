@@ -141,7 +141,8 @@ public class DynamicColumnsTest {
                 .getServices()
                 .stream()
                 .flatMap(c -> c.getActions().stream())
-                .filter(actionMeta -> "DynamicColumnsTest".equals(actionMeta.getFamily()) && "close_connection".equals(actionMeta.getType()))
+                .filter(actionMeta -> "DynamicColumnsTest".equals(actionMeta.getFamily())
+                        && "close_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object result = actionMeta.getInvoker().apply(null);
                     CloseConnectionObject cco = (CloseConnectionObject) result;
@@ -172,7 +173,8 @@ public class DynamicColumnsTest {
                 .getServices()
                 .stream()
                 .flatMap(c -> c.getActions().stream())
-                .filter(actionMeta ->  "DynamicColumnsTest".equals(actionMeta.getFamily()) && "create_connection".equals(actionMeta.getType()))
+                .filter(actionMeta -> "DynamicColumnsTest".equals(actionMeta.getFamily())
+                        && "create_connection".equals(actionMeta.getType()))
                 .forEach(actionMeta -> {
                     Object connnection = actionMeta.getInvoker().apply(runtimeParams);
                     assertEquals("v1100connection_1value", connnection);

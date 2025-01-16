@@ -78,7 +78,8 @@ class ProcessorImplTest {
 
     @Test
     void bulkGroupWithLastGroup() {
-        final Processor processor = new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new SampleLastGroupOutput());
+        final Processor processor =
+                new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new SampleLastGroupOutput());
         processor.start();
         processor.beforeGroup();
         assertTrue(processor.isLastGroupUsed());
@@ -204,7 +205,8 @@ class ProcessorImplTest {
         private int data;
     }
 
-    public static class SampleLastGroupOutput  implements Serializable {
+    public static class SampleLastGroupOutput implements Serializable {
+
         private static boolean isCalled = false;
 
         @ElementListener
