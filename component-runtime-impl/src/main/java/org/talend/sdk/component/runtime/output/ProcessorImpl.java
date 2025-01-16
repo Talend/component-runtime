@@ -37,6 +37,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -53,6 +55,7 @@ import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.processor.LastGroup;
 import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
@@ -122,16 +125,18 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
                     : Stream.of(process.getParameters()).map(this::buildProcessParamBuilder).collect(toList());
             parameterBuilderAfterGroup = afterGroup
                     .stream()
-                    .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters()).map(param -> {
-                        if (isGroupBuffer(param.getParameterizedType())) {
-                            expectedRecordType = Class.class
-                                    .cast(ParameterizedType.class
-                                            .cast(param.getParameterizedType())
-                                            .getActualTypeArguments()[0]);
-                            return (Function<OutputFactory, Object>) o -> records;
-                        }
-                        return toOutputParamBuilder(param);
-                    }).collect(toList())))
+                    .map(after -> new AbstractMap.SimpleEntry<>(after, Stream.of(after.getParameters())
+                            .map(param -> {
+                                if (isGroupBuffer(param.getParameterizedType())) {
+                                    expectedRecordType = Class.class
+                                            .cast(ParameterizedType.class
+                                                    .cast(param.getParameterizedType())
+                                                    .getActualTypeArguments()[0]);
+                                    return (Function<OutputFactory, Object>) o -> records;
+                                }
+                                return toOutputParamBuilder(param);
+                            })
+                            .collect(toList())))
                     .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
             forwardReturn = process != null && process.getReturnType() != void.class;
 
@@ -162,6 +167,9 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     private Function<OutputFactory, Object> toOutputParamBuilder(final Parameter parameter) {
         return outputs -> {
+            if (parameter.isAnnotationPresent(LastGroup.class)) {
+                return false;
+            }
             final String name = parameter.getAnnotation(Output.class).value();
             return outputs.create(name);
         };
@@ -239,13 +247,44 @@ public class ProcessorImpl extends LifecycleImpl implements Processor, Delegated
 
     @Override
     public void afterGroup(final OutputFactory output) {
-        afterGroup
-                .forEach(after -> doInvoke(after,
-                        parameterBuilderAfterGroup
-                                .get(after)
-                                .stream()
-                                .map(b -> b.apply(output))
-                                .toArray(Object[]::new)));
+        afterGroup.forEach(after -> {
+            Object[] params = parameterBuilderAfterGroup.get(after)
+                    .stream()
+                    .map(b -> b.apply(output))
+                    .toArray(Object[]::new);
+            doInvoke(after, params);
+        });
+        if (records != null) {
+            records = null;
+        }
+    }
+
+    @Override
+    public boolean isLastGroupUsed() {
+        AtomicReference<Boolean> hasLastGroup = new AtomicReference<>(false);
+        Optional.ofNullable(afterGroup)
+                .orElse(new ArrayList<>())
+                .forEach(after -> {
+                    for (Parameter param : after.getParameters()) {
+                        if (param.isAnnotationPresent(LastGroup.class)) {
+                            hasLastGroup.set(true);
+                        }
+                    }
+                });
+        return hasLastGroup.get();
+    }
+
+    @Override
+    public void afterGroup(final OutputFactory output, final boolean last) {
+        afterGroup.forEach(after -> {
+            Object[] params = Stream.concat(
+                    parameterBuilderAfterGroup.get(after)
+                            .stream()
+                            .map(b -> b.apply(output))
+                            .filter(b -> !b.equals(false)),
+                    Stream.of(last)).toArray(Object[]::new);
+            doInvoke(after, params);
+        });
         if (records != null) {
             records = null;
         }

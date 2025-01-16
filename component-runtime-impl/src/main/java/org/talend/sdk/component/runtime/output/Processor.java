@@ -26,5 +26,11 @@ public interface Processor extends Lifecycle {
     // since it will never work in the studio with current generation logic
     void afterGroup(OutputFactory output);
 
+    default void afterGroup(OutputFactory output, boolean last) {
+        afterGroup(output);
+    }
+
+    default boolean isLastGroupUsed() { return false; }
+
     void onNext(InputFactory input, OutputFactory output);
 }

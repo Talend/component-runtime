@@ -561,7 +561,8 @@ class ComponentValidatorTest {
     void testFailureAfterGroup(final ExceptionSpec expectedException) {
         expectedException
                 .expectMessage("- @Output parameter must be of type OutputEmitter\n"
-                        + "- Parameter of AfterGroup method need to be annotated with Output");
+                        + "- Parameter of AfterGroup method need to be annotated with Output\n"
+                        + "- class org.talend.test.failure.aftergroup.MyComponent5 must have a single @AfterGroup method with @LastGroup parameter");
     }
 
     @Test
