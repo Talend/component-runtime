@@ -156,6 +156,16 @@
     </dependency>
 
     <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${jakarta.xml.bind.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>${jakarta.ws.rs.version}</version>
+    </dependency>
+    <dependency>
       <groupId>args4j</groupId>
       <artifactId>args4j</artifactId>
       <version>${args4j.version}</version>

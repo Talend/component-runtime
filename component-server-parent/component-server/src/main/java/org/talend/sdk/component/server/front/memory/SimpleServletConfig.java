@@ -17,10 +17,10 @@ package org.talend.sdk.component.server.front.memory;
 
 import static java.util.Collections.emptyEnumeration;
 
-import java.util.Enumeration;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import java.util.Enumeration;
 
 import lombok.AllArgsConstructor;
 
