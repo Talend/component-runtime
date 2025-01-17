@@ -80,6 +80,11 @@
       <artifactId>johnzon-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${jaxb.version}</version>
+    </dependency>
+    <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
       <version>${jakarta.xml.bind.version}</version>
@@ -101,11 +106,6 @@
       <artifactId>component-runtime-junit-base</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency>
-    <!-- for java >= 9 support -->
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
     </dependency>
     <!-- for java >= 9 support -->
     <dependency>
