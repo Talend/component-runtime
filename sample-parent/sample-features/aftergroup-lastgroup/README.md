@@ -15,3 +15,5 @@ Now, methods with annotated with `@AfterGroup` in a `@Processor` connector, can 
 
 # LastGroupProcessor Sample explanation
 This sample is a simple `@Processor` that uses the `@AfterGroup` annotation with a `@LastGroup` parameter, [as you can see here](./src/main/java/org/talend/sdk/component/feature/lastgroup/processor/LastGroupProcessor.java#L41).
+
+This processor just buffers records, and, in the last call of `@AfterGroup` [method](./src/main/java/org/talend/sdk/component/feature/lastgroup/processor/LastGroupProcessor.java#L62), it will send all the records to the output. It also checks that the number of bufferized records is the same as the expected number set in its configuration [Config.java](./src/main/java/org/talend/sdk/component/feature/lastgroup/config/Config.java#L36). 
