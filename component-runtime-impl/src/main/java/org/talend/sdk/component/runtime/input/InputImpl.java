@@ -57,6 +57,22 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     }
 
     @Override
+    public void start() {
+        super.start();
+        //
+        // do we need to resume from latest checkpoint?
+        //
+    }
+
+    @Override
+    public void stop() {
+        //
+        // serialize the current state to be able to resume later
+        //
+        super.stop();
+    }
+
+    @Override
     public Object next() {
         if (next == null) {
             init();
