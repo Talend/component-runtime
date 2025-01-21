@@ -21,8 +21,10 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,6 +39,9 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.BeforeGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.LastGroup;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.serialization.Serializer;
@@ -64,9 +69,22 @@ class ProcessorImplTest {
             data.forEach(it -> processor.onNext(n -> it, null));
             assertNull(Bufferized.RECORDS);
             processor.afterGroup(null);
+            assertFalse(processor.isLastGroupUsed());
             assertEquals(data, Bufferized.RECORDS);
             Bufferized.RECORDS = null;
         }
+        processor.stop();
+    }
+
+    @Test
+    void bulkGroupWithLastGroup() {
+        final Processor processor =
+                new ProcessorImpl("Root", "Test", "Plugin", emptyMap(), new SampleLastGroupOutput());
+        processor.start();
+        processor.beforeGroup();
+        assertTrue(processor.isLastGroupUsed());
+        processor.afterGroup(NO_OUTPUT, true);
+        assertTrue(SampleLastGroupOutput.isCalled);
         processor.stop();
     }
 
@@ -186,4 +204,20 @@ class ProcessorImplTest {
 
         private int data;
     }
+
+    public static class SampleLastGroupOutput implements Serializable {
+
+        private static boolean isCalled = false;
+
+        @ElementListener
+        public void onNext(final Sample sample) {
+
+        }
+
+        @AfterGroup
+        public void afterGroup(@Output("REJECT") final OutputEmitter<Record> records, @LastGroup final boolean isLast) {
+            isCalled = isLast;
+        }
+    }
+
 }
