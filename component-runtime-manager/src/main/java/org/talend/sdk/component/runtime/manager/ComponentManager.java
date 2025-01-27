@@ -1132,6 +1132,7 @@ public class ComponentManager implements AutoCloseable {
                                     config.load(reader);
                                     filter = createScanningFilter(config);
                                     alreadyScannedClasses = config.getProperty("classes.list");
+                                    break;
                                 }
                             }
                         }
