@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.apache.avro.Schema.createFixed;
-import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,8 +23,13 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -47,11 +40,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
+import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
@@ -74,6 +67,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
@@ -83,7 +77,171 @@ import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.apache.avro.Schema.createFixed;
+import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class AvroRecordTest {
+
+    @Test
+    void recordWithLogicalType() {
+        AvroSchemaBuilder builder = new AvroSchemaBuilder();
+        Schema schema = builder.withType(Schema.Type.RECORD)
+                .withEntry(new AvroEntryBuilder().withName("name").withType(Schema.Type.STRING).build())
+                .withEntry(new AvroEntryBuilder().withName("date")
+                        .withLogicalType(SchemaProperty.LogicalType.DATE)
+                        .build())
+                .withEntry(new AvroEntryBuilder().withName("time")
+                        .withLogicalType(SchemaProperty.LogicalType.TIME)
+                        .build())
+                .withEntry(new AvroEntryBuilder().withName("datetime")
+                        .withLogicalType(SchemaProperty.LogicalType.TIMESTAMP)
+                        .build())
+                .withEntry(new AvroEntryBuilder().withName("age").withType(Schema.Type.INT).build())
+                .build(); // AvroSchema
+
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(2015, 11, 3, // 3rd of Nov 2015
+                15, 30, 59, 0, ZoneOffset.UTC); // at 3:30:59pm UTC
+        Instant instant = zonedDateTime.toInstant();
+
+        Record record = new AvroRecordBuilder(schema)
+                .withString("name", "Jackson")
+                .withInstant("date", instant)
+                .withInstant("time", instant)
+                .withInstant("datetime", instant)
+                .withInt("age", 22)
+                .build();
+
+        IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+
+        Assertions.assertNotNull(unwrap);
+
+        // Date
+        Field field = unwrap.getSchema().getField("date");
+        org.apache.avro.Schema.Type type = field.schema().getType();
+        String tckLogicalType = field.getProp(SchemaProperty.LOGICAL_TYPE);
+        LogicalType logicalType = field.schema().getLogicalType();
+
+        Assertions.assertEquals(org.apache.avro.Schema.Type.INT.getName(), type.getName());
+        Assertions.assertEquals(SchemaProperty.LogicalType.DATE.key(), tckLogicalType);
+        Assertions.assertEquals(LogicalTypes.date(), logicalType);
+
+        // Time
+        field = unwrap.getSchema().getField("time");
+        type = field.schema().getType();
+        tckLogicalType = field.getProp(SchemaProperty.LOGICAL_TYPE);
+        logicalType = field.schema().getLogicalType();
+
+        Assertions.assertEquals(org.apache.avro.Schema.Type.INT.getName(), type.getName());
+        Assertions.assertEquals(SchemaProperty.LogicalType.TIME.key(), tckLogicalType);
+        Assertions.assertEquals(LogicalTypes.timeMillis(), logicalType);
+
+        // Datetime
+        field = unwrap.getSchema().getField("datetime");
+        type = field.schema().getType();
+        tckLogicalType = field.getProp(SchemaProperty.LOGICAL_TYPE);
+        logicalType = field.schema().getLogicalType();
+
+        Assertions.assertEquals(org.apache.avro.Schema.Type.LONG.getName(), type.getName());
+        Assertions.assertEquals(SchemaProperty.LogicalType.TIMESTAMP.key(), tckLogicalType);
+        Assertions.assertEquals(LogicalTypes.timestampMillis(), logicalType);
+
+    }
+
+    /**
+     * Avro date is specified like:
+     * A date logical type annotates an Avro int, where the int stores the number of days from the unix epoch,
+     * 1 January 1970 (ISO calendar).
+     * <p>
+     * https://avro.apache.org/docs/1.8.0/spec.html#Date
+     */
+    @Test
+    void checkRecordToAvroDate() {
+        AvroSchemaBuilder builder = new AvroSchemaBuilder();
+        Schema schema = builder.withType(Schema.Type.RECORD)
+                .withEntry(new AvroEntryBuilder().withName("date")
+                        .withLogicalType(SchemaProperty.LogicalType.DATE)
+                        .build())
+                .build(); // AvroSchema
+
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(2015, 11, 3, // 3rd of Nov 2015
+                15, 30, 59, 0, ZoneOffset.UTC); // at 3:30:59pm UTC
+        Instant instant = zonedDateTime.toInstant();
+
+        Record record = new AvroRecordBuilder(schema)
+                .withDateTime("date", new Date(instant.toEpochMilli()))
+                .build();
+
+        IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        Integer unixEpochDays = (Integer) unwrap.get(0);
+
+        LocalDate date = LocalDate.of(2015, 11, 3);
+        LocalDate epoch = LocalDate.of(1970, 1, 1);
+        Long daysSinceEpoch = ChronoUnit.DAYS.between(epoch, date);
+
+        Assertions.assertNotNull(unwrap);
+        Assertions.assertEquals(daysSinceEpoch.intValue(), unixEpochDays);
+
+    }
+
+    @Test
+    void checkAvroToRecordDate() {
+        org.apache.avro.Schema dateSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT);
+        LogicalTypes.date().addToSchema(dateSchema);
+
+        org.apache.avro.Schema timeSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT);
+        LogicalTypes.timeMillis().addToSchema(timeSchema);
+
+        org.apache.avro.Schema datetimeSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG);
+        LogicalTypes.timestampMillis().addToSchema(datetimeSchema);
+
+        org.apache.avro.Schema schema = org.apache.avro.Schema.
+                createRecord("DateRecord", null, "org.talend.sdk.test", false);
+        schema.setFields(Arrays.asList(
+                new org.apache.avro.Schema.Field("birthDate", dateSchema, "A logical date field", (Object) null),
+                new org.apache.avro.Schema.Field("birthTime", timeSchema, "A logical time field", (Object) null),
+                new org.apache.avro.Schema.Field("birthDateTime", datetimeSchema, "A logical datetime field", (Object) null)
+        ));
+
+        IndexedRecord record = new GenericData.Record(schema);
+
+        LocalDate localDate = LocalDate.of(2024, 2, 25);
+        int daysSinceEpoch = (int) localDate.toEpochDay();
+        record.put(0, daysSinceEpoch);
+
+        LocalTime localTime = LocalTime.of(14, 30, 15);
+        int timeMillis = localTime.toSecondOfDay() * 1000;
+        record.put(1, timeMillis);
+
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneOffset.UTC);
+        long timestampMillis = zonedDateTime.toInstant().toEpochMilli();
+        record.put(2, timestampMillis);
+
+        Record avroRecord = new AvroRecord(record);
+
+        ZonedDateTime birthdate = avroRecord.getDateTime("birthDate");
+        ZonedDateTime birthTime = avroRecord.getDateTime("birthTime");
+        ZonedDateTime birthDateTime = avroRecord.getDateTime("birthDateTime");
+
+        ZonedDateTime expectedDate = localDate.atStartOfDay(ZoneOffset.UTC);
+        Assertions.assertEquals(expectedDate, birthdate);
+
+        ZonedDateTime expectedTime = LocalDateTime.of(1970, 1, 1, 14, 30, 15)
+                .atZone(ZoneOffset.UTC);
+        Assertions.assertEquals(expectedTime, birthTime);
+
+        ZonedDateTime expectedDatetime = LocalDateTime.of(2024, 2, 25, 14, 30, 15)
+                .atZone(ZoneOffset.UTC);
+        Assertions.assertEquals(expectedDatetime, birthDateTime);
+    }
 
     @Test
     void recordEntryFromName() {
@@ -264,7 +422,7 @@ class AvroRecordTest {
 
     @Test
     void bytes() {
-        final byte[] array = { 0, 1, 2, 3, 4 };
+        final byte[] array = {0, 1, 2, 3, 4};
         final Record record = new AvroRecordBuilder().withBytes("bytes", array).build();
         assertArrayEquals(array, record.getBytes("bytes"));
 
@@ -359,7 +517,7 @@ class AvroRecordTest {
         avro.put(0, zdt.toInstant().toEpochMilli());
         avro.put(1, date.getTime());
         avro.put(2, null);
-        avro.put(3, new long[] { instant.getEpochSecond(), instant.getNano() });
+        avro.put(3, new long[]{instant.getEpochSecond(), instant.getNano()});
         final Record record = new AvroRecord(avro);
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SchemaRegistryCoder.of().encode(record, buffer);
@@ -670,7 +828,8 @@ class AvroRecordTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { 2, 3, 4, 5 }) // number of nested arrays.
+    @ValueSource(ints = {2, 3, 4, 5})
+        // number of nested arrays.
     void arrayOfArrayOfRecords(final int level) {
         final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();

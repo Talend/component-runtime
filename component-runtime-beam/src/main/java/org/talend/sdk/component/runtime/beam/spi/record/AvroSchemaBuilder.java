@@ -36,6 +36,7 @@ import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 
@@ -59,6 +60,22 @@ public class AvroSchemaBuilder implements Schema.Builder {
                     LogicalTypes
                             .timestampMillis()
                             .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
+                    Schema.Type.DATETIME.name(), "true"));
+
+    private static final AvroSchema DATE_SCHEMA = new AvroSchema(new AvroPropertyMapper() {
+    }
+            .setProp(
+                    LogicalTypes
+                            .date()
+                            .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT)),
+                    Schema.Type.DATETIME.name(), "true"));
+
+    private static final AvroSchema TIME_SCHEMA = new AvroSchema(new AvroPropertyMapper() {
+    }
+            .setProp(
+                    LogicalTypes
+                            .timeMillis()
+                            .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT)),
                     Schema.Type.DATETIME.name(), "true"));
 
     private static final AvroSchema STRING_SCHEMA =
@@ -89,6 +106,26 @@ public class AvroSchemaBuilder implements Schema.Builder {
                             LogicalTypes
                                     .timestampMillis()
                                     .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG)),
+                            Schema.Type.DATETIME.name(), "true"),
+                    NULL_SCHEMA)));
+
+    private static final AvroSchema DATE_SCHEMA_NULLABLE =
+            new AvroSchema(org.apache.avro.Schema.createUnion(asList(new AvroPropertyMapper() {
+            }
+                    .setProp(
+                            LogicalTypes
+                                    .date()
+                                    .addToSchema(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT)),
+                            Schema.Type.DATETIME.name(), "true"),
+                    NULL_SCHEMA)));
+
+    private static final AvroSchema TIME_SCHEMA_NULLABLE =
+            new AvroSchema(org.apache.avro.Schema.createUnion(asList(new AvroPropertyMapper() {
+            }
+                    .setProp(
+                            LogicalTypes
+                                    .timeMillis()
+                                    .addToSchema(org.apache.avro.Schema.create(Type.INT)),
                             Schema.Type.DATETIME.name(), "true"),
                     NULL_SCHEMA)));
 
@@ -190,7 +227,15 @@ public class AvroSchemaBuilder implements Schema.Builder {
                 unwrappable = !entry.isNullable() ? STRING_SCHEMA : STRING_SCHEMA_NULLABLE;
                 break;
             case DATETIME:
-                unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
+                String logicalType = entry.getLogicalType();
+                if (SchemaProperty.LogicalType.DATE.key().equals(logicalType)) {
+                    unwrappable = !entry.isNullable() ? DATE_SCHEMA : DATE_SCHEMA_NULLABLE;
+                } else if (SchemaProperty.LogicalType.TIME.key().equals(logicalType)) {
+                    unwrappable = !entry.isNullable() ? TIME_SCHEMA : TIME_SCHEMA_NULLABLE;
+                } else {
+                    // should be logicalType == null || SchemaProperty.LogicalType.TIMESTAMP.key().equals(logicalType)
+                    unwrappable = !entry.isNullable() ? DATETIME_SCHEMA : DATETIME_SCHEMA_NULLABLE;
+                }
                 break;
             case DECIMAL:
                 unwrappable = !entry.isNullable() ? DECIMAL_SCHEMA : DECIMAL_SCHEMA_NULLABLE;
