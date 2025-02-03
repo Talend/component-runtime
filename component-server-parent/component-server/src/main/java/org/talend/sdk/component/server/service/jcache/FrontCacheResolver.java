@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import org.apache.geronimo.jcache.simple.cdi.CacheResolverImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.server.api.CacheResource;
 import org.talend.sdk.component.server.front.EnvironmentResourceImpl;
 import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.components.vault.jcache.CacheConfigurationFactory;
@@ -45,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class FrontCacheResolver implements CacheResolverFactory {
+public class FrontCacheResolver implements CacheResolverFactory, CacheResource {
 
     @Inject
     private CacheManager cacheManager;
@@ -116,12 +117,26 @@ public class FrontCacheResolver implements CacheResolverFactory {
         }
     }
 
+    @Override
     public void clearCaches() {
         StreamSupport
                 .stream(cacheManager.getCacheNames().spliterator(), false)
                 .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))
                 .peek(c -> log.info("[clearCaches] clear cache {}.", c))
                 .forEach(r -> cacheManager.getCache(r).clear());
+    }
+
+    /**
+     * mainly used for testing purpose.
+     * 
+     * @return active caches count
+     */
+    public long countActiveCaches() {
+        return StreamSupport
+                .stream(cacheManager.getCacheNames().spliterator(), false)
+                .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))
+                .filter(c -> cacheManager.getCache(c).iterator().hasNext())
+                .count();
     }
 
     @Override

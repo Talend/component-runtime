@@ -185,7 +185,8 @@ public class Generator {
                 log.info("System is offline, skipping jira changelog and github contributor generation");
             } else {
                 tasks.register(() -> generatedContributors(generatedDir, args[5], args[6]));
-                tasks.register(() -> generatedJira(generatedDir, args[1], args[2], version));
+                // was made in a jdk17 pom update then reverted. Reapply.
+                // tasks.register(() -> generatedJira(generatedDir, args[1], args[2], version));
             }
         }
     }
