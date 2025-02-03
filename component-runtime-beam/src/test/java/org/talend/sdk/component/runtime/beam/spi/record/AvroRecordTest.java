@@ -856,8 +856,7 @@ class AvroRecordTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { 2, 3, 4, 5 })
-    // number of nested arrays.
+    @ValueSource(ints = { 2, 3, 4, 5 })  // number of nested arrays.
     void arrayOfArrayOfRecords(final int level) {
         final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
