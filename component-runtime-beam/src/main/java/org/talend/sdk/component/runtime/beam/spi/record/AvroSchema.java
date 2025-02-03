@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,12 +15,22 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.apache.avro.Schema.Type.NULL;
+import static org.apache.avro.Schema.Type.UNION;
+import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
+import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.json.bind.annotation.JsonbTransient;
 
 import org.apache.avro.LogicalType;
@@ -36,14 +46,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.apache.avro.Schema.Type.NULL;
-import static org.apache.avro.Schema.Type.UNION;
-import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
-import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 
 @Slf4j
 @Data
@@ -213,7 +215,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         return AvroSchema.buildFromAvro(field, fieldType, logicalType, fieldSchema);
     }
 
-    private static Entry buildFromAvro(final Field field, final Type type, final Optional<SchemaProperty.LogicalType> logicalType, final AvroSchema elementSchema) {
+    private static Entry buildFromAvro(final Field field, final Type type,
+            final Optional<SchemaProperty.LogicalType> logicalType, final AvroSchema elementSchema) {
         Entry.Builder builder = new EntryImpl.BuilderImpl() //
                 .withName(field.name()) //
                 .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //

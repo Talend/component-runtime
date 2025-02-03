@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.apache.avro.Schema.createFixed;
+import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,6 +42,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -40,6 +53,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -76,18 +90,6 @@ import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.apache.avro.Schema.createFixed;
-import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AvroRecordTest {
 
@@ -197,19 +199,37 @@ class AvroRecordTest {
         org.apache.avro.Schema dateSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT);
         LogicalTypes.date().addToSchema(dateSchema);
 
+        List<org.apache.avro.Schema> unionSchemas = new ArrayList<>();
+        unionSchemas.add(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL));
+        unionSchemas.add(dateSchema);
+        org.apache.avro.Schema nullableDateSchema = org.apache.avro.Schema.createUnion(unionSchemas);
+
         org.apache.avro.Schema timeSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT);
         LogicalTypes.timeMillis().addToSchema(timeSchema);
+
+        unionSchemas = new ArrayList<>();
+        unionSchemas.add(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL));
+        unionSchemas.add(timeSchema);
+        org.apache.avro.Schema nullableTimeSchema = org.apache.avro.Schema.createUnion(unionSchemas);
 
         org.apache.avro.Schema datetimeSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG);
         LogicalTypes.timestampMillis().addToSchema(datetimeSchema);
 
-        org.apache.avro.Schema schema = org.apache.avro.Schema.
-                createRecord("DateRecord", null, "org.talend.sdk.test", false);
+        unionSchemas = new ArrayList<>();
+        unionSchemas.add(org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL));
+        unionSchemas.add(datetimeSchema);
+        org.apache.avro.Schema nullableDatetimeSchema = org.apache.avro.Schema.createUnion(unionSchemas);
+
+        org.apache.avro.Schema schema =
+                org.apache.avro.Schema.createRecord("DateRecord", null, "org.talend.sdk.test", false);
         schema.setFields(Arrays.asList(
-                new org.apache.avro.Schema.Field("birthDate", dateSchema, "A logical date field", (Object) null),
-                new org.apache.avro.Schema.Field("birthTime", timeSchema, "A logical time field", (Object) null),
-                new org.apache.avro.Schema.Field("birthDateTime", datetimeSchema, "A logical datetime field", (Object) null)
-        ));
+                new org.apache.avro.Schema.Field("birthDate", dateSchema, "A logical date field", null),
+                new org.apache.avro.Schema.Field("birthTime", timeSchema, "A logical time field", null),
+                new org.apache.avro.Schema.Field("birthDateTime", datetimeSchema, "A logical datetime field", null),
+                new org.apache.avro.Schema.Field("birthDateWithNull", nullableDateSchema, "A logical date field", null),
+                new org.apache.avro.Schema.Field("birthTimeWithNull", nullableTimeSchema, "A logical time field", null),
+                new org.apache.avro.Schema.Field("birthDateTimeWithNull", nullableDatetimeSchema,
+                        "A logical datetime field", null)));
 
         IndexedRecord record = new GenericData.Record(schema);
 
@@ -224,6 +244,10 @@ class AvroRecordTest {
         ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneOffset.UTC);
         long timestampMillis = zonedDateTime.toInstant().toEpochMilli();
         record.put(2, timestampMillis);
+
+        record.put(3, null);
+        record.put(4, null);
+        record.put(5, null);
 
         Record avroRecord = new AvroRecord(record);
 
@@ -241,6 +265,10 @@ class AvroRecordTest {
         ZonedDateTime expectedDatetime = LocalDateTime.of(2024, 2, 25, 14, 30, 15)
                 .atZone(ZoneOffset.UTC);
         Assertions.assertEquals(expectedDatetime, birthDateTime);
+
+        Assertions.assertNull(avroRecord.getDateTime("birthDateWithNull"));
+        Assertions.assertNull(avroRecord.getDateTime("birthTimeWithNull"));
+        Assertions.assertNull(avroRecord.getDateTime("birthDateTimeWithNull"));
     }
 
     @Test
@@ -422,7 +450,7 @@ class AvroRecordTest {
 
     @Test
     void bytes() {
-        final byte[] array = {0, 1, 2, 3, 4};
+        final byte[] array = { 0, 1, 2, 3, 4 };
         final Record record = new AvroRecordBuilder().withBytes("bytes", array).build();
         assertArrayEquals(array, record.getBytes("bytes"));
 
@@ -517,7 +545,7 @@ class AvroRecordTest {
         avro.put(0, zdt.toInstant().toEpochMilli());
         avro.put(1, date.getTime());
         avro.put(2, null);
-        avro.put(3, new long[]{instant.getEpochSecond(), instant.getNano()});
+        avro.put(3, new long[] { instant.getEpochSecond(), instant.getNano() });
         final Record record = new AvroRecord(avro);
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SchemaRegistryCoder.of().encode(record, buffer);
@@ -828,8 +856,8 @@ class AvroRecordTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {2, 3, 4, 5})
-        // number of nested arrays.
+    @ValueSource(ints = { 2, 3, 4, 5 })
+    // number of nested arrays.
     void arrayOfArrayOfRecords(final int level) {
         final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
