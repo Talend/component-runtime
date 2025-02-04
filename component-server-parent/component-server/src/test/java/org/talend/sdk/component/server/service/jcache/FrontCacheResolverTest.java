@@ -15,9 +15,12 @@
  */
 package org.talend.sdk.component.server.service.jcache;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.inject.Inject;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,9 @@ class FrontCacheResolverTest {
     private ComponentClient client;
 
     @Inject
+    private WebTarget base;
+
+    @Inject
     private FrontCacheResolver cacheResolver;
 
     @Test
@@ -40,7 +46,11 @@ class FrontCacheResolverTest {
         assertEquals(1, cacheResolver.countActiveCaches());
         client.fetchConfigTypeNodes();
         assertEquals(2, cacheResolver.countActiveCaches());
-        cacheResolver.clearCaches();
+        final Response resp = base
+                .path("cache/clear")
+                .request(APPLICATION_JSON_TYPE)
+                .get();
+        assertEquals(204, resp.getStatus());
         assertEquals(0, cacheResolver.countActiveCaches());
     }
 

@@ -35,6 +35,6 @@ public interface CacheResource {
     @GET
     @Path("clear")
     @Operation(operationId = "clearCaches", description = "Clear all caches.")
-    @APIResponse(responseCode = "200", description = "Clear all caches.")
+    @APIResponse(responseCode = "204", description = "Clear all caches.")
     void clearCaches();
 }
