@@ -55,6 +55,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.server.api.ActionResource;
+import org.talend.sdk.component.server.api.CacheResource;
 import org.talend.sdk.component.server.api.ComponentResource;
 import org.talend.sdk.component.server.api.ConfigurationTypeResource;
 import org.talend.sdk.component.server.api.DocumentationResource;
@@ -174,6 +175,10 @@ public class StaticResourceGenerator implements Runnable {
             routes
                     .add(route("component_server_environment", "/api/v1/environment", MapBuilder.map().done(),
                             emptyMap(), emptyMap(), jsonb.toJson(environment.get())));
+
+            final CacheResource cache = container.select(CacheResource.class).get();
+            routes.add(route("component_server_environment", "/api/v1/cache/clear", MapBuilder.map().done(),
+                    emptyMap(), emptyMap(), null));
 
             final ActionResource actions = container.select(ActionResource.class).get();
             routes
