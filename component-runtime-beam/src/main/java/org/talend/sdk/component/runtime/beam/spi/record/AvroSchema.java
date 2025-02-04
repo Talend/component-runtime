@@ -287,7 +287,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         } else if (LogicalTypes.timeMillis().equals(avroLogicalType)) {
             return Optional.of(SchemaProperty.LogicalType.TIME);
         } else if (LogicalTypes.timestampMillis().equals(avroLogicalType)) {
-            Optional.of(SchemaProperty.LogicalType.TIMESTAMP);
+            return Optional.of(SchemaProperty.LogicalType.TIMESTAMP);
         }
 
         return Optional.empty();

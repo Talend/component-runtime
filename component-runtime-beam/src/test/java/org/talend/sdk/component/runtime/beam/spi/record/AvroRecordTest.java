@@ -272,6 +272,41 @@ class AvroRecordTest {
     }
 
     @Test
+    void checkAvroToRecordLogicalType() {
+        org.apache.avro.Schema dateSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT);
+        LogicalTypes.date().addToSchema(dateSchema);
+
+        org.apache.avro.Schema timeSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.INT);
+        LogicalTypes.timeMillis().addToSchema(timeSchema);
+
+        org.apache.avro.Schema datetimeSchema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.LONG);
+        LogicalTypes.timestampMillis().addToSchema(datetimeSchema);
+
+        org.apache.avro.Schema schema =
+                org.apache.avro.Schema.createRecord("DateRecord", null, "org.talend.sdk.test", false);
+        schema.setFields(Arrays.asList(
+                new org.apache.avro.Schema.Field("birthDate", dateSchema, "A logical date field", null),
+                new org.apache.avro.Schema.Field("birthTime", timeSchema, "A logical time field", null),
+                new org.apache.avro.Schema.Field("birthDateTime", datetimeSchema, "A logical datetime field", null)));
+
+        IndexedRecord record = new GenericData.Record(schema);
+
+        Record avroRecord = new AvroRecord(record);
+        Assertions.assertNotNull(avroRecord);
+
+        Schema avroSchema = avroRecord.getSchema();
+        Assertions.assertNotNull(avroSchema);
+
+        List<Entry> entries = avroSchema.getEntries();
+        Assertions.assertEquals(3, entries.size());
+
+        Assertions.assertEquals(SchemaProperty.LogicalType.DATE.key(), entries.get(0).getLogicalType());
+        Assertions.assertEquals(SchemaProperty.LogicalType.TIME.key(), entries.get(1).getLogicalType());
+        Assertions.assertEquals(SchemaProperty.LogicalType.TIMESTAMP.key(), entries.get(2).getLogicalType());
+
+    }
+
+    @Test
     void recordEntryFromName() {
         assertEquals("{\"record\": {\"name\": \"ok\"}}",
                 Unwrappable.class
