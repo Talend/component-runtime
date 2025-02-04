@@ -231,7 +231,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                         .stream()
                         .collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))));
 
-        logicalType.ifPresent(t -> builder.withLogicalType(t));
+        logicalType.ifPresent(builder::withLogicalType);
 
         return builder.build();
     }

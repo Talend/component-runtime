@@ -128,7 +128,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             if (logicalType != null && SchemaProperty.LogicalType.DATE.key().equals(logicalType)) {
                 return Math.toIntExact(
                         Instant.ofEpochMilli((Long) value).atZone(UTC).toLocalDate().toEpochDay()); // Avro stores dates
-                                                                                                    // as int
+                // as int
             }
         }
 
@@ -241,29 +241,28 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
         final org.apache.avro.Schema fieldSchema = unwrapUnion(fieldSchemaRaw);
 
-        // Avro date to ZonedDateTime
-        if (value != null && expectedType == ZonedDateTime.class &&
-                fieldSchema.getType() == org.apache.avro.Schema.Type.INT &&
-                fieldSchema.getLogicalType() == LogicalTypes.date()) {
-            return expectedType.cast(LocalDate.ofEpochDay((int) value).atStartOfDay(UTC));
-        }
+        if (value != null && expectedType == ZonedDateTime.class) {
+            // Avro date to ZonedDateTime
+            if (fieldSchema.getType() == org.apache.avro.Schema.Type.INT &&
+                    fieldSchema.getLogicalType() == LogicalTypes.date()) {
+                return expectedType.cast(LocalDate.ofEpochDay((int) value).atStartOfDay(UTC));
+            }
 
-        // Avro timemillis to ZonedDateTime
-        if (value != null && expectedType == ZonedDateTime.class &&
-                fieldSchema.getType() == org.apache.avro.Schema.Type.INT &&
-                fieldSchema.getLogicalType() == LogicalTypes.timeMillis()) {
-            return expectedType.cast(
-                    ZonedDateTime.of(LocalDate.of(1970, 1, 1), // ZonedDateTime needs a date,
-                            LocalTime.ofNanoOfDay((int) value * 1_000_000L), // The time part
-                            UTC));
-        }
+            // Avro timemillis to ZonedDateTime
+            if (fieldSchema.getType() == org.apache.avro.Schema.Type.INT &&
+                    fieldSchema.getLogicalType() == LogicalTypes.timeMillis()) {
+                return expectedType.cast(
+                        ZonedDateTime.of(LocalDate.of(1970, 1, 1), // ZonedDateTime needs a date,
+                                LocalTime.ofNanoOfDay((int) value * 1_000_000L), // The time part
+                                UTC));
+            }
 
-        // Avro datetime to ZoneDateTime
-        if (value != null && expectedType == ZonedDateTime.class &&
-                fieldSchema.getType() == org.apache.avro.Schema.Type.LONG &&
-                fieldSchema.getLogicalType() == LogicalTypes.timestampMillis()) {
-            return expectedType.cast(Instant.ofEpochMilli((long) value)
-                    .atZone(UTC));
+            // Avro datetime to ZoneDateTime
+            if (fieldSchema.getType() == org.apache.avro.Schema.Type.LONG &&
+                    fieldSchema.getLogicalType() == LogicalTypes.timestampMillis()) {
+                return expectedType.cast(Instant.ofEpochMilli((long) value)
+                        .atZone(UTC));
+            }
         }
 
         if (value instanceof Long && expectedType != Long.class
