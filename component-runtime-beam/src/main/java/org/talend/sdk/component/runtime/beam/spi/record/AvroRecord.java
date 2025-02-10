@@ -24,6 +24,8 @@ import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -40,6 +42,7 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordImpl;
@@ -82,7 +85,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                 .getAllEntries()
                 .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
                         .ifPresent(v -> {
-                            final Object avroValue = directMapping(v);
+                            final Object avroValue = directMapping(v, entry);
 
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
@@ -93,7 +96,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                         }));
     }
 
-    private Object directMapping(final Object value) {
+    private Object directMapping(final Object value, final Schema.Entry entry) {
         // RecordImpl store BigDecimal directly, no any convert as not necessary, so here need to convert to string for
         // beam's AvroCoder which cloud platform use
         // also here for any Collection<BigDecimal> as Array type
@@ -102,7 +105,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         }
 
         if (value instanceof Collection) {
-            return Collection.class.cast(value).stream().map(this::directMapping).collect(toList());
+            return Collection.class.cast(value).stream().map(v -> this.directMapping(v, entry)).collect(toList());
         }
         if (value instanceof RecordImpl) {
             return new AvroRecord((Record) value).delegate;
@@ -119,6 +122,16 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (value instanceof byte[]) {
             return ByteBuffer.wrap(byte[].class.cast(value));
         }
+
+        if (value instanceof Long) {
+            String logicalType = entry.getLogicalType();
+            if (logicalType != null && SchemaProperty.LogicalType.DATE.key().equals(logicalType)) {
+                return Math.toIntExact(
+                        Instant.ofEpochMilli((Long) value).atZone(UTC).toLocalDate().toEpochDay()); // Avro stores dates
+                // as int
+            }
+        }
+
         return value;
     }
 
@@ -221,10 +234,37 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (value instanceof IndexedRecord && (Record.class == expectedType || Object.class == expectedType)) {
             return expectedType.cast(new AvroRecord(IndexedRecord.class.cast(value)));
         }
+
         if (value instanceof ByteBuffer && byte[].class == expectedType) {
             return expectedType.cast(ByteBuffer.class.cast(value).array());
         }
+
         final org.apache.avro.Schema fieldSchema = unwrapUnion(fieldSchemaRaw);
+
+        if (value != null && expectedType == ZonedDateTime.class) {
+            // Avro date to ZonedDateTime
+            if (fieldSchema.getType() == org.apache.avro.Schema.Type.INT &&
+                    fieldSchema.getLogicalType() == LogicalTypes.date()) {
+                return expectedType.cast(LocalDate.ofEpochDay((int) value).atStartOfDay(UTC));
+            }
+
+            // Avro timemillis to ZonedDateTime
+            if (fieldSchema.getType() == org.apache.avro.Schema.Type.INT &&
+                    fieldSchema.getLogicalType() == LogicalTypes.timeMillis()) {
+                return expectedType.cast(
+                        ZonedDateTime.of(LocalDate.of(1970, 1, 1), // ZonedDateTime needs a date,
+                                LocalTime.ofNanoOfDay((int) value * 1_000_000L), // The time part
+                                UTC));
+            }
+
+            // Avro datetime to ZoneDateTime
+            if (fieldSchema.getType() == org.apache.avro.Schema.Type.LONG &&
+                    fieldSchema.getLogicalType() == LogicalTypes.timestampMillis()) {
+                return expectedType.cast(Instant.ofEpochMilli((long) value)
+                        .atZone(UTC));
+            }
+        }
+
         if (value instanceof Long && expectedType != Long.class
                 && Boolean.parseBoolean(readProp(fieldSchema, Schema.Type.DATETIME.name()))) {
             return RECORD_CONVERTERS.coerce(expectedType, value, fieldSchema.getName());
