@@ -27,14 +27,17 @@ import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_P
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.json.bind.annotation.JsonbTransient;
 
+import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
@@ -205,14 +208,16 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
 
     private Entry fromAvro(final Field field) {
         final Type fieldType = mapType(field.schema());
+        final Optional<SchemaProperty.LogicalType> logicalType = mapLogicalType(field.schema());
         final AvroSchema fieldSchema =
                 new AvroSchema(fieldType == Type.ARRAY ? unwrapUnion(field.schema()).getElementType() : field.schema());
 
-        return AvroSchema.buildFromAvro(field, fieldType, fieldSchema);
+        return AvroSchema.buildFromAvro(field, fieldType, logicalType, fieldSchema);
     }
 
-    private static Entry buildFromAvro(final Field field, final Type type, final AvroSchema elementSchema) {
-        return new EntryImpl.BuilderImpl() //
+    private static Entry buildFromAvro(final Field field, final Type type,
+            final Optional<SchemaProperty.LogicalType> logicalType, final AvroSchema elementSchema) {
+        Entry.Builder builder = new EntryImpl.BuilderImpl() //
                 .withName(field.name()) //
                 .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
                 .withType(type) //
@@ -224,8 +229,11 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 .withProps(field.getObjectProps()
                         .entrySet()
                         .stream()
-                        .collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))))
-                .build();
+                        .collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))));
+
+        logicalType.ifPresent(builder::withLogicalType);
+
+        return builder.build();
     }
 
     @Override
@@ -272,12 +280,31 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
         throw new IllegalArgumentException("Unsupported type: " + type);
     }
 
+    private Optional<SchemaProperty.LogicalType> mapLogicalType(final Schema schema) {
+        LogicalType avroLogicalType = schema.getLogicalType();
+        if (LogicalTypes.date().equals(avroLogicalType)) {
+            return Optional.of(SchemaProperty.LogicalType.DATE);
+        } else if (LogicalTypes.timeMillis().equals(avroLogicalType)) {
+            return Optional.of(SchemaProperty.LogicalType.TIME);
+        } else if (LogicalTypes.timestampMillis().equals(avroLogicalType)) {
+            return Optional.of(SchemaProperty.LogicalType.TIMESTAMP);
+        }
+
+        return Optional.empty();
+    }
+
     private Type mapType(final Schema schema) {
         return doMapType(unwrapUnion(schema));
     }
 
     private Type doMapType(final Schema schema) {
         switch (schema.getType()) {
+            case INT:
+                if (LogicalTypes.date().equals(LogicalTypes.fromSchemaIgnoreInvalid(schema))
+                        || LogicalTypes.timeMillis().equals(LogicalTypes.fromSchemaIgnoreInvalid(schema))) {
+                    return Type.DATETIME;
+                }
+                return Type.INT;
             case LONG:
                 if (Boolean.parseBoolean(readProp(schema, Type.DATETIME.name()))
                         || LogicalTypes.timestampMillis().equals(LogicalTypes.fromSchemaIgnoreInvalid(schema))) {

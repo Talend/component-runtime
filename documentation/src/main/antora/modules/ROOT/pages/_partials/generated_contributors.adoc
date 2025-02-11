@@ -8,7 +8,7 @@
     "name":"Romain Manni-Bucau"
   },
   {
-    "commits":822,
+    "commits":825,
     "description":"Software engineer @Talend.\r\n\r\nComponents team member.\n\nBlog: undx.github.io",
     "gravatar":"https://avatars.githubusercontent.com/u/265575?v=4",
     "id":"undx",
@@ -29,7 +29,7 @@
     "name":"Ivan Gonchar"
   },
   {
-    "commits":77,
+    "commits":78,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/7742508?v=4",
     "id":"yyin-talend",
@@ -57,7 +57,7 @@
     "name":"Jean-Michel FRANCOIS"
   },
   {
-    "commits":40,
+    "commits":43,
     "description":"",
     "gravatar":"https://avatars.githubusercontent.com/u/29707101?v=4",
     "id":"ypiel-talend",

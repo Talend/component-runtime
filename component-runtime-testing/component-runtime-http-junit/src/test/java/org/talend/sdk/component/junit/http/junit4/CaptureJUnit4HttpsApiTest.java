@@ -124,7 +124,6 @@ public class CaptureJUnit4HttpsApiTest {
                                             new InetSocketAddress("localhost", API.getPort()))));
                     connection.setConnectTimeout(30000);
                     connection.setReadTimeout(20000);
-                    connection.setRequestProperty("Accept", "*/*");
                     connection.setHostnameVerifier((h, s) -> true);
                     connection.setSSLSocketFactory(server.getHttpsConfigurator().getSSLContext().getSocketFactory());
                     assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
@@ -136,7 +135,7 @@ public class CaptureJUnit4HttpsApiTest {
             final String lines = String.join("\n", Files.readAllLines(output));
             assertJSONEquals("[\n" + "  {\n" + "    \"request\":{\n" + "      \"headers\":{\n"
                     + "        \"content-length\":\"0\",\n"
-                    + "        \"Accept\":\"*/*\",\n"
+                    + "        \"Accept\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\",\n"
                     + "        \"Connection\":\"keep-alive\"\n" + "      },\n" + "      \"method\":\"GET\",\n"
                     + "      \"uri\":\"https://localhost:" + server.getAddress().getPort() + "/supertest\"\n"
                     + "    },\n" + "    \"response\":{\n" + "      \"headers\":{\n"

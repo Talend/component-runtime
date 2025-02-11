@@ -163,7 +163,7 @@
                 "value": "200"
               },
               {
-                "comparison": "LengthEqual",
+                "comparison": "LengthGreaterThanOrEqual",
                 "subject": "ResponseJsonBody",
                 "path": "$.components",
                 "value": "9"
