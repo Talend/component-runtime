@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.input.checkpoint.Resume;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
@@ -36,9 +37,13 @@ import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
 
-public class InputImpl extends LifecycleImpl implements Input, Delegated {
+public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkpoint {
+
+    private transient Method resume;
 
     private transient Method next;
+
+    private transient Method checkpoint;
 
     private transient RecordConverters converters;
 
@@ -62,14 +67,15 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
         //
         // do we need to resume from latest checkpoint?
         //
+        resume = findMethods(Resume.class).findFirst().orElse(null);
+        checkpoint = findMethods(org.talend.sdk.component.api.input.checkpoint.Checkpoint.class).findFirst().orElse(null);
     }
 
     @Override
-    public void stop() {
-        //
-        // serialize the current state to be able to resume later
-        //
-        super.stop();
+    public void resume(Object checkpoint) {
+        if (this.resume != null) {
+            doInvoke(this.resume, checkpoint);
+        }
     }
 
     @Override
@@ -87,6 +93,22 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
             return record;
         }
         return converters.toRecord(registry, record, this::jsonb, this::recordBuilderFactory);
+    }
+
+    @Override
+    public Object checkpoint() {
+        if (checkpoint != null) {
+            return doInvoke(this.checkpoint);
+        }
+        return null;
+    }
+
+    @Override
+    public void stop() {
+        //
+        // serialize the current state to be able to resume later
+        //
+        super.stop();
     }
 
     @Override
