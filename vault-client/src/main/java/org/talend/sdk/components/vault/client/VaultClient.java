@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.components.vault.client;
 
+import static jakarta.ws.rs.client.Entity.entity;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -23,8 +25,12 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static javax.ws.rs.client.Entity.entity;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
+
+import jakarta.servlet.ServletContext;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -59,11 +65,6 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.json.bind.annotation.JsonbProperty;
-import javax.servlet.ServletContext;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.components.vault.configuration.Documentation;
