@@ -45,7 +45,7 @@
                 "comparison": "Equals",
                 "subject": "ResponseStatus",
                 "path": "code",
-                "value": "204"
+                "value": "200"
               },
               {
                 "comparison": "Equals",

@@ -235,17 +235,7 @@ public class ComponentManagerService {
         if (!reload) {
             return null;
         }
-        // undeploy plugins
-        log.info("Un-deploying plugins...");
-        manager().getContainer().findAll().forEach(container -> container.close());
-        // redeploy plugins
-        log.info("Re-deploying plugins...");
-        deployPlugins();
-        log.info("Plugins deployed.");
-        // reset connectors' version
-        synchronizeConnectors();
-        // reset caches
-        cacheResolver.clearCaches();
+        redeployPlugins();
 
         return null;
     }
@@ -353,6 +343,20 @@ public class ComponentManagerService {
         instance.removePlugin(pluginID);
         lastUpdated = new Date();
         synchronizeConnectors();
+    }
+
+    public void redeployPlugins() {
+        // undeploy plugins
+        log.info("Un-deploying plugins...");
+        manager().getContainer().findAll().forEach(container -> container.close());
+        // redeploy plugins
+        log.info("Re-deploying plugins...");
+        deployPlugins();
+        log.info("Plugins deployed.");
+        // reset connectors' version
+        synchronizeConnectors();
+        // reset caches
+        cacheResolver.cleanupCaches();
     }
 
     public Date findLastUpdated() {

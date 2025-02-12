@@ -17,6 +17,7 @@ package org.talend.sdk.component.server.api;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -29,6 +30,6 @@ public interface CacheResource {
     @GET
     @Path("clear")
     @Operation(operationId = "clearCaches", description = "Clear all caches.")
-    @APIResponse(responseCode = "204", description = "Clear all caches.")
-    void clearCaches();
+    @APIResponse(responseCode = "200", description = "Cleared caches.")
+    Response clearCaches();
 }

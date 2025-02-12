@@ -16,6 +16,7 @@
 package org.talend.sdk.component.server.service.jcache;
 
 import static java.util.Optional.ofNullable;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE;
 
 import java.lang.annotation.Annotation;
 import java.util.concurrent.TimeUnit;
@@ -32,13 +33,17 @@ import javax.cache.annotation.CacheResult;
 import javax.cache.configuration.Configuration;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import org.apache.geronimo.jcache.simple.cdi.CacheResolverImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.server.api.CacheResource;
+import org.talend.sdk.component.server.front.ComponentResourceImpl;
+import org.talend.sdk.component.server.front.ConfigurationTypeResourceImpl;
 import org.talend.sdk.component.server.front.EnvironmentResourceImpl;
 import org.talend.sdk.component.server.front.model.Environment;
+import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.components.vault.jcache.CacheConfigurationFactory;
 import org.talend.sdk.components.vault.jcache.CacheSizeManager;
 
@@ -60,7 +65,16 @@ public class FrontCacheResolver implements CacheResolverFactory, CacheResource {
     private Long refreshPeriod;
 
     @Inject
+    private ComponentManagerService service;
+
+    @Inject
     EnvironmentResourceImpl env;
+
+    @Inject
+    ComponentResourceImpl components;
+
+    @Inject
+    ConfigurationTypeResourceImpl resources;
 
     private long lastUpdated;
 
@@ -112,18 +126,31 @@ public class FrontCacheResolver implements CacheResolverFactory, CacheResource {
         final Environment environment = env.get();
         // assumes time are synch-ed but not a high assumption
         if (lastUpdated < environment.getLastUpdated().getTime()) {
-            clearCaches();
+            cleanupCaches();
             lastUpdated = System.currentTimeMillis();
         }
     }
 
-    @Override
-    public void clearCaches() {
+    /**
+     * Clear all soft caches
+     */
+    public void cleanupCaches() {
         StreamSupport
                 .stream(cacheManager.getCacheNames().spliterator(), false)
                 .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))
                 .peek(c -> log.info("[clearCaches] clear cache {}.", c))
                 .forEach(r -> cacheManager.getCache(r).clear());
+        components.clearCache(null);
+        resources.clearCache(null);
+    }
+
+    @Override
+    public Response clearCaches() {
+        final long clearedCacheCount = countActiveCaches();
+        service.redeployPlugins();
+        return Response
+                .ok(clearedCacheCount, TEXT_PLAIN_TYPE)
+                .build();
     }
 
     /**
@@ -131,7 +158,7 @@ public class FrontCacheResolver implements CacheResolverFactory, CacheResource {
      * 
      * @return active caches count
      */
-    public long countActiveCaches() {
+    public Long countActiveCaches() {
         return StreamSupport
                 .stream(cacheManager.getCacheNames().spliterator(), false)
                 .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))

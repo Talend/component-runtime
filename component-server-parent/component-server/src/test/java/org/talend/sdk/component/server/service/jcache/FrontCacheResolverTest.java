@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.test.ComponentClient;
 
 @MonoMeecrowaveConfig
@@ -38,20 +39,30 @@ class FrontCacheResolverTest {
     @Inject
     private FrontCacheResolver cacheResolver;
 
+    @Inject
+    private ComponentManagerService service;
+
     @Test
-    void clearCaches() {
-        cacheResolver.clearCaches();
+    void cleanupCaches() {
+        cacheResolver.cleanupCaches();
         assertEquals(0, cacheResolver.countActiveCaches());
         client.fetchIndex();
         assertEquals(1, cacheResolver.countActiveCaches());
         client.fetchConfigTypeNodes();
         assertEquals(2, cacheResolver.countActiveCaches());
+    }
+
+    @Test
+    void clearCaches() {
+        final int connectors = service.getConnectors().getPluginsList().size();
         final Response resp = base
                 .path("cache/clear")
                 .request(APPLICATION_JSON_TYPE)
                 .get();
-        assertEquals(204, resp.getStatus());
+        assertEquals(200, resp.getStatus());
+        assertEquals(0, resp.readEntity(Integer.class));
         assertEquals(0, cacheResolver.countActiveCaches());
+        assertEquals(connectors, service.getConnectors().getPluginsList().size());
     }
 
 }
