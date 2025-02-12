@@ -23,6 +23,5 @@ import java.lang.annotation.Target;
 
 @Target(METHOD)
 @Retention(RUNTIME)
-public @interface State {
-
+public @interface MarkCheckpoint {
 }

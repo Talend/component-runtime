@@ -365,9 +365,10 @@ class JobTest {
                     .run();
 
             final LocalPartitionMapper mapper =
-                    LocalPartitionMapper.class.cast(manager.findMapper("checkpoint", "list-input", 1, emptyMap()).get());
+                    LocalPartitionMapper.class
+                            .cast(manager.findMapper("checkpoint", "list-input", 1, emptyMap()).get());
 
-            //assertTrue(mapper.getDelegate() instanceof CheckpointInput);
+            // assertTrue(mapper.getDelegate() instanceof CheckpointInput);
             InputImpl input = (InputImpl) mapper.create();
             input.start();
             input.next();
@@ -378,8 +379,6 @@ class JobTest {
 
         }
     }
-
-
 
     private ComponentManager newTestManager(final File jar) {
         return new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
