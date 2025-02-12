@@ -1,15 +1,17 @@
-/*
+/**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.talend.test;
 
@@ -28,8 +30,9 @@ import javax.json.JsonObject;
 
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
-import org.talend.sdk.component.api.input.checkpoint.Checkpoint;
-import org.talend.sdk.component.api.input.checkpoint.Resume;
+import org.talend.sdk.component.api.input.checkpoint.MarkCheckpoint;
+import org.talend.sdk.component.api.input.checkpoint.ResumeCheckpoint;
+import org.talend.sdk.component.api.input.checkpoint.ShouldCheckpoint;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,12 +75,18 @@ public class CheckpointInput implements Serializable {
         return produced == null ? null : factory.createObjectBuilder().add("data", produced).build();
     }
 
-    @Resume
+    @ResumeCheckpoint
     public void resume(final JsonObject checkpoint) {
         if (checkpoint == null) {
-            throw new IllegalArgumentException("No valid checkpoint configuration found.");
+            log.info("[resume] No valid checkpoint configuration found, using start of dataset.");
+            bookmark = 0;
+        } else {
+            if ("finished".equals(checkpoint.get("status"))) {
+                bookmark = 0;
+            } else {
+                bookmark = checkpoint.getInt("checkpoint");
+            }
         }
-        bookmark = checkpoint.getInt("checkpoint");
         log.warn("[resume] resuming at: {} data: {}.", bookmark, data);
         if (bookmark == null) {
             iterator = new ArrayList<Integer>().listIterator();
@@ -86,12 +95,19 @@ public class CheckpointInput implements Serializable {
         }
     }
 
-    @Checkpoint
+    @MarkCheckpoint
     public JsonObject checkpoint() {
         log.warn("[checkpoint] bookmark: {}.", bookmark);
-        return factory.createObjectBuilder().add("checkpoint", bookmark).build();
+        return factory.createObjectBuilder()
+                .add("checkpoint", bookmark == null ? -1 : bookmark)
+                .add("timestamp", System.currentTimeMillis())
+                .add("status", bookmark == null ? "finished" : "running")
+                .build();
     }
 
-
+    @ShouldCheckpoint
+    public Boolean shouldCheckpoint() {
+        return bookmark != null && bookmark % 2 == 0;
+    }
 
 }

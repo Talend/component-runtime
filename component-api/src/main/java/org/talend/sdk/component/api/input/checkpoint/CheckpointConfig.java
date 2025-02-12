@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.input;
+package org.talend.sdk.component.api.input.checkpoint;
 
-public interface Checkpoint {
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-    void resume(Object checkpoint);
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    Object checkpoint();
-
-    Boolean shouldCheckpoint();
+@Target({ TYPE, METHOD })
+@Retention(RUNTIME)
+public @interface CheckpointConfig {
 }
