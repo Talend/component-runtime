@@ -15,11 +15,11 @@
  */
 package org.talend.sdk.component.api.processor;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Mark a method as returning an input connector.
@@ -27,4 +27,8 @@ import java.lang.annotation.Target;
 @Target(METHOD)
 @Retention(RUNTIME)
 public @interface ElementListener {
+    /**
+     * @return the name of the flow which will be displayed under some conditions
+     */
+    String conditionalFlows() default "";
 }
