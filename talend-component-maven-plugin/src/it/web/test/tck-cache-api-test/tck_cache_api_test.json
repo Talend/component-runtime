@@ -48,16 +48,9 @@
                 "value": "200"
               },
               {
-                "comparison": "Equals",
-                "subject": "ResponseBody",
-                "enabled": true,
-                "path": "length",
-                "value": "1"
-              },
-              {
                 "comparison": "Matches",
-                "subject": "ResponseBody",
-                "path": "content",
+                "subject": "ResponseJsonBody",
+                "path": "$.clearedCacheCount",
                 "value": "^\\d+$"
               }
             ]
