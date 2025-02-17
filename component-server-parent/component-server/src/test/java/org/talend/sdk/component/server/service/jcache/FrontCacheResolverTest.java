@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,7 +60,7 @@ class FrontCacheResolverTest {
     @Test
     void clearCaches() throws JsonProcessingException {
         final int connectors = service.getConnectors().getPluginsList().size();
-        final javax.ws.rs.core.Response resp = base
+        final Response resp = base
                 .path("cache/clear")
                 .request(APPLICATION_JSON_TYPE)
                 .get();
