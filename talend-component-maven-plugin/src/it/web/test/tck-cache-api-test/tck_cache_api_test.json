@@ -52,6 +52,12 @@
                 "subject": "ResponseBody",
                 "enabled": true,
                 "path": "length",
+                "value": "1"
+              },
+              {
+                "comparison": "Equals",
+                "subject": "ResponseBody",
+                "path": "content",
                 "value": "0"
               }
             ]
