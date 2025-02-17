@@ -114,9 +114,11 @@ pipeline {
 
   parameters {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "BASIC_CONFIG", sectionHeader: "Basic configuration",
+    separator(name: "BASIC_CONFIG",
+              sectionHeader: "Basic configuration",
               sectionHeaderStyle: """ background-color: #ABEBC6;
-                text-align: center; font-size: 35px !important; font-weight : bold; """)
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     choice(
         name: 'Action',
@@ -129,19 +131,23 @@ pipeline {
         description: 'Force documentation stage for development branches. No effect on master and maintenance.')
 
     string(name: 'JAVA_VERSION',
-           defaultValue: 'from .tool-versions',
+           defaultValue: 'adoptopenjdk-17.0.5+8',
            description: """Provided java version will be installed with asdf  
-                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9 """)
+                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9  
+                        """)
 
     string(name: 'MAVEN_VERSION',
-           defaultValue: 'from .tool-versions',
+           defaultValue: '3.8.8',
            description: """Provided maven version will be installed with asdf  
-                        Examples: 3.8.8, 4.0.0-beta-4 """)
+                        Examples: 3.8.8, 4.0.0-beta-4  
+                        """)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "DEPLOY_CONFIG", sectionHeader: "Deployment configuration",
+    separator(name: "DEPLOY_CONFIG",
+              sectionHeader: "Deployment configuration",
               sectionHeaderStyle: """ background-color: #F9E79F;
-                text-align: center; font-size: 35px !important; font-weight : bold; """)
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'MAVEN_DEPLOY',
@@ -165,9 +171,11 @@ pipeline {
         description: 'Choose which docker image you want to build and push. Only available if DOCKER_PUSH == True.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "QUALIFIER_CONFIG", sectionHeader: "Qualifier configuration",
+    separator(name: "QUALIFIER_CONFIG",
+              sectionHeader: "Qualifier configuration",
               sectionHeaderStyle: """ background-color: #AED6F1;
-                text-align: center; font-size: 35px !important; font-weight : bold; """)
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(
         name: 'VERSION_QUALIFIER',
@@ -178,9 +186,11 @@ pipeline {
             From "user/JIRA-12345_some_information" the qualifier will be JIRA-12345.''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "ADVANCED_CONFIG", sectionHeader: "Advanced configuration",
+    separator(name: "ADVANCED_CONFIG",
+              sectionHeader: "Advanced configuration",
               sectionHeaderStyle: """ background-color: #F8C471;
-                text-align: center; font-size: 35px !important; font-weight : bold; """)
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(
         name: 'EXTRA_BUILD_PARAMS',
@@ -200,15 +210,19 @@ pipeline {
         description: 'Force dependencies report stage for branches.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "EXPERT_CONFIG", sectionHeader: "Expert configuration",
+    separator(name: "EXPERT_CONFIG",
+              sectionHeader: "Expert configuration",
               sectionHeaderStyle: """ background-color: #A9A9A9;
-                text-align: center; font-size: 35px !important; font-weight : bold;""")
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "DEBUG_CONFIG", sectionHeader: "Jenkins job debug configuration ",
+    separator(name: "DEBUG_CONFIG",
+              sectionHeader: "Jenkins job debug configuration ",
               sectionHeaderStyle: """ background-color: #FF0000;
-                text-align: center; font-size: 35px !important; font-weight : bold;""")
+                text-align: center; font-size: 35px !important; font-weight : bold;
+			          """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'JENKINS_DEBUG',
@@ -241,10 +255,11 @@ pipeline {
         script {
           echo "edit asdf tool version with version from jenkins param"
 
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
+          jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
+          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
 
-          String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
-          String mavenVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
-          jenkinsJobTools.job_description_append("Use java $javaVersion with maven  $mavenVersion  ")
         }
 
         ///////////////////////////////////////////
