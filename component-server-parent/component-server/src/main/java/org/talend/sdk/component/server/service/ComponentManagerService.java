@@ -348,7 +348,7 @@ public class ComponentManagerService {
     public void redeployPlugins() {
         // undeploy plugins
         log.info("Un-deploying plugins...");
-        manager().getContainer().findAll().forEach(container -> container.close());
+        manager().getContainer().findAll().forEach(Container::close);
         // redeploy plugins
         log.info("Re-deploying plugins...");
         deployPlugins();

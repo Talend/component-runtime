@@ -60,6 +60,12 @@ class FrontCacheResolverTest {
     @Test
     void clearCaches() throws JsonProcessingException {
         final int connectors = service.getConnectors().getPluginsList().size();
+
+        // Initiate 2 caches
+        client.fetchIndex();
+        client.fetchConfigTypeNodes();
+
+        // Clear caches
         final Response resp = base
                 .path("cache/clear")
                 .request(APPLICATION_JSON_TYPE)
@@ -69,7 +75,7 @@ class FrontCacheResolverTest {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> responseMap = objectMapper.readValue(resp.readEntity(String.class), Map.class);
 
-        assertEquals(0, (Integer) responseMap.get("clearedCacheCount"));
+        assertEquals(2, (Integer) responseMap.get("clearedCacheCount"));
         assertEquals(0, cacheResolver.countActiveCaches());
         assertEquals(connectors, service.getConnectors().getPluginsList().size());
     }
