@@ -18,9 +18,13 @@ package org.talend.sdk.component.server.service.jcache;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
 import org.junit.jupiter.api.Test;
@@ -53,14 +57,18 @@ class FrontCacheResolverTest {
     }
 
     @Test
-    void clearCaches() {
+    void clearCaches() throws JsonProcessingException {
         final int connectors = service.getConnectors().getPluginsList().size();
-        final Response resp = base
+        final javax.ws.rs.core.Response resp = base
                 .path("cache/clear")
                 .request(APPLICATION_JSON_TYPE)
                 .get();
         assertEquals(200, resp.getStatus());
-        assertEquals(0, resp.readEntity(Integer.class));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> responseMap = objectMapper.readValue(resp.readEntity(String.class), Map.class);
+
+        assertEquals(0, (Integer) responseMap.get("clearedCacheCount"));
         assertEquals(0, cacheResolver.countActiveCaches());
         assertEquals(connectors, service.getConnectors().getPluginsList().size());
     }
