@@ -55,10 +55,10 @@
                 "value": "1"
               },
               {
-                "comparison": "Equals",
+                "comparison": "Matches",
                 "subject": "ResponseBody",
                 "path": "content",
-                "value": "0"
+                "value": "^\\d+$"
               }
             ]
           }
