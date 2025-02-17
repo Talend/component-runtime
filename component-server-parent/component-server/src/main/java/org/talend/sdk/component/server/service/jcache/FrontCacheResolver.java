@@ -16,9 +16,11 @@
 package org.talend.sdk.component.server.service.jcache;
 
 import static java.util.Optional.ofNullable;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
@@ -147,9 +149,11 @@ public class FrontCacheResolver implements CacheResolverFactory, CacheResource {
     @Override
     public Response clearCaches() {
         final long clearedCacheCount = countActiveCaches();
+        Map<String, Long> stringStringMap = Collections.singletonMap("clearedCacheCount", clearedCacheCount);
         service.redeployPlugins();
         return Response
-                .ok(clearedCacheCount, TEXT_PLAIN_TYPE)
+                .ok(stringStringMap)
+                .type(APPLICATION_JSON_TYPE)
                 .build();
     }
 
