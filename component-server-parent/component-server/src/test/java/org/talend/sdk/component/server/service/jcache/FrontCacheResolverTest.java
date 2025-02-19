@@ -61,6 +61,9 @@ class FrontCacheResolverTest {
     void clearCaches() throws JsonProcessingException {
         final int connectors = service.getConnectors().getPluginsList().size();
 
+        // First clean caches
+        cacheResolver.cleanupCaches();
+
         // Initialize 2 caches
         client.fetchIndex();
         client.fetchConfigTypeNodes();
