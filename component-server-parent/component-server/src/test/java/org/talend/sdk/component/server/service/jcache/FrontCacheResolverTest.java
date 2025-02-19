@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.component.server.test.ComponentClient;
@@ -47,6 +48,12 @@ class FrontCacheResolverTest {
     @Inject
     private ComponentManagerService service;
 
+    @BeforeEach
+    void beforeEach(){
+        // Clean caches
+        cacheResolver.cleanupCaches();
+    }
+
     @Test
     void cleanupCaches() {
         cacheResolver.cleanupCaches();
@@ -60,9 +67,6 @@ class FrontCacheResolverTest {
     @Test
     void clearCaches() throws JsonProcessingException {
         final int connectors = service.getConnectors().getPluginsList().size();
-
-        // First clean caches
-        cacheResolver.cleanupCaches();
 
         // Initialize 2 caches
         client.fetchIndex();
