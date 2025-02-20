@@ -15,14 +15,15 @@
  */
 package org.talend.sdk.component.server.front.error;
 
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
+import jakarta.ws.rs.ext.Providers;
+
 import java.util.concurrent.CompletionException;
 
 import javax.enterprise.context.Dependent;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-import javax.ws.rs.ext.Providers;
 
 import org.talend.sdk.component.server.front.model.ErrorDictionary;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;

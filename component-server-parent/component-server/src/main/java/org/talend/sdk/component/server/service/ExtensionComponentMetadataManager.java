@@ -22,6 +22,8 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import jakarta.ws.rs.core.MediaType;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,7 +47,6 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.NotificationOptions;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
 
 import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.server.configuration.ComponentServerConfiguration;

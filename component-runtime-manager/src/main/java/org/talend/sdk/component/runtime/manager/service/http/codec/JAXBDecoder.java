@@ -15,12 +15,13 @@
  */
 package org.talend.sdk.component.runtime.manager.service.http.codec;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.transform.stream.StreamSource;
 
 import org.talend.sdk.component.api.service.http.Decoder;

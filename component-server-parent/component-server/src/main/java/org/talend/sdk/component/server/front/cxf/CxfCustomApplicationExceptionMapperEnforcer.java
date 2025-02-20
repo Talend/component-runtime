@@ -17,11 +17,12 @@ package org.talend.sdk.component.server.front.cxf;
 
 import static java.util.Optional.ofNullable;
 
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.PreMatching;
+import jakarta.ws.rs.ext.Provider;
+
 import javax.enterprise.context.Dependent;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.PreMatching;
-import javax.ws.rs.ext.Provider;
 
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 
