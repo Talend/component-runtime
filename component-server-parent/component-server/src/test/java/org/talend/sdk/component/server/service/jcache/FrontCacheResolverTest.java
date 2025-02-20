@@ -56,7 +56,6 @@ class FrontCacheResolverTest {
 
     @Test
     void cleanupCaches() {
-        cacheResolver.cleanupCaches();
         assertEquals(0, cacheResolver.countActiveCaches());
         client.fetchIndex();
         assertEquals(1, cacheResolver.countActiveCaches());
