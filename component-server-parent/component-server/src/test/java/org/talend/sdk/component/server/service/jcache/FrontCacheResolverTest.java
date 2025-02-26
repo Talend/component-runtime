@@ -49,7 +49,7 @@ class FrontCacheResolverTest {
     private ComponentManagerService service;
 
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         // Clean caches
         cacheResolver.cleanupCaches();
     }
