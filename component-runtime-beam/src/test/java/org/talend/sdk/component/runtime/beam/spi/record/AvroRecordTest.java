@@ -39,7 +39,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -111,7 +110,7 @@ class AvroRecordTest {
                 .build(); // AvroSchema
 
         ZonedDateTime zonedDateTime = ZonedDateTime.of(2015, 11, 3, // 3rd of Nov 2015
-                15, 30, 59, 0, ZoneOffset.UTC); // at 3:30:59pm UTC
+                15, 30, 59, 0, AvroRecord.UTC); // at 3:30:59pm UTC
         Instant instant = zonedDateTime.toInstant();
 
         Record record = new AvroRecordBuilder(schema)
@@ -175,7 +174,7 @@ class AvroRecordTest {
                 .build(); // AvroSchema
 
         ZonedDateTime zonedDateTime = ZonedDateTime.of(2015, 11, 3, // 3rd of Nov 2015
-                15, 30, 59, 0, ZoneOffset.UTC); // at 3:30:59pm UTC
+                15, 30, 59, 0, AvroRecord.UTC); // at 3:30:59pm UTC
         Instant instant = zonedDateTime.toInstant();
 
         Record record = new AvroRecordBuilder(schema)
@@ -241,7 +240,7 @@ class AvroRecordTest {
         int timeMillis = localTime.toSecondOfDay() * 1000;
         record.put(1, timeMillis);
 
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, ZoneOffset.UTC);
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDate, localTime, AvroRecord.UTC);
         long timestampMillis = zonedDateTime.toInstant().toEpochMilli();
         record.put(2, timestampMillis);
 
@@ -255,15 +254,15 @@ class AvroRecordTest {
         ZonedDateTime birthTime = avroRecord.getDateTime("birthTime");
         ZonedDateTime birthDateTime = avroRecord.getDateTime("birthDateTime");
 
-        ZonedDateTime expectedDate = localDate.atStartOfDay(ZoneOffset.UTC);
+        ZonedDateTime expectedDate = localDate.atStartOfDay(AvroRecord.UTC);
         Assertions.assertEquals(expectedDate, birthdate);
 
         ZonedDateTime expectedTime = LocalDateTime.of(1970, 1, 1, 14, 30, 15)
-                .atZone(ZoneOffset.UTC);
+                .atZone(AvroRecord.UTC);
         Assertions.assertEquals(expectedTime, birthTime);
 
         ZonedDateTime expectedDatetime = LocalDateTime.of(2024, 2, 25, 14, 30, 15)
-                .atZone(ZoneOffset.UTC);
+                .atZone(AvroRecord.UTC);
         Assertions.assertEquals(expectedDatetime, birthDateTime);
 
         Assertions.assertNull(avroRecord.getDateTime("birthDateWithNull"));

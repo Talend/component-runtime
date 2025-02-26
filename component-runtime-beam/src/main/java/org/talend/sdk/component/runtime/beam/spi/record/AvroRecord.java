@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
-import static java.time.ZoneOffset.UTC;
+
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -48,6 +49,8 @@ import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
+
+    public final static ZoneId UTC = ZoneId.of("UTC");
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
