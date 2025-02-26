@@ -236,24 +236,19 @@ pipeline {
         }
 
         ///////////////////////////////////////////
-        // edit java version
+        // asdf install
         ///////////////////////////////////////////
         script {
           echo "edit asdf tool version with version from jenkins param"
 
-
           String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
           String mavenVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
           jenkinsJobTools.job_description_append("Use java $javaVersion with maven  $mavenVersion  ")
-        }
 
-        ///////////////////////////////////////////
-        // asdf install
-        ///////////////////////////////////////////
-        script {
           println "asdf install the content of repository .tool-versions'\n"
           sh 'bash .jenkins/scripts/asdf_install.sh'
         }
+
         ///////////////////////////////////////////
         // Variables init
         ///////////////////////////////////////////
