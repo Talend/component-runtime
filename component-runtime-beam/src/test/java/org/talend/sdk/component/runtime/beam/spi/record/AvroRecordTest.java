@@ -38,7 +38,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -572,7 +571,7 @@ class AvroRecordTest {
                 .noDefault()
                 //
                 .endRecord();
-        final ZonedDateTime zdt = ZonedDateTime.of(2020, 01, 24, 15, 0, 1, 0, ZoneId.of("UTC"));
+        final ZonedDateTime zdt = ZonedDateTime.of(2020, 01, 24, 15, 0, 1, 0, AvroRecord.UTC);
         final Date date = new Date();
         final GenericData.Record avro = new GenericData.Record(datetime);
         final Instant instant = Instant.parse("2021-04-19T13:37:07.752345Z");
