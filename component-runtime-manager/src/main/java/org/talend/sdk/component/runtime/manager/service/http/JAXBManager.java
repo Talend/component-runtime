@@ -18,17 +18,17 @@ package org.talend.sdk.component.runtime.manager.service.http;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Stream.of;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 import org.talend.sdk.component.api.service.http.Decoder;
 import org.talend.sdk.component.api.service.http.Header;
@@ -52,7 +52,7 @@ class JAXB {
         try {
             ofNullable(JAXB.class.getClassLoader())
                     .orElseGet(ClassLoader::getSystemClassLoader)
-                    .loadClass("javax.xml.bind.annotation.XmlType");
+                    .loadClass("jakarta.xml.bind.annotation.XmlType");
             active = true;
         } catch (final ClassNotFoundException e) {
             log.info("JAXB is not available in classloader {}", JAXB.class.getClassLoader());
