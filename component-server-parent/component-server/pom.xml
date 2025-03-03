@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-server-parent</artifactId>
-    <version>1.78.0-SNAPSHOT</version>
+    <version>1.79.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-server</artifactId>
@@ -240,6 +240,7 @@
                 <endpointClass>org.talend.sdk.component.server.front.ConfigurationTypeResourceImpl</endpointClass>
                 <endpointClass>org.talend.sdk.component.server.front.DocumentationResourceImpl</endpointClass>
                 <endpointClass>org.talend.sdk.component.server.front.EnvironmentResourceImpl</endpointClass>
+                <endpointClass>org.talend.sdk.component.server.service.jcache.FrontCacheResolver</endpointClass>
               </endpointClasses>
               <info>
                 <version>1</version>
