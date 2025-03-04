@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
-import java.util.function.Function;
-
 import org.talend.sdk.component.runtime.input.Input;
 
 import lombok.RequiredArgsConstructor;
@@ -68,9 +66,9 @@ public final class ChainedInput implements Input {
     }
 
     @Override
-    public void start(final Object resumeCheckpoint, final Function<Object, Void> checkpointFunction) {
+    public void start(final Object resumeCheckpoint) {
         delegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
-        delegate.start(resumeCheckpoint, checkpointFunction);
+        delegate.start(resumeCheckpoint);
     }
 
     @Override

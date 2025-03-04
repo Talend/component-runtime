@@ -76,8 +76,8 @@ public class CheckpointInputTest {
             do {
             } while (input.next() != null);
             assertNull(input.next());
-            assertNull(input.next());
-            assertEquals(1, ((JsonObject) input.checkpoint()).getInt("checkpoint"));
+            assertEquals(-1, ((JsonObject) input.checkpoint()).getInt("checkpoint"));
+            assertEquals("finished", ((JsonObject) input.checkpoint()).getString("status"));
             input.stop();
         }
     }
@@ -123,6 +123,7 @@ public class CheckpointInputTest {
             //
             final Map<String, String> configuration = new HashMap<>();
             configuration.put("configuration.connection.hostname", "localhost");
+            configuration.put("configuration.check.hostname", "localhost");
             //
             final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
             //
@@ -137,7 +138,7 @@ public class CheckpointInputTest {
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            input.start(null, loggingCheckpointFunc); // ChainedInput delegate is InputImpl
+            input.start(null); // ChainedInput delegate is InputImpl
             //
             Object rawData;
             int counted = 0;
@@ -178,7 +179,7 @@ public class CheckpointInputTest {
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            input.start(state, loggingCheckpointFunc); // ChainedInput delegate is InputImpl
+            input.start(state); // ChainedInput delegate is InputImpl
             //
             Object rawData;
             int counted = 0;
@@ -195,7 +196,8 @@ public class CheckpointInputTest {
         }
     }
 
-    private InputImpl getInput(final ComponentManager manager, final int version,final Map<String, String> configuration) {
+    private InputImpl getInput(final ComponentManager manager, final int version,
+            final Map<String, String> configuration) {
         final LocalPartitionMapper mapper =
                 LocalPartitionMapper.class
                         .cast(manager.findMapper("checkpoint", "list-input", version, configuration).get());
