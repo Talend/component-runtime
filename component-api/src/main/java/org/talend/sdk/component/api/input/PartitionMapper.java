@@ -67,4 +67,9 @@ public @interface PartitionMapper {
      * @return true if the underlying input is allowed to ignore mandatory output row.
      */
     boolean optionalRow() default false;
+
+    /**
+     * Can the mapper handle checkpoint and resume from it.
+     */
+    boolean checkpointable() default false;
 }

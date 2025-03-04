@@ -28,12 +28,18 @@ import javax.annotation.PreDestroy;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.input.checkpoint.CheckpointConfiguration;
 import org.talend.sdk.component.api.input.checkpoint.MarkCheckpoint;
 import org.talend.sdk.component.api.input.checkpoint.ResumeCheckpoint;
 import org.talend.sdk.component.api.input.checkpoint.ShouldCheckpoint;
+import org.talend.sdk.component.api.meta.Documentation;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -107,7 +113,27 @@ public class CheckpointInput implements Serializable {
 
     @ShouldCheckpoint
     public Boolean shouldCheckpoint() {
-        return bookmark != null && bookmark % 2 == 0;
+        return bookmark != null && bookmark % (checkPointInputConfig.getCheckPointMode() == CheckPointInputConfig.CheckPointMode.EVEN ? 2 : 1) == 0;
     }
 
+    @CheckpointConfiguration
+    private CheckPointInputConfig checkPointInputConfig = new CheckPointInputConfig();
+
+    @Data
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {
+            @GridLayout.Row("checkPointMode"),
+    })
+    public final static class CheckPointInputConfig implements Serializable {
+
+        public enum CheckPointMode {
+            ODD,
+            EVEN,
+        }
+
+        @Option
+        @Documentation("Check point mode.")
+        @DefaultValue("EVEN")
+        private CheckPointMode checkPointMode = CheckPointMode.EVEN;
+
+    }
 }

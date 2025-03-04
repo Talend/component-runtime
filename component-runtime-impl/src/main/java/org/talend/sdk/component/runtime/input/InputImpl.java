@@ -22,7 +22,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
 import javax.json.bind.Jsonb;
 
@@ -60,8 +59,6 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
 
     private transient Method shouldCheckpoint;
 
-    private Function<Object, Void> checkpointFunction;
-
     public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
         super(instance, rootName, name, plugin);
     }
@@ -73,17 +70,14 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
     @Override
     public void start() {
         super.start();
+        // checkpoints methods
+        checkpoint = findMethods(MarkCheckpoint.class).findFirst().orElse(null);
+        resume = findMethods(ResumeCheckpoint.class).findFirst().orElse(null);
+        shouldCheckpoint = findMethods(ShouldCheckpoint.class).findFirst().orElse(null);
     }
 
-    @Override
-    public void start(final Object resumeCheckpoint, final Function<Object, Void> checkpointFunction) {
-        super.start();
-        //
-        // checkpoints methods
-        this.checkpointFunction = checkpointFunction;
-        resume = findMethods(ResumeCheckpoint.class).findFirst().orElse(null);
-        checkpoint = findMethods(MarkCheckpoint.class).findFirst().orElse(null);
-        shouldCheckpoint = findMethods(ShouldCheckpoint.class).findFirst().orElse(null);
+    public void start(final Object resumeCheckpoint) {
+        start();
         // do we need to resume from latest checkpoint here?
         resume(resumeCheckpoint);
     }
@@ -105,7 +99,8 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
         if (record == null) {
             return null;
         }
-        //
+        // do we need to checkpoint here?
+        // this shouldn't be the place where to call it, it should be done by the runtime itself
         if (shouldCheckpoint()) {
             checkpoint();
         }
@@ -122,9 +117,6 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
         Object marker = null;
         if (checkpoint != null) {
             marker = doInvoke(this.checkpoint);
-            if (checkpointFunction != null) {
-                checkpointFunction.apply(marker);
-            }
         }
         return marker;
     }
@@ -141,6 +133,8 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
 
     @Override
     public void stop() {
+        // do we need to checkpoint here?
+        // this shouldn't be the place where to call it, it should be done by the runtime itself
         checkpoint();
         //
         // serialize the current state to be able to resume later
