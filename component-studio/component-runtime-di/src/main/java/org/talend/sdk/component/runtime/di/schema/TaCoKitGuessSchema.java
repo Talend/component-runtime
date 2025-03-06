@@ -32,6 +32,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,6 +71,7 @@ import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
+import org.talend.sdk.component.runtime.manager.xbean.converter.SchemaConverter;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -92,6 +94,8 @@ public class TaCoKitGuessSchema {
     public static final String ERROR_NO_AVAILABLE_SCHEMA_FOUND = "There is no available schema found.";
 
     public static final String ERROR_INSTANCE_SCHEMA = "Result is not an instance of Talend Component Kit Schema.";
+
+    private static final String NO_COLUMN_FOUND_BY_GUESS_SCHEMA = "No column found by guess schema action";
 
     private ComponentManager componentManager;
 
@@ -144,6 +148,12 @@ public class TaCoKitGuessSchema {
         this.javaTypesManager = new JavaTypesManager();
         this.version = Optional.ofNullable(version).map(Integer::parseInt).orElse(null);
         initClass2JavaTypeMap();
+    }
+
+    public TaCoKitGuessSchema() {
+        this.lineLimit = 50;
+        this.version = null;
+        this.javaTypesManager = new JavaTypesManager();
     }
 
     private void initClass2JavaTypeMap() {
@@ -468,8 +478,40 @@ public class TaCoKitGuessSchema {
     private boolean fromSchema(final Schema schema) {
         final Collection<Schema.Entry> entries = schema.getEntries();
         if (entries == null || entries.isEmpty()) {
-            log.info("No column found by guess schema action");
+            log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
             return false;
+        }
+        Map<String, Column> map = getSchemaMap(schema);
+        if (!map.isEmpty()) {
+            columns.putAll(map);
+        }
+        return true;
+    }
+
+    public Collection<Column> getFixedSchema(final String execute) {
+        SchemaConverter sc = new SchemaConverter();
+        Object o = sc.toObjectImpl(execute);
+        if (o instanceof Schema) {
+            final Schema schema = Schema.class.cast(o);
+            final Collection<Schema.Entry> entries = schema.getEntries();
+            if (entries == null || entries.isEmpty()) {
+                log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
+                return Collections.emptyList();
+            }
+            Map<String, Column> map = getSchemaMap(schema);
+            if (map != null) {
+                return map.values();
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private Map<String, Column> getSchemaMap(final Schema schema) {
+        Map<String, Column> schemaMap = new LinkedHashMap<>();
+        final Collection<Schema.Entry> entries = schema.getEntries();
+        if (entries == null || entries.isEmpty()) {
+            log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
+            return Collections.emptyMap();
         }
         for (Schema.Entry entry : entries) {
             String name = entry.getName();
@@ -580,10 +622,11 @@ public class TaCoKitGuessSchema {
                     // nevermind as it's almost useless...
                 }
             }
-            columns.put(name, column);
+            schemaMap.put(name, column);
         }
-        return true;
+        return schemaMap;
     }
+
 
     private void guessOutputComponentSchemaThroughResult() throws Exception {
         final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
