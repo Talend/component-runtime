@@ -504,7 +504,7 @@ public class TaCoKitGuessSchema {
     }
 
     private Map<String, Column> getSchemaMap(final Schema schema) {
-        Map<String, Column> columns = new HashMap<>();
+        Map<String, Column> columns = new LinkedHashMap<>();
         final Collection<Schema.Entry> entries = schema.getEntries();
         if (entries == null || entries.isEmpty()) {
             log.info("No column found by guess schema action");
