@@ -70,6 +70,7 @@ import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
+import org.talend.sdk.component.runtime.manager.xbean.converter.SchemaConverter;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -144,6 +145,12 @@ public class TaCoKitGuessSchema {
         this.javaTypesManager = new JavaTypesManager();
         this.version = Optional.ofNullable(version).map(Integer::parseInt).orElse(null);
         initClass2JavaTypeMap();
+    }
+
+    public TaCoKitGuessSchema() {
+        this.lineLimit = 50;
+        this.version = null;
+        this.javaTypesManager = new JavaTypesManager();
     }
 
     private void initClass2JavaTypeMap() {
@@ -471,6 +478,38 @@ public class TaCoKitGuessSchema {
             log.info("No column found by guess schema action");
             return false;
         }
+        Map<String, Column> map = getSchemaMap(schema);
+        if (map != null) {
+            columns.putAll(map);
+        }
+        return true;
+    }
+
+    public Collection<Column> getFixedSchema(final String execute) {
+        SchemaConverter sc = new SchemaConverter();
+        Object o = sc.toObjectImpl(execute);
+        if (o instanceof Schema) {
+            final Schema schema = Schema.class.cast(o);
+            final Collection<Schema.Entry> entries = schema.getEntries();
+            if (entries == null || entries.isEmpty()) {
+                log.info("No column found by guess schema action");
+                return null;
+            }
+            Map<String, Column> map = getSchemaMap(schema);
+            if (map != null) {
+                return map.values();
+            }
+        }
+        return null;
+    }
+
+    private Map<String, Column> getSchemaMap(final Schema schema) {
+        Map<String, Column> columns = new HashMap<>();
+        final Collection<Schema.Entry> entries = schema.getEntries();
+        if (entries == null || entries.isEmpty()) {
+            log.info("No column found by guess schema action");
+            return null;
+        }
         for (Schema.Entry entry : entries) {
             String name = entry.getName();
             Schema.Type entryType = entry.getType();
@@ -582,8 +621,9 @@ public class TaCoKitGuessSchema {
             }
             columns.put(name, column);
         }
-        return true;
+        return columns;
     }
+
 
     private void guessOutputComponentSchemaThroughResult() throws Exception {
         final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
