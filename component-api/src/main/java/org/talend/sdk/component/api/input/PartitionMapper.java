@@ -67,5 +67,4 @@ public @interface PartitionMapper {
      * @return true if the underlying input is allowed to ignore mandatory output row.
      */
     boolean optionalRow() default false;
-
 }
