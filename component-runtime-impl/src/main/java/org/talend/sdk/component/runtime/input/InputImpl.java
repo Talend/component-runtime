@@ -21,19 +21,14 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.function.Consumer;
 
-import javax.annotation.PostConstruct;
 import javax.json.bind.Jsonb;
 
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
-import org.talend.sdk.component.api.input.checkpoint.MarkCheckpoint;
-import org.talend.sdk.component.api.input.checkpoint.ResumeCheckpoint;
-import org.talend.sdk.component.api.input.checkpoint.ShouldCheckpoint;
+import org.talend.sdk.component.api.input.checkpoint.CheckpointAvailable;
+import org.talend.sdk.component.api.input.checkpoint.CheckpointData;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
@@ -58,10 +53,6 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient RecordBuilderFactory recordBuilderFactory;
 
-    private transient Object state;
-
-    private transient Method resume;
-
     private transient Method checkpoint;
 
     private transient Method shouldCheckpoint;
@@ -82,13 +73,11 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     }
 
     @Override
-    public void start(final Object resumeMarker, final Consumer checkpointConsumer) {
-        state = resumeMarker;
-        checkpointCallback = checkpointConsumer;
-        checkpoint = findMethods(MarkCheckpoint.class).findFirst().orElse(null);
-        resume = findMethods(ResumeCheckpoint.class).findFirst().orElse(null);
-        shouldCheckpoint = findMethods(ShouldCheckpoint.class).findFirst().orElse(null);
+    public void start(final Consumer checkpointConsumer) {
         start();
+        checkpointCallback = checkpointConsumer;
+        checkpoint = findMethods(CheckpointData.class).findFirst().orElse(null);
+        shouldCheckpoint = findMethods(CheckpointAvailable.class).findFirst().orElse(null);
     }
 
     @Override
@@ -101,8 +90,8 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
             return null;
         }
         // do we need to checkpoint here?
-        if (shouldCheckpoint() && checkpointCallback != null) {
-            final Object state = checkpoint();
+        if (isCheckpointReady() && checkpointCallback != null) {
+            final Object state = this.getCheckpoint();
             checkpointCallback.accept(state);
         }
         final Class<?> recordClass = record.getClass();
@@ -113,7 +102,8 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
         return converters.toRecord(registry, record, this::jsonb, this::recordBuilderFactory);
     }
 
-    public Object checkpoint() {
+    @Override
+    public Object getCheckpoint() {
         Object marker = null;
         if (checkpoint != null) {
             marker = doInvoke(this.checkpoint);
@@ -121,8 +111,9 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
         return marker;
     }
 
-    public Boolean shouldCheckpoint() {
-        boolean checked = false;
+    @Override
+    public Boolean isCheckpointReady() {
+        boolean checked = true;
         if (shouldCheckpoint != null) {
             checked = (Boolean) doInvoke(this.shouldCheckpoint);
         }
@@ -133,31 +124,11 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     public void stop() {
         // do we need to checkpoint here?
         if (checkpointCallback != null) {
-            final Object state = checkpoint();
+            final Object state = this.getCheckpoint();
             checkpointCallback.accept(state);
         }
         //
-        // serialize the current state to be able to resume later
-        //
         super.stop();
-    }
-
-    @Override
-    protected Object[] evaluateParameters(final Class<? extends Annotation> marker, final Method method) {
-        if (marker != PostConstruct.class) {
-            return super.evaluateParameters(marker, method);
-        }
-        final Object[] args = new Object[method.getParameters().length];
-        for (int i = 0; i < method.getParameters().length; i++) {
-            final Parameter parameter = method.getParameters()[i];
-            final Option annotation = parameter.getAnnotation(Option.class);
-            if (annotation == null) {
-                args[i] = null;
-            } else if (Option.CHECKPOINT_RESUME_STATE.equals(annotation.value())) {
-                args[i] = state;
-            }
-        }
-        return args;
     }
 
     @Override

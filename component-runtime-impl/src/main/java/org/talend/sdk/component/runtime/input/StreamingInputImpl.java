@@ -170,7 +170,7 @@ public class StreamingInputImpl extends InputImpl {
             return super.evaluateParameters(marker, method);
         }
 
-        final Object[] args = super.evaluateParameters(marker, method);
+        final Object[] args = new Object[method.getParameters().length];
         for (int i = 0; i < method.getParameters().length; i++) {
             final Parameter parameter = method.getParameters()[i];
 

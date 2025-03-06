@@ -374,7 +374,7 @@ class JobTest {
             input.start();
             input.next();
             input.next();
-            assertNull(input.checkpoint());
+            assertNull(input.getCheckpoint());
             input.stop();
 
         }

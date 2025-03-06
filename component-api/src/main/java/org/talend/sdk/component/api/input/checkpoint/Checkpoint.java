@@ -15,13 +15,18 @@
  */
 package org.talend.sdk.component.api.input.checkpoint;
 
-import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-@Target(METHOD)
+import org.talend.sdk.component.api.configuration.type.meta.ConfigurationType;
+import org.talend.sdk.component.api.meta.Documentation;
+
+@Target({ TYPE })
 @Retention(RUNTIME)
-public @interface ResumeCheckpoint {
+@ConfigurationType("Checkpoint")
+@Documentation("Mark a model (complex object) as being a checkpoint configuration and state.")
+public @interface Checkpoint {
 }
