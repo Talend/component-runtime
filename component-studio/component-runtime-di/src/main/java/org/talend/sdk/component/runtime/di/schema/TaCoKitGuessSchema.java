@@ -512,7 +512,6 @@ public class TaCoKitGuessSchema {
         if (entries == null || entries.isEmpty()) {
             log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
             return Collections.emptyMap();
-            ;
         }
         for (Schema.Entry entry : entries) {
             String name = entry.getName();
