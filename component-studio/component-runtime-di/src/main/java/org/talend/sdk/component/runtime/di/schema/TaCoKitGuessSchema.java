@@ -482,7 +482,7 @@ public class TaCoKitGuessSchema {
             return false;
         }
         Map<String, Column> map = getSchemaMap(schema);
-        if (map != null) {
+        if (!map.isEmpty()) {
             columns.putAll(map);
         }
         return true;
