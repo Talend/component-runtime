@@ -68,8 +68,4 @@ public @interface PartitionMapper {
      */
     boolean optionalRow() default false;
 
-    /**
-     * Can the mapper handle checkpoint and resume from it.
-     */
-    boolean checkpointable() default false;
 }
