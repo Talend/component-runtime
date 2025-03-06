@@ -20,6 +20,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -373,8 +374,7 @@ class JobTest {
             input.start();
             input.next();
             input.next();
-            JsonObject chck = (JsonObject) input.checkpoint();
-            assertEquals(1, chck.getInt("checkpoint"));
+            assertNull(input.checkpoint());
             input.stop();
 
         }

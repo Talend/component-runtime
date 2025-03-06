@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.checkpoint;
 
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
@@ -24,7 +25,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
@@ -55,24 +56,22 @@ public class CheckpointInputTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
-    private final Function<Object, Void> defaultCheckpointFunc = o -> null;
-
-    private final Function<Object, Void> loggingCheckpointFunc = o -> {
-        log.error("[loggingCheckpointFunc] {}", o);
+    private final Consumer<Object> checkpointCallback = o -> {
+        log.error("[checkpointCallback] {}", o);
+        assertNotNull(o);
         final JsonObject checkpoint = (JsonObject) o;
         if (checkpoint.getInt("checkpoint") == -1) {
             assertEquals(checkpoint.getString("status"), "finished");
         } else {
             assertEquals(checkpoint.getString("status"), "running");
         }
-        return null;
     };
 
     @Test
     void standardLifecycle(@TempDir final Path temporaryFolder) {
         try (final ComponentManager manager = newTestManager(temporaryFolder)) {
             final InputImpl input = getInput(manager, 1, emptyMap());
-            input.start();
+            input.start(null, checkpointCallback);
             do {
             } while (input.next() != null);
             assertNull(input.next());
@@ -98,11 +97,28 @@ public class CheckpointInputTest {
     }
 
     @Test
+    void jobLifeCycleWithCheckpoint(@TempDir final Path temporaryFolder) {
+        try (final ComponentManager manager = newTestManager(temporaryFolder)) {
+            final JsonObject state = jsonFactory.createObjectBuilder().add("checkpoint", 5).build();
+            Job
+                    .components()
+                    .component("countdown", "checkpoint://list-input")
+                    .checkpoint(state, checkpointCallback)
+                    .component("square", "lifecycle://square?__version=1")
+                    .connections()
+                    .from("countdown")
+                    .to("square")
+                    .build()
+                    .run();
+        }
+    }
+
+    @Test
     void resumeCheckpoint(@TempDir final Path temporaryFolder) {
         try (final ComponentManager manager = newTestManager(temporaryFolder)) {
+            final JsonObject state = jsonFactory.createObjectBuilder().add("checkpoint", 5).build();
             final InputImpl input = getInput(manager, 1, emptyMap());
-            input.start();
-            input.resume(jsonFactory.createObjectBuilder().add("checkpoint", 5).build());
+            input.start(state, checkpointCallback);
             input.next();
             input.next();
             input.next();
@@ -126,9 +142,7 @@ public class CheckpointInputTest {
             configuration.put("configuration.check.hostname", "localhost");
             //
             final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
-            //
             // org.talend.sdk.component.runtime.di.JobStateAware.init(mapper, globalMap);
-            //
             mapper.start(); // LocalPartitionMapper
             final ChainedMapper chainedMapper;
             // get ChainedMapper
@@ -138,14 +152,12 @@ public class CheckpointInputTest {
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            input.start(null); // ChainedInput delegate is InputImpl
+            input.start(null, (s) -> System.err.println("state: " + s)); // ChainedInput delegate is InputImpl
             //
             Object rawData;
             int counted = 0;
-            // RowStruct rowStruct = new RowStruct(); // @Data static class RowStruct {Integer data;}
             while ((rawData = input.next()) != null) {
-                // data conversion of rawData to rowStruct ...
-                // operate on rowStruct...
+                // data conversion of rawData to rowStruct and operate on rowStruct...
                 counted++;
             }
             assertEquals(10, counted);
@@ -179,8 +191,8 @@ public class CheckpointInputTest {
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            input.start(state); // ChainedInput delegate is InputImpl
-            //
+            input.start(state, (s) -> log.warn("[studioLifecycleWithResume] state: {}.", s)); // ChainedInput delegate
+                                                                                              // is InputImpl
             Object rawData;
             int counted = 0;
             // RowStruct rowStruct = new RowStruct(); // @Data static class RowStruct {Integer data;}
