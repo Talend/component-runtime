@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
+import java.util.function.Consumer;
+
 import org.talend.sdk.component.runtime.input.Input;
 
 import lombok.RequiredArgsConstructor;
@@ -30,11 +32,7 @@ public final class ChainedInput implements Input {
     public Object next() {
         while (true) {
             if (delegate == null) {
-                delegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
-                if (delegate == null) {
-                    return null;
-                }
-                delegate.start();
+                return null;
             }
             final Object next = delegate.next();
             if (next != null) {
@@ -62,13 +60,13 @@ public final class ChainedInput implements Input {
 
     @Override
     public void start() {
-        // no-op
+        initDelegate();
+        delegate.start();
     }
 
-    @Override
-    public void start(final Object resumeCheckpoint) {
-        delegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
-        delegate.start(resumeCheckpoint);
+    public void start(final Object resumeCheckpoint, final Consumer<Object> checkpoint) {
+        initDelegate();
+        delegate.start(resumeCheckpoint, checkpoint);
     }
 
     @Override
@@ -76,5 +74,9 @@ public final class ChainedInput implements Input {
         if (delegate != null) {
             delegate.stop();
         }
+    }
+
+    private void initDelegate() {
+        delegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
     }
 }

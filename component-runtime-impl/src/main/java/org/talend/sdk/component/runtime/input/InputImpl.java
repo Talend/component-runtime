@@ -21,10 +21,15 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.function.Consumer;
 
+import javax.annotation.PostConstruct;
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.checkpoint.MarkCheckpoint;
 import org.talend.sdk.component.api.input.checkpoint.ResumeCheckpoint;
@@ -41,7 +46,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkpoint {
+public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient Method next;
 
@@ -53,11 +58,15 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
 
     private transient RecordBuilderFactory recordBuilderFactory;
 
+    private transient Object state;
+
     private transient Method resume;
 
     private transient Method checkpoint;
 
     private transient Method shouldCheckpoint;
+
+    private Consumer<Object> checkpointCallback;
 
     public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
         super(instance, rootName, name, plugin);
@@ -70,24 +79,16 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
     @Override
     public void start() {
         super.start();
-        // checkpoints methods
-        checkpoint = findMethods(MarkCheckpoint.class).findFirst().orElse(null);
-        resume = findMethods(ResumeCheckpoint.class).findFirst().orElse(null);
-        shouldCheckpoint = findMethods(ShouldCheckpoint.class).findFirst().orElse(null);
-    }
-
-    public void start(final Object resumeCheckpoint) {
-        start();
-        // do we need to resume from latest checkpoint here?
-        resume(resumeCheckpoint);
     }
 
     @Override
-    public void resume(final Object checkpointMarker) {
-        log.info("[resume] resuming at: {}.", checkpointMarker);
-        if (this.resume != null) {
-            doInvoke(this.resume, checkpointMarker);
-        }
+    public void start(final Object resumeMarker, final Consumer checkpointConsumer) {
+        state = resumeMarker;
+        checkpointCallback = checkpointConsumer;
+        checkpoint = findMethods(MarkCheckpoint.class).findFirst().orElse(null);
+        resume = findMethods(ResumeCheckpoint.class).findFirst().orElse(null);
+        shouldCheckpoint = findMethods(ShouldCheckpoint.class).findFirst().orElse(null);
+        start();
     }
 
     @Override
@@ -100,9 +101,9 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
             return null;
         }
         // do we need to checkpoint here?
-        // this shouldn't be the place where to call it, it should be done by the runtime itself
-        if (shouldCheckpoint()) {
-            checkpoint();
+        if (shouldCheckpoint() && checkpointCallback != null) {
+            final Object state = checkpoint();
+            checkpointCallback.accept(state);
         }
         final Class<?> recordClass = record.getClass();
         if (recordClass.isPrimitive() || String.class == recordClass) {
@@ -112,7 +113,6 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
         return converters.toRecord(registry, record, this::jsonb, this::recordBuilderFactory);
     }
 
-    @Override
     public Object checkpoint() {
         Object marker = null;
         if (checkpoint != null) {
@@ -121,25 +121,43 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated, Checkp
         return marker;
     }
 
-    @Override
     public Boolean shouldCheckpoint() {
         boolean checked = false;
         if (shouldCheckpoint != null) {
             checked = (Boolean) doInvoke(this.shouldCheckpoint);
         }
-        log.warn("[shouldCheckpoint] {}.", checked);
         return checked;
     }
 
     @Override
     public void stop() {
         // do we need to checkpoint here?
-        // this shouldn't be the place where to call it, it should be done by the runtime itself
-        checkpoint();
+        if (checkpointCallback != null) {
+            final Object state = checkpoint();
+            checkpointCallback.accept(state);
+        }
         //
         // serialize the current state to be able to resume later
         //
         super.stop();
+    }
+
+    @Override
+    protected Object[] evaluateParameters(final Class<? extends Annotation> marker, final Method method) {
+        if (marker != PostConstruct.class) {
+            return super.evaluateParameters(marker, method);
+        }
+        final Object[] args = new Object[method.getParameters().length];
+        for (int i = 0; i < method.getParameters().length; i++) {
+            final Parameter parameter = method.getParameters()[i];
+            final Option annotation = parameter.getAnnotation(Option.class);
+            if (annotation == null) {
+                args[i] = null;
+            } else if (Option.CHECKPOINT_RESUME_STATE.equals(annotation.value())) {
+                args[i] = state;
+            }
+        }
+        return args;
     }
 
     @Override

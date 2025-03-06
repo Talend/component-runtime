@@ -16,6 +16,7 @@
 package org.talend.test;
 
 import static java.util.stream.Collectors.toList;
+import static org.talend.sdk.component.api.configuration.Option.CHECKPOINT_RESUME_STATE;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import java.util.ListIterator;
 import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
@@ -35,7 +35,6 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointConfiguration;
 import org.talend.sdk.component.api.input.checkpoint.MarkCheckpoint;
-import org.talend.sdk.component.api.input.checkpoint.ResumeCheckpoint;
 import org.talend.sdk.component.api.input.checkpoint.ShouldCheckpoint;
 import org.talend.sdk.component.api.meta.Documentation;
 
@@ -60,29 +59,12 @@ public class CheckpointInput implements Serializable {
 
     @PostConstruct
     public void init() {
-        log.warn("[init]");
         data = IntStream.range(0, 10).boxed().collect(toList());
     }
 
-    @PreDestroy
-    public void destroy() {
-        log.warn("[destroy]");
-    }
-
-    @Producer
-    public JsonObject data() {
-        if (iterator == null) {
-            iterator = data.listIterator();
-        }
-        log.warn("[data] previous: {} next: {}.", iterator.previousIndex(), iterator.nextIndex());
-        final Integer produced = iterator.hasNext() ? iterator.next() : null;
-        bookmark = produced;
-        log.warn("[data] produced: {}.", produced);
-        return produced == null ? null : factory.createObjectBuilder().add("data", produced).build();
-    }
-
-    @ResumeCheckpoint
-    public void resume(final JsonObject checkpoint) {
+    @PostConstruct
+    public void init(@Option(CHECKPOINT_RESUME_STATE) final JsonObject checkpoint) {
+        data = IntStream.range(0, 10).boxed().collect(toList());
         if (checkpoint == null) {
             log.info("[resume] No valid checkpoint configuration found, using start of dataset.");
             bookmark = 0;
@@ -101,9 +83,18 @@ public class CheckpointInput implements Serializable {
         }
     }
 
+    @Producer
+    public JsonObject data() {
+        if (iterator == null) {
+            iterator = data.listIterator();
+        }
+        final Integer produced = iterator.hasNext() ? iterator.next() : null;
+        bookmark = produced;
+        return produced == null ? null : factory.createObjectBuilder().add("data", produced).build();
+    }
+
     @MarkCheckpoint
     public JsonObject checkpoint() {
-        log.warn("[checkpoint] bookmark: {}.", bookmark);
         return factory.createObjectBuilder()
                 .add("checkpoint", bookmark == null ? -1 : bookmark)
                 .add("timestamp", System.currentTimeMillis())
@@ -113,7 +104,8 @@ public class CheckpointInput implements Serializable {
 
     @ShouldCheckpoint
     public Boolean shouldCheckpoint() {
-        return bookmark != null && bookmark % (checkPointInputConfig.getCheckPointMode() == CheckPointInputConfig.CheckPointMode.EVEN ? 2 : 1) == 0;
+        return bookmark != null && bookmark %
+                (checkPointInputConfig.getCheckPointMode() == CheckPointInputConfig.CheckPointMode.EVEN ? 2 : 1) == 0;
     }
 
     @CheckpointConfiguration
