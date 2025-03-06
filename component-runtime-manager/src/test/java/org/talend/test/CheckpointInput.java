@@ -16,7 +16,6 @@
 package org.talend.test;
 
 import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.api.configuration.Option.CHECKPOINT_RESUME_STATE;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,15 +26,17 @@ import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.annotation.JsonbProperty;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
-import org.talend.sdk.component.api.input.checkpoint.CheckpointConfiguration;
-import org.talend.sdk.component.api.input.checkpoint.MarkCheckpoint;
-import org.talend.sdk.component.api.input.checkpoint.ShouldCheckpoint;
+import org.talend.sdk.component.api.input.checkpoint.Checkpoint;
+import org.talend.sdk.component.api.input.checkpoint.CheckpointAvailable;
+import org.talend.sdk.component.api.input.checkpoint.CheckpointData;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
@@ -47,32 +48,37 @@ public class CheckpointInput implements Serializable {
 
     private final JsonBuilderFactory factory;
 
+    private final Jsonb jsonb;
+
     private List<Integer> data;
 
     private transient ListIterator<Integer> iterator;
 
     private Integer bookmark;
 
-    public CheckpointInput(final JsonBuilderFactory factory) {
+    private boolean newBookmark;
+
+    private final InputConfig configuration;
+
+    public CheckpointInput(final JsonBuilderFactory factory, final Jsonb jsonb,
+            @Option("configuration") final InputConfig config) {
         this.factory = factory;
+        this.jsonb = jsonb;
+        this.configuration = config;
+        log.warn("[CheckpointInput] config: {}.", config);
     }
 
     @PostConstruct
     public void init() {
         data = IntStream.range(0, 10).boxed().collect(toList());
-    }
-
-    @PostConstruct
-    public void init(@Option(CHECKPOINT_RESUME_STATE) final JsonObject checkpoint) {
-        data = IntStream.range(0, 10).boxed().collect(toList());
-        if (checkpoint == null) {
+        if (configuration.checkpoint == null) {
             log.info("[resume] No valid checkpoint configuration found, using start of dataset.");
             bookmark = 0;
         } else {
-            if ("finished".equals(checkpoint.get("status"))) {
+            if ("finished".equals(configuration.checkpoint.status)) {
                 bookmark = 0;
             } else {
-                bookmark = checkpoint.getInt("checkpoint");
+                bookmark = configuration.checkpoint.sinceId;
             }
         }
         log.warn("[resume] resuming at: {} data: {}.", bookmark, data);
@@ -89,43 +95,84 @@ public class CheckpointInput implements Serializable {
             iterator = data.listIterator();
         }
         final Integer produced = iterator.hasNext() ? iterator.next() : null;
+        if (produced == null) {
+            configuration.checkpoint.status = "finished";
+            configuration.checkpoint.sinceId = bookmark;
+            return null;
+        }
         bookmark = produced;
-        return produced == null ? null : factory.createObjectBuilder().add("data", produced).build();
+        configuration.checkpoint.sinceId = produced;
+        configuration.checkpoint.status = "running";
+
+        if (bookmark % 2 == 0) {
+            newBookmark = true;
+        }
+
+        return factory.createObjectBuilder().add("data", produced).build();
     }
 
-    @MarkCheckpoint
-    public JsonObject checkpoint() {
-        return factory.createObjectBuilder()
-                .add("checkpoint", bookmark == null ? -1 : bookmark)
-                .add("timestamp", System.currentTimeMillis())
-                .add("status", bookmark == null ? "finished" : "running")
-                .build();
+    @CheckpointData
+    public JsonObject getCheckpoint() {
+        newBookmark = false;
+        return jsonb.fromJson(jsonb.toJson(configuration.checkpoint), JsonObject.class);
     }
 
-    @ShouldCheckpoint
-    public Boolean shouldCheckpoint() {
-        return bookmark != null && bookmark %
-                (checkPointInputConfig.getCheckPointMode() == CheckPointInputConfig.CheckPointMode.EVEN ? 2 : 1) == 0;
+    @CheckpointAvailable
+    public Boolean isCheckpointReady() {
+        return newBookmark;
     }
-
-    @CheckpointConfiguration
-    private CheckPointInputConfig checkPointInputConfig = new CheckPointInputConfig();
 
     @Data
     @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {
-            @GridLayout.Row("checkPointMode"),
+            @GridLayout.Row("bookmarks"),
     })
-    public final static class CheckPointInputConfig implements Serializable {
+    @Checkpoint
+    public static class CheckPointInputConfig implements Serializable {
 
-        public enum CheckPointMode {
-            ODD,
-            EVEN,
+        public enum Strategy {
+            BY_ID,
+            BY_DATE
         }
 
         @Option
         @Documentation("Check point mode.")
-        @DefaultValue("EVEN")
-        private CheckPointMode checkPointMode = CheckPointMode.EVEN;
+        private String stream;
 
+        @Option
+        @DefaultValue("BY_ID")
+        private Strategy strategy = Strategy.BY_ID;
+
+        @Option
+        @JsonbProperty("start_date")
+        private String startDate;
+
+        @Option
+        @JsonbProperty("since_id")
+        private int sinceId;
+
+        @Option
+        private String status;
+    }
+
+    @Data
+    @GridLayout(value = {
+            @GridLayout.Row("user"),
+            @GridLayout.Row("pass"),
+    })
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {
+            @GridLayout.Row("checkPointInputConfig"),
+    })
+    public static class InputConfig {
+
+        @Option
+        @Documentation("Check point mode.")
+        private String user;
+
+        @Option
+        @Documentation("Check point mode.")
+        private String pass;
+
+        @Option
+        private CheckPointInputConfig checkpoint = new CheckPointInputConfig();
     }
 }

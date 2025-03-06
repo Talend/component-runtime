@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
@@ -54,13 +56,15 @@ public class CheckpointInputTest {
 
     private final JsonBuilderFactory jsonFactory = jsonp.createBuilderFactory(emptyMap());
 
+    private final Jsonb jsonb = JsonbProvider.provider().create().build();
+
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
     private final Consumer<Object> checkpointCallback = o -> {
         log.error("[checkpointCallback] {}", o);
         assertNotNull(o);
         final JsonObject checkpoint = (JsonObject) o;
-        if (checkpoint.getInt("checkpoint") == -1) {
+        if (checkpoint.getInt("since_id") == 9) {
             assertEquals(checkpoint.getString("status"), "finished");
         } else {
             assertEquals(checkpoint.getString("status"), "running");
@@ -71,12 +75,12 @@ public class CheckpointInputTest {
     void standardLifecycle(@TempDir final Path temporaryFolder) {
         try (final ComponentManager manager = newTestManager(temporaryFolder)) {
             final InputImpl input = getInput(manager, 1, emptyMap());
-            input.start(null, checkpointCallback);
+            input.start(checkpointCallback);
             do {
             } while (input.next() != null);
             assertNull(input.next());
-            assertEquals(-1, ((JsonObject) input.checkpoint()).getInt("checkpoint"));
-            assertEquals("finished", ((JsonObject) input.checkpoint()).getString("status"));
+            assertEquals(9, ((JsonObject) input.getCheckpoint()).getInt("since_id"));
+            assertEquals("finished", ((JsonObject) input.getCheckpoint()).getString("status"));
             input.stop();
         }
     }
@@ -103,7 +107,7 @@ public class CheckpointInputTest {
             Job
                     .components()
                     .component("countdown", "checkpoint://list-input")
-                    .checkpoint(state, checkpointCallback)
+                    .checkpoint(checkpointCallback)
                     .component("square", "lifecycle://square?__version=1")
                     .connections()
                     .from("countdown")
@@ -116,14 +120,22 @@ public class CheckpointInputTest {
     @Test
     void resumeCheckpoint(@TempDir final Path temporaryFolder) {
         try (final ComponentManager manager = newTestManager(temporaryFolder)) {
-            final JsonObject state = jsonFactory.createObjectBuilder().add("checkpoint", 5).build();
-            final InputImpl input = getInput(manager, 1, emptyMap());
-            input.start(state, checkpointCallback);
+            final Map<String, String> configuration = new HashMap<>();
+            configuration.put("configuration.user", "localhost");
+            configuration.put("configuration.pass", "localpass");
+            configuration.put("configuration.checkpoint.stream", "main");
+            configuration.put("configuration.checkpoint.strategy", "BY_DATE");
+            configuration.put("configuration.checkpoint.sinceId", "5");
+            configuration.put("configuration.checkpoint.startDate", "2020-01-01T00:00:00Z");
+            configuration.put("configuration.checkpoint.status", "none");
+
+            final InputImpl input = getInput(manager, 1, configuration);
+            input.start(checkpointCallback);
             input.next();
             input.next();
             input.next();
-            JsonObject chck = (JsonObject) input.checkpoint();
-            assertEquals(7, chck.getInt("checkpoint"));
+            JsonObject chck = (JsonObject) input.getCheckpoint();
+            assertEquals(7, chck.getInt("since_id"));
             input.stop();
         }
     }
@@ -138,8 +150,13 @@ public class CheckpointInputTest {
         try (final ComponentManager mgr = newTestManager(temporaryFolder)) {
             //
             final Map<String, String> configuration = new HashMap<>();
-            configuration.put("configuration.connection.hostname", "localhost");
-            configuration.put("configuration.check.hostname", "localhost");
+            configuration.put("configuration.user", "localhost");
+            configuration.put("configuration.pass", "localpass");
+            configuration.put("configuration.checkpoint.stream", "main");
+            configuration.put("configuration.checkpoint.strategy", "BY_DATE");
+            configuration.put("configuration.checkpoint.sinceId", "5");
+            configuration.put("configuration.checkpoint.startDate", "2020-01-01T00:00:00Z");
+            configuration.put("configuration.checkpoint.status", "finished");
             //
             final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
             // org.talend.sdk.component.runtime.di.JobStateAware.init(mapper, globalMap);
@@ -152,12 +169,16 @@ public class CheckpointInputTest {
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            input.start(null, (s) -> System.err.println("state: " + s)); // ChainedInput delegate is InputImpl
+            // input.start(null, (s) -> System.err.println("state: " + s)); // ChainedInput delegate is InputImpl
+            input.start();
             //
             Object rawData;
             int counted = 0;
             while ((rawData = input.next()) != null) {
                 // data conversion of rawData to rowStruct and operate on rowStruct...
+                if (input.isCheckpointReady()) {
+                    System.err.println(input.getCheckpoint());
+                }
                 counted++;
             }
             assertEquals(10, counted);
@@ -176,12 +197,15 @@ public class CheckpointInputTest {
                     .build();
             //
             final Map<String, String> configuration = new HashMap<>();
-            configuration.put("configuration.connection.hostname", "localhost");
+            configuration.put("configuration.user", "localhost");
+            configuration.put("configuration.pass", "localpass");
+            configuration.put("configuration.checkpoint.stream", "main");
+            configuration.put("configuration.checkpoint.strategy", "BY_DATE");
+            configuration.put("configuration.checkpoint.sinceId", "5");
+            configuration.put("configuration.checkpoint.startDate", "2020-01-01T00:00:00Z");
+            configuration.put("configuration.checkpoint.status", "none");
             //
             final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
-            //
-            // org.talend.sdk.component.runtime.di.JobStateAware.init(mapper, globalMap);
-            //
             mapper.start(); // LocalPartitionMapper
             final ChainedMapper chainedMapper;
             // get ChainedMapper
@@ -191,8 +215,8 @@ public class CheckpointInputTest {
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            input.start(state, (s) -> log.warn("[studioLifecycleWithResume] state: {}.", s)); // ChainedInput delegate
-                                                                                              // is InputImpl
+            input.start((s) -> log.warn("[studioLifecycleWithResume] state: {}.", s)); // ChainedInput delegate
+                                                                                       // is InputImpl
             Object rawData;
             int counted = 0;
             // RowStruct rowStruct = new RowStruct(); // @Data static class RowStruct {Integer data;}

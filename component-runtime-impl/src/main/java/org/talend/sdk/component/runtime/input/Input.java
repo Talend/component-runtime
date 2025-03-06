@@ -26,8 +26,15 @@ public interface Input extends Lifecycle {
     /**
      * Start the input with a checkpoint feature and resuming state.
      */
-    default void start(final Object resumeState, final Consumer<Object> checkpointCallback) {
+    default void start(final Consumer<Object> checkpointCallback) {
         throw new IllegalArgumentException("Checkpoint feature is not implemented.");
     }
 
+    default Object getCheckpoint() {
+        throw new IllegalArgumentException("Checkpoint feature is not implemented.");
+    }
+
+    default Boolean isCheckpointReady() {
+        throw new IllegalArgumentException("Checkpoint feature is not implemented.");
+    }
 }

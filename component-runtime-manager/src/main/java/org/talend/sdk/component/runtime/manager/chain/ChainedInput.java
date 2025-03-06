@@ -64,9 +64,25 @@ public final class ChainedInput implements Input {
         delegate.start();
     }
 
-    public void start(final Object resumeCheckpoint, final Consumer<Object> checkpoint) {
+    public void start(final Consumer<Object> checkpoint) {
         initDelegate();
-        delegate.start(resumeCheckpoint, checkpoint);
+        delegate.start(checkpoint);
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public Object getCheckpoint() {
+        return delegate.getCheckpoint();
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public Boolean isCheckpointReady() {
+        return delegate.isCheckpointReady();
     }
 
     @Override

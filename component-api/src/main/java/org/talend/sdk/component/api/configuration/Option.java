@@ -50,12 +50,6 @@ public @interface Option {
     String MAX_RECORDS_PARAMETER = "maxRecords";
 
     /**
-     * Mark parameter as a checkpoint resuming state.
-     */
-
-    String CHECKPOINT_RESUME_STATE = "checkpointResumeState";
-
-    /**
      * The value of the option, if empty it will use the classname + field value (ex:
      * {@code com.company.ConfigModel.data}).
      * 

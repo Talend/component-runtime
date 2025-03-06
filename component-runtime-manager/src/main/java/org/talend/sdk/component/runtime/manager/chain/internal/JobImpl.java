@@ -89,9 +89,8 @@ public class JobImpl implements Job {
         }
 
         @Override
-        public NodeBuilder checkpoint(final Object resume, final Consumer<Object> checkpoint) {
+        public NodeBuilder checkpoint(final Consumer<Object> checkpoint) {
             final Component lastComponent = nodes.get(nodes.size() - 1);
-            lastComponent.setResumeCheckpoint(resume);
             lastComponent.setCheckpointCallback(checkpoint);
             return this;
         }
@@ -341,7 +340,7 @@ public class JobImpl implements Job {
                                         n.getNode().getVersion(), n.getNode().getConfiguration())
                                 .orElseThrow(() -> new IllegalStateException("No mapper found for: " + n.getNode()));
                         return new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(mapper, maxRecords,
-                                n.getResumeCheckpoint(), n.getCheckpointCallback()));
+                                n.getCheckpointCallback()));
                     }).collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
             final Map<String, AutoChunkProcessor> processors = levels
@@ -594,8 +593,7 @@ public class JobImpl implements Job {
 
         private long currentRecords;
 
-        private InputRunner(final Mapper mapper, final long maxRecords, final Object resume,
-                final Consumer<Object> checkpointCallback) {
+        private InputRunner(final Mapper mapper, final long maxRecords, final Consumer<Object> checkpointCallback) {
             this.maxRecords = maxRecords;
             RuntimeException error = null;
             try {
@@ -603,10 +601,10 @@ public class JobImpl implements Job {
                 chainedMapper = new ChainedMapper(mapper, mapper.split(mapper.assess()).iterator());
                 chainedMapper.start();
                 input = chainedMapper.create();
-                if (resume == null && checkpointCallback == null) {
+                if (checkpointCallback == null) {
                     input.start();
                 } else {
-                    input.start(resume, checkpointCallback);
+                    input.start(checkpointCallback);
                 }
             } catch (final RuntimeException re) {
                 error = re;

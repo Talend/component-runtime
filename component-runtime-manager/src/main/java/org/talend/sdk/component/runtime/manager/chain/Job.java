@@ -37,7 +37,7 @@ public interface Job {
 
         NodeBuilder property(String name, Object value);
 
-        NodeBuilder checkpoint(Object resume, Consumer<Object> checkpoint);
+        NodeBuilder checkpoint(Consumer<Object> checkpoint);
 
         FromBuilder connections();
     }
@@ -81,8 +81,6 @@ public interface Job {
         private boolean isSource = false;
 
         private final DSLParser.Step node;
-
-        private Object resumeCheckpoint;
 
         private Consumer<Object> checkpointCallback;
     }
