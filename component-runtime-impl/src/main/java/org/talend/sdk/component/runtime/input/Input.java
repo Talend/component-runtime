@@ -15,10 +15,26 @@
  */
 package org.talend.sdk.component.runtime.input;
 
+import java.util.function.Consumer;
+
 import org.talend.sdk.component.runtime.base.Lifecycle;
 
 public interface Input extends Lifecycle {
 
     Object next();
 
+    /**
+     * Start the input with a checkpoint feature and resuming state.
+     */
+    default void start(final Consumer<Object> checkpointCallback) {
+        throw new IllegalArgumentException("Checkpoint feature is not implemented.");
+    }
+
+    default Object getCheckpoint() {
+        throw new IllegalArgumentException("Checkpoint feature is not implemented.");
+    }
+
+    default Boolean isCheckpointReady() {
+        throw new IllegalArgumentException("Checkpoint feature is not implemented.");
+    }
 }

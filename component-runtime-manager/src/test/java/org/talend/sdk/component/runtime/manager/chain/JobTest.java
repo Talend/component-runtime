@@ -20,6 +20,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.input.InputImpl;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
@@ -344,6 +346,37 @@ class JobTest {
             assertTrue(out.isFile());
             assertEquals(asList("emma strasbourg 1900", "sophia nantes 2000.5", "liam lyon 3055", "ava paris 2600.30"),
                     Files.readAllLines(out.toPath()));
+        }
+    }
+
+    @Test
+    void validateCheckpointJobLifeCycle(final TestInfo info, @TempDir final Path temporaryFolder) {
+        final String testName = info.getTestMethod().get().getName();
+        final String plugin = testName + ".jar";
+        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), plugin);
+        try (final ComponentManager manager = newTestManager(jar)) {
+            Job
+                    .components()
+                    .component("countdown", "checkpoint://list-input")
+                    .component("square", "lifecycle://square?__version=1")
+                    .connections()
+                    .from("countdown")
+                    .to("square")
+                    .build()
+                    .run();
+
+            final LocalPartitionMapper mapper =
+                    LocalPartitionMapper.class
+                            .cast(manager.findMapper("checkpoint", "list-input", 1, emptyMap()).get());
+
+            // assertTrue(mapper.getDelegate() instanceof CheckpointInput);
+            InputImpl input = (InputImpl) mapper.create();
+            input.start();
+            input.next();
+            input.next();
+            assertNull(input.getCheckpoint());
+            input.stop();
+
         }
     }
 
