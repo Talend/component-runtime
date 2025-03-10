@@ -129,7 +129,7 @@ public class MyGenericImpl implements GenericComponentExtension {
                     }
 
                     @Override
-                    public Boolean isCheckpointReady() {
+                    public boolean isCheckpointReady() {
                         throw new UnsupportedOperationException("#isCheckpointReady()");
                     }
                 };

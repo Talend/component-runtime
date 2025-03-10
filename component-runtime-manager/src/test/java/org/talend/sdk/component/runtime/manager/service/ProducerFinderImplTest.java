@@ -208,7 +208,7 @@ class ProducerFinderImplTest {
         }
 
         @Override
-        public Boolean isCheckpointReady() {
+        public boolean isCheckpointReady() {
             throw new UnsupportedOperationException("#isCheckpointReady()");
         }
     }

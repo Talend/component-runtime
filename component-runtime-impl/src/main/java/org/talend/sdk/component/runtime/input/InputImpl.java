@@ -57,7 +57,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient Method shouldCheckpoint;
 
-    private Consumer<Object> checkpointCallback;
+    private transient Consumer<Object> checkpointCallback;
 
     public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
         super(instance, rootName, name, plugin);
@@ -117,7 +117,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     }
 
     @Override
-    public Boolean isCheckpointReady() {
+    public boolean isCheckpointReady() {
         boolean checked = true;
         if (shouldCheckpoint != null) {
             checked = (Boolean) doInvoke(this.shouldCheckpoint);
