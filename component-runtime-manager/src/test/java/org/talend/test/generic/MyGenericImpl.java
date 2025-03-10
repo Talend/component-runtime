@@ -119,7 +119,7 @@ public class MyGenericImpl implements GenericComponentExtension {
                     }
 
                     @Override
-                    public void start(Consumer<Object> checkpointCallback) {
+                    public void start(final Consumer<Object> checkpointCallback) {
                         throw new UnsupportedOperationException("#start()");
                     }
 
