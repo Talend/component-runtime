@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.apache.beam.sdk.transforms.PTransform;
@@ -167,6 +168,21 @@ public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline>,
         @Override
         public void stop() {
             // no-op
+        }
+
+        @Override
+        public void start(Consumer<Object> checkpointCallback) {
+            throw new UnsupportedOperationException("#start()");
+        }
+
+        @Override
+        public Object getCheckpoint() {
+            throw new UnsupportedOperationException("#getCheckpoint()");
+        }
+
+        @Override
+        public boolean isCheckpointReady() {
+            throw new UnsupportedOperationException("#isCheckpointReady()");
         }
     }
 }
