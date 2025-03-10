@@ -76,7 +76,6 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     @Override
     public void start(final Consumer checkpointConsumer) {
         start();
-        initCheckpointFunctions();
         checkpointCallback = checkpointConsumer;
     }
 
