@@ -30,14 +30,12 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.annotation.JsonbProperty;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.checkpoint.Checkpoint;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointAvailable;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointData;
-import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -123,28 +121,9 @@ public class CheckpointInput implements Serializable {
     }
 
     @Data
-    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {
-            @GridLayout.Row("bookmarks"),
-    })
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {@GridLayout.Row("since_id"), @GridLayout.Row("status")})
     @Checkpoint
     public static class CheckPointInputConfig implements Serializable {
-
-        public enum Strategy {
-            BY_ID,
-            BY_DATE
-        }
-
-        @Option
-        @Documentation("Check point mode.")
-        private String stream;
-
-        @Option
-        @DefaultValue("BY_ID")
-        private Strategy strategy = Strategy.BY_ID;
-
-        @Option
-        @JsonbProperty("start_date")
-        private String startDate;
 
         @Option
         @JsonbProperty("since_id")
@@ -159,9 +138,7 @@ public class CheckpointInput implements Serializable {
             @GridLayout.Row("user"),
             @GridLayout.Row("pass"),
     })
-    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {
-            @GridLayout.Row("checkPointInputConfig"),
-    })
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {@GridLayout.Row("checkpoint") })
     public static class InputConfig {
 
         @Option
