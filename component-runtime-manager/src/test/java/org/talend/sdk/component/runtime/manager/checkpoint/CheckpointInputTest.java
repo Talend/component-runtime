@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.checkpoint;
 
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -191,11 +192,6 @@ public class CheckpointInputTest {
     @Test
     void studioLifecycleWithResume(@TempDir final Path temporaryFolder) {
         try (final ComponentManager mgr = newTestManager(temporaryFolder)) {
-            final JsonObject state = jsonFactory.createObjectBuilder()
-                    .add("checkpoint", 5)
-                    .add("status", "running")
-                    .build();
-            //
             final Map<String, String> configuration = new HashMap<>();
             configuration.put("configuration.user", "localhost");
             configuration.put("configuration.pass", "localpass");
@@ -206,17 +202,14 @@ public class CheckpointInputTest {
             configuration.put("configuration.checkpoint.status", "none");
             //
             final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
-            mapper.start(); // LocalPartitionMapper
-            final ChainedMapper chainedMapper;
-            // get ChainedMapper
+            mapper.start();
             final List<Mapper> split = mapper.split(mapper.assess());
-            chainedMapper = new ChainedMapper(mapper, split.iterator());
+            final ChainedMapper chainedMapper = new ChainedMapper(mapper, split.iterator());
             chainedMapper.start();
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            input.start((s) -> log.warn("[studioLifecycleWithResume] state: {}.", s)); // ChainedInput delegate
-                                                                                       // is InputImpl
+            input.start((s) -> log.warn("[studioLifecycleWithResume] state: {}.", s));
             Object rawData;
             int counted = 0;
             // RowStruct rowStruct = new RowStruct(); // @Data static class RowStruct {Integer data;}
@@ -229,6 +222,35 @@ public class CheckpointInputTest {
             // shutdown
             input.stop();
             chainedMapper.stop();
+        }
+    }
+
+    @Test
+    void manualUsage(@TempDir final Path temporaryFolder) {
+        try (final ComponentManager mgr = newTestManager(temporaryFolder)) {
+            //
+            final Map<String, String> configuration = new HashMap<>();
+            configuration.put("configuration.user", "localhost");
+            configuration.put("configuration.pass", "localpass");
+            configuration.put("configuration.checkpoint.stream", "main");
+            configuration.put("configuration.checkpoint.strategy", "BY_DATE");
+            configuration.put("configuration.checkpoint.sinceId", "5");
+            configuration.put("configuration.checkpoint.startDate", "2020-01-01T00:00:00Z");
+            configuration.put("configuration.checkpoint.status", "finished");
+            //
+            final Input input = getInput(mgr, 1, configuration);
+            input.start();
+            Object previousCheckpoint = 1;
+            Object currentCheckpoint = 1;
+            while ((input.next()) != null) {
+                if (input.isCheckpointReady()) {
+                    currentCheckpoint = input.getCheckpoint();
+                    assertNotNull(currentCheckpoint);
+                    assertNotEquals(currentCheckpoint, previousCheckpoint);
+                    previousCheckpoint = currentCheckpoint;
+                }
+            }
+            input.stop();
         }
     }
 

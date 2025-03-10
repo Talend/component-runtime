@@ -165,11 +165,9 @@ public class CheckpointInput implements Serializable {
     public static class InputConfig {
 
         @Option
-        @Documentation("Check point mode.")
         private String user;
 
         @Option
-        @Documentation("Check point mode.")
         private String pass;
 
         @Option
