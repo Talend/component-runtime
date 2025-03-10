@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import javax.json.Json;
@@ -141,6 +142,21 @@ public class SimpleComponentRuleTest {
                     @Override
                     public void stop() {
                         // no-op
+                    }
+
+                    @Override
+                    public void start(final Consumer<Object> checkpointCallback) {
+                        throw new UnsupportedOperationException("#start()");
+                    }
+
+                    @Override
+                    public Object getCheckpoint() {
+                        throw new UnsupportedOperationException("#getCheckpoint()");
+                    }
+
+                    @Override
+                    public boolean isCheckpointReady() {
+                        throw new UnsupportedOperationException("#isCheckpointReady()");
                     }
                 };
             }
