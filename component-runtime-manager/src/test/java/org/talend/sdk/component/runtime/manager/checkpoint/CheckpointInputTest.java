@@ -62,7 +62,6 @@ class CheckpointInputTest {
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
     private final Consumer<Object> checkpointCallback = o -> {
-        log.error("[checkpointCallback] {}", o);
         assertNotNull(o);
         final JsonObject checkpoint = (JsonObject) o;
         if (checkpoint.getInt("since_id") == 9) {
@@ -123,10 +122,7 @@ class CheckpointInputTest {
             final Map<String, String> configuration = new HashMap<>();
             configuration.put("configuration.user", "localhost");
             configuration.put("configuration.pass", "localpass");
-            configuration.put("configuration.checkpoint.stream", "main");
-            configuration.put("configuration.checkpoint.strategy", "BY_DATE");
             configuration.put("configuration.checkpoint.sinceId", "5");
-            configuration.put("configuration.checkpoint.startDate", "2020-01-01T00:00:00Z");
             configuration.put("configuration.checkpoint.status", "none");
 
             final InputImpl input = getInput(manager, 1, configuration);
@@ -152,10 +148,7 @@ class CheckpointInputTest {
             final Map<String, String> configuration = new HashMap<>();
             configuration.put("configuration.user", "localhost");
             configuration.put("configuration.pass", "localpass");
-            configuration.put("configuration.checkpoint.stream", "main");
-            configuration.put("configuration.checkpoint.strategy", "BY_DATE");
             configuration.put("configuration.checkpoint.sinceId", "5");
-            configuration.put("configuration.checkpoint.startDate", "2020-01-01T00:00:00Z");
             configuration.put("configuration.checkpoint.status", "finished");
             //
             final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
@@ -194,10 +187,7 @@ class CheckpointInputTest {
             final Map<String, String> configuration = new HashMap<>();
             configuration.put("configuration.user", "localhost");
             configuration.put("configuration.pass", "localpass");
-            configuration.put("configuration.checkpoint.stream", "main");
-            configuration.put("configuration.checkpoint.strategy", "BY_DATE");
             configuration.put("configuration.checkpoint.sinceId", "5");
-            configuration.put("configuration.checkpoint.startDate", "2020-01-01T00:00:00Z");
             configuration.put("configuration.checkpoint.status", "none");
             //
             final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
@@ -231,10 +221,7 @@ class CheckpointInputTest {
             final Map<String, String> configuration = new HashMap<>();
             configuration.put("configuration.user", "localhost");
             configuration.put("configuration.pass", "localpass");
-            configuration.put("configuration.checkpoint.stream", "main");
-            configuration.put("configuration.checkpoint.strategy", "BY_DATE");
             configuration.put("configuration.checkpoint.sinceId", "5");
-            configuration.put("configuration.checkpoint.startDate", "2020-01-01T00:00:00Z");
             configuration.put("configuration.checkpoint.status", "finished");
             //
             final Input input = getInput(mgr, 1, configuration);
