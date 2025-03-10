@@ -13,29 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.input;
+package org.talend.sdk.component.api.input.checkpoint;
 
-import java.util.function.Consumer;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import org.talend.sdk.component.runtime.base.Lifecycle;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-public interface Input extends Lifecycle {
-
-    Object next();
-
-    /**
-     * Start the input with a checkpoint callback feature and resuming state.
-     */
-    void start(final Consumer<Object> checkpointCallback);
-
-    /**
-     * Retrieve the current checkpoint.
-     */
-    Object getCheckpoint();
-
-    /**
-     * Is a new checkpoint available.
-     */
-    boolean isCheckpointReady();
-
+@Target(METHOD)
+@Retention(RUNTIME)
+public @interface CheckpointAvailable {
 }
