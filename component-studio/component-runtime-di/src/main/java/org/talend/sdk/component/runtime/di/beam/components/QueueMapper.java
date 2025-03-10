@@ -171,7 +171,7 @@ public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline>,
         }
 
         @Override
-        public void start(Consumer<Object> checkpointCallback) {
+        public void start(final Consumer<Object> checkpointCallback) {
             throw new UnsupportedOperationException("#start()");
         }
 
