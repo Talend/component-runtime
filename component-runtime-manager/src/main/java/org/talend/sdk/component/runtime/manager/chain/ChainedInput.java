@@ -64,6 +64,7 @@ public final class ChainedInput implements Input {
         delegate.start();
     }
 
+    @Override
     public void start(final Consumer<Object> checkpoint) {
         initDelegate();
         delegate.start(checkpoint);
@@ -75,7 +76,7 @@ public final class ChainedInput implements Input {
     }
 
     @Override
-    public Boolean isCheckpointReady() {
+    public boolean isCheckpointReady() {
         return delegate.isCheckpointReady();
     }
 

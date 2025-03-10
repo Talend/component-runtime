@@ -36,6 +36,6 @@ public interface Input extends Lifecycle {
     /**
      * Is a new checkpoint available.
      */
-    Boolean isCheckpointReady();
+    boolean isCheckpointReady();
 
 }

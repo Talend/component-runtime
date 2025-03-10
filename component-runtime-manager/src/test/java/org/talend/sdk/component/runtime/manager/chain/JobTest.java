@@ -358,9 +358,9 @@ class JobTest {
             assertNotNull(o);
             final JsonObject checkpoint = (JsonObject) o;
             if (checkpoint.getInt("since_id") == 9) {
-                assertEquals(checkpoint.getString("status"), "finished");
+                assertEquals("finished", checkpoint.getString("status"));
             } else {
-                assertEquals(checkpoint.getString("status"), "running");
+                assertEquals("running", checkpoint.getString("status"));
             }
         };
 
