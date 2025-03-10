@@ -104,7 +104,6 @@ public class CheckpointInputTest {
     @Test
     void jobLifeCycleWithCheckpoint(@TempDir final Path temporaryFolder) {
         try (final ComponentManager manager = newTestManager(temporaryFolder)) {
-            final JsonObject state = jsonFactory.createObjectBuilder().add("checkpoint", 5).build();
             Job
                     .components()
                     .component("countdown", "checkpoint://list-input")

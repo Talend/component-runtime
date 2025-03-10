@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -115,6 +116,21 @@ public class MyGenericImpl implements GenericComponentExtension {
                     @Override
                     public void stop() {
                         // no-op
+                    }
+
+                    @Override
+                    public void start(Consumer<Object> checkpointCallback) {
+                        throw new UnsupportedOperationException("#start()");
+                    }
+
+                    @Override
+                    public Object getCheckpoint() {
+                        throw new UnsupportedOperationException("#getCheckpoint()");
+                    }
+
+                    @Override
+                    public Boolean isCheckpointReady() {
+                        throw new UnsupportedOperationException("#isCheckpointReady()");
                     }
                 };
             }

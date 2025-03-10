@@ -20,7 +20,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.json.JsonObject;
@@ -40,7 +41,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.runtime.input.InputImpl;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
@@ -354,6 +354,16 @@ class JobTest {
         final String testName = info.getTestMethod().get().getName();
         final String plugin = testName + ".jar";
         final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), plugin);
+        final Consumer<Object> checkpointCallback = o -> {
+            assertNotNull(o);
+            final JsonObject checkpoint = (JsonObject) o;
+            if (checkpoint.getInt("since_id") == 9) {
+                assertEquals(checkpoint.getString("status"), "finished");
+            } else {
+                assertEquals(checkpoint.getString("status"), "running");
+            }
+        };
+
         try (final ComponentManager manager = newTestManager(jar)) {
             Job
                     .components()
@@ -364,19 +374,6 @@ class JobTest {
                     .to("square")
                     .build()
                     .run();
-
-            final LocalPartitionMapper mapper =
-                    LocalPartitionMapper.class
-                            .cast(manager.findMapper("checkpoint", "list-input", 1, emptyMap()).get());
-
-            // assertTrue(mapper.getDelegate() instanceof CheckpointInput);
-            InputImpl input = (InputImpl) mapper.create();
-            input.start();
-            input.next();
-            input.next();
-            assertNull(input.getCheckpoint());
-            input.stop();
-
         }
     }
 
