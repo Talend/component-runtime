@@ -69,17 +69,11 @@ public final class ChainedInput implements Input {
         delegate.start(checkpoint);
     }
 
-    /**
-     * @return
-     */
     @Override
     public Object getCheckpoint() {
         return delegate.getCheckpoint();
     }
 
-    /**
-     * @return
-     */
     @Override
     public Boolean isCheckpointReady() {
         return delegate.isCheckpointReady();
