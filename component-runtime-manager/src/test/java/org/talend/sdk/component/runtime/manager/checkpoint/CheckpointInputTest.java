@@ -70,7 +70,7 @@ class CheckpointInputTest {
     private final Consumer<CheckpointState> checkpointCallback = o -> {
         assertNotNull(o);
         final JsonObject checkpoint = o.toJson();
-        log.warn("[consumer] {}", checkpoint);
+        log.info("[consumer] {}", checkpoint);
         if (checkpoint.getJsonObject(CheckpointState.CHECKPOINT_KEY).getInt("since_id") == 9) {
             assertEquals("finished", checkpoint.getJsonObject(CheckpointState.CHECKPOINT_KEY).getString("status"));
         } else {
@@ -170,7 +170,6 @@ class CheckpointInputTest {
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            // input.start(null, (s) -> System.err.println("state: " + s)); // ChainedInput delegate is InputImpl
             input.start();
             //
             Object rawData;
@@ -206,7 +205,7 @@ class CheckpointInputTest {
             mapper.stop();
             //
             final Input input = chainedMapper.create(); // ChainedInput
-            input.start((s) -> log.warn("[studioLifecycleWithResume] state: {}.", s));
+            input.start((s) -> log.info("[studioLifecycleWithResume] state: {}.", s));
             Object rawData;
             int counted = 0;
             // RowStruct rowStruct = new RowStruct(); // @Data static class RowStruct {Integer data;}
@@ -269,7 +268,7 @@ class CheckpointInputTest {
                 }
             }
             final JsonObject checkpoint = input.getCheckpoint().toJson().getJsonObject(CheckpointState.CHECKPOINT_KEY);
-            log.warn("[resumeableInputManualUsage] checkpoint: {}.", checkpoint);
+            log.info("[resumeableInputManualUsage] checkpoint: {}.", checkpoint);
             assertEquals(100, checkpoint.getInt("lastId"));
             assertEquals("finished", checkpoint.getString("status"));
             input.stop();
