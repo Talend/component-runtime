@@ -392,7 +392,6 @@ public class TalendIOTest implements Serializable {
         public void stop() {
             // no-op
         }
-
     }
 
     private static abstract class TheTestMapper implements Serializable, Mapper {
