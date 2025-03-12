@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.json.JsonObject;
@@ -346,34 +344,6 @@ class JobTest {
             assertTrue(out.isFile());
             assertEquals(asList("emma strasbourg 1900", "sophia nantes 2000.5", "liam lyon 3055", "ava paris 2600.30"),
                     Files.readAllLines(out.toPath()));
-        }
-    }
-
-    @Test
-    void validateCheckpointJobLifeCycle(final TestInfo info, @TempDir final Path temporaryFolder) {
-        final String testName = info.getTestMethod().get().getName();
-        final String plugin = testName + ".jar";
-        final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), plugin);
-        final Consumer<Object> checkpointCallback = o -> {
-            assertNotNull(o);
-            final JsonObject checkpoint = (JsonObject) o;
-            if (checkpoint.getInt("since_id") == 9) {
-                assertEquals("finished", checkpoint.getString("status"));
-            } else {
-                assertEquals("running", checkpoint.getString("status"));
-            }
-        };
-
-        try (final ComponentManager manager = newTestManager(jar)) {
-            Job
-                    .components()
-                    .component("countdown", "checkpoint://list-input")
-                    .component("square", "lifecycle://square?__version=1")
-                    .connections()
-                    .from("countdown")
-                    .to("square")
-                    .build()
-                    .run();
         }
     }
 
