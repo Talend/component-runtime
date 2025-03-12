@@ -143,6 +143,7 @@ import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.impl.Mode;
+import org.talend.sdk.component.runtime.input.CheckpointState;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
@@ -721,6 +722,65 @@ public class ComponentManager implements AutoCloseable {
         return Stream.of(src);
     }
 
+    public Map<String, String> mergeCheckpointConfiguration(final String plugin, final String name,
+            final ComponentType componentType, final Map<String, String> configuration) {
+        if (!MAPPER.equals(componentType)) {
+            return configuration;
+        }
+        final ParameterMeta checkpoint = findCheckpointParameterMeta(plugin, name);
+        if (checkpoint == null) {
+            return configuration;
+        }
+        Map<String, String> replaced = replaceKeys(configuration, CheckpointState.CHECKPOINT_KEY, checkpoint.getPath());
+        replaced.entrySet().forEach(e -> System.out.println("- out -> " + e.getKey() + "=" + e.getValue()));
+        return replaced;
+    }
+
+    public ParameterMeta findConfigurationType(final String plugin, final String name, final String configurationType) {
+        return container
+                .findAll()
+                .stream()
+                .map(c -> c.get(ContainerComponentRegistry.class))
+                .map(registry -> registry.findComponentFamily(plugin))
+                .filter(Objects::nonNull)
+                .map(family -> family.getPartitionMappers().get(name).getParameterMetas().get())
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .flatMap(np -> np.getNestedParameters().stream())
+                .filter(m -> configurationType
+                        .equals(m.getMetadata().getOrDefault("tcomp::configurationtype::type", "")))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public ParameterMeta findCheckpointParameterMeta(final String plugin, final String name) {
+        return findConfigurationType(plugin, name, "checkpoint");
+    }
+
+    public ParameterMeta findDatasetParameterMeta(final String plugin, final String name) {
+        return findConfigurationType(plugin, name, "dataset");
+    }
+
+    public ParameterMeta findDatastoreParameterMeta(final String plugin, final String name) {
+        return findConfigurationType(plugin, name, "datastore");
+    }
+
+    public static Map<String, String> replaceKeys(final Map<String, String> configuration, final String oldPrefix,
+            final String newPrefix) {
+        final Map<String, String> replaced = new HashMap<>();
+        for (Map.Entry<String, String> entry : configuration.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key.startsWith(oldPrefix)) {
+                String newKey = newPrefix + key.substring(oldPrefix.length());
+                replaced.put(newKey, value);
+            } else {
+                replaced.put(key, value);
+            }
+        }
+        return replaced;
+    }
+
     public <T> Stream<T> find(final Function<Container, Stream<T>> mapper) {
         return container.findAll().stream().flatMap(mapper);
     }
@@ -739,8 +799,9 @@ public class ComponentManager implements AutoCloseable {
         if (container.findAll().isEmpty()) {
             autoDiscoverPlugins(false, true);
         }
+        final Map<String, String> conf = mergeCheckpointConfiguration(plugin, name, componentType, configuration);
         return find(pluginContainer -> Stream
-                .of(findInstance(plugin, name, componentType, version, configuration, pluginContainer)))
+                .of(findInstance(plugin, name, componentType, version, conf, pluginContainer)))
                 .filter(Objects::nonNull)
                 .findFirst();
     }
