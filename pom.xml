@@ -1438,6 +1438,7 @@
             <exclude>**/*.html</exclude>
             <exclude>**/*.adoc</exclude>
             <exclude>**/*.md</exclude>
+            <exclude>**/*.csv</exclude>
             <exclude>**/node_modules/**/*</exclude>
             <exclude>**/bower_components/**/*</exclude>
             <exclude>**/.node/**/*</exclude>
