@@ -19,7 +19,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.apache.beam.sdk.transforms.PTransform;
@@ -169,6 +168,5 @@ public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline>,
         public void stop() {
             // no-op
         }
-
     }
 }
