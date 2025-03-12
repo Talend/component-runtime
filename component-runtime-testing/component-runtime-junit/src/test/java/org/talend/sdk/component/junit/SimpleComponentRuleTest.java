@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import javax.json.Json;
@@ -143,7 +142,6 @@ public class SimpleComponentRuleTest {
                     public void stop() {
                         // no-op
                     }
-
                 };
             }
 
