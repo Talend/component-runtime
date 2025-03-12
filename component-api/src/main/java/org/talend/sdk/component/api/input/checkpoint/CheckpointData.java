@@ -21,7 +21,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.talend.sdk.component.api.meta.Documentation;
+
 @Target(METHOD)
 @Retention(RUNTIME)
+@Documentation("Mark a method as called to retrieve latest generated checkpoint configuration and state.")
 public @interface CheckpointData {
 }
