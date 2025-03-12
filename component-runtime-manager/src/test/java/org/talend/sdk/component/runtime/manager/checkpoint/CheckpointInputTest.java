@@ -22,24 +22,30 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.runtime.input.CheckpointState;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.InputImpl;
-import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
@@ -61,26 +67,28 @@ class CheckpointInputTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
 
-    private final Consumer<Object> checkpointCallback = o -> {
+    private final Consumer<CheckpointState> checkpointCallback = o -> {
         assertNotNull(o);
-        final JsonObject checkpoint = (JsonObject) o;
-        if (checkpoint.getInt("since_id") == 9) {
-            assertEquals("finished", checkpoint.getString("status"));
+        final JsonObject checkpoint = o.toJson();
+        log.warn("[consumer] {}", checkpoint);
+        if (checkpoint.getJsonObject(CheckpointState.CHECKPOINT_KEY).getInt("since_id") == 9) {
+            assertEquals("finished", checkpoint.getJsonObject(CheckpointState.CHECKPOINT_KEY).getString("status"));
         } else {
-            assertEquals("running", checkpoint.getString("status"));
+            assertEquals("running", checkpoint.getJsonObject(CheckpointState.CHECKPOINT_KEY).getString("status"));
         }
     };
 
     @Test
     void standardLifecycle(@TempDir final Path temporaryFolder) {
         try (final ComponentManager manager = newTestManager(temporaryFolder)) {
-            final InputImpl input = getInput(manager, 1, emptyMap());
+            final InputImpl input = getInput(manager, "list-input", 1, emptyMap());
             input.start(checkpointCallback);
             do {
             } while (input.next() != null);
             assertNull(input.next());
-            assertEquals(9, ((JsonObject) input.getCheckpoint()).getInt("since_id"));
-            assertEquals("finished", ((JsonObject) input.getCheckpoint()).getString("status"));
+            JsonObject json = input.getCheckpoint().toJson();
+            assertEquals(9, json.getJsonObject(CheckpointState.CHECKPOINT_KEY).getInt("since_id"));
+            assertEquals("finished", json.getJsonObject(CheckpointState.CHECKPOINT_KEY).getString("status"));
             input.stop();
         }
     }
@@ -125,13 +133,13 @@ class CheckpointInputTest {
             configuration.put("configuration.checkpoint.sinceId", "5");
             configuration.put("configuration.checkpoint.status", "none");
 
-            final InputImpl input = getInput(manager, 1, configuration);
+            final InputImpl input = getInput(manager, "list-input", 1, configuration);
             input.start(checkpointCallback);
             input.next();
             input.next();
             input.next();
-            JsonObject chck = (JsonObject) input.getCheckpoint();
-            assertEquals(7, chck.getInt("since_id"));
+            JsonObject chck = input.getCheckpoint().toJson();
+            assertEquals(7, chck.getJsonObject(CheckpointState.CHECKPOINT_KEY).getInt("since_id"));
             input.stop();
         }
     }
@@ -224,7 +232,7 @@ class CheckpointInputTest {
             configuration.put("configuration.checkpoint.sinceId", "5");
             configuration.put("configuration.checkpoint.status", "finished");
             //
-            final Input input = getInput(mgr, 1, configuration);
+            final Input input = getInput(mgr, "list-input", 1, configuration);
             input.start();
             Object previousCheckpoint = 1;
             Object currentCheckpoint = 1;
@@ -240,11 +248,76 @@ class CheckpointInputTest {
         }
     }
 
-    private InputImpl getInput(final ComponentManager manager, final int version,
+    @Test
+    void resumeableInputManualUsage(@TempDir final Path temporaryFolder) throws Exception {
+        try (final ComponentManager mgr = newTestManager(temporaryFolder)) {
+            // restore configuration from json
+            final Map<String, String> configuration = jsonToMap("", resourceAsJson("data/resumeable-input-conf.json"));
+            final Map<String, String> checkpointConf = jsonToMap("", resourceAsJson("data/checkpoint_id.json"));
+            final String resourcePath = getClass().getClassLoader().getResource("data/names.csv").getPath();
+            configuration.put("configuration.resourcePath", resourcePath);
+            configuration.putAll(checkpointConf);
+            //
+            final Input input = getInput(mgr, "resumeable-input", 1, configuration);
+            input.start();
+            Record record;
+            int counted = 0;
+            while ((record = (Record) input.next()) != null) {
+                counted++;
+                if (input.isCheckpointReady()) {
+                    assertNotNull(input.getCheckpoint());
+                }
+            }
+            final JsonObject checkpoint = input.getCheckpoint().toJson().getJsonObject(CheckpointState.CHECKPOINT_KEY);
+            log.warn("[resumeableInputManualUsage] checkpoint: {}.", checkpoint);
+            assertEquals(100, checkpoint.getInt("lastId"));
+            assertEquals("2023-04-09", checkpoint.getString("lastUpdate"));
+            assertEquals("finished", checkpoint.getString("status"));
+            input.stop();
+            assertEquals(50, counted);
+        }
+    }
+
+    private JsonObject resourceAsJson(final String resource) {
+        try {
+            final Path cp = Paths.get(getClass().getClassLoader().getResource(resource).toURI());
+            final String dd = new String(Files.readAllBytes(cp));
+            return jsonb.fromJson(dd, JsonObject.class);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Map<String, String> jsonToMap(String path, JsonValue jsonValue) {
+        final Map<String, String> result = new HashMap<>();
+        if (jsonValue instanceof JsonObject) {
+            JsonObject jsonObj = (JsonObject) jsonValue;
+            for (String key : jsonObj.keySet()) {
+                String newPath = path.isEmpty() ? key : path + "." + key;
+                result.putAll(jsonToMap(newPath, jsonObj.get(key)));
+            }
+        } else if (jsonValue instanceof JsonArray) {
+            JsonArray jsonArray = (JsonArray) jsonValue;
+            for (int i = 0; i < jsonArray.size(); i++) {
+                String newPath = path + "[" + i + "]";
+                result.putAll(jsonToMap(newPath, jsonArray.get(i)));
+            }
+        } else {
+            String str;
+            if (jsonValue.getValueType() == JsonValue.ValueType.STRING) {
+                str = ((JsonString) (jsonValue)).getString();
+            } else {
+                str = jsonValue.toString();
+            }
+            result.put(path, str);
+        }
+
+        return result;
+    }
+
+    private InputImpl getInput(final ComponentManager manager, final String emitter, final int version,
             final Map<String, String> configuration) {
-        final LocalPartitionMapper mapper =
-                LocalPartitionMapper.class
-                        .cast(manager.findMapper("checkpoint", "list-input", version, configuration).get());
+        final Mapper mapper = manager.findMapper("checkpoint", emitter, version, configuration).get();
         return InputImpl.class.cast(mapper.create());
     }
 

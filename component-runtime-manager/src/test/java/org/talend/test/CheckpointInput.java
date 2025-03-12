@@ -121,7 +121,8 @@ public class CheckpointInput implements Serializable {
     }
 
     @Data
-    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {@GridLayout.Row("since_id"), @GridLayout.Row("status")})
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT,
+            value = { @GridLayout.Row("since_id"), @GridLayout.Row("status") })
     @Checkpoint
     public static class CheckPointInputConfig implements Serializable {
 
@@ -138,7 +139,7 @@ public class CheckpointInput implements Serializable {
             @GridLayout.Row("user"),
             @GridLayout.Row("pass"),
     })
-    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {@GridLayout.Row("checkpoint") })
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = { @GridLayout.Row("checkpoint") })
     public static class InputConfig {
 
         @Option
