@@ -47,7 +47,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-// @Emitter(family = "checkpoint", name = "resumeable-input")
 public class ResumeableInput implements Serializable {
 
     private final Jsonb jsonb;
@@ -67,7 +66,7 @@ public class ResumeableInput implements Serializable {
 
     @PostConstruct
     public void init() throws IOException {
-        log.warn("[init] configuration = {}", configuration);
+        log.info("[init] configuration = {}", configuration);
         final List<Record> records = new ArrayList<>();
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         //
@@ -114,9 +113,8 @@ public class ResumeableInput implements Serializable {
         }
         configuration.checkpoint.status = "running";
         configuration.checkpoint.lastId = record.getInt("id");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        configuration.checkpoint.lastUpdate = record.getDateTime("updatedAt").format(dateTimeFormatter);
-
+        configuration.checkpoint.lastUpdate = record.getDateTime("updatedAt")
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return record;
     }
 
@@ -200,17 +198,10 @@ public class ResumeableInput implements Serializable {
 
     public static class CheckpointMigrationHandler implements MigrationHandler {
 
-        /**
-         * @param incomingVersion the version of associatedData values.
-         * @param incomingData the data sent from the caller. Keys are using the path of the property as in component
-         * metadata.
-         * @return
-         */
         @Override
         public Map<String, String> migrate(int incomingVersion, Map<String, String> incomingData) {
-            log.error("[checkpoint#migrate] currrentVersion = {}, incomingVersion = {}, incomingData = {}",
+            log.info("[checkpoint#migrate] currrentVersion = {}, incomingVersion = {}, incomingData = {}",
                     CHECKPOINT_VERSION, incomingVersion, incomingData);
-            incomingData.entrySet().forEach(e -> System.err.println("in  " + e.getKey() + "=" + e.getValue()));
             if (incomingVersion < 2) {
                 if (incomingData.containsKey("sinceId")) {
                     incomingData.put("lastId", incomingData.get("sinceId"));

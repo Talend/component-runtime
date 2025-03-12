@@ -63,7 +63,7 @@ public class CheckpointInput implements Serializable {
         this.factory = factory;
         this.jsonb = jsonb;
         this.configuration = config;
-        log.warn("[CheckpointInput] config: {}.", config);
+        log.info("[CheckpointInput] config: {}.", config);
     }
 
     @PostConstruct
@@ -79,7 +79,7 @@ public class CheckpointInput implements Serializable {
                 bookmark = configuration.checkpoint.sinceId;
             }
         }
-        log.warn("[resume] resuming at: {} data: {}.", bookmark, data);
+        log.info("[resume] resuming at: {} data: {}.", bookmark, data);
         if (bookmark == null) {
             iterator = new ArrayList<Integer>().listIterator();
         } else {
