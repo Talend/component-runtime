@@ -60,7 +60,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient Method shouldCheckpoint;
 
-    private transient Consumer<Object> checkpointCallback;
+    private transient Consumer<CheckpointState> checkpointCallback;
 
     public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
         super(instance, rootName, name, plugin);
@@ -98,8 +98,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
         }
         // do we need to checkpoint here?
         if (isCheckpointReady() && checkpointCallback != null) {
-            final Object state = this.getCheckpoint();
-            checkpointCallback.accept(state);
+            checkpointCallback.accept(getCheckpoint());
         }
         final Class<?> recordClass = record.getClass();
         if (recordClass.isPrimitive() || String.class == recordClass) {
@@ -135,8 +134,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     public void stop() {
         // do we need to checkpoint here?
         if (checkpointCallback != null) {
-            final Object state = this.getCheckpoint();
-            checkpointCallback.accept(state);
+            checkpointCallback.accept(getCheckpoint());
         }
         //
         super.stop();
