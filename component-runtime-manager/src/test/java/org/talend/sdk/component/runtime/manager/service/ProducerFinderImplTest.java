@@ -23,7 +23,6 @@ import java.io.ObjectOutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -197,19 +196,5 @@ class ProducerFinderImplTest {
             return this.factory.newRecordBuilder().withString("field", Integer.toString(this.counter)).build();
         }
 
-        @Override
-        public void start(final Consumer<Object> checkpointCallback) {
-            throw new UnsupportedOperationException("#start()");
-        }
-
-        @Override
-        public Object getCheckpoint() {
-            throw new UnsupportedOperationException("#getCheckpoint()");
-        }
-
-        @Override
-        public boolean isCheckpointReady() {
-            throw new UnsupportedOperationException("#isCheckpointReady()");
-        }
     }
 }

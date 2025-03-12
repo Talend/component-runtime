@@ -26,16 +26,22 @@ public interface Input extends Lifecycle {
     /**
      * Start the input with a checkpoint callback feature and resuming state.
      */
-    void start(final Consumer<Object> checkpointCallback);
+    default void start(final Consumer<CheckpointState> checkpointCallback) {
+        throw new UnsupportedOperationException("#start()");
+    }
 
     /**
      * Retrieve the current checkpoint.
      */
-    Object getCheckpoint();
+    default CheckpointState getCheckpoint() {
+        throw new UnsupportedOperationException("#getCheckpoint()");
+    }
 
     /**
      * Is a new checkpoint available.
      */
-    boolean isCheckpointReady();
+    default boolean isCheckpointReady() {
+        throw new UnsupportedOperationException("#isCheckpointReady()");
+    }
 
 }

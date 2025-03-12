@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -394,20 +393,6 @@ public class TalendIOTest implements Serializable {
             // no-op
         }
 
-        @Override
-        public Object getCheckpoint() {
-            throw new UnsupportedOperationException("#getCheckpoint()");
-        }
-
-        @Override
-        public boolean isCheckpointReady() {
-            throw new UnsupportedOperationException("#isCheckpointReady()");
-        }
-
-        @Override
-        public void start(final Consumer<Object> checkpointCallback) {
-            throw new UnsupportedOperationException("#start()");
-        }
     }
 
     private static abstract class TheTestMapper implements Serializable, Mapper {
