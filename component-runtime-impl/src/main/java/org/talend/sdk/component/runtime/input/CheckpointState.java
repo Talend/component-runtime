@@ -30,9 +30,9 @@ public class CheckpointState {
 
     public static final String CHECKPOINT_KEY = "$checkpoint";
 
-    public static final String VERSION = "__version";
+    public static final String VERSION_KEY = "__version";
 
-    @JsonbProperty(VERSION)
+    @JsonbProperty(VERSION_KEY)
     private int version;
 
     private Object state;
@@ -41,7 +41,7 @@ public class CheckpointState {
         final Jsonb jsonb = JsonbProvider.provider().create().build();
         return Json.createObjectBuilder()
                 .add(CHECKPOINT_KEY, Json.createObjectBuilder(jsonb.fromJson(jsonb.toJson(state), JsonObject.class))
-                        .add(VERSION, version)
+                        .add(VERSION_KEY, version)
                         .build())
                 .build();
     }
