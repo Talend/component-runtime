@@ -52,6 +52,7 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Lifecycle;
+import org.talend.sdk.component.runtime.input.CheckpointState;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -89,7 +90,7 @@ public class JobImpl implements Job {
         }
 
         @Override
-        public NodeBuilder checkpoint(final Consumer<Object> checkpoint) {
+        public NodeBuilder checkpoint(final Consumer<CheckpointState> checkpoint) {
             final Component lastComponent = nodes.get(nodes.size() - 1);
             lastComponent.setCheckpointCallback(checkpoint);
             return this;
@@ -593,7 +594,8 @@ public class JobImpl implements Job {
 
         private long currentRecords;
 
-        private InputRunner(final Mapper mapper, final long maxRecords, final Consumer<Object> checkpointCallback) {
+        private InputRunner(final Mapper mapper, final long maxRecords,
+                final Consumer<CheckpointState> checkpointCallback) {
             this.maxRecords = maxRecords;
             RuntimeException error = null;
             try {

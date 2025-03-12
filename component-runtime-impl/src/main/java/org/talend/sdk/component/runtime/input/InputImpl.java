@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.input;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -26,6 +28,7 @@ import java.util.function.Consumer;
 
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointAvailable;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointData;
@@ -107,12 +110,16 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     }
 
     @Override
-    public Object getCheckpoint() {
-        Object marker = null;
+    public CheckpointState getCheckpoint() {
         if (checkpoint != null) {
-            marker = doInvoke(this.checkpoint);
+            Object state = doInvoke(this.checkpoint);
+            int version = 1;
+            if (ofNullable(state.getClass().getAnnotation(Version.class)).isPresent()) {
+                version = state.getClass().getAnnotation(Version.class).value();
+            }
+            return new CheckpointState(version, state);
         }
-        return marker;
+        return null;
     }
 
     @Override
