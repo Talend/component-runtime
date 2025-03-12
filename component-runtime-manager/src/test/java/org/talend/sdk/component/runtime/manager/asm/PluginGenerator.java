@@ -33,10 +33,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -73,23 +75,35 @@ public class PluginGenerator {
             ofNullable(root.listFiles())
                     .map(Stream::of)
                     .orElseGet(Stream::empty)
-                    .filter(c -> c.getName().endsWith(".class"))
+                    .filter(c -> c.getName().endsWith(".class") || c.getName().endsWith(".json")
+                            || c.getName().endsWith(".csv"))
                     .forEach(clazz -> {
-                        try (final InputStream is = new FileInputStream(clazz)) {
-                            final ClassReader reader = new ClassReader(is);
-                            final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
-                            reader.accept(new ClassRemapper(writer, new Remapper() {
+                        if (clazz.getName().endsWith(".class")) {
+                            try (final InputStream is = new FileInputStream(clazz)) {
+                                final ClassReader reader = new ClassReader(is);
+                                final ClassWriter writer = new ClassWriter(COMPUTE_FRAMES);
+                                reader.accept(new ClassRemapper(writer, new Remapper() {
 
-                                @Override
-                                public String map(final String key) {
-                                    return key.replace(sourcePackage, toPack).replace(fromPack, packageName);
-                                }
-                            }), EXPAND_FRAMES);
-                            outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
-                            outputStream.write(writer.toByteArray());
-                            outputStream.closeEntry();
-                        } catch (final IOException e) {
-                            fail(e.getMessage());
+                                    @Override
+                                    public String map(final String key) {
+                                        return key.replace(sourcePackage, toPack).replace(fromPack, packageName);
+                                    }
+                                }), EXPAND_FRAMES);
+                                outputStream.putNextEntry(new JarEntry(toPack + '/' + clazz.getName()));
+                                outputStream.write(writer.toByteArray());
+                                outputStream.closeEntry();
+                            } catch (final IOException e) {
+                                fail(e.getMessage());
+                            }
+                        } else {
+                            try {
+                                final FileReader reader = new FileReader(clazz);
+                                outputStream.putNextEntry(new JarEntry('/' + clazz.getName()));
+                                outputStream.write(Files.readAllBytes(clazz.getAbsoluteFile().toPath()));
+                                outputStream.closeEntry();
+                            } catch (final IOException e) {
+                                fail(e.getMessage());
+                            }
                         }
                     });
             outputStream.putNextEntry(new JarEntry(toPack + "/Messages.properties"));
