@@ -26,7 +26,9 @@ import org.talend.sdk.component.api.meta.Documentation;
 
 @Target({ TYPE })
 @Retention(RUNTIME)
-@ConfigurationType("Checkpoint")
+@ConfigurationType("checkpoint")
 @Documentation("Mark a model (complex object) as being a checkpoint configuration and state.")
 public @interface Checkpoint {
+
+    String value() default "default";
 }
