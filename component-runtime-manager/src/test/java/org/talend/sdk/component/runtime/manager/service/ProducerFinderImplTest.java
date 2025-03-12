@@ -195,6 +195,5 @@ class ProducerFinderImplTest {
             }
             return this.factory.newRecordBuilder().withString("field", Integer.toString(this.counter)).build();
         }
-
     }
 }
