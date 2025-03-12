@@ -731,9 +731,7 @@ public class ComponentManager implements AutoCloseable {
         if (checkpoint == null) {
             return configuration;
         }
-        Map<String, String> replaced = replaceKeys(configuration, CheckpointState.CHECKPOINT_KEY, checkpoint.getPath());
-        replaced.entrySet().forEach(e -> System.out.println("- out -> " + e.getKey() + "=" + e.getValue()));
-        return replaced;
+        return replaceKeys(configuration, CheckpointState.CHECKPOINT_KEY, checkpoint.getPath());
     }
 
     public ParameterMeta findConfigurationType(final String plugin, final String name, final String configurationType) {
