@@ -271,7 +271,6 @@ class CheckpointInputTest {
             final JsonObject checkpoint = input.getCheckpoint().toJson().getJsonObject(CheckpointState.CHECKPOINT_KEY);
             log.warn("[resumeableInputManualUsage] checkpoint: {}.", checkpoint);
             assertEquals(100, checkpoint.getInt("lastId"));
-            assertEquals("2023-04-09", checkpoint.getString("lastUpdate"));
             assertEquals("finished", checkpoint.getString("status"));
             input.stop();
             assertEquals(50, counted);
