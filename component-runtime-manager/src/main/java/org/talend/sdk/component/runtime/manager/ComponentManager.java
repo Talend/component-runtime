@@ -85,8 +85,12 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.JsonWriterFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
@@ -763,6 +767,47 @@ public class ComponentManager implements AutoCloseable {
         return findConfigurationType(plugin, name, "datastore");
     }
 
+    /**
+     * Convert a json value to a configuration map.
+     *
+     * @param jsonValue json value to convert to a configuration map
+     * @param path optional path to add to keys as prefix
+     * @return a configuration map from a json value
+     */
+    public static Map<String, String> jsonToMap(final JsonValue jsonValue, final String path) {
+        final Map<String, String> result = new HashMap<>();
+        if (jsonValue instanceof JsonObject) {
+            JsonObject jsonObj = (JsonObject) jsonValue;
+            for (String key : jsonObj.keySet()) {
+                String newPath = path.isEmpty() ? key : path + "." + key;
+                result.putAll(jsonToMap(jsonObj.get(key), newPath));
+            }
+        } else if (jsonValue instanceof JsonArray) {
+            JsonArray jsonArray = (JsonArray) jsonValue;
+            for (int i = 0; i < jsonArray.size(); i++) {
+                String newPath = path + "[" + i + "]";
+                result.putAll(jsonToMap(jsonArray.get(i), newPath));
+            }
+        } else {
+            String str;
+            if (jsonValue.getValueType() == JsonValue.ValueType.STRING) {
+                str = ((JsonString) (jsonValue)).getString();
+            } else {
+                str = jsonValue.toString();
+            }
+            result.put(path, str);
+        }
+        return result;
+    }
+
+    /**
+     * Replace some keys in the configuration map.
+     *
+     * @param configuration original configuration
+     * @param oldPrefix old prefix to replace
+     * @param newPrefix new prefix to replace with
+     * @return Map with keys replaced
+     */
     public static Map<String, String> replaceKeys(final Map<String, String> configuration, final String oldPrefix,
             final String newPrefix) {
         final Map<String, String> replaced = new HashMap<>();
