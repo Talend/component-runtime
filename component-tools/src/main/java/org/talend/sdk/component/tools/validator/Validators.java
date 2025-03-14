@@ -15,19 +15,6 @@
  */
 package org.talend.sdk.component.tools.validator;
 
-import static java.util.stream.Stream.of;
-
-import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Stream;
-
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
@@ -35,12 +22,21 @@ import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
+import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.tools.ComponentValidator.Configuration;
 import org.talend.sdk.component.tools.spi.ValidationExtension;
+
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
+import java.util.*;
+import java.util.stream.Stream;
+
+import static java.util.stream.Stream.of;
 
 public class Validators {
 
@@ -183,7 +179,7 @@ public class Validators {
 
     public static Stream<Class<? extends Annotation>> getActionsStream() {
         return of(AsyncValidation.class, DynamicValues.class, HealthCheck.class, DiscoverSchema.class,
-                Suggestions.class, Update.class, DynamicDependencies.class);
+                Suggestions.class, Update.class, DynamicDependencies.class, AvailableOutputFlows.class);
     }
 
     public static Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {

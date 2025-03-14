@@ -15,22 +15,8 @@
  */
 package org.talend.sdk.component.form.internal.converter.impl.widget;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Comparator.comparing;
-import static java.util.Locale.ROOT;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.talend.sdk.component.form.api.Client;
 import org.talend.sdk.component.form.internal.converter.PropertyContext;
 import org.talend.sdk.component.form.internal.converter.PropertyConverter;
@@ -40,8 +26,17 @@ import org.talend.sdk.component.form.model.uischema.UiSchema;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Comparator.comparing;
+import static java.util.Locale.ROOT;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @AllArgsConstructor
@@ -290,7 +285,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     private boolean isBuiltInAction(final String key) {
         return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
                 || key.equals("action::suggestions") || key.equals("action::built_in_suggestable")
-                || key.equals("action::validation") || key.equals("action::update") || key.equals("action::schema");
+                || key.equals("action::validation") || key.equals("action::update")
+                || key.equals("action::schema") || key.equals("action::available_output");
     }
 
     protected Map<String, Collection<Object>> createCondition(final PropertyContext<?> ctx) {
