@@ -10,6 +10,13 @@ Checkpointing is a feature in the Talend Component Kit (TCK) that enables an inp
 This feature targets mainly upcoming tck integration in Qlik Data Integration (QDI) platforms.
 (Studio and deprecated Talend Cloud are not targeted).
 
+IMPORTANT: The feature is disabled by default, to use the checkpoint, you l need to add a system property *`talend.checkpoint.enable`*  in the runtime jvm like this:
+
+```
+-Dtalend.checkpoint.enable=true
+```
+
+
 == Checkpointing Mechanism
 Checkpointing in TCK is implemented using specific annotations and an interface that defines the required methods. The checkpointing mechanism allows the runtime to save and restore processing states efficiently.
 

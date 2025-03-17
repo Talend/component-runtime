@@ -62,6 +62,8 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient Consumer<CheckpointState> checkpointCallback;
 
+    public boolean checkpointEnabled = Boolean.parseBoolean(System.getProperty("talend.checkpoint.enabled", "false"));
+
     public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
         super(instance, rootName, name, plugin);
     }
@@ -79,12 +81,16 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     @Override
     public void start(final Consumer checkpointConsumer) {
         start();
-        checkpointCallback = checkpointConsumer;
+        if (checkpointEnabled) {
+            checkpointCallback = checkpointConsumer;
+        }
     }
 
     protected void initCheckpointFunctions() {
-        checkpoint = findMethods(CheckpointData.class).findFirst().orElse(null);
-        shouldCheckpoint = findMethods(CheckpointAvailable.class).findFirst().orElse(null);
+        if (checkpointEnabled) {
+            checkpoint = findMethods(CheckpointData.class).findFirst().orElse(null);
+            shouldCheckpoint = findMethods(CheckpointAvailable.class).findFirst().orElse(null);
+        }
     }
 
     @Override
@@ -123,7 +129,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     @Override
     public boolean isCheckpointReady() {
-        boolean checked = true;
+        boolean checked = checkpointEnabled ? true : false;
         if (shouldCheckpoint != null) {
             checked = (Boolean) doInvoke(this.shouldCheckpoint);
         }

@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.manager.checkpoint;
 
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,6 +37,8 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.spi.JsonbProvider;
 import javax.json.spi.JsonProvider;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.talend.sdk.component.api.record.Record;
@@ -74,6 +77,16 @@ class CheckpointInputTest {
             assertEquals("running", checkpoint.getJsonObject(CheckpointState.CHECKPOINT_KEY).getString("status"));
         }
     };
+
+    @BeforeEach
+    void setup() {
+        System.setProperty("talend.checkpoint.enabled", "true");
+    }
+
+    @AfterEach
+    void teardown() {
+        System.clearProperty("talend.checkpoint.enabled");
+    }
 
     @Test
     void standardLifecycle(@TempDir final Path temporaryFolder) {
@@ -191,8 +204,8 @@ class CheckpointInputTest {
             final Map<String, String> configuration = new HashMap<>();
             configuration.put("configuration.user", "localhost");
             configuration.put("configuration.pass", "localpass");
-            configuration.put("configuration.checkpoint.sinceId", "5");
-            configuration.put("configuration.checkpoint.status", "none");
+            configuration.put("$checkpoint.sinceId", "5");
+            configuration.put("$checkpoint.status", "none");
             //
             final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
             mapper.start();
@@ -225,8 +238,8 @@ class CheckpointInputTest {
             final Map<String, String> configuration = new HashMap<>();
             configuration.put("configuration.user", "localhost");
             configuration.put("configuration.pass", "localpass");
-            configuration.put("configuration.checkpoint.sinceId", "5");
-            configuration.put("configuration.checkpoint.status", "finished");
+            configuration.put("$checkpoint.sinceId", "5");
+            configuration.put("$checkpoint.status", "finished");
             //
             final Input input = getInput(mgr, "list-input", 1, configuration);
             input.start();
@@ -274,6 +287,32 @@ class CheckpointInputTest {
         }
     }
 
+    @Test
+    void resumeableInputManualUsageNoCheckpoint(@TempDir final Path temporaryFolder) throws Exception {
+        System.setProperty("talend.checkpoint.enabled", "false");
+        try (final ComponentManager mgr = newTestManager(temporaryFolder)) {
+            // restore configuration from json
+            final Map<String, String> configuration =
+                    mgr.jsonToMap(resourceAsJson("data/resumeable-input-conf.json"), "");
+            final Map<String, String> checkpointConf = mgr.jsonToMap(resourceAsJson("data/checkpoint_id.json"), "");
+            final String resourcePath = getClass().getClassLoader().getResource("data/names.csv").getPath();
+            configuration.put("configuration.resourcePath", resourcePath);
+            configuration.putAll(checkpointConf);
+            //
+            final Input input = getInput(mgr, "resumeable-input", 1, configuration);
+            input.start();
+            Record record;
+            int counted = 0;
+            while ((record = (Record) input.next()) != null) {
+                counted++;
+                assertFalse(input.isCheckpointReady());
+            }
+            assertNull(input.getCheckpoint());
+            input.stop();
+            assertEquals(100, counted);
+        }
+    }
+
     private JsonObject resourceAsJson(final String resource) {
         try {
             final Path cp = Paths.get(getClass().getClassLoader().getResource(resource).toURI());
@@ -284,13 +323,13 @@ class CheckpointInputTest {
         }
     }
 
-    private InputImpl getInput(final ComponentManager manager, final String emitter, final int version,
+    protected InputImpl getInput(final ComponentManager manager, final String emitter, final int version,
             final Map<String, String> configuration) {
         final Mapper mapper = manager.findMapper("checkpoint", emitter, version, configuration).get();
         return InputImpl.class.cast(mapper.create());
     }
 
-    private ComponentManager newTestManager(final Path temporaryFolder) {
+    protected ComponentManager newTestManager(final Path temporaryFolder) {
         return new ComponentManager(new File("target/fake-m2"), "TALEND-INF/dependencies.txt", null) {
 
             final File jar = pluginGenerator.createChainPlugin(temporaryFolder.toFile(), "checkpoint-test.jar");
