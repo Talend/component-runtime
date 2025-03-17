@@ -731,6 +731,9 @@ public class ComponentManager implements AutoCloseable {
         if (!MAPPER.equals(componentType)) {
             return configuration;
         }
+        if (!Boolean.parseBoolean(System.getProperty("talend.checkpoint.enabled", "false"))) {
+            return configuration;
+        }
         final ParameterMeta checkpoint = findCheckpointParameterMeta(plugin, name);
         if (checkpoint == null) {
             return configuration;
