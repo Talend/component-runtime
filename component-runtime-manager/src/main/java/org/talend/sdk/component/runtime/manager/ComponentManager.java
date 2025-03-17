@@ -804,6 +804,16 @@ public class ComponentManager implements AutoCloseable {
     }
 
     /**
+     * Convert a json value to a configuration map.
+     *
+     * @param jsonValue json value to convert to a configuration map
+     * @return a configuration map from a json value
+     */
+    public static Map<String, String> jsonToMap(final JsonValue jsonValue) {
+        return jsonToMap(jsonValue, "");
+    }
+
+    /**
      * Replace some keys in the configuration map.
      *
      * @param configuration original configuration
