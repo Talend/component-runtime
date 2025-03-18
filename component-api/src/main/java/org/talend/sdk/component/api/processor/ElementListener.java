@@ -27,8 +27,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(METHOD)
 @Retention(RUNTIME)
 public @interface ElementListener {
-    /**
-     * @return the name of the flow which will be displayed under some conditions
-     */
-    String conditionalFlows() default "";
 }
