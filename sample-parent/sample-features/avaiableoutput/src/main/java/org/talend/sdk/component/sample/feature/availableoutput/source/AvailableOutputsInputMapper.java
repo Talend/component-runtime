@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,19 +15,22 @@
  */
 package org.talend.sdk.component.sample.feature.availableoutput.source;
 
+import static java.util.Collections.singletonList;
 import org.talend.sdk.component.api.component.Icon;
+import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.input.*;
+import org.talend.sdk.component.api.input.Assessor;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.PartitionSize;
+import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.sample.feature.availableoutput.service.AvaiableoutputService;
 
 import java.io.Serializable;
 import java.util.List;
-
-import static java.util.Collections.singletonList;
-import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 
 //
 // this class role is to enable the work to be distributed in environments supporting it.

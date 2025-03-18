@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,8 +26,8 @@ import java.io.Serializable;
         // the generated layout put one configuration entry per line,
         // customize it as much as needed
         @GridLayout.Row({"dataset"}),
-        @GridLayout.Row({"showSecond"}),
-        @GridLayout.Row({"showThird"})
+        @GridLayout.Row({"showSecond2"}),
+        @GridLayout.Row({"showThird2"})
 })
 @Documentation("TODO fill the documentation for this configuration")
 public class Configuration2 implements Serializable {
@@ -37,11 +37,11 @@ public class Configuration2 implements Serializable {
 
     @Option
     @Documentation("Show second output or not.")
-    private boolean showSecond;
+    private boolean showSecond2;
 
     @Option
     @Documentation("Show third output or not.")
-    private boolean showThird;
+    private boolean showThird2;
 
     public CustomDataset getDataset() {
         return dataset;
@@ -53,20 +53,20 @@ public class Configuration2 implements Serializable {
     }
 
     public boolean getShowSecond() {
-        return showSecond;
+        return showSecond2;
     }
 
     public Configuration2 setShowSecond(final boolean showSecond) {
-        this.showSecond = showSecond;
+        this.showSecond2 = showSecond;
         return this;
     }
 
     public boolean getShowThird() {
-        return showThird;
+        return showThird2;
     }
 
     public Configuration2 setShowThird(final boolean showThird) {
-        this.showThird = showThird;
+        this.showThird2 = showThird;
         return this;
     }
 }

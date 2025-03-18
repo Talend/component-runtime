@@ -19,5 +19,4 @@ package org.talend.sdk.component.sample.feature.availableoutput;
 
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
-
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
