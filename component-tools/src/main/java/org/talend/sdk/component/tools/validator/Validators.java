@@ -15,6 +15,17 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Stream;
+import static java.util.stream.Stream.of;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
@@ -29,14 +40,6 @@ import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.reflect.ParameterModelService;
 import org.talend.sdk.component.tools.ComponentValidator.Configuration;
 import org.talend.sdk.component.tools.spi.ValidationExtension;
-
-import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
-import java.util.*;
-import java.util.stream.Stream;
-
-import static java.util.stream.Stream.of;
 
 public class Validators {
 

@@ -22,7 +22,6 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -294,7 +293,6 @@ public class ActionValidator implements Validator {
                 .filter(m -> !hasStringInList(m))
                 .map(m -> m + " should return List<String>")
                 .sorted();
-        final Map<String, Object> configs = new HashMap<>();
 
         final Stream<String> onlyOneProcessor = finder
                 .findAnnotatedMethods(AvailableOutputFlows.class)
@@ -312,13 +310,7 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should own one related processor for this method")
                 .sorted();
 
-        finder.findAnnotatedClasses(ConditionalOutputFlows.class)
-                .stream()
-                .forEach(p -> {
-                    String key = p.getAnnotation(ConditionalOutputFlows.class).value();
-                });
-
-        return Stream.of(mustHasName, mustHasNamePro, returnType, optionParameter, onlyOneProcessor)
+        return Stream.of(mustHasName, mustHasNamePro, returnType, optionParameter, onlyOneProcessor, sameConfigWithProcessor)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
@@ -331,7 +323,7 @@ public class ActionValidator implements Validator {
                 .count() == 1;
     }
 
-    private boolean hasSameConfig(Method method, Class<?> p) {
+    private boolean hasSameConfig(final Method method, final Class<?> p) {
         return Arrays.stream(method.getParameters())
                 .filter(m -> Arrays.stream(p.getDeclaredFields())
                         .filter(f -> f.getType() == m.getType())
