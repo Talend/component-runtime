@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -26,10 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import static java.util.function.Function.identity;
 import java.util.stream.Collectors;
-import static java.util.stream.Collectors.toMap;
 import java.util.stream.Stream;
+
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.configuration.Option;
