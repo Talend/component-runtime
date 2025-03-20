@@ -15,6 +15,11 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.of;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -30,21 +35,16 @@ import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import static java.util.Optional.ofNullable;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-import static java.util.stream.Collectors.toList;
 import java.util.stream.Stream;
-import static java.util.stream.Stream.of;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.internationalization.Internationalized;
@@ -58,6 +58,9 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
 import org.talend.sdk.component.tools.ComponentHelper;
 import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class InternationalizationValidator implements Validator {

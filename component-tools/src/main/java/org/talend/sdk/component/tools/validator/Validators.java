@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import static java.util.stream.Stream.of;
+
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Stream;
-import static java.util.stream.Stream.of;
+
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;

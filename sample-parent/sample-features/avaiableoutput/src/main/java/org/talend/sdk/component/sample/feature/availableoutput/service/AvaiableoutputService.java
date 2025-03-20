@@ -15,15 +15,15 @@
  */
 package org.talend.sdk.component.sample.feature.availableoutput.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
 import org.talend.sdk.component.sample.feature.availableoutput.output.Configuration;
 import org.talend.sdk.component.sample.feature.availableoutput.output.Configuration2;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @Service
 public class AvaiableoutputService {
@@ -49,7 +49,7 @@ public class AvaiableoutputService {
         return flows;
     }
 
-    @AvailableOutputFlows("output-flow1")
+    @AvailableOutputFlows("output-flow2")
     public Collection<String> getAvailableFlows2(final @Option("configuration") Configuration2 config) {
         List<String> flows = new ArrayList<>();
         if (config.getShowSecond()) {

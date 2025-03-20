@@ -15,13 +15,13 @@
  */
 package org.talend.sdk.component.sample.feature.availableoutput.dataset;
 
+import java.io.Serializable;
+
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.sample.feature.availableoutput.datastore.CustomDatastore;
-
-import java.io.Serializable;
 
 @DataSet("CustomDataset")
 @GridLayout({

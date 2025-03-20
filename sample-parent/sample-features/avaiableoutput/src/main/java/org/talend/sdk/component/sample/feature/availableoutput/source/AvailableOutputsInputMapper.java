@@ -16,8 +16,12 @@
 package org.talend.sdk.component.sample.feature.availableoutput.source;
 
 import static java.util.Collections.singletonList;
-import org.talend.sdk.component.api.component.Icon;
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
+
+import java.io.Serializable;
+import java.util.List;
+
+import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Assessor;
@@ -28,9 +32,6 @@ import org.talend.sdk.component.api.input.Split;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.sample.feature.availableoutput.service.AvaiableoutputService;
-
-import java.io.Serializable;
-import java.util.List;
 
 //
 // this class role is to enable the work to be distributed in environments supporting it.

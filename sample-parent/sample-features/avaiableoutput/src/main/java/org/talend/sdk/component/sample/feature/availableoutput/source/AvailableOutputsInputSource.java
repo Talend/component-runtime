@@ -15,16 +15,17 @@
  */
 package org.talend.sdk.component.sample.feature.availableoutput.source;
 
+import java.io.Serializable;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.sample.feature.availableoutput.service.AvaiableoutputService;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.Serializable;
 
 @Documentation("TODO fill the documentation for this source")
 public class AvailableOutputsInputSource implements Serializable {

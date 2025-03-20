@@ -30,6 +30,7 @@
   <modules>
     <module>fixed-schema</module>
     <module>aftergroup-lastgroup</module>
+    <module>avaiableoutput</module>
   </modules>
 
   <dependencies>

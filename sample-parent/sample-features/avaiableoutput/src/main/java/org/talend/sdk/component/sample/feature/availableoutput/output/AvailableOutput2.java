@@ -15,8 +15,13 @@
  */
 package org.talend.sdk.component.sample.feature.availableoutput.output;
 
-import org.talend.sdk.component.api.component.Icon;
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
+
+import java.io.Serializable;
+
+import javax.annotation.PostConstruct;
+
+import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.widget.ConditionalOutputFlows;
@@ -28,9 +33,6 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.sample.feature.availableoutput.service.AvaiableoutputService;
-
-import javax.annotation.PostConstruct;
-import java.io.Serializable;
 
 @Version(1)
 // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
