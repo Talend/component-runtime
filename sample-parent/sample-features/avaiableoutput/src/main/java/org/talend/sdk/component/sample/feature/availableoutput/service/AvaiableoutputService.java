@@ -16,7 +16,6 @@
 package org.talend.sdk.component.sample.feature.availableoutput.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
@@ -38,7 +37,7 @@ public class AvaiableoutputService {
 
 
     @AvailableOutputFlows("output-flow1")
-    public Collection<String> getAvailableFlows(final @Option("configuration") Configuration config) {
+    public List<String> getAvailableFlows(final @Option("configuration") Configuration config) {
         List<String> flows = new ArrayList<>();
         if (config.getShowSecond()) {
             flows.add(SECOND_FLOW_NAME);
@@ -50,7 +49,7 @@ public class AvaiableoutputService {
     }
 
     @AvailableOutputFlows("output-flow2")
-    public Collection<String> getAvailableFlows2(final @Option("configuration") Configuration2 config) {
+    public List<String> getAvailableFlows2(final @Option("configuration") Configuration2 config) {
         List<String> flows = new ArrayList<>();
         if (config.getShowSecond()) {
             flows.add(SECOND_FLOW_NAME2);

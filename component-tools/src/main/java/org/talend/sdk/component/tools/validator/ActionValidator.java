@@ -107,6 +107,8 @@ public class ActionValidator implements Validator {
         // returned type for @Update, for now limit it on objects and not primitives
         final Stream<String> updatesErrors = this.findUpdatesErrors(finder);
 
+        final Stream<String> availableOutputFlowsErrorssErrors = this.findAvailableOutputFlowsErrors(finder);
+
         final Stream<String> enumProposable = finder
                 .findAnnotatedFields(Proposable.class)
                 .stream()
@@ -141,6 +143,7 @@ public class ActionValidator implements Validator {
                         discoverProcessor, //
                         dynamicDependencyErrors, //
                         updatesErrors, //
+                        availableOutputFlowsErrorssErrors, //
                         enumProposable, //
                         proposableWithoutDynamic) //
                 .reduce(Stream::concat)
@@ -286,7 +289,7 @@ public class ActionValidator implements Validator {
                 .findAnnotatedMethods(AvailableOutputFlows.class)
                 .stream()
                 .filter(m -> !hasOptionConfiguration(m))
-                .map(m -> m + " should have an configuration parameter marked with @Option(\"configuration\")")
+                .map(m -> m + " should have an parameter marked with @Option(\"configuration\")")
                 .sorted();
 
         final Stream<String> returnType = finder
@@ -299,8 +302,8 @@ public class ActionValidator implements Validator {
         final Stream<String> onlyOneProcessor = finder
                 .findAnnotatedMethods(AvailableOutputFlows.class)
                 .stream()
-                .filter(m -> !hasOneSameNameProcessor(m.getName(), finder))
-                .map(m -> m + " should own one related processor for this method")
+                .filter(m -> !hasOneSameNameProcessor(m.getAnnotation(AvailableOutputFlows.class).value(), finder))
+                .map(m -> m + " should own one related processor for this method (by using @ConditionalOutputFlows)")
                 .sorted();
 
         //<availableName, configurationType>
@@ -309,7 +312,7 @@ public class ActionValidator implements Validator {
                 .findAnnotatedMethods(AvailableOutputFlows.class)
                 .stream()
                 .filter(m -> !hasSameConfigInProcessor(m, finder))
-                .map(m -> m + " should own one related processor for this method")
+                .map(m -> m + " should use the same type of Configuration as the related processor for this method")
                 .sorted();
 
         return Stream.of(mustHasName, mustHasNamePro, returnType, optionParameter, onlyOneProcessor, sameConfigWithProcessor)
@@ -320,7 +323,8 @@ public class ActionValidator implements Validator {
     private boolean hasSameConfigInProcessor(final Method method, final AnnotationFinder finder) {
         return finder.findAnnotatedClasses(ConditionalOutputFlows.class)
                 .stream()
-                .filter(p -> method.getName().equals(p.getAnnotation(ConditionalOutputFlows.class).value()))
+                .filter(p -> method.getAnnotation(AvailableOutputFlows.class).value()
+                        .equals(p.getAnnotation(ConditionalOutputFlows.class).value()))
                 .filter(p -> hasSameConfig(method, p))
                 .count() == 1;
     }
@@ -408,7 +412,7 @@ public class ActionValidator implements Validator {
     private boolean hasOptionConfiguration(final Method method) {
         return Arrays.stream(method.getParameters())
                 .filter(p -> p.isAnnotationPresent(Option.class))
-                .filter(p -> "configuration".equals(p.getName()))
+                .filter(p -> "configuration".equals(p.getAnnotation(Option.class).value()))
                 .count() == 1;
     }
 
