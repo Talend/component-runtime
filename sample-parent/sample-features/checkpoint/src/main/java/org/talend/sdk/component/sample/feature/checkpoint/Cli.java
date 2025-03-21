@@ -80,14 +80,15 @@ public final class Cli {
             @Option("mapper") @Default("input") final String mapper,
             @Option("configuration") @Default("./configuration.json") final File configurationFile,
             @Option("checkpoint") @Default("./checkpoint.json") final File checkpointFile,
-            @Option("re-use") @Default("true") final boolean reuse,
+            @Option("re-use") @Default("false") final boolean reuse,
             @Option("fail-after") @Default("-1") final int failAfter,
             @Option("log") @Default("false") final boolean log,
-            @Option("disable") @Default("false") final boolean disable,
+            @Option("disable-feature") @Default("false") final boolean disable,
             @Option("work-dir") @Default("./") final File work) {
         if (!disable) {
             System.setProperty("talend.checkpoint.enabled", "true");
         }
+
         //
         // check consistency and build parameters
         //
@@ -114,7 +115,7 @@ public final class Cli {
         final Consumer<CheckpointState> callback = (state) -> {
             checkpointId++;
             if (log) {
-                info("Checkpoint " + checkpointId + " reached.");
+                info("Checkpoint " + checkpointId + " reached with " + state.toJson() + ".");
             }
             File file;
             if (reuse) {
@@ -129,8 +130,7 @@ public final class Cli {
                 error("Failed to write checkpoint to file: " + e.getMessage());
             }
         };
-
-        try (final ComponentManager manager = manager(jar.getAbsolutePath(), gav)) {
+        try (final ComponentManager manager = manager(jar, gav)) {
             //
             // build configuration for mapper
             //
@@ -139,7 +139,7 @@ public final class Cli {
                     jsonConfig == null ? new HashMap<>() : manager.jsonToMap(jsonConfig);
             final JsonObject jsonCheckpoint = readJsonFromFile(checkpointFile);
             if (jsonCheckpoint != null) {
-                info("checkpoint: " + jsonCheckpoint);
+                info("checkpoint:    " + jsonCheckpoint);
                 Map<String, String> chk = manager.jsonToMap(jsonCheckpoint);
                 configuration.putAll(chk);
             }
@@ -167,7 +167,7 @@ public final class Cli {
         }
     }
 
-    public static ComponentManager manager(final String jar, final String artifact) {
+    public static ComponentManager manager(final File jar, final String artifact) {
         return new ComponentManager(findM2()) {
 
             final ContainerFinder containerFinder = ContainerFinder.Instance.get();
@@ -178,16 +178,16 @@ public final class Cli {
                 contextualInstance().set(this);
                 String containerId;
                 if (jar != null) {
-                    containerId = addPlugin(jar);
-                    Cli.info(String.format("plugin: %s from %s.", containerId, jar));
+                    containerId = addPlugin(jar.getAbsolutePath());
+                    Cli.info(String.format("Manager is using plugin %s from %s.", containerId, jar));
                 } else {
-                    final String pluginPath = ofNullable(GAV)
+                    final String pluginPath = ofNullable(artifact)
                             .map(gav -> mvnCoordinateToFileConverter.toArtifact(gav))
                             .map(Artifact::toPath)
                             .orElseThrow(() -> new IllegalArgumentException("Plugin GAV can't be empty"));
                     String p = findM2().resolve(pluginPath).toAbsolutePath().toString();
                     containerId = addPlugin(p);
-                    Cli.info(String.format("plugin: %s from GAV %s.", containerId, artifact));
+                    Cli.info(String.format("Manager is using plugin: %s from GAV %s.", containerId, artifact));
                 }
                 DynamicContainerFinder.SERVICES.put(RecordBuilderFactory.class,
                         new RecordBuilderFactoryImpl(containerId));
