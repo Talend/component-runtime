@@ -208,7 +208,7 @@ public class ResumeableInput implements Serializable {
                     incomingData.remove("sinceId");
                 }
             }
-            incomingData.entrySet().forEach(e -> System.err.println("out " + e.getKey() + "=" + e.getValue()));
+            incomingData.entrySet().forEach(e -> log.info("[migrate] {}={}.", e.getKey(), e.getValue()));
             return incomingData;
         }
     }
