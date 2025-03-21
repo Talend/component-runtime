@@ -63,7 +63,7 @@ public final class Cli {
 
     static final String DATA = "[DATA]  ";
 
-    static final String GAV = "org.talend.sdk.component.sample.feature:checkpoint:jar:1.79.0-SNAPSHOT";
+    static final String GAV = "org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT";
 
     static MvnCoordinateToFileConverter mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
 

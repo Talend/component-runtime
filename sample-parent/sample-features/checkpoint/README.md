@@ -24,14 +24,14 @@ To run the connector, you need exec the generated artifact `org.talend.sdk.compo
 You can run it directly from `target` folder or repository folder:
 
 ```bash
-java -jar target/checkpoint-1.79.0-SNAPSHOT-exec.jar
+java -jar target/checkpoint-1.80.0-SNAPSHOT-exec.jar
 
 ```
 
 or you can run it from the maven repository:
 
 ```bash
-java -jar ~/.m2/repository/org/talend/sdk/component/sample/feature/checkpoint/1.79.0-SNAPSHOT/checkpoint-1.79.0-SNAPSHOT.jar
+java -jar ~/.m2/repository/org/talend/sdk/component/sample/feature/checkpoint/1.80.0-SNAPSHOT/checkpoint-1.80.0-SNAPSHOT.jar
 ```
 
 For later usage, will use the variable `$RUNCMD` as the way you may choose.
@@ -57,7 +57,7 @@ Options:
   --family=<String>          Family of the component to use for the checkpoint.
                              (default: checkpoint)
   --gav=<String>             GAV of the component to use for the checkpoint.
-                             (default: org.talend.sdk.component.sample.feature:checkpoint:jar:1.79.0-SNAPSHOT)
+                             (default: org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT)
   --jar=<File>               Full path to jar of the component to use for the checkpoint.
   --log                      Log when a checkpoint is serialized.
   --mapper=<String>          Mapper to use for the checkpoint.
@@ -69,10 +69,10 @@ Options:
 
 ### Run checkpoint with default behavior
 
-`java -jar target/checkpoint-1.79.0-SNAPSHOT.jar checkpoint`
+`java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint`
 
 ```bash 
-[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.79.0-SNAPSHOT.
+[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT.
 [WARN]  ./configuration.json (No such file or directory)
 [WARN]  ./checkpoint.json (No such file or directory)
 [INFO]  configuration: {}
@@ -103,10 +103,10 @@ Options:
 
 and turn log verbose on:
 
-`% java -jar target/checkpoint-1.79.0-SNAPSHOT.jar checkpoint --configuration=configuration-default.json --log`
+`% java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint --configuration=configuration-default.json --log`
 
 ```bash
-[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.79.0-SNAPSHOT.
+[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT.
 [WARN]  ./checkpoint.json (No such file or directory)
 [INFO]  configuration: {configuration.dataset.maxRecords=10}
 [INFO]  Checkpoint 1 reached with {"$checkpoint":{"sinceId":0,"status":"running","__version":2}}.
@@ -145,10 +145,10 @@ Check generated checkpoint file `checkpoint.json`:
 
 and turn log verbose on:
 
-`% java -jar target/checkpoint-1.79.0-SNAPSHOT.jar checkpoint --disable-feature --log`
+`% java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint --disable-feature --log`
 
 ```bash
-[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.79.0-SNAPSHOT.
+[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT.
 [WARN]  ./configuration.json (No such file or directory)
 [WARN]  ./checkpoint.json (No such file or directory)
 [INFO]  configuration: {}
