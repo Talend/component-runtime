@@ -82,7 +82,11 @@ public class CheckpointInput implements Serializable {
             if ("finished".equals(configuration.checkpoint.status)) {
                 bookmark = 0;
             } else {
-                bookmark = configuration.checkpoint.sinceId;
+                if (configuration.checkpoint.sinceId > configuration.dataset.maxRecords) {
+                    bookmark = 0;
+                } else {
+                    bookmark = configuration.checkpoint.sinceId;
+                }
             }
         }
         if (bookmark == null) {
