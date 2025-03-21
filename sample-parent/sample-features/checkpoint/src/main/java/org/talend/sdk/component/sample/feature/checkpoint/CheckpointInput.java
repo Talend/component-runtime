@@ -111,11 +111,11 @@ public class CheckpointInput implements Serializable {
             newBookmark = true;
         }
 
-        return factory.createObjectBuilder().add("data", produced).build();
+        return factory.createObjectBuilder().add("data", configuration.recordPrefix + produced).build();
     }
 
     @CheckpointData
-    public CheckPointInputConfig getCheckpoint() {
+    public Object getCheckpoint() {
         newBookmark = false;
         return configuration.checkpoint;
     }
@@ -136,36 +136,36 @@ public class CheckpointInput implements Serializable {
 
         @Option
         @Documentation("Record prefix message.")
-        private String recordPrefix;
+        private String recordPrefix = "";
 
         @Option
         @Documentation("Dataset.")
-        private CheckpointDataset dataset = new CheckpointDataset();
+        private Dataset dataset = new Dataset();
 
         @Option
         @Documentation("Checkpointing configuration.")
-        private CheckPointInputConfig checkpoint = new CheckPointInputConfig();
+        private CheckPointConfig checkpoint = new CheckPointConfig();
     }
 
     @DataSet
     @Data
     @GridLayout(value = { @GridLayout.Row("maxRecords"), @GridLayout.Row("datastore") })
-    public static class CheckpointDataset implements Serializable {
+    public static class Dataset implements Serializable {
 
         @Option
         @Documentation("Datastore.")
-        private CheckpointDatastore datastore = new CheckpointDatastore();
+        private Datastore datastore = new Datastore();
 
         @Option
-        @DefaultValue("10")
+        @DefaultValue("20")
         @Documentation("Max records in dataset.")
-        private int maxRecords = 10;
+        private int maxRecords = 20;
     }
 
     @DataStore
     @Data
     @GridLayout(value = { @GridLayout.Row("systemId") })
-    public static class CheckpointDatastore implements Serializable {
+    public static class Datastore implements Serializable {
 
         @Option
         @Documentation("Useless datastore prop.")
@@ -175,10 +175,10 @@ public class CheckpointInput implements Serializable {
     @Data
     @Checkpoint
     @Version(value = 2, migrationHandler = CheckpointMigrationHandler.class)
-    public static class CheckPointInputConfig implements Serializable {
+    public static class CheckPointConfig implements Serializable {
 
         @Option
-        @Documentation("Checkpointing state : last id.")
+        @Documentation("Checkpointing state : since id.")
         private int sinceId;
 
         @Option
@@ -186,7 +186,7 @@ public class CheckpointInput implements Serializable {
         private String status;
     }
 
-    static class CheckpointMigrationHandler implements MigrationHandler {
+    public static class CheckpointMigrationHandler implements MigrationHandler {
 
         /**
          * @param incomingVersion the version of associatedData values.
@@ -197,12 +197,11 @@ public class CheckpointInput implements Serializable {
         @Override
         public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
             if (incomingVersion < 2) {
-                if (incomingData.containsKey("since_id")) {
-                    incomingData.put("sinceId", incomingData.get("since_id"));
-                    incomingData.remove("since_id");
+                if (incomingData.containsKey("lastId")) {
+                    incomingData.put("sinceId", incomingData.get("lastId"));
+                    incomingData.remove("lastId");
                 }
             }
-            incomingData.entrySet().forEach(e -> System.err.println("out " + e.getKey() + "=" + e.getValue()));
             return incomingData;
         }
     }

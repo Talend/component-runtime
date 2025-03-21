@@ -26,7 +26,7 @@
   <artifactId>checkpoint</artifactId>
   <packaging>jar</packaging>
 
-  <name>Component Runtime :: Sample Feature Checkpoint</name>
+  <name>Component Runtime :: Sample Feature :: Checkpoint</name>
 
   <dependencies>
     <dependency>
@@ -98,6 +98,14 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <mainClass>org.talend.sdk.component.sample.feature.checkpoint.Cli</mainClass>
+        </configuration>
       </plugin>
     </plugins>
   </build>
