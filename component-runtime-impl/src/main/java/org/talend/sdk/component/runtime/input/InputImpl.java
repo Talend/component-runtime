@@ -15,6 +15,8 @@
  */
 package org.talend.sdk.component.runtime.input;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -22,10 +24,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
 import javax.json.bind.Jsonb;
 
+import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.input.checkpoint.CheckpointAvailable;
+import org.talend.sdk.component.api.input.checkpoint.CheckpointData;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.LifecycleImpl;
@@ -35,7 +41,9 @@ import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient Method next;
@@ -48,12 +56,41 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient RecordBuilderFactory recordBuilderFactory;
 
+    private transient Method checkpoint;
+
+    private transient Method shouldCheckpoint;
+
+    private transient Consumer<CheckpointState> checkpointCallback;
+
+    public boolean checkpointEnabled = Boolean.parseBoolean(System.getProperty("talend.checkpoint.enabled", "false"));
+
     public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
         super(instance, rootName, name, plugin);
     }
 
     protected InputImpl() {
         // no-op
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        initCheckpointFunctions();
+    }
+
+    @Override
+    public void start(final Consumer checkpointConsumer) {
+        start();
+        if (checkpointEnabled) {
+            checkpointCallback = checkpointConsumer;
+        }
+    }
+
+    protected void initCheckpointFunctions() {
+        if (checkpointEnabled) {
+            checkpoint = findMethods(CheckpointData.class).findFirst().orElse(null);
+            shouldCheckpoint = findMethods(CheckpointAvailable.class).findFirst().orElse(null);
+        }
     }
 
     @Override
@@ -65,12 +102,48 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
         if (record == null) {
             return null;
         }
+        // do we need to checkpoint here?
+        if (isCheckpointReady() && checkpointCallback != null) {
+            checkpointCallback.accept(getCheckpoint());
+        }
         final Class<?> recordClass = record.getClass();
         if (recordClass.isPrimitive() || String.class == recordClass) {
             // mainly for tests, can be dropped while build is green
             return record;
         }
         return converters.toRecord(registry, record, this::jsonb, this::recordBuilderFactory);
+    }
+
+    @Override
+    public CheckpointState getCheckpoint() {
+        if (checkpoint != null) {
+            Object state = doInvoke(this.checkpoint);
+            int version = 1;
+            if (ofNullable(state.getClass().getAnnotation(Version.class)).isPresent()) {
+                version = state.getClass().getAnnotation(Version.class).value();
+            }
+            return new CheckpointState(version, state);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isCheckpointReady() {
+        boolean checked = checkpointEnabled ? true : false;
+        if (shouldCheckpoint != null) {
+            checked = (Boolean) doInvoke(this.shouldCheckpoint);
+        }
+        return checked;
+    }
+
+    @Override
+    public void stop() {
+        // do we need to checkpoint here?
+        if (checkpointCallback != null) {
+            checkpointCallback.accept(getCheckpoint());
+        }
+        //
+        super.stop();
     }
 
     @Override

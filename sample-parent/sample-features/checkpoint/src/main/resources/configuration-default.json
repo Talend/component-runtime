@@ -1,0 +1,8 @@
+{
+  "configuration": {
+    "recordPrefix" : "merdoum",
+    "dataset": {
+      "maxRecords": 20
+    }
+  }
+}

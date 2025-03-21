@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
+import java.util.function.Consumer;
+
+import org.talend.sdk.component.runtime.input.CheckpointState;
 import org.talend.sdk.component.runtime.manager.chain.internal.DSLParser;
 import org.talend.sdk.component.runtime.manager.chain.internal.JobImpl;
 
@@ -34,6 +37,8 @@ public interface Job {
     interface NodeBuilder extends ComponentBuilder {
 
         NodeBuilder property(String name, Object value);
+
+        NodeBuilder checkpoint(Consumer<CheckpointState> checkpoint);
 
         FromBuilder connections();
     }
@@ -77,6 +82,8 @@ public interface Job {
         private boolean isSource = false;
 
         private final DSLParser.Step node;
+
+        private Consumer<CheckpointState> checkpointCallback;
     }
 
     @Data

@@ -1,0 +1,9 @@
+{
+  "$checkpoint": {
+    "sinceId": 50,
+    "lastUpdate": "2023-02-31",
+    "status": "running",
+    "strategy": "BY_ID",
+    "__version": 1
+  }
+}
