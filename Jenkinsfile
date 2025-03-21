@@ -241,8 +241,10 @@ pipeline {
         script {
           echo "edit asdf tool version with version from jenkins param"
 
-          String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
-          String mavenVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
+                                                    'java', params.JAVA_VERSION)
+          String mavenVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
+                                                     'maven', params.MAVEN_VERSION)
           jenkinsJobTools.job_description_append("Use java $javaVersion with maven  $mavenVersion  ")
 
           println "asdf install the content of repository .tool-versions'\n"
@@ -694,8 +696,8 @@ pipeline {
             currentBuild.result,
             prevResult,
             true, // Post for success
-            true, // Post for failure
-            "Failure of $pomVersion $params.ACTION.")
+            false // Post for failure
+        )
       }
       recordIssues(
           enabledForFailure: false,
