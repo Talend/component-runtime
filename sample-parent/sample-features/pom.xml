@@ -30,7 +30,7 @@
   <modules>
     <module>fixed-schema</module>
     <module>aftergroup-lastgroup</module>
-    <module>checkpoint</module>
+    <module>checkpoint-runner</module>
   </modules>
 
   <dependencies>

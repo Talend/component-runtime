@@ -27,7 +27,6 @@ import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;
@@ -52,9 +51,7 @@ import lombok.Data;
 @Emitter(family = "checkpoint", name = "input")
 public class CheckpointInput implements Serializable {
 
-    private final JsonBuilderFactory factory;
-
-    private final Jsonb jsonb;
+    private final transient JsonBuilderFactory factory;
 
     private List<Integer> data;
 
@@ -64,12 +61,10 @@ public class CheckpointInput implements Serializable {
 
     private boolean newBookmark;
 
-    private final InputConfig configuration;
+    private final transient InputConfig configuration;
 
-    public CheckpointInput(final JsonBuilderFactory factory, final Jsonb jsonb,
-            @Option("configuration") final InputConfig config) {
+    public CheckpointInput(final JsonBuilderFactory factory, @Option("configuration") final InputConfig config) {
         this.factory = factory;
-        this.jsonb = jsonb;
         this.configuration = config;
     }
 
@@ -192,6 +187,8 @@ public class CheckpointInput implements Serializable {
 
     public static class CheckpointMigrationHandler implements MigrationHandler {
 
+        public static final String OLD_KEY = "lastId";
+
         /**
          * @param incomingVersion the version of associatedData values.
          * @param incomingData the data sent from the caller. Keys are using the path of the property as in component
@@ -200,12 +197,10 @@ public class CheckpointInput implements Serializable {
          */
         @Override
         public Map<String, String> migrate(final int incomingVersion, final Map<String, String> incomingData) {
-            if (incomingVersion < 2) {
-                if (incomingData.containsKey("lastId")) {
-                    incomingData.put("sinceId", incomingData.get("lastId"));
-                    incomingData.remove("lastId");
+            if (incomingVersion < 2 && incomingData.containsKey(OLD_KEY)) {
+                incomingData.put("sinceId", incomingData.get(OLD_KEY));
+                incomingData.remove(OLD_KEY);
                 }
-            }
             return incomingData;
         }
     }

@@ -24,4 +24,7 @@
     <logger name="org.talend.sdk.component.runtime.input.InputImpl" level="debug" additivity="false">
         <appender-ref ref="CONSOLE" />
     </logger>
+    <logger name="org.talend.sdk.component.sample.feature.checkpoint.Cli" level="debug" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
 </configuration>

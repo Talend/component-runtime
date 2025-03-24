@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
 
+import java.Versions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -51,7 +52,9 @@ import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = PRIVATE)
 public final class Cli {
 
@@ -63,7 +66,9 @@ public final class Cli {
 
     static final String DATA = "[DATA]  ";
 
-    static final String GAV = "org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT";
+    static final String GAV = "org.talend.sdk.component.sample.feature:checkpoint:jar:" + Versions.KIT_VERSION;
+
+    public static final String ERROR_NOT_A_FILE = "Not a file: ";
 
     static MvnCoordinateToFileConverter mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
 
@@ -97,14 +102,14 @@ public final class Cli {
                 error("Cannot mix arguments --gav and --jar.");
             }
             if (!jar.isFile()) {
-                error("Not a file: " + jar.getAbsolutePath());
+                error(ERROR_NOT_A_FILE + jar.getAbsolutePath());
             }
         }
         if (!configurationFile.exists() && !configurationFile.getPath().equals("./configuration.json")) {
-            error("Not a file: " + configurationFile.getAbsolutePath());
+            error(ERROR_NOT_A_FILE + configurationFile.getAbsolutePath());
         }
         if (!checkpointFile.exists() && !checkpointFile.getPath().equals("./checkpoint.json")) {
-            error("Not a file: " + checkpointFile.getAbsolutePath());
+            error(ERROR_NOT_A_FILE + checkpointFile.getAbsolutePath());
         }
         if (!work.exists()) {
             work.mkdirs();
@@ -112,7 +117,7 @@ public final class Cli {
         //
         // define the checkpoint callback
         //
-        final Consumer<CheckpointState> callback = (state) -> {
+        final Consumer<CheckpointState> callback = state -> {
             checkpointId++;
             if (log) {
                 info("Checkpoint " + checkpointId + " reached with " + state.toJson() + ".");
@@ -135,8 +140,7 @@ public final class Cli {
             // build configuration for mapper
             //
             final JsonObject jsonConfig = readJsonFromFile(configurationFile);
-            final Map<String, String> configuration =
-                    jsonConfig == null ? new HashMap<>() : manager.jsonToMap(jsonConfig);
+            final Map<String, String> configuration = jsonConfig == null ? new HashMap<>() : manager.jsonToMap(jsonConfig);
             final JsonObject jsonCheckpoint = readJsonFromFile(checkpointFile);
             if (jsonCheckpoint != null) {
                 info("checkpoint:    " + jsonCheckpoint);
@@ -145,13 +149,15 @@ public final class Cli {
             }
             info("configuration: " + configuration);
             // create the mapper
-            final Mapper mpr = manager.findMapper(family, mapper, 1, configuration).get();
+            final Mapper mpr = manager.findMapper(family, mapper, 1, configuration)
+                    .orElseThrow(() -> new IllegalStateException(
+                            String.format("No mapper found for: %s/%s.", family, manager)));
             final InputImpl input = InputImpl.class.cast(mpr.create());
-            Object record;
+            Object data;
             // run lifecycle
             input.start(callback);
-            while ((record = input.next()) != null) {
-                data(record);
+            while ((data = input.next()) != null) {
+                data(data);
                 counter++;
                 if (failAfter > 0 && counter++ >= failAfter) {
                     error("Fail after " + failAfter + " records reached.");

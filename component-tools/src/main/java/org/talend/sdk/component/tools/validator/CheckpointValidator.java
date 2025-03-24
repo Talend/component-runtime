@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
-import org.talend.sdk.component.api.input.checkpoint.Checkpoint;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointAvailable;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointData;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -43,13 +42,11 @@ public class CheckpointValidator implements Validator {
 
     @Override
     public Stream<String> validate(final AnnotationFinder finder, final List<Class<?>> components) {
-        // get all the classes annotated with @Checkpoint
-        final List<Class<?>> checkpointClasses = finder.findAnnotatedClasses(Checkpoint.class);
         // get all the classes annotated with @CheckpointData and or @CheckpointAvailable
         final Map<Class<?>, Collection<ParameterMeta>> checkpointingInputs = components
                 .stream()
-                .filter(c -> isSource(c))
-                .filter(c -> hasAnyMethod(c))
+                .filter(this::isSource)
+                .filter(this::hasAnyMethod)
                 .collect(toMap(identity(), helper::buildOrGetParameters));
         // check if the input implements needed methods
         final Stream<String> missingMethods = checkpointingInputs.keySet()
