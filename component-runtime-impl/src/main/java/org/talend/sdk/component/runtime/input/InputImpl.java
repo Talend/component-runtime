@@ -62,7 +62,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     private transient Consumer<CheckpointState> checkpointCallback;
 
-    public boolean checkpointEnabled = Boolean.parseBoolean(System.getProperty("talend.checkpoint.enabled", "false"));
+    private boolean checkpointEnabled = Boolean.parseBoolean(System.getProperty("talend.checkpoint.enabled", "false"));
 
     public InputImpl(final String rootName, final String name, final String plugin, final Serializable instance) {
         super(instance, rootName, name, plugin);
@@ -98,20 +98,20 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
         if (next == null) {
             init();
         }
-        final Object record = readNext();
-        if (record == null) {
+        final Object data = readNext();
+        if (data == null) {
             return null;
         }
         // do we need to checkpoint here?
         if (isCheckpointReady() && checkpointCallback != null) {
             checkpointCallback.accept(getCheckpoint());
         }
-        final Class<?> recordClass = record.getClass();
+        final Class<?> recordClass = data.getClass();
         if (recordClass.isPrimitive() || String.class == recordClass) {
             // mainly for tests, can be dropped while build is green
-            return record;
+            return data;
         }
-        return converters.toRecord(registry, record, this::jsonb, this::recordBuilderFactory);
+        return converters.toRecord(registry, data, this::jsonb, this::recordBuilderFactory);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
 
     @Override
     public boolean isCheckpointReady() {
-        boolean checked = checkpointEnabled ? true : false;
+        boolean checked = checkpointEnabled;
         if (shouldCheckpoint != null) {
             checked = (Boolean) doInvoke(this.shouldCheckpoint);
         }
