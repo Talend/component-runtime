@@ -47,3 +47,19 @@ Mark a model (complex object) as being a dataset discovery configuration.
 ----
 
 
+= Checkpoint
+
+Mark a model (complex object) as being a checkpoint configuration and state.
+
+- API: @org.talend.sdk.component.api.input.checkpoint.Checkpoint
+- Sample:
+
+[source,js]
+----
+{
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"checkpoint"
+}
+----
+
+

@@ -167,6 +167,7 @@ class ComponentValidatorTest {
             cfg.setValidateWording(config.validateWording());
             cfg.setValidateExceptions(config.validateExceptions());
             cfg.setFailOnValidateExceptions(config.failOnValidateExceptions());
+            cfg.setValidateCheckpoint(true);
             Optional.of(config.pluginId()).filter(it -> !it.isEmpty()).ifPresent(cfg::setPluginId);
             listPackageClasses(pluginDir, config.value().replace('.', '/'));
             store.put(ComponentPackage.class.getName(), config);
@@ -657,6 +658,21 @@ class ComponentValidatorTest {
         spec
                 .expectMessage(
                         "- The Output component 'class org.talend.test.failure.multipleinputsforoutput.MyComponent' must have only one single input branch parameter in its ElementListener method.");
+    }
+
+    @Test
+    @ComponentPackage(value = "org.talend.test.valid.checkpoint", success = true, validateDataSet = false)
+    void testValidCheckpoint() {
+        // no-op
+    }
+
+    @Test
+    @ComponentPackage("org.talend.test.failure.checkpoint")
+    void testFailureCheckpoint(final ExceptionSpec spec) {
+        spec.expectMessage(
+                "- Missing checkpoint method (@CheckpointData or @CheckpointAvailable) for org.talend.test.failure.checkpoint.InputCheckpoint.\n"
+                        +
+                        "- The component org.talend.test.failure.checkpoint.InputCheckpoint is missing a checkpoint in its configuration (see @Checkpoint).");
     }
 
     // .properties are ok from the classpath, no need to copy them

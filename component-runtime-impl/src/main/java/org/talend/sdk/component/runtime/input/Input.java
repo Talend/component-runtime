@@ -15,10 +15,33 @@
  */
 package org.talend.sdk.component.runtime.input;
 
+import java.util.function.Consumer;
+
 import org.talend.sdk.component.runtime.base.Lifecycle;
 
 public interface Input extends Lifecycle {
 
     Object next();
+
+    /**
+     * Start the input with a checkpoint callback feature and resuming state.
+     */
+    default void start(final Consumer<CheckpointState> checkpointCallback) {
+        throw new UnsupportedOperationException("#start()");
+    }
+
+    /**
+     * Retrieve the current checkpoint.
+     */
+    default CheckpointState getCheckpoint() {
+        throw new UnsupportedOperationException("#getCheckpoint()");
+    }
+
+    /**
+     * Is a new checkpoint available.
+     */
+    default boolean isCheckpointReady() {
+        throw new UnsupportedOperationException("#isCheckpointReady()");
+    }
 
 }
