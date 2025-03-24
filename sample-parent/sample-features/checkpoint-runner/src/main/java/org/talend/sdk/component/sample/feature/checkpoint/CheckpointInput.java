@@ -200,7 +200,7 @@ public class CheckpointInput implements Serializable {
             if (incomingVersion < 2 && incomingData.containsKey(OLD_KEY)) {
                 incomingData.put("sinceId", incomingData.get(OLD_KEY));
                 incomingData.remove(OLD_KEY);
-                }
+            }
             return incomingData;
         }
     }
