@@ -67,6 +67,20 @@ Options:
                              (default: ./)
 ```
 
+### Plugin artifact
+
+There's two ways to run the checkpoint runner with a specific plugin artifact:
+
+- Using the `--gav` option to specify the GAV of the plugin artifact.
+
+    Syntax:  `groupId:artifactId:version[:packaging[:classifier]]`  
+
+- Using the `--jar` option to specify the path to the plugin artifact.
+
+    Syntax:  `/path/to/plugin.jar`
+
+IMPORTANT: You cannot use both options at the same time.
+
 ### Run checkpoint with default behavior
 
 `java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint`
@@ -208,10 +222,10 @@ Provide a `checkpoint-v1.json` file with the following content:
 ```json
 {
   "$checkpoint": {
-    "since_id": 10,
+    "lastId": 10,
     "status": "running",
     "__version": 1
   }
 }
 ```
-Notice the `since_id` field instead of `sinceId`.
+Notice the `lastId` field instead of `sinceId`.
