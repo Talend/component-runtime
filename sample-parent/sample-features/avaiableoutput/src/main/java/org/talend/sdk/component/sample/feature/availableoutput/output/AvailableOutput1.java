@@ -24,7 +24,7 @@ import javax.annotation.PostConstruct;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.ui.widget.ConditionalOutputFlows;
+import org.talend.sdk.component.api.configuration.ui.ConditionalOutputFlows;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
@@ -38,7 +38,7 @@ import org.talend.sdk.component.sample.feature.availableoutput.service.Avaiableo
 // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon(value = CUSTOM, custom = "AvailableOutputsOutput")
 // icon is located at src/main/resources/icons/AvailableOutputsOutput.svg
-@Processor(family = "sampleAvailableOutput", name = "AvailableOutputsOutput1")
+@Processor(family = "sampleAvailableOutput", name = "Output1")
 @Documentation("Sample for Available output flows.")
 @ConditionalOutputFlows("output-flow1")
 public class AvailableOutput1 implements Serializable {

@@ -39,7 +39,7 @@ import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.widget.ConditionalOutputFlows;
+import org.talend.sdk.component.api.configuration.ui.ConditionalOutputFlows;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;

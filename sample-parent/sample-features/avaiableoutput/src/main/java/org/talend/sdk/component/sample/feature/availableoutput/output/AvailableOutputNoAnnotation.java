@@ -15,16 +15,12 @@
  */
 package org.talend.sdk.component.sample.feature.availableoutput.output;
 
-import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
-
 import java.io.Serializable;
-
 import javax.annotation.PostConstruct;
-
 import org.talend.sdk.component.api.component.Icon;
+import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.ui.ConditionalOutputFlows;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
@@ -38,15 +34,14 @@ import org.talend.sdk.component.sample.feature.availableoutput.service.Avaiableo
 // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
 @Icon(value = CUSTOM, custom = "AvailableOutputsOutput")
 // icon is located at src/main/resources/icons/AvailableOutputsOutput.svg
-@Processor(family = "sampleAvailableOutput", name = "Output2")
+@Processor(family = "sampleAvailableOutput", name = "Output0")
 @Documentation("Sample for Available output flows.")
-@ConditionalOutputFlows("output-flow2")
-public class AvailableOutput2 implements Serializable {
-    private final Configuration2 configuration;
+public class AvailableOutputNoAnnotation implements Serializable {
+    private final Configuration configuration;
     private final AvaiableoutputService service;
 
-    public AvailableOutput2(@Option("configuration") final Configuration2 configuration,
-                            final AvaiableoutputService service) {
+    public AvailableOutputNoAnnotation(@Option("configuration") final Configuration configuration,
+                                       final AvaiableoutputService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -58,11 +53,11 @@ public class AvailableOutput2 implements Serializable {
         // Note: if you don't need it you can delete it
     }
 
+
     @ElementListener
     public void process(@Input final Record input,
                         @Output final OutputEmitter<Record> main,
-                        @Output(AvaiableoutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
-                        @Output(AvaiableoutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
+                        @Output("fixed-one") final OutputEmitter<Record> second) {
     }
 
 }
