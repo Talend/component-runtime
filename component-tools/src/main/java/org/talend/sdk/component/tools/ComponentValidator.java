@@ -302,5 +302,7 @@ public class ComponentValidator extends BaseTask {
 
         private boolean validateFixedSchema;
 
+        private boolean validateCheckpoint;
+
     }
 }
