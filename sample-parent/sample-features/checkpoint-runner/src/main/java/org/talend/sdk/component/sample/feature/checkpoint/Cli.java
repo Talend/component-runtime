@@ -19,7 +19,6 @@ import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
 
-import java.Versions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -66,7 +65,8 @@ public final class Cli {
 
     static final String DATA = "[DATA]  ";
 
-    static final String GAV = "org.talend.sdk.component.sample.feature:checkpoint:jar:" + Versions.KIT_VERSION;
+    static final String GAV = "org.talend.sdk.component.sample.feature:checkpoint:jar:"
+            + org.talend.sdk.component.sample.feature.checkpoint.Versions.KIT_VERSION;
 
     public static final String ERROR_NOT_A_FILE = "Not a file: ";
 
@@ -140,7 +140,8 @@ public final class Cli {
             // build configuration for mapper
             //
             final JsonObject jsonConfig = readJsonFromFile(configurationFile);
-            final Map<String, String> configuration = jsonConfig == null ? new HashMap<>() : manager.jsonToMap(jsonConfig);
+            final Map<String, String> configuration =
+                    jsonConfig == null ? new HashMap<>() : manager.jsonToMap(jsonConfig);
             final JsonObject jsonCheckpoint = readJsonFromFile(checkpointFile);
             if (jsonCheckpoint != null) {
                 info("checkpoint:    " + jsonCheckpoint);
