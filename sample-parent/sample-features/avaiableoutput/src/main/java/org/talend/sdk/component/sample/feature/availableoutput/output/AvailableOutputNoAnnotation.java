@@ -15,10 +15,13 @@
  */
 package org.talend.sdk.component.sample.feature.availableoutput.output;
 
-import java.io.Serializable;
-import javax.annotation.PostConstruct;
-import org.talend.sdk.component.api.component.Icon;
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
+
+import java.io.Serializable;
+
+import javax.annotation.PostConstruct;
+
+import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.meta.Documentation;
