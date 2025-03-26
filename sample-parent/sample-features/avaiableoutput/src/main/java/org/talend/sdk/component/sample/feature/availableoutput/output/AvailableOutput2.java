@@ -25,6 +25,7 @@ import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.ConditionalOutputFlows;
+import org.talend.sdk.component.api.meta.ConditionalOutput;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
@@ -40,6 +41,7 @@ import org.talend.sdk.component.sample.feature.availableoutput.service.Avaiableo
 // icon is located at src/main/resources/icons/AvailableOutputsOutput.svg
 @Processor(family = "sampleAvailableOutput", name = "Output2")
 @Documentation("Sample for Available output flows.")
+@ConditionalOutput("output-flow2")
 @ConditionalOutputFlows("output-flow2")
 public class AvailableOutput2 implements Serializable {
     private final Configuration2 configuration;
