@@ -29,13 +29,17 @@ import org.talend.sdk.component.sample.feature.availableoutput.service.Avaiableo
 
 @Documentation("TODO fill the documentation for this source")
 public class AvailableOutputsInputSource implements Serializable {
+
     private final AvailableOutputsInputMapperConfiguration configuration;
+
     private final AvaiableoutputService service;
+
     private final RecordBuilderFactory builderFactory;
 
-    public AvailableOutputsInputSource(@Option("configuration") final AvailableOutputsInputMapperConfiguration configuration,
-                                       final AvaiableoutputService service,
-                                       final RecordBuilderFactory builderFactory) {
+    public AvailableOutputsInputSource(
+            @Option("configuration") final AvailableOutputsInputMapperConfiguration configuration,
+            final AvaiableoutputService service,
+            final RecordBuilderFactory builderFactory) {
         this.configuration = configuration;
         this.service = service;
         this.builderFactory = builderFactory;

@@ -43,13 +43,17 @@ import org.talend.sdk.component.sample.feature.availableoutput.service.Avaiableo
 @PartitionMapper(name = "AvailableOutputsInput")
 @Documentation("TODO fill the documentation for this mapper.")
 public class AvailableOutputsInputMapper implements Serializable {
+
     private final AvailableOutputsInputMapperConfiguration configuration;
+
     private final AvaiableoutputService service;
+
     private final RecordBuilderFactory recordBuilderFactory;
 
-    public AvailableOutputsInputMapper(@Option("configuration") final AvailableOutputsInputMapperConfiguration configuration,
-                                       final AvaiableoutputService service,
-                                       final RecordBuilderFactory recordBuilderFactory) {
+    public AvailableOutputsInputMapper(
+            @Option("configuration") final AvailableOutputsInputMapperConfiguration configuration,
+            final AvaiableoutputService service,
+            final RecordBuilderFactory recordBuilderFactory) {
         this.configuration = configuration;
         this.service = service;
         this.recordBuilderFactory = recordBuilderFactory;
@@ -69,7 +73,8 @@ public class AvailableOutputsInputMapper implements Serializable {
         //
         // for instance if your estimateSize() returned 1000 and you can run on 10 nodes
         // then the environment can decide to run it concurrently (10 * 100).
-        // In this case bundles = 100 and we must try to return 10 AvailableOutputsInputMapper with 1/10 of the overall work each.
+        // In this case bundles = 100 and we must try to return 10 AvailableOutputsInputMapper with 1/10 of the overall
+        // work each.
         //
         // default implementation returns this which means it doesn't support the work to be split
         return singletonList(this);

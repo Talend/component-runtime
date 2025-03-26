@@ -30,7 +30,8 @@ import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
 /**
- * Search annotation {@link ConditionalOutput} and add a new meta information about name of related AvailableOutputsFlow.
+ * Search annotation {@link ConditionalOutput} and add a new meta information about name of related
+ * AvailableOutputsFlow.
  * NOTE. This functionality is used only in Studio.
  */
 public class ConditionalOutputMetadataEnricher implements ComponentMetadataEnricher {
@@ -53,9 +54,10 @@ public class ConditionalOutputMetadataEnricher implements ComponentMetadataEnric
                 .findFirst()
                 .map(ConditionalOutput.class::cast);
 
-        return metaValue.map(conditionalOutput -> Collections.singletonMap(META_KEY_RETURN_VARIABLE, conditionalOutput.value())).orElse(Collections.emptyMap());
+        return metaValue
+                .map(conditionalOutput -> Collections.singletonMap(META_KEY_RETURN_VARIABLE, conditionalOutput.value()))
+                .orElse(Collections.emptyMap());
 
     }
-
 
 }

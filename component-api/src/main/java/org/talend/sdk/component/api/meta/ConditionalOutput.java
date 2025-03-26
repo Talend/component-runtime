@@ -27,6 +27,7 @@ import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
 @Target(TYPE)
 @Retention(RUNTIME)
 public @interface ConditionalOutput {
+
     /**
      * @return value of @{@link AvailableOutputFlows} value method.
      */

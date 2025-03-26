@@ -27,11 +27,12 @@ import org.talend.sdk.component.sample.feature.availableoutput.datastore.CustomD
 @GridLayout({
         // the generated layout put one configuration entry per line,
         // customize it as much as needed
-        @GridLayout.Row({"datastore"}),
-        @GridLayout.Row({"anotherInput"})
+        @GridLayout.Row({ "datastore" }),
+        @GridLayout.Row({ "anotherInput" })
 })
 @Documentation("TODO fill the documentation for this configuration.")
 public class CustomDataset implements Serializable {
+
     @Option
     @Documentation("TODO fill the documentation for this parameter.")
     private CustomDatastore datastore;

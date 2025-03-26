@@ -25,12 +25,13 @@ import org.talend.sdk.component.sample.feature.availableoutput.dataset.CustomDat
 @GridLayout({
         // the generated layout put one configuration entry per line,
         // customize it as much as needed
-        @GridLayout.Row({"dataset"}),
-        @GridLayout.Row({"showSecond2"}),
-        @GridLayout.Row({"showThird2"})
+        @GridLayout.Row({ "dataset" }),
+        @GridLayout.Row({ "showSecond2" }),
+        @GridLayout.Row({ "showThird2" })
 })
 @Documentation("TODO fill the documentation for this configuration")
 public class Configuration2 implements Serializable {
+
     @Option
     @Documentation("Dataset.")
     private CustomDataset dataset;

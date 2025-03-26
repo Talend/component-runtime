@@ -25,10 +25,11 @@ import org.talend.sdk.component.sample.feature.availableoutput.dataset.CustomDat
 @GridLayout({
         // the generated layout put one configuration entry per line,
         // customize it as much as needed
-        @GridLayout.Row({"dataset"})
+        @GridLayout.Row({ "dataset" })
 })
 @Documentation("TODO fill the documentation for this configuration.")
 public class AvailableOutputsInputMapperConfiguration implements Serializable {
+
     @Option
     @Documentation("TODO fill the documentation for this parameter.")
     private CustomDataset dataset;

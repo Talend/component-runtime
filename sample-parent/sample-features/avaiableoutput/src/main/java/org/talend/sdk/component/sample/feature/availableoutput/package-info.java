@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 @Components(family = "sampleAvailableOutput", categories = "sample")
-@Icon(value = CUSTOM, custom = "sampleAvailableOutput") // icon is located at src/main/resources/icons/sampleAvailableOutput.svg
+@Icon(value = CUSTOM, custom = "sampleAvailableOutput") // icon is located at
+                                                        // src/main/resources/icons/sampleAvailableOutput.svg
 package org.talend.sdk.component.sample.feature.availableoutput;
 
 import static org.talend.sdk.component.api.component.Icon.IconType.CUSTOM;
 
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;
-

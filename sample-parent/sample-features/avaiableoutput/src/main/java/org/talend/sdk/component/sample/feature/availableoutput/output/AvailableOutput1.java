@@ -24,7 +24,7 @@ import javax.annotation.PostConstruct;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.ui.ConditionalOutputFlows;
+import org.talend.sdk.component.api.meta.ConditionalOutput;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
@@ -40,13 +40,15 @@ import org.talend.sdk.component.sample.feature.availableoutput.service.Avaiableo
 // icon is located at src/main/resources/icons/AvailableOutputsOutput.svg
 @Processor(family = "sampleAvailableOutput", name = "Output1")
 @Documentation("Sample for Available output flows.")
-@ConditionalOutputFlows("output-flow1")
+@ConditionalOutput("output-flow1")
 public class AvailableOutput1 implements Serializable {
+
     private final Configuration configuration;
+
     private final AvaiableoutputService service;
 
     public AvailableOutput1(@Option("configuration") final Configuration configuration,
-                            final AvaiableoutputService service) {
+            final AvaiableoutputService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -58,12 +60,11 @@ public class AvailableOutput1 implements Serializable {
         // Note: if you don't need it you can delete it
     }
 
-
     @ElementListener
     public void process(@Input final Record input,
-                        @Output final OutputEmitter<Record> main,
-                        @Output(AvaiableoutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
-                        @Output(AvaiableoutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
+            @Output final OutputEmitter<Record> main,
+            @Output(AvaiableoutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
+            @Output(AvaiableoutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
     }
 
 }

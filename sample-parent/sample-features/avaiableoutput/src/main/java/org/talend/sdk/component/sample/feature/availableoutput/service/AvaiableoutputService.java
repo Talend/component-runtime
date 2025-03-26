@@ -20,7 +20,10 @@ import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
+import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
+import org.talend.sdk.component.sample.feature.availableoutput.datastore.CustomDatastore;
 import org.talend.sdk.component.sample.feature.availableoutput.output.Configuration;
 import org.talend.sdk.component.sample.feature.availableoutput.output.Configuration2;
 
@@ -34,7 +37,6 @@ public class AvaiableoutputService {
     public final static String SECOND_FLOW_NAME2 = "second-2";
 
     public final static String THIRD_FLOW_NAME2 = "third-2";
-
 
     @AvailableOutputFlows("output-flow1")
     public List<String> getAvailableFlows(final @Option("configuration") Configuration config) {
@@ -58,5 +60,10 @@ public class AvaiableoutputService {
             flows.add(THIRD_FLOW_NAME2);
         }
         return flows;
+    }
+
+    @HealthCheck("available")
+    public HealthCheckStatus check(final CustomDatastore ds) {
+        return new HealthCheckStatus();
     }
 }

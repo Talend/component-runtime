@@ -40,11 +40,13 @@ import org.talend.sdk.component.sample.feature.availableoutput.service.Avaiableo
 @Processor(family = "sampleAvailableOutput", name = "Output0")
 @Documentation("Sample for Available output flows.")
 public class AvailableOutputNoAnnotation implements Serializable {
+
     private final Configuration configuration;
+
     private final AvaiableoutputService service;
 
     public AvailableOutputNoAnnotation(@Option("configuration") final Configuration configuration,
-                                       final AvaiableoutputService service) {
+            final AvaiableoutputService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -56,11 +58,10 @@ public class AvailableOutputNoAnnotation implements Serializable {
         // Note: if you don't need it you can delete it
     }
 
-
     @ElementListener
     public void process(@Input final Record input,
-                        @Output final OutputEmitter<Record> main,
-                        @Output("fixed-one") final OutputEmitter<Record> second) {
+            @Output final OutputEmitter<Record> main,
+            @Output("fixed-one") final OutputEmitter<Record> second) {
     }
 
 }

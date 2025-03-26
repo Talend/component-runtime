@@ -24,7 +24,6 @@ import javax.annotation.PostConstruct;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.ui.ConditionalOutputFlows;
 import org.talend.sdk.component.api.meta.ConditionalOutput;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -42,13 +41,14 @@ import org.talend.sdk.component.sample.feature.availableoutput.service.Avaiableo
 @Processor(family = "sampleAvailableOutput", name = "Output2")
 @Documentation("Sample for Available output flows.")
 @ConditionalOutput("output-flow2")
-@ConditionalOutputFlows("output-flow2")
 public class AvailableOutput2 implements Serializable {
+
     private final Configuration2 configuration;
+
     private final AvaiableoutputService service;
 
     public AvailableOutput2(@Option("configuration") final Configuration2 configuration,
-                            final AvaiableoutputService service) {
+            final AvaiableoutputService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -62,9 +62,9 @@ public class AvailableOutput2 implements Serializable {
 
     @ElementListener
     public void process(@Input final Record input,
-                        @Output final OutputEmitter<Record> main,
-                        @Output(AvaiableoutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
-                        @Output(AvaiableoutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
+            @Output final OutputEmitter<Record> main,
+            @Output(AvaiableoutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
+            @Output(AvaiableoutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
     }
 
 }

@@ -18,6 +18,7 @@ package org.talend.sdk.component.sample.feature.availableoutput.datastore;
 import java.io.Serializable;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -26,10 +27,12 @@ import org.talend.sdk.component.api.meta.Documentation;
 @GridLayout({
         // the generated layout put one configuration entry per line,
         // customize it as much as needed
-        @GridLayout.Row({"input"})
+        @GridLayout.Row({ "input" })
 })
 @Documentation("TODO fill the documentation for this configuration.")
+@Checkable("available")
 public class CustomDatastore implements Serializable {
+
     @Option
     @Documentation("TODO fill the documentation for this parameter.")
     private String input;

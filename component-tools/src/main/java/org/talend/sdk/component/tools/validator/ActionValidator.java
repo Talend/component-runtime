@@ -39,7 +39,7 @@ import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.ConditionalOutputFlows;
+import org.talend.sdk.component.api.meta.ConditionalOutput;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
@@ -263,7 +263,8 @@ public class ActionValidator implements Validator {
      * <li>@AvailableOutputFlows("name-for-one-processor")</li>
      * <li>public List<String> getAvailableOutputFlows(@Option("configuration") final Configuration config)</li>
      * <li>@ConditionalOutputFlows("name-for-one-processor") for some Processor</li>
-     * <li>The parameter of the method like Configuration must be the configuration of the Processor which used @ConditionalOutputFlows</li>
+     * <li>The parameter of the method like Configuration must be the configuration of the Processor which
+     * used @ConditionalOutputFlows</li>
      * </ul>
      *
      * @param finder
@@ -279,9 +280,9 @@ public class ActionValidator implements Validator {
                 .sorted();
 
         final Stream<String> mustHasNamePro = finder
-                .findAnnotatedClasses(ConditionalOutputFlows.class)
+                .findAnnotatedClasses(ConditionalOutput.class)
                 .stream()
-                .filter(p -> StringUtils.isEmpty(p.getAnnotation(ConditionalOutputFlows.class).value()))
+                .filter(p -> StringUtils.isEmpty(p.getAnnotation(ConditionalOutput.class).value()))
                 .map(p -> p + " must has a name to pair with related annotation @AvailableOutputFlows")
                 .sorted();
 
@@ -306,8 +307,8 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should own one related processor for this method (by using @ConditionalOutputFlows)")
                 .sorted();
 
-        //<availableName, configurationType>
-        //for each availableName: the processor has the same name(only 1) & config type
+        // <availableName, configurationType>
+        // for each availableName: the processor has the same name(only 1) & config type
         final Stream<String> sameConfigWithProcessor = finder
                 .findAnnotatedMethods(AvailableOutputFlows.class)
                 .stream()
@@ -315,16 +316,18 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should use the same type of Configuration as the related processor for this method")
                 .sorted();
 
-        return Stream.of(mustHasName, mustHasNamePro, returnType, optionParameter, onlyOneProcessor, sameConfigWithProcessor)
+        return Stream
+                .of(mustHasName, mustHasNamePro, returnType, optionParameter, onlyOneProcessor, sameConfigWithProcessor)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
 
     private boolean hasSameConfigInProcessor(final Method method, final AnnotationFinder finder) {
-        return finder.findAnnotatedClasses(ConditionalOutputFlows.class)
+        return finder.findAnnotatedClasses(ConditionalOutput.class)
                 .stream()
-                .filter(p -> method.getAnnotation(AvailableOutputFlows.class).value()
-                        .equals(p.getAnnotation(ConditionalOutputFlows.class).value()))
+                .filter(p -> method.getAnnotation(AvailableOutputFlows.class)
+                        .value()
+                        .equals(p.getAnnotation(ConditionalOutput.class).value()))
                 .filter(p -> hasSameConfig(method, p))
                 .count() == 1;
     }
@@ -338,9 +341,9 @@ public class ActionValidator implements Validator {
     }
 
     private boolean hasOneSameNameProcessor(final String name, final AnnotationFinder finder) {
-        return finder.findAnnotatedClasses(ConditionalOutputFlows.class)
+        return finder.findAnnotatedClasses(ConditionalOutput.class)
                 .stream()
-                .filter(p -> name.equals(p.getAnnotation(ConditionalOutputFlows.class).value()))
+                .filter(p -> name.equals(p.getAnnotation(ConditionalOutput.class).value()))
                 .count() == 1;
     }
 
