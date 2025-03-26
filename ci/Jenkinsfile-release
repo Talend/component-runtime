@@ -95,11 +95,9 @@ pipeline {
   parameters {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "BASIC_CONFIG",
-              sectionHeader: "Basic configuration",
+    separator(name: "BASIC_CONFIG", sectionHeader: "Basic configuration",
               sectionHeaderStyle: """ background-color: #ABEBC6;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold;""")
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     choice(
         name: 'ACTION',
@@ -113,30 +111,24 @@ pipeline {
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "VERSION_CONFIG",
-              sectionHeader: "Version configuration",
+    separator(name: "VERSION_CONFIG", sectionHeader: "Version configuration",
               sectionHeaderStyle: """ background-color: #F9E79F;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(name: 'JAVA_VERSION',
-           defaultValue: 'adoptopenjdk-17.0.5+8',
-           description: """Provided java version will be installed with asdf  
-                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9  
-                        """)
+           defaultValue: 'from .tool-versions',
+           description: """Provided java version will be installed with asdf
+                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9 """)
 
     string(name: 'MAVEN_VERSION',
-           defaultValue: '3.8.8',
-           description: """Provided maven version will be installed with asdf  
-                        Examples: 3.8.8, 4.0.0-beta-4  
-                        """)
+           defaultValue: 'from .tool-versions',
+           description: """Provided maven version will be installed with asdf
+                        Examples: 3.8.8, 4.0.0-beta-4 """)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "ADVANCED_CONFIG",
-              sectionHeader: "Advanced configuration",
+    separator(name: "ADVANCED_CONFIG", sectionHeader: "Advanced configuration",
               sectionHeaderStyle: """ background-color: #F8C471;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(
         name: 'EXTRA_BUILD_PARAMS',
@@ -144,11 +136,9 @@ pipeline {
         description: 'Add some extra parameters to maven commands. Applies to all maven calls.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "EXPERT_CONFIG",
-              sectionHeader: "Expert configuration",
+    separator(name: "EXPERT_CONFIG", sectionHeader: "Expert configuration",
               sectionHeaderStyle: """ background-color: #A9A9A9;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'NO_STAGING',
@@ -166,11 +156,9 @@ pipeline {
                         ''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "DEBUG_CONFIG",
-              sectionHeader: "Jenkins job debug configuration ",
+    separator(name: "DEBUG_CONFIG", sectionHeader: "Jenkins job debug configuration ",
               sectionHeaderStyle: """ background-color: #FF0000;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'FAKE_RELEASE',
@@ -211,22 +199,15 @@ pipeline {
         }
 
         ///////////////////////////////////////////
-        // edit java version
+        // asdf install
         ///////////////////////////////////////////
         script {
           echo "edit asdf tool version with version from jenkins param"
 
-          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
-          jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
-          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
-          jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
+          String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
+          String mavenVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
+          jenkinsJobTools.job_description_append("Use java $javaVersion with maven  $mavenVersion  ")
 
-        }
-
-        ///////////////////////////////////////////
-        // asdf install
-        ///////////////////////////////////////////
-        script {
           println "asdf install the content of repository .tool-versions'\n"
           sh 'bash .jenkins/scripts/asdf_install.sh'
         }

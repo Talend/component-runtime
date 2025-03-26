@@ -38,6 +38,7 @@
         <module>tck-action-validation-api-test</module>
         <module>tck-action-healthcheck-api-test</module>
         <module>tck-bulk-api-test</module>
+        <module>tck-cache-api-test</module>
         <module>tck-component-icon-api-test</module>
         <module>tck-component-dependencies-api-test</module>
         <module>tck-component-dependency-api-test</module>

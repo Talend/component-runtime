@@ -50,6 +50,8 @@ public class ApiDemoEndpoints {
 
     private static final String PATH_ENVIRONMENT = "/api/v1/environment";
 
+    private static final String PATH_CACHE_RESET = "/api/v1/cache/clear";
+
     private static final String PATH_ACTION_INDEX = "/api/v1/action/index";
 
     private static final String PATH_ACTION_EXECUTE = "/api/v1/action/execute";
@@ -164,6 +166,12 @@ public class ApiDemoEndpoints {
                 .header(HEADER_ACCESS_CONTROL_ALLOW_HEADERS, VALUE_ACCESS_CONTROL_ALLOW_HEADERS)
                 .type(APPLICATION_JSON_TYPE)
                 .build();
+    }
+
+    @GET
+    @Path(RES_VERSION + PATH_CACHE_RESET)
+    public Response clearCaches() {
+        return Response.noContent().build();
     }
 
     @GET

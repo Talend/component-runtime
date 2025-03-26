@@ -175,6 +175,9 @@ public class StaticResourceGenerator implements Runnable {
                     .add(route("component_server_environment", "/api/v1/environment", MapBuilder.map().done(),
                             emptyMap(), emptyMap(), jsonb.toJson(environment.get())));
 
+            routes.add(route("component_server_environment", "/api/v1/cache/clear", MapBuilder.map().done(),
+                    emptyMap(), emptyMap(), null));
+
             final ActionResource actions = container.select(ActionResource.class).get();
             routes
                     .addAll(languages
