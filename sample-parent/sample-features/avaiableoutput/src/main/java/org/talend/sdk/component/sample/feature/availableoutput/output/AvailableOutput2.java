@@ -63,8 +63,8 @@ public class AvailableOutput2 implements Serializable {
     @ElementListener
     public void process(@Input final Record input,
             @Output final OutputEmitter<Record> main,
-            @Output(AvaiableoutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
-            @Output(AvaiableoutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
+            @Output(AvaiableoutputService.SECOND_FLOW_NAME2) final OutputEmitter<Record> second,
+            @Output(AvaiableoutputService.THIRD_FLOW_NAME2) final OutputEmitter<Record> third) {
     }
 
 }
