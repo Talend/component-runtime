@@ -32,7 +32,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.talend.sdk.component.api.configuration.ui.ConditionalOutputFlows;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.Hidden;
 import org.talend.sdk.component.api.configuration.ui.OptionsOrder;
@@ -367,23 +366,6 @@ class UiParameterEnricherTest {
                     @Override
                     public Class<? extends Annotation> annotationType() {
                         return DefaultValue.class;
-                    }
-                }));
-    }
-
-    @Test
-    void conditionalOutputFlows() {
-        assertEquals(singletonMap("tcomp::ui::conditionaloutputflows::value", "output-flow-1"),
-                enricher.onParameterAnnotation("testParam", Object.class, new ConditionalOutputFlows() {
-
-                    @Override
-                    public String value() {
-                        return "output-flow-1";
-                    }
-
-                    @Override
-                    public Class<? extends Annotation> annotationType() {
-                        return ConditionalOutputFlows.class;
                     }
                 }));
     }
