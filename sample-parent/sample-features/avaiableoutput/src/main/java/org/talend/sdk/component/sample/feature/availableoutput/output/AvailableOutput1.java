@@ -65,6 +65,7 @@ public class AvailableOutput1 implements Serializable {
             @Output final OutputEmitter<Record> main,
             @Output(AvaiableoutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
             @Output(AvaiableoutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
+        //this method here is just used to declare some outputs.
     }
 
 }

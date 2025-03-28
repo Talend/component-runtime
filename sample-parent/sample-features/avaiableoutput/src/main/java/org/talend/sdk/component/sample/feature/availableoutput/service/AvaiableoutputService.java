@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.sample.feature.availableoutput.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,15 +29,15 @@ import org.talend.sdk.component.sample.feature.availableoutput.output.Configurat
 import org.talend.sdk.component.sample.feature.availableoutput.output.Configuration2;
 
 @Service
-public class AvaiableoutputService {
+public class AvaiableoutputService  implements Serializable {
 
-    public final static String SECOND_FLOW_NAME = "second";
+    public static final String SECOND_FLOW_NAME = "second";
 
-    public final static String THIRD_FLOW_NAME = "third";
+    public static final String THIRD_FLOW_NAME = "third";
 
-    public final static String SECOND_FLOW_NAME2 = "second-2";
+    public static final String SECOND_FLOW_NAME2 = "second-2";
 
-    public final static String THIRD_FLOW_NAME2 = "third-2";
+    public static final String THIRD_FLOW_NAME2 = "third-2";
 
     @AvailableOutputFlows("output-flow1")
     public List<String> getAvailableFlows(final @Option("configuration") Configuration config) {

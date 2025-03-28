@@ -34,15 +34,12 @@ public class AvailableOutputsInputSource implements Serializable {
 
     private final AvaiableoutputService service;
 
-    private final RecordBuilderFactory builderFactory;
-
     public AvailableOutputsInputSource(
             @Option("configuration") final AvailableOutputsInputMapperConfiguration configuration,
             final AvaiableoutputService service,
             final RecordBuilderFactory builderFactory) {
         this.configuration = configuration;
         this.service = service;
-        this.builderFactory = builderFactory;
     }
 
     @PostConstruct

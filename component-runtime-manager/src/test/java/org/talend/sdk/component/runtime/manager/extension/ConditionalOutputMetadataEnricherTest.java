@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.meta.ConditionalOutput;
 import org.talend.sdk.component.api.processor.Processor;
 
-public class ConditionalOutputMetadataEnricherTest {
+class ConditionalOutputMetadataEnricherTest {
 
     @Test
     void oneAnnotation() {
