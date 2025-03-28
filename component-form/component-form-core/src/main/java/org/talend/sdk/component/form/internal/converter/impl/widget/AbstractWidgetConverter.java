@@ -290,7 +290,8 @@ public abstract class AbstractWidgetConverter implements PropertyConverter {
     private boolean isBuiltInAction(final String key) {
         return key.equals("action::dynamic_values") || key.equals("action::healthcheck")
                 || key.equals("action::suggestions") || key.equals("action::built_in_suggestable")
-                || key.equals("action::validation") || key.equals("action::update") || key.equals("action::schema");
+                || key.equals("action::validation") || key.equals("action::update")
+                || key.equals("action::schema") || key.equals("action::available_output");
     }
 
     protected Map<String, Collection<Object>> createCondition(final PropertyContext<?> ctx) {
