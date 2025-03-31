@@ -5,7 +5,8 @@
   "dependencies": {
     "js-search": "1.4.2",
     "@antora/cli": "${antora.version}",
-    "@antora/site-generator-default": "${antora.version}"
+    "@antora/site-generator-default": "${antora.version}",
+    "@babel/core": "7.26.10"
   },
   "scripts": {
     "antora:build": "antora --stacktrace ../antora/site.yml",

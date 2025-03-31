@@ -23,7 +23,8 @@
     "react-router-dom": "^6.24.1",
     "redux": "^4.2.1",
     "redux-thunk": "2.4.2",
-    "asciidoctor": "3.0.4"
+    "asciidoctor": "3.0.4",
+    "@babel/core": "7.26.10"
   },
   "devDependencies": {
     "@talend/scripts-config-react-webpack": "^16.8.0",
@@ -31,6 +32,6 @@
     "atob": "^2.1.2",
     "body-parser": "^1.18.3",
     "cross-env": "^7.0.3",
-    "webpack": "5.92.1"
+    "webpack": "5.98.0"
   }
 }
