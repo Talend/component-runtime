@@ -42,6 +42,8 @@ public @interface GridLayout {
 
         String ADVANCED = "Advanced";
 
+        String CHECKPOINT = "Checkpoint";
+
         @Deprecated // this one means nothing, surely to drop and use main instead
         String CITIZEN = "CitizenUser";
     }

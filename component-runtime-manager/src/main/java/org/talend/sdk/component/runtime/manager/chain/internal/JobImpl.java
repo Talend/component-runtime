@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -51,6 +52,7 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Lifecycle;
+import org.talend.sdk.component.runtime.input.CheckpointState;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -84,6 +86,13 @@ public class JobImpl implements Job {
             final Component lastComponent = nodes.get(nodes.size() - 1);
             properties.computeIfAbsent(lastComponent.getId(), s -> new HashMap<>());
             properties.get(lastComponent.getId()).put(name, value);
+            return this;
+        }
+
+        @Override
+        public NodeBuilder checkpoint(final Consumer<CheckpointState> checkpoint) {
+            final Component lastComponent = nodes.get(nodes.size() - 1);
+            lastComponent.setCheckpointCallback(checkpoint);
             return this;
         }
 
@@ -331,7 +340,8 @@ public class JobImpl implements Job {
                                 .findMapper(n.getNode().getFamily(), n.getNode().getComponent(),
                                         n.getNode().getVersion(), n.getNode().getConfiguration())
                                 .orElseThrow(() -> new IllegalStateException("No mapper found for: " + n.getNode()));
-                        return new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(mapper, maxRecords));
+                        return new AbstractMap.SimpleEntry<>(n.getId(), new InputRunner(mapper, maxRecords,
+                                n.getCheckpointCallback()));
                     }).collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
             final Map<String, AutoChunkProcessor> processors = levels
@@ -584,7 +594,8 @@ public class JobImpl implements Job {
 
         private long currentRecords;
 
-        private InputRunner(final Mapper mapper, final long maxRecords) {
+        private InputRunner(final Mapper mapper, final long maxRecords,
+                final Consumer<CheckpointState> checkpointCallback) {
             this.maxRecords = maxRecords;
             RuntimeException error = null;
             try {
@@ -592,7 +603,11 @@ public class JobImpl implements Job {
                 chainedMapper = new ChainedMapper(mapper, mapper.split(mapper.assess()).iterator());
                 chainedMapper.start();
                 input = chainedMapper.create();
-                input.start();
+                if (checkpointCallback == null) {
+                    input.start();
+                } else {
+                    input.start(checkpointCallback);
+                }
             } catch (final RuntimeException re) {
                 error = re;
                 throw re;

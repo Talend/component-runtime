@@ -206,6 +206,12 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
     @Parameter(defaultValue = "true", property = "talend.validation.fixedschema")
     private boolean validateFixedSchema;
 
+    /**
+     * Checkpoint validation
+     */
+    @Parameter(defaultValue = "true", property = "talend.validation.checkpoint")
+    private boolean validateCheckpoint;
+
     @Override
     public void doExecute() {
         if (!validatePlaceholder) {
@@ -243,6 +249,7 @@ public class ValidateComponentMojo extends ClasspathMojoBase {
         configuration.setValidateInternationalizationAutoFix(validateInternationalizationAutoFix);
         configuration.setValidateHttpClient(validateHttpClient);
         configuration.setValidateFixedSchema(validateFixedSchema);
+        configuration.setValidateCheckpoint(validateCheckpoint);
 
         final Locale locale = this.locale == null || "root".equals(this.locale) ? Locale.ROOT : new Locale(this.locale);
 

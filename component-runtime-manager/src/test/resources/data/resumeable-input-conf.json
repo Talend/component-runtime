@@ -1,0 +1,10 @@
+{
+  "configuration": {
+    "dataset" : {
+      "systemUrl" : "http://localhost:8080",
+      "configUrl" : "/v1/config"
+    },
+    "__version" : 1,
+    "resourcePath" : "/tmp"
+  }
+}
