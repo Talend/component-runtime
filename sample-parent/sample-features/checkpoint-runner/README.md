@@ -14,7 +14,7 @@ mvn clean install
 or simply build the feature module using the following command:
 
 ```bash 
-mvn install -pl :checkpoint
+mvn install -am -pl :checkpoint
 ```
 
 ## How to run
@@ -36,7 +36,7 @@ java -jar ~/.m2/repository/org/talend/sdk/component/sample/feature/checkpoint/1.
 
 For later usage, will use the variable `$RUNCMD` as the way you may choose.
 
-**IMPORTANT**: If you're using jdk17, please don't forget to add the `--add-opens` option to the command line or use instead jdk11.
+**IMPORTANT**: If you're using jdk17, please don't forget to add the `--add-opens` option to the command line (see profile _jdk9_ in master pom at the repository's root) or use instead jdk11.
 
 ## How to use
 
@@ -69,7 +69,7 @@ Options:
 
 ### Plugin artifact
 
-There's two ways to run the checkpoint runner with a specific plugin artifact:
+There are two ways to run the checkpoint runner with a specific plugin artifact:
 
 - Using the `--gav` option to specify the GAV of the plugin artifact.
 
@@ -154,6 +154,7 @@ Check generated checkpoint file `checkpoint.json`:
   }
 }
 ```
+Note: `$checkpoint` is a reserved property name, it will be used to store the checkpoint object, as the `__version` property.
 
 ### Run with framework feature disabled
 
@@ -204,6 +205,7 @@ You'll find those files in `resources` folder or in artifact archive.
   }
 }
 ```
+This configuration will limit the number of records to 10.
 
 ### Sample checkpoint configuration `checkpoint-default.json`
 ```json
@@ -215,6 +217,10 @@ You'll find those files in `resources` folder or in artifact archive.
   }
 }
 ```
+This checkpoint configuration will start the checkpoint from record Id 1.
+When the runner is finished, it will be updated with the last record Id processed and its status will be set as _"finished"_.
+The `__version` property is used to identify the version of the checkpoint configuration object. 
+
 ## Testing migration
 
 Provide a `checkpoint-v1.json` file with the following content:
