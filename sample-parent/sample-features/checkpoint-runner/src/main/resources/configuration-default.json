@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "recordPrefix" : "merdoum",
+    "recordPrefix" : "myPrefix-",
     "dataset": {
       "maxRecords": 20
     }

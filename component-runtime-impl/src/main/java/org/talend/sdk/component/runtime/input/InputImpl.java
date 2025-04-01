@@ -79,10 +79,10 @@ public class InputImpl extends LifecycleImpl implements Input, Delegated {
     }
 
     @Override
-    public void start(final Consumer checkpointConsumer) {
+    public void start(final Consumer<CheckpointState> checkpointCallback) {
         start();
         if (checkpointEnabled) {
-            checkpointCallback = checkpointConsumer;
+            this.checkpointCallback = checkpointCallback;
         }
     }
 

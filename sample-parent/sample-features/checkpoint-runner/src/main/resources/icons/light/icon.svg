@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
   <rect x="0.375" y="0.665" width="15.063" height="13.376" style="fill: rgb(255, 255, 255);"/>
-  <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 2.55556px; font-weight: 700; line-height: 5.17751px; text-anchor: middle; white-space: pre;" transform="matrix(1.211007, 0, 0.029195, 2.152172, 3.935322, -2.805911)"><tspan x="3.067" y="4.345">AfterGroup</tspan><tspan x="3.067" dy="1em">​</tspan><tspan>LastGroup</tspan></text>
+  <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 2.55556px; font-weight: 700; line-height: 5.17751px; text-anchor: middle; white-space: pre;" transform="matrix(1.211007, 0, 0.029195, 2.152172, 3.935322, -2.805911)"><tspan x="3.067" y="4.345">Checkpoint</tspan><tspan x="3.067" dy="1em">​</tspan><tspan>Input</tspan></text>
 </svg>
