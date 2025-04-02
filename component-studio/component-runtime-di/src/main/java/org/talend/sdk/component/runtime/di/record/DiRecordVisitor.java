@@ -104,6 +104,9 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private boolean initDynamicMetadata = true;
 
+    // tck entry name to index in dynamic metadata
+    private Map<String, Integer> nameToIndex;
+
     private static final RecordService RECORD_SERVICE =
             new DefaultServiceProvider(null, JsonProvider.provider(), Json.createGeneratorFactory(emptyMap()),
                     Json.createReaderFactory(emptyMap()), Json.createBuilderFactory(emptyMap()),
@@ -171,6 +174,10 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
         if (hasDynamic && initDynamicMetadata) {
             allowSpecialName = Boolean.parseBoolean(record.getSchema().getProp(ALLOW_SPECIAL_NAME));
 
+            if (allowSpecialName) {
+                nameToIndex = new HashMap<>();
+            }
+
             recordFieldsMap = new HashMap<>();
 
             recordFields = record.getSchema()
@@ -237,6 +244,9 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 .forEach(entry -> {
                     dynamic.getDynamic().metadatas.add(generateMetadata(entry).getDynamicMetadata());
                     dynamic.getDynamic().addColumnValue(null);
+                    if (allowSpecialName) {
+                        nameToIndex.put(entry.getName(), dynamic.getDynamic().getColumnCount() - 1);
+                    }
                 });
     }
 
@@ -332,16 +342,27 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
     private void handleDynamic(final Entry entry, final Object value) {
         final String name;
+        int index;
         if (allowSpecialName) {
             name = entry.getOriginalFieldName();
+
+            Integer idx = nameToIndex.get(entry.getName());
+            if (idx != null) {
+                index = idx;
+            } else {
+                // this should never happen, a safe code here
+                index = dynamic.getDynamic().getIndex(name);
+            }
         } else {
             name = recordFieldsMap.computeIfAbsent(entry.getName(), key -> recordFields
                     .stream()
                     .filter(f -> f.endsWith("." + key))
                     .findFirst()
                     .orElse(key));
+
+            index = dynamic.getDynamic().getIndex(name);
         }
-        int index = dynamic.getDynamic().getIndex(name);
+
         final DynamicMetadataWrapper metadata;
         if (index < 0) {
             metadata = generateMetadata(entry);
