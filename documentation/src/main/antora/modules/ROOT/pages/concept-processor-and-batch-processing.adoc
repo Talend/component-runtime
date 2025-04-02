@@ -88,6 +88,28 @@ public class BulkProcessor implements Serializable {
 }
 ----
 
+Some bulk api like SnowFlake, only can get which lines are rejected at last, not row level.
+
+It means we only can get reject info after every rows already go through elementListener method,
+so is impossible to output the reject records by elementListener method.
+Add a parameter in the AfterGroup method, use a new annotation “LastGroup” which is boolean,
+when “true” means that it is the last group can resolve this problem:
+
+And, since there’s already an afterGroup method, The rule for 2 afterGroup methods
+is the processor can only use one type of afterGroup, can NOT use both type of afterGroup in one processor
+(Of course, it is an optional character.)
+
+[source,java]
+----
+@AfterGroup
+public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup Boolean last) {
+    snowflake.pushToStaging(records);
+    if(last){
+        snowflake.commitBulkLoad();
+    }
+}
+----
+
 NOTE: When writing tests for components, you can force the `maxBatchSize` parameter value by setting it with the following syntax: `<configuration prefix>.$maxBatchSize=10`.
 
 You can learn more about processors in xref:component-define-processor-output.adoc[this document].
