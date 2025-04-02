@@ -27,7 +27,7 @@ class ConditionalOutputMetadataEnricherTest {
 
     @Test
     void oneAnnotation() {
-        Map<String, String> metas = invokeMetaEnricher(OutputClass1.class);
+        final Map<String, String> metas = invokeMetaEnricher(OutputClass1.class);
         Assertions.assertFalse(metas.isEmpty());
         Assertions.assertTrue(metas.containsKey(ConditionalOutputMetadataEnricher.META_KEY_RETURN_VARIABLE));
         Assertions
@@ -37,7 +37,7 @@ class ConditionalOutputMetadataEnricherTest {
 
     @Test
     void oneAnnotation2() {
-        Map<String, String> metas = invokeMetaEnricher(OutputClass2.class);
+        final Map<String, String> metas = invokeMetaEnricher(OutputClass2.class);
         Assertions.assertFalse(metas.isEmpty());
         Assertions.assertTrue(metas.containsKey(ConditionalOutputMetadataEnricher.META_KEY_RETURN_VARIABLE));
         Assertions
@@ -47,12 +47,12 @@ class ConditionalOutputMetadataEnricherTest {
 
     @Test
     void empty() {
-        Map<String, String> metas = invokeMetaEnricher(EmptyOutputClass.class);
+        final Map<String, String> metas = invokeMetaEnricher(EmptyOutputClass.class);
         Assertions.assertTrue(metas.isEmpty());
     }
 
     private Map<String, String> invokeMetaEnricher(Class<?> clazz) {
-        Annotation[] annotations = clazz.getAnnotations();
+        final Annotation[] annotations = clazz.getAnnotations();
         return new ConditionalOutputMetadataEnricher().onComponent(OutputClass1.class, annotations);
     }
 

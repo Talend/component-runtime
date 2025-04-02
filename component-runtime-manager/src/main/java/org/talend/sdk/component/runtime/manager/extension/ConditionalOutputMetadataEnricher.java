@@ -39,17 +39,17 @@ public class ConditionalOutputMetadataEnricher implements ComponentMetadataEnric
     private static final Set<Class<? extends Annotation>> SUPPORTED_ANNOTATIONS =
             new HashSet<>(Collections.singletonList(Processor.class));
 
-    public static final String META_KEY_RETURN_VARIABLE = "conditionaloutput::value";
+    public static final String META_KEY_RETURN_VARIABLE = "conditional_output::value";
 
     @Override
     public Map<String, String> onComponent(final Type type, final Annotation[] annotations) {
-        boolean noneMatch =
+        final boolean noneMatch =
                 Stream.of(annotations).map(Annotation::annotationType).noneMatch(SUPPORTED_ANNOTATIONS::contains);
         if (noneMatch) {
             return Collections.emptyMap();
         }
 
-        Optional<ConditionalOutput> metaValue = Arrays.stream(annotations)
+        final Optional<ConditionalOutput> metaValue = Arrays.stream(annotations)
                 .filter(a -> a.annotationType().equals(ConditionalOutput.class))
                 .findFirst()
                 .map(ConditionalOutput.class::cast);
