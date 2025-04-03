@@ -563,28 +563,28 @@ public class TaCoKitGuessSchema {
         }
 
         switch (entryType) {
-        case INT:
-            return talendType.equals(javaTypesManager.SHORT.getId()) ? javaTypesManager.SHORT.getId()
-                    : javaTypesManager.INTEGER.getId();
-        case BYTES:
-            return talendType.equals(StudioTypes.BYTE) ? javaTypesManager.BYTE.getId()
-                    : javaTypesManager.BYTE_ARRAY.getId();
-        case RECORD:
-            if (StudioTypes.DYNAMIC.equals(talendType)) {
-                return StudioTypes.DYNAMIC;
-            } else if (StudioTypes.DOCUMENT.equals(talendType)) {
-                return StudioTypes.DOCUMENT;
-            } else {
-                return javaTypesManager.OBJECT.getId();
-            }
-        default:
-            if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
-                return javaTypesManager.CHARACTER.getId();
-            } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
-                return javaTypesManager.BYTE.getId();
-            } else {
-                return javaTypesManager.STRING.getId();
-            }
+            case INT:
+                return talendType.equals(javaTypesManager.SHORT.getId()) ? javaTypesManager.SHORT.getId()
+                        : javaTypesManager.INTEGER.getId();
+            case BYTES:
+                return talendType.equals(StudioTypes.BYTE) ? javaTypesManager.BYTE.getId()
+                        : javaTypesManager.BYTE_ARRAY.getId();
+            case RECORD:
+                if (StudioTypes.DYNAMIC.equals(talendType)) {
+                    return StudioTypes.DYNAMIC;
+                } else if (StudioTypes.DOCUMENT.equals(talendType)) {
+                    return StudioTypes.DOCUMENT;
+                } else {
+                    return javaTypesManager.OBJECT.getId();
+                }
+            default:
+                if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
+                    return javaTypesManager.CHARACTER.getId();
+                } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
+                    return javaTypesManager.BYTE.getId();
+                } else {
+                    return javaTypesManager.STRING.getId();
+                }
         }
     }
 
