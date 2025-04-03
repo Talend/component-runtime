@@ -123,7 +123,55 @@ public MyNewData map(final MyData data,
     return createNewData(data);
 }
 ----
+== Support show dynamic output with a condition
 
+For each output, it can be defined show or not by using the annotation @ConditionalOutputFlows on the Processor and
+with the @AvailableOutputFlows on the Service.
+
+* A processor without @ConditionalOutputFlows keep the current behavior. All declared  flow are visible at design time
+
+* A processor with @ConditionalOutputFlows has its outflow list conditioned by its configuration
+
+** The @ConditionalOutputFlows has one parameter: the name of a @AvailableOutputFlows service:
+@ConditionalOutputFlows("the_name")
+
+** Each processor in a same TCK container can use a different service to retrieve the list of available output flows
+
+*** So several services can be annotated with @AvailableOutputFlows but their name must be different
+ @AvailableOutputFlows("the_name"), @AvailableOutputFlow("another_name"), ...
+
+* The return type of a @AvailableOutputFlows service is a List<String>, the build should fail if not (I think can be
+
+* A TCK validator should check that, for processors with @ConditionalOutputFlows the related  service
+@AvailableOutputFlow must expect only 1 parameter that has the same type of the processor configuration.
+
+[source,java,indent=0,subs="verbatim,quotes,attributes"]
+----
+
+@Processor(name = "Processor")
+@ConditionalOutputFlows("my_service_that_return_active_flows")
+public class MyProcessor implements Serializable {
+
+  @ElementListener
+  public void process(@Input final Record input,
+          @Output final OutputEmitter<Record> main,
+          @Output("second_flows") final OutputEmitter<Record> second,
+          @Output("third_flows") final OutputEmitter<Record> third) {
+      [.........]
+  }
+}
+
+ @AvailableOutputFlows("my_service_that_return_active_flows")
+  //After the @Option, must follow ("configuration")
+  public Collection<String> getAvailableFlows(@Option("configuration") Config config) {
+      List<String> flows = Arrays.asList("__default__", "second_flows");
+      if (config.isABoolean()) {
+          flows.add("third_flows");
+      }
+      return flows;
+  }
+
+----
 == Defining multiple inputs
 
 Having multiple inputs is similar to having multiple outputs, except that an `OutputEmitter` wrapper is not needed:

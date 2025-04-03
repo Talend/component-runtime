@@ -1,3 +1,4 @@
 org.talend.sdk.component.runtime.manager.extension.AfterVariableMetadataEnricher
 org.talend.sdk.component.runtime.manager.extension.ReturnVariableMetadataEnricher
 org.talend.sdk.component.runtime.manager.extension.ComponentSchemaEnricher
+org.talend.sdk.component.runtime.manager.extension.ConditionalOutputMetadataEnricher

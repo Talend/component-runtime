@@ -1,0 +1,5 @@
+= Sample for Conditional Output
+
+Output Flows are defined in @Emitter methods of a processor.
+We add 2 new annotations to make each outputs can be configed to show or not.
+This connector just show an example about how to use these annotations.
