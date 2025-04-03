@@ -509,124 +509,92 @@ public class TaCoKitGuessSchema {
     private Map<String, Column> getSchemaMap(final Schema schema) {
         Map<String, Column> schemaMap = new LinkedHashMap<>();
         final Collection<Schema.Entry> entries = schema.getEntries();
+
         if (entries == null || entries.isEmpty()) {
             log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
             return Collections.emptyMap();
         }
-        for (Schema.Entry entry : entries) {
-            String name = entry.getName();
-            Schema.Type entryType = entry.getType();
-            String dbName = entry.getOriginalFieldName();
-            String pattern = entry.getProps().getOrDefault(PATTERN, null);
-            String length = entry.getProps().getOrDefault(SIZE, null);
-            String precision = entry.getProps().getOrDefault(SCALE, null);
-            String isKey = entry.getProps().getOrDefault(IS_KEY, null);
-            String talendType = entry.getProps().getOrDefault(STUDIO_TYPE, "");
-            boolean isDateTime = false;
-            if (entryType == null) {
-                entryType = Schema.Type.STRING;
-            }
-            String typeName;
-            switch (entryType) {
-                case BOOLEAN:
-                    typeName = javaTypesManager.BOOLEAN.getId();
-                    break;
-                case DOUBLE:
-                    typeName = javaTypesManager.DOUBLE.getId();
-                    break;
-                case INT:
-                    if (talendType.equals(javaTypesManager.SHORT.getId())) {
-                        typeName = javaTypesManager.SHORT.getId();
-                    } else {
-                        typeName = javaTypesManager.INTEGER.getId();
-                    }
-                    break;
-                case LONG:
-                    typeName = javaTypesManager.LONG.getId();
-                    break;
-                case FLOAT:
-                    typeName = javaTypesManager.FLOAT.getId();
-                    break;
-                case BYTES:
-                    if (talendType.equals(StudioTypes.BYTE)) {
-                        typeName = javaTypesManager.BYTE.getId();
-                    } else {
-                        typeName = javaTypesManager.BYTE_ARRAY.getId();
-                    }
-                    break;
-                case DATETIME:
-                    typeName = javaTypesManager.DATE.getId();
-                    isDateTime = true;
-                    break;
-                case RECORD:
-                    if (talendType.equals(StudioTypes.DYNAMIC)) {
-                        typeName = StudioTypes.DYNAMIC;
-                    } else if (talendType.equals(StudioTypes.DOCUMENT)) {
-                        typeName = StudioTypes.DOCUMENT;
-                    } else {
-                        typeName = javaTypesManager.OBJECT.getId();
-                    }
-                    break;
-                case ARRAY:
-                    typeName = javaTypesManager.LIST.getId();
-                    break;
-                case DECIMAL:
-                    typeName = javaTypesManager.BIGDECIMAL.getId();
-                    break;
-                default:
-                    if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
-                        typeName = javaTypesManager.CHARACTER.getId();
-                    } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
-                        typeName = javaTypesManager.BYTE.getId();
-                    } else {
-                        typeName = javaTypesManager.STRING.getId();
-                    }
-                    break;
-            }
 
-            final Column column = new Column();
-            column.setLabel(name);
-            column.setOriginalDbColumnName(dbName);
-            column.setTalendType(typeName);
-            column.setNullable(entry.isNullable());
-            column.setComment(entry.getComment());
-            if (length != null) {
-                try {
-                    column.setLength(Integer.valueOf(length));
-                } catch (NumberFormatException e) {
-                    // let default values if props are trash...
-                }
-            }
-            if (precision != null) {
-                try {
-                    column.setPrecision(Integer.valueOf(precision));
-                } catch (NumberFormatException e) {
-                    // let default values if props are trash...
-                }
-            }
-            if (isDateTime || talendType.equals(StudioTypes.DYNAMIC)) {
-                if (pattern != null) {
-                    column.setPattern(STRING_ESCAPE + pattern + STRING_ESCAPE);
-                } else {
-                    // studio default pattern
-                    column.setPattern(STRING_ESCAPE + "dd-MM-yyyy" + STRING_ESCAPE);
-                }
-            }
-            if (isKey != null) {
-                column.setKey(Boolean.parseBoolean(isKey));
-            }
-            if (entry.getDefaultValue() != null) {
-                try {
-                    column.setDefault(entry.getDefaultValue().toString());
-                } catch (Exception e) {
-                    // nevermind as it's almost useless...
-                }
-            }
-            schemaMap.put(name, column);
+        for (Schema.Entry entry : entries) {
+            Column column = createColumnFromEntry(entry);
+            schemaMap.put(entry.getName(), column);
         }
         return schemaMap;
     }
 
+    private Column createColumnFromEntry(Schema.Entry entry) {
+        Column column = new Column();
+        column.setLabel(entry.getName());
+        column.setOriginalDbColumnName(entry.getOriginalFieldName());
+
+        Schema.Type entryType = (entry.getType() != null) ? entry.getType() : Schema.Type.STRING;
+        String talendType = entry.getProps().getOrDefault(STUDIO_TYPE, "");
+
+        column.setTalendType(getTypeName(entryType, talendType));
+        column.setNullable(entry.isNullable());
+        column.setComment(entry.getComment());
+        column.setLength(parseInteger(entry.getProps().get(SIZE)));
+        column.setPrecision(parseInteger(entry.getProps().get(SCALE)));
+        column.setKey(Boolean.parseBoolean(entry.getProps().getOrDefault(IS_KEY, "false")));
+
+        if (entryType == Schema.Type.DATETIME || talendType.equals(StudioTypes.DYNAMIC)) {
+            column.setPattern(getPattern(entry.getProps().get(PATTERN)));
+        }
+
+        if (entry.getDefaultValue() != null) {
+            column.setDefault(entry.getDefaultValue().toString());
+        }
+
+        return column;
+    }
+
+    private String getTypeName(Schema.Type entryType, String talendType) {
+        Map<Schema.Type, String> typeMappings = Map
+                .of(Schema.Type.BOOLEAN, javaTypesManager.BOOLEAN.getId(), Schema.Type.DOUBLE,
+                        javaTypesManager.DOUBLE.getId(), Schema.Type.LONG, javaTypesManager.LONG.getId(),
+                        Schema.Type.FLOAT, javaTypesManager.FLOAT.getId(), Schema.Type.ARRAY,
+                        javaTypesManager.LIST.getId(), Schema.Type.DECIMAL, javaTypesManager.BIGDECIMAL.getId(),
+                        Schema.Type.DATETIME, javaTypesManager.DATE.getId());
+
+        if (typeMappings.containsKey(entryType)) {
+            return typeMappings.get(entryType);
+        }
+
+        switch (entryType) {
+        case INT:
+            return talendType.equals(javaTypesManager.SHORT.getId()) ? javaTypesManager.SHORT.getId()
+                    : javaTypesManager.INTEGER.getId();
+        case BYTES:
+            return talendType.equals(StudioTypes.BYTE) ? javaTypesManager.BYTE.getId()
+                    : javaTypesManager.BYTE_ARRAY.getId();
+        case RECORD:
+            return switch (talendType) {
+            case StudioTypes.DYNAMIC -> StudioTypes.DYNAMIC;
+            case StudioTypes.DOCUMENT -> StudioTypes.DOCUMENT;
+            default -> javaTypesManager.OBJECT.getId();
+            };
+        default:
+            return switch (talendType) {
+            case javaTypesManager.CHARACTER.getId() -> javaTypesManager.CHARACTER.getId();
+            case javaTypesManager.BYTE.getId() -> javaTypesManager.BYTE.getId();
+            default -> javaTypesManager.STRING.getId();
+            };
+        }
+    }
+
+    private int parseInteger(String value) {
+        if (value == null)
+            return 0;
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private String getPattern(String pattern) {
+        return STRING_ESCAPE + (pattern != null ? pattern : "dd-MM-yyyy") + STRING_ESCAPE;
+    }
 
     private void guessOutputComponentSchemaThroughResult() throws Exception {
         final Integer version = ofNullable(this.version).orElse(Integer.MAX_VALUE);
