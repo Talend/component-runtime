@@ -549,12 +549,14 @@ public class TaCoKitGuessSchema {
     }
 
     private String getTypeName(Schema.Type entryType, String talendType) {
-        Map<Schema.Type, String> typeMappings = Map
-                .of(Schema.Type.BOOLEAN, javaTypesManager.BOOLEAN.getId(), Schema.Type.DOUBLE,
-                        javaTypesManager.DOUBLE.getId(), Schema.Type.LONG, javaTypesManager.LONG.getId(),
-                        Schema.Type.FLOAT, javaTypesManager.FLOAT.getId(), Schema.Type.ARRAY,
-                        javaTypesManager.LIST.getId(), Schema.Type.DECIMAL, javaTypesManager.BIGDECIMAL.getId(),
-                        Schema.Type.DATETIME, javaTypesManager.DATE.getId());
+        Map<Schema.Type, String> typeMappings = new HashMap<>();
+        typeMappings.put(Schema.Type.BOOLEAN, javaTypesManager.BOOLEAN.getId());
+        typeMappings.put(Schema.Type.DOUBLE, javaTypesManager.DOUBLE.getId());
+        typeMappings.put(Schema.Type.LONG, javaTypesManager.LONG.getId());
+        typeMappings.put(Schema.Type.FLOAT, javaTypesManager.FLOAT.getId());
+        typeMappings.put(Schema.Type.ARRAY, javaTypesManager.LIST.getId());
+        typeMappings.put(Schema.Type.DECIMAL, javaTypesManager.BIGDECIMAL.getId());
+        typeMappings.put(Schema.Type.DATETIME, javaTypesManager.DATE.getId());
 
         if (typeMappings.containsKey(entryType)) {
             return typeMappings.get(entryType);
@@ -568,19 +570,24 @@ public class TaCoKitGuessSchema {
             return talendType.equals(StudioTypes.BYTE) ? javaTypesManager.BYTE.getId()
                     : javaTypesManager.BYTE_ARRAY.getId();
         case RECORD:
-            return switch (talendType) {
-            case StudioTypes.DYNAMIC -> StudioTypes.DYNAMIC;
-            case StudioTypes.DOCUMENT -> StudioTypes.DOCUMENT;
-            default -> javaTypesManager.OBJECT.getId();
-            };
+            if (StudioTypes.DYNAMIC.equals(talendType)) {
+                return StudioTypes.DYNAMIC;
+            } else if (StudioTypes.DOCUMENT.equals(talendType)) {
+                return StudioTypes.DOCUMENT;
+            } else {
+                return javaTypesManager.OBJECT.getId();
+            }
         default:
-            return switch (talendType) {
-            case javaTypesManager.CHARACTER.getId() -> javaTypesManager.CHARACTER.getId();
-            case javaTypesManager.BYTE.getId() -> javaTypesManager.BYTE.getId();
-            default -> javaTypesManager.STRING.getId();
-            };
+            if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
+                return javaTypesManager.CHARACTER.getId();
+            } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
+                return javaTypesManager.BYTE.getId();
+            } else {
+                return javaTypesManager.STRING.getId();
+            }
         }
     }
+
 
     private int parseInteger(String value) {
         if (value == null)
