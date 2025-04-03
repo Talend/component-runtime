@@ -522,7 +522,7 @@ public class TaCoKitGuessSchema {
         return schemaMap;
     }
 
-    private Column createColumnFromEntry(Schema.Entry entry) {
+    private Column createColumnFromEntry(final Schema.Entry entry) {
         Column column = new Column();
         column.setLabel(entry.getName());
         column.setOriginalDbColumnName(entry.getOriginalFieldName());
@@ -548,7 +548,7 @@ public class TaCoKitGuessSchema {
         return column;
     }
 
-    private String getTypeName(Schema.Type entryType, String talendType) {
+    private String getTypeName(final Schema.Type entryType, final String talendType) {
         Map<Schema.Type, String> typeMappings = new HashMap<>();
         typeMappings.put(Schema.Type.BOOLEAN, javaTypesManager.BOOLEAN.getId());
         typeMappings.put(Schema.Type.DOUBLE, javaTypesManager.DOUBLE.getId());
@@ -589,9 +589,10 @@ public class TaCoKitGuessSchema {
     }
 
 
-    private int parseInteger(String value) {
-        if (value == null)
+    private int parseInteger(final String value) {
+        if (value == null) {
             return 0;
+        }
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
@@ -599,7 +600,7 @@ public class TaCoKitGuessSchema {
         }
     }
 
-    private String getPattern(String pattern) {
+    private String getPattern(final String pattern) {
         return STRING_ESCAPE + (pattern != null ? pattern : "dd-MM-yyyy") + STRING_ESCAPE;
     }
 
