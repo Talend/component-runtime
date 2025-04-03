@@ -88,24 +88,25 @@ public class BulkProcessor implements Serializable {
 }
 ----
 
-Some bulk api like SnowFlake, only can get which lines are rejected at last, not row level.
+When using the @aftergroup feature, it can be helpful to determine if it's the last call (last group).
+You can now annotate a Boolean with @lastgroup as a parameter of the method.
+This Boolean will be set to true for the final call, which can be useful for performing additional
+actions once all records have been processed.
 
-It means we only can get reject info after every rows already go through elementListener method,
-so is impossible to output the reject records by elementListener method.
-Add a parameter in the AfterGroup method, use a new annotation “LastGroup” which is boolean,
-when “true” means that it is the last group can resolve this problem:
+For example, here is a scenario inspired by Snowflake:
 
-And, since there’s already an afterGroup method, The rule for 2 afterGroup methods
-is the processor can only use one type of afterGroup, can NOT use both type of afterGroup in one processor
-(Of course, it is an optional character.)
+Batches of records are staged within each @aftergroup call.
+Once all data has been staged, a final #commitBulkLoad call is executed. This action must be performed after all data has been staged.
+This process returns all rejected data, which is then transformed into TCK records and sent to the 'REJECT' flow.
 
 [source,java]
 ----
 @AfterGroup
 public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup Boolean last) {
-    snowflake.pushToStaging(records);
+    database.pushToStaging(records);
     if(last){
-        snowflake.commitBulkLoad();
+        List<Data> dataToReject = database.commitBulkLoad();
+        dataToReject.stream().map(d -> convertToRecord(d)).each(r -> rejected.emit(d));
     }
 }
 ----
