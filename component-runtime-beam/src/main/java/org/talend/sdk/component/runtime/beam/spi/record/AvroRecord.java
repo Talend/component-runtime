@@ -137,8 +137,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
                                     .toEpochDay()); // Avro stores dates as int
                 } else if (LogicalType.TIME.key().equals(logicalType)) {
                     // QTDI-1252: Avro time-millis logical type stores int milliseconds from 0:00:00 not from Unix Epoch
-                    Instant instant = Instant.ofEpochMilli((Long) value);
-                    ZonedDateTime zonedDateTime = instant.atZone(ZoneId.of("UTC"));
+                    final Instant instant = Instant.ofEpochMilli((Long) value);
+                    final ZonedDateTime zonedDateTime = instant.atZone(ZoneId.of("UTC"));
                     return Math.toIntExact(zonedDateTime.toLocalTime().toNanoOfDay() / 1_000_000);
                 }
             }

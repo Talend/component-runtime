@@ -99,7 +99,8 @@ class AvroRecordTest {
     /**
      * Avro logical type must be an int and contains milliseconds from 00:00:00.
      *
-     * {@linkplain https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29 Avro Documentation}.
+     * Please have a look to Avro specification:
+     * {@link https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29}.
      *
      * <pre>
      * Time (millisecond precision)
@@ -108,9 +109,9 @@ class AvroRecordTest {
      * </pre>
      */
     @Test
-    void QTDI1252_respectAvroTimemillisSpecification() {
-        AvroSchemaBuilder builder = new AvroSchemaBuilder();
-        Schema schema = builder.withType(Schema.Type.RECORD)
+    void respectAvroTimemillisSpecificationQTDI1252() {
+        final AvroSchemaBuilder builder = new AvroSchemaBuilder();
+        final Schema schema = builder.withType(Schema.Type.RECORD)
                 .withEntry(
                         new AvroEntryBuilder().withName("fromZonedDateTime")
                                 .withLogicalType(SchemaProperty.LogicalType.TIME)
@@ -121,30 +122,30 @@ class AvroRecordTest {
                                 .build())
                 .build();
 
-        ZonedDateTime zdt = ZonedDateTime.of(
+        final ZonedDateTime zdt = ZonedDateTime.of(
                 LocalDateTime.of(2000, 4, 25, 1, 1, 1, 1000000),
                 ZoneId.of("UTC"));
 
-        GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        final GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         gregorianCalendar.set(2000, Calendar.APRIL, 25, 1, 1, 1);
         gregorianCalendar.set(Calendar.MILLISECOND, 1);
-        Date date = gregorianCalendar.getTime();
+        final Date date = gregorianCalendar.getTime();
 
-        Record record = new AvroRecordBuilder(schema)
+        final Record record = new AvroRecordBuilder(schema)
                 .withDateTime("fromZonedDateTime", zdt)
                 .withDateTime("fromDate", date)
                 .build();
 
-        IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        final IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
         Assertions.assertNotNull(unwrap);
 
-        Field fromZonedDateTimeField = unwrap.getSchema().getField("fromZonedDateTime");
+        final Field fromZonedDateTimeField = unwrap.getSchema().getField("fromZonedDateTime");
         Assertions.assertEquals(Type.INT, fromZonedDateTimeField.schema().getType());
         Assertions.assertEquals(LogicalTypes.timeMillis(), fromZonedDateTimeField.schema().getLogicalType());
         Assertions.assertEquals(LogicalTypes.timeMillis().getName(),
                 fromZonedDateTimeField.schema().getProp("logicalType"));
 
-        Field fromDateField = unwrap.getSchema().getField("fromDate");
+        final Field fromDateField = unwrap.getSchema().getField("fromDate");
         Assertions.assertEquals(Type.INT, fromDateField.schema().getType());
         Assertions.assertEquals(LogicalTypes.timeMillis(), fromDateField.schema().getLogicalType());
         Assertions.assertEquals(LogicalTypes.timeMillis().getName(), fromDateField.schema().getProp("logicalType"));
