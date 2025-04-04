@@ -38,17 +38,21 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -59,6 +63,7 @@ import javax.json.JsonObject;
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema.Field;
+import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericFixed;
@@ -90,6 +95,67 @@ import org.talend.sdk.component.runtime.record.RecordImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 class AvroRecordTest {
+
+    /**
+     * Avro logical type must be an int and contains milliseconds from 00:00:00.
+     *
+     * Please have a look to Avro specification:
+     * {@link https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29}.
+     *
+     * <pre>
+     * Time (millisecond precision)
+     * The time-millis logical type represents a time of day, with no reference to a particular calendar, time zone or date, with a precision of one millisecond.
+     * A time-millis logical type annotates an Avro int, where the int stores the number of milliseconds after midnight, 00:00:00.000.
+     * </pre>
+     */
+    @Test
+    void respectAvroTimemillisSpecificationQTDI1252() {
+        final AvroSchemaBuilder builder = new AvroSchemaBuilder();
+        final Schema schema = builder.withType(Schema.Type.RECORD)
+                .withEntry(
+                        new AvroEntryBuilder().withName("fromZonedDateTime")
+                                .withLogicalType(SchemaProperty.LogicalType.TIME)
+                                .build())
+                .withEntry(
+                        new AvroEntryBuilder().withName("fromDate")
+                                .withLogicalType(SchemaProperty.LogicalType.TIME)
+                                .build())
+                .build();
+
+        final ZonedDateTime zdt = ZonedDateTime.of(
+                LocalDateTime.of(2000, 4, 25, 1, 1, 1, 1000000),
+                ZoneId.of("UTC"));
+
+        final GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        gregorianCalendar.set(2000, Calendar.APRIL, 25, 1, 1, 1);
+        gregorianCalendar.set(Calendar.MILLISECOND, 1);
+        final Date date = gregorianCalendar.getTime();
+
+        final Record record = new AvroRecordBuilder(schema)
+                .withDateTime("fromZonedDateTime", zdt)
+                .withDateTime("fromDate", date)
+                .build();
+
+        final IndexedRecord unwrap = Unwrappable.class.cast(record).unwrap(IndexedRecord.class);
+        Assertions.assertNotNull(unwrap);
+
+        final Field fromZonedDateTimeField = unwrap.getSchema().getField("fromZonedDateTime");
+        Assertions.assertEquals(Type.INT, fromZonedDateTimeField.schema().getType());
+        Assertions.assertEquals(LogicalTypes.timeMillis(), fromZonedDateTimeField.schema().getLogicalType());
+        Assertions.assertEquals(LogicalTypes.timeMillis().getName(),
+                fromZonedDateTimeField.schema().getProp("logicalType"));
+
+        final Field fromDateField = unwrap.getSchema().getField("fromDate");
+        Assertions.assertEquals(Type.INT, fromDateField.schema().getType());
+        Assertions.assertEquals(LogicalTypes.timeMillis(), fromDateField.schema().getLogicalType());
+        Assertions.assertEquals(LogicalTypes.timeMillis().getName(), fromDateField.schema().getProp("logicalType"));
+
+        // Expected milliseconds is: (1h: 60 * 60 * 1000) + (1mn: 60 * 1000) + (1s: 1000) + 1ms = 3_661_001
+        int expectedMilliseconds = 3_661_001;
+
+        Assertions.assertEquals(expectedMilliseconds, unwrap.get(0));
+        Assertions.assertEquals(expectedMilliseconds, unwrap.get(1));
+    }
 
     @Test
     void recordWithLogicalType() {
@@ -889,7 +955,8 @@ class AvroRecordTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { 2, 3, 4, 5 }) // number of nested arrays.
+    @ValueSource(ints = { 2, 3, 4, 5 })
+    // number of nested arrays.
     void arrayOfArrayOfRecords(final int level) {
         final FactoryTester<RuntimeException> theTest = (RecordBuilderFactory factory) -> {
             final Schema.Entry f1 = factory.newEntryBuilder().withType(Schema.Type.STRING).withName("f1").build();
