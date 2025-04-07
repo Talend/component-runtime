@@ -1,7 +1,7 @@
 {
   "$checkpoint": {
-    "sinceId": 1,
+    "lastId": 10,
     "status": "running",
-    "__version": 2
+    "__version": 1
   }
 }
