@@ -19,8 +19,6 @@ import static org.talend.sdk.component.api.component.Icon.IconType.FILE_JOB_O;
 
 import java.io.Serializable;
 
-import javax.json.JsonObject;
-
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
@@ -46,7 +44,7 @@ public class InputCheckpoint implements Serializable {
     }
 
     @CheckpointData
-    public JsonObject getCheckpoint() {
+    public CheckpointConfig getCheckpoint() {
         return null;
     }
 

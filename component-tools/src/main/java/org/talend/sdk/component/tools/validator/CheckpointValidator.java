@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.checkpoint.Checkpoint;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointAvailable;
 import org.talend.sdk.component.api.input.checkpoint.CheckpointData;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
@@ -64,9 +65,14 @@ public class CheckpointValidator implements Validator {
                 .map(it -> "The component " + it.getKey().getName()
                         + " is missing a checkpoint in its configuration (see @Checkpoint).")
                 .sorted();
-
+        // check if the checkpoint class is returned by the checkpointing
+        final Stream<String> invalidReturnClass = checkpointingInputs.keySet()
+                .stream()
+                .filter(c -> !hasCheckpointDataMethods(c))
+                .map(c -> "should return a class marked as @Checkpoint for method @CheckpointData for " + c.getName()
+                        + ".");
         return Stream
-                .of(missingMethods, inputsWithoutCheckpoint)
+                .of(missingMethods, inputsWithoutCheckpoint, invalidReturnClass)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
@@ -84,6 +90,14 @@ public class CheckpointValidator implements Validator {
     private boolean hasNeededMethods(final Class<?> component) {
         return Arrays.stream(component.getMethods()).anyMatch(m -> m.isAnnotationPresent(CheckpointData.class)) &&
                 Arrays.stream(component.getMethods()).anyMatch(m -> m.isAnnotationPresent(CheckpointAvailable.class));
+    }
+
+    private boolean hasCheckpointDataMethods(final Class<?> component) {
+        return Arrays.stream(component.getMethods())
+                .filter(m -> m.isAnnotationPresent(CheckpointData.class))
+                .filter(m -> m.getReturnType().isAnnotationPresent(Checkpoint.class))
+                .findFirst()
+                .isPresent();
     }
 
     protected static Stream<ParameterMeta> flatten(final Collection<ParameterMeta> options) {
