@@ -114,7 +114,7 @@ public class CheckpointInput implements Serializable {
     }
 
     @CheckpointData
-    public Object getCheckpoint() {
+    public CheckPointConfig getCheckpoint() {
         newBookmark = false;
         return configuration.checkpoint;
     }
