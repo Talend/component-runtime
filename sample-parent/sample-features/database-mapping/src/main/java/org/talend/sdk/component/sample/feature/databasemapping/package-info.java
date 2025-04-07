@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(family = "sampleFixedSchema", categories = "sample", databaseMapping = "mysql")
+@Components(family = "sampleDatabaseMapping", categories = "sample", databaseMapping = DatabaseMapping.CUSTOM)
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
-package org.talend.sdk.component.sample.feature.fixedschema;
+package org.talend.sdk.component.sample.feature.databasemapping;
 
 import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Components.DatabaseMapping;
 import org.talend.sdk.component.api.component.Icon;
