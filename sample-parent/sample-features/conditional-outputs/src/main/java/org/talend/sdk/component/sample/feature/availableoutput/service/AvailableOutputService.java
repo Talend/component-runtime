@@ -26,7 +26,7 @@ import org.talend.sdk.component.sample.feature.availableoutput.output.Configurat
 import org.talend.sdk.component.sample.feature.availableoutput.output.ConfigurationTwo;
 
 @Service
-public class AvaiableoutputService  implements Serializable {
+public class AvailableOutputService implements Serializable {
 
     public static final String SECOND_FLOW_NAME = "second";
 

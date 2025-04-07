@@ -32,7 +32,7 @@ import org.talend.sdk.component.api.processor.Output;
 import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.sample.feature.availableoutput.service.AvaiableoutputService;
+import org.talend.sdk.component.sample.feature.availableoutput.service.AvailableOutputService;
 
 @Version(1)
 // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
@@ -45,10 +45,10 @@ public class AvailableOutputWithAnnotationOne implements Serializable {
 
     private final Configuration configuration;
 
-    private final AvaiableoutputService service;
+    private final AvailableOutputService service;
 
     public AvailableOutputWithAnnotationOne(@Option("configuration") final Configuration configuration,
-                                            final AvaiableoutputService service) {
+                                            final AvailableOutputService service) {
         this.configuration = configuration;
         this.service = service;
     }
@@ -63,9 +63,11 @@ public class AvailableOutputWithAnnotationOne implements Serializable {
     @ElementListener
     public void process(@Input final Record input,
             @Output final OutputEmitter<Record> main,
-            @Output(AvaiableoutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
-            @Output(AvaiableoutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
-        //this method here is just used to declare some outputs.
+            @Output(AvailableOutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
+            @Output(AvailableOutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
+        main.emit(input);
+        second.emit(input);
+        third.emit(input);
     }
 
 }

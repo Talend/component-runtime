@@ -123,7 +123,7 @@ public MyNewData map(final MyData data,
     return createNewData(data);
 }
 ----
-== Support show dynamic output with a condition
+== Defining conditional outputs
 
 For each output, it can be defined show or not by using the annotation @ConditionalOutputFlows on the Processor and
 with the @AvailableOutputFlows on the Service.
@@ -140,10 +140,7 @@ with the @AvailableOutputFlows on the Service.
 *** So several services can be annotated with @AvailableOutputFlows but their name must be different
  @AvailableOutputFlows("the_name"), @AvailableOutputFlow("another_name"), ...
 
-* The return type of a @AvailableOutputFlows service is a List<String>, the build should fail if not (I think can be
-
-* A TCK validator should check that, for processors with @ConditionalOutputFlows the related  service
-@AvailableOutputFlow must expect only 1 parameter that has the same type of the processor configuration.
+* The return type of a @AvailableOutputFlows service is a List<String>, the build should fail if not.
 
 [source,java,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -155,8 +152,8 @@ public class MyProcessor implements Serializable {
   @ElementListener
   public void process(@Input final Record input,
           @Output final OutputEmitter<Record> main,
-          @Output("second_flows") final OutputEmitter<Record> second,
-          @Output("third_flows") final OutputEmitter<Record> third) {
+          @Output("second_flow") final OutputEmitter<Record> second,
+          @Output("third_flow") final OutputEmitter<Record> third) {
       [.........]
   }
 }
@@ -164,9 +161,9 @@ public class MyProcessor implements Serializable {
  @AvailableOutputFlows("my_service_that_return_active_flows")
   //After the @Option, must follow ("configuration")
   public Collection<String> getAvailableFlows(@Option("configuration") Config config) {
-      List<String> flows = Arrays.asList("__default__", "second_flows");
+      final List<String> flows = Arrays.asList("__default__", "second_flow");
       if (config.isABoolean()) {
-          flows.add("third_flows");
+          flows.add("third_flow");
       }
       return flows;
   }
