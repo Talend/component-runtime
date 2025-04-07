@@ -26,7 +26,7 @@ import org.talend.sdk.component.api.processor.Processor;
 class ConditionalOutputMetadataEnricherTest {
 
     @Test
-    void oneAnnotation() {
+    void oneAnnotationWithOutput1() {
         final Map<String, String> metas = invokeMetaEnricher(OutputClass1.class);
         Assertions.assertFalse(metas.isEmpty());
         Assertions.assertTrue(metas.containsKey(ConditionalOutputMetadataEnricher.META_KEY_RETURN_VARIABLE));
@@ -36,7 +36,7 @@ class ConditionalOutputMetadataEnricherTest {
     }
 
     @Test
-    void oneAnnotation2() {
+    void oneAnnotationWithOutput2() {
         final Map<String, String> metas = invokeMetaEnricher(OutputClass2.class);
         Assertions.assertFalse(metas.isEmpty());
         Assertions.assertTrue(metas.containsKey(ConditionalOutputMetadataEnricher.META_KEY_RETURN_VARIABLE));
