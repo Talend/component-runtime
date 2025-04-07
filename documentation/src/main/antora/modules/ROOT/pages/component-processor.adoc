@@ -127,6 +127,7 @@ public MyNewData map(final MyData data,
 
 For each output, it can be defined show or not by using the annotation @ConditionalOutputFlows on the Processor and
 with the @AvailableOutputFlows on the Service.
+(Currently only Studio supports this feature)
 
 * A processor without @ConditionalOutputFlows keep the current behavior. All declared  flow are visible at design time
 
