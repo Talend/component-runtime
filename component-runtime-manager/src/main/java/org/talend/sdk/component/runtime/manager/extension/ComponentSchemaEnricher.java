@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.processor.Processor;
@@ -36,6 +37,8 @@ import org.talend.sdk.component.runtime.output.Branches;
 import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
 public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
+
+    public static final String SCHEMA_MAPPING = "tcomp::ui::schema::mapping";
 
     public static final String FIXED_SCHEMA_META_PREFIX = "tcomp::ui::schema::fixed";
 
@@ -49,6 +52,15 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
         if (Stream.of(annotations).map(Annotation::annotationType).noneMatch(SUPPORTED_ANNOTATIONS::contains)) {
             return emptyMap();
         }
+        final Map<String, String> metadata = new HashMap<>();
+        // add database mapping if present from package-info
+        final Components components = ((Class) type).getPackage().getAnnotation(Components.class);
+        if (components != null) {
+            final String dbMapping = components.databaseMapping();
+            if (!dbMapping.isEmpty()) {
+                metadata.put(SCHEMA_MAPPING, dbMapping);
+            }
+        }
 
         final Optional<FixedSchema> fixed = Arrays.stream(annotations)
                 .filter(a -> a.annotationType().equals(FixedSchema.class))
@@ -56,11 +68,10 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
                 .map(FixedSchema.class::cast);
 
         if (!fixed.isPresent()) {
-            return emptyMap();
+            return metadata;
         }
 
         final FixedSchema fixedSchema = fixed.get();
-        final Map<String, String> metadata = new HashMap<>();
         metadata.put(FIXED_SCHEMA_META_PREFIX, fixedSchema.value());
         if (fixedSchema.flows().length > 0) {
             metadata.put(FIXED_SCHEMA_FLOWS_META_PREFIX, String.join(",", fixedSchema.flows()));

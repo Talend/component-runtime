@@ -295,6 +295,12 @@ public class ComponentManager implements AutoCloseable {
         public String[] categories() {
             return new String[] { "Misc" };
         }
+
+        @Override
+        public String databaseMapping() {
+            return "";
+        }
+
     };
 
     @Getter

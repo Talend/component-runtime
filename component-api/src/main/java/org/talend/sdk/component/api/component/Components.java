@@ -42,4 +42,19 @@ public @interface Components {
      * @return the categories to associate to this component. Default to "Misc".
      */
     String[] categories() default { "Misc" };
+
+    /**
+     * Database types mapping. Studio will use this to generate the database mapping and allow to access to the DB
+     * Column Types.
+     */
+    String databaseMapping() default DatabaseMapping.NONE;
+
+    public static class DatabaseMapping {
+
+        public static final String CUSTOM = "custom"; //
+
+        public static final String NONE = ""; // default and only recommended mode now.
+
+    }
+
 }
