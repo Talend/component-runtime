@@ -2,7 +2,7 @@
   "configuration": {
     "recordPrefix" : "myPrefix-",
     "dataset": {
-      "maxRecords": 20
+      "maxRecords": 15
     }
   }
 }
