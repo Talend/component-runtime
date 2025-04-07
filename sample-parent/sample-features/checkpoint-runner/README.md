@@ -1,46 +1,45 @@
 # Component Runtime :: Sample Feature :: Checkpoint
 
+## Table of Contents
+- [Overview](#overview)
+- [Usage](#usage)
+  - [How to build the sample connector plugin](#how-to-build-the-sample-connector-plugin)
+  - [How to run](#how-to-run)
+  - [How to use](#how-to-use)
+- [Plugin artifact](#plugin-artifact)
+- [Execution examples](#execution-examples)
+  - [Run checkpoint connector with default behavior](#run-checkpoint-connector-with-default-behavior)
+  - [Run checkpoint connector with a checkpointing configuration](#run-checkpoint-connector-with-a-checkpointing-configuration)
+  - [Run with framework feature disabled](#run-with-framework-feature-disabled)
+  - [Configuration sample](#configuration-sample)
+
 ## Overview
+This is a simple TCK connector plugin to test and validate the checkpoint input feature.
 
-This is a simple TCK connector to test and validate the checkpoint input feature.
+This project contains two things:
+ 1. A sample connector plugin that implements the checkpoint feature.
+ 2. A simple Cli runner that can be used to run the connector plugin and test the checkpoint feature.
 
-## How to build
 
-Checkout the code from the repository and build the project using the following command:
+## Usage
+### How to build the sample connector plugin
+Checkout the code from the repository and build the project using `mvn clean install`  
+Alternatively build the feature module using `mvn install -am -pl :checkpoint`
 
-```bash
-mvn clean install
-```
-or simply build the feature module using the following command:
+### How to run
+To run the connector, you need exec the generated artifact `org.talend.sdk.component.sample.feature:checkpoint`.  
+* You can run it directly from `target` folder or repository folder
+  * `java -jar target/checkpoint-1.80.0-SNAPSHOT-exec.jar`
+* or you can run it from the maven repository
+  * `java -jar ~/.m2/repository/org/talend/sdk/component/sample/feature/checkpoint/1.80.0-SNAPSHOT/checkpoint-1.80.0-SNAPSHOT.jar`
 
-```bash 
-mvn install -am -pl :checkpoint
-```
+For later usage, will use the variable `$RUNCMD` as the way you may choose.  
+⚠️ If you're using jdk17, don't forget to add the `--add-opens` option to the command line
+(see profile _jdk9_ in master pom at the repository's root) or use instead jdk11.
 
-## How to run
-
-To run the connector, you need exec the generated artifact `org.talend.sdk.component.sample.feature:checkpoint`.
-
-You can run it directly from `target` folder or repository folder:
-
-```bash
-java -jar target/checkpoint-1.80.0-SNAPSHOT-exec.jar
-
-```
-
-or you can run it from the maven repository:
-
-```bash
-java -jar ~/.m2/repository/org/talend/sdk/component/sample/feature/checkpoint/1.80.0-SNAPSHOT/checkpoint-1.80.0-SNAPSHOT.jar
-```
-
-For later usage, will use the variable `$RUNCMD` as the way you may choose.
-
-**IMPORTANT**: If you're using jdk17, please don't forget to add the `--add-opens` option to the command line (see profile _jdk9_ in master pom at the repository's root) or use instead jdk11.
-
-## How to use
-
+### How to use
 Run checkpoint with the help to  get all command options for execution:
+
 ```bash
 $ $RUNCMD checkpoint help
 
@@ -67,22 +66,18 @@ Options:
                              (default: ./)
 ```
 
-### Plugin artifact
-
+## Plugin artifact
 There are two ways to run the checkpoint runner with a specific plugin artifact:
-
-- Using the `--gav` option to specify the GAV of the plugin artifact.
-
+- Using the `--gav` option to specify the GAV of the plugin artifact.  
     Syntax:  `groupId:artifactId:version[:packaging[:classifier]]`  
 
-- Using the `--jar` option to specify the path to the plugin artifact.
-
+- Using the `--jar` option to specify the path to the plugin artifact.  
     Syntax:  `/path/to/plugin.jar`
 
-IMPORTANT: You cannot use both options at the same time.
+⚠️ You cannot use both options at the same time.
 
-### Run checkpoint with default behavior
-
+## Execution examples
+### Run checkpoint connector with default behavior
 `java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint`
 
 ```bash 
@@ -93,30 +88,14 @@ IMPORTANT: You cannot use both options at the same time.
 [DATA]  {"data":"0"}
 [DATA]  {"data":"1"}
 [DATA]  {"data":"2"}
-[DATA]  {"data":"3"}
-[DATA]  {"data":"4"}
-[DATA]  {"data":"5"}
-[DATA]  {"data":"6"}
-[DATA]  {"data":"7"}
-[DATA]  {"data":"8"}
-[DATA]  {"data":"9"}
-[DATA]  {"data":"10"}
-[DATA]  {"data":"11"}
-[DATA]  {"data":"12"}
-[DATA]  {"data":"13"}
-[DATA]  {"data":"14"}
-[DATA]  {"data":"15"}
-[DATA]  {"data":"16"}
-[DATA]  {"data":"17"}
+[...]
 [DATA]  {"data":"18"}
 [DATA]  {"data":"19"}
 [INFO]  finished.
 ```
 
-### Run checkpoint with a configuraton
-
-and turn log verbose on:
-
+### Run checkpoint connector with a checkpointing configuration
+In this example we turn on the log verbose, giving a checkpointing configuration file.  
 `% java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint --configuration=configuration-default.json --log`
 
 ```bash
@@ -128,12 +107,7 @@ and turn log verbose on:
 [DATA]  {"data":"1"}
 [INFO]  Checkpoint 2 reached with {"$checkpoint":{"sinceId":2,"status":"running","__version":2}}.
 [DATA]  {"data":"2"}
-[DATA]  {"data":"3"}
-[INFO]  Checkpoint 3 reached with {"$checkpoint":{"sinceId":4,"status":"running","__version":2}}.
-[DATA]  {"data":"4"}
-[DATA]  {"data":"5"}
-[INFO]  Checkpoint 4 reached with {"$checkpoint":{"sinceId":6,"status":"running","__version":2}}.
-[DATA]  {"data":"6"}
+[...]
 [DATA]  {"data":"7"}
 [INFO]  Checkpoint 5 reached with {"$checkpoint":{"sinceId":8,"status":"running","__version":2}}.
 [DATA]  {"data":"8"}
@@ -141,7 +115,8 @@ and turn log verbose on:
 [INFO]  Checkpoint 6 reached with {"$checkpoint":{"sinceId":9,"status":"finished","__version":2}}.
 [INFO]  finished.
 ```
-Check generated checkpoint file `checkpoint.json`:
+This will generate a checkpoint file `checkpoint.json` containing the last checkpoint reached on top of classical
+and connector configuration.
 
 ```bash
 % cat checkpoint.json | jq
@@ -157,9 +132,7 @@ Check generated checkpoint file `checkpoint.json`:
 Note: `$checkpoint` is a reserved property name, it will be used to store the checkpoint object, as the `__version` property.
 
 ### Run with framework feature disabled
-
-and turn log verbose on:
-
+In this example we turn off the checkpointing framework capability.  
 `% java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint --disable-feature --log`
 
 ```bash
@@ -172,16 +145,7 @@ and turn log verbose on:
 [DATA]  {"data":"2"}
 [DATA]  {"data":"3"}
 [DATA]  {"data":"4"}
-[DATA]  {"data":"5"}
-[DATA]  {"data":"6"}
-[DATA]  {"data":"7"}
-[DATA]  {"data":"8"}
-[DATA]  {"data":"9"}
-[DATA]  {"data":"10"}
-[DATA]  {"data":"11"}
-[DATA]  {"data":"12"}
-[DATA]  {"data":"13"}
-[DATA]  {"data":"14"}
+[...]
 [DATA]  {"data":"15"}
 [DATA]  {"data":"16"}
 [DATA]  {"data":"17"}
@@ -189,49 +153,20 @@ and turn log verbose on:
 [DATA]  {"data":"19"}
 [INFO]  finished.
 ```
-No checkpoint file is generated.
+We can see that no checkpoint file is generated compare to previous example.
 
-## Configuration sample
+### Configuration sample
+In order to test and run the feature you will find provided configuration files in the [resources](./resources) folder.
 
-You'll find those files in `resources` folder or in artifact archive.
+ * Sample configuration [configuration-default.json](resources/configuration-default.json) file
+   * This configuration will limit the number of records to 10.
+ * Sample CheckpointInput connector configuration **VERSION-2** [checkpoint-v2.json](resources/checkpoint-v2.json)
+   * This configuration will start the checkpoint from record Id 1 defined by `sinceId`.
+   * When the runner is finished, it will be updated with the last record Id processed 
+     and its status will be set as _"finished"_. 
+ * Testing migration file, using a **VERSION-1** of CheckpointInput connector configuration [checkpoint-v1.json](resources/checkpoint-v1.json)
+   * The `lastId` property is used to identify the last record Id processed. 
+     This configuration shall be correctly migrated to the new format (`lastId` renamed to `sinceId`)
+     by the `CheckpointMigrationHandler`.
+   * Execution with this configuration, shall start at 10.
 
-### Sample configuration `configuration-default.json`
-```json
-{
-  "configuration": {
-    "dataset": {
-      "maxRecords": 10
-    }
-  }
-}
-```
-This configuration will limit the number of records to 10.
-
-### Sample checkpoint configuration `checkpoint-default.json`
-```json
-{
-  "$checkpoint": {
-    "sinceId": 1,
-    "status": "running",
-    "__version": 2
-  }
-}
-```
-This checkpoint configuration will start the checkpoint from record Id 1.
-When the runner is finished, it will be updated with the last record Id processed and its status will be set as _"finished"_.
-The `__version` property is used to identify the version of the checkpoint configuration object. 
-
-## Testing migration
-
-Provide a `checkpoint-v1.json` file with the following content:
-
-```json
-{
-  "$checkpoint": {
-    "lastId": 10,
-    "status": "running",
-    "__version": 1
-  }
-}
-```
-Notice the `lastId` field instead of `sinceId`.
