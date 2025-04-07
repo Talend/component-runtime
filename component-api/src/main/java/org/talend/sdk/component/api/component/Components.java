@@ -45,7 +45,9 @@ public @interface Components {
 
     /**
      * Database types mapping. Studio will use this to generate the database mapping and allow to access to the DB
-     * Column Types.
+     * Column Types. Setting this to <code>custom</code> will allow to use the custom database mapping using an action.
+     * Setting this to an empty string will disable the database mapping and will not allow to access to the DB Column
+     * type.
      */
     String databaseMapping() default DatabaseMapping.NONE;
 
@@ -53,8 +55,11 @@ public @interface Components {
 
         public static final String CUSTOM = "custom"; //
 
-        public static final String NONE = ""; // default and only recommended mode now.
+        public static final String NONE = ""; // default, no mappings.
 
+        private DatabaseMapping() {
+            // nop
+        }
     }
 
 }

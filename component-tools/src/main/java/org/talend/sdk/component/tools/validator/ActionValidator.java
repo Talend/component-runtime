@@ -45,6 +45,7 @@ import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
+import org.talend.sdk.component.api.service.schema.DatabaseMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
@@ -98,6 +99,9 @@ public class ActionValidator implements Validator {
         // parameters for @DiscoverSchemaExtended
         final Stream<String> discoverProcessor = findDiscoverSchemaExtendedErrors(finder);
 
+        // parameters for @DatabaseMapping
+        final Stream<String> databaseMappingsErrors = findDatabaseMappingsErrors(finder);
+
         // parameters for @DynamicDependencies
         final Stream<String> dynamicDependencyErrors = findDynamicDependenciesErrors(finder);
 
@@ -136,6 +140,7 @@ public class ActionValidator implements Validator {
                         datasetDiscover, //
                         discover, //
                         discoverProcessor, //
+                        databaseMappingsErrors, //
                         dynamicDependencyErrors, //
                         updatesErrors, //
                         enumProposable, //
@@ -237,6 +242,26 @@ public class ActionValidator implements Validator {
                 .stream()
                 .filter(m -> !hasStringInList(m))
                 .map(m -> m + " should return List<String>")
+                .sorted();
+
+        return Stream.of(returnType, optionParameter)
+                .reduce(Stream::concat)
+                .orElseGet(Stream::empty);
+    }
+
+    private Stream<String> findDatabaseMappingsErrors(final AnnotationFinder finder) {
+        final Stream<String> optionParameter = finder
+                .findAnnotatedMethods(DatabaseMapping.class)
+                .stream()
+                .filter(m -> !hasOption(m))
+                .map(m -> m + " should have a parameter being an option (marked with @Option)")
+                .sorted();
+
+        final Stream<String> returnType = finder
+                .findAnnotatedMethods(DatabaseMapping.class)
+                .stream()
+                .filter(m -> !String.class.isAssignableFrom(m.getReturnType()))
+                .map(m -> m + " should return a String")
                 .sorted();
 
         return Stream.of(returnType, optionParameter)

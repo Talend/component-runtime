@@ -43,6 +43,7 @@ import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.Data
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DatabaseMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
@@ -72,6 +73,18 @@ class ActionValidatorTest {
         finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaKo.class));
         final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaKo.class));
         assertEquals(13, errors.count());
+    }
+
+    @Test
+    void validateDatabaseMapping() {
+        final ActionValidator validator = new ActionValidator(new FakeHelper());
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ActionDatabaseMappingOK.class));
+        final Stream<String> noerrors =
+                validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaOk.class));
+        assertEquals(0, noerrors.count());
+        finder = new AnnotationFinder(new ClassesArchive(ActionDatabaseMappingKO.class));
+        final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaKo.class));
+        assertEquals(2, errors.count());
     }
 
     @Test
@@ -274,6 +287,27 @@ class ActionValidatorTest {
 
         @DiscoverSchemaExtended("record")
         public Record guessProcessorSchemaKo6(@Option FakeDataSet configuration, RecordBuilderFactory factory) {
+            return null;
+        }
+    }
+
+    static class ActionDatabaseMappingOK {
+
+        @DatabaseMapping("test-none")
+        public String mappingsOk(@Option("datastore") FakeDataStore datastore) {
+            return null;
+        }
+    }
+
+    static class ActionDatabaseMappingKO {
+
+        @DatabaseMapping("test-option")
+        public String mappingsKoOption(FakeDataStore datastore) {
+            return null;
+        }
+
+        @DatabaseMapping("test-return")
+        public Schema mappingsKoReturn(@Option("datastore") FakeDataStore datastore) {
             return null;
         }
     }
