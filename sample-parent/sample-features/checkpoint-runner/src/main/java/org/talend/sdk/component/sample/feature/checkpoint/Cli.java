@@ -82,7 +82,7 @@ public final class Cli {
             @Option("gav") @Default(GAV) final String gav,
             @Option("jar") final File jar,
             @Option("family") @Default("checkpoint") final String family,
-            @Option("mapper") @Default("input") final String mapper,
+            @Option("mapper") @Default("incrementalSequenceInput") final String mapper,
             @Option("configuration") @Default("./configuration.json") final File configurationFile,
             @Option("checkpoint") @Default("./checkpoint.json") final File checkpointFile,
             @Option("re-use") @Default("false") final boolean reuse,
