@@ -29,7 +29,7 @@ Alternatively build the feature module using `mvn install -am -pl :checkpoint`
 ### How to run
 To run the connector, you need exec the generated artifact `org.talend.sdk.component.sample.feature:checkpoint`.  
 * You can run it directly from `target` folder or repository folder
-  * `java -jar target/checkpoint-1.80.0-SNAPSHOT-exec.jar`
+  * `java -jar target/checkpoint-1.80.0-SNAPSHOT.jar`
 * or you can run it from the maven repository
   * `java -jar ~/.m2/repository/org/talend/sdk/component/sample/feature/checkpoint/1.80.0-SNAPSHOT/checkpoint-1.80.0-SNAPSHOT.jar`
 
