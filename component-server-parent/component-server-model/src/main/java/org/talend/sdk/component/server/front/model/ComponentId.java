@@ -35,4 +35,6 @@ public class ComponentId {
     private String family;
 
     private String name;
+
+    private String databaseMapping;
 }

@@ -99,7 +99,7 @@ class RepositoryModelBuilderTest {
         final PropertyEditorRegistry registry = new PropertyEditorRegistry();
         final RepositoryModel model = new RepositoryModelBuilder()
                 .create(new ComponentManager.AllServices(emptyMap()),
-                        singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test") {
+                        singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test", "") {
 
                             {
                                 final ParameterMeta store = new ParameterMeta(null, DataStore1.class,

@@ -166,6 +166,7 @@ class ComponentResourceImplTest {
 
         final ComponentId id = components.iterator().next().getId();
         assertEquals("jdbc#input", id.getFamily() + "#" + id.getName());
+        assertEquals("mysql", id.getDatabaseMapping());
     }
 
     @Test()

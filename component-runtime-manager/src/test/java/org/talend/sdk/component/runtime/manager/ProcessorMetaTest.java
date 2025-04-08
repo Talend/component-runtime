@@ -38,7 +38,7 @@ class ProcessorMetaTest {
 
     @Test
     void testGetListener() {
-        final ComponentFamilyMeta parent = new ComponentFamilyMeta("plugin", emptyList(), "default", "name", "");
+        final ComponentFamilyMeta parent = new ComponentFamilyMeta("plugin", emptyList(), "default", "name", "", "");
         final ProcessorMeta meta = new ProcessorMeta(parent, "name", "default", 1, TestProcessor.class, null, null,
                 null, true, Collections.emptyMap());
         final Method listener = meta.getListener();

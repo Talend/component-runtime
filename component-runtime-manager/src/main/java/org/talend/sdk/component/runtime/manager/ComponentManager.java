@@ -1994,7 +1994,8 @@ public class ComponentManager implements AutoCloseable {
                             iconFinder.findIcon(familyAnnotationElement), comp,
                             Class.class.isInstance(familyAnnotationElement)
                                     ? getPackage(Class.class.cast(familyAnnotationElement))
-                                    : ""))
+                                    : "",
+                            components.databaseMapping()))
                     : this.component;
         }
 

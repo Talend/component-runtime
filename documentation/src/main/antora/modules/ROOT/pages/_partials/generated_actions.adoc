@@ -191,6 +191,17 @@ Mark a method as returning a Schema resulting from a connector configuration and
 ----
 
 
+= Schema Mapping
+
+Mark a method as returning a database mapping from a connector configuration and some other parameters.Use this annotation if database mapping can be dynamic and `@Components.databaseMapping` is set to `custom`.The functionality is for the Studio only.
+
+- Type: `schema_mapping`
+- API: `@org.talend.sdk.component.api.service.schema.DatabaseMapping`
+- Returned type: `java.lang.String`
+- Sample:
+
+
+
 = Suggestions
 
 Mark a method as being useful to fill potential values of a string option. You can link a field as being completable using @Suggestable(value). The resolution of the completion action is then done when the user requests it (generally by clicking on a button or entering the field depending the environment).
