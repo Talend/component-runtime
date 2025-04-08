@@ -47,7 +47,7 @@ public class AvailableOutputWithAnnotationTwo implements Serializable {
 
     private final AvailableOutputService service;
 
-    public AvailableOutputWithAnnotationTwo(@Option("configuration") final ConfigurationTwo configuration,
+    public AvailableOutputWithAnnotationTwo(@Option("config") final ConfigurationTwo configuration,
                                             final AvailableOutputService service) {
         this.configuration = configuration;
         this.service = service;

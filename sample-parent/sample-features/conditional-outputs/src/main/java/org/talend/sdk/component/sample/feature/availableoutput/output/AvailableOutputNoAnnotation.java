@@ -45,7 +45,7 @@ public class AvailableOutputNoAnnotation implements Serializable {
 
     private final AvailableOutputService service;
 
-    public AvailableOutputNoAnnotation(@Option("configuration") final Configuration configuration,
+    public AvailableOutputNoAnnotation(@Option("config") final Configuration configuration,
             final AvailableOutputService service) {
         this.configuration = configuration;
         this.service = service;

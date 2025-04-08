@@ -37,7 +37,7 @@ public class AvailableOutputService implements Serializable {
     public static final String THIRD_FLOW_NAME2 = "third-2";
 
     @AvailableOutputFlows("output-flow1")
-    public List<String> getAvailableFlows(final @Option("configuration") Configuration config) {
+    public List<String> getAvailableFlows(final @Option("config") Configuration config) {
         List<String> flows = new ArrayList<>();
         if (config.isShowSecond()) {
             flows.add(SECOND_FLOW_NAME);
@@ -49,7 +49,7 @@ public class AvailableOutputService implements Serializable {
     }
 
     @AvailableOutputFlows("output-flow2")
-    public List<String> getAvailableFlows2(final @Option("configuration") ConfigurationTwo config) {
+    public List<String> getAvailableFlows2(final @Option("config") ConfigurationTwo config) {
         List<String> flows = new ArrayList<>();
         if (config.isShowSecond2()) {
             flows.add(SECOND_FLOW_NAME2);

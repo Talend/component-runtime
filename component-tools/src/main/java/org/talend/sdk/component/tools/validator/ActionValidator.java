@@ -286,13 +286,6 @@ public class ActionValidator implements Validator {
                 .map(p -> p + " must has a name to pair with related annotation @AvailableOutputFlows")
                 .sorted();
 
-        final Stream<String> optionParameter = finder
-                .findAnnotatedMethods(AvailableOutputFlows.class)
-                .stream()
-                .filter(m -> !hasOptionConfiguration(m))
-                .map(m -> m + " should have an parameter marked with @Option(\"configuration\")")
-                .sorted();
-
         final Stream<String> returnType = finder
                 .findAnnotatedMethods(AvailableOutputFlows.class)
                 .stream()
@@ -317,7 +310,7 @@ public class ActionValidator implements Validator {
                 .sorted();
 
         return Stream
-                .of(mustHasName, mustHasNamePro, returnType, optionParameter, onlyOneProcessor, sameConfigWithProcessor)
+                .of(mustHasName, mustHasNamePro, returnType, onlyOneProcessor, sameConfigWithProcessor)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
@@ -409,13 +402,6 @@ public class ActionValidator implements Validator {
     private boolean hasOption(final Method method) {
         return Arrays.stream(method.getParameters())
                 .filter(p -> p.isAnnotationPresent(Option.class))
-                .count() == 1;
-    }
-
-    private boolean hasOptionConfiguration(final Method method) {
-        return Arrays.stream(method.getParameters())
-                .filter(p -> p.isAnnotationPresent(Option.class))
-                .filter(p -> "configuration".equals(p.getAnnotation(Option.class).value()))
                 .count() == 1;
     }
 
