@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,8 +48,8 @@ import lombok.Data;
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Documentation("Checkpoint Input sample processor connector.")
-@Emitter(family = "checkpoint", name = "input")
-public class CheckpointInput implements Serializable {
+@Emitter(family = "checkpoint", name = "incrementalSequenceInput")
+public class IncrementalSequenceInput implements Serializable {
 
     private final transient JsonBuilderFactory factory;
 
@@ -63,7 +63,8 @@ public class CheckpointInput implements Serializable {
 
     private final transient InputConfig configuration;
 
-    public CheckpointInput(final JsonBuilderFactory factory, @Option("configuration") final InputConfig config) {
+    public IncrementalSequenceInput(final JsonBuilderFactory factory,
+            @Option("configuration") final InputConfig config) {
         this.factory = factory;
         this.configuration = config;
     }
@@ -71,19 +72,13 @@ public class CheckpointInput implements Serializable {
     @PostConstruct
     public void init() {
         data = IntStream.range(0, configuration.dataset.maxRecords).boxed().collect(toList());
-        if (configuration.checkpoint == null) {
-            bookmark = 0;
-        } else {
-            if (configuration.checkpoint.sinceId > configuration.dataset.maxRecords) {
-                bookmark = 0;
-            } else {
-                bookmark = configuration.checkpoint.sinceId;
-            }
+        if (configuration.checkpoint != null) {
+            bookmark = configuration.checkpoint.sinceId;
         }
         if (bookmark == null) {
             iterator = new ArrayList<Integer>().listIterator();
         } else {
-            iterator = data.listIterator(bookmark);
+            iterator = data.listIterator(bookmark + 1); // +1 since we want to start after the bookmark.
         }
     }
 
@@ -124,7 +119,7 @@ public class CheckpointInput implements Serializable {
             @GridLayout.Row("recordPrefix"),
             @GridLayout.Row("dataset"),
     })
-    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {@GridLayout.Row("checkpoint")})
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = { @GridLayout.Row("checkpoint") })
     @Version
     public static class InputConfig {
 
@@ -143,7 +138,7 @@ public class CheckpointInput implements Serializable {
 
     @DataSet
     @Data
-    @GridLayout(value = {@GridLayout.Row("maxRecords"), @GridLayout.Row("datastore")})
+    @GridLayout(value = { @GridLayout.Row("maxRecords"), @GridLayout.Row("datastore") })
     public static class Dataset implements Serializable {
 
         @Option
@@ -158,7 +153,7 @@ public class CheckpointInput implements Serializable {
 
     @DataStore
     @Data
-    @GridLayout(value = {@GridLayout.Row("systemId")})
+    @GridLayout(value = { @GridLayout.Row("systemId") })
     public static class Datastore implements Serializable {
 
         @Option
@@ -173,7 +168,7 @@ public class CheckpointInput implements Serializable {
 
         @Option
         @Documentation("Checkpointing state : since id.")
-        private int sinceId;
+        private int sinceId = -1;
     }
 
     public static class CheckpointMigrationHandler implements MigrationHandler {

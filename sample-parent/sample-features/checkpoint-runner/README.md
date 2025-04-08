@@ -60,7 +60,7 @@ Options:
   --jar=<File>               Full path to jar of the component to use for the checkpoint.
   --log                      Log when a checkpoint is serialized.
   --mapper=<String>          Mapper to use for the checkpoint.
-                             (default: input)
+                             (default: incrementalSequenceInput)
   --no-re-use                Re-use checkpoint file, it will match latest checkpoint available, otherwise will create numbered checkpoint.
   --work-dir=<File>          Where to create temporary checkpoint files.
                              (default: ./)
@@ -159,9 +159,9 @@ In order to test and run the feature you will find provided configuration files 
 
  * Sample configuration [configuration-default.json](resources/configuration-default.json) file
    * This configuration will limit the number of records to 10.
- * Sample CheckpointInput connector configuration **VERSION-2** [checkpoint-v2.json](resources/checkpoint-v2.json)
+ * Sample IncrementalSequenceInput connector configuration **VERSION-2** [checkpoint-v2.json](resources/checkpoint-v2.json)
    * This configuration will start the checkpoint from record Id 1 defined by `sinceId`.
- * Testing migration file, using a **VERSION-1** of CheckpointInput connector configuration [checkpoint-v1.json](resources/checkpoint-v1.json)
+ * Testing migration file, using a **VERSION-1** of IncrementalSequenceInput connector configuration [checkpoint-v1.json](resources/checkpoint-v1.json)
    * The `lastId` property is used to identify the last record Id processed. 
      This configuration shall be correctly migrated to the new format (`lastId` renamed to `sinceId`)
      by the `CheckpointMigrationHandler`.
