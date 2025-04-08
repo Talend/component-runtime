@@ -102,17 +102,17 @@ In this example we turn on the log verbose, giving a checkpointing configuration
 [INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT.
 [WARN]  ./checkpoint.json (No such file or directory)
 [INFO]  configuration: {configuration.dataset.maxRecords=10}
-[INFO]  Checkpoint 1 reached with {"$checkpoint":{"sinceId":0,"status":"running","__version":2}}.
+[INFO]  Checkpoint 1 reached with {"$checkpoint":{"sinceId":0,"__version":2}}.
 [DATA]  {"data":"0"}
 [DATA]  {"data":"1"}
-[INFO]  Checkpoint 2 reached with {"$checkpoint":{"sinceId":2,"status":"running","__version":2}}.
+[INFO]  Checkpoint 2 reached with {"$checkpoint":{"sinceId":2,"__version":2}}.
 [DATA]  {"data":"2"}
 [...]
 [DATA]  {"data":"7"}
-[INFO]  Checkpoint 5 reached with {"$checkpoint":{"sinceId":8,"status":"running","__version":2}}.
+[INFO]  Checkpoint 5 reached with {"$checkpoint":{"sinceId":8,"__version":2}}.
 [DATA]  {"data":"8"}
 [DATA]  {"data":"9"}
-[INFO]  Checkpoint 6 reached with {"$checkpoint":{"sinceId":9,"status":"finished","__version":2}}.
+[INFO]  Checkpoint 6 reached with {"$checkpoint":{"sinceId":9,,"__version":2}}.
 [INFO]  finished.
 ```
 This will generate a checkpoint file `checkpoint.json` containing the last checkpoint reached on top of classical
@@ -124,7 +124,6 @@ and connector configuration.
 {
   "$checkpoint": {
     "sinceId": 9,
-    "status": "finished",
     "__version": 2
   }
 }
@@ -162,8 +161,6 @@ In order to test and run the feature you will find provided configuration files 
    * This configuration will limit the number of records to 10.
  * Sample CheckpointInput connector configuration **VERSION-2** [checkpoint-v2.json](resources/checkpoint-v2.json)
    * This configuration will start the checkpoint from record Id 1 defined by `sinceId`.
-   * When the runner is finished, it will be updated with the last record Id processed 
-     and its status will be set as _"finished"_. 
  * Testing migration file, using a **VERSION-1** of CheckpointInput connector configuration [checkpoint-v1.json](resources/checkpoint-v1.json)
    * The `lastId` property is used to identify the last record Id processed. 
      This configuration shall be correctly migrated to the new format (`lastId` renamed to `sinceId`)
