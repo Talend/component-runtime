@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -74,14 +74,10 @@ public class CheckpointInput implements Serializable {
         if (configuration.checkpoint == null) {
             bookmark = 0;
         } else {
-            if ("finished".equals(configuration.checkpoint.status)) {
+            if (configuration.checkpoint.sinceId > configuration.dataset.maxRecords) {
                 bookmark = 0;
             } else {
-                if (configuration.checkpoint.sinceId > configuration.dataset.maxRecords) {
-                    bookmark = 0;
-                } else {
-                    bookmark = configuration.checkpoint.sinceId;
-                }
+                bookmark = configuration.checkpoint.sinceId;
             }
         }
         if (bookmark == null) {
@@ -97,14 +93,13 @@ public class CheckpointInput implements Serializable {
             iterator = data.listIterator();
         }
         final Integer produced = iterator.hasNext() ? iterator.next() : null;
+
         if (produced == null) {
-            configuration.checkpoint.status = "finished";
-            configuration.checkpoint.sinceId = bookmark;
             return null;
         }
-        bookmark = produced;
+
         configuration.checkpoint.sinceId = produced;
-        configuration.checkpoint.status = "running";
+        bookmark = produced;
 
         if (bookmark % 2 == 0) {
             newBookmark = true;
@@ -129,7 +124,7 @@ public class CheckpointInput implements Serializable {
             @GridLayout.Row("recordPrefix"),
             @GridLayout.Row("dataset"),
     })
-    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = { @GridLayout.Row("checkpoint") })
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = {@GridLayout.Row("checkpoint")})
     @Version
     public static class InputConfig {
 
@@ -148,7 +143,7 @@ public class CheckpointInput implements Serializable {
 
     @DataSet
     @Data
-    @GridLayout(value = { @GridLayout.Row("maxRecords"), @GridLayout.Row("datastore") })
+    @GridLayout(value = {@GridLayout.Row("maxRecords"), @GridLayout.Row("datastore")})
     public static class Dataset implements Serializable {
 
         @Option
@@ -163,7 +158,7 @@ public class CheckpointInput implements Serializable {
 
     @DataStore
     @Data
-    @GridLayout(value = { @GridLayout.Row("systemId") })
+    @GridLayout(value = {@GridLayout.Row("systemId")})
     public static class Datastore implements Serializable {
 
         @Option
@@ -179,10 +174,6 @@ public class CheckpointInput implements Serializable {
         @Option
         @Documentation("Checkpointing state : since id.")
         private int sinceId;
-
-        @Option
-        @Documentation("Checkpointing state : status.")
-        private String status;
     }
 
     public static class CheckpointMigrationHandler implements MigrationHandler {
