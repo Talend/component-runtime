@@ -15,9 +15,9 @@ use the same configuration. They simply configure the dynamic behavior of output
 `output-flow1`. With this, the available output flows are according to the selected options `showSecond` and
 `showThird`.
 
-![AvailableOutputNoAnnotation](resources/AvailableOutputNoAnnotationOne.png)
+![AvailableOutputWithAnnotationOne](resources/AvailableOutputWithAnnotationOne.png)
 
 - `AvailableOutputWithAnnotationTwo`: Is quite the same as `AvailableOutputWithAnnotationOne`. Just, it is not the same
 configuration class, now options are `showSecond2` and `showThird2`, and the service is named `output-flow2`.
 
-![AvailableOutputNoAnnotation](resources/AvailableOutputNoAnnotationTwo.png)
+![AvailableOutputWithAnnotationTwo](resources/AvailableOutputWithAnnotationTwo.png)
