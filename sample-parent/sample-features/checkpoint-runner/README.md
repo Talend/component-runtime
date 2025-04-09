@@ -27,11 +27,11 @@ Checkout the code from the repository and build the project using `mvn clean ins
 Alternatively build the feature module using `mvn install -am -pl :checkpoint`
 
 ### How to run
-To run the connector, you need exec the generated artifact `org.talend.sdk.component.sample.feature:checkpoint`.  
+To run the connector, you need exec the generated artifact `org.talend.sdk.component.sample.feature:checkpointruntime`.  
 * You can run it directly from `target` folder or repository folder
-  * `java -jar target/checkpoint-1.80.0-SNAPSHOT.jar`
+  * `java -jar target/checkpointruntime-1.80.0-SNAPSHOT.jar`
 * or you can run it from the maven repository
-  * `java -jar ~/.m2/repository/org/talend/sdk/component/sample/feature/checkpoint/1.80.0-SNAPSHOT/checkpoint-1.80.0-SNAPSHOT.jar`
+  * `java -jar ~/.m2/repository/org/talend/sdk/component/sample/feature/checkpoint/1.80.0-SNAPSHOT/checkpointruntime-1.80.0-SNAPSHOT.jar`
 
 For later usage, will use the variable `$RUNCMD` as the way you may choose.  
 ⚠️ If you're using jdk17, don't forget to add the `--add-opens` option to the command line
@@ -56,7 +56,7 @@ Options:
   --family=<String>          Family of the component to use for the checkpoint.
                              (default: checkpoint)
   --gav=<String>             GAV of the component to use for the checkpoint.
-                             (default: org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT)
+                             (default: org.talend.sdk.component.sample.feature:checkpointruntime:jar:1.80.0-SNAPSHOT)
   --jar=<File>               Full path to jar of the component to use for the checkpoint.
   --log                      Log when a checkpoint is serialized.
   --mapper=<String>          Mapper to use for the checkpoint.
@@ -78,10 +78,10 @@ There are two ways to run the checkpoint runner with a specific plugin artifact:
 
 ## Execution examples
 ### Run checkpoint connector with default behavior
-`java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint`
+`java -jar target/checkpointruntime-1.80.0-SNAPSHOT.jar checkpoint`
 
 ```bash 
-[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT.
+[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpointruntime:jar:1.80.0-SNAPSHOT.
 [WARN]  ./configuration.json (No such file or directory)
 [WARN]  ./checkpoint.json (No such file or directory)
 [INFO]  configuration: {}
@@ -96,10 +96,10 @@ There are two ways to run the checkpoint runner with a specific plugin artifact:
 
 ### Run checkpoint connector with a checkpointing configuration
 In this example we turn on the log verbose, giving a checkpointing configuration file.  
-`% java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint --configuration=configuration-default.json --log`
+`% java -jar target/checkpointruntime-1.80.0-SNAPSHOT.jar checkpoint --configuration=configuration-example.json --log`
 
 ```bash
-[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT.
+[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpointruntime:jar:1.80.0-SNAPSHOT.
 [WARN]  ./checkpoint.json (No such file or directory)
 [INFO]  configuration: {configuration.dataset.maxRecords=10}
 [INFO]  Checkpoint 1 reached with {"$checkpoint":{"sinceId":0,"__version":2}}.
@@ -132,10 +132,10 @@ Note: `$checkpoint` is a reserved property name, it will be used to store the ch
 
 ### Run with framework feature disabled
 In this example we turn off the checkpointing framework capability.  
-`% java -jar target/checkpoint-1.80.0-SNAPSHOT.jar checkpoint --disable-feature --log`
+`% java -jar target/checkpointruntime-1.80.0-SNAPSHOT.jar checkpoint --disable-feature --log`
 
 ```bash
-[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpoint:jar:1.80.0-SNAPSHOT.
+[INFO]  Manager is using plugin: checkpoint from GAV org.talend.sdk.component.sample.feature:checkpointruntime:jar:1.80.0-SNAPSHOT.
 [WARN]  ./configuration.json (No such file or directory)
 [WARN]  ./checkpoint.json (No such file or directory)
 [INFO]  configuration: {}
@@ -155,13 +155,13 @@ In this example we turn off the checkpointing framework capability.
 We can see that no checkpoint file is generated compare to previous example.
 
 ### Configuration sample
-In order to test and run the feature you will find provided configuration files in the [resources](./resources) folder.
+In order to test and run the feature you will find provided configuration files in the [resources](src/main/resources) folder.
 
- * Sample configuration [configuration-default.json](resources/configuration-default.json) file
+ * Sample configuration [configuration-example.json](src/main/resources/configuration-example.json) file
    * This configuration will limit the number of records to 10.
- * Sample IncrementalSequenceInput connector configuration **VERSION-2** [checkpoint-v2.json](resources/checkpoint-v2.json)
+ * Sample IncrementalSequenceInput connector configuration **VERSION-2** [checkpoint-v2.json](src/main/resources/checkpoint-v2.json)
    * This configuration will start the checkpoint from record Id 1 defined by `sinceId`.
- * Testing migration file, using a **VERSION-1** of IncrementalSequenceInput connector configuration [checkpoint-v1.json](resources/checkpoint-v1.json)
+ * Testing migration file, using a **VERSION-1** of IncrementalSequenceInput connector configuration [checkpoint-v1.json](src/main/resources/checkpoint-v1.json)
    * The `lastId` property is used to identify the last record Id processed. 
      This configuration shall be correctly migrated to the new format (`lastId` renamed to `sinceId`)
      by the `CheckpointMigrationHandler`.
