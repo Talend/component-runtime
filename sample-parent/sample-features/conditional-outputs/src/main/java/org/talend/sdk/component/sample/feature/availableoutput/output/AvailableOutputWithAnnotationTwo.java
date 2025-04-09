@@ -65,7 +65,9 @@ public class AvailableOutputWithAnnotationTwo implements Serializable {
             @Output final OutputEmitter<Record> main,
             @Output(AvailableOutputService.SECOND_FLOW_NAME2) final OutputEmitter<Record> second,
             @Output(AvailableOutputService.THIRD_FLOW_NAME2) final OutputEmitter<Record> third) {
-        //this method here is just used to declare some outputs.
+        main.emit(input);
+        second.emit(input);
+        third.emit(input);
     }
 
 }
