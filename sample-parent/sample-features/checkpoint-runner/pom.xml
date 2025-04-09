@@ -23,7 +23,7 @@
   </parent>
 
   <groupId>org.talend.sdk.component.sample.feature</groupId>
-  <artifactId>checkpoint</artifactId>
+  <artifactId>checkpointruntime</artifactId>
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Feature :: Checkpoint</name>
