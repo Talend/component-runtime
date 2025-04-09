@@ -48,8 +48,8 @@ import lombok.Data;
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Documentation("Checkpoint Input sample processor connector.")
-@Emitter(family = "checkpoint", name = "input")
-public class CheckpointInput implements Serializable {
+@Emitter(family = "checkpoint", name = "incrementalSequenceInput")
+public class IncrementalSequenceInput implements Serializable {
 
     private final transient JsonBuilderFactory factory;
 
@@ -63,7 +63,8 @@ public class CheckpointInput implements Serializable {
 
     private final transient InputConfig configuration;
 
-    public CheckpointInput(final JsonBuilderFactory factory, @Option("configuration") final InputConfig config) {
+    public IncrementalSequenceInput(final JsonBuilderFactory factory,
+            @Option("configuration") final InputConfig config) {
         this.factory = factory;
         this.configuration = config;
     }
@@ -71,23 +72,13 @@ public class CheckpointInput implements Serializable {
     @PostConstruct
     public void init() {
         data = IntStream.range(0, configuration.dataset.maxRecords).boxed().collect(toList());
-        if (configuration.checkpoint == null) {
-            bookmark = 0;
-        } else {
-            if ("finished".equals(configuration.checkpoint.status)) {
-                bookmark = 0;
-            } else {
-                if (configuration.checkpoint.sinceId > configuration.dataset.maxRecords) {
-                    bookmark = 0;
-                } else {
-                    bookmark = configuration.checkpoint.sinceId;
-                }
-            }
+        if (configuration.checkpoint != null) {
+            bookmark = configuration.checkpoint.sinceId;
         }
         if (bookmark == null) {
             iterator = new ArrayList<Integer>().listIterator();
         } else {
-            iterator = data.listIterator(bookmark);
+            iterator = data.listIterator(bookmark + 1); // +1 since we want to start after the bookmark.
         }
     }
 
@@ -97,14 +88,13 @@ public class CheckpointInput implements Serializable {
             iterator = data.listIterator();
         }
         final Integer produced = iterator.hasNext() ? iterator.next() : null;
+
         if (produced == null) {
-            configuration.checkpoint.status = "finished";
-            configuration.checkpoint.sinceId = bookmark;
             return null;
         }
-        bookmark = produced;
+
         configuration.checkpoint.sinceId = produced;
-        configuration.checkpoint.status = "running";
+        bookmark = produced;
 
         if (bookmark % 2 == 0) {
             newBookmark = true;
@@ -178,11 +168,7 @@ public class CheckpointInput implements Serializable {
 
         @Option
         @Documentation("Checkpointing state : since id.")
-        private int sinceId;
-
-        @Option
-        @Documentation("Checkpointing state : status.")
-        private String status;
+        private int sinceId = -1;
     }
 
     public static class CheckpointMigrationHandler implements MigrationHandler {
