@@ -123,15 +123,17 @@ public MyNewData map(final MyData data,
     return createNewData(data);
 }
 ----
-== Defining conditional outputs
+== Defining conditional outputs flows
 
-For each output, it can be defined show or not by using the annotation @ConditionalOutputFlows on the Processor and
-with the @AvailableOutputFlows on the Service.
+Processors @ElementListerner methods can declare several output flows.
+At design time, usually, all output flows are available, but, in certain cases,
+we want disabled some of them according to the configuration the user has already set.
+In that case, a service will be call that will return available output flows.
 (Currently only Studio supports this feature)
 
-* A processor without @ConditionalOutputFlows keep the current behavior. All declared  flow are visible at design time
+* A processor without @ConditionalOutputFlows keep the current behavior. All declated flows are visible at design time
 
-* A processor with @ConditionalOutputFlows has its outflow list conditioned by its configuration
+* A processor with @ConditionalOutputFlows has its output flows list conditioned by its configuration
 
 ** The @ConditionalOutputFlows has one parameter: the name of a @AvailableOutputFlows service:
 @ConditionalOutputFlows("the_name")

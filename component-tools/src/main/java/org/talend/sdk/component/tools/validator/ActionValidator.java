@@ -107,7 +107,7 @@ public class ActionValidator implements Validator {
         // returned type for @Update, for now limit it on objects and not primitives
         final Stream<String> updatesErrors = this.findUpdatesErrors(finder);
 
-        final Stream<String> availableOutputFlowsErrorssErrors = this.findAvailableOutputFlowsErrors(finder);
+        final Stream<String> availableOutputFlowsErrors = this.findAvailableOutputFlowsErrors(finder);
 
         final Stream<String> enumProposable = finder
                 .findAnnotatedFields(Proposable.class)
@@ -143,7 +143,7 @@ public class ActionValidator implements Validator {
                         discoverProcessor, //
                         dynamicDependencyErrors, //
                         updatesErrors, //
-                        availableOutputFlowsErrorssErrors, //
+                        availableOutputFlowsErrors, //
                         enumProposable, //
                         proposableWithoutDynamic) //
                 .reduce(Stream::concat)
