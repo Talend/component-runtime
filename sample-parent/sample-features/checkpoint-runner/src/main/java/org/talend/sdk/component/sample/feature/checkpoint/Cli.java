@@ -65,7 +65,7 @@ public final class Cli {
 
     static final String DATA = "[DATA]  ";
 
-    static final String GAV = "org.talend.sdk.component.sample.feature:checkpoint:jar:"
+    static final String GAV = "org.talend.sdk.component.sample.feature:checkpointruntime:jar:"
             + org.talend.sdk.component.sample.feature.checkpoint.Versions.KIT_VERSION;
 
     public static final String ERROR_NOT_A_FILE = "Not a file: ";
