@@ -168,12 +168,12 @@ public final class Cli {
             //
             info("finished.");
         } catch (Exception e) {
-            error(Arrays.stream(e.getStackTrace())
+            error(e.getMessage() + "\n" + Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
                     .collect(Collectors.joining("\n")));
             Throwable cause = e.getCause();
             if (cause != null) {
-                error(" Root cause: " + Arrays.stream(cause.getStackTrace())
+                error(" Root cause: " + cause.getMessage() + "\n" + Arrays.stream(cause.getStackTrace())
                         .map(StackTraceElement::toString)
                         .collect(Collectors.joining("\n")));
             }
