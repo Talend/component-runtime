@@ -22,14 +22,14 @@ Checkpointing in TCK is implemented using specific annotations and an interface 
 
 === Checkpointing Annotations
 
-`@CheckpointData`: This annotation marks a method that returns a checkpoint object based on the class annotated with `@Checkpoint`.
+`@CheckpointData`: This annotation marks a method that returns a checkpoint object annotated with `@Checkpoint`.
 
-`@CheckpointAvailable`: This annotation marks a method that indicates when a new checkpoint (or bookmark) is available.
+`@CheckpointAvailable`: This annotation marks a method that indicates when a new checkpoint is available.
 
-`@Checkpoint`: This annotation is used to mark a class as a checkpointing configuration and state class. This configuration let user define how checkpoints should be built by the connector, and what are data that are set in checkpoint. Those are instances of that class that are given to the connector ro configure it to restart at the expected state.
+`@Checkpoint`: This annotation is used to mark a class as a checkpointing configuration and state class. This configuration let user define how checkpoints should be built by the connector, and what are data that are set in checkpoint. Those are instances of that class that are given to the connector to configure it to restart at the expected state.
 
 === Connector Implementation
-To support checkpointing, the input component used in the lifecycle implement the following interface (internal implementation):
+To support checkpointing, the input component used in the lifecycle implement the following interface (this is an internal implementation, connectors developers don't have to implement it):
 
 [source,java]
 ----
@@ -50,7 +50,7 @@ default Boolean isCheckpointReady() {
 }
 ----
 
-The `start()` method is called with a callback function that retrieves and serializes the checkpoint object. The `getCheckpoint()` method returns the checkpoint object, and `isCheckpointReady()` checks if a checkpoint is available.
+The `start()` method is called with a callback function that retrieves and serializes checkpoint instances. The `getCheckpoint()` method returns those checkpoint instances, and `isCheckpointReady()` checks if a new checkpoint is available.
 
 Those methods are frontend methods for connectors' methods annotated with `@CheckpointAvailable`, and `@Checkpoint`.
 
@@ -89,11 +89,7 @@ public class CheckpointInputDemo implements Serializable {
             log.info("[resume] No valid checkpoint configuration found, using start of dataset.");
             bookmark = 0;
         } else {
-            if ("finished".equals(configuration.checkpoint.status)) {
-                bookmark = 0;
-            } else {
-                bookmark = configuration.checkpoint.sinceId;
-            }
+            bookmark = configuration.checkpoint.sinceId;
         }
         ...
     }
@@ -103,13 +99,11 @@ public class CheckpointInputDemo implements Serializable {
         ...
         final Integer produced = iterator.hasNext() ? iterator.next() : null;
         if (produced == null) {
-            configuration.checkpoint.status = "finished";
             configuration.checkpoint.sinceId = bookmark;
             return null;
         }
         bookmark = produced;
         configuration.checkpoint.sinceId = produced;
-        configuration.checkpoint.status = "running";
 
         if (isCheckpointCondition(produced)) {
             newBookmark = true;
@@ -215,8 +209,6 @@ Sample configuration class with checkpointing annotations:
         @Option
         private int sinceId;
 
-        @Option
-        private String status;
     }
 
     @Data
@@ -244,7 +236,6 @@ Here's a simple example of a `CheckpointState` class serialized to JSON:
   "$checkpoint": { <1>
     "lastId": 95,
     "lastUpdate": "2023-04-04",
-    "status": "running",
     "strategy": "BY_ID",
     "__version": 2 <2>
   }
@@ -263,7 +254,6 @@ The checkpointing configuration class is defined as a nested class within the co
   ...
   configuration.put("$checkpoint.strategy", "BY_ID");
   configuration.put("$checkpoint.sinceId", "5");
-  configuration.put("$checkpoint.status", "none");
   //
   final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
   ...
