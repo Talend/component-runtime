@@ -1,5 +1,0 @@
-= Sample for Conditional Output
-
-Output Flows are defined in @ElementListener  methods of a processor.
-We add 2 new annotations to make each outputs available or not.
-This connector just show an example about how to use these annotations.
