@@ -36,7 +36,7 @@ public class MappingInput implements Serializable {
 
     private final RecordBuilderFactory factory;
 
-    private final int max = 5;
+    private static final int MAX = 5;
 
     private int current = 0;
 
@@ -47,7 +47,7 @@ public class MappingInput implements Serializable {
 
     @Producer
     public Record next() {
-        if (current >= max) {
+        if (current >= MAX) {
             return null;
         }
         current++;

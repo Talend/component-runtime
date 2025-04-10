@@ -27,9 +27,9 @@ import org.talend.sdk.component.sample.feature.databasemapping.config.Dataset;
 @Service
 public class UIService {
 
-    public final static String SECOND_FLOW_NAME = "second";
+    public static final String SECOND_FLOW_NAME = "second";
 
-    public final static String THIRD_FLOW_NAME = "third";
+    public static final String THIRD_FLOW_NAME = "third";
 
     @Service
     private RecordBuilderFactory factory;
