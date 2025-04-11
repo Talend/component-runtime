@@ -288,6 +288,7 @@
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
     <tomitribe-crest.version>0.32</tomitribe-crest.version>
+    <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -1515,7 +1516,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>${maven-checkstyle-plugin.version}</version>
         <configuration>
           <logViolationsToConsole>true</logViolationsToConsole>
           <excludes>**/HelpMojo*,**/maven/legacy/model/**</excludes>
