@@ -274,8 +274,7 @@ public final class Cli {
     }
 
     public static void error(Throwable e) {
-        System.err.println(ERROR + e.getMessage() + "\n");
-        System.err.println(e);
+        log.error(ERROR + e.getMessage(), e);
         System.exit(501);
     }
 
