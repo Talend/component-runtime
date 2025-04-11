@@ -117,7 +117,7 @@ public class ProjectDownloader {
                     path = path.replaceFirst("^[^/]+/", "");
                 }
                 final File file = new File(destination, path);
-                if (!file.getCanonicalPath().startsWith(destination.getCanonicalPath())) {
+                if (!file.getCanonicalPath().startsWith(destination.getCanonicalPath() + File.separator)) {
                     throw new IOException("The output file is not contained in the destination directory");
                 }
 
