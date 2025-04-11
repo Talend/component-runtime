@@ -24,12 +24,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -183,16 +181,7 @@ public final class Cli {
             //
             info("finished.");
         } catch (Exception e) {
-            error(e.getMessage() + "\n" + Arrays.stream(e.getStackTrace())
-                    .map(StackTraceElement::toString)
-                    .collect(Collectors.joining("\n")));
-            Throwable cause = e.getCause();
-            if (cause != null) {
-                error(" Root cause: " + cause.getMessage() + "\n"
-                        + Arrays.stream(cause.getStackTrace())
-                                .map(StackTraceElement::toString)
-                                .collect(Collectors.joining("\n")));
-            }
+            error(e);
         }
     }
 
@@ -281,6 +270,12 @@ public final class Cli {
 
     public static void error(String message) {
         System.err.println(ERROR + message);
+        System.exit(501);
+    }
+
+    public static void error(Throwable e) {
+        System.err.println(ERROR + e.getMessage() + "\n");
+        System.err.println(e);
         System.exit(501);
     }
 
