@@ -15,7 +15,7 @@
     <meta name="description" content="Get an overview of the main steps to code the logic of your custom Talend Componit Kit components">
     <meta name="keywords" content="create, code, class, logic, layout, configuration, dev, overview, api">
     <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2025-04-11T00:47:29.649Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2025-04-11T02:59:37.937Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -2089,6 +2089,32 @@ public class BulkProcessor implements Serializable {
     @AfterGroup
     public void commit(final Collection&lt;Record&gt; records) {
         // saves records
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When using the @aftergroup feature, it can be helpful to determine if it&#8217;s the last call (last group).
+You can now annotate a Boolean with @lastgroup as a parameter of the method.
+This Boolean will be set to true for the final call, which can be useful for performing additional
+actions once all records have been processed.</p>
+</div>
+<div class="paragraph">
+<p>For example, here is a scenario inspired by Snowflake:</p>
+</div>
+<div class="paragraph">
+<p>Batches of records are staged within each @aftergroup call.
+Once all data has been staged, a final #commitBulkLoad call is executed. This action must be performed after all data has been staged.
+This process returns all rejected data, which is then transformed into TCK records and sent to the 'REJECT' flow.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@AfterGroup
+public void afterGroup(@Output("REJECT") final OutputEmitter&lt;Record&gt; rejected, @LastGroup Boolean last) {
+    database.pushToStaging(records);
+    if(last){
+        List&lt;Data&gt; dataToReject = database.commitBulkLoad();
+        dataToReject.stream().map(d -&gt; convertToRecord(d)).each(r -&gt; rejected.emit(d));
     }
 }</code></pre>
 </div>
@@ -4690,6 +4716,32 @@ public class BulkProcessor implements Serializable {
     @AfterGroup
     public void commit(final Collection&lt;Record&gt; records) {
         // saves records
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When using the @aftergroup feature, it can be helpful to determine if it&#8217;s the last call (last group).
+You can now annotate a Boolean with @lastgroup as a parameter of the method.
+This Boolean will be set to true for the final call, which can be useful for performing additional
+actions once all records have been processed.</p>
+</div>
+<div class="paragraph">
+<p>For example, here is a scenario inspired by Snowflake:</p>
+</div>
+<div class="paragraph">
+<p>Batches of records are staged within each @aftergroup call.
+Once all data has been staged, a final #commitBulkLoad call is executed. This action must be performed after all data has been staged.
+This process returns all rejected data, which is then transformed into TCK records and sent to the 'REJECT' flow.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@AfterGroup
+public void afterGroup(@Output("REJECT") final OutputEmitter&lt;Record&gt; rejected, @LastGroup Boolean last) {
+    database.pushToStaging(records);
+    if(last){
+        List&lt;Data&gt; dataToReject = database.commitBulkLoad();
+        dataToReject.stream().map(d -&gt; convertToRecord(d)).each(r -&gt; rejected.emit(d));
     }
 }</code></pre>
 </div>
