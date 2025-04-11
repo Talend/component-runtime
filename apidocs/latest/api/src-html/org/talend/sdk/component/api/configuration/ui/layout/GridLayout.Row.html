@@ -55,33 +55,35 @@
 <span class="source-line-no">042</span><span id="line-42"></span>
 <span class="source-line-no">043</span><span id="line-43">        String ADVANCED = "Advanced";</span>
 <span class="source-line-no">044</span><span id="line-44"></span>
-<span class="source-line-no">045</span><span id="line-45">        @Deprecated // this one means nothing, surely to drop and use main instead</span>
-<span class="source-line-no">046</span><span id="line-46">        String CITIZEN = "CitizenUser";</span>
-<span class="source-line-no">047</span><span id="line-47">    }</span>
-<span class="source-line-no">048</span><span id="line-48"></span>
-<span class="source-line-no">049</span><span id="line-49">    /**</span>
-<span class="source-line-no">050</span><span id="line-50">     * @return the ordered list of rows of the layout.</span>
-<span class="source-line-no">051</span><span id="line-51">     */</span>
-<span class="source-line-no">052</span><span id="line-52">    Row[] value();</span>
-<span class="source-line-no">053</span><span id="line-53"></span>
-<span class="source-line-no">054</span><span id="line-54">    /**</span>
-<span class="source-line-no">055</span><span id="line-55">     * @return the form name associated to this definition.</span>
-<span class="source-line-no">056</span><span id="line-56">     */</span>
-<span class="source-line-no">057</span><span id="line-57">    String[] names() default FormType.MAIN;</span>
-<span class="source-line-no">058</span><span id="line-58"></span>
-<span class="source-line-no">059</span><span id="line-59">    /**</span>
-<span class="source-line-no">060</span><span id="line-60">     * Defines a UI row (list of widgets).</span>
-<span class="source-line-no">061</span><span id="line-61">     */</span>
-<span class="source-line-no">062</span><span id="line-62">    @Target(PARAMETER)</span>
-<span class="source-line-no">063</span><span id="line-63">    @Retention(RUNTIME)</span>
-<span class="source-line-no">064</span><span id="line-64">    @interface Row {</span>
-<span class="source-line-no">065</span><span id="line-65"></span>
-<span class="source-line-no">066</span><span id="line-66">        /**</span>
-<span class="source-line-no">067</span><span id="line-67">         * @return the ordered list of property/widgets to set on this row.</span>
-<span class="source-line-no">068</span><span id="line-68">         */</span>
-<span class="source-line-no">069</span><span id="line-69">        String[] value();</span>
-<span class="source-line-no">070</span><span id="line-70">    }</span>
-<span class="source-line-no">071</span><span id="line-71">}</span>
+<span class="source-line-no">045</span><span id="line-45">        String CHECKPOINT = "Checkpoint";</span>
+<span class="source-line-no">046</span><span id="line-46"></span>
+<span class="source-line-no">047</span><span id="line-47">        @Deprecated // this one means nothing, surely to drop and use main instead</span>
+<span class="source-line-no">048</span><span id="line-48">        String CITIZEN = "CitizenUser";</span>
+<span class="source-line-no">049</span><span id="line-49">    }</span>
+<span class="source-line-no">050</span><span id="line-50"></span>
+<span class="source-line-no">051</span><span id="line-51">    /**</span>
+<span class="source-line-no">052</span><span id="line-52">     * @return the ordered list of rows of the layout.</span>
+<span class="source-line-no">053</span><span id="line-53">     */</span>
+<span class="source-line-no">054</span><span id="line-54">    Row[] value();</span>
+<span class="source-line-no">055</span><span id="line-55"></span>
+<span class="source-line-no">056</span><span id="line-56">    /**</span>
+<span class="source-line-no">057</span><span id="line-57">     * @return the form name associated to this definition.</span>
+<span class="source-line-no">058</span><span id="line-58">     */</span>
+<span class="source-line-no">059</span><span id="line-59">    String[] names() default FormType.MAIN;</span>
+<span class="source-line-no">060</span><span id="line-60"></span>
+<span class="source-line-no">061</span><span id="line-61">    /**</span>
+<span class="source-line-no">062</span><span id="line-62">     * Defines a UI row (list of widgets).</span>
+<span class="source-line-no">063</span><span id="line-63">     */</span>
+<span class="source-line-no">064</span><span id="line-64">    @Target(PARAMETER)</span>
+<span class="source-line-no">065</span><span id="line-65">    @Retention(RUNTIME)</span>
+<span class="source-line-no">066</span><span id="line-66">    @interface Row {</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">        /**</span>
+<span class="source-line-no">069</span><span id="line-69">         * @return the ordered list of property/widgets to set on this row.</span>
+<span class="source-line-no">070</span><span id="line-70">         */</span>
+<span class="source-line-no">071</span><span id="line-71">        String[] value();</span>
+<span class="source-line-no">072</span><span id="line-72">    }</span>
+<span class="source-line-no">073</span><span id="line-73">}</span>
 
 
 

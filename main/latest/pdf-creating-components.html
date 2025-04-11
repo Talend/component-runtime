@@ -15,7 +15,7 @@
     <meta name="description" content="Get an overview of the main steps to code the logic of your custom Talend Componit Kit components">
     <meta name="keywords" content="create, code, class, logic, layout, configuration, dev, overview, api">
     <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2025-04-11T10:48:45.107Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2025-04-11T17:14:41.155Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -595,6 +595,9 @@
     <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
   </li>
   <li data-depth="2">
+    <a class="menu-link" href="component-checkpoint.html">Implementing checkpointing on a component</a>
+  </li>
+  <li data-depth="2">
     <a class="menu-link" href="component-loading.html">Component loading</a>
   </li>
   <li data-depth="2">
@@ -812,6 +815,9 @@
 </li>
 <li>
 <p><a href="component-implementing-streaming.html" class="xref page">Implementing streaming on a component</a></p>
+</li>
+<li>
+<p><a href="component-checkpoint.html" class="xref page">Implementing checkpointing on a component</a></p>
 </li>
 </ul>
 </div>
@@ -1558,6 +1564,30 @@ public class SomeInputMapper implements Serializable {
 }</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h4>
+<div class="paragraph">
+<p>Mark a model (complex object) as being a checkpoint configuration and state.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: @org.talend.sdk.component.api.input.checkpoint.Checkpoint</p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"checkpoint"
+}</code></pre>
+</div>
+</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1773,6 +1803,9 @@ public MyData produces() {
 </li>
 <li>
 <p><a href="component-implementing-streaming.html" class="xref page">Implementing streaming on a component</a></p>
+</li>
+<li>
+<p><a href="component-checkpoint.html" class="xref page">Implementing checkpointing on a component</a></p>
 </li>
 <li>
 <p><a href="best-practices.html" class="xref page">Best practices</a></p>
@@ -2364,6 +2397,9 @@ public void run() {
 </li>
 <li>
 <p><a href="component-implementing-streaming.html" class="xref page">Implementing streaming on a component</a></p>
+</li>
+<li>
+<p><a href="component-checkpoint.html" class="xref page">Implementing checkpointing on a component</a></p>
 </li>
 <li>
 <p><a href="best-practices.html" class="xref page">Best practices</a></p>
@@ -3366,6 +3402,30 @@ public class SomeInputMapper implements Serializable {
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
   "tcomp::configurationtype::name":"test",
   "tcomp::configurationtype::type":"datasetDiscovery"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_checkpoint_2"><a class="anchor" href="#_checkpoint_2"></a>Checkpoint</h5>
+<div class="paragraph">
+<p>Mark a model (complex object) as being a checkpoint configuration and state.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: @org.talend.sdk.component.api.input.checkpoint.Checkpoint</p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"checkpoint"
 }</code></pre>
 </div>
 </div>
@@ -5225,6 +5285,345 @@ For more clarity in the formulas below, parameter names have been replaced with 
 </li>
 </ul>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_checkpointing"><a class="anchor" href="#_checkpointing"></a>Checkpointing</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_introduction"><a class="anchor" href="#_introduction"></a>Introduction</h3>
+<div class="paragraph">
+<p>Checkpointing is a feature in the Talend Component Kit (TCK) that enables an input connector to resume processing from the last recorded checkpoint. This ensures fault tolerance and better handling of large data streams by avoiding reprocessing from the beginning in case of failures.</p>
+</div>
+<div class="paragraph">
+<p>This feature targets mainly upcoming tck integration in Qlik Data Integration (QDI) platforms.
+(Studio and Talend Cloud are not targeted).</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The feature is disabled by default, to use the checkpoint, you need to add a system property <strong><code>talend.checkpoint.enable</code></strong>  in the runtime jvm like this:
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">-Dtalend.checkpoint.enable=true</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_checkpointing_mechanism"><a class="anchor" href="#_checkpointing_mechanism"></a>Checkpointing Mechanism</h3>
+<div class="paragraph">
+<p>Checkpointing in TCK is implemented using specific annotations and an interface that defines the required methods. The checkpointing mechanism allows the runtime to save and restore processing states efficiently.</p>
+</div>
+<div class="sect3">
+<h4 id="_checkpointing_annotations"><a class="anchor" href="#_checkpointing_annotations"></a>Checkpointing Annotations</h4>
+<div class="paragraph">
+<p><code>@CheckpointData</code>: This annotation marks a method that returns a checkpoint object annotated with <code>@Checkpoint</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>@CheckpointAvailable</code>: This annotation marks a method that indicates when a new checkpoint is available.</p>
+</div>
+<div class="paragraph">
+<p><code>@Checkpoint</code>: This annotation is used to mark a class as a checkpointing configuration and state class. This configuration let user define how checkpoints should be built by the connector, and what are data that are set in checkpoint. Those are instances of that class that are given to the connector to configure it to restart at the expected state.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_connector_implementation"><a class="anchor" href="#_connector_implementation"></a>Connector Implementation</h4>
+<div class="paragraph">
+<p>To support checkpointing, the input component used in the lifecycle implement the following interface (this is an internal implementation, connectors developers don&#8217;t have to implement it):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface Input extends Lifecycle {
+
+...
+
+default void start(final Consumer&lt;CheckpointState&gt; checkpointCallback) {
+    throw new IllegalArgumentException("Checkpoint feature is not implemented.");
+}
+
+default Object getCheckpoint() {
+    throw new IllegalArgumentException("Checkpoint feature is not implemented.");
+}
+
+default Boolean isCheckpointReady() {
+    throw new IllegalArgumentException("Checkpoint feature is not implemented.");
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>start()</code> method is called with a callback function that retrieves and serializes checkpoint instances. The <code>getCheckpoint()</code> method returns those checkpoint instances, and <code>isCheckpointReady()</code> checks if a new checkpoint is available.</p>
+</div>
+<div class="paragraph">
+<p>Those methods are frontend methods for connectors' methods annotated with <code>@CheckpointAvailable</code>, and <code>@Checkpoint</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_checkpointing_producer"><a class="anchor" href="#_example_checkpointing_producer"></a>Example: Checkpointing Producer</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Emitter(family = "checkpoint", name = "list-input")
+public class CheckpointInputDemo implements Serializable {
+
+    private final JsonBuilderFactory factory;
+
+    private final Jsonb jsonb;
+
+    private List&lt;Integer&gt; data;
+
+    private transient ListIterator&lt;Integer&gt; iterator;
+
+    private Integer bookmark;
+
+    private boolean newBookmark;
+
+    private final InputConfig configuration;
+
+    public CheckpointInputDemo(final JsonBuilderFactory factory, final Jsonb jsonb,
+            @Option("configuration") final InputConfig config) {
+        this.factory = factory;
+        this.jsonb = jsonb;
+        this.configuration = config;
+        log.warn("[CheckpointInput] config: {}.", config);
+    }
+
+    @PostConstruct
+    public void init() {
+        ...
+        if (configuration.checkpoint == null) {
+            log.info("[resume] No valid checkpoint configuration found, using start of dataset.");
+            bookmark = 0;
+        } else {
+            bookmark = configuration.checkpoint.sinceId;
+        }
+        ...
+    }
+
+    @Producer
+    public JsonObject data() {
+        ...
+        final Integer produced = iterator.hasNext() ? iterator.next() : null;
+        if (produced == null) {
+            configuration.checkpoint.sinceId = bookmark;
+            return null;
+        }
+        bookmark = produced;
+        configuration.checkpoint.sinceId = produced;
+
+        if (isCheckpointCondition(produced)) {
+            newBookmark = true;
+        }
+
+        return factory.createObjectBuilder().add("data", produced).build();
+    }
+
+    @CheckpointData
+    public Object getCheckpoint() {
+        newBookmark = false;
+        return configuration.checkpoint;
+    }
+
+    @CheckpointAvailable
+    public Boolean isCheckpointReady() {
+        return newBookmark;
+    }
+    ...</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_checkpointing_usage_scenarios"><a class="anchor" href="#_checkpointing_usage_scenarios"></a>Checkpointing Usage Scenarios</h3>
+<div class="paragraph">
+<p>At runtime, checkpointing can be used in two ways:</p>
+</div>
+<div class="sect3">
+<h4 id="_1_explicit_runtime_usage"><a class="anchor" href="#_1_explicit_runtime_usage"></a>1. Explicit Runtime Usage</h4>
+<div class="paragraph">
+<p>In this mode, the runtime directly calls the methods of the input connector to manage checkpointing. It is responsible for:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Determining when to create a checkpoint.</p>
+</li>
+<li>
+<p>Checking if a checkpoint is available using <code>isCheckpointReady()</code>.</p>
+</li>
+<li>
+<p>Retrieving and storing the checkpoint using <code>getCheckpoint()</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Simple example of explicit checkpointing usage:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  ...
+  input.start();
+  while ((input.next()) != null) {
+    if (input.isCheckpointReady()) {
+      serializeCheckpoint(input.getCheckpoint());
+    }
+  }
+  input.stop();</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2_automatic_mode"><a class="anchor" href="#_2_automatic_mode"></a>2. Automatic Mode</h4>
+<div class="paragraph">
+<p>In this mode, checkpointing is handled automatically during the lifecycle:</p>
+</div>
+<div class="paragraph">
+<p>The <code>start()</code> method is called with a callback function that retrieves and serializes the checkpoint object.</p>
+</div>
+<div class="paragraph">
+<p>While reading records (<code>next()</code> method), the connector checks whether a checkpoint can be provided.</p>
+</div>
+<div class="paragraph">
+<p>If necessary, the checkpoint is generated by calling <code>getCheckpoint()</code>, which internally calls the method annotated with <code>@CheckpointData</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  final Consumer&lt;CheckpointState&gt; checkpointCallback = bookmark -&gt; {
+    serializeCheckpoint(bookmark);
+  };
+  ...
+  input.start(checkpointCallback);
+  Record record;
+  while ((record = input.next()) != null) {
+    // process records
+  }
+  input.stop();</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_to_resume"><a class="anchor" href="#_how_to_resume"></a>How to resume</h3>
+<div class="paragraph">
+<p>As state previously, checkpoints are configured via the <code>@Checkpoint</code> annotated configuration class. The <code>@Checkpoint</code> annotation can be used to specify the method type used for checkpointing and the checkpointing frequency.
+The checkpointing frequency can be set to options such as RECORD or TIME. For example, selecting the RECORD frequency saves the checkpoint after processing a certain number of records, while selecting the TIME frequency generates checkpoints at specified time intervals.</p>
+</div>
+<div class="paragraph">
+<p>When the component is restarted, the runtime calls the <code>start()</code> method. The connector receives its configuration which is merged with the checkpoint object. It can then resume processing from the last saved state from the configuration.</p>
+</div>
+<div class="paragraph">
+<p>When implementing checkpointing, it is recommended to use a separate configuration class for checkpointing. This class should be nested within the main configuration class and annotated with <code>@Checkpoint</code>. This ensures that the checkpointing configuration is separate from the main configuration and can be easily managed by the runtime.</p>
+</div>
+<div class="paragraph">
+<p>Sample configuration class with checkpointing annotations:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    ...
+    @Checkpoint
+    @Version(value = 2, migrationHandler = CheckpointMigrationHandler.class)
+    public static class CheckPointInputConfig implements Serializable {
+
+        public enum Strategy {
+            BY_ID,
+            BY_DATE
+        }
+
+        @Option
+        @DefaultValue("BY_ID")
+        private Strategy strategy = Strategy.BY_ID;
+
+        @Option
+        private String startDate;
+
+        @Option
+        private int sinceId;
+
+    }
+
+    @Data
+    @GridLayout(value = { @GridLayout.Row("user"), @GridLayout.Row("pass")})
+    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = { @GridLayout.Row("checkPointInputConfig") })
+    public static class InputConfig {
+
+        @Option
+        private String user;
+
+        @Option
+        private String pass;
+
+        @Option
+        private CheckPointInputConfig checkpoint = new CheckPointInputConfig();
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Calling the <code>getCheckpoint()</code> returns <code>CheckpointState</code> class, which is a simple POJO class that holds the checkpoint data and version. This class has to be serializable to allow the runtime to save and restore the checkpoint object. For that, it provides a helper method <code>toJson()</code> to serialize the checkpoint state object.</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s a simple example of a <code>CheckpointState</code> class serialized to JSON:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "$checkpoint": { <i class="conum" data-value="1"></i><b>(1)</b>
+    "lastId": 95,
+    "lastUpdate": "2023-04-04",
+    "strategy": "BY_ID",
+    "__version": 2 <i class="conum" data-value="2"></i><b>(2)</b>
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice the following which are important (automatically done using <code>toJson()</code>):</p>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Configuration and state of the checkpoint should be a member of a <code>$checkpoint</code> object.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Version of the checkpoint configuration is stored for eventual migration.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The checkpointing configuration class is defined as a nested class within the component configuration class. The runtime has to provide the checkpointing configuration to the component when it is started.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  configuration.put("configuration.datastore.user", "usr");
+  configuration.put("configuration.datastore.pass", "pwd");
+  ...
+  configuration.put("$checkpoint.strategy", "BY_ID");
+  configuration.put("$checkpoint.sinceId", "5");
+  //
+  final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
+  ...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Important points to remember when providing the configuration to the component, you don&#8217;t need to respect the internal configuration path of checkpoint configuration class in your connector. The runtime will automatically map the configuration to the checkpoint configuration class when you prefix your checkpoint state with <code>$checkpoint</code>.</p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s quite easy to translate configuration and checkpoints in json format to a <code>Map&lt;String, String&gt;</code> object (see helper method <code>jsonToMap()</code> in <code>ComponentManager</code>). This object can be passed to the component manager to create a mapper instance.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_conclusion"><a class="anchor" href="#_conclusion"></a>Conclusion</h3>
+<div class="paragraph">
+<p>The checkpointing feature in TCK improves resilience by allowing input connectors to resume from the last saved state. By leveraging annotations and the input interface, developers can integrate checkpointing seamlessly into their components, ensuring efficient and fault-tolerant data processing.</p>
 </div>
 </div>
 </div>

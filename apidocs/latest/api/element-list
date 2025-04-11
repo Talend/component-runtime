@@ -17,6 +17,7 @@ org.talend.sdk.component.api.configuration.ui.widget
 org.talend.sdk.component.api.context
 org.talend.sdk.component.api.exception
 org.talend.sdk.component.api.input
+org.talend.sdk.component.api.input.checkpoint
 org.talend.sdk.component.api.internationalization
 org.talend.sdk.component.api.meta
 org.talend.sdk.component.api.processor
