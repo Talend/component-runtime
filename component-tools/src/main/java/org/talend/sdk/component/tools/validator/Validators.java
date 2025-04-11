@@ -177,6 +177,9 @@ public class Validators {
         if (configuration.isValidateFixedSchema()) {
             activeValidators.add(new FixedSchemaValidator());
         }
+        if (configuration.isValidateCheckpoint()) {
+            activeValidators.add(new CheckpointValidator(helper));
+        }
 
         return new Validators(activeValidators);
 
