@@ -15,6 +15,9 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
@@ -31,6 +34,14 @@ import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.meta.ConditionalOutput;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.processor.ElementListener;
+import org.talend.sdk.component.api.processor.Input;
+import org.talend.sdk.component.api.processor.Output;
+import org.talend.sdk.component.api.processor.OutputEmitter;
+import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
@@ -42,10 +53,12 @@ import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult;
 import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult.DatasetDescription;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
+import org.talend.sdk.component.tools.ComponentValidator;
 
 class ActionValidatorTest {
 
@@ -111,6 +124,20 @@ class ActionValidatorTest {
                                 "health() should have its first parameter being a datastore (marked with @DataStore)"),
                         () -> assertContains(errorsKO, "updatable() should return an object"));
     }
+
+    @Test
+    void validateAvailableOutputFlows() {
+        final ActionValidator validator = new ActionValidator(new FakeHelper());
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(AvailableOutputFlowsOK.class, AvailableOutputProcessor.class, ConfigurationAO.class));
+        final Stream<String> noerrors =
+                validator.validate(finder, Arrays.asList(AvailableOutputFlowsOK.class, AvailableOutputProcessor.class, ConfigurationAO.class));
+        assertEquals(0, noerrors.count());
+
+        finder = new AnnotationFinder(new ClassesArchive(AvailableOutputFlowsKO.class));
+        final Stream<String> errors = validator.validate(finder, Arrays.asList(AvailableOutputFlowsKO.class));
+        assertEquals(3, errors.count());
+    }
+
 
     private void assertContains(List<String> errors, String contentPart) {
         final boolean present =
@@ -320,5 +347,42 @@ class ActionValidatorTest {
                 @Option("configuration") final FakeDataSet dataset2) {
             return null;
         }
+    }
+
+    @Service
+    static class AvailableOutputFlowsOK {
+
+        @AvailableOutputFlows("outflow-1")
+        public List<String> getAvailableOutputs(@Option("configuration") final ConfigurationAO config) {
+            return new ArrayList<>();
+        }
+    }
+
+    @Service
+    static class AvailableOutputFlowsKO {
+
+        @AvailableOutputFlows("outflow-2")
+        public Set<String> getAvailableOutputs(@Option("configuration") final FakeDataSet config) {
+            return null;
+        }
+    }
+
+    @Processor(name="availableoutputprocessor")
+    @ConditionalOutput("outflow-1")
+    static class AvailableOutputProcessor implements Serializable {
+        private ConfigurationAO config;
+
+        @ElementListener
+        public void process(@Input final Record input,
+                            @Output final OutputEmitter<Record> main,
+                            @Output("second") final OutputEmitter<Record> second) {
+            //this method here is just used to declare some outputs.
+        }
+    }
+
+    static class ConfigurationAO implements Serializable {
+        @Option
+        @Documentation("Show second output or not.")
+        private boolean showSecond;
     }
 }

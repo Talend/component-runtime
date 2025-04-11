@@ -439,6 +439,33 @@ class DiRecordVisitorTest extends VisitorsTest {
     }
 
     @Test
+    void testSpecialNameAndDuplicatedNameForDynamic() {
+        final Schema.Entry entry1 =
+                factory.newEntryBuilder().withName("name1").withRawName("the$name").withType(Type.STRING).build();
+        final Schema.Entry entry2 =
+                factory.newEntryBuilder().withName("name2").withRawName("the$name").withType(Type.STRING).build();
+        final Schema schemaAllSpecialName = factory.newSchemaBuilder(Type.RECORD)
+                .withEntry(entry1)
+                .withEntry(entry2)
+                .withProp(SchemaProperty.ALLOW_SPECIAL_NAME, "true")
+                .build();
+        final Record record1 = factory
+                .newRecordBuilder(schemaAllSpecialName)
+                .with(entry1, "v1")
+                .with(entry2, "v2")
+                .build();
+        final DiRecordVisitor visitor1 = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
+        final RowStruct3 rowStruct1 = RowStruct3.class.cast(visitor1.visit(record1));
+        assertNotNull(rowStruct1);
+        assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(0).getName());
+        assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(0).getDbName());
+        assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(1).getName());
+        assertEquals("the$name", rowStruct1.dyn.getColumnMetadata(1).getDbName());
+        assertEquals("v1", rowStruct1.dyn.getColumnValue(0));
+        assertEquals("v2", rowStruct1.dyn.getColumnValue(1));
+    }
+
+    @Test
     void testConflictingSubRecord() {
         final Record record = factory
                 .newRecordBuilder()
