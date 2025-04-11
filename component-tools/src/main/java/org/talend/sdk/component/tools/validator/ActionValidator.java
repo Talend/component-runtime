@@ -283,7 +283,7 @@ public class ActionValidator implements Validator {
                 .findAnnotatedClasses(ConditionalOutput.class)
                 .stream()
                 .filter(p -> StringUtils.isEmpty(p.getAnnotation(ConditionalOutput.class).value()))
-                .map(p -> p + " must has a name to pair with related annotation @AvailableOutputFlows")
+                .map(p -> p + " must have a name to pair with related annotation @AvailableOutputFlows")
                 .sorted();
 
         final Stream<String> returnType = finder
