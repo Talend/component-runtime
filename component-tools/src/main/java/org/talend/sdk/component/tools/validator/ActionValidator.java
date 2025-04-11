@@ -254,7 +254,7 @@ public class ActionValidator implements Validator {
                 .findAnnotatedMethods(DatabaseMapping.class)
                 .stream()
                 .filter(m -> !hasOption(m))
-                .map(m -> m + " should have a parameter being an option (marked with @Option)")
+                .map(m -> m + " should have an Object parameter marked with @Option")
                 .sorted();
 
         final Stream<String> returnType = finder

@@ -51,6 +51,7 @@ import org.apache.xbean.propertyeditor.PropertyEditorRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
+import org.talend.sdk.component.api.component.Components.DatabaseMapping;
 import org.talend.sdk.component.container.Container;
 import org.talend.sdk.component.design.extension.RepositoryModel;
 import org.talend.sdk.component.runtime.manager.ComponentFamilyMeta;
@@ -99,7 +100,8 @@ class RepositoryModelBuilderTest {
         final PropertyEditorRegistry registry = new PropertyEditorRegistry();
         final RepositoryModel model = new RepositoryModelBuilder()
                 .create(new ComponentManager.AllServices(emptyMap()),
-                        singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test", "") {
+                        singleton(new ComponentFamilyMeta("test", emptyList(), "noicon", "test", "test",
+                                DatabaseMapping.NONE) {
 
                             {
                                 final ParameterMeta store = new ParameterMeta(null, DataStore1.class,

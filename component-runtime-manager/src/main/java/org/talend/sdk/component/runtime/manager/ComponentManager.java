@@ -298,7 +298,7 @@ public class ComponentManager implements AutoCloseable {
 
         @Override
         public String databaseMapping() {
-            return "";
+            return DatabaseMapping.NONE;
         }
 
     };

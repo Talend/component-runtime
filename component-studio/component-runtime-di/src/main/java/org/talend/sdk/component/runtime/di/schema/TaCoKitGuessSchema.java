@@ -535,8 +535,8 @@ public class TaCoKitGuessSchema {
         column.setComment(entry.getComment());
         parseInteger(entry.getProps().get(SIZE)).ifPresent(column::setLength);
         parseInteger(entry.getProps().get(SCALE)).ifPresent(column::setPrecision);
-        Optional.ofNullable(entry.getProps().get(IS_KEY)).ifPresent(value -> column.setKey(Boolean.parseBoolean(value)));
-
+        Optional.ofNullable(entry.getProps().get(IS_KEY))
+                .ifPresent(value -> column.setKey(Boolean.parseBoolean(value)));
 
         if (entryType == Schema.Type.DATETIME || talendType.equals(StudioTypes.DYNAMIC)) {
             column.setPattern(getPattern(entry.getProps().get(PATTERN)));
@@ -589,7 +589,6 @@ public class TaCoKitGuessSchema {
         }
     }
 
-
     private Optional<Integer> parseInteger(final String value) {
         if (value == null) {
             return Optional.empty();
@@ -600,7 +599,6 @@ public class TaCoKitGuessSchema {
             return Optional.empty();
         }
     }
-
 
     private String getPattern(final String pattern) {
         return STRING_ESCAPE + (pattern != null ? pattern : "dd-MM-yyyy") + STRING_ESCAPE;
