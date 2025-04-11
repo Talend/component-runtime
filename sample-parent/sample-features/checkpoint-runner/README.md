@@ -157,7 +157,7 @@ We can see that no checkpoint file is generated compare to previous example.
 ### Configuration sample
 In order to test and run the feature you will find provided configuration files in the [resources](src/main/resources) folder.
 
- * Sample configuration [configuration-example.json](src/main/resources/configuration-example-last-15.json) file
+ * Sample configuration [configuration-example.json](src/main/resources/configuration-example-max-15.json) file
    * This configuration will limit the number of records to 10.
  * Sample IncrementalSequenceInput connector configuration **VERSION-2** [checkpoint-v2.json](src/main/resources/checkpoint-v2.json)
    * This configuration will start the checkpoint from record Id 1 defined by `sinceId`.
