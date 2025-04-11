@@ -161,7 +161,7 @@ In order to test and run the feature you will find provided configuration files 
    * This configuration will limit the number of records to 10.
  * Sample IncrementalSequenceInput connector configuration **VERSION-2** [checkpoint-v2.json](src/main/resources/checkpoint-v2.json)
    * This configuration will start the checkpoint from record Id 1 defined by `sinceId`.
- * Testing migration file, using a **VERSION-1** of IncrementalSequenceInput connector configuration [checkpoint-v1.json](src/main/resources/checkpoint-v1.json)
+ * Testing migration file, using a **VERSION-1** of IncrementalSequenceInput connector configuration [checkpoint-v1.json](src/main/resources/checkpoint-conf-v1-last10.json)
    * The `lastId` property is used to identify the last record Id processed. 
      This configuration shall be correctly migrated to the new format (`lastId` renamed to `sinceId`)
      by the `CheckpointMigrationHandler`.
