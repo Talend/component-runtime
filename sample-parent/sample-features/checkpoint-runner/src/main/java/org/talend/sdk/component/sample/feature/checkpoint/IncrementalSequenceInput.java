@@ -75,10 +75,16 @@ public class IncrementalSequenceInput implements Serializable {
         if (configuration.checkpoint != null) {
             bookmark = configuration.checkpoint.sinceId;
         }
+
+        int start = bookmark + 1; // +1 since we want to start after the bookmark.
+        if (start > configuration.dataset.maxRecords) {
+            start = configuration.dataset.maxRecords;
+        }
+
         if (bookmark == null) {
             iterator = new ArrayList<Integer>().listIterator();
         } else {
-            iterator = data.listIterator(bookmark + 1); // +1 since we want to start after the bookmark.
+            iterator = data.listIterator(start);
         }
     }
 
