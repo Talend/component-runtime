@@ -23,7 +23,8 @@
     "react-i18next": "^13.5.0",
     "react-router": "~6.3.0",
     "react-router-dom": "~6.3.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "@babel/core": "7.26.10"
   },
   "devDependencies": {
     "@talend/scripts-config-react-webpack": "^16.8.1",
@@ -33,6 +34,6 @@
   },
   "proxy": "http://localhost:8080/",
   "overrides": {
-    "webpack": "^5.92.0"
+    "webpack": "^5.98.0"
   }
 }
