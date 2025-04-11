@@ -1,0 +1,12 @@
+{
+  "configuration": {
+    "recordPrefix" : "myPrefix-",
+    "dataset": {
+      "maxRecords": 15
+    },
+    "$checkpoint": {
+      "lastId": 6,
+      "__version": 1
+    }
+  }
+}
