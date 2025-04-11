@@ -61,7 +61,7 @@ Options:
   --log                      Log when a checkpoint is serialized.
   --mapper=<String>          Mapper to use for the checkpoint.
                              (default: incrementalSequenceInput)
-  --no-re-use                Re-use checkpoint file, it will match latest checkpoint available, otherwise will create numbered checkpoint.
+  --re-use                   Re-use checkpoint file, it will match latest checkpoint available, otherwise will create numbered checkpoint.
   --work-dir=<File>          Where to create temporary checkpoint files.
                              (default: ./)
 ```
