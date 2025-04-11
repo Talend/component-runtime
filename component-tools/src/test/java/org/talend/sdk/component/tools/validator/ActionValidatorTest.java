@@ -15,13 +15,13 @@
  */
 package org.talend.sdk.component.tools.validator;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,7 +34,6 @@ import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.ConditionalOutput;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -55,10 +54,10 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DatabaseMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
-import org.talend.sdk.component.tools.ComponentValidator;
 
 class ActionValidatorTest {
 
@@ -85,6 +84,18 @@ class ActionValidatorTest {
         finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaKo.class));
         final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaKo.class));
         assertEquals(13, errors.count());
+    }
+
+    @Test
+    void validateDatabaseMapping() {
+        final ActionValidator validator = new ActionValidator(new FakeHelper());
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ActionDatabaseMappingOK.class));
+        final Stream<String> noerrors =
+                validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaOk.class));
+        assertEquals(0, noerrors.count());
+        finder = new AnnotationFinder(new ClassesArchive(ActionDatabaseMappingKO.class));
+        final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaKo.class));
+        assertEquals(2, errors.count());
     }
 
     @Test
@@ -128,16 +139,17 @@ class ActionValidatorTest {
     @Test
     void validateAvailableOutputFlows() {
         final ActionValidator validator = new ActionValidator(new FakeHelper());
-        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(AvailableOutputFlowsOK.class, AvailableOutputProcessor.class, ConfigurationAO.class));
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(AvailableOutputFlowsOK.class,
+                AvailableOutputProcessor.class, ConfigurationAO.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(AvailableOutputFlowsOK.class, AvailableOutputProcessor.class, ConfigurationAO.class));
+                validator.validate(finder, Arrays.asList(AvailableOutputFlowsOK.class, AvailableOutputProcessor.class,
+                        ConfigurationAO.class));
         assertEquals(0, noerrors.count());
 
         finder = new AnnotationFinder(new ClassesArchive(AvailableOutputFlowsKO.class));
         final Stream<String> errors = validator.validate(finder, Arrays.asList(AvailableOutputFlowsKO.class));
         assertEquals(3, errors.count());
     }
-
 
     private void assertContains(List<String> errors, String contentPart) {
         final boolean present =
@@ -305,6 +317,27 @@ class ActionValidatorTest {
         }
     }
 
+    static class ActionDatabaseMappingOK {
+
+        @DatabaseMapping("test-none")
+        public String mappingsOk(@Option("datastore") FakeDataStore datastore) {
+            return null;
+        }
+    }
+
+    static class ActionDatabaseMappingKO {
+
+        @DatabaseMapping("test-option")
+        public String mappingsKoOption(FakeDataStore datastore) {
+            return null;
+        }
+
+        @DatabaseMapping("test-return")
+        public Schema mappingsKoReturn(@Option("datastore") FakeDataStore datastore) {
+            return null;
+        }
+    }
+
     @Service
     static class ActionDynamicDependenciesOK {
 
@@ -367,20 +400,22 @@ class ActionValidatorTest {
         }
     }
 
-    @Processor(name="availableoutputprocessor")
+    @Processor(name = "availableoutputprocessor")
     @ConditionalOutput("outflow-1")
     static class AvailableOutputProcessor implements Serializable {
+
         private ConfigurationAO config;
 
         @ElementListener
         public void process(@Input final Record input,
-                            @Output final OutputEmitter<Record> main,
-                            @Output("second") final OutputEmitter<Record> second) {
-            //this method here is just used to declare some outputs.
+                @Output final OutputEmitter<Record> main,
+                @Output("second") final OutputEmitter<Record> second) {
+            // this method here is just used to declare some outputs.
         }
     }
 
     static class ConfigurationAO implements Serializable {
+
         @Option
         @Documentation("Show second output or not.")
         private boolean showSecond;
