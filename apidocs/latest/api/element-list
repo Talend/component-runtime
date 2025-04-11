@@ -35,6 +35,7 @@ org.talend.sdk.component.api.service.http
 org.talend.sdk.component.api.service.http.configurer.oauth1
 org.talend.sdk.component.api.service.injector
 org.talend.sdk.component.api.service.interceptor
+org.talend.sdk.component.api.service.outputs
 org.talend.sdk.component.api.service.record
 org.talend.sdk.component.api.service.schema
 org.talend.sdk.component.api.service.serialization

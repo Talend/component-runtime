@@ -11,7 +11,7 @@
     <title>Talend Component Kit Developer Guide :: Talend Component Kit Developer Reference Guide</title>
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/all-in-one.html">
     <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2025-04-11T02:59:37.829Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2025-04-11T10:48:45.004Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -3699,6 +3699,74 @@ public MyNewData map(final MyData data,
     }
     return createNewData(data);
 }</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_defining_conditional_outputs_flows"><a class="anchor" href="#_defining_conditional_outputs_flows"></a>Defining conditional outputs flows</h5>
+<div class="paragraph">
+<p>Processors @ElementListerner methods can declare several output flows.
+At design time, usually, all output flows are available, but, in certain cases,
+we want disabled some of them according to the configuration the user has already set.
+In that case, a service will be call that will return available output flows.
+(Currently only Studio supports this feature)</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A processor without @ConditionalOutputFlows keep the current behavior. All declated flows are visible at design time</p>
+</li>
+<li>
+<p>A processor with @ConditionalOutputFlows has its output flows list conditioned by its configuration</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The @ConditionalOutputFlows has one parameter: the name of a @AvailableOutputFlows service:
+@ConditionalOutputFlows("the_name")</p>
+</li>
+<li>
+<p>Each processor in a same TCK container can use a different service to retrieve the list of available output flows</p>
+<div class="ulist">
+<ul>
+<li>
+<p>So several services can be annotated with @AvailableOutputFlows but their name must be different
+@AvailableOutputFlows("the_name"), @AvailableOutputFlow("another_name"), &#8230;&#8203;</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The return type of a @AvailableOutputFlows service is a List&lt;String&gt;, the build should fail if not.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Processor(name = "Processor")
+@ConditionalOutputFlows("my_service_that_return_active_flows")
+public class MyProcessor implements Serializable {
+
+  @ElementListener
+  public void process(@Input final Record input,
+          @Output final OutputEmitter&lt;Record&gt; main,
+          @Output("second_flow") final OutputEmitter&lt;Record&gt; second,
+          @Output("third_flow") final OutputEmitter&lt;Record&gt; third) {
+      [.........]
+  }
+}
+
+ @AvailableOutputFlows("my_service_that_return_active_flows")
+  //After the @Option, must follow ("configuration")
+  public Collection&lt;String&gt; getAvailableFlows(@Option("configuration") Config config) {
+      final List&lt;String&gt; flows = Arrays.asList("<em>default</em>", "second_flow");
+      if (config.isABoolean()) {
+          flows.add("third_flow");
+      }
+      return flows;
+  }</code></pre>
 </div>
 </div>
 </div>
