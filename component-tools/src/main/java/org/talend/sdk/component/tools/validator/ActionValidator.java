@@ -276,7 +276,7 @@ public class ActionValidator implements Validator {
                 .findAnnotatedMethods(AvailableOutputFlows.class)
                 .stream()
                 .filter(m -> StringUtils.isEmpty(m.getName()))
-                .map(m -> m + " must has a name to pair with related Processor")
+                .map(m -> m + " must have a name to pair with related Processor")
                 .sorted();
 
         final Stream<String> mustHasNamePro = finder
