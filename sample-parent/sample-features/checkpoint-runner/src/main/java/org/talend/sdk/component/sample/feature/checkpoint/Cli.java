@@ -155,13 +155,15 @@ public final class Cli {
             final JsonObject jsonConfig = readJsonFromFile(configurationFile);
             final Map<String, String> configuration =
                     jsonConfig == null ? new HashMap<>() : manager.jsonToMap(jsonConfig);
-            final JsonObject jsonCheckpoint = readJsonFromFile(checkpointFile);
+
+            final JsonObject jsonCheckpoint = checkpointFile == null ? null : readJsonFromFile(checkpointFile);
             if (jsonCheckpoint != null) {
                 info("checkpoint:    " + jsonCheckpoint);
                 Map<String, String> chk = manager.jsonToMap(jsonCheckpoint);
                 configuration.putAll(chk);
             }
             info("configuration: " + configuration);
+
             // create the mapper
             final Mapper mpr = manager.findMapper(family, mapper, 1, configuration)
                     .orElseThrow(() -> new IllegalStateException(
@@ -173,7 +175,7 @@ public final class Cli {
             while ((data = input.next()) != null) {
                 data(data);
                 counter++;
-                if (failAfter > 0 && counter++ >= failAfter) {
+                if (failAfter > 0 && counter >= failAfter) {
                     error("Fail after " + failAfter + " records reached.");
                 }
             }
