@@ -31,6 +31,7 @@
     <module>fixed-schema</module>
     <module>aftergroup-lastgroup</module>
     <module>database-mapping</module>
+    <module>conditional-outputs</module>
   </modules>
 
   <dependencies>
