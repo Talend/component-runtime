@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +71,8 @@ public final class Cli {
 
     public static final String ERROR_NOT_A_FILE = "Not a file: ";
 
+    public static final String ERROR_NOT_A_FOLDER = "Not a folder: ";
+
     static MvnCoordinateToFileConverter mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
 
     static int counter = 0;
@@ -84,7 +87,7 @@ public final class Cli {
             @Option("family") @Default("checkpoint") final String family,
             @Option("mapper") @Default("incrementalSequenceInput") final String mapper,
             @Option("configuration") @Default("./configuration.json") final File configurationFile,
-            @Option("checkpoint") @Default("./checkpoint.json") final File checkpointFile,
+            @Option("checkpoint") final File checkpointFile,
             @Option("re-use") @Default("false") final boolean reuse,
             @Option("fail-after") @Default("-1") final int failAfter,
             @Option("log") @Default("false") final boolean log,
@@ -108,12 +111,22 @@ public final class Cli {
         if (!configurationFile.exists() && !configurationFile.getPath().equals("./configuration.json")) {
             error(ERROR_NOT_A_FILE + configurationFile.getAbsolutePath());
         }
-        if (!checkpointFile.exists() && !checkpointFile.getPath().equals("./checkpoint.json")) {
-            error(ERROR_NOT_A_FILE + checkpointFile.getAbsolutePath());
-        }
+
         if (!work.exists()) {
             work.mkdirs();
         }
+
+        if (!work.isDirectory()) {
+            error(ERROR_NOT_A_FOLDER + work.getAbsolutePath());
+        }
+
+        if (checkpointFile != null && !checkpointFile.exists()) {
+            error(ERROR_NOT_A_FILE + checkpointFile.getAbsolutePath());
+        }
+
+        final File cpf = checkpointFile != null ? checkpointFile
+                : Paths.get(work.getAbsolutePath().toString(), "checkpoint.json").toFile();
+
         //
         // define the checkpoint callback
         //
@@ -124,7 +137,7 @@ public final class Cli {
             }
             File file;
             if (reuse) {
-                file = new File(checkpointFile.getAbsolutePath());
+                file = new File(cpf.getAbsolutePath());
             } else {
                 file = new File(work, "checkpoint_" + checkpointId + ".json");
             }
@@ -173,9 +186,10 @@ public final class Cli {
                     .collect(Collectors.joining("\n")));
             Throwable cause = e.getCause();
             if (cause != null) {
-                error(" Root cause: " + cause.getMessage() + "\n" + Arrays.stream(cause.getStackTrace())
-                        .map(StackTraceElement::toString)
-                        .collect(Collectors.joining("\n")));
+                error(" Root cause: " + cause.getMessage() + "\n"
+                        + Arrays.stream(cause.getStackTrace())
+                                .map(StackTraceElement::toString)
+                                .collect(Collectors.joining("\n")));
             }
         }
     }
