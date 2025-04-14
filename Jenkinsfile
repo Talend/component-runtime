@@ -54,6 +54,8 @@ final def gpgCredentials = usernamePassword(
     usernameVariable: 'GPG_KEYNAME',
     passwordVariable: 'GPG_PASSPHRASE')
 
+final String repository = 'component-runtime'
+
 // In PR environment, the branch name is not valid and should be swap with pr name.
 final String pull_request_id = env.CHANGE_ID
 final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
@@ -119,7 +121,7 @@ pipeline {
                 text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     choice(
-        name: 'Action',
+        name: 'ACTION',
         choices: ['STANDARD', 'RELEASE'],
         description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
 
@@ -204,7 +206,21 @@ pipeline {
               sectionHeaderStyle: """ background-color: #A9A9A9;
                 text-align: center; font-size: 35px !important; font-weight : bold;""")
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    booleanParam(
+        name: 'TRIVY_SCAN',
+        defaultValue: !isStdBranch,
+         description: '''
+            This is for trivy scan, by default this checkbox is false on master or maintenance branch.
+            It will generate the trivy report on Jenkins, the report name is `CVE Trivy Vulnerability Report`
+            ''')
+    string(
+         name: 'PACKAGE_FILTER_NAME',
+         defaultValue: "",
+         description: '''
+            This input box is used to filter the results of the `mvn dependency:tree` command.
+            This input box only works when TRIVY_SCAN checkbox is true.
+            By entering the package name, you can find out which components are affected and thus the scope of the test.
+            For example: org.eclipse.jetty:jetty-http, org.apache.avro:avro, org.apache.geronimo ...''')
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "DEBUG_CONFIG", sectionHeader: "Jenkins job debug configuration ",
               sectionHeaderStyle: """ background-color: #FF0000;
@@ -255,7 +271,7 @@ pipeline {
         // Variables init
         ///////////////////////////////////////////
         script {
-          stdBranch_buildOnly = isStdBranch && params.Action != 'RELEASE'
+          stdBranch_buildOnly = isStdBranch && params.ACTION != 'RELEASE'
           devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
           devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
 
@@ -353,11 +369,11 @@ pipeline {
             deploy_info = deploy_info + '+DOCKER'
           }
 
-          jenkinsJobTools.job_name_creation("$params.Action" + deploy_info)
+          jenkinsJobTools.job_name_creation("$params.ACTION" + deploy_info)
 
           // updating build description
           String description = """
-                      Version = $finalVersion - $params.Action Build  
+                      Version = $finalVersion - $params.ACTION Build  
                       Disable Sonar: $params.DISABLE_SONAR  
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
@@ -396,7 +412,7 @@ pipeline {
       }
     }
     stage('Maven validate to install') {
-      when { expression { params.Action != 'RELEASE' } }
+      when { expression { params.ACTION != 'RELEASE' } }
       steps {
         withCredentials([ossrhCredentials,
                          nexusCredentials]) {
@@ -525,7 +541,7 @@ pipeline {
     stage('Documentation') {
       when {
         expression {
-          params.FORCE_DOC || (params.Action != 'RELEASE' && isMasterBranch)
+          params.FORCE_DOC || (params.ACTION != 'RELEASE' && isMasterBranch)
         }
       }
       steps {
@@ -546,7 +562,7 @@ pipeline {
     stage('OSS security analysis') {
       when {
         anyOf {
-          expression { params.Action != 'RELEASE' && branch_name == 'master' }
+          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
           expression { params.FORCE_SECURITY_ANALYSIS == true }
         }
       }
@@ -576,7 +592,7 @@ pipeline {
     stage('Deps report') {
       when {
         anyOf {
-          expression { params.Action != 'RELEASE' && branch_name == 'master' }
+          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
           expression { params.FORCE_DEPS_REPORT == true }
         }
       }
@@ -614,7 +630,7 @@ pipeline {
     }
     stage('Sonar') {
       when {
-        expression { (params.Action != 'RELEASE') && !params.DISABLE_SONAR }
+        expression { (params.ACTION != 'RELEASE') && !params.DISABLE_SONAR }
       }
       steps {
         script {
@@ -648,7 +664,7 @@ pipeline {
     stage('Release') {
       when {
         allOf {
-          expression { params.Action == 'RELEASE' }
+          expression { params.ACTION == 'RELEASE' }
           expression { isStdBranch }
         }
       }
@@ -660,6 +676,43 @@ pipeline {
                             bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
                             """
             }
+          }
+        }
+      }
+    }
+    stage('Trivy scan') {
+      when {
+        expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
+      }
+      steps {
+        script {
+          trivyTools.generateTrivyReport("output/trivy-results.json", "output/trivy-results.html")
+          publishHtmlReportTools.publishHtmlReport("output/trivy-results.html", 'CVE Trivy Vulnerability Report')
+        }
+      }
+      post {
+        always {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            archiveArtifacts artifacts: "output/trivy-results.json, output/trivy-results.html", allowEmptyArchive: true, onlyIfSuccessful: false
+          }
+        }
+      }
+    }
+    stage('Mvn dependency:tree') {
+      when {
+        expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
+      }
+      steps {
+        script {
+          mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
+          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
+          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
+        }
+      }
+      post {
+        always {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            archiveArtifacts artifacts: "output/${repository}.txt, output/${repository}--ScopeOfImpact.txt", allowEmptyArchive: true, onlyIfSuccessful: false
           }
         }
       }
