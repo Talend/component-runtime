@@ -125,7 +125,8 @@ class CheckpointInputTest {
         try (final ComponentManager manager = newTestManager(temporaryFolder)) {
             Job
                     .components()
-                    .component("input", "checkpoint://mapper-with-checkpoint?configuration.nbRecordsByPartitions=10&__version=1")
+                    .component("input",
+                            "checkpoint://mapper-with-checkpoint?configuration.nbRecordsByPartitions=10&__version=1")
                     .component("output", "checkpoint://storage?configuration.id=mapperWithCheckpoint&__version=1")
                     .connections()
                     .from("input")
