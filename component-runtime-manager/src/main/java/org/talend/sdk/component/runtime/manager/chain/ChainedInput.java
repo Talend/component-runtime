@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.talend.sdk.component.runtime.input.CheckpointState;
@@ -29,12 +30,18 @@ public final class ChainedInput implements Input {
 
     private Input delegate = null;
 
+    private Optional<Consumer<CheckpointState>> checkpointStateConsumer = Optional.empty();
+
     @Override
     public Object next() {
         while (true) {
             if (delegate == null) {
-                return null;
+                this.delegate = initDelegate();
+                if (delegate == null) {
+                    return null;
+                }
             }
+
             final Object next = delegate.next();
             if (next != null) {
                 return next;
@@ -61,14 +68,12 @@ public final class ChainedInput implements Input {
 
     @Override
     public void start() {
-        initDelegate();
-        delegate.start();
+        // no-op
     }
 
     @Override
     public void start(final Consumer<CheckpointState> checkpoint) {
-        initDelegate();
-        delegate.start(checkpoint);
+        this.checkpointStateConsumer = Optional.of(checkpoint);
     }
 
     @Override
@@ -88,7 +93,15 @@ public final class ChainedInput implements Input {
         }
     }
 
-    private void initDelegate() {
-        delegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
+    private Input initDelegate() {
+        Input localDelegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
+        if (localDelegate != null) {
+            if (checkpointStateConsumer.isPresent()) {
+                localDelegate.start(checkpointStateConsumer.get());
+            } else {
+                localDelegate.start();
+            }
+        }
+        return localDelegate;
     }
 }

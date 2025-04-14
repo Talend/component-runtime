@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
@@ -52,6 +53,7 @@ import org.talend.sdk.component.runtime.manager.asm.PluginGenerator;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
 import org.talend.sdk.component.runtime.manager.chain.Job;
 import org.talend.sdk.component.runtime.manager.serialization.DynamicContainerFinder;
+import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 
 import lombok.extern.slf4j.Slf4j;
@@ -115,6 +117,28 @@ class CheckpointInputTest {
                     .to("square")
                     .build()
                     .run();
+        }
+    }
+
+    @Test
+    void mapperWithCheckpoint(@TempDir final Path temporaryFolder) {
+        try (final ComponentManager manager = newTestManager(temporaryFolder)) {
+            Job
+                    .components()
+                    .component("input", "checkpoint://mapper-with-checkpoint?configuration.nbRecordsByPartitions=10&__version=1")
+                    .component("output", "checkpoint://storage?configuration.id=mapperWithCheckpoint&__version=1")
+                    .connections()
+                    .from("input")
+                    .to("output")
+                    .build()
+                    .run();
+
+            final ProcessorImpl processor =
+                    (ProcessorImpl) manager.findProcessor("checkpoint", "storage", 1, emptyMap()).get();
+
+            List<Record> records = ((Supplier<List<Record>>) processor.getDelegate()).get();
+
+            assertEquals(100, records.size());
         }
     }
 
