@@ -36,7 +36,7 @@ public final class ChainedInput implements Input {
     public Object next() {
         while (true) {
             if (delegate == null) {
-                this.delegate = initDelegate();
+                this.delegate = nextDelegate();
                 if (delegate == null) {
                     return null;
                 }
@@ -93,7 +93,7 @@ public final class ChainedInput implements Input {
         }
     }
 
-    private Input initDelegate() {
+    private Input nextDelegate() {
         Input localDelegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
         if (localDelegate != null) {
             if (checkpointStateConsumer.isPresent()) {
