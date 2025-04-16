@@ -66,6 +66,9 @@ final String buildTimestamp = String.format('-%tY%<tm%<td%<tH%<tM%<tS', LocalDat
 final String artifactoryAddr = "https://artifactory.datapwn.com"
 final String artifactoryPath = "tlnd-docker-dev/talend/common/tacokit"
 
+final String BUILD_LOG_FILE="build.log"
+final String DEPLOY_LOG_FILE="deploy.log"
+
 // Job variables declaration
 String branch_user
 String branch_ticket
@@ -78,8 +81,9 @@ Boolean devBranch_mavenDeploy = false
 Boolean devBranch_dockerPush = false
 
 
-String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
-String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
+final String BUILD_ARGS = "-Dgpg.skip=true -Denforcer.skip=true"
+final String skipOptions = "-Dspotless.apply.skip=true -Dcheckstyle.skip=true -Drat.skip=true -DskipTests -Dinvoker.skip=true"
+final String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=true"
 
 
 pipeline {
@@ -95,7 +99,6 @@ pipeline {
 
   environment {
     MAVEN_OPTS = "-Dformatter.skip=true -Dmaven.artifact.threads=256"
-    BUILD_ARGS = "-Dgpg.skip=true -Denforcer.skip=true"
     ARTIFACTORY_REGISTRY = "artifactory.datapwn.com"
     VERACODE_APP_NAME = 'Talend Component Kit'
     VERACODE_SANDBOX = 'component-runtime'
@@ -403,12 +406,14 @@ pipeline {
         withCredentials([ossrhCredentials,
                          nexusCredentials]) {
           sh """\
-            #!/usr/bin/env bash
-            set -xe
-            mvn clean install $BUILD_ARGS \
-                              $extraBuildParams \
-                              --settings .jenkins/settings.xml
-            """.stripIndent()
+          #!/usr/bin/env bash
+          set -xe
+          # Run the Maven command, save full output to the log file, and filter live output
+          mvn clean install $BUILD_ARGS \
+                            $extraBuildParams \
+                            --settings .jenkins/settings.xml \
+                            2>&1 | tee $BUILD_LOG_FILE | grep -E 'WARN|ERROR'
+    """.stripIndent()
         }
       }
       post {
@@ -443,7 +448,8 @@ pipeline {
               set -xe
               bash mvn deploy $deployOptions \
                               $extraBuildParams \
-                              --settings .jenkins/settings.xml
+                              --settings .jenkins/settings.xml \
+                              2>&1 | tee $DEPLOY_LOG_FILE | grep -E 'WARN|ERROR'
               """.stripIndent()
           }
         }
