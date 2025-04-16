@@ -11,7 +11,7 @@
     <title>List of available actions :: Talend Component Kit Developer Reference Guide</title>
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/ref-actions.html">
     <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2025-04-16T00:49:12.817Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2025-04-16T10:01:22.476Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -82,12 +82,15 @@
         <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                1.80.0 (dev)
+                1.81.0 (dev)
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
                 <li class="navbar-item version">
-                    <a href="index.html">1.80.0</a>
+                    <a href="index.html">1.81.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.80.0/index.html">1.80.0</a>
                 </li>
                 <li class="navbar-item version">
                     <a href="../1.79.0/index.html">1.79.0</a>
@@ -457,7 +460,7 @@
     </nav>
 </header>
             <main class="main">
-              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.80.0">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.81.0">
   <aside class="navigation" role="navigation">
     <div class="panels">
       <div class="input-group nav-filter-group">
@@ -770,6 +773,37 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p>Some common actions need a clear contract so they are defined as API first-class citizen. For example, this is the case for wizards or health checks. Here is the list of the available actions:</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_available_output"><a class="anchor" href="#_available_output"></a>Available Output</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Provide the output flows by some condition</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>available_output</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.outputs.AvailableOutputFlows</code></p>
+</li>
+<li>
+<p>Returned type: <code>java.util.Collection</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+
+}</code></pre>
+</div>
 </div>
 </div>
 </div>
