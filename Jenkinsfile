@@ -698,25 +698,25 @@ pipeline {
         }
       }
     }
-    stage('Mvn dependency:tree') {
-      when {
-        expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
-      }
-      steps {
-        script {
-          mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
-          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
-          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
-        }
-      }
-      post {
-        always {
-          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            archiveArtifacts artifacts: "output/${repository}.txt, output/${repository}--ScopeOfImpact.txt", allowEmptyArchive: true, onlyIfSuccessful: false
-          }
-        }
-      }
-    }
+//    stage('Mvn dependency:tree') {
+//      when {
+//        expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
+//      }
+//      steps {
+//        script {
+//          mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
+//          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
+//          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
+//        }
+//      }
+//      post {
+//        always {
+//          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+//            archiveArtifacts artifacts: "output/${repository}.txt, output/${repository}--ScopeOfImpact.txt", allowEmptyArchive: true, onlyIfSuccessful: false
+//          }
+//        }
+//      }
+//    }
   }
   post {
     success {
