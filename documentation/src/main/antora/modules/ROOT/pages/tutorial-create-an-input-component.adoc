@@ -16,8 +16,8 @@ The first step consists in generating the project structure using *Talend Starte
 . Go to https://starter-toolkit.talend.io/ and fill in the project information as shown
 in the screenshots below, then click *Finish* and *Download as ZIP*. +
 +
-image::tutorial_hazelcast_generateproject_1.png[] +
-image::tutorial_hazelcast_generateproject_2.png[] +
+image::tutorial_hazelcast_generateproject_1.png[]
+image::tutorial_hazelcast_generateproject_2.png[]
 +
 . Extract the ZIP file into your workspace and import it to your preferred IDE. This tutorial uses Intellij IDE, but you can use Eclipse or any other IDE that you are comfortable with.
 +
