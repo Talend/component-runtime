@@ -89,6 +89,8 @@ public class ComponentFamilyMeta {
 
     private final String packageName;
 
+    private final String databaseMapping;
+
     private final Map<String, PartitionMapperMeta> partitionMappers = new HashMap<>();
 
     private final Map<String, ProcessorMeta> processors = new HashMap<>();
@@ -98,13 +100,14 @@ public class ComponentFamilyMeta {
     private final ConcurrentMap<Locale, FamilyBundle> bundles = new ConcurrentHashMap<>();
 
     public ComponentFamilyMeta(final String plugin, final Collection<String> categories, final String icon,
-            final String name, final String packageName) {
+            final String name, final String packageName, final String databaseMapping) {
         this.id = IdGenerator.get(plugin, name);
         this.plugin = plugin;
         this.categories = categories;
         this.icon = icon;
         this.name = name;
         this.packageName = packageName;
+        this.databaseMapping = databaseMapping;
     }
 
     public FamilyBundle findBundle(final ClassLoader loader, final Locale locale) {

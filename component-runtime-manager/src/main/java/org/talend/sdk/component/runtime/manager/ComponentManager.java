@@ -300,6 +300,12 @@ public class ComponentManager implements AutoCloseable {
         public String[] categories() {
             return new String[] { "Misc" };
         }
+
+        @Override
+        public String databaseMapping() {
+            return DatabaseMapping.NONE;
+        }
+
     };
 
     @Getter
@@ -2105,7 +2111,8 @@ public class ComponentManager implements AutoCloseable {
                             iconFinder.findIcon(familyAnnotationElement), comp,
                             Class.class.isInstance(familyAnnotationElement)
                                     ? getPackage(Class.class.cast(familyAnnotationElement))
-                                    : ""))
+                                    : "",
+                            components.databaseMapping()))
                     : this.component;
         }
 
