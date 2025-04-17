@@ -60,9 +60,9 @@ public class AvailableOutputNoAnnotation implements Serializable {
 
     @ElementListener
     public void process(@Input final Record input,
-                        @Output final OutputEmitter<Record> main,
-                        @Output(AvailableOutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
-                        @Output(AvailableOutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
+            @Output final OutputEmitter<Record> main,
+            @Output(AvailableOutputService.SECOND_FLOW_NAME) final OutputEmitter<Record> second,
+            @Output(AvailableOutputService.THIRD_FLOW_NAME) final OutputEmitter<Record> third) {
         main.emit(input);
         second.emit(input);
         third.emit(input);
