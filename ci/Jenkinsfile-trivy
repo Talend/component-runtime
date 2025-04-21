@@ -24,8 +24,7 @@ final String repository = 'component-runtime'
 
 pipeline {
   libraries {
-//    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("connectors-lib@lxia/TRIVY_CACHE_DIR")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
   }
 
   agent {
@@ -43,6 +42,12 @@ pipeline {
         '-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss',
     ].join(' ')
     TALEND_REGISTRY = 'registry.datapwn.com'
+
+    //Trivy will automatically recognize and use the TRIVY_CACHE_DIR environment variable as long as it exists in the current shell environment at runtime.
+    //In Trivy’s behavior design, when you run: trivy fs .
+    //It internally tries to read the TRIVY_CACHE_DIR environment variable:
+    //If it is defined: Trivy will use that directory as the cache path. If it is not defined: Trivy will default to using ~/.cache/trivy.
+    TRIVY_CACHE_DIR = "/home/jenkins/.cache/trivy/${repository}"
   }
 
   options {
@@ -107,8 +112,7 @@ pipeline {
       steps {
         script {
           trivyTools.generateTrivyReport("output/trivy-results.json",
-                  "output/trivy-results.html",
-                  "trivy fs . -f json --scanners vuln -o output/trivy-results.json --skip-files '**/*test*.xml' --skip-dirs '.git,node_modules,.m2' --skip-dirs '**/*example*' --skip-dirs '**/*test*' --skip-dirs '**/*target*' --skip-dirs '**/*beam*' --timeout 60m --debug")
+                                         "output/trivy-results.html")
           publishHtmlReportTools.publishHtmlReport("output/trivy-results.html", "CVE Trivy Vulnerability Report")
         }
       }
@@ -154,7 +158,107 @@ pipeline {
           jenkinsJobTools.jenkinsBreakpoint()
         }
       }
-      cleanWs()
+      // Check disk usage before cleaning up
+      script {
+        echo "Checking disk space usage before cleanup..."
+
+        echo "Check size of /home/jenkins/.cache/trivy/${repository}"
+        sh 'du -sh ${TRIVY_CACHE_DIR} || echo "No Trivy cache found"'
+
+        echo "Check size of output"
+        sh 'du -sh output || echo "No output files found"'
+
+        echo "Check Docker space usage"
+        sh 'docker system df || echo "Unable to fetch Docker disk usage"'
+
+        echo "Check size of /home/jenkins/.cache/trivy"
+        sh 'du -sh /home/jenkins/.cache/trivy || echo "No /home/jenkins/.cache/trivy"'
+
+        echo "Check size of /tmp"
+        sh 'du -sh /tmp || true'
+
+        echo "Check size of ${WORKSPACE}"
+        sh 'du -sh ${WORKSPACE} || true'
+
+        echo "Check size of /home/jenkins/.m2/repository"
+        sh 'du -sh /home/jenkins/.m2/repository || true'
+
+
+
+        echo "ls -al /var/jenkins_home/jobs"
+        sh 'ls -al /var/jenkins_home/jobs || true'
+
+        echo "ls -al /var/jenkins_home/jobs/component-runtime"
+        sh 'ls -al /var/jenkins_home/jobs/component-runtime || true'
+
+        echo "ls -al /var/jenkins_home/jobs/component-runtime/jobs"
+        sh 'ls -al /var/jenkins_home/jobs/component-runtime/jobs || true'
+
+        echo "ls -al /var/jenkins_home/jobs/component-runtime/jobs/build"
+        sh 'ls -al /var/jenkins_home/jobs/component-runtime/jobs/build || true'
+
+        echo "ls -al /var/jenkins_home/jobs/component-runtime/jobs/build/branches"
+        sh 'ls -al /var/jenkins_home/jobs/component-runtime/jobs/build/branches || true'
+
+        echo "Check size of /var/jenkins_home/jobs"
+        sh 'du -sh /var/jenkins_home/jobs || true'
+
+        echo "Check size of /var/jenkins_home/jobs/component-runtime"
+        sh 'du -sh /var/jenkins_home/jobs/component-runtime || true'
+
+        echo "Check size of /var/jenkins_home/jobs/component-runtime/jobs"
+        sh 'du -sh /var/jenkins_home/jobs/component-runtime/jobs || true'
+
+        echo "Check size of /var/jenkins_home/jobs/component-runtime/jobs/build"
+        sh 'du -sh /var/jenkins_home/jobs/component-runtime/jobs/build || true'
+
+        echo "Check size of /var/jenkins_home/jobs/component-runtime/jobs/build/branches/"
+        sh 'du -sh /var/jenkins_home/jobs/component-runtime/jobs/build/branches/ || true'
+      }
+
+      // Clean up
+      script {
+        echo "Cleaning up ${TRIVY_CACHE_DIR}"
+        sh 'rm -rf ${TRIVY_CACHE_DIR}/*'
+
+        echo "Cleaning up output/*"
+        sh 'rm -rf output/*'
+
+        echo "Cleaning up ${WORKSPACE}/*"
+        sh 'rm -rf ${WORKSPACE}/*'
+
+        //echo "Cleaning up /home/jenkins/.m2/repository/*"
+        //sh 'rm -rf /home/jenkins/.m2/repository/*'
+
+        // Clean unused Docker images and containers
+        sh 'docker system prune -af || true'
+      }
+
+      // Check disk usage after cleaning up
+      script {
+        echo "Checking disk space usage after cleanup..."
+
+        echo "Check size of /home/jenkins/.cache/trivy/${repository}"
+        sh 'du -sh ${TRIVY_CACHE_DIR} || echo "No Trivy cache found"'
+
+        echo "Check size of output"
+        sh 'du -sh output || echo "No output files found"'
+
+        echo "Check Docker space usage"
+        sh 'docker system df || echo "Unable to fetch Docker disk usage"'
+
+        echo "Check size of /home/jenkins/.cache/trivy"
+        sh 'du -sh /home/jenkins/.cache/trivy || echo "No /home/jenkins/.cache/trivy"'
+
+        echo "Check size of /tmp"
+        sh 'du -sh /tmp || true'
+
+        echo "Check size of ${WORKSPACE}"
+        sh 'du -sh ${WORKSPACE} || true'
+
+        echo "Check size of /home/jenkins/.m2/repository"
+        sh 'du -sh /home/jenkins/.m2/repository || true'
+      }
     }
   }
 }

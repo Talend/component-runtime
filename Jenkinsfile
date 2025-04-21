@@ -102,6 +102,7 @@ pipeline {
     VERACODE_APP_NAME = 'Talend Component Kit'
     VERACODE_SANDBOX = 'component-runtime'
     APP_ID = '579232'
+    TRIVY_CACHE_DIR = "/home/jenkins/.cache/trivy/${repository}"
   }
 
   options {
@@ -781,6 +782,107 @@ pipeline {
         if (params.JENKINS_DEBUG) {
           jenkinsJobTools.jenkinsBreakpoint()
         }
+      }
+      // Check disk usage before cleaning up
+      script {
+        echo "Checking disk space usage before cleanup..."
+
+        echo "Check size of /home/jenkins/.cache/trivy/${repository}"
+        sh 'du -sh ${TRIVY_CACHE_DIR} || echo "No Trivy cache found"'
+
+        echo "Check size of output"
+        sh 'du -sh output || echo "No output files found"'
+
+        echo "Check Docker space usage"
+        sh 'docker system df || echo "Unable to fetch Docker disk usage"'
+
+        echo "Check size of /home/jenkins/.cache/trivy"
+        sh 'du -sh /home/jenkins/.cache/trivy || echo "No /home/jenkins/.cache/trivy"'
+
+        echo "Check size of /tmp"
+        sh 'du -sh /tmp || true'
+
+        echo "Check size of ${WORKSPACE}"
+        sh 'du -sh ${WORKSPACE} || true'
+
+        echo "Check size of /home/jenkins/.m2/repository"
+        sh 'du -sh /home/jenkins/.m2/repository || true'
+
+
+
+        echo "ls -al /var/jenkins_home/jobs"
+        sh 'ls -al /var/jenkins_home/jobs || true'
+
+        echo "ls -al /var/jenkins_home/jobs/component-runtime"
+        sh 'ls -al /var/jenkins_home/jobs/component-runtime || true'
+
+        echo "ls -al /var/jenkins_home/jobs/component-runtime/jobs"
+        sh 'ls -al /var/jenkins_home/jobs/component-runtime/jobs || true'
+
+        echo "ls -al /var/jenkins_home/jobs/component-runtime/jobs/build"
+        sh 'ls -al /var/jenkins_home/jobs/component-runtime/jobs/build || true'
+
+        echo "ls -al /var/jenkins_home/jobs/component-runtime/jobs/build/branches"
+        sh 'ls -al /var/jenkins_home/jobs/component-runtime/jobs/build/branches || true'
+
+        echo "Check size of /var/jenkins_home/jobs"
+        sh 'du -sh /var/jenkins_home/jobs || true'
+
+        echo "Check size of /var/jenkins_home/jobs/component-runtime"
+        sh 'du -sh /var/jenkins_home/jobs/component-runtime || true'
+
+        echo "Check size of /var/jenkins_home/jobs/component-runtime/jobs"
+        sh 'du -sh /var/jenkins_home/jobs/component-runtime/jobs || true'
+
+        echo "Check size of /var/jenkins_home/jobs/component-runtime/jobs/build"
+        sh 'du -sh /var/jenkins_home/jobs/component-runtime/jobs/build || true'
+
+        echo "Check size of /var/jenkins_home/jobs/component-runtime/jobs/build/branches/"
+        sh 'du -sh /var/jenkins_home/jobs/component-runtime/jobs/build/branches/ || true'
+      }
+
+      // Clean up
+      script {
+        echo "Cleaning up ${TRIVY_CACHE_DIR}"
+        sh 'rm -rf ${TRIVY_CACHE_DIR}/*'
+
+        echo "Cleaning up output/*"
+        sh 'rm -rf output/*'
+
+        echo "Cleaning up ${WORKSPACE}/*"
+        sh 'rm -rf ${WORKSPACE}/*'
+
+        //echo "Cleaning up /home/jenkins/.m2/repository/*"
+        //sh 'rm -rf /home/jenkins/.m2/repository/*'
+
+        // Clean unused Docker images and containers
+        sh 'docker system prune -af || true'
+      }
+
+      // Check disk usage after cleaning up
+      script {
+        echo "Checking disk space usage after cleanup..."
+
+        echo "Check size of /home/jenkins/.cache/trivy/${repository}"
+        sh 'du -sh ${TRIVY_CACHE_DIR} || echo "No Trivy cache found"'
+
+        echo "Check size of output"
+        sh 'du -sh output || echo "No output files found"'
+
+        echo "Check Docker space usage"
+        sh 'docker system df || echo "Unable to fetch Docker disk usage"'
+
+        echo "Check size of /home/jenkins/.cache/trivy"
+        sh 'du -sh /home/jenkins/.cache/trivy || echo "No /home/jenkins/.cache/trivy"'
+
+        echo "Check size of /tmp"
+        sh 'du -sh /tmp || true'
+
+        echo "Check size of ${WORKSPACE}"
+        sh 'du -sh ${WORKSPACE} || true'
+
+        echo "Check size of /home/jenkins/.m2/repository"
+        sh 'du -sh /home/jenkins/.m2/repository || true'
       }
     }
   }
