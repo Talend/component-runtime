@@ -24,7 +24,8 @@ final String repository = 'component-runtime'
 
 pipeline {
   libraries {
-    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+//    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@lxia/TRIVY_CACHE_DIR")  // https://github.com/Talend/tdi-jenkins-shared-libraries
   }
 
   agent {
@@ -105,8 +106,10 @@ pipeline {
     stage('Security Scan with Trivy') {
       steps {
         script {
-          trivyTools.generateTrivyReport("output/trivy-results.json", "output/trivy-results.html")
-          publishHtmlReportTools.publishHtmlReport("output/trivy-results.html", 'CVE Trivy Vulnerability Report')
+          trivyTools.generateTrivyReport("output/trivy-results.json",
+                  "output/trivy-results.html",
+                  "trivy fs . -f json --scanners vuln -o output/trivy-results.json --skip-files '**/*test*.xml' --skip-dirs '.git,node_modules,.m2' --skip-dirs '**/*example*' --skip-dirs '**/*test*' --skip-dirs '**/*target*' --skip-dirs '**/*beam*' --timeout 60m --debug")
+          publishHtmlReportTools.publishHtmlReport("output/trivy-results.html", "CVE Trivy Vulnerability Report")
         }
       }
       post {
@@ -151,6 +154,7 @@ pipeline {
           jenkinsJobTools.jenkinsBreakpoint()
         }
       }
+      cleanWs()
     }
   }
 }

@@ -32,6 +32,8 @@ spec:
           mountPath: /home/jenkins/.m2/repository },
         { name: efs-jenkins-connectors-asdf-rootless,
           mountPath: /home/jenkins/.asdf/installs},
+        { name: efs-jenkins-trivy-cache,
+          mountPath: /home/jenkins/.cache/trivy },
       ]
       resources: { requests: { memory: 5G, cpu: '2' } }
       env:
@@ -52,3 +54,6 @@ spec:
     - name: efs-jenkins-connectors-asdf-rootless
       persistentVolumeClaim:
         claimName: efs-jenkins-connectors-asdf-rootless
+    - name: efs-jenkins-trivy-cache
+      persistentVolumeClaim:
+        claimName: efs-jenkins-trivy-cache
