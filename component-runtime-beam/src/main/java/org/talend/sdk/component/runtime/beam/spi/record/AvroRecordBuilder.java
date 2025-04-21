@@ -35,4 +35,13 @@ public class AvroRecordBuilder extends RecordImpl.BuilderImpl {
     public Record build() {
         return new AvroRecord(super.build());
     }
+
+    protected Record.Builder getErrorBuilder(Schema.Builder builder) {
+
+        return new AvroRecordBuilder(builder.build());
+    }
+
+    protected Schema.Builder getErrorBuilder(Schema.Type type) {
+        return new AvroSchemaBuilder().withType(type);
+    }
 }
