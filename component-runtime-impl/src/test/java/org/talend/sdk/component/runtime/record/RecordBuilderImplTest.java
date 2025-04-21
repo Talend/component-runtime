@@ -17,6 +17,7 @@ package org.talend.sdk.component.runtime.record;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -246,6 +247,40 @@ class RecordBuilderImplTest {
 
         final RecordImpl.BuilderImpl builder2 = new RecordImpl.BuilderImpl(schema);
         assertThrows(IllegalArgumentException.class, () -> builder2.withDateTime("date", (ZonedDateTime) null));
+    }
+
+    @Test
+    void withError() {
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("date")
+                        .withNullable(false)
+                        .withType(Schema.Type.DATETIME)
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("intValue")
+                        .withNullable(false)
+                        .withType(Type.INT)
+                        .build())
+                .build();
+        final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, "true");
+        final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+        final RecordImpl.BuilderImpl builder3 = new RecordImpl.BuilderImpl(schema);
+        final Record record3 = builder3.withError("date", null, "date is null", null)
+                .withError("intValue", "string", "wrong int value", null)
+                .build();
+        assertFalse(record3.isValid());
+        final Entry entry = record3.getSchema().getEntries().stream().filter(e -> "date".equals(e.getName())).findAny().get();
+        assertNotNull(entry);
+        Assertions.assertFalse(entry.isValid());
+
+        final Entry entry2 = record3.getSchema().getEntries().stream().filter(e -> "intValue".equals(e.getName())).findAny().get();
+        assertNotNull(entry2);
+        Assertions.assertFalse(entry2.isValid());
+
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, "false");
     }
 
     @Test

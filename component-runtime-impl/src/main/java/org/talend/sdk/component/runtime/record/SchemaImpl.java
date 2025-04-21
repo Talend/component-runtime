@@ -465,6 +465,15 @@ public class SchemaImpl implements Schema {
             return this.props;
         }
 
+        @Override
+        public boolean isValid() {
+            String property = this.getProp(SchemaProperty.ENTRY_IS_ON_ERROR);
+            if (property == null) {
+                return true;
+            }
+            return !Boolean.parseBoolean(property);
+        }
+
         /**
          * Plain builder matching {@link Entry} structure.
          */
