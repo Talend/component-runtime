@@ -64,6 +64,7 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.talend.sdk.component.api.record.SchemaProperty;
 
 @EqualsAndHashCode
 public final class RecordImpl implements Record {
@@ -90,6 +91,11 @@ public final class RecordImpl implements Record {
         }
 
         return RECORD_CONVERTERS.coerce(expectedType, value, name);
+    }
+
+    @Override
+    public boolean isValid() {
+        return false;
     }
 
     @Override // for debug purposes, don't use it for anything else
@@ -511,6 +517,45 @@ public final class RecordImpl implements Record {
             validateTypeAgainstProvidedSchema(entry.getName(), ARRAY, values);
             // todo: check item type?
             return append(entry, values);
+        }
+
+        @Override
+        public Builder withError(String columnName, Object value, String errorMessage, Exception exception) {
+            final boolean supportError = Boolean.parseBoolean(System.getProperty(RECORD_ERROR_SUPPORT, "false"));
+            if (!supportError) {
+                throw new IllegalArgumentException(errorMessage);
+            } else {
+                // duplicate the schema instance with a modified Entry
+                final Entry oldEntry = this.findExistingEntry(columnName);
+                final Entry updateEntry = oldEntry.toBuilder()
+                        .withName(columnName)
+                        .withNullable(true)
+                        .withType(oldEntry.getType())
+                        .withProp(SchemaProperty.ENTRY_IS_ON_ERROR, "true")
+                        .withProp(SchemaProperty.ENTRY_ERROR_MESSAGE, errorMessage)
+                        .withProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE, String.valueOf(value))
+                        .withProp(SchemaProperty.ERROR_EXCEPTION, exception == null ? "" : exception.toString())
+                        .build();
+                final Schema.Builder builder = getErrorBuilder(providedSchema.getType());
+                providedSchema.getAllEntries()
+//                        .filter(e -> Objects.equals(providedSchema.getEntry(e.getName()), e))
+                        .forEach(e -> {
+                            if (columnName.equals(e.getName())) {
+                                builder.withEntry(updateEntry);
+                            } else {
+                                builder.withEntry(e);
+                            }
+                        });
+                return getErrorBuilder(builder);
+            }
+        }
+
+        protected Builder getErrorBuilder(Schema.Builder builder) {
+            return new BuilderImpl(builder.build());
+        }
+
+        protected Schema.Builder getErrorBuilder(Schema.Type type) {
+            return new SchemaImpl.BuilderImpl().withType(type);
         }
 
         private void assertType(final Schema.Type actual, final Schema.Type expected) {

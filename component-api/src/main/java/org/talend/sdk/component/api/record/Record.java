@@ -34,6 +34,8 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 
 public interface Record {
 
+    String RECORD_ERROR_SUPPORT = "talend.sdk.runtime.record.error.support";
+
     /**
      * @return the schema of this record.
      */
@@ -311,6 +313,10 @@ public interface Record {
         return ofNullable(get(Record.class, name));
     }
 
+    default boolean isValid() {
+        return getSchema().getAllEntries().filter(entry -> !entry.isValid()).findAny().isPresent();
+    }
+
     /**
      * Allows to create a record with a fluent API. This is the unique recommended way to create a record.
      */
@@ -447,5 +453,7 @@ public interface Record {
         Builder withRecord(String name, Record value);
 
         <T> Builder withArray(Schema.Entry entry, Collection<T> values);
+
+        Builder withError(String columnName, Object value, String errorMessage, Exception exception);
     }
 }

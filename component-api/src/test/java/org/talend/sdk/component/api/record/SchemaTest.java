@@ -326,6 +326,9 @@ class SchemaTest {
             return Entry.super.getJsonProp(name);
         }
 
+        @Override
+        public boolean isValid() { return true; }
+
     }
 
     class SchemaBuilder implements Schema.Builder {
