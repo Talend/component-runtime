@@ -192,21 +192,59 @@ class AvroRecordBuilderTest {
 
     @Test
     void mixedRecordTest() {
-        final AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
-        System.setProperty("talend.component.beam.record.factory.impl", "avro");
-        final RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
-
-        final RecordBuilderFactory otherFactory = new RecordBuilderFactoryImpl("test");
-        final Schema schema = otherFactory
-                .newSchemaBuilder(RECORD)
-                .withEntry(otherFactory.newEntryBuilder().withName("e1").withType(INT).build())
+        final Schema schema0 = new AvroSchemaBuilder()//
+                .withType(RECORD) //
+                .withEntry(dataEntry1) //
+                .withEntryBefore("data1", meta1) //
+                .withEntry(dataEntry2) //
+                .withEntryAfter("meta1", meta2) //
                 .build();
 
-        final Schema arrayType = recordBuilderFactory //
-                .newSchemaBuilder(Schema.Type.ARRAY) //
-                .withElementSchema(schema)
+        final Record.Builder builder0 = factory.newRecordBuilder(schema0);
+        builder0.withInt("data1", 101)
+                .withString("data2", "102")
+                .withInt("meta1", 103)
+                .withString("meta2", "104");
+        final Record record0 = builder0.build();
+        assertEquals(101, record0.getInt("data1"));
+    }
+
+    @Test
+    void testWithError() {
+        final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, "true");
+        final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+
+        org.talend.sdk.component.api.record.Schema.Builder schemaBuilder = factory.newSchemaBuilder(Schema.Type.RECORD);
+        Schema.Entry nameEntry = factory
+                .newEntryBuilder()
+                .withName("name")
+                .withNullable(false)
+                .withType(Schema.Type.STRING)
                 .build();
-        Assertions.assertNotNull(arrayType);
+        Schema.Entry ageEntry = factory
+                .newEntryBuilder()
+                .withName("age")
+                .withNullable(false)
+                .withType(Schema.Type.INT)
+                .build();
+        Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(ageEntry).build();
+        // record 1
+        Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
+        Record record1 = recordBuilder.withError("name", null, "Stirng is null", null)
+                .withError("age", "string", "is not an int", null)
+                .build();
+        assertFalse(record1.isValid());
+
+        final Schema.Entry entry = record1.getSchema().getEntries().stream().filter(e -> "name".equals(e.getName())).findAny().get();
+        assertNotNull(entry);
+        Assertions.assertFalse(entry.isValid());
+
+        final Schema.Entry entry2 = record1.getSchema().getEntries().stream().filter(e -> "age".equals(e.getName())).findAny().get();
+        assertNotNull(entry2);
+        Assertions.assertFalse(entry2.isValid());
+
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, "false");
     }
 
     @Test

@@ -102,6 +102,9 @@ class RecordBuilderFactoryTest {
         public Builder toBuilder() {
             throw new UnsupportedOperationException("#toBuilder()");
         }
+
+        @Override
+        public boolean isValid() { return true; }
     }
 
     @RequiredArgsConstructor

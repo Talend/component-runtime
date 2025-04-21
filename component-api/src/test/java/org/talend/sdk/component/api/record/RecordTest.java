@@ -135,6 +135,9 @@ class RecordTest {
             public String getProp(String property) {
                 return null;
             }
+
+            @Override
+            public boolean isValid() { return true; }
         };
         Assertions.assertEquals("value", record.get(String.class, e1));
     }
