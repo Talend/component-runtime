@@ -418,6 +418,7 @@ pipeline {
       }
       post {
         always {
+          jenkinsJobTools.job_description_append("You will find full build logs in artefacts as $BUILD_LOG_FILE")
           archiveArtifacts artifacts: "${"**/$BUILD_LOG_FILE"}", allowEmptyArchive: false, onlyIfSuccessful: false
           recordIssues(
               enabledForFailure: false,
@@ -471,6 +472,7 @@ pipeline {
       }
       post {
         always {
+          jenkinsJobTools.job_description_append("You will find full deploy logs in artefacts as $DEPLOY_LOG_FILE")
           archiveArtifacts artifacts: "${"**/$DEPLOY_LOG_FILE"}", allowEmptyArchive: false, onlyIfSuccessful: false
         }
       }
