@@ -24,7 +24,8 @@ final String repository = 'component-runtime'
 
 pipeline {
   libraries {
-    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+//    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@lxia/reduce-disk-space-usage-of-the-report")  // https://github.com/Talend/tdi-jenkins-shared-libraries
   }
 
   agent {
@@ -42,16 +43,10 @@ pipeline {
         '-Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss',
     ].join(' ')
     TALEND_REGISTRY = 'registry.datapwn.com'
-
-    //Trivy will automatically recognize and use the TRIVY_CACHE_DIR environment variable as long as it exists in the current shell environment at runtime.
-    //In Trivy’s behavior design, when you run: trivy fs .
-    //It internally tries to read the TRIVY_CACHE_DIR environment variable:
-    //If it is defined: Trivy will use that directory as the cache path. If it is not defined: Trivy will default to using ~/.cache/trivy.
-    TRIVY_CACHE_DIR = "/home/jenkins/.cache/trivy/${repository}"
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: '5'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '3', numToKeepStr: '3'))
     timeout(time: 60, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }

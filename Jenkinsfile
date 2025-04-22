@@ -86,7 +86,8 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 
 pipeline {
   libraries {
-    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+//    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@lxia/reduce-disk-space-usage-of-the-report")  // https://github.com/Talend/tdi-jenkins-shared-libraries
   }
   agent {
     kubernetes {
@@ -102,11 +103,10 @@ pipeline {
     VERACODE_APP_NAME = 'Talend Component Kit'
     VERACODE_SANDBOX = 'component-runtime'
     APP_ID = '579232'
-    TRIVY_CACHE_DIR = "/home/jenkins/.cache/trivy/${repository}"
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: branch_name == 'master' ? '10' : '5'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '3', numToKeepStr: branch_name == 'master' ? '5' : '3'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
