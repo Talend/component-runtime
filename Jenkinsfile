@@ -687,14 +687,16 @@ pipeline {
       }
       steps {
         script {
-          trivyTools.generateTrivyReport("output/trivy-results.json", "output/trivy-results.html")
-          publishHtmlReportTools.publishHtmlReport("output/trivy-results.html", 'CVE Trivy Vulnerability Report')
+          trivyTools.generateTrivyReport('output/trivy-results.json',
+                                         'output/trivy-results.html')
+          publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
+                                                   'CVE Trivy Vulnerability Report')
         }
       }
       post {
         always {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            archiveArtifacts artifacts: "output/trivy-results.json, output/trivy-results.html", allowEmptyArchive: true, onlyIfSuccessful: false
+            archiveArtifacts artifacts: "output/trivy-results.*", allowEmptyArchive: true, onlyIfSuccessful: false
           }
         }
       }
