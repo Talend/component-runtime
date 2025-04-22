@@ -68,6 +68,7 @@ final String artifactoryPath = "tlnd-docker-dev/talend/common/tacokit"
 
 final String BUILD_LOG_FILE = "build.log"
 final String DEPLOY_LOG_FILE = "deploy.log"
+final String MAVEN_GREP_FILTER = "WARN|ERROR|-----------[| :: |-------<|\\[[0-9]+/[0-9]+\\]|\\[INFO\\] Reactor|\\[INFO\\] BUILD"
 
 // Job variables declaration
 String branch_user
@@ -412,14 +413,16 @@ pipeline {
           mvn clean install $BUILD_ARGS \
                             $extraBuildParams \
                             --settings .jenkins/settings.xml \
-                            2>&1 | tee $BUILD_LOG_FILE | grep -E 'WARN|ERROR'
+                            2>&1 | tee $BUILD_LOG_FILE | grep -E '$MAVEN_GREP_FILTER'
           """.stripIndent()
         }
       }
       post {
         always {
-          jenkinsJobTools.job_description_append("You will find full build logs in artefacts as $BUILD_LOG_FILE")
-          archiveArtifacts artifacts: "${"**/$BUILD_LOG_FILE"}", allowEmptyArchive: false, onlyIfSuccessful: false
+          script {
+            jenkinsJobTools.job_description_append("You will find full build logs in artefacts as $BUILD_LOG_FILE")
+            archiveArtifacts artifacts: "${"**/$BUILD_LOG_FILE"}", allowEmptyArchive: false, onlyIfSuccessful: false
+          }
           recordIssues(
               enabledForFailure: false,
               tools: [
@@ -452,7 +455,7 @@ pipeline {
               bash mvn deploy $deployOptions \
                               $extraBuildParams \
                               --settings .jenkins/settings.xml \
-                              2>&1 | tee $DEPLOY_LOG_FILE | grep -E 'WARN|ERROR'
+                              2>&1 | tee $DEPLOY_LOG_FILE | grep -E '$MAVEN_GREP_FILTER'
               """.stripIndent()
           }
         }
@@ -472,8 +475,10 @@ pipeline {
       }
       post {
         always {
-          jenkinsJobTools.job_description_append("You will find full deploy logs in artefacts as $DEPLOY_LOG_FILE")
-          archiveArtifacts artifacts: "${"**/$DEPLOY_LOG_FILE"}", allowEmptyArchive: false, onlyIfSuccessful: false
+          script {
+            jenkinsJobTools.job_description_append("You will find full deploy logs in artefacts as $DEPLOY_LOG_FILE")
+            archiveArtifacts artifacts: "${"**/$DEPLOY_LOG_FILE"}", allowEmptyArchive: false, onlyIfSuccessful: false
+          }
         }
       }
     }
