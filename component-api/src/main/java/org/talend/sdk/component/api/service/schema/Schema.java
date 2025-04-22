@@ -30,7 +30,6 @@ import org.talend.sdk.component.api.meta.Partial;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.talend.sdk.component.api.record.SchemaProperty;
 
 @Partial("This API should support nested schema but the Studio is not yet ready.\n\n"
         + "The cloud platform also doesn't use it yet.\n\nAlso prefer to use "
@@ -167,6 +166,7 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
 
         @Override
         public boolean isValid() { return true; }
+
     }
 
 }

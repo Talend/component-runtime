@@ -93,11 +93,6 @@ public final class RecordImpl implements Record {
         return RECORD_CONVERTERS.coerce(expectedType, value, name);
     }
 
-    @Override
-    public boolean isValid() {
-        return false;
-    }
-
     @Override // for debug purposes, don't use it for anything else
     public String toString() {
         try (final Jsonb jsonb = JsonbBuilder
@@ -522,7 +517,7 @@ public final class RecordImpl implements Record {
         @Override
         public Builder withError(String columnName, Object value, String errorMessage, Exception exception) {
             final boolean supportError = Boolean.parseBoolean(System.getProperty(RECORD_ERROR_SUPPORT, "false"));
-            if (!supportError) {
+             if (!supportError) {
                 throw new IllegalArgumentException(errorMessage);
             } else {
                 // duplicate the schema instance with a modified Entry
