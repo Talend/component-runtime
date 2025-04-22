@@ -43,6 +43,7 @@ import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.SchemaProperty;
+import org.talend.sdk.component.api.record.SchemaProperty.LogicalType;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordImpl;
@@ -127,10 +128,19 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
         if (value instanceof Long) {
             String logicalType = entry.getLogicalType();
-            if (logicalType != null && SchemaProperty.LogicalType.DATE.key().equals(logicalType)) {
-                return Math.toIntExact(
-                        Instant.ofEpochMilli((Long) value).atZone(UTC).toLocalDate().toEpochDay()); // Avro stores dates
-                // as int
+            if (logicalType != null) {
+                if (SchemaProperty.LogicalType.DATE.key().equals(logicalType)) {
+                    return Math.toIntExact(
+                            Instant.ofEpochMilli((Long) value)
+                                    .atZone(UTC)
+                                    .toLocalDate()
+                                    .toEpochDay()); // Avro stores dates as int
+                } else if (LogicalType.TIME.key().equals(logicalType)) {
+                    // QTDI-1252: Avro time-millis logical type stores int milliseconds from 0:00:00 not from Unix Epoch
+                    final Instant instant = Instant.ofEpochMilli((Long) value);
+                    final ZonedDateTime zonedDateTime = instant.atZone(UTC);
+                    return Math.toIntExact(zonedDateTime.toLocalTime().toNanoOfDay() / 1_000_000);
+                }
             }
         }
 

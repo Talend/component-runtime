@@ -15,6 +15,10 @@
  */
 package org.talend.sdk.component.runtime.manager.chain;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import org.talend.sdk.component.runtime.input.CheckpointState;
 import org.talend.sdk.component.runtime.input.Input;
 
 import lombok.RequiredArgsConstructor;
@@ -26,16 +30,18 @@ public final class ChainedInput implements Input {
 
     private Input delegate = null;
 
+    private Optional<Consumer<CheckpointState>> checkpointStateConsumer = Optional.empty();
+
     @Override
     public Object next() {
         while (true) {
             if (delegate == null) {
-                delegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
+                this.delegate = nextDelegate();
                 if (delegate == null) {
                     return null;
                 }
-                delegate.start();
             }
+
             final Object next = delegate.next();
             if (next != null) {
                 return next;
@@ -66,9 +72,36 @@ public final class ChainedInput implements Input {
     }
 
     @Override
+    public void start(final Consumer<CheckpointState> checkpoint) {
+        this.checkpointStateConsumer = Optional.of(checkpoint);
+    }
+
+    @Override
+    public CheckpointState getCheckpoint() {
+        return delegate.getCheckpoint();
+    }
+
+    @Override
+    public boolean isCheckpointReady() {
+        return delegate.isCheckpointReady();
+    }
+
+    @Override
     public void stop() {
         if (delegate != null) {
             delegate.stop();
         }
+    }
+
+    private Input nextDelegate() {
+        Input localDelegate = parent.getIterator().hasNext() ? parent.getIterator().next().create() : null;
+        if (localDelegate != null) {
+            if (checkpointStateConsumer.isPresent()) {
+                localDelegate.start(checkpointStateConsumer.get());
+            } else {
+                localDelegate.start();
+            }
+        }
+        return localDelegate;
     }
 }

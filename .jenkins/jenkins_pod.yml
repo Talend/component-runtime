@@ -29,7 +29,7 @@ spec:
       tty: true
       volumeMounts: [
         { name: efs-jenkins-component-runtime-m2-rootless,
-          mountPath: /home/jenkins/.m2/ },
+          mountPath: /home/jenkins/.m2/repository },
         { name: efs-jenkins-connectors-asdf-rootless,
           mountPath: /home/jenkins/.asdf/installs},
       ]

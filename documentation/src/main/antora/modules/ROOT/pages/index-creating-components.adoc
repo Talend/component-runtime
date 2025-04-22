@@ -25,6 +25,8 @@ In some cases, you will require specific implementations to handle more advanced
 * xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
 * xref:concept-processor-and-batch-processing.adoc[Implementing batch processing]
 * xref:component-implementing-streaming.adoc[Implementing streaming on a component]
+* xref:component-checkpoint.adoc[Implementing checkpointing on a component]
+
 
 You can also make certain configurations reusable across your project by xref:index-defining-services.adoc[defining services].
 Using your Java IDE along with a build tool supported by the framework, you can then compile your components to xref:index-testing-components.adoc[test] and xref:index-deploying-components.adoc[deploy] them to Talend Studio or other Talend applications:
