@@ -204,7 +204,7 @@ TCK supports both `SVG` and `PNG` formats for the icons.
 . Create the `icons` folder and add an icon image for the Hazelcast family.
 +
 ```
-$ mkdir -p /src/main/resources/icons
+$ mkdir -p src/main/resources/icons
 ```
 This tutorial uses the Hazelcast icon from the official GitHub repository that you can get from: https://avatars3.githubusercontent.com/u/1453152?s=200&v=4
 
