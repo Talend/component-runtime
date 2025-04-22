@@ -86,7 +86,8 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 
 pipeline {
   libraries {
-    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+//    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("connectors-lib@lxia/reduce-disk-space-usage-of-the-report")  // https://github.com/Talend/tdi-jenkins-shared-libraries
   }
   agent {
     kubernetes {
@@ -106,7 +107,7 @@ pipeline {
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: branch_name == 'master' ? '10' : '5'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '3', numToKeepStr: branch_name == 'master' ? '5' : '3'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
