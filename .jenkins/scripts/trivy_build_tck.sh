@@ -20,7 +20,8 @@ set -xe
 main() {
   echo "Building project with Maven skipping most of the checks"
 
-  mvn clean install -pl '!talend-component-maven-plugin' \
+  mvn clean install --projects '!talend-component-maven-plugin' \
+                    --projects '!documentation' \
                     --settings .jenkins/settings.xml \
                     --batch-mode \
                     --update-snapshots \
