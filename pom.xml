@@ -1465,6 +1465,7 @@
             <exclude>**/component-tools/src/test/resources/DitaDocumentationGeneratorTest/*.dita</exclude>
             <exclude>**/src/main/resources/WebsiteBuilderMojo/*.mustache</exclude>
             <exclude>**/src/test/resources/DitaDocumentationGeneratorTest/**</exclude>
+            <exclude>**/talend-component-kit-intellij-plugin/gradle/wrapper/gradle-wrapper.properties</exclude>
           </excludes>
         </configuration>
         <executions>
