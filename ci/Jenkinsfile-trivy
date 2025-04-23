@@ -24,7 +24,7 @@ final String repository = 'component-runtime'
 
 pipeline {
   libraries {
-//    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    //lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
     lib("connectors-lib@lxia/reduce-disk-space-usage-of-the-report")  // https://github.com/Talend/tdi-jenkins-shared-libraries
   }
 
@@ -108,7 +108,7 @@ pipeline {
         script {
           trivyTools.generateTrivyReport("output/trivy-results.json",
                                          "output/trivy-results.html")
-          publishHtmlReportTools.publishHtmlReport("trivy-results.html", "CVE Trivy Vulnerability Report")
+          publishHtmlReportTools.publishHtmlReport("output/trivy-results.html", "CVE Trivy Vulnerability Report")
         }
       }
       post {
@@ -132,8 +132,8 @@ pipeline {
       steps {
         script {
           mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
-          publishHtmlReportTools.publishHtmlReport("${repository}.html", 'CVE mvn dependency:tree Report')
-          publishHtmlReportTools.publishHtmlReport("${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
+          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
+          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
         }
       }
       post {

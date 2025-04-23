@@ -86,7 +86,7 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 
 pipeline {
   libraries {
-//    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    //lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
     lib("connectors-lib@lxia/reduce-disk-space-usage-of-the-report")  // https://github.com/Talend/tdi-jenkins-shared-libraries
   }
   agent {
