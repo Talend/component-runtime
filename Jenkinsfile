@@ -785,6 +785,11 @@ pipeline {
           jenkinsJobTools.jenkinsBreakpoint()
         }
       }
+
+      script {
+        echo "ls -al output/"
+        sh 'ls -al output || true'
+      }
     }
   }
 }
