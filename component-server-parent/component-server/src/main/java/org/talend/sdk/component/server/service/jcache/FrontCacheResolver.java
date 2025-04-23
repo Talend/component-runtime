@@ -16,11 +16,8 @@
 package org.talend.sdk.component.server.service.jcache;
 
 import static java.util.Optional.ofNullable;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 import java.lang.annotation.Annotation;
-import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
@@ -35,7 +32,6 @@ import javax.cache.annotation.CacheResult;
 import javax.cache.configuration.Configuration;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 
 import org.apache.geronimo.jcache.simple.cdi.CacheResolverImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -44,6 +40,7 @@ import org.talend.sdk.component.server.api.CacheResource;
 import org.talend.sdk.component.server.front.ComponentResourceImpl;
 import org.talend.sdk.component.server.front.ConfigurationTypeResourceImpl;
 import org.talend.sdk.component.server.front.EnvironmentResourceImpl;
+import org.talend.sdk.component.server.front.model.CacheClear;
 import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.components.vault.jcache.CacheConfigurationFactory;
@@ -147,14 +144,10 @@ public class FrontCacheResolver implements CacheResolverFactory, CacheResource {
     }
 
     @Override
-    public Response clearCaches() {
+    public CacheClear clearCaches() {
         final long clearedCacheCount = countActiveCaches();
-        Map<String, Long> stringStringMap = Collections.singletonMap("clearedCacheCount", clearedCacheCount);
         service.redeployPlugins();
-        return Response
-                .ok(stringStringMap)
-                .type(APPLICATION_JSON_TYPE)
-                .build();
+        return new CacheClear(clearedCacheCount);
     }
 
     /**
