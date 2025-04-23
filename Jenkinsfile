@@ -689,7 +689,7 @@ pipeline {
         script {
           trivyTools.generateTrivyReport('output/trivy-results.json',
                                          'output/trivy-results.html')
-          publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
+          publishHtmlReportTools.publishHtmlReport('trivy-results.html',
                                                    'CVE Trivy Vulnerability Report')
         }
       }
@@ -708,8 +708,8 @@ pipeline {
       steps {
         script {
           mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
-          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
-          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
+          publishHtmlReportTools.publishHtmlReport("${repository}.html", 'CVE mvn dependency:tree Report')
+          publishHtmlReportTools.publishHtmlReport("${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
         }
       }
       post {
