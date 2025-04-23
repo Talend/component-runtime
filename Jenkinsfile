@@ -106,7 +106,7 @@ pipeline {
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '3', numToKeepStr: branch_name == 'master' ? '5' : '3'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branch_name == 'master' ? '15' : '10'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
@@ -689,7 +689,7 @@ pipeline {
         script {
           trivyTools.generateTrivyReport('output/trivy-results.json',
                                          'output/trivy-results.html')
-          publishHtmlReportTools.publishHtmlReport('trivy-results.html',
+          publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
                                                    'CVE Trivy Vulnerability Report')
         }
       }
@@ -708,8 +708,8 @@ pipeline {
       steps {
         script {
           mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
-          publishHtmlReportTools.publishHtmlReport("${repository}.html", 'CVE mvn dependency:tree Report')
-          publishHtmlReportTools.publishHtmlReport("${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
+          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
+          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
         }
       }
       post {
