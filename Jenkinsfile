@@ -106,7 +106,7 @@ pipeline {
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '3', numToKeepStr: branch_name == 'master' ? '5' : '3'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '10', numToKeepStr: branch_name == 'master' ? '15' : '10'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }
