@@ -149,19 +149,20 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
                 case "Gradle":
                     final VirtualFile gradleFile = findFileUnderRootInModule(module, "build.gradle");
                     if (gradleFile != null) {
-                        final ProjectDataManager projectDataManager = ApplicationManager.getApplication().getService(ProjectDataManager.class);
-
-                        // todo: move to JavaGradleProjectImportBuilder
-                        final GradleProjectImportBuilder importBuilder =
-                                new GradleProjectImportBuilder(projectDataManager);
-                        final GradleProjectImportProvider importProvider =
-                                new GradleProjectImportProvider(importBuilder);
-                        final AddModuleWizard addModuleWizard =
-                                new AddModuleWizard(moduleProject, gradleFile.getPath(), importProvider);
-                        if (addModuleWizard.getStepCount() == 0 && addModuleWizard.showAndGet()) {
-                            // user chose to import via the gradle import prompt
-                            importBuilder.commit(moduleProject, null, null);
-                        }
+                        ApplicationManager.getApplication().runWriteAction(() -> {
+                            final ProjectDataManager projectDataManager = ApplicationManager.getApplication().getService(ProjectDataManager.class);
+                            // todo: move to JavaGradleProjectImportBuilder
+                            final GradleProjectImportBuilder importBuilder =
+                                    new GradleProjectImportBuilder(projectDataManager);
+                            final GradleProjectImportProvider importProvider =
+                                    new GradleProjectImportProvider(importBuilder);
+                            final AddModuleWizard addModuleWizard =
+                                    new AddModuleWizard(moduleProject, gradleFile.getPath(), importProvider);
+                            if (addModuleWizard.getStepCount() == 0 && addModuleWizard.showAndGet()) {
+                                // user chose to import via the gradle import prompt
+                                importBuilder.commit(moduleProject, null, null);
+                            }
+                        });
                     }
                     break;
                 default:
