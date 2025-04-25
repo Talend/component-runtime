@@ -20,12 +20,11 @@ final def nexusCredentials = usernamePassword(
     usernameVariable: 'NEXUS_USER',
     passwordVariable: 'NEXUS_PASSWORD')
 
+final String repository = 'component-runtime'
 
 pipeline {
   libraries {
-    // Externals libraries used in this job
-    // Connector lib from https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("connectors-lib@1.0.0") // Defining jenkinsJobTools
+    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
   }
 
   agent {
@@ -61,7 +60,13 @@ pipeline {
                 text-align: center; font-size: 35px !important; font-weight : bold;
 			          """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    string(
+        name: 'PACKAGE_FILTER_NAME',
+        defaultValue: "",
+        description: '''
+              This input box is used to filter the results of the `mvn dependency:tree` command.
+              By entering the package name, you can find out which components are affected and thus the scope of the test.
+              For example: org.eclipse.jetty:jetty-http, org.apache.avro:avro, org.apache.geronimo ...''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "DEBUG_CONFIG",
@@ -100,23 +105,16 @@ pipeline {
     stage('Security Scan with Trivy') {
       steps {
         script {
-          sh 'bash .jenkins/scripts/trivy_scan.sh'
+          trivyTools.generateTrivyReport("output/trivy-results.json",
+                                         "output/trivy-results.html")
+          publishHtmlReportTools.publishHtmlReport("output/trivy-results.html", "CVE Trivy Vulnerability Report")
         }
       }
       post {
         always {
-          archiveArtifacts artifacts: 'output/trivy-results.json'
-
-          recordIssues(
-              enabledForFailure: true,
-              tools: [
-                  trivy(
-                      id: 'trivy',
-                      name: 'trivy scan',
-                      pattern : 'output/trivy-results.json',
-                      )
-              ]
-          )
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            archiveArtifacts artifacts: 'output/trivy-results.json, output/trivy-results.html', allowEmptyArchive: true, onlyIfSuccessful: false
+          }
         }
       }
     }
@@ -128,6 +126,24 @@ pipeline {
         }
       }
     }
+
+    stage('Mvn dependency:tree') {
+      steps {
+        script {
+          mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
+          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
+          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
+        }
+      }
+      post {
+        always {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            archiveArtifacts artifacts: "output/${repository}.txt, output/${repository}--ScopeOfImpact.txt", allowEmptyArchive: true, onlyIfSuccessful: false
+          }
+        }
+      }
+    }
+
   }
   post {
     always {
