@@ -232,7 +232,7 @@
     <spark.version>3.2.2</spark.version>
     <spark-scala.version>2.12</spark-scala.version>
 
-    <gradle.version>6.9.1</gradle.version>
+    <gradle.version>6.9.4</gradle.version>
     <groovy.version>3.0.18</groovy.version>
     <gmavenplus.version>1.13.1</gmavenplus.version>
     <dependency-plugin.version>3.3.0</dependency-plugin.version>
