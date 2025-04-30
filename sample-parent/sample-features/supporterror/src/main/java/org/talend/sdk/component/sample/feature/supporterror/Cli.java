@@ -26,11 +26,9 @@ import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
@@ -38,9 +36,8 @@ import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
-import org.talend.sdk.component.runtime.input.Mapper;
+import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
-import org.talend.sdk.component.runtime.output.ProcessorImpl;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
@@ -52,11 +49,8 @@ import lombok.NoArgsConstructor;
 @Command(name="supportError")
 public final class Cli implements Callable<Integer> {
 
-//    @Parameters(index = "0", description = "The file whose checksum to calculate.")
-//    private File file;
-
     //support errors or not. default=false
-    @Option(names = "-s", defaultValue = "true")
+    @Option(names = "-s", defaultValue = "false")
     boolean support;
 
     @Option(names = { "-f", "--file" }, paramLabel = "ARCHIVE", description = "the jar file")
@@ -69,7 +63,7 @@ public final class Cli implements Callable<Integer> {
     String family;
 
     static final String GAV = "org.talend.sdk.component.sample.feature:supporterror:jar:"
-            + SVersions.KIT_VERSION;
+            + Versions.KIT_VERSION;
 
     @Override
     public Integer call() throws Exception {
@@ -79,31 +73,30 @@ public final class Cli implements Callable<Integer> {
             final Map<String, String> configuration = new HashMap<>();
 
             info("support" + String.valueOf(support));
+            if (support) {
+                setSupportError(support);
+            }
             // create the mapper
-            final Mapper mpr = manager.findMapper(family, mapper, 1, configuration)
+            final PartitionMapperImpl mpr = (PartitionMapperImpl)manager.findMapper(family, mapper, 1, configuration)
                     .orElseThrow(() -> new IllegalStateException(
                             String.format("No mapper found for: %s/%s.", family, manager)));
 
-            final ProcessorImpl processor = (ProcessorImpl)manager.findMapper(family, "SupportErrorInput", 1, configuration)
-                    .orElseThrow(() -> new IllegalStateException(
-                            String.format("No Processor found for: %s/%s.", family, manager)));
+//            final ProcessorImpl processor = (ProcessorImpl)manager.findMapper(family, "SupportErrorInput", 1, configuration)
+//                    .orElseThrow(() -> new IllegalStateException(
+//                            String.format("No Processor found for: %s/%s.", family, manager)));
 
             info("create input now.");
 
-            List<Record> records = ((Supplier<List<Record>>) processor.getDelegate()).get();
+            SupportErrorInput seInput = new SupportErrorInput(null);
+            seInput.init();
 
-            //final SupportErrorInput input = mpr.create();
-            //set the property for support or not
-//            input.setSupportError(String.valueOf(support));
             info("getting the record.");
-//            Record data = input.data();
+            Record data = seInput.data();
 
-            for (Record data : records) {
-                info("Record : " + data.isValid());
-                entryout(data, "date");
-                entryout(data, "age");
-            }
-            //
+            info("Record isValid = " + data.isValid());
+            entryout(data, "date");
+            entryout(data, "age");
+           //
             info("finished.");
         } catch (Exception e) {
             error(e);
@@ -124,6 +117,13 @@ public final class Cli implements Callable<Integer> {
         }
     }
 
+    //set support or not.
+    public void setSupportError(final boolean supportError) {
+        final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, String.valueOf(supportError));
+        final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+    }
+
     public static void main(final String... args) {
         int exitCode = new CommandLine(new Cli()).execute(args);
         System.exit(exitCode);
@@ -136,7 +136,6 @@ public final class Cli implements Callable<Integer> {
     static final String INFO = "[INFO]  ";
 
     static MvnCoordinateToFileConverter mvnCoordinateToFileConverter = new MvnCoordinateToFileConverter();
-
 
     public static ComponentManager manager(final File jar, final String artifact) {
         return new ComponentManager(findM2()) {
