@@ -32,6 +32,7 @@
     <module>aftergroup-lastgroup</module>
     <module>conditional-outputs</module>
     <module>checkpoint-runner</module>
+    <module>supporterror</module>
   </modules>
 
   <dependencies>

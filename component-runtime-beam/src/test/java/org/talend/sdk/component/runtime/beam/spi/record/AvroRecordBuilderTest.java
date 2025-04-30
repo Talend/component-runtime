@@ -54,7 +54,6 @@ import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
-import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
@@ -236,11 +235,13 @@ class AvroRecordBuilderTest {
                 .build();
         assertFalse(record1.isValid());
 
-        final Schema.Entry entry = record1.getSchema().getEntries().stream().filter(e -> "name".equals(e.getName())).findAny().get();
+        final Schema.Entry entry =
+                record1.getSchema().getEntries().stream().filter(e -> "name".equals(e.getName())).findAny().get();
         assertNotNull(entry);
         Assertions.assertFalse(entry.isValid());
 
-        final Schema.Entry entry2 = record1.getSchema().getEntries().stream().filter(e -> "age".equals(e.getName())).findAny().get();
+        final Schema.Entry entry2 =
+                record1.getSchema().getEntries().stream().filter(e -> "age".equals(e.getName())).findAny().get();
         assertNotNull(entry2);
         Assertions.assertFalse(entry2.isValid());
 

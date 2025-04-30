@@ -315,7 +315,8 @@ public interface Record {
 
     default boolean isValid() {
         return !getSchema().getAllEntries()
-                .filter(entry -> !entry.isValid()).findAny()
+                .filter(entry -> !entry.isValid())
+                .findAny()
                 .isPresent();
     }
 
