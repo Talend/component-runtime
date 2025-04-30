@@ -69,13 +69,6 @@ public class SupportErrorInput implements Serializable {
                 .build();
     }
 
-    //set support or not.
-    public void setSupportError(final String supportError) {
-        final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
-        System.setProperty(Record.RECORD_ERROR_SUPPORT, "true");
-        final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
-    }
-
     @Producer
     public Record data() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(recordSchema);
