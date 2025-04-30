@@ -16,7 +16,6 @@
 package org.talend.sdk.component.intellij.module;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
-import static com.intellij.openapi.components.ServiceManager.getService;
 import static com.intellij.openapi.module.StdModuleTypes.JAVA;
 import static java.util.Collections.singletonList;
 import static org.talend.sdk.component.intellij.Configuration.getMessage;
@@ -26,16 +25,17 @@ import java.io.IOException;
 import java.util.Base64;
 
 import javax.swing.Icon;
-import javax.swing.JTextField;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.intellij.ide.util.newProjectWizard.AddModuleWizard;
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
+import com.intellij.ide.util.projectWizard.ModuleNameLocationSettings;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.SettingsStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager;
 import com.intellij.openapi.module.ModifiableModuleModel;
@@ -51,6 +51,7 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import org.jdom.JDOMException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.plugins.gradle.service.project.wizard.GradleProjectImportBuilder;
 import org.jetbrains.plugins.gradle.service.project.wizard.GradleProjectImportProvider;
@@ -59,28 +60,28 @@ import org.talend.sdk.component.intellij.module.step.WelcomeStep;
 
 public class TalendModuleBuilder extends JavaModuleBuilder {
 
-    private final ModuleType moduleType;
+    private final ModuleType<TalendModuleBuilder> moduleType;
 
     private ProjectCreationRequest request = null;
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     private JsonObject jsonProject;
 
-    public TalendModuleBuilder(final ModuleType moduleType) {
+    public TalendModuleBuilder(final ModuleType<TalendModuleBuilder> moduleType) {
         this.moduleType = moduleType;
     }
 
     @Override
-    protected boolean isAvailable() {
+    public boolean isAvailable() {
         return true;
     }
 
     @Override
-    public ModuleWizardStep[] createWizardSteps(final WizardContext wizardContext,
-            final ModulesProvider modulesProvider) {
+    public ModuleWizardStep[] createWizardSteps(@NotNull final WizardContext wizardContext,
+                                                @NotNull final ModulesProvider modulesProvider) {
 
-        return new ModuleWizardStep[] { new StarterStep(this) };
+        return new ModuleWizardStep[]{new StarterStep(this)};
     }
 
     @Override
@@ -89,7 +90,7 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
     }
 
     @Override
-    public ModuleType getModuleType() {
+    public ModuleType<JavaModuleBuilder> getModuleType() {
         return JAVA;
     }
 
@@ -118,8 +119,9 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
         return moduleType.getDescription();
     }
 
+    @NotNull
     @Override
-    public Module createModule(final ModifiableModuleModel moduleModel) throws InvalidDataException, IOException,
+    public Module createModule(@NotNull final ModifiableModuleModel moduleModel) throws InvalidDataException, IOException,
             ModuleWithNameAlreadyExists, ConfigurationException, JDOMException {
         final Module module = super.createModule(moduleModel);
         getApplication().invokeLater(() -> {
@@ -147,18 +149,20 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
                 case "Gradle":
                     final VirtualFile gradleFile = findFileUnderRootInModule(module, "build.gradle");
                     if (gradleFile != null) {
-                        final ProjectDataManager projectDataManager = getService(ProjectDataManager.class);
-                        // todo: move to JavaGradleProjectImportBuilder
-                        final GradleProjectImportBuilder importBuilder =
-                                new GradleProjectImportBuilder(projectDataManager);
-                        final GradleProjectImportProvider importProvider =
-                                new GradleProjectImportProvider(importBuilder);
-                        final AddModuleWizard addModuleWizard =
-                                new AddModuleWizard(moduleProject, gradleFile.getPath(), importProvider);
-                        if (addModuleWizard.getStepCount() == 0 && addModuleWizard.showAndGet()) {
-                            // user chose to import via the gradle import prompt
-                            importBuilder.commit(moduleProject, null, null);
-                        }
+                        ApplicationManager.getApplication().runWriteAction(() -> {
+                            final ProjectDataManager projectDataManager = ApplicationManager.getApplication().getService(ProjectDataManager.class);
+                            // todo: move to JavaGradleProjectImportBuilder
+                            final GradleProjectImportBuilder importBuilder =
+                                    new GradleProjectImportBuilder(projectDataManager);
+                            final GradleProjectImportProvider importProvider =
+                                    new GradleProjectImportProvider(importBuilder);
+                            final AddModuleWizard addModuleWizard =
+                                    new AddModuleWizard(moduleProject, gradleFile.getPath(), importProvider);
+                            if (addModuleWizard.getStepCount() == 0 && addModuleWizard.showAndGet()) {
+                                // user chose to import via the gradle import prompt
+                                importBuilder.commit(moduleProject, null, null);
+                            }
+                        });
                     }
                     break;
                 default:
@@ -170,7 +174,7 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
     }
 
     @Override
-    public ModuleWizardStep modifySettingsStep(final SettingsStep settingsStep) {
+    public ModuleWizardStep modifySettingsStep(@NotNull final SettingsStep settingsStep) {
         final String projectJsonString = new String(Base64.getUrlDecoder().decode(request.getProject()));
         jsonProject = gson.fromJson(projectJsonString, JsonObject.class);
 
@@ -185,10 +189,9 @@ public class TalendModuleBuilder extends JavaModuleBuilder {
             }
         } catch (final Error | Exception e) {
             try {
-                final JTextField namedFile = settingsStep.getModuleNameField();
-                if (namedFile != null) {
-                    namedFile.setText(jsonProject.get("artifact").getAsString());
-                    namedFile.setEditable(false);
+                final ModuleNameLocationSettings settings = settingsStep.getModuleNameLocationSettings();
+                if (settings != null) {
+                    settings.setModuleName(jsonProject.get("artifact").getAsString());
                 }
             } catch (final RuntimeException ex) {
                 final IllegalStateException exception = new IllegalStateException(e);

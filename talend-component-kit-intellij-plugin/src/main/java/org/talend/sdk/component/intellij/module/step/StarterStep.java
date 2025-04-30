@@ -141,8 +141,8 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
             starterPanel.getPanelLoaded().handle((r, t) -> {
                 if (t != null) {
                     error.set(t);
-                    if (RuntimeException.class.isInstance(t)) {
-                        throw RuntimeException.class.cast(t);
+                    if (t instanceof RuntimeException) {
+                        throw (RuntimeException) t;
                     }
                     throw new IllegalStateException(t);
                 }
@@ -156,7 +156,7 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
         try {
             request = getProjectInformation().get();
         } catch (final InterruptedException | ExecutionException e) {
-            if (InterruptedException.class.isInstance(e)) {
+            if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
             throw new ConfigurationException(e.getMessage());
@@ -222,7 +222,7 @@ public class StarterStep extends ModuleWizardStep implements Disposable {
                         .getLoadWorker()
                         .stateProperty()
                         .addListener((ObservableValue<? extends Worker.State> observable, Worker.State oldValue,
-                                Worker.State newValue) -> {
+                                      Worker.State newValue) -> {
                             switch (newValue) {
                                 case FAILED:
                                 case CANCELLED:
