@@ -18,3 +18,11 @@ These scripts are based on the recommendations provided by JetBrains
 and adapted from their [IntelliJ Platform Plugin Template repository](https://github.com/JetBrains/intellij-platform-plugin-template/tree/main/.github/workflows).
 These scripts can be used to automate tasks such as building, testing, and releasing the plugin.
 
+
+## Published elements
+Everything in the `Plugin description` will be published in the JetBrains plugin repository.
+<!-- Plugin description -->
+This plugin allows to create new Talend components based on the Talend Component Kit framework. It also enables i18n completion
+for the components.
+<!-- Plugin description end -->
+
