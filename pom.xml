@@ -123,7 +123,6 @@
     <module>component-studio</module>
     <module>images</module>
     <module>documentation</module>
-    <module>talend-component-kit-intellij-plugin</module>
     <module>singer-parent</module>
     <module>remote-engine-customizer</module>
     <module>reporting</module>
@@ -1466,6 +1465,7 @@
             <exclude>**/component-tools/src/test/resources/DitaDocumentationGeneratorTest/*.dita</exclude>
             <exclude>**/src/main/resources/WebsiteBuilderMojo/*.mustache</exclude>
             <exclude>**/src/test/resources/DitaDocumentationGeneratorTest/**</exclude>
+            <exclude>**/talend-component-kit-intellij-plugin/gradle/wrapper/gradle-wrapper.properties</exclude>
           </excludes>
         </configuration>
         <executions>

@@ -61,7 +61,7 @@ public class ProjectDownloader {
     public void download(final ProgressIndicator indicator) throws IOException {
         indicator.setText("Downloading files ...");
         final URL url = new URL(Configuration.getStarterHost() + request.getAction());
-        final HttpURLConnection urlConnection = HttpURLConnection.class.cast(url.openConnection());
+        final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod(request.getRequestMethod());
         urlConnection.setRequestProperty("Accept", "application/zip");
         urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -69,7 +69,7 @@ public class ProjectDownloader {
         urlConnection.setDoOutput(true);
         try (final BufferedOutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream())) {
             outputStream
-                    .write(("project=" + URLEncoder.encode(request.getProject(), StandardCharsets.UTF_8.name()))
+                    .write(("project=" + URLEncoder.encode(request.getProject(), StandardCharsets.UTF_8))
                             .getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         }
