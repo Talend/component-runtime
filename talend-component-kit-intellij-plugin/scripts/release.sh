@@ -7,7 +7,6 @@ set -euo pipefail
 
 RELEASE_TAG="${GITHUB_REF_NAME:-}"  # Expected: v1.2.3
 RELEASE_BODY="${RELEASE_BODY:-}"   # Should be set to GitHub release body
-GITHUB_TOKEN="${GITHUB_TOKEN:?Missing GITHUB_TOKEN}"
 PUBLISH_TOKEN="${PUBLISH_TOKEN:?Missing PUBLISH_TOKEN}"
 CERTIFICATE_CHAIN="${CERTIFICATE_CHAIN:?Missing CERTIFICATE_CHAIN}"
 PRIVATE_KEY="${PRIVATE_KEY:?Missing PRIVATE_KEY}"
@@ -20,10 +19,8 @@ git fetch --tags
 git checkout "$RELEASE_TAG"
 
 # --------------------------------------------
-# 2. Setup Java & Gradle (assuming Java and Gradle are pre-installed)
+# 2. CHeck Java & Gradle (assuming Java and Gradle are pre-installed)
 # --------------------------------------------
-# You can use SDKMAN, asdf, or pre-install Java 21 via system package manager
-
 echo "Using Java version:"
 java -version
 
@@ -52,3 +49,5 @@ echo "Publishing plugin to JetBrains Marketplace..."
   -PcertificateChain="$CERTIFICATE_CHAIN" \
   -PprivateKey="$PRIVATE_KEY" \
   -PprivateKeyPassword="$PRIVATE_KEY_PASSWORD"
+
+echo "✅ All done."
