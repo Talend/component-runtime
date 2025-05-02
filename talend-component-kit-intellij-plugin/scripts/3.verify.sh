@@ -20,9 +20,6 @@ set -euo pipefail
 PLUGIN_VERIFIER_HOME="${HOME}/.pluginVerifier" # this one should be in EFS
 GRADLE_CMD="./gradlew"
 
-echo "==> Setting up environment"
-export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-
 
 # --------------------------------------------
 #2. Verify plugin
