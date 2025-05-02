@@ -219,21 +219,6 @@ pipeline {
           }
         }
       }
-      stage('Gradle jetbrains verify') {
-        steps {
-          script {
-            withCredentials([ossrhCredentials,
-                             nexusCredentials]) {
-              sh """\
-            #!/usr/bin/env bash
-            set -xe
-            cd talend-component-kit-intellij-plugin
-            bash scripts/3.verify.sh
-            """.stripIndent()
-            }
-          }
-        }
-      }
       post {
         always {
           recordIssues(
@@ -249,23 +234,39 @@ pipeline {
         }
       }
     }
-    stage('Preview deployment') {
-      when { expression { params.PREVIEW_DEPLOY } }
+    stage('Gradle jetbrains verify') {
       steps {
         script {
-          withCredentials([jetbrainsCredentials,
+          withCredentials([ossrhCredentials,
                            nexusCredentials]) {
             sh """\
-              #!/usr/bin/env bash
-              set -xe
-              cd talend-component-kit-intellij-plugin
-              bash scripts/4.deploy.sh 
-              """.stripIndent()
+            #!/usr/bin/env bash
+            set -xe
+            cd talend-component-kit-intellij-plugin
+            bash scripts/3.verify.sh
+            """.stripIndent()
           }
         }
       }
     }
   }
+  stage('Preview deployment') {
+    when { expression { params.PREVIEW_DEPLOY } }
+    steps {
+      script {
+        withCredentials([jetbrainsCredentials,
+                         nexusCredentials]) {
+          sh """\
+              #!/usr/bin/env bash
+              set -xe
+              cd talend-component-kit-intellij-plugin
+              bash scripts/4.deploy.sh 
+              """.stripIndent()
+        }
+      }
+    }
+  }
+
   post {
     success {
       script {
@@ -333,7 +334,6 @@ pipeline {
     }
   }
 }
-
 
 /**
  * Assembly all needed items to put inside extraBuildParams
