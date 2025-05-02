@@ -227,106 +227,107 @@ pipeline {
             """.stripIndent()
           }
         }
-        post {
-          always {
-            recordIssues(
-                enabledForFailure: false,
-                tools: [
-                    junitParser(
-                        id: 'unit-test',
-                        name: 'Unit Test',
-                        pattern: '**/target/surefire-reports/*.xml'
-                    )
-                ]
-            )
-          }
+      }
+      post {
+        always {
+          recordIssues(
+              enabledForFailure: false,
+              tools: [
+                  junitParser(
+                      id: 'unit-test',
+                      name: 'Unit Test',
+                      pattern: '**/target/surefire-reports/*.xml'
+                  )
+              ]
+          )
         }
       }
-      stage('Preview deployment') {
-        when { expression { params.PREVIEW_DEPLOY } }
-        steps {
-          script {
-            withCredentials([jetbrainsCredentials,
-                             nexusCredentials]) {
-              sh """\
+    }
+    stage('Preview deployment') {
+      when { expression { params.PREVIEW_DEPLOY } }
+      steps {
+        script {
+          withCredentials([jetbrainsCredentials,
+                           nexusCredentials]) {
+            sh """\
               #!/usr/bin/env bash
               set -xe
               cd talend-component-kit-intellij-plugin
               bash scripts/4.deploy.sh 
               """.stripIndent()
-            }
-          }
-        }
-      }
-    }
-    post {
-      success {
-        script {
-          println "====== Publish Coverage"
-          publishCoverage adapters: [jacocoAdapter('**/jacoco-aggregate/*.xml')]
-          publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
-          publishCoverage adapters: [jacocoAdapter('**/jacoco-ut/*.xml')]
-          println "====== Publish HTML API Coverage"
-          publishHTML([
-              allowMissing         : false,
-              alwaysLinkToLastBuild: false,
-              keepAll              : true,
-              reportDir            : 'reporting/target/site/jacoco-aggregate',
-              reportFiles          : 'index.html',
-              reportName           : 'Coverage',
-              reportTitles         : 'Coverage'
-          ])
-        }
-      }
-      always {
-        script {
-          String prevResult = null
-          if (currentBuild.previousBuild) {
-            prevResult = currentBuild.previousBuild.result
-          }
-
-          alertingTools.slack_result(
-              env.SLACK_CI_CHANNEL,
-              currentBuild.result,
-              prevResult,
-              true, // Post for success
-              false // Post for failure
-          )
-        }
-        recordIssues(
-            enabledForFailure: false,
-            tools: [
-                taskScanner(
-                    id: 'disabled',
-                    name: '@Disabled',
-                    includePattern: 'talend-component-kit-intellij-plugin/src/**/*.java',
-                    ignoreCase: true,
-                    normalTags: '@Disabled'
-                ),
-                taskScanner(
-                    id: 'todo',
-                    name: 'Todo(low)/Fixme(high)',
-                    includePattern: 'talend-component-kit-intellij-plugin/src/**/*.java',
-                    ignoreCase: true,
-                    highTags: 'FIX_ME, FIXME',
-                    lowTags: 'TO_DO, TODO'
-                )
-            ]
-        )
-        script {
-          println '====== Archive jacoco reports artifacts'
-          archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
-        }
-
-        script {
-          if (params.JENKINS_DEBUG) {
-            jenkinsJobTools.jenkinsBreakpoint()
           }
         }
       }
     }
   }
+  post {
+    success {
+      script {
+        println "====== Publish Coverage"
+        publishCoverage adapters: [jacocoAdapter('**/jacoco-aggregate/*.xml')]
+        publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
+        publishCoverage adapters: [jacocoAdapter('**/jacoco-ut/*.xml')]
+        println "====== Publish HTML API Coverage"
+        publishHTML([
+            allowMissing         : false,
+            alwaysLinkToLastBuild: false,
+            keepAll              : true,
+            reportDir            : 'reporting/target/site/jacoco-aggregate',
+            reportFiles          : 'index.html',
+            reportName           : 'Coverage',
+            reportTitles         : 'Coverage'
+        ])
+      }
+    }
+    always {
+      script {
+        String prevResult = null
+        if (currentBuild.previousBuild) {
+          prevResult = currentBuild.previousBuild.result
+        }
+
+        alertingTools.slack_result(
+            env.SLACK_CI_CHANNEL,
+            currentBuild.result,
+            prevResult,
+            true, // Post for success
+            false // Post for failure
+        )
+      }
+      recordIssues(
+          enabledForFailure: false,
+          tools: [
+              taskScanner(
+                  id: 'disabled',
+                  name: '@Disabled',
+                  includePattern: 'talend-component-kit-intellij-plugin/src/**/*.java',
+                  ignoreCase: true,
+                  normalTags: '@Disabled'
+              ),
+              taskScanner(
+                  id: 'todo',
+                  name: 'Todo(low)/Fixme(high)',
+                  includePattern: 'talend-component-kit-intellij-plugin/src/**/*.java',
+                  ignoreCase: true,
+                  highTags: 'FIX_ME, FIXME',
+                  lowTags: 'TO_DO, TODO'
+              )
+          ]
+      )
+      script {
+        println '====== Archive jacoco reports artifacts'
+        archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
+      }
+
+      script {
+        if (params.JENKINS_DEBUG) {
+          jenkinsJobTools.jenkinsBreakpoint()
+        }
+      }
+    }
+  }
 }
+
 
 /**
  * Assembly all needed items to put inside extraBuildParams
@@ -335,20 +336,20 @@ pipeline {
  *
  * @return extraBuildParams as a string ready for mvn cmd
  */
-  private String assemblyExtraBuildParams() {
-    String extraBuildParams
+private String assemblyExtraBuildParams() {
+  String extraBuildParams
 
-    println 'Processing extraBuildParams'
-    final List<String> buildParamsAsArray = []
+  println 'Processing extraBuildParams'
+  final List<String> buildParamsAsArray = []
 
-    println 'Manage user params'
-    if (params.EXTRA_BUILD_PARAMS) {
-      buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
-    }
-
-    println 'Construct final params content'
-    extraBuildParams = buildParamsAsArray.join(' ')
-    println "extraBuildParams: $extraBuildParams"
-
-    return extraBuildParams
+  println 'Manage user params'
+  if (params.EXTRA_BUILD_PARAMS) {
+    buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
   }
+
+  println 'Construct final params content'
+  extraBuildParams = buildParamsAsArray.join(' ')
+  println "extraBuildParams: $extraBuildParams"
+
+  return extraBuildParams
+}
