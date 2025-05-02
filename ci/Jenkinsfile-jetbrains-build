@@ -23,10 +23,9 @@ final def ossrhCredentials = usernamePassword(
 final def nexusCredentials = usernamePassword(
     credentialsId: 'nexus-artifact-zl-credentials',
     usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
-final def jetbrainsCredentials = usernamePassword(
-    credentialsId: 'jetbrains-credentials',
-    usernameVariable: 'JETBRAINS_USER',
-    passwordVariable: 'JETBRAINS_PASS')
+final def jetbrainsToken = string(
+    credentialsId: 'jetbrains-token',
+    variable: 'JETBRAINS_TOKEN')
 
 
 // In PR environment, the branch name is not valid and should be swap with pr name.
@@ -268,7 +267,7 @@ pipeline {
       when { expression { params.PREVIEW_DEPLOY } }
       steps {
         script {
-          withCredentials([jetbrainsCredentials,
+          withCredentials([jetbrainsToken,
                            nexusCredentials]) {
             sh """\
               #!/usr/bin/env bash
