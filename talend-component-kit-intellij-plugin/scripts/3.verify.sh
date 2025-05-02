@@ -1,21 +1,17 @@
 #!/bin/bash
 
-set -x
+set -euo pipefail
 
 # --------- CONFIGURATION ---------
-PLUGIN_VERIFIER_HOME="${HOME}/.pluginVerifier"
-GRADLE_CMD="../gradlew"
-# ---------------------------------
+PLUGIN_VERIFIER_HOME="${HOME}/.pluginVerifier" # this one should be in EFS
+GRADLE_CMD="./gradlew"
 
-# --------------------------------------------
-echo "1. Check Java & Gradle (assuming Java and Gradle are pre-installed)"
-# --------------------------------------------
-echo "Using Java version:" && java -version
-echo "Using Gradle version:" && ./gradlew --version
+# ---------------------------------
+pushd ..
 
 echo "==> Setting up environment"
 export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-export PATH="$JAVA_HOME/bin:$PATH"
+
 
 # --------------------------------------------
 #2. Verify plugin
@@ -24,5 +20,7 @@ export PATH="$JAVA_HOME/bin:$PATH"
 echo "==> Verifying plugin with IntelliJ Plugin Verifier"
 mkdir -p "$PLUGIN_VERIFIER_HOME/ides"
 $GRADLE_CMD verifyPlugin -Dplugin.verifier.home.dir="$PLUGIN_VERIFIER_HOME"
+
+popd
 
 echo "✅ All done."

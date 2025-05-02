@@ -1,21 +1,16 @@
 #!/bin/bash
 
-set -x
+set -xeuo pipefail
 
 # --------- CONFIGURATION ---------
-PLUGIN_VERIFIER_HOME="${HOME}/.pluginVerifier"
-GRADLE_CMD="../gradlew"
+GRADLE_CMD="./gradlew"
 # ---------------------------------
 
-# --------------------------------------------
-echo "1. Check Java & Gradle (assuming Java and Gradle are pre-installed)"
-# --------------------------------------------
-echo "Using Java version:" && java -version
-echo "Using Gradle version:" && ./gradlew --version
+# go up into plugin root folder
+pushd ..
 
 echo "==> Setting up environment"
 export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-export PATH="$JAVA_HOME/bin:$PATH"
 
 # --------------------------------------------
 
@@ -25,5 +20,7 @@ $GRADLE_CMD check || {
   echo "==> Tests failed - collecting results"
   cp -r ./build/reports/tests ./test-results
 }
+
+popd
 
 echo "✅ Running tests done."
