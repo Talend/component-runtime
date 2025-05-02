@@ -1,4 +1,3 @@
-
 # Talend Component Kit IntelliJ Plugin
 This is an IntelliJ IDEA plugin designed to enhance the development experience
 for Talend Component Kit projects. It provides tools and features tailored to 
@@ -20,9 +19,9 @@ These scripts can be used to automate tasks such as building, testing, and relea
 
 
 ## Published elements
-Everything in the `Plugin description` will be published in the JetBrains plugin repository.
+Everything in the `Plugin description` will be published in the JetBrains plugin repository inside description block.
+
 <!-- Plugin description -->
 This plugin allows to create new Talend components based on the Talend Component Kit framework. It also enables i18n completion
 for the components.
 <!-- Plugin description end -->
-

@@ -6,11 +6,7 @@ set -euo pipefail
 # --------------------------------------------
 
 RELEASE_TAG="${GITHUB_REF_NAME:-}"  # Expected: v1.2.3
-RELEASE_BODY="${RELEASE_BODY:-}"   # Should be set to GitHub release body
 PUBLISH_TOKEN="${PUBLISH_TOKEN:?Missing PUBLISH_TOKEN}"
-CERTIFICATE_CHAIN="${CERTIFICATE_CHAIN:?Missing CERTIFICATE_CHAIN}"
-PRIVATE_KEY="${PRIVATE_KEY:?Missing PRIVATE_KEY}"
-PRIVATE_KEY_PASSWORD="${PRIVATE_KEY_PASSWORD:?Missing PRIVATE_KEY_PASSWORD}"
 
 # --------------------------------------------
 # 1. Checkout release tag
@@ -45,9 +41,6 @@ fi
 # --------------------------------------------
 echo "Publishing plugin to JetBrains Marketplace..."
 ./gradlew publishPlugin \
-  -PpublishToken="$PUBLISH_TOKEN" \
-  -PcertificateChain="$CERTIFICATE_CHAIN" \
-  -PprivateKey="$PRIVATE_KEY" \
-  -PprivateKeyPassword="$PRIVATE_KEY_PASSWORD"
+  -PpublishToken="$PUBLISH_TOKEN"
 
 echo "✅ All done."
