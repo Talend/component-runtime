@@ -190,6 +190,21 @@ pipeline {
         }
       }
     }
+    stage('Preparation') {
+      steps {
+        script {
+          withCredentials([ossrhCredentials,
+                           nexusCredentials]) {
+            sh """\
+            #!/usr/bin/env bash
+            set -xe
+            cd talend-component-kit-intellij-plugin
+            bash scripts/0.preparation.sh
+            """.stripIndent()
+          }
+        }
+      }
+    }
     stage('Gradle compile') {
       steps {
         script {
@@ -259,7 +274,7 @@ pipeline {
               #!/usr/bin/env bash
               set -xe
               cd talend-component-kit-intellij-plugin
-              bash scripts/4.deploy.sh 
+              echo DEPLOY smth??? 
               """.stripIndent()
           }
         }
