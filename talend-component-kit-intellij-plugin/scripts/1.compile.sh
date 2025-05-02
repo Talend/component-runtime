@@ -26,6 +26,6 @@ ARTIFACTS_DIR="build/distributions"
 echo "1. Build plugin"
 # --------------------------------------------
 echo "==> Building plugin"
-$GRADLE_CMD buildPlugin --info
+gradle buildPlugin --info
 
 echo "✅ All done."
