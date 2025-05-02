@@ -47,7 +47,7 @@ fi
 # 4. Publish plugin to JetBrains Marketplace
 # --------------------------------------------
 echo "Publishing plugin to JetBrains Marketplace..."
-./gradlew publishPlugin \
+$GRADLE_CMD publishPlugin \
   -PpublishToken="$PUBLISH_TOKEN"
 
 echo "✅ All done."
