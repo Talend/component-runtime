@@ -16,18 +16,13 @@
 #
 set -xeuo pipefail
 
+GRADLE_CMD="./gradlew"
+
 # --------------------------------------------
 echo "1. Check Java & Gradle (assuming Java and Gradle are pre-installed)"
 # --------------------------------------------
 echo "Using Java version:" && java -version
-echo "Using Gradle version:" && ./gradlew --version
-
-echo "==> Setting up environment"
-export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-
-
-echo "Using Gradle version:"
-$GRADLE_CMD --version
+echo "Using Gradle version:" && $GRADLE_CMD --version
 
 # --------------------------------------------
 echo "2. Running 'gradlew properties' to get version"
