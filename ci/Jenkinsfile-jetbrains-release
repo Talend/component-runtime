@@ -74,7 +74,7 @@ pipeline {
 
   agent {
     kubernetes {
-      yamlFile '.jenkins/jenkins_pod.yml'
+      yamlFile '.jenkins/jenkins_gradle_pod.yml'
       defaultContainer 'main'
     }
   }
