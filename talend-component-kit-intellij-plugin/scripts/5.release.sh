@@ -19,7 +19,7 @@ set -euo pipefail
 # --------------------------------------------
 # Configuration
 # --------------------------------------------
-GRADLE_CMD="./gradlew"
+GRADLE_CMD="gradle"
 RELEASE_TAG="${GITHUB_REF_NAME:-}"  # Expected: v1.2.3
 RELEASE_BODY="${RELEASE_BODY:-}"   # Should be set to GitHub release body
 PUBLISH_TOKEN="${PUBLISH_TOKEN:?Missing PUBLISH_TOKEN}"

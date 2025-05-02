@@ -18,7 +18,7 @@ set -xeuo pipefail
 
 # --------- CONFIGURATION ---------
 PLUGIN_VERIFIER_HOME="${HOME}/.pluginVerifier"
-GRADLE_CMD="./gradlew"
+GRADLE_CMD="gradle"
 ARTIFACTS_DIR="build/distributions"
 # ---------------------------------
 
@@ -26,6 +26,6 @@ ARTIFACTS_DIR="build/distributions"
 echo "1. Build plugin"
 # --------------------------------------------
 echo "==> Building plugin"
-gradle buildPlugin --info
+$GRADLE_CMD buildPlugin --info
 
 echo "✅ All done."

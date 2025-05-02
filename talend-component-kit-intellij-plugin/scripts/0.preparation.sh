@@ -16,7 +16,7 @@
 #
 set -xeuo pipefail
 
-GRADLE_CMD="./gradlew"
+GRADLE_CMD="gradle"
 
 # --------------------------------------------
 echo "1. Check Java & Gradle (assuming Java and Gradle are pre-installed)"

@@ -18,7 +18,7 @@ set -xeuo pipefail
 
 # --------- CONFIGURATION ---------
 PLUGIN_VERIFIER_HOME="${HOME}/.pluginVerifier" # this one should be in EFS
-GRADLE_CMD="./gradlew"
+GRADLE_CMD="gradle"
 ARTIFACTS_DIR="build/distributions"
 # ---------------------------------
 

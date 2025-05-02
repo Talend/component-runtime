@@ -17,7 +17,7 @@
 set -xeuo pipefail
 
 # --------- CONFIGURATION ---------
-GRADLE_CMD="./gradlew"
+GRADLE_CMD="gradle"
 # ---------------------------------
 
 
