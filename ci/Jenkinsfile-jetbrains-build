@@ -249,24 +249,23 @@ pipeline {
         }
       }
     }
-  }
-  stage('Preview deployment') {
-    when { expression { params.PREVIEW_DEPLOY } }
-    steps {
-      script {
-        withCredentials([jetbrainsCredentials,
-                         nexusCredentials]) {
-          sh """\
+    stage('Preview deployment') {
+      when { expression { params.PREVIEW_DEPLOY } }
+      steps {
+        script {
+          withCredentials([jetbrainsCredentials,
+                           nexusCredentials]) {
+            sh """\
               #!/usr/bin/env bash
               set -xe
               cd talend-component-kit-intellij-plugin
               bash scripts/4.deploy.sh 
               """.stripIndent()
+          }
         }
       }
     }
   }
-
   post {
     success {
       script {
