@@ -20,13 +20,9 @@ set -xeuo pipefail
 GRADLE_CMD="./gradlew"
 # ---------------------------------
 
-echo "==> Setting up environment"
-export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-
-# --------------------------------------------
 
 echo "==> Running tests"
-cd ../..
+
 $GRADLE_CMD check || {
   echo "==> Tests failed - collecting results"
   cp -r ./build/reports/tests ./test-results
