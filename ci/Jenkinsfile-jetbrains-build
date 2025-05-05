@@ -79,16 +79,9 @@ pipeline {
                 text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
-        name: 'PREVIEW_DEPLOY',
-        defaultValue: false,
-        description: '''Deploy on jetbrains a draft version to check the acceptance.  
-                        WARNING: you need to manually delete the draft version on jetbrains''')
-
-    booleanParam(
         name: 'VERIFY',
         defaultValue: false,
         description: '''Use jetbrains verify gradle to check the plugin.  ''')
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "QUALIFIER_CONFIG", sectionHeader: "Qualifier configuration",
@@ -115,7 +108,17 @@ pipeline {
               sectionHeaderStyle: """ background-color: #A9A9A9;
                 text-align: center; font-size: 35px !important; font-weight : bold;""")
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    booleanParam(
+        name: 'RELEASE',
+        defaultValue: false,
+        description: '''This will release the actual maintenance version of the plugin.  '')
+                        WARNING: you need to be in a maintenance branch after the release
+                        Exemple: 
+                          - You are on maintenance 1.80 maintenance branch
+                          - The actual version is 1.80.2-SNAPSHOT
+                          - You will release the 1.80.1 version on jetbrains
+                        REMARK: After the release, you need to connect to jetbrains to check the deploy and accept it.
+                        ''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "DEBUG_CONFIG", sectionHeader: "Jenkins job debug configuration ",
@@ -169,11 +172,11 @@ pipeline {
         ///////////////////////////////////////////
         script {
           String deploy_info = ''
-          if (params.PREVIEW_DEPLOY) {
-            deploy_info = deploy_info + '+PREVIEW_DEPLOY'
+          if (params.RELEASE) {
+            deploy_info = deploy_info + ' RELEASE'
           }
 
-          jenkinsJobTools.job_name_creation("$params.ACTION" + deploy_info)
+          jenkinsJobTools.job_name_creation(deploy_info)
 
           // updating build description
           String description = """
@@ -200,6 +203,19 @@ pipeline {
             cd talend-component-kit-intellij-plugin
             bash scripts/0.preparation.sh
             """.stripIndent()
+          }
+        }
+      }
+    }
+    stage('Prepare for release') {
+      steps {
+        script {
+          withCredentials([ossrhCredentials,
+                           nexusCredentials]) {
+            echo "Read version." // TODO
+            String gradleVersion = FileController.readFileImpl(executionFilePath).trim().replace('"', '')
+            echo "Edit version." // TODO
+            echo "Ask if ok for edit version and release." // TODO
           }
         }
       }
@@ -263,8 +279,8 @@ pipeline {
         }
       }
     }
-    stage('Preview deployment') {
-      when { expression { params.PREVIEW_DEPLOY } }
+    stage('Release') {
+      when { expression { params.RELEASE } }
       steps {
         script {
           withCredentials([jetbrainsToken,
@@ -273,7 +289,7 @@ pipeline {
               #!/usr/bin/env bash
               set -xe
               cd talend-component-kit-intellij-plugin
-              echo DEPLOY smth??? 
+              bash scripts/4.release.sh
               """.stripIndent()
           }
         }
