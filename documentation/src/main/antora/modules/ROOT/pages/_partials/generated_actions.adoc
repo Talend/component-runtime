@@ -1,5 +1,22 @@
 
 
+= Available Output
+
+Provide the output flows by some condition
+
+- Type: `available_output`
+- API: `@org.talend.sdk.component.api.service.outputs.AvailableOutputFlows`
+- Returned type: `java.util.Collection`
+- Sample:
+
+[source,js]
+----
+{
+
+}
+----
+
+
 = Close Connection
 
 Mark an action works for closing runtime connection, returning a close helper object which do real close action. The functionality is for the Studio only, studio will use the close object to close connection for existed connection, and no effect for cloud platform.

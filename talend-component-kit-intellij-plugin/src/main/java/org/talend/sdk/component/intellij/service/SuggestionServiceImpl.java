@@ -24,9 +24,6 @@ import static java.util.stream.Stream.of;
 import static org.talend.sdk.component.intellij.completion.properties.Suggestion.DISPLAY_NAME;
 import static org.talend.sdk.component.intellij.completion.properties.Suggestion.PLACEHOLDER;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +34,6 @@ import java.util.stream.Stream;
 import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.lang.jvm.JvmModifier;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
@@ -47,6 +43,8 @@ import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiType;
@@ -54,6 +52,7 @@ import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 
+import org.jetbrains.annotations.NotNull;
 import org.talend.sdk.component.intellij.completion.properties.Suggestion;
 
 public class SuggestionServiceImpl implements SuggestionService {
@@ -89,50 +88,10 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     private static final String ACTION_UPDATE = "org.talend.sdk.component.api.service.update.Update";
 
-    private static final List<String> ACTIONS = new ArrayList<String>() {
+    private static final List<String> ACTIONS = List.of(ACTION_ACTION, ACTION_HEALTHCHECK, ACTION_ASYNCVALIDATION,
+            ACTION_DYNAMICVALUES, ACTION_SUGGESTIONS, ACTION_DISCOVERSCHEMA, ACTION_UPDATE);
 
-        {
-            add(ACTION_ACTION);
-            add(ACTION_HEALTHCHECK);
-            add(ACTION_ASYNCVALIDATION);
-            add(ACTION_DYNAMICVALUES);
-            add(ACTION_SUGGESTIONS);
-            add(ACTION_DISCOVERSCHEMA);
-            add(ACTION_UPDATE);
-        }
-    };
-
-    private static final Predicate<PsiClass> IS_STATIC;
-    static {
-        Predicate<PsiClass> predicate = c -> false; // better to ignore if idea is not compatible, will not break end
-                                                    // user
-        try {
-            final Method getModifiers = PsiClass.class.getMethod("getModifiers");
-            predicate = clazz -> {
-                try {
-                    return Stream
-                            .of(JvmModifier[].class.cast(getModifiers.invoke(clazz)))
-                            .anyMatch(m -> JvmModifier.STATIC == m);
-                } catch (final IllegalAccessException | InvocationTargetException e) {
-                    return false;
-                }
-            };
-        } catch (final NoSuchMethodException nsme) {
-            try {
-                final Method hasModifier = PsiClass.class.getMethod("hasModifier", JvmModifier.class);
-                predicate = clazz -> {
-                    try {
-                        return Boolean.class.cast(hasModifier.invoke(clazz, JvmModifier.STATIC));
-                    } catch (final IllegalAccessException | InvocationTargetException e) {
-                        return false;
-                    }
-                };
-            } catch (final NoSuchMethodException nsme2) {
-                // no-op
-            }
-        }
-        IS_STATIC = predicate;
-    }
+    private static final Predicate<PsiClass> IS_STATIC = clazz -> clazz.hasModifierProperty(PsiModifier.STATIC);
 
     @Override
     public boolean isSupported(final CompletionParameters completionParameters) {
@@ -160,7 +119,7 @@ public class SuggestionServiceImpl implements SuggestionService {
 
     @Override
     public List<LookupElement> computeKeySuggestions(final Project project, final Module module,
-            final String packageName, final List<String> containerElements, final String query) {
+                                                     final String packageName, final List<String> containerElements, final String query) {
         final JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(project);
         final PsiPackage pkg = javaPsiFacade.findPackage(packageName);
         if (pkg == null) {
@@ -170,16 +129,16 @@ public class SuggestionServiceImpl implements SuggestionService {
         final String defaultFamily = getFamilyFromPackageInfo(pkg, module);
         return Stream
                 .concat(Stream
-                        .concat(of(pkg.getClasses())
-                                .flatMap(this::unwrapInnerClasses)
-                                .filter(c -> AnnotationUtil
-                                        .findAnnotation(c, PARTITION_MAPPER, PROCESSOR, EMITTER) != null)
-                                .flatMap(clazz -> fromComponent(clazz, defaultFamily)),
-                                of(pkg.getClasses())
-                                        .flatMap(this::unwrapInnerClasses)
-                                        .filter(c -> of(c.getAllFields())
-                                                .anyMatch(f -> AnnotationUtil.findAnnotation(f, OPTION) != null))
-                                        .flatMap(c -> fromConfiguration(defaultFamily, c.getName(), c))),
+                                .concat(of(pkg.getClasses())
+                                                .flatMap(this::unwrapInnerClasses)
+                                                .filter(c -> AnnotationUtil
+                                                        .findAnnotation(c, PARTITION_MAPPER, PROCESSOR, EMITTER) != null)
+                                                .flatMap(clazz -> fromComponent(clazz, defaultFamily)),
+                                        of(pkg.getClasses())
+                                                .flatMap(this::unwrapInnerClasses)
+                                                .filter(c -> of(c.getAllFields())
+                                                        .anyMatch(f -> AnnotationUtil.findAnnotation(f, OPTION) != null))
+                                                .flatMap(c -> fromConfiguration(defaultFamily, c.getName(), c))),
                         of(pkg.getClasses())
                                 .flatMap(this::unwrapInnerClasses)
                                 .flatMap(c -> of(c.getMethods())
@@ -238,7 +197,7 @@ public class SuggestionServiceImpl implements SuggestionService {
     private Stream<PsiClass> unwrapInnerClasses(final PsiClass c) {
         return Stream
                 .concat(Stream.of(c),
-                        Stream.of(c.getAllInnerClasses()).filter(IS_STATIC::test).flatMap(this::unwrapInnerClasses));
+                        Stream.of(c.getAllInnerClasses()).filter(IS_STATIC).flatMap(this::unwrapInnerClasses));
     }
 
     private int withPriority(final Suggestion.Type type) {
@@ -257,6 +216,10 @@ public class SuggestionServiceImpl implements SuggestionService {
     private Stream<Suggestion> fromComponent(final PsiClass clazz, final String defaultFamily) {
         final PsiAnnotation componentAnnotation =
                 AnnotationUtil.findAnnotation(clazz, PARTITION_MAPPER, PROCESSOR, EMITTER);
+        if (componentAnnotation == null) {
+            return Stream.empty();
+        }
+
         final PsiAnnotationMemberValue name = componentAnnotation.findAttributeValue("name");
         if (name == null || "\"\"".equals(name.getText())) {
             return Stream.empty();
@@ -266,7 +229,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         final String componentFamily = (familyValue == null || removeQuotes(familyValue.getText()).isEmpty()) ? null
                 : removeQuotes(familyValue.getText());
 
-        final String family = ofNullable(componentFamily).orElseGet(() -> ofNullable(defaultFamily).orElse(null));
+        final String family = ofNullable(componentFamily).orElse(defaultFamily);
         if (family == null) {
             return Stream.empty();
         }
@@ -288,7 +251,7 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     private Stream<Suggestion> fromConfiguration(final String family, final String configurationName,
-            final PsiClass configClazz) {
+                                                 final PsiClass configClazz) {
         return Stream
                 .concat(of(configClazz.getAllFields())
                         .filter(field -> AnnotationUtil.findAnnotation(field, OPTION) != null)
@@ -329,30 +292,30 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     private PsiClass findClass(final PsiType type) {
-        if (PsiClass.class.isInstance(type)) {
-            return PsiClass.class.cast(type);
+        if (type instanceof PsiClass) {
+            return (PsiClass) type;
         }
-        if (PsiClassReferenceType.class.isInstance(type)) {
-            return PsiClassReferenceType.class.cast(type).resolve();
+        if (type instanceof PsiClassReferenceType) {
+            return ((PsiClassReferenceType) type).resolve();
         }
         return null;
     }
 
     private String getFamilyFromPackageInfo(final PsiPackage psiPackage, final Module module) {
-        return of(FilenameIndex
-                .getFilesByName(psiPackage.getProject(), "package-info.java", GlobalSearchScope.moduleScope(module)))
+        final PsiManager psiManager = PsiManager.getInstance(psiPackage.getProject());
+        return FilenameIndex
+                .getVirtualFilesByName("package-info.java", GlobalSearchScope.moduleScope(module))
+                .stream()
+                .map(psiManager::findFile)
+                .filter(PsiJavaFile.class::isInstance)
+                .map(PsiJavaFile.class::cast)
+                .filter(psiFile -> psiFile.getPackageName().equals(psiPackage.getQualifiedName()))
                 .map(psiFile -> {
-                    if (!PsiJavaFile.class
-                            .cast(psiFile)
-                            .getPackageName()
-                            .equals(psiPackage.getQualifiedName())) {
-                        return null;
-                    }
-                    final String[] family = { null };
-                    PsiJavaFile.class.cast(psiFile).accept(new JavaRecursiveElementWalkingVisitor() {
+                    final String[] family = {null};
+                    psiFile.accept(new JavaRecursiveElementWalkingVisitor() {
 
                         @Override
-                        public void visitAnnotation(final PsiAnnotation annotation) {
+                        public void visitAnnotation(@NotNull final PsiAnnotation annotation) {
                             super.visitAnnotation(annotation);
                             if (!COMPONENTS.equals(annotation.getQualifiedName())) {
                                 return;
@@ -367,7 +330,6 @@ public class SuggestionServiceImpl implements SuggestionService {
                     });
                     return family[0];
                 })
-                .filter(Objects::nonNull)
                 .findFirst()
                 .orElseGet(() -> {
                     final PsiPackage parent = psiPackage.getParentPackage();

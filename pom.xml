@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.80.0-SNAPSHOT</version>
+  <version>1.81.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -123,7 +123,6 @@
     <module>component-studio</module>
     <module>images</module>
     <module>documentation</module>
-    <module>talend-component-kit-intellij-plugin</module>
     <module>singer-parent</module>
     <module>remote-engine-customizer</module>
     <module>reporting</module>
@@ -232,7 +231,7 @@
     <spark.version>3.2.2</spark.version>
     <spark-scala.version>2.12</spark-scala.version>
 
-    <gradle.version>6.9.1</gradle.version>
+    <gradle.version>6.9.4</gradle.version>
     <groovy.version>3.0.18</groovy.version>
     <gmavenplus.version>1.13.1</gmavenplus.version>
     <dependency-plugin.version>3.3.0</dependency-plugin.version>
@@ -288,6 +287,7 @@
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
     <tomitribe-crest.version>0.32</tomitribe-crest.version>
+    <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -1438,6 +1438,7 @@
             <exclude>**/*.html</exclude>
             <exclude>**/*.adoc</exclude>
             <exclude>**/*.md</exclude>
+            <exclude>**/*.csv</exclude>
             <exclude>**/node_modules/**/*</exclude>
             <exclude>**/bower_components/**/*</exclude>
             <exclude>**/.node/**/*</exclude>
@@ -1464,6 +1465,7 @@
             <exclude>**/component-tools/src/test/resources/DitaDocumentationGeneratorTest/*.dita</exclude>
             <exclude>**/src/main/resources/WebsiteBuilderMojo/*.mustache</exclude>
             <exclude>**/src/test/resources/DitaDocumentationGeneratorTest/**</exclude>
+            <exclude>**/talend-component-kit-intellij-plugin/gradle/wrapper/gradle-wrapper.properties</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -1514,7 +1516,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>${maven-checkstyle-plugin.version}</version>
         <configuration>
           <logViolationsToConsole>true</logViolationsToConsole>
           <excludes>**/HelpMojo*,**/maven/legacy/model/**</excludes>

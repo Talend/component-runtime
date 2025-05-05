@@ -66,10 +66,10 @@ public class ValidateTask extends TaCoKitTask {
                 .invoke(configuration, ofNullable(extension.getPluginId()).orElseGet(getProject()::getName));
 
         final Class<?> validator = tccl.loadClass("org.talend.sdk.component.tools.ComponentValidator");
-        final Runnable runnable = Runnable.class
-                .cast(validator
-                        .getConstructor(config, File[].class, Object.class)
-                        .newInstance(configuration, findClasses().toArray(File[]::new), getLogger()));
+        final File projectDir = getProject().getProjectDir();
+        final Runnable runnable = (Runnable) validator
+                .getConstructor(config, File[].class, Object.class, File.class)
+                .newInstance(configuration, findClasses().toArray(File[]::new), getLogger(), projectDir);
         runnable.run();
     }
 
