@@ -72,8 +72,9 @@ pipeline {
                         Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9 """)
 
     string(name: 'GRADLE_VERSION',
-           defaultValue: 'from bundle',
-           description: """TODO, setup of gradle is not implemented""")
+           defaultValue: 'from .tool-versions',
+           description: """Provided gradle version will be installed with asdf  
+                        Examples: 8.14 """)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "STAGES_CONFIG", sectionHeader: "Stages configuration",
@@ -144,9 +145,10 @@ pipeline {
 
           String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
                                                     'java', params.JAVA_VERSION)
+          String gradleVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
+                                                    'gradle', params.GRADLE_VERSION)
 
-          String gradleVersion = 'gradle-8.13' // FIXME read it form distributionUrl
-          jenkinsJobTools.job_description_append("Use java $javaVersion with graddle  $gradleVersion")
+          jenkinsJobTools.job_description_append("Use java $javaVersion with gradle  $gradleVersion")
 
           println "asdf install the content of repository .tool-versions'\n"
           sh 'bash .jenkins/scripts/asdf_install.sh'
