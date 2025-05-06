@@ -259,6 +259,11 @@ class RecordBuilderImplTest {
                         .withType(Schema.Type.DATETIME)
                         .build())
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("normal")
+                        .withNullable(true)
+                        .withType(Type.STRING)
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("intValue")
                         .withNullable(false)
                         .withType(Type.INT)
@@ -269,14 +274,17 @@ class RecordBuilderImplTest {
         final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
         final RecordImpl.BuilderImpl builder3 = new RecordImpl.BuilderImpl(schema);
         final Record record3 = builder3.withError("date", null, "date is null", null)
+                .withString("normal", "normal")
                 .withError("intValue", "string", "wrong int value", null)
                 .build();
         assertFalse(record3.isValid());
-        final Entry entry = record3.getSchema().getEntries().stream().filter(e -> "date".equals(e.getName())).findAny().get();
+        final Entry entry =
+                record3.getSchema().getEntries().stream().filter(e -> "date".equals(e.getName())).findAny().get();
         assertNotNull(entry);
         Assertions.assertFalse(entry.isValid());
 
-        final Entry entry2 = record3.getSchema().getEntries().stream().filter(e -> "intValue".equals(e.getName())).findAny().get();
+        final Entry entry2 =
+                record3.getSchema().getEntries().stream().filter(e -> "intValue".equals(e.getName())).findAny().get();
         assertNotNull(entry2);
         Assertions.assertFalse(entry2.isValid());
 

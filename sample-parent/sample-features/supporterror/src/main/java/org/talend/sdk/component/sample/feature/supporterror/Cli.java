@@ -50,7 +50,7 @@ import lombok.NoArgsConstructor;
 public final class Cli implements Callable<Integer> {
 
     //support errors or not. default=false
-    @Option(names = "-s", defaultValue = "false")
+    @Option(names = "-s", defaultValue = "true")
     boolean support;
 
     @Option(names = { "-f", "--file" }, paramLabel = "ARCHIVE", description = "the jar file")
@@ -81,10 +81,6 @@ public final class Cli implements Callable<Integer> {
                     .orElseThrow(() -> new IllegalStateException(
                             String.format("No mapper found for: %s/%s.", family, manager)));
 
-//            final ProcessorImpl processor = (ProcessorImpl)manager.findMapper(family, "SupportErrorInput", 1, configuration)
-//                    .orElseThrow(() -> new IllegalStateException(
-//                            String.format("No Processor found for: %s/%s.", family, manager)));
-
             info("create input now.");
 
             SupportErrorInput seInput = new SupportErrorInput(null);
@@ -94,6 +90,7 @@ public final class Cli implements Callable<Integer> {
             Record data = seInput.data();
 
             info("Record isValid = " + data.isValid());
+            entryout(data, "name");
             entryout(data, "date");
             entryout(data, "age");
            //

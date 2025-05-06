@@ -221,16 +221,23 @@ class AvroRecordBuilderTest {
                 .withNullable(false)
                 .withType(Schema.Type.STRING)
                 .build();
+        Schema.Entry nmEntry = factory
+                .newEntryBuilder()
+                .withName("normal")
+                .withNullable(true)
+                .withType(Schema.Type.STRING)
+                .build();
         Schema.Entry ageEntry = factory
                 .newEntryBuilder()
                 .withName("age")
                 .withNullable(false)
                 .withType(Schema.Type.INT)
                 .build();
-        Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(ageEntry).build();
+        Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(nmEntry).withEntry(ageEntry).build();
         // record 1
         Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
         Record record1 = recordBuilder.withError("name", null, "Stirng is null", null)
+                .withString("normal", "normal")
                 .withError("age", "string", "is not an int", null)
                 .build();
         assertFalse(record1.isValid());
