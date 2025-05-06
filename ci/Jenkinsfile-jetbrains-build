@@ -299,7 +299,7 @@ pipeline {
               #!/usr/bin/env bash
               set -xe
               cd talend-component-kit-intellij-plugin
-              bash scripts/4.release.sh
+              bash scripts/5.release.sh
               """.stripIndent()
           }
         }
