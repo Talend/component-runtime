@@ -17,7 +17,6 @@
 set -euo pipefail
 
 # --------- CONFIGURATION ---------
-PLUGIN_VERIFIER_HOME="${HOME}/.pluginVerifier" # this one should be in EFS
 GRADLE_CMD="gradle"
 
 
@@ -26,7 +25,6 @@ GRADLE_CMD="gradle"
 # --------------------------------------------
 
 echo "==> Verifying plugin with IntelliJ Plugin Verifier"
-mkdir -p "$PLUGIN_VERIFIER_HOME/ides"
-$GRADLE_CMD verifyPlugin --info -Dplugin.verifier.home.dir="$PLUGIN_VERIFIER_HOME"
+$GRADLE_CMD verifyPlugin --info
 
 echo "✅ All done."
