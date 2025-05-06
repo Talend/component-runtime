@@ -57,6 +57,11 @@ public class SupportErrorInput implements Serializable {
         recordSchema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
                 .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("name")
+                        .withNullable(false)
+                        .withType(Schema.Type.STRING)
+                        .build())
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
                         .withName("date")
                         .withNullable(false)
                         .withType(Schema.Type.DATETIME)
@@ -72,7 +77,8 @@ public class SupportErrorInput implements Serializable {
     @Producer
     public Record data() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(recordSchema);
-        final Record record = builder.withError("date", null, "date is null", null)
+        final Record record = builder.withString("name", "example connector")
+                .withError("date", null, "date is null", null)
                 .withError("age", "string", "wrong int value", null)
                 .build();
 

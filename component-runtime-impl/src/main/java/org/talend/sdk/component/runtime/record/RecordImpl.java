@@ -61,10 +61,10 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaProperty;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.talend.sdk.component.api.record.SchemaProperty;
 
 @EqualsAndHashCode
 public final class RecordImpl implements Record {
@@ -515,9 +515,10 @@ public final class RecordImpl implements Record {
         }
 
         @Override
-        public Builder withError(String columnName, Object value, String errorMessage, Exception exception) {
+        public Builder withError(final String columnName, final Object value, final String errorMessage,
+                final Exception exception) {
             final boolean supportError = Boolean.parseBoolean(System.getProperty(RECORD_ERROR_SUPPORT, "false"));
-             if (!supportError) {
+            if (!supportError) {
                 throw new IllegalArgumentException(errorMessage);
             } else {
                 // duplicate the schema instance with a modified Entry
@@ -531,26 +532,8 @@ public final class RecordImpl implements Record {
                         .withProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE, String.valueOf(value))
                         .withProp(SchemaProperty.ERROR_EXCEPTION, exception == null ? "" : exception.toString())
                         .build();
-                final Schema.Builder builder = getErrorBuilder(providedSchema.getType());
-                providedSchema.getAllEntries()
-//                        .filter(e -> Objects.equals(providedSchema.getEntry(e.getName()), e))
-                        .forEach(e -> {
-                            if (columnName.equals(e.getName())) {
-                                builder.withEntry(updateEntry);
-                            } else {
-                                builder.withEntry(e);
-                            }
-                        });
-                return getErrorBuilder(builder);
+                return updateEntryByName(columnName, updateEntry);
             }
-        }
-
-        protected Builder getErrorBuilder(Schema.Builder builder) {
-            return new BuilderImpl(builder.build());
-        }
-
-        protected Schema.Builder getErrorBuilder(Schema.Type type) {
-            return new SchemaImpl.BuilderImpl().withType(type);
         }
 
         private void assertType(final Schema.Type actual, final Schema.Type expected) {
