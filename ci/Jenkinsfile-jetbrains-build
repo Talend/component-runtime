@@ -177,27 +177,6 @@ pipeline {
           jenkinsJobTools.job_description_append(description)
         }
       }
-      post {
-        always {
-          println "Artifact .gradle files for analysis if needed"
-          archiveArtifacts artifacts: '**/*.gradle*', allowEmptyArchive: false, onlyIfSuccessful: false
-        }
-      }
-    }
-    stage('Preparation') {
-      steps {
-        script {
-          withCredentials([ossrhCredentials,
-                           nexusCredentials]) {
-            sh """\
-            #!/usr/bin/env bash
-            set -xe
-            cd talend-component-kit-intellij-plugin
-            bash scripts/0.preparation.sh
-            """.stripIndent()
-          }
-        }
-      }
     }
     stage('Prepare for release') {
       when { expression { params.RELEASE } }
@@ -226,6 +205,28 @@ pipeline {
             jenkinsJobTools.job_description_append("Actual version: $actualVersion")
             jenkinsJobTools.job_description_append("Release version: $releaseVersion")
           }
+        }
+      }
+    }
+    stage('Preparation') {
+      steps {
+        script {
+          withCredentials([ossrhCredentials,
+                           nexusCredentials]) {
+            sh """\
+            #!/usr/bin/env bash
+            set -xe
+            cd talend-component-kit-intellij-plugin
+            bash scripts/0.preparation.sh
+            """.stripIndent()
+          }
+        }
+      }
+      post {
+        always {
+          println "Artifact .gradle files for analysis if needed"
+          archiveArtifacts artifacts: 'talend-component-kit-intellij-plugin/gradle.properties',
+                           allowEmptyArchive: false, onlyIfSuccessful: false
         }
       }
     }
