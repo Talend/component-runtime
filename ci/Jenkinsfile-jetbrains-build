@@ -74,7 +74,7 @@ pipeline {
            description: """TODO, setup of gradle is not implemented""")
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "DEPLOY_CONFIG", sectionHeader: "Deployment configuration",
+    separator(name: "STAGES_CONFIG", sectionHeader: "Stages configuration",
               sectionHeaderStyle: """ background-color: #F9E79F;
                 text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +82,18 @@ pipeline {
         name: 'VERIFY',
         defaultValue: false,
         description: '''Use jetbrains verify gradle to check the plugin.  ''')
+
+    booleanParam(
+        name: 'RELEASE',
+        defaultValue: false,
+        description: '''This will release the actual maintenance version of the plugin.  '')
+                        WARNING: you need to be in a maintenance branch after the release
+                        Exemple: 
+                          - You are on maintenance 1.80 maintenance branch
+                          - The actual version is 1.80.2-SNAPSHOT
+                          - You will release the 1.80.1 version on jetbrains
+                        REMARK: After the release, you need to connect to jetbrains to check the deploy and accept it.
+                        ''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "QUALIFIER_CONFIG", sectionHeader: "Qualifier configuration",
@@ -102,23 +114,6 @@ pipeline {
         name: 'EXTRA_BUILD_PARAMS',
         defaultValue: '',
         description: 'Add some extra parameters to gradle commands. Applies to all maven calls.')
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "EXPERT_CONFIG", sectionHeader: "Expert configuration",
-              sectionHeaderStyle: """ background-color: #A9A9A9;
-                text-align: center; font-size: 35px !important; font-weight : bold;""")
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    booleanParam(
-        name: 'RELEASE',
-        defaultValue: false,
-        description: '''This will release the actual maintenance version of the plugin.  '')
-                        WARNING: you need to be in a maintenance branch after the release
-                        Exemple: 
-                          - You are on maintenance 1.80 maintenance branch
-                          - The actual version is 1.80.2-SNAPSHOT
-                          - You will release the 1.80.1 version on jetbrains
-                        REMARK: After the release, you need to connect to jetbrains to check the deploy and accept it.
-                        ''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "DEBUG_CONFIG", sectionHeader: "Jenkins job debug configuration ",
