@@ -27,6 +27,6 @@ GRADLE_CMD="gradle"
 
 echo "==> Verifying plugin with IntelliJ Plugin Verifier"
 mkdir -p "$PLUGIN_VERIFIER_HOME/ides"
-$GRADLE_CMD verifyPlugin -Dplugin.verifier.home.dir="$PLUGIN_VERIFIER_HOME"
+$GRADLE_CMD verifyPlugin --info -Dplugin.verifier.home.dir="$PLUGIN_VERIFIER_HOME"
 
 echo "✅ All done."
