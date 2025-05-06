@@ -217,7 +217,12 @@ Mark a method as returning a database mapping from a connector configuration and
 - Returned type: `java.lang.String`
 - Sample:
 
+[source,js]
+----
+{
 
+}
+----
 
 = Suggestions
 
