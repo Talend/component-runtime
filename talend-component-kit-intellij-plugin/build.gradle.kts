@@ -34,12 +34,10 @@ kotlin {
     jvmToolchain(17)
 }
 
-// Configure project's dependencies
 repositories {
     mavenLocal()
     mavenCentral()
 
-    // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
     intellijPlatform {
         defaultRepositories()
     }
