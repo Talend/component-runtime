@@ -164,10 +164,6 @@ pipeline {
         }
 
         ///////////////////////////////////////////
-        // Pom version and Qualifier management
-        ///////////////////////////////////////////
-
-        ///////////////////////////////////////////
         // Updating build displayName and description
         ///////////////////////////////////////////
         script {
@@ -208,14 +204,31 @@ pipeline {
       }
     }
     stage('Prepare for release') {
+      when { expression { params.RELEASE } }
       steps {
         script {
           withCredentials([ossrhCredentials,
                            nexusCredentials]) {
-            echo "Read version." // TODO
-            String gradleVersion = FileController.readFileImpl(executionFilePath).trim().replace('"', '')
-            echo "Edit version." // TODO
-            echo "Ask if ok for edit version and release." // TODO
+
+            String actualVersion = FileController.readPropertyFileValue(
+                'talend-component-kit-intellij-plugin/gradle.properties',
+                'pluginVersion')
+
+            String releaseVersion = FileController.getPreviousVersion(actualVersion).master
+
+            String checkMsg = "You are about to release the version $releaseVersion." +
+                "Do you want to continue ?"
+
+            // Request user action
+            input message: "$checkMsg", ok: 'Yes'
+
+            // Update the version in gradle.properties
+            FileController.editPropertyFileValue(
+                'talend-component-kit-intellij-plugin/gradle.properties',
+                'pluginVersion', releaseVersion)
+
+            jenkinsJobTools.job_description_append("Actual version: $actualVersion")
+            jenkinsJobTools.job_description_append("Release version: $releaseVersion")
           }
         }
       }
