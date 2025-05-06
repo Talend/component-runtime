@@ -31,7 +31,7 @@ final def jetbrainsToken = string(
 // In PR environment, the branch name is not valid and should be swap with pr name.
 final String pullRequestId = env.CHANGE_ID
 final String branchName = pullRequestId != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
-final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
+final Boolean isMaintenanceBranch = branchName != null && branchName.startsWith('maintenance/')
 
 // Job config
 final String extraBuildParams = ""
