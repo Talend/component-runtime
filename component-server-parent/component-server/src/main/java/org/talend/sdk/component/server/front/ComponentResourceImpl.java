@@ -771,7 +771,7 @@ public class ComponentResourceImpl implements ComponentResource {
                 ofNullable(container.get(ComponentManager.OriginalId.class))
                         .map(ComponentManager.OriginalId::getValue)
                         .orElse(container.getId()),
-                meta.getParent().getName(), meta.getName(), meta.getParent().getDatabaseMapping());
+                meta.getParent().getName(), meta.getName());
     }
 
     private ComponentIndex toComponentIndex(final Container container, final Locale locale, final String plugin,
@@ -799,7 +799,7 @@ public class ComponentResourceImpl implements ComponentResource {
         return new ComponentIndex(
                 new ComponentId(meta.getId(), meta.getParent().getId(), plugin,
                         ofNullable(originalId).map(ComponentManager.OriginalId::getValue).orElse(plugin),
-                        meta.getParent().getName(), meta.getName(), meta.getParent().getDatabaseMapping()),
+                        meta.getParent().getName(), meta.getName()),
                 bundle.displayName().orElse(meta.getName()),
                 familyDisplayName, type,
                 new Icon(icon, iconContent == null ? null : iconContent.getType(),

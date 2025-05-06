@@ -210,10 +210,10 @@ Mark a method as returning a Schema resulting from a connector configuration and
 
 = Schema Mapping
 
-Mark a method as returning a database mapping from a connector configuration and some other parameters.Use this annotation if database mapping can be dynamic and `@Components.databaseMapping` is set to `custom`.The functionality is for the Studio only.
+Mark a method as returning a database mapping from a connector configuration and some other parameters. Use this annotation if database mapping can be dynamic and `@DatabaseMapping.Mapping` is set to `custom`. The functionality is for the Studio only.
 
 - Type: `schema_mapping`
-- API: `@org.talend.sdk.component.api.service.schema.DatabaseMapping`
+- API: `@org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping`
 - Returned type: `java.lang.String`
 - Sample:
 

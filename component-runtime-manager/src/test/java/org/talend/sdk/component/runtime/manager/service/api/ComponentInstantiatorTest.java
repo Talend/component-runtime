@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.component.Components.DatabaseMapping;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -41,8 +40,7 @@ class ComponentInstantiatorTest {
         final ContainerComponentRegistry registry = new ContainerComponentRegistry();
 
         final ComponentFamilyMeta familyMeta =
-                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "name", "packageName",
-                        DatabaseMapping.NONE);
+                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "name", "packageName");
         ComponentFamilyMeta.PartitionMapperMeta meta = new FakeMapperMeta(familyMeta);
         familyMeta.getPartitionMappers().put("name", meta);
 
@@ -63,13 +61,12 @@ class ComponentInstantiatorTest {
     @Test
     void instantiateWhenEqualFamilyName() {
         final ComponentFamilyMeta familyMeta =
-                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "name", "packageName",
-                        "");
+                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "name", "packageName");
         ComponentFamilyMeta.PartitionMapperMeta meta = new FakeMapperMeta(familyMeta);
         familyMeta.getPartitionMappers().put("name", meta);
 
         final ComponentFamilyMeta familyMeta2 =
-                new ComponentFamilyMeta("pluginId", Arrays.asList("dog1", "dog2"), "theIcon", "foo", "packageName", "");
+                new ComponentFamilyMeta("pluginId", Arrays.asList("dog1", "dog2"), "theIcon", "foo", "packageName");
         ComponentFamilyMeta.PartitionMapperMeta meta2 = new FakeMapperMeta(familyMeta2);
         familyMeta2.getPartitionMappers().put("foo", meta2);
 
@@ -118,8 +115,7 @@ class ComponentInstantiatorTest {
         Assertions.assertFalse(dataSet.filter(Collections.emptyMap()).isPresent());
 
         final ComponentFamilyMeta familyMeta =
-                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "meta1", "packageName",
-                        "");
+                new ComponentFamilyMeta("pluginId", Arrays.asList("cat1", "cat2"), "theIcon", "meta1", "packageName");
 
         final ComponentFamilyMeta.PartitionMapperMeta meta1 = new FakeMapperMeta(familyMeta);
         final Map<String, ComponentFamilyMeta.BaseMeta> meta = new HashMap<>();

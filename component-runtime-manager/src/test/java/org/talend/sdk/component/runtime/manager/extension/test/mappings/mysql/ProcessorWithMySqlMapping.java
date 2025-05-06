@@ -19,6 +19,7 @@ import java.io.Serializable;
 
 import javax.json.JsonObject;
 
+import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -30,6 +31,7 @@ import org.talend.sdk.component.api.processor.Processor;
 import lombok.Data;
 
 @Processor
+@DatabaseMapping("mysql")
 public class ProcessorWithMySqlMapping implements Serializable {
 
     public ProcessorWithMySqlMapping(@Option("configuration") final Config config) {

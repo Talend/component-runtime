@@ -41,7 +41,6 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.component.Components.DatabaseMapping;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Output;
@@ -65,9 +64,7 @@ class BeamComponentExtensionTest {
         final FlowsFactory factory = extension
                 .unwrap(FlowsFactory.class,
                         new ComponentFamilyMeta.ProcessorMeta(
-                                new ComponentFamilyMeta("test", emptyList(), null, "test", "test",
-                                        DatabaseMapping.NONE),
-                                "beam", null, 1,
+                                new ComponentFamilyMeta("test", emptyList(), null, "test", "test"), "beam", null, 1,
                                 BeamMapper.class, Collections::emptyList, null, null, true, Collections.emptyMap()) {
                         });
         assertEquals(1, factory.getInputFlows().size());

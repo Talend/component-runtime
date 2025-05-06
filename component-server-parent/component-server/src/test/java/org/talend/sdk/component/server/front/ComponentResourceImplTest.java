@@ -166,7 +166,25 @@ class ComponentResourceImplTest {
 
         final ComponentId id = components.iterator().next().getId();
         assertEquals("jdbc#input", id.getFamily() + "#" + id.getName());
-        assertEquals("mysql", id.getDatabaseMapping());
+    }
+
+    @Test()
+    void getDatabaseMappingMetadata() {
+        final List<ComponentIndex> components = base
+                .path("component/index")
+                .queryParam("includeIconContent", false)
+                .queryParam("q",
+                        "(id = " + client.getJdbcId() + ") AND " + "(metadata[configurationtype::type] = dataset) AND "
+                                + "(plugin = jdbc-component) AND (name = input)")
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ComponentIndices.class)
+                .getComponents();
+        assertEquals(1, components.size());
+        final ComponentIndex index = components.iterator().next();
+        assertEquals("jdbc#input", index.getId().getFamily() + "#" + index.getId().getName());
+        assertEquals("custom", index.getMetadata().get(ComponentSchemaEnricher.SCHEMA_MAPPING));
+        assertEquals("schema_mapping", index.getMetadata().get(ComponentSchemaEnricher.SCHEMA_MAPPER));
     }
 
     @Test()

@@ -15,10 +15,13 @@
  */
 package org.talend.sdk.component.runtime.manager.extension.test.mappings.custom;
 
+import static org.talend.sdk.component.api.component.DatabaseMapping.Mapping.CUSTOM;
+
 import java.io.Serializable;
 
 import javax.json.JsonObject;
 
+import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.processor.AfterGroup;
 import org.talend.sdk.component.api.processor.ElementListener;
@@ -30,6 +33,7 @@ import org.talend.sdk.component.api.processor.Processor;
 import lombok.Data;
 
 @Processor
+@DatabaseMapping(value = CUSTOM, mapper = "schema_mapping")
 public class ProcessorWithDbMapping implements Serializable {
 
     public ProcessorWithDbMapping(@Option("configuration") final Config config) {

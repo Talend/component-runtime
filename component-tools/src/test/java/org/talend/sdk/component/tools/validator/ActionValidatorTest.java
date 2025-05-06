@@ -54,7 +54,7 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.api.service.schema.DatabaseMapping;
+import org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
@@ -319,7 +319,7 @@ class ActionValidatorTest {
 
     static class ActionDatabaseMappingOK {
 
-        @DatabaseMapping("test-none")
+        @DatabaseSchemaMapping("test-none")
         public String mappingsOk(@Option("datastore") FakeDataStore datastore) {
             return null;
         }
@@ -327,12 +327,12 @@ class ActionValidatorTest {
 
     static class ActionDatabaseMappingKO {
 
-        @DatabaseMapping("test-option")
+        @DatabaseSchemaMapping("test-option")
         public String mappingsKoOption(FakeDataStore datastore) {
             return null;
         }
 
-        @DatabaseMapping("test-return")
+        @DatabaseSchemaMapping("test-return")
         public Schema mappingsKoReturn(@Option("datastore") FakeDataStore datastore) {
             return null;
         }

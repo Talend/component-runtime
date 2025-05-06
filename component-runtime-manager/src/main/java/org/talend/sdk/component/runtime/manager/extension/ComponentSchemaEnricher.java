@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
 import org.talend.sdk.component.api.processor.Processor;
@@ -39,6 +39,8 @@ import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
 
     public static final String SCHEMA_MAPPING = "tcomp::ui::schema::mapping";
+
+    public static final String SCHEMA_MAPPER = "tcomp::ui::schema::mapper";
 
     public static final String FIXED_SCHEMA_META_PREFIX = "tcomp::ui::schema::fixed";
 
@@ -53,12 +55,17 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
             return emptyMap();
         }
         final Map<String, String> metadata = new HashMap<>();
-        // add database mapping if present from package-info
-        final Components components = ((Class) type).getPackage().getAnnotation(Components.class);
-        if (components != null) {
-            final String dbMapping = components.databaseMapping();
-            if (!dbMapping.isEmpty()) {
-                metadata.put(SCHEMA_MAPPING, dbMapping);
+        // add database mapping if present
+        final Optional<DatabaseMapping> mappings = Arrays.stream(annotations)
+                .filter(a -> a.annotationType().equals(DatabaseMapping.class))
+                .findFirst()
+                .map(DatabaseMapping.class::cast);
+        // add database mapping if present
+        if (mappings.isPresent()) {
+            final DatabaseMapping mapping = mappings.get();
+            metadata.put(SCHEMA_MAPPING, mapping.value());
+            if (DatabaseMapping.Mapping.CUSTOM.equals(mapping.value())) {
+                metadata.put(SCHEMA_MAPPER, mapping.mapper());
             }
         }
 

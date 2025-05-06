@@ -19,7 +19,7 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.api.service.schema.DatabaseMapping;
+import org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.sample.feature.databasemapping.config.Config;
 import org.talend.sdk.component.sample.feature.databasemapping.config.Dataset;
@@ -27,14 +27,10 @@ import org.talend.sdk.component.sample.feature.databasemapping.config.Dataset;
 @Service
 public class UIService {
 
-    public static final String SECOND_FLOW_NAME = "second";
-
-    public static final String THIRD_FLOW_NAME = "third";
-
     @Service
     private RecordBuilderFactory factory;
 
-    @DatabaseMapping
+    @DatabaseSchemaMapping("processor_mapping")
     public String getDatabaseMapping(@Option("configuration") final Config configuration) {
         return configuration.getDse().getDso().getBackend().getKey();
     }

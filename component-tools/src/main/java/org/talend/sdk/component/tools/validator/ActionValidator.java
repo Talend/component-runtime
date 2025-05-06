@@ -48,7 +48,7 @@ import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
-import org.talend.sdk.component.api.service.schema.DatabaseMapping;
+import org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
@@ -257,14 +257,14 @@ public class ActionValidator implements Validator {
 
     private Stream<String> findDatabaseMappingsErrors(final AnnotationFinder finder) {
         final Stream<String> optionParameter = finder
-                .findAnnotatedMethods(DatabaseMapping.class)
+                .findAnnotatedMethods(DatabaseSchemaMapping.class)
                 .stream()
                 .filter(m -> !hasOption(m))
                 .map(m -> m + " should have an Object parameter marked with @Option")
                 .sorted();
 
         final Stream<String> returnType = finder
-                .findAnnotatedMethods(DatabaseMapping.class)
+                .findAnnotatedMethods(DatabaseSchemaMapping.class)
                 .stream()
                 .filter(m -> !String.class.isAssignableFrom(m.getReturnType()))
                 .map(m -> m + " should return a String")

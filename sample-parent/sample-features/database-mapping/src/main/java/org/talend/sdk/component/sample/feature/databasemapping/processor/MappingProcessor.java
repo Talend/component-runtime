@@ -17,6 +17,7 @@ package org.talend.sdk.component.sample.feature.databasemapping.processor;
 
 import java.io.Serializable;
 
+import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -30,8 +31,9 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.sample.feature.databasemapping.config.Config;
 
 @Version
-@Processor(name = "Processor")
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
+@Processor(name = "Processor")
+@DatabaseMapping(value = "custom", mapper = "processor_mapping")
 @Documentation("Database Mapping sample processor connector.")
 public class MappingProcessor implements Serializable {
 

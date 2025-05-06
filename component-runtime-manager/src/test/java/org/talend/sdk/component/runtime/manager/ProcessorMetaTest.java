@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.component.Components.DatabaseMapping;
 import org.talend.sdk.component.api.processor.ElementListener;
 import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Output;
@@ -39,8 +38,7 @@ class ProcessorMetaTest {
 
     @Test
     void testGetListener() {
-        final ComponentFamilyMeta parent =
-                new ComponentFamilyMeta("plugin", emptyList(), "default", "name", "", DatabaseMapping.NONE);
+        final ComponentFamilyMeta parent = new ComponentFamilyMeta("plugin", emptyList(), "default", "name", "");
         final ProcessorMeta meta = new ProcessorMeta(parent, "name", "default", 1, TestProcessor.class, null, null,
                 null, true, Collections.emptyMap());
         final Method listener = meta.getListener();

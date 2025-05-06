@@ -66,6 +66,7 @@ class ComponentSchemaEnricherTest {
 
             {
                 put("tcomp::ui::schema::mapping", "custom");
+                put("tcomp::ui::schema::mapper", "schema_mapping");
             }
         }, enricher.onComponent(ProcessorWithDbMapping.class, ProcessorWithDbMapping.class.getAnnotations()));
     }

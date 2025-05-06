@@ -11,7 +11,7 @@
  * specific language governing permissions and limitations under the License.
  *
  */
-@Components(family = "dbmapping", databaseMapping = "mysql")
+@Components(family = "dbmapping")
 package org.talend.sdk.component.runtime.manager.extension.test.mappings.mysql;
 
 import org.talend.sdk.component.api.component.Components;

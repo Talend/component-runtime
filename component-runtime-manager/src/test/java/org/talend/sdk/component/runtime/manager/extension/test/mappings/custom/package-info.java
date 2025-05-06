@@ -12,9 +12,7 @@
  *
  */
 
-@Components(family = "dbmapping", databaseMapping = CUSTOM)
+@Components(family = "dbmapping")
 package org.talend.sdk.component.runtime.manager.extension.test.mappings.custom;
-
-import static org.talend.sdk.component.api.component.Components.DatabaseMapping.CUSTOM;
 
 import org.talend.sdk.component.api.component.Components;

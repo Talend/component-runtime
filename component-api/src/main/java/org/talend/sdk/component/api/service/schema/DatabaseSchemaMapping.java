@@ -28,9 +28,9 @@ import org.talend.sdk.component.api.service.ActionType;
 @Retention(RUNTIME)
 @ActionType(value = "schema_mapping", expectedReturnedType = String.class)
 @Documentation("Mark a method as returning a database mapping from a connector configuration and some other parameters. "
-        + "Use this annotation if database mapping can be dynamic and `@Components.databaseMapping` is set to `custom`. "
+        + "Use this annotation if database mapping can be dynamic and `@DatabaseMapping.Mapping` is set to `custom`. "
         + "The functionality is for the Studio only.")
-public @interface DatabaseMapping {
+public @interface DatabaseSchemaMapping {
 
     /**
      * @return the component family this action belongs to.

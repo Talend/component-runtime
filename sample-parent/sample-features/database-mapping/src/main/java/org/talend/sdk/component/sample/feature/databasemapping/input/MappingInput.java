@@ -17,6 +17,7 @@ package org.talend.sdk.component.sample.feature.databasemapping.input;
 
 import java.io.Serializable;
 
+import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.input.Emitter;
@@ -29,6 +30,7 @@ import org.talend.sdk.component.sample.feature.databasemapping.config.Config;
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Emitter(name = "Input")
+@DatabaseMapping("postgres")
 @Documentation("Database Mapping sample input connector.")
 public class MappingInput implements Serializable {
 

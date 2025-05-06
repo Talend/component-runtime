@@ -112,7 +112,7 @@ public class ExtensionComponentMetadataManager {
                                     new ComponentId(it.getId().getId(), EXTENSION_MARKER + it.getId().getFamilyId(),
                                             EXTENSION_MARKER + it.getId().getPlugin(),
                                             EXTENSION_MARKER + it.getId().getPluginLocation(), it.getId().getFamily(),
-                                            it.getId().getName(), it.getId().getDatabaseMapping()),
+                                            it.getId().getName()),
                                     it.getDisplayName(), it.getIcon(), it.getType(), it.getVersion(),
                                     it.getProperties(), it.getActions(), it.getInputFlows(), it.getOutputFlows(),
                                     Stream
