@@ -29,8 +29,9 @@ final def jetbrainsToken = string(
 
 
 // In PR environment, the branch name is not valid and should be swap with pr name.
-final String pull_request_id = env.CHANGE_ID
-final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
+final String pullRequestId = env.CHANGE_ID
+final String branchName = pullRequestId != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
+final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
 
 // Job config
 final String extraBuildParams = ""
@@ -184,6 +185,10 @@ pipeline {
         script {
           withCredentials([ossrhCredentials,
                            nexusCredentials]) {
+
+            if(!isMaintenanceBranch){
+              error("You are not on a maintenance branch. Please switch to a maintenance branch to release.")
+            }
 
             String actualVersion = FileController.readPropertyFileValue(
                 'talend-component-kit-intellij-plugin/gradle.properties',
