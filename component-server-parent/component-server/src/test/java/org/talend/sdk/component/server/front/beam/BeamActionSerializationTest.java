@@ -46,7 +46,8 @@ class BeamActionSerializationTest {
                 + "        \"entries\":[\n" + "        ],\n" + "        \"metadata\":[\n" + "        ],\n"
                 + "        \"props\":{\n" + "\n" + "        },\n" + "        \"type\":\"STRING\"\n" + "      },\n"
                 + "      \"metadata\":false,\n" + "      \"name\":\"array\",\n" + "      \"nullable\":false,\n"
-                + "      \"props\":{\n" + "\n" + "      },\n" + "      \"type\":\"ARRAY\"\n" + "    }\n" + "  ],\n"
+                + "      \"props\":{\n" + "\n" + "      },\n" + "      \"type\":\"ARRAY\",\n"  +
+                "      \"valid\":true\n    }\n" + "  ],\n"
                 + "  \"metadata\":[\n" + "  ],\n" + "  \"props\":{\n" + "    \"talend.fields.order\":\"array\"\n"
                 + "  },\n" + "  \"type\":\"RECORD\"\n" + "}";
         assertEquals(attended, schema);
