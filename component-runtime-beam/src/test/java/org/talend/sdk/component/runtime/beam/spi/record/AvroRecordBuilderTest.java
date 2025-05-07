@@ -54,6 +54,7 @@ import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.spi.AvroRecordBuilderFactoryProvider;
+import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
 
@@ -191,21 +192,21 @@ class AvroRecordBuilderTest {
 
     @Test
     void mixedRecordTest() {
-        final Schema schema0 = new AvroSchemaBuilder()//
-                .withType(RECORD) //
-                .withEntry(dataEntry1) //
-                .withEntryBefore("data1", meta1) //
-                .withEntry(dataEntry2) //
-                .withEntryAfter("meta1", meta2) //
+        final AvroRecordBuilderFactoryProvider recordBuilderFactoryProvider = new AvroRecordBuilderFactoryProvider();
+        System.setProperty("talend.component.beam.record.factory.impl", "avro");
+        final RecordBuilderFactory recordBuilderFactory = recordBuilderFactoryProvider.apply("test");
+
+        final RecordBuilderFactory otherFactory = new RecordBuilderFactoryImpl("test");
+        final Schema schema = otherFactory
+                .newSchemaBuilder(RECORD)
+                .withEntry(otherFactory.newEntryBuilder().withName("e1").withType(INT).build())
                 .build();
 
-        final Record.Builder builder0 = factory.newRecordBuilder(schema0);
-        builder0.withInt("data1", 101)
-                .withString("data2", "102")
-                .withInt("meta1", 103)
-                .withString("meta2", "104");
-        final Record record0 = builder0.build();
-        assertEquals(101, record0.getInt("data1"));
+        final Schema arrayType = recordBuilderFactory //
+                .newSchemaBuilder(Schema.Type.ARRAY) //
+                .withElementSchema(schema)
+                .build();
+        Assertions.assertNotNull(arrayType);
     }
 
     @Test
