@@ -17,9 +17,7 @@
 set -xeuo pipefail
 
 # --------- CONFIGURATION ---------
-PLUGIN_VERIFIER_HOME="${HOME}/.pluginVerifier"
 GRADLE_CMD="gradle"
-ARTIFACTS_DIR="build/distributions"
 # ---------------------------------
 
 # --------------------------------------------

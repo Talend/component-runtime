@@ -31,7 +31,7 @@ final def jetbrainsToken = string(
 // In PR environment, the branch name is not valid and should be swap with pr name.
 final String pullRequestId = env.CHANGE_ID
 final String branchName = pullRequestId != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
-final Boolean isMaintenanceBranch = branchName.startsWith('maintenance/')
+final Boolean isMaintenanceBranch = branchName != null && branchName.startsWith('maintenance/')
 
 // Job config
 final String extraBuildParams = ""
@@ -56,7 +56,7 @@ pipeline {
   }
 
   triggers {
-    cron(branch_name == "master" ? "0 0 * * *" : "")
+    cron(branchName == "master" ? "0 0 * * *" : "")
   }
 
   parameters {
@@ -72,8 +72,9 @@ pipeline {
                         Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9 """)
 
     string(name: 'GRADLE_VERSION',
-           defaultValue: 'from bundle',
-           description: """TODO, setup of gradle is not implemented""")
+           defaultValue: 'from .tool-versions',
+           description: """Provided gradle version will be installed with asdf  
+                        Examples: 8.14 """)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     separator(name: "STAGES_CONFIG", sectionHeader: "Stages configuration",
@@ -144,11 +145,13 @@ pipeline {
 
           String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
                                                     'java', params.JAVA_VERSION)
+          String gradleVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
+                                                    'gradle', params.GRADLE_VERSION)
 
-          String gradleVersion = 'gradle-8.13' // FIXME read it form distributionUrl
-          jenkinsJobTools.job_description_append("Use java $javaVersion with graddle  $gradleVersion")
+          jenkinsJobTools.job_description_append("Use java $javaVersion with gradle  $gradleVersion")
 
           println "asdf install the content of repository .tool-versions'\n"
+          println "Current branch name: $branchName\n"
           sh 'bash .jenkins/scripts/asdf_install.sh'
         }
 
@@ -304,7 +307,7 @@ pipeline {
               #!/usr/bin/env bash
               set -xe
               cd talend-component-kit-intellij-plugin
-              bash scripts/5.release.sh
+              bash scripts/5.release.sh "\${JETBRAINS_TOKEN}"
               """.stripIndent()
           }
         }
@@ -312,24 +315,6 @@ pipeline {
     }
   }
   post {
-    success {
-      script {
-        println "====== Publish Coverage"
-        publishCoverage adapters: [jacocoAdapter('**/jacoco-aggregate/*.xml')]
-        publishCoverage adapters: [jacocoAdapter('**/jacoco-it/*.xml')]
-        publishCoverage adapters: [jacocoAdapter('**/jacoco-ut/*.xml')]
-        println "====== Publish HTML API Coverage"
-        publishHTML([
-            allowMissing         : false,
-            alwaysLinkToLastBuild: false,
-            keepAll              : true,
-            reportDir            : 'reporting/target/site/jacoco-aggregate',
-            reportFiles          : 'index.html',
-            reportName           : 'Coverage',
-            reportTitles         : 'Coverage'
-        ])
-      }
-    }
     always {
       script {
         String prevResult = null
