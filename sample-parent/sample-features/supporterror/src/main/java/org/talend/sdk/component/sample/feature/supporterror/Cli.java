@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.sample.feature.supporterror;
 
-
 import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
@@ -25,6 +24,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -42,7 +42,6 @@ import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
 
-
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
@@ -50,7 +49,7 @@ import lombok.NoArgsConstructor;
 public final class Cli implements Callable<Integer> {
 
     //support errors or not. default=false
-    @Option(names = "-s", defaultValue = "true")
+    @Option(names = "-s", defaultValue = "false")
     boolean support;
 
     @Option(names = { "-f", "--file" }, paramLabel = "ARCHIVE", description = "the jar file")
@@ -90,9 +89,9 @@ public final class Cli implements Callable<Integer> {
             Record data = seInput.data();
 
             info("Record isValid = " + data.isValid());
-            entryout(data, "name");
-            entryout(data, "date");
-            entryout(data, "age");
+            entryout(data, "name", String.class);
+            entryout(data, "date", Date.class);
+            entryout(data, "age", Integer.class);
            //
             info("finished.");
         } catch (Exception e) {
@@ -102,12 +101,11 @@ public final class Cli implements Callable<Integer> {
         return 0;
     }
 
-    private static void entryout(final Record data, final String column) {
+    private static void entryout(final Record data, final String column, final Class type) {
         Schema.Entry ageEntry = data.getSchema().getEntries().stream().filter(e -> column.equals(e.getName())).findAny().get();
         if(ageEntry.isValid()) {
-            Integer age = data.get(Integer.class, column);
-            //  process the age...
-            info("Record '"+ column +"': " + age);
+            Object value = data.get(type, column);
+            info("Record '"+ column +"': " + value);
         } else{
             String errorMessage = ageEntry.getProp(SchemaProperty.ENTRY_ERROR_MESSAGE);
             info("ERROR: " + errorMessage);
