@@ -19,10 +19,6 @@ import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
 
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +37,10 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
+
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import lombok.NoArgsConstructor;
 
