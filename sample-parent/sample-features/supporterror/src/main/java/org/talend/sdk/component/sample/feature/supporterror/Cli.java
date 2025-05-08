@@ -19,7 +19,6 @@ import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
 
-
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,19 +45,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class Cli {
-
-//    //support errors or not. default=false
-//    @Option(names = "-s", defaultValue = "false")
-//    boolean support;
-//
-//    @Option(names = { "-f", "--file" }, paramLabel = "ARCHIVE", description = "the jar file")
-//    File jar;
-//
-//    @Option(names = { "-m", "--mapper" },defaultValue = "SupportErrorMapper")
-//    String mapper;
-//
-//    @Option(names = { "-fl", "--family" },defaultValue = "supporterror")
-//    String family;
 
     static final String GAV = "org.talend.sdk.component.sample.feature:supporterror:jar:"
             + Versions.KIT_VERSION;
