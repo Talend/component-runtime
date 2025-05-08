@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.talend.sdk.component.api.record.Record;
@@ -32,7 +33,6 @@ import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
-import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
@@ -72,18 +72,12 @@ public final class Cli {
             @Option("mapper") @Default("SupportErrorMapper") final String mapper) {
 
         try (final ComponentManager manager = manager(jar, GAV)) {
-        //    final JsonObject jsonConfig = readJsonFromFile(configurationFile);
             final Map<String, String> configuration = new HashMap<>();
 
-            info("support" + String.valueOf(support));
+            info("support " + support);
             if (support) {
                 setSupportError(support);
             }
-            // create the mapper
-            final PartitionMapperImpl mpr = (PartitionMapperImpl)manager.findMapper(family, mapper, 1, configuration)
-                    .orElseThrow(() -> new IllegalStateException(
-                            String.format("No mapper found for: %s/%s.", family, manager)));
-
             info("create input now.");
 
             SupportErrorInput seInput = new SupportErrorInput(null);
@@ -93,9 +87,9 @@ public final class Cli {
             Record data = seInput.data();
 
             info("Record isValid = " + data.isValid());
-            entryout(data, "name", String.class);
-            entryout(data, "date", Date.class);
-            entryout(data, "age", Integer.class);
+            entryOut(data, "name", String.class);
+            entryOut(data, "date", Date.class);
+            entryOut(data, "age", Integer.class);
            //
             info("finished.");
         } catch (Exception e) {
@@ -103,22 +97,22 @@ public final class Cli {
         }
     }
 
-    private static void entryout(final Record data, final String column, final Class type) {
-        Schema.Entry ageEntry = data.getSchema().getEntries().stream().filter(e -> column.equals(e.getName())).findAny().get();
-        if(ageEntry.isValid()) {
-            Object value = data.get(type, column);
-            info("Record '"+ column +"': " + value);
-        } else{
-            String errorMessage = ageEntry.getProp(SchemaProperty.ENTRY_ERROR_MESSAGE);
-            info("ERROR: " + errorMessage);
+    private static void entryOut(final Record data, final String column, final Class<?> type) {
+        Optional<Schema.Entry> ageEntry = data.getSchema().getEntries().stream().filter(e -> column.equals(e.getName())).findAny();
+        if(ageEntry.isPresent()) {
+            if (ageEntry.get().isValid()) {
+                Object value = data.get(type, column);
+                info("Record '" + column + "': " + value);
+            } else {
+                String errorMessage = ageEntry.get().getProp(SchemaProperty.ENTRY_ERROR_MESSAGE);
+                info("ERROR: " + errorMessage);
+            }
         }
     }
 
     //set support or not.
     public static void setSupportError(final boolean supportError) {
-        final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
         System.setProperty(Record.RECORD_ERROR_SUPPORT, String.valueOf(supportError));
-        final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
     }
 
     public static void main(final String[] args) throws Exception {
@@ -174,9 +168,9 @@ public final class Cli {
 
     public static class DynamicContainerFinder implements ContainerFinder {
 
-        public static final Map<String, ClassLoader> LOADERS = new ConcurrentHashMap<>();
+        static final Map<String, ClassLoader> LOADERS = new ConcurrentHashMap<>();
 
-        public static final Map<Class<?>, Object> SERVICES = new ConcurrentHashMap<>();
+        static final Map<Class<?>, Object> SERVICES = new ConcurrentHashMap<>();
 
         @Override
         public LightContainer find(final String plugin) {

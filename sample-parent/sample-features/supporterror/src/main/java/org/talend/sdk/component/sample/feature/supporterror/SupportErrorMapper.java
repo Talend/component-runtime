@@ -35,7 +35,7 @@ import org.talend.sdk.component.api.meta.Documentation;
 @Documentation("Doc: default SupportErrorMapper documentation without Internationalization.")
 public class SupportErrorMapper implements Serializable {
 
-    private SupportErrorInput.InputConfig config;
+    private transient SupportErrorInput.InputConfig config;
 
     public SupportErrorMapper(final @Option("configin") SupportErrorInput.InputConfig config) {
         this.config = config;
