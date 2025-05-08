@@ -42,7 +42,6 @@ import lombok.Data;
 @Emitter(family = "supporterror", name = "supportErrorInput")
 public class SupportErrorInput implements Serializable {
 
-//    private final transient JsonBuilderFactory factory;
 
     private transient Schema recordSchema;
 
@@ -77,12 +76,10 @@ public class SupportErrorInput implements Serializable {
     @Producer
     public Record data() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(recordSchema);
-        final Record record = builder.withString("name", "example connector")
+        return builder.withString("name", "example connector")
                 .withError("date", null, "date is null", null)
                 .withError("age", "string", "wrong int value", null)
                 .build();
-
-        return record;
     }
 
     @Data
