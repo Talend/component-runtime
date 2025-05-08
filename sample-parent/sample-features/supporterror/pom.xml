@@ -33,19 +33,16 @@
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
       <version>${project.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-runtime-manager</artifactId>
       <version>${project.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>info.picocli</groupId>
-      <artifactId>picocli</artifactId>
-      <version>4.7.6</version>
-      <scope>compile</scope>
+      <groupId>org.tomitribe</groupId>
+      <artifactId>tomitribe-crest</artifactId>
+      <version>0.32</version>
     </dependency>
   </dependencies>
 

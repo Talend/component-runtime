@@ -19,15 +19,11 @@ import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
 
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.talend.sdk.component.api.record.Record;
@@ -41,31 +37,39 @@ import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
 import org.talend.sdk.component.runtime.serialization.LightContainer;
+import org.tomitribe.crest.Main;
+import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Default;
+import org.tomitribe.crest.api.Option;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
-@Command(name="supportError")
-public final class Cli implements Callable<Integer> {
+public final class Cli {
 
-    //support errors or not. default=false
-    @Option(names = "-s", defaultValue = "false")
-    boolean support;
-
-    @Option(names = { "-f", "--file" }, paramLabel = "ARCHIVE", description = "the jar file")
-    File jar;
-
-    @Option(names = { "-m", "--mapper" },defaultValue = "SupportErrorMapper")
-    String mapper;
-
-    @Option(names = { "-fl", "--family" },defaultValue = "supporterror")
-    String family;
+//    //support errors or not. default=false
+//    @Option(names = "-s", defaultValue = "false")
+//    boolean support;
+//
+//    @Option(names = { "-f", "--file" }, paramLabel = "ARCHIVE", description = "the jar file")
+//    File jar;
+//
+//    @Option(names = { "-m", "--mapper" },defaultValue = "SupportErrorMapper")
+//    String mapper;
+//
+//    @Option(names = { "-fl", "--family" },defaultValue = "supporterror")
+//    String family;
 
     static final String GAV = "org.talend.sdk.component.sample.feature:supporterror:jar:"
             + Versions.KIT_VERSION;
 
-    @Override
-    public Integer call() throws Exception {
+    @Command("supporterror")
+    public static void runInput(
+            @Option("gav") @Default(GAV) final String gav,
+            @Option("s") @Default("false") final boolean support,
+            @Option("jar") final File jar,
+            @Option("family") @Default("supporterror") final String family,
+            @Option("mapper") @Default("SupportErrorMapper") final String mapper) {
 
         try (final ComponentManager manager = manager(jar, GAV)) {
         //    final JsonObject jsonConfig = readJsonFromFile(configurationFile);
@@ -97,8 +101,6 @@ public final class Cli implements Callable<Integer> {
         } catch (Exception e) {
             error(e);
         }
-
-        return 0;
     }
 
     private static void entryout(final Record data, final String column, final Class type) {
@@ -113,15 +115,18 @@ public final class Cli implements Callable<Integer> {
     }
 
     //set support or not.
-    public void setSupportError(final boolean supportError) {
+    public static void setSupportError(final boolean supportError) {
         final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
         System.setProperty(Record.RECORD_ERROR_SUPPORT, String.valueOf(supportError));
         final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
     }
 
-    public static void main(final String... args) {
-        int exitCode = new CommandLine(new Cli()).execute(args);
-        System.exit(exitCode);
+    public static void main(final String[] args) throws Exception {
+        ofNullable(run(args)).ifPresent(System.out::println);
+    }
+
+    public static Object run(final String[] args) throws Exception {
+        return new Main(Cli.class).exec(args);
     }
 
     static final String ERROR = "[ERROR] ";
