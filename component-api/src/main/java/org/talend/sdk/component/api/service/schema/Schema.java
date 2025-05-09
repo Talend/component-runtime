@@ -163,6 +163,10 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         public Builder toBuilder() {
             throw new UnsupportedOperationException("#toBuilder()");
         }
+
+        @Override
+        public boolean isValid() { return true; }
+
     }
 
 }

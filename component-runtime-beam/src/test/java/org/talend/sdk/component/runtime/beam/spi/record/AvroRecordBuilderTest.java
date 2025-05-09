@@ -210,6 +210,53 @@ class AvroRecordBuilderTest {
     }
 
     @Test
+    void testWithError() {
+        final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, "true");
+        final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+
+        org.talend.sdk.component.api.record.Schema.Builder schemaBuilder = factory.newSchemaBuilder(Schema.Type.RECORD);
+        Schema.Entry nameEntry = factory
+                .newEntryBuilder()
+                .withName("name")
+                .withNullable(false)
+                .withType(Schema.Type.STRING)
+                .build();
+        Schema.Entry nmEntry = factory
+                .newEntryBuilder()
+                .withName("normal")
+                .withNullable(true)
+                .withType(Schema.Type.STRING)
+                .build();
+        Schema.Entry ageEntry = factory
+                .newEntryBuilder()
+                .withName("age")
+                .withNullable(false)
+                .withType(Schema.Type.INT)
+                .build();
+        Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(nmEntry).withEntry(ageEntry).build();
+        // record 1
+        Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
+        Record record1 = recordBuilder.withError("name", null, "Stirng is null", null)
+                .withString("normal", "normal")
+                .withError("age", "string", "is not an int", null)
+                .build();
+        assertFalse(record1.isValid());
+
+        final Schema.Entry entry =
+                record1.getSchema().getEntries().stream().filter(e -> "name".equals(e.getName())).findAny().get();
+        assertNotNull(entry);
+        Assertions.assertFalse(entry.isValid());
+
+        final Schema.Entry entry2 =
+                record1.getSchema().getEntries().stream().filter(e -> "age".equals(e.getName())).findAny().get();
+        assertNotNull(entry2);
+        Assertions.assertFalse(entry2.isValid());
+
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, "false");
+    }
+
+    @Test
     void recordWithNewSchema() {
         final Schema schema0 = new AvroSchemaBuilder()//
                 .withType(RECORD) //

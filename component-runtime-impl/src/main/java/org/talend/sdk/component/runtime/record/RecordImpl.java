@@ -61,6 +61,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaProperty;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -511,6 +512,28 @@ public final class RecordImpl implements Record {
             validateTypeAgainstProvidedSchema(entry.getName(), ARRAY, values);
             // todo: check item type?
             return append(entry, values);
+        }
+
+        @Override
+        public Builder withError(final String columnName, final Object value, final String errorMessage,
+                final Exception exception) {
+            final boolean supportError = Boolean.parseBoolean(System.getProperty(RECORD_ERROR_SUPPORT, "false"));
+            if (!supportError) {
+                throw new IllegalArgumentException(errorMessage);
+            } else {
+                // duplicate the schema instance with a modified Entry
+                final Entry oldEntry = this.findExistingEntry(columnName);
+                final Entry updateEntry = oldEntry.toBuilder()
+                        .withName(columnName)
+                        .withNullable(true)
+                        .withType(oldEntry.getType())
+                        .withProp(SchemaProperty.ENTRY_IS_ON_ERROR, "true")
+                        .withProp(SchemaProperty.ENTRY_ERROR_MESSAGE, errorMessage)
+                        .withProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE, String.valueOf(value))
+                        .withProp(SchemaProperty.ERROR_EXCEPTION, exception == null ? "" : exception.toString())
+                        .build();
+                return updateEntryByName(columnName, updateEntry);
+            }
         }
 
         private void assertType(final Schema.Type actual, final Schema.Type expected) {

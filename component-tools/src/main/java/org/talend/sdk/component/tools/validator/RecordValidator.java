@@ -132,6 +132,7 @@ public class RecordValidator implements Validator {
             "org.talend.sdk.component.api.record.Record$Builder.withRecord(java.lang.String, org.talend.sdk.component.api.record.Record)",
             "org.talend.sdk.component.api.record.Record$Builder.withRecord(org.talend.sdk.component.api.record.Schema$Entry, org.talend.sdk.component.api.record.Record)",
             "org.talend.sdk.component.api.record.Record$Builder.withArray(org.talend.sdk.component.api.record.Schema$Entry, java.util.Collection)",
+            "org.talend.sdk.component.api.record.Record$Builder.withError(java.lang.String, java.lang.Object, java.lang.String, java.lang.Exception)",
 
             "org.talend.sdk.component.api.record.RecordImpl.withNewSchema(org.talend.sdk.component.api.record.Schema)",
             "org.talend.sdk.component.api.record.RecordImpl.BuilderImpl.with(org.talend.sdk.component.api.record.Schema$Entry, java.lang.Object)",
@@ -161,6 +162,7 @@ public class RecordValidator implements Validator {
             "org.talend.sdk.component.api.record.RecordImpl.BuilderImpl.withBoolean(org.talend.sdk.component.api.record.Schema$Entry, boolean)",
             "org.talend.sdk.component.api.record.RecordImpl.BuilderImpl.withRecord(java.lang.String, org.talend.sdk.component.api.record.Record)",
             "org.talend.sdk.component.api.record.RecordImpl.BuilderImpl.withRecord(org.talend.sdk.component.api.record.Schema$Entry, org.talend.sdk.component.api.record.Record)",
-            "org.talend.sdk.component.api.record.RecordImpl.BuilderImpl.withArray(org.talend.sdk.component.api.record.Schema$Entry, java.util.Collection)"));
+            "org.talend.sdk.component.api.record.RecordImpl.BuilderImpl.withArray(org.talend.sdk.component.api.record.Schema$Entry, java.util.Collection)",
+            "org.talend.sdk.component.api.record.RecordImpl.BuilderImpl.withError(java.lang.String, java.lang.Object, java.lang.String, java.lang.Exception)"));
 
 }

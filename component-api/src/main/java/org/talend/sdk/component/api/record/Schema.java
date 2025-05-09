@@ -233,6 +233,11 @@ public interface Schema {
         boolean isMetadata();
 
         /**
+          * @return true if the value of this entry is valid; false for invalid value.
+         */
+        boolean isValid();
+
+        /**
          * @param <T> the default value type.
          *
          * @return Default value for this entry.

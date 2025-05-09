@@ -49,7 +49,7 @@ class JsonSchemaSerializationTest {
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             final String json = jsonb.toJson(schema);
             assertEquals(
-                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"metadata\":[],\"props\":{},\"type\":\"STRING\"},\"metadata\":false,\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"metadata\":[],\"props\":{\"talend.fields.order\":\"array\"},\"type\":\"RECORD\"}",
+                    "{\"entries\":[{\"elementSchema\":{\"entries\":[],\"metadata\":[],\"props\":{},\"type\":\"STRING\"},\"metadata\":false,\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\",\"valid\":true}],\"metadata\":[],\"props\":{\"talend.fields.order\":\"array\"},\"type\":\"RECORD\"}",
                     json);
         }
     }
@@ -71,7 +71,7 @@ class JsonSchemaSerializationTest {
         try (final Jsonb jsonb = JsonbBuilder
                 .create(new JsonbConfig().withPropertyOrderStrategy(PropertyOrderStrategy.LEXICOGRAPHICAL))) {
             assertEquals(
-                    "{\"entries\":[],\"metadata\":[{\"elementSchema\":{\"entries\":[],\"metadata\":[],\"props\":{},\"type\":\"STRING\"},\"metadata\":true,\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\"}],\"props\":{\"talend.fields.order\":\"array\"},\"type\":\"RECORD\"}",
+                    "{\"entries\":[],\"metadata\":[{\"elementSchema\":{\"entries\":[],\"metadata\":[],\"props\":{},\"type\":\"STRING\"},\"metadata\":true,\"name\":\"array\",\"nullable\":true,\"props\":{\"talend.component.label\":\"array\"},\"rawName\":\"array\",\"type\":\"ARRAY\",\"valid\":true}],\"props\":{\"talend.fields.order\":\"array\"},\"type\":\"RECORD\"}",
                     jsonb.toJson(schema));
 
         }
