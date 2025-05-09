@@ -18,6 +18,6 @@ package org.talend.sdk.component.sample.feature.supporterror;
 
 public interface Versions {
 
-    String KIT_VERSION = "1.81.0-SNAPSHOT";//"${project.version}";
+    String KIT_VERSION = "${project.version}";
 
 }
