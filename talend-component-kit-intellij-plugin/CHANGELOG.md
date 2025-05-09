@@ -4,8 +4,6 @@
 
 ## [Unreleased]
 
-## [1.80.0]
-
 ### Changed
 
 - Update dependencies

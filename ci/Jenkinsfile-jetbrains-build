@@ -1,0 +1,390 @@
+/**
+ * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// Imports
+
+// Credentials
+final def ossrhCredentials = usernamePassword(
+    credentialsId: 'ossrh-credentials',
+    usernameVariable: 'OSSRH_USER',
+    passwordVariable: 'OSSRH_PASS')
+final def nexusCredentials = usernamePassword(
+    credentialsId: 'nexus-artifact-zl-credentials',
+    usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
+final def jetbrainsToken = string(
+    credentialsId: 'jetbrains-token',
+    variable: 'JETBRAINS_TOKEN')
+
+
+// In PR environment, the branch name is not valid and should be swap with pr name.
+final String pullRequestId = env.CHANGE_ID
+final String branchName = pullRequestId != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
+final Boolean isMaintenanceBranch = branchName != null && branchName.startsWith('maintenance/')
+
+// Job config
+final String extraBuildParams = ""
+
+
+pipeline {
+  libraries {
+    lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("tqa-e2e-tests-tool@main_ttp2024")  // https://github.com/Talend/tqa-e2e-testing-tool
+  }
+  agent {
+    kubernetes {
+      yamlFile '.jenkins/jenkins_pod.yml'
+      defaultContainer 'main'
+    }
+  }
+
+  options {
+    buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: '10'))
+    timeout(time: 60, unit: 'MINUTES')
+    skipStagesAfterUnstable()
+  }
+
+  triggers {
+    cron(branchName == "master" ? "0 0 * * *" : "")
+  }
+
+  parameters {
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "BASIC_CONFIG", sectionHeader: "Basic configuration",
+              sectionHeaderStyle: """ background-color: #ABEBC6;
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    string(name: 'JAVA_VERSION',
+           defaultValue: 'from .tool-versions',
+           description: """Provided java version will be installed with asdf  
+                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9 """)
+
+    string(name: 'GRADLE_VERSION',
+           defaultValue: 'from .tool-versions',
+           description: """Provided gradle version will be installed with asdf  
+                        Examples: 8.14 """)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "STAGES_CONFIG", sectionHeader: "Stages configuration",
+              sectionHeaderStyle: """ background-color: #F9E79F;
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    booleanParam(
+        name: 'VERIFY',
+        defaultValue: false,
+        description: '''Use jetbrains verify gradle to check the plugin.  ''')
+
+    booleanParam(
+        name: 'RELEASE',
+        defaultValue: false,
+        description: '''This will release the actual maintenance version of the plugin.    
+                        WARNING: you need to be in a maintenance branch after the release  
+                        Exemple:  
+                          - You are on maintenance 1.80 maintenance branch  
+                          - The actual version is 1.80.2-SNAPSHOT  
+                          - You will release the 1.80.1 version on jetbrains  
+                        REMARK: After the release, you need to connect to jetbrains to check the deploy and accept it.  
+                        ''')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "QUALIFIER_CONFIG", sectionHeader: "Qualifier configuration",
+              sectionHeaderStyle: """ background-color: #AED6F1;
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    string(
+        name: 'VERSION_QUALIFIER',
+        defaultValue: 'DEFAULT',
+        description: '''WARNING: NOT Implemented yet''')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "ADVANCED_CONFIG", sectionHeader: "Advanced configuration",
+              sectionHeaderStyle: """ background-color: #F8C471;
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    string(
+        name: 'EXTRA_BUILD_PARAMS',
+        defaultValue: '',
+        description: 'Add some extra parameters to gradle commands. Applies to all maven calls.')
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    separator(name: "DEBUG_CONFIG", sectionHeader: "Jenkins job debug configuration ",
+              sectionHeaderStyle: """ background-color: #FF0000;
+                text-align: center; font-size: 35px !important; font-weight : bold;""")
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    booleanParam(
+        name: 'JENKINS_DEBUG',
+        defaultValue: false,
+        description: 'Add an extra step to the pipeline allowing to keep the pod alive for debug purposes.')
+  }
+
+  stages {
+    stage('Preliminary steps') {
+      steps {
+
+        ///////////////////////////////////////////
+        // Login tasks
+        ///////////////////////////////////////////
+
+        ///////////////////////////////////////////
+        // asdf install
+        ///////////////////////////////////////////
+        script {
+          echo "edit asdf tool version with version from jenkins param"
+
+          String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
+                                                    'java', params.JAVA_VERSION)
+          String gradleVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
+                                                    'gradle', params.GRADLE_VERSION)
+
+          jenkinsJobTools.job_description_append("Use java $javaVersion with gradle  $gradleVersion")
+
+          println "asdf install the content of repository .tool-versions'\n"
+          println "Current branch name: $branchName\n"
+          sh 'bash .jenkins/scripts/asdf_install.sh'
+        }
+
+        ///////////////////////////////////////////
+        // Variables init
+        ///////////////////////////////////////////
+        script {
+          extraBuildParams = assemblyExtraBuildParams()
+
+        }
+
+        ///////////////////////////////////////////
+        // Updating build displayName and description
+        ///////////////////////////////////////////
+        script {
+          String deploy_info = ''
+          if (params.RELEASE) {
+            deploy_info = deploy_info + ' RELEASE'
+          }
+
+          jenkinsJobTools.job_name_creation(deploy_info)
+
+          // updating build description
+          String description = """
+                      Debug: $params.JENKINS_DEBUG  
+                      Extra build args: $extraBuildParams  """.stripIndent()
+          jenkinsJobTools.job_description_append(description)
+        }
+      }
+    }
+    stage('Prepare for release') {
+      when { expression { params.RELEASE } }
+      steps {
+        script {
+          withCredentials([ossrhCredentials,
+                           nexusCredentials]) {
+
+            if(!isMaintenanceBranch){
+              error("You are not on a maintenance branch. Please switch to a maintenance branch to release.")
+            }
+
+            String actualVersion = FileController.readPropertyFileValue(
+                'talend-component-kit-intellij-plugin/gradle.properties',
+                'pluginVersion')
+
+            String releaseVersion = FileController.getPreviousVersion(actualVersion).master
+
+            String checkMsg = "You are about to release the version $releaseVersion." +
+                "Do you want to continue ?"
+
+            // Request user action
+            input message: "$checkMsg", ok: 'Yes'
+
+            // Update the version in gradle.properties
+            FileController.editPropertyFileValue(
+                'talend-component-kit-intellij-plugin/gradle.properties',
+                'pluginVersion', releaseVersion)
+
+            jenkinsJobTools.job_description_append("Actual version: $actualVersion")
+            jenkinsJobTools.job_description_append("Release version: $releaseVersion")
+          }
+        }
+      }
+    }
+    stage('Preparation') {
+      steps {
+        script {
+          withCredentials([ossrhCredentials,
+                           nexusCredentials]) {
+            sh """\
+            #!/usr/bin/env bash
+            set -xe
+            cd talend-component-kit-intellij-plugin
+            bash scripts/0.preparation.sh
+            """.stripIndent()
+          }
+        }
+      }
+      post {
+        always {
+          println "Artifact .gradle files for analysis if needed"
+          archiveArtifacts artifacts: 'talend-component-kit-intellij-plugin/gradle.properties',
+                           allowEmptyArchive: false, onlyIfSuccessful: false
+        }
+      }
+    }
+    stage('Gradle compile') {
+      steps {
+        script {
+          withCredentials([ossrhCredentials,
+                           nexusCredentials]) {
+            sh """\
+            #!/usr/bin/env bash
+            set -xe
+            cd talend-component-kit-intellij-plugin
+            bash scripts/1.compile.sh
+            """.stripIndent()
+          }
+        }
+      }
+    }
+    stage('Gradle test') {
+      steps {
+        script {
+          withCredentials([ossrhCredentials,
+                           nexusCredentials]) {
+            sh """\
+            #!/usr/bin/env bash
+            set -xe
+            cd talend-component-kit-intellij-plugin
+            bash scripts/2.test.sh
+            """.stripIndent()
+          }
+        }
+      }
+      post {
+        always {
+          recordIssues(
+              enabledForFailure: false,
+              tools: [
+                  junitParser(
+                      id: 'unit-test',
+                      name: 'Unit Test',
+                      pattern: '**/target/surefire-reports/*.xml'
+                  )
+              ]
+          )
+        }
+      }
+    }
+    stage('Gradle jetbrains verify') {
+      steps {
+        script {
+          withCredentials([ossrhCredentials,
+                           nexusCredentials]) {
+            sh """\
+            #!/usr/bin/env bash
+            set -xe
+            cd talend-component-kit-intellij-plugin
+            bash scripts/3.verify.sh
+            """.stripIndent()
+          }
+        }
+      }
+    }
+    stage('Release') {
+      when { expression { params.RELEASE } }
+      steps {
+        script {
+          withCredentials([jetbrainsToken,
+                           nexusCredentials]) {
+            sh """\
+              #!/usr/bin/env bash
+              set -xe
+              cd talend-component-kit-intellij-plugin
+              bash scripts/5.release.sh "\${JETBRAINS_TOKEN}"
+              """.stripIndent()
+          }
+        }
+      }
+    }
+  }
+  post {
+    always {
+      script {
+        String prevResult = null
+        if (currentBuild.previousBuild) {
+          prevResult = currentBuild.previousBuild.result
+        }
+
+        alertingTools.slack_result(
+            env.SLACK_CI_CHANNEL,
+            currentBuild.result,
+            prevResult,
+            true, // Post for success
+            false // Post for failure
+        )
+      }
+      recordIssues(
+          enabledForFailure: false,
+          tools: [
+              taskScanner(
+                  id: 'disabled',
+                  name: '@Disabled',
+                  includePattern: 'talend-component-kit-intellij-plugin/src/**/*.java',
+                  ignoreCase: true,
+                  normalTags: '@Disabled'
+              ),
+              taskScanner(
+                  id: 'todo',
+                  name: 'Todo(low)/Fixme(high)',
+                  includePattern: 'talend-component-kit-intellij-plugin/src/**/*.java',
+                  ignoreCase: true,
+                  highTags: 'FIX_ME, FIXME',
+                  lowTags: 'TO_DO, TODO'
+              )
+          ]
+      )
+      script {
+        println '====== Archive jacoco reports artifacts'
+        archiveArtifacts artifacts: "${'**/jacoco-aggregate/**/*.*'}", allowEmptyArchive: true, onlyIfSuccessful: false
+      }
+
+      script {
+        if (params.JENKINS_DEBUG) {
+          jenkinsJobTools.jenkinsBreakpoint()
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Assembly all needed items to put inside extraBuildParams
+ *
+ * @param Boolean skip_doc, if set to true documentation build will be skipped
+ *
+ * @return extraBuildParams as a string ready for mvn cmd
+ */
+private String assemblyExtraBuildParams() {
+  String extraBuildParams
+
+  println 'Processing extraBuildParams'
+  final List<String> buildParamsAsArray = []
+
+  println 'Manage user params'
+  if (params.EXTRA_BUILD_PARAMS) {
+    buildParamsAsArray.add(params.EXTRA_BUILD_PARAMS as String)
+  }
+
+  println 'Construct final params content'
+  extraBuildParams = buildParamsAsArray.join(' ')
+  println "extraBuildParams: $extraBuildParams"
+
+  return extraBuildParams
+}
