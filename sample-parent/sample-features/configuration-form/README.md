@@ -1,4 +1,23 @@
 # Overview of TCK Configuration Form Features
+
+<!-- TOC -->
+* [Overview of TCK Configuration Form Features](#overview-of-tck-configuration-form-features)
+  * [How to build and test](#how-to-build-and-test)
+    * [Test in the Web UI](#test-in-the-web-ui)
+    * [Test in the studio](#test-in-the-studio)
+    * [Usage](#usage)
+  * [Supported types](#supported-types)
+  * [Configuration of widgets](#configuration-of-widgets)
+  * [Supported lists](#supported-lists)
+  * [Constraint on elements](#constraint-on-elements)
+  * [Conditional Element Display](#conditional-element-display)
+  * [Dynamic elements binded to backend services](#dynamic-elements-binded-to-backend-services)
+  * [Schema](#schema)
+* [Form descriptions](#form-descriptions)
+  * [Component-server metadata](#component-server-metadata)
+  * [Generated UISpec](#generated-uispec)
+<!-- TOC -->
+
 TCK connectivity (_emitters, processors, sinks_) are configured by standard java classes. Configurations classes support
 composition and inheritance.
 Those configuration classes can be decorated using some annotation to add some metadata that will be used to accurate
