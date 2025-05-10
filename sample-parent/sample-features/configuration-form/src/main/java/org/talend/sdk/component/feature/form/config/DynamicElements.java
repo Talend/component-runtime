@@ -20,6 +20,7 @@ import java.io.Serializable;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Suggestable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
+import org.talend.sdk.component.api.configuration.action.Validable;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.feature.form.service.UIService;
@@ -34,6 +35,7 @@ import lombok.NoArgsConstructor;
 @GridLayout(value = {
         @GridLayout.Row({ "singleString" }),
         @GridLayout.Row({ "someComplexConfig" }),
+        @GridLayout.Row({ "asyncValidation" }),
         @GridLayout.Row({ "suggestedElement" }),
 })
 public class DynamicElements implements Serializable {
@@ -42,13 +44,18 @@ public class DynamicElements implements Serializable {
     @Documentation("A single option used as paramete for dynamic elements.")
     private String singleString;
 
-    // Todo: Updated section seems not refreshed in the UI.
+    // Todo: Issue in webUI and studio, the update is not completly effective.
     @Option
-    @Documentation("Some configuration used by dynamics elements." +
-            "(recent issues both in web UI & studio).")
+    @Documentation("Some configuration used by dynamics elements. This object is validated by a service call.")
     @Updatable(value = UIService.UPDATABLE, parameters = { "singleString", "suggestedElement" },
             after = "anInteger")
+    @Validable(UIService.ASYNC_VALIDATION)
     private SomeComplexConfig someComplexConfig = new SomeComplexConfig();
+
+    @Option
+    @Documentation("A test.")
+    @Validable(UIService.ASYNC_VALIDATION_ONSTRING)
+    private String asyncValidation = "";
 
     @Option
     @Documentation("Select one value among suggestions retrieved from a service.")

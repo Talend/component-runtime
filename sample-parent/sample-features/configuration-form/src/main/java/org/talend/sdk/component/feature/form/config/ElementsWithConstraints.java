@@ -61,11 +61,14 @@ public class ElementsWithConstraints implements Serializable {
     private String stringWithPattern;
 
     @Option
-    @Documentation("An integer with a min.")
+    @Documentation("An integer with 100 as min value.")
+    @Min(100)
     private Integer intWithMin;
 
+    // Todo: Issue in studio
     @Option
-    @Documentation("An integer with a max.")
+    @Documentation("An integer with 100 as max value.")
+    @Max(100)
     private Integer intWithMax;
 
     @Option
@@ -73,18 +76,21 @@ public class ElementsWithConstraints implements Serializable {
     @Required
     private String aRequiredString;
 
+    // Todo: not implemented in studio
     @Option
-    @Documentation("A list of key/value pairs with a maximum number of items (not implemented in studio).")
+    @Documentation("A list of key/value pairs with a maximum number of items.")
     @Max(5)
     private List<KeyValue> listWithMaxItems = new ArrayList<>();
 
+    // Todo: not implemented in studio
     @Option
-    @Documentation("A list of key/value pairs with a minimum number of items (not implemented in studio).")
+    @Documentation("A list of key/value pairs with a minimum number of items.")
     @Min(2)
     private List<KeyValue> listWithMinItems = new ArrayList<>();
 
+    // Todo: not implemented nor in studio nor in webUI
     @Option
-    @Documentation("A list of key/value pairs with a uniq items (not implemented in studio).")
+    @Documentation("A list of key/value pairs with a uniq items.")
     @Uniques
     private List<KeyValue> listWithUniqueItems = new ArrayList<>();
 }

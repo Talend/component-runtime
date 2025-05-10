@@ -16,12 +16,15 @@
 package org.talend.sdk.component.feature.form.config;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout.FormType;
+import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.feature.form.service.UIService;
 
 import lombok.Data;
 
@@ -29,7 +32,8 @@ import lombok.Data;
 @DataSet
 @GridLayout(value = {
         @GridLayout.Row({ "datastore" }),
-        @GridLayout.Row({ "entity" })
+        @GridLayout.Row({ "entity" }),
+        @GridLayout.Row({ "schema" }),
 })
 @GridLayout(names = FormType.ADVANCED, value = { @GridLayout.Row({ "datastore" }) })
 public class ADataset implements Serializable {
@@ -41,5 +45,10 @@ public class ADataset implements Serializable {
     @Option
     @Documentation("A login.")
     private Entity entity;
+
+    @Option
+    @Structure(type = Structure.Type.OUT, discoverSchema = UIService.DISCOVERSCHEMA)
+    @Documentation("The schema information.")
+    private List<StudioSchema> schema;
 
 }

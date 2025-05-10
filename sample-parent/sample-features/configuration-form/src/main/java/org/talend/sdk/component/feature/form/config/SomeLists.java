@@ -34,16 +34,19 @@ import lombok.Data;
 })
 public class SomeLists implements Serializable {
 
+    // Todo: not implemented in web UI
     @Option
-    @Documentation("A list of Strings (Bugged in web UI).")
+    @Documentation("A list of Strings.")
     private List<String> aListOfStrings = new ArrayList<>();
 
+    // Todo: not implemented in web UI
     @Option
-    @Documentation("A list of int (Bugged in web UI).")
+    @Documentation("A list of int.")
     private List<Integer> aListOfInts = new ArrayList<>();
 
+    // Todo: not implemented in web UI
     @Option
-    @Documentation("A list of boolean (Bugged in web UI).")
+    @Documentation("A list of boolean.")
     private List<Boolean> aListOfBooleans = new ArrayList<>();
 
     @Option

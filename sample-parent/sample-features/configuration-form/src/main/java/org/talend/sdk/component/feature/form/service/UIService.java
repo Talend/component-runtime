@@ -21,13 +21,21 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation;
+import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult;
+import org.talend.sdk.component.api.service.asyncvalidation.ValidationResult.Status;
 import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.SuggestionValues.Item;
 import org.talend.sdk.component.api.service.completion.Suggestions;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.update.Update;
+import org.talend.sdk.component.feature.form.config.ADataset;
 import org.talend.sdk.component.feature.form.config.ADatastore;
 import org.talend.sdk.component.feature.form.config.DynamicElements.SomeComplexConfig;
 
@@ -36,11 +44,18 @@ public class UIService {
 
     public final static String HEALTHCHECK = "HEALTHCHECK";
 
+    public final static String DISCOVERSCHEMA = "DISCOVERSCHEMA";
+
     public final static String SUGGESTABLE = "SUGGESTABLE";
 
     public final static String UPDATABLE = "UPDATABLE";
 
     public final static String ASYNC_VALIDATION = "ASYNC_VALIDATION";
+
+    public final static String ASYNC_VALIDATION_ONSTRING = "ASYNC_VALIDATION2";
+
+    @Service
+    private RecordBuilderFactory recordBuilderFactory;
 
     @HealthCheck(HEALTHCHECK)
     public HealthCheckStatus healthCheck(@Option("configuration") final ADatastore datastore) {
@@ -49,6 +64,36 @@ public class UIService {
         } else {
             return new HealthCheckStatus(HealthCheckStatus.Status.KO, "Can't connect...");
         }
+    }
+
+    @DiscoverSchema(DISCOVERSCHEMA)
+    public Schema discoverSchema(@Option("configuration") final ADataset dataset) {
+        return recordBuilderFactory.newSchemaBuilder(Type.RECORD)
+                .withEntry(recordBuilderFactory
+                        .newEntryBuilder()
+                        .withName("configuration")
+                        .withType(Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .withEntry(recordBuilderFactory
+                        .newEntryBuilder()
+                        .withName("fixedString")
+                        .withType(Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .withEntry(recordBuilderFactory
+                        .newEntryBuilder()
+                        .withName("fixedInt")
+                        .withType(Type.INT)
+                        .withNullable(false)
+                        .build())
+                .withEntry(recordBuilderFactory
+                        .newEntryBuilder()
+                        .withName("fixedBoolean")
+                        .withType(Type.BOOLEAN)
+                        .withNullable(false)
+                        .build())
+                .build();
     }
 
     @Suggestions(SUGGESTABLE)
@@ -76,10 +121,30 @@ public class UIService {
                 aBoolean,
                 anInteger);
 
-        System.out.println(singleString + " / " + suggestedElement + " : " + scc);
         return scc;
     }
 
-    // @AsyncValidation(ASYNC_VALIDATION)
+    // Todo: Not implemented in WebUI; In the studio async validation works only on primitive types.
+    @AsyncValidation(ASYNC_VALIDATION)
+    public ValidationResult asyncValidation(final SomeComplexConfig someComplexConfig) {
+        if (someComplexConfig.getAnInteger() % 3 == 0) {
+            return new ValidationResult(Status.KO, "The integer must not be a multiple of 3.");
+        }
+
+        if (someComplexConfig.getAString().toLowerCase().contains("abc")) {
+            return new ValidationResult(Status.KO, "The string must not not contains 'abc' in any character case.");
+        }
+
+        return new ValidationResult(Status.OK, "The configuration is ok.");
+    }
+
+    @AsyncValidation(ASYNC_VALIDATION_ONSTRING)
+    public ValidationResult asyncValidation(final String someComplexConfig) {
+        if (someComplexConfig.toLowerCase().contains("abc")) {
+            return new ValidationResult(Status.KO, "The string must not not contains 'abc' in any character case.");
+        }
+
+        return new ValidationResult(Status.OK, "The configuration is ok.");
+    }
 
 }

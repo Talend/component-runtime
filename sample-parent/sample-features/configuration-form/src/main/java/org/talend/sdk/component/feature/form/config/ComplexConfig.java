@@ -30,6 +30,8 @@ import lombok.Data;
         @GridLayout.Row({ "dataset" }),
         @GridLayout.Row({ "displayAllSupportedTypes" }),
         @GridLayout.Row({ "allSupportedTypes" }),
+        @GridLayout.Row({ "displayConfiguredWidget" }),
+        @GridLayout.Row({ "configuredWidgets" }),
         @GridLayout.Row({ "displaySomeLists" }),
         @GridLayout.Row({ "someLists" }),
         @GridLayout.Row({ "displayElementsWithConstraints" }),
@@ -54,6 +56,15 @@ public class ComplexConfig implements Serializable {
     @ActiveIf(target = "displayAllSupportedTypes", value = "true")
     @Documentation("A complex configuration with all supported types.")
     private AllSupportedTypes allSupportedTypes;
+
+    @Option
+    @Documentation("Display 'configured widgets' section.")
+    private boolean displayConfiguredWidget;
+
+    @Option
+    @ActiveIf(target = "displayConfiguredWidget", value = "true")
+    @Documentation("Configured widgets section.")
+    private ConfiguredWidgets configuredWidgets;
 
     @Option
     @Documentation("Display 'All some lists' section.")

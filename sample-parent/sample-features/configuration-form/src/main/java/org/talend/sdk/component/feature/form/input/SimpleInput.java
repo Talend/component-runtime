@@ -54,6 +54,9 @@ public class SimpleInput implements Serializable {
 
         Builder builder = recordBuilderFactory.newRecordBuilder();
         builder.withString("configuration", config.toString());
+        builder.withString("fixedString", "A fixed string");
+        builder.withInt("fixedInt", 100);
+        builder.withBoolean("fixedBoolean", true);
 
         return builder.build();
     }
