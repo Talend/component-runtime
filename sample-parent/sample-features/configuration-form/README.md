@@ -164,7 +164,41 @@ should contain some of all attributes listed in the
 In a studio job, at runtime it will be populated with the information in the studio schema. In the web UI, the user 
 will have to set each field manually. 
 
-# Generated UISpec
-Using the web tester, it is possible to get the generated [uispec](src/main/resources/uispec.json).
+# Form descriptions
+All metadata are aggregated by the `component-manager` and served by the `component-server`. An extension transforms
+TCK raw metadata to uispec for Web UI.
+
+## Component-server metadata
+The studio starts a `component-server` in a thread. It can be queried to retrieve the full description of the
+`Input` connector. In a Windows powershell it can be done with:
+```bash
+# Send the web request
+$response = Invoke-WebRequest -Uri http://localhost:9999/api/v1/component/details?identifiers=Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA
+# Extract the content from the response
+$jsonContent = $response.Content
+
+# Convert the JSON string to a PowerShell object
+$jsonObject = $jsonContent | ConvertFrom-Json
+
+# Convert the object back to a JSON string with indentation for pretty printing
+$formattedJson = $jsonObject | ConvertTo-Json -Depth 100 -Compress:$false
+
+# Specify the path where you want to save the file
+$filePath = "C:\tmp\metadata.json"
+
+# Write the formatted JSON content to the file
+$formattedJson | Out-File -FilePath $filePath -Encoding utf8
+```
+and in a linux system:
+```bash
+curl http://localhost:9999/api/v1/component/details?identifiers=Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA | jq . > /tmp/metadata.json
+```
+Here is the full response payload: [tck metadata](src/main/resources/tck-metadatas.json). The form description is found
+the `properties` attribute.
+
+## Generated UISpec
+Using the web tester, it is possible to get the generated [uispec](src/main/resources/uispec.json). Press `F12` in the
+browser and select network. then after select the connector in the web ui. A rest call is done and you can retrieve 
+the response payload.
 
 
