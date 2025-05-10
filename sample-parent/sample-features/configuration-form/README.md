@@ -163,3 +163,8 @@ should contain some of all attributes listed in the
 
 In a studio job, at runtime it will be populated with the information in the studio schema. In the web UI, the user 
 will have to set each field manually. 
+
+# Generated UISpec
+Using the web tester, it is possible to get the generated [uispec](src/main/resources/uispec.json).
+
+
