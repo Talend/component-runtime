@@ -33,7 +33,7 @@ import org.talend.sdk.component.sample.feature.databasemapping.config.Config;
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Processor(name = "Processor")
-@DatabaseMapping(value = "custom", mapper = "processor_mapping")
+@DatabaseMapping(value = "custom", mapping = "processor_mapping")
 @Documentation("Database Mapping sample processor connector.")
 public class MappingProcessor implements Serializable {
 

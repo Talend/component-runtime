@@ -33,7 +33,7 @@ import org.talend.sdk.component.api.processor.Processor;
 import lombok.Data;
 
 @Processor
-@DatabaseMapping(value = CUSTOM, mapper = "schema_mapping")
+@DatabaseMapping(value = CUSTOM, mapping = "schema_mapping")
 public class ProcessorWithDbMapping implements Serializable {
 
     public ProcessorWithDbMapping(@Option("configuration") final Config config) {

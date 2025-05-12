@@ -65,7 +65,7 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
             final DatabaseMapping mapping = mappings.get();
             metadata.put(SCHEMA_MAPPING, mapping.value());
             if (DatabaseMapping.Mapping.CUSTOM.equals(mapping.value())) {
-                metadata.put(SCHEMA_MAPPER, mapping.mapper());
+                metadata.put(SCHEMA_MAPPER, mapping.mapping());
             }
         }
 

@@ -41,7 +41,7 @@ public @interface DatabaseMapping {
     /**
      * The mapper function name to fetch the custom mapping according configuration.
      */
-    String mapper() default "";
+    String mapping() default "";
 
     public static class Mapping {
 
