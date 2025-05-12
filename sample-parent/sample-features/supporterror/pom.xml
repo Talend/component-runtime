@@ -57,6 +57,47 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.talend.sdk.component</groupId>
+        <artifactId>talend-component-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <id>talend-component-validate</id>
+            <goals>
+              <goal>validate</goal>
+            </goals>
+            <phase>process-classes</phase>
+            <configuration>
+              <validatePlaceholder>true</validatePlaceholder>
+              <validateSvg>true</validateSvg>
+              <validateLegacyIcons>false</validateLegacyIcons>
+              <validateFamily>true</validateFamily>
+              <validateSerializable>true</validateSerializable>
+              <validateInternationalization>true</validateInternationalization>
+              <validateModel>true</validateModel>
+              <validateMetadata>true</validateMetadata>
+              <validateComponent>true</validateComponent>
+              <validateDataStore>false</validateDataStore>
+              <!-- Don't want datastore... -->
+              <validateDataSet>false</validateDataSet>
+              <!-- ...nor dataset -->
+              <validateActions>true</validateActions>
+              <validateDocumentation>true</validateDocumentation>
+              <validateWording>true</validateWording>
+              <validateLayout>true</validateLayout>
+              <validateOptionNames>true</validateOptionNames>
+              <validateOutputConnection>true</validateOutputConnection>
+              <validateLocalConfiguration>true</validateLocalConfiguration>
+              <validateNoFinalOption>true</validateNoFinalOption>
+              <validateExceptions>true</validateExceptions>
+              <failOnValidateExceptions>true</failOnValidateExceptions>
+              <validateRecord>true</validateRecord>
+              <validateSchema>true</validateSchema>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>

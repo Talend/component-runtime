@@ -20,17 +20,18 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
 
 import java.io.File;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.api.record.Schema;
-import org.talend.sdk.component.api.record.SchemaProperty;
+import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
+import org.talend.sdk.component.runtime.input.InputImpl;
+import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
@@ -51,49 +52,74 @@ public final class Cli {
     @Command("supporterror")
     public static void runInput(
             @Option("gav") @Default(GAV) final String gav,
-            @Option("s") @Default("false") final boolean support,
+            @Option("support") @Default("false") final boolean support,
+            @Option("gen-some-errors") @Default("true") final boolean genErrors,
+            @Option("gen-nbrecords") @Default("10") final int nbRecords,
             @Option("jar") final File jar,
             @Option("family") @Default("supporterror") final String family,
             @Option("mapper") @Default("SupportErrorMapper") final String mapper) {
 
-        try (final ComponentManager manager = manager(jar, GAV)) {
-            info("support " + support);
-            if (support) {
-                setSupportError(support);
+        info("support " + support);
+        if (support) {
+            setSupportError(support);
+        }
+
+        Map<String, String> config = new HashMap<>();
+        config.put("configuration.generateErrors", String.valueOf(genErrors));
+        config.put("configuration.nbRecords", String.valueOf(nbRecords));
+        run(jar, gav, config, "sampleRecordWithEntriesInError", "RecordWithEntriesInErrorEmitter");
+    }
+
+    private static void run(final File jar, final String gav, final Map<String, String> configuration,
+            final String family, final String mapper) {
+        try (final ComponentManager manager = manager(jar, gav)) {
+            info("configuration: " + configuration);
+
+            // create the mapper
+            final Mapper mpr = manager.findMapper(family, mapper, 1, configuration)
+                    .orElseThrow(() -> new IllegalStateException(
+                            String.format("No mapper found for: %s/%s.", family, manager)));
+
+            List<Mapper> mappers = mpr.split(1);
+            Record data;
+
+            int count = 0;
+            for (Mapper currentMapper : mappers) {
+                final InputImpl input = InputImpl.class.cast(currentMapper.create());
+                input.start();
+                while ((data = (Record) input.next()) != null) {
+                    count++;
+                    recordOut(count, data);
+                }
+                input.stop();
             }
-            info("create input now.");
-
-            SupportErrorInput seInput = new SupportErrorInput(null);
-            seInput.init();
-
-            info("getting the record.");
-            Record data = seInput.data();
-
-            info("Record isValid = " + data.isValid());
-            entryOut(data, "name", String.class);
-            entryOut(data, "date", Date.class);
-            entryOut(data, "age", Integer.class);
-           //
             info("finished.");
         } catch (Exception e) {
             error(e);
         }
     }
 
-    private static void entryOut(final Record data, final String column, final Class<?> type) {
-        Optional<Schema.Entry> ageEntry = data.getSchema().getEntries().stream().filter(e -> column.equals(e.getName())).findAny();
-        if(ageEntry.isPresent()) {
-            if (ageEntry.get().isValid()) {
-                Object value = data.get(type, column);
-                info("Record '" + column + "': " + value);
-            } else {
-                String errorMessage = ageEntry.get().getProp(SchemaProperty.ENTRY_ERROR_MESSAGE);
-                info("ERROR: " + errorMessage);
-            }
+    private static void recordOut(final int count, final Record record) {
+        System.out.printf("Record no %s is valid ? %s\n", count, record.isValid() ? "yes" : "no");
+        System.out.printf("\tName: %s\n", record.getString("name"));
+        Entry date = record.getSchema().getEntry("date");
+        if (date.isValid()) {
+            System.out.printf("\tDate: %s\n", record.getDateTime("date"));
+        } else {
+            System.out.printf("\tDate is on error: \n\t\tMessage:%s\n\t\tFallback value: %s\n",
+                    date.getErrorMessage(), date.getErrorFallbackValue());
+        }
+
+        Entry age = record.getSchema().getEntry("age");
+        if (age.isValid()) {
+            System.out.printf("\tAge: %s\n", record.getInt("age"));
+        } else {
+            System.out.printf("\tAge is on error: \n\t\tMessage:%s\n\t\tFallback value: %s\n",
+                    age.getErrorMessage(), age.getErrorFallbackValue());
         }
     }
 
-    //set support or not.
+    // set support or not.
     public static void setSupportError(final boolean supportError) {
         System.setProperty(Record.RECORD_ERROR_SUPPORT, String.valueOf(supportError));
     }

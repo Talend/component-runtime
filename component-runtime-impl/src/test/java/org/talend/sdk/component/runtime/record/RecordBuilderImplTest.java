@@ -250,66 +250,78 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void withErrorWhenNotSupported() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> withError("false"));
+    }
+
+    @Test
     void withError() {
-        Entry dateNull = new EntryImpl.BuilderImpl()
+        Record record = withError("true");
+
+        assertFalse(record.isValid());
+
+        final Entry retrievedDateEntry = record.getSchema().getEntry("date");
+        assertNotNull(retrievedDateEntry);
+        Assertions.assertFalse(retrievedDateEntry.isValid());
+        assertEquals(
+                "Entry 'date' of type DATETIME is not compatible with given value of type 'java.lang.String': 'not a date'.",
+                retrievedDateEntry.getErrorMessage());
+        Assertions.assertNull(record.getDateTime("date"));
+
+        final Entry retrievedIntEntry = record.getSchema().getEntry("intValue");
+        assertNotNull(retrievedIntEntry);
+        Assertions.assertFalse(retrievedIntEntry.isValid());
+        assertEquals(
+                "Entry 'intValue' of type INT is not compatible with given value of type 'java.lang.String': 'wrong int value'.",
+                retrievedIntEntry.getErrorMessage());
+        Assertions.assertNull(record.getDateTime("intValue"));
+
+        final Entry retrievedStringEntry = record.getSchema().getEntry("normal");
+        assertNotNull(retrievedStringEntry);
+        Assertions.assertTrue(retrievedStringEntry.isValid());
+        Assertions.assertEquals("No error", record.getString("normal"));
+
+    }
+
+    private Record withError(final String supported) {
+        final String errorSupportBackup = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, supported);
+
+        Entry dateEntry = new EntryImpl.BuilderImpl()
                 .withName("date")
                 .withNullable(false)
+                .withErrorCapable(true)
                 .withType(Type.DATETIME)
                 .build();
-        Entry date = new EntryImpl.BuilderImpl()
-                .withName("date")
-                .withNullable(false)
-                .withType(Type.DATETIME)
-                .build();
-        Entry normal = new EntryImpl.BuilderImpl()
+        Entry stringEntry = new EntryImpl.BuilderImpl()
                 .withName("normal")
                 .withNullable(true)
+                .withErrorCapable(true)
                 .withType(Type.STRING)
                 .build();
         Entry intEntry = new EntryImpl.BuilderImpl()
                 .withName("intValue")
                 .withNullable(false)
+                .withErrorCapable(true)
                 .withType(Type.INT)
                 .build();
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(dateNull)
-                .withEntry(date)
-                .withEntry(normal)
+                .withEntry(dateEntry)
+                .withEntry(stringEntry)
                 .withEntry(intEntry)
                 .build();
-        final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
-        System.setProperty(Record.RECORD_ERROR_SUPPORT, "true");
-        final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
-        final RecordImpl.BuilderImpl builder3 = new RecordImpl.BuilderImpl(schema);
 
-        final Record record3 = builder3
-                .with(dateNull, null)
-                .with(date, "not a date")
-                .with(normal, "normal")
-                .with(intEntry, "wrong int value")
-                .build();
-        assertFalse(record3.isValid());
-        final Entry entry =
-                record3.getSchema().getEntries().stream().filter(e -> "date".equals(e.getName())).findAny().get();
-        assertNotNull(entry);
-        Assertions.assertFalse(entry.isValid());
-        assertEquals("Entry 'date' of type DATETIME is not compatible with value of type 'java.lang.String'",
-                entry.getErrorMessage());
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
 
-        final Entry entry2 =
-                record3.getSchema().getEntries().stream().filter(e -> "intValue".equals(e.getName())).findAny().get();
-        assertNotNull(entry2);
-        Assertions.assertFalse(entry2.isValid());
-        assertEquals("Entry 'intValue' of type INT is not compatible with value of type 'java.lang.String'",
-                entry2.getErrorMessage());
+        builder.with(stringEntry, "No error");
+        builder.with(dateEntry, "not a date");
+        builder.with(intEntry, "wrong int value");
+        final Record record = builder.build();
 
-        final Entry entry3 =
-                record3.getSchema().getEntries().stream().filter(e -> "normal".equals(e.getName())).findAny().get();
-        assertNotNull(entry3);
-        Assertions.assertTrue(entry3.isValid());
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, errorSupportBackup == null ? "false" : errorSupportBackup);
 
-        System.setProperty(Record.RECORD_ERROR_SUPPORT, "false");
+        return record;
     }
 
     @Test

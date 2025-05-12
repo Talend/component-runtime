@@ -292,6 +292,11 @@ class SchemaTest {
         }
 
         @Override
+        public boolean isErrorCapable() {
+            throw new UnsupportedOperationException("#isErrorCapable()");
+        }
+
+        @Override
         public boolean isMetadata() {
             throw new UnsupportedOperationException("#isMetadata()");
         }
@@ -327,7 +332,9 @@ class SchemaTest {
         }
 
         @Override
-        public boolean isValid() { return true; }
+        public boolean isValid() {
+            return true;
+        }
 
     }
 
