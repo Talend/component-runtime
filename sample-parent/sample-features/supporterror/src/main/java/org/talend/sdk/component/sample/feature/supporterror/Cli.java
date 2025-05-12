@@ -21,7 +21,6 @@ import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
 
 import java.io.File;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,8 +57,6 @@ public final class Cli {
             @Option("mapper") @Default("SupportErrorMapper") final String mapper) {
 
         try (final ComponentManager manager = manager(jar, GAV)) {
-            final Map<String, String> configuration = new HashMap<>();
-
             info("support " + support);
             if (support) {
                 setSupportError(support);

@@ -172,9 +172,13 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder with(final Entry entry, final Object value) {
-            validateTypeAgainstProvidedSchema(entry.getName(), entry.getType(), value);
+            try {
+                validateTypeAgainstProvidedSchema(entry.getName(), entry.getType(), value);
+            } catch (Exception e) {
+                return withError(entry, value, e.getMessage());
+            }
             if (!entry.getType().isCompatible(value)) {
-                throw new IllegalArgumentException(String
+                return withError(entry, value, String
                         .format("Entry '%s' of type %s is not compatible with value of type '%s'", entry.getName(),
                                 entry.getType(), value.getClass().getName()));
             }
@@ -514,25 +518,21 @@ public final class RecordImpl implements Record {
             return append(entry, values);
         }
 
-        @Override
-        public Builder withError(final String columnName, final Object value, final String errorMessage,
-                final Exception exception) {
+        private Builder withError(final Entry entry, final Object value, final String errorMessage) {
             final boolean supportError = Boolean.parseBoolean(System.getProperty(RECORD_ERROR_SUPPORT, "false"));
             if (!supportError) {
                 throw new IllegalArgumentException(errorMessage);
             } else {
                 // duplicate the schema instance with a modified Entry
-                final Entry oldEntry = this.findExistingEntry(columnName);
-                final Entry updateEntry = oldEntry.toBuilder()
-                        .withName(columnName)
+                final Entry updateEntry = entry.toBuilder()
+                        .withName(entry.getName())
                         .withNullable(true)
-                        .withType(oldEntry.getType())
+                        .withType(entry.getType())
                         .withProp(SchemaProperty.ENTRY_IS_ON_ERROR, "true")
                         .withProp(SchemaProperty.ENTRY_ERROR_MESSAGE, errorMessage)
                         .withProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE, String.valueOf(value))
-                        .withProp(SchemaProperty.ERROR_EXCEPTION, exception == null ? "" : exception.toString())
-                        .build();
-                return updateEntryByName(columnName, updateEntry);
+                         .build();
+                return updateEntryByName(entry.getName(), updateEntry);
             }
         }
 

@@ -53,7 +53,6 @@ public class SupportErrorMapper implements Serializable {
 
     @Emitter
     public SupportErrorInput createSource() {
-
         return new SupportErrorInput(this.config);
     }
 

@@ -237,9 +237,9 @@ class AvroRecordBuilderTest {
         Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(nmEntry).withEntry(ageEntry).build();
         // record 1
         Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
-        Record record1 = recordBuilder.withError("name", null, "Stirng is null", null)
-                .withString("normal", "normal")
-                .withError("age", "string", "is not an int", null)
+        Record record1 = recordBuilder.with(nameEntry, null)
+                .with(nmEntry, "normal")
+                .with(ageEntry, "is not an int")
                 .build();
         assertFalse(record1.isValid());
 

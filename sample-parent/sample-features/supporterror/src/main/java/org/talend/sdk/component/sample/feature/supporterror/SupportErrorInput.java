@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,8 +42,13 @@ import lombok.Data;
 @Emitter(family = "supporterror", name = "supportErrorInput")
 public class SupportErrorInput implements Serializable {
 
-
     private transient Schema recordSchema;
+
+    private transient Schema.Entry nameEntry;
+
+    private transient Schema.Entry dateEntry;
+
+    private transient Schema.Entry ageEntry;
 
     private final transient InputConfig configuration;
 
@@ -53,32 +58,35 @@ public class SupportErrorInput implements Serializable {
 
     @PostConstruct
     public void init() {
+        nameEntry = new SchemaImpl.EntryImpl.BuilderImpl()
+                .withName("name")
+                .withNullable(false)
+                .withType(Schema.Type.STRING)
+                .build();
+        dateEntry = new SchemaImpl.EntryImpl.BuilderImpl()
+                .withName("date")
+                .withNullable(false)
+                .withType(Schema.Type.DATETIME)
+                .build();
+        ageEntry = new SchemaImpl.EntryImpl.BuilderImpl()
+                .withName("age")
+                .withNullable(false)
+                .withType(Schema.Type.INT)
+                .build();
         recordSchema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("name")
-                        .withNullable(false)
-                        .withType(Schema.Type.STRING)
-                        .build())
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("date")
-                        .withNullable(false)
-                        .withType(Schema.Type.DATETIME)
-                        .build())
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("age")
-                        .withNullable(false)
-                        .withType(Schema.Type.INT)
-                        .build())
+                .withEntry(nameEntry)
+                .withEntry(dateEntry)
+                .withEntry(ageEntry)
                 .build();
     }
 
     @Producer
     public Record data() {
         final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(recordSchema);
-        return builder.withString("name", "example connector")
-                .withError("date", null, "date is null", null)
-                .withError("age", "string", "wrong int value", null)
+        return builder.with(nameEntry, "example connector")
+                .with(dateEntry, "not a date value")
+                .with(ageEntry, "wrong int value")
                 .build();
     }
 
@@ -86,7 +94,7 @@ public class SupportErrorInput implements Serializable {
     @GridLayout(value = {
             @GridLayout.Row("dataset"),
     })
-     @Version
+    @Version
     public static class InputConfig {
 
         @Option
@@ -96,7 +104,7 @@ public class SupportErrorInput implements Serializable {
 
     @DataSet
     @Data
-    @GridLayout(value = { @GridLayout.Row("datastore") })
+    @GridLayout(value = {@GridLayout.Row("datastore")})
     public static class Dataset implements Serializable {
 
         @Option
@@ -107,7 +115,7 @@ public class SupportErrorInput implements Serializable {
 
     @DataStore
     @Data
-    @GridLayout(value = { @GridLayout.Row("name"), @GridLayout.Row("age"),
+    @GridLayout(value = {@GridLayout.Row("name"), @GridLayout.Row("age"),
             @GridLayout.Row("date")})
     public static class Datastore implements Serializable {
 

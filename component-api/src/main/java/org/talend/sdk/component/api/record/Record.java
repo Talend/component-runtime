@@ -34,7 +34,7 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 
 public interface Record {
 
-    String RECORD_ERROR_SUPPORT = "talend.sdk.runtime.record.error.support";
+    String RECORD_ERROR_SUPPORT = "talend.component.record.error.support";
 
     /**
      * @return the schema of this record.
@@ -454,7 +454,5 @@ public interface Record {
         Builder withRecord(String name, Record value);
 
         <T> Builder withArray(Schema.Entry entry, Collection<T> values);
-
-        Builder withError(String columnName, Object value, String errorMessage, Exception exception);
     }
 }

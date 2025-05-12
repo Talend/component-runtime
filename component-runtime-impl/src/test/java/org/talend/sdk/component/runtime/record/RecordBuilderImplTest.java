@@ -251,31 +251,43 @@ class RecordBuilderImplTest {
 
     @Test
     void withError() {
+        Entry dateNull = new EntryImpl.BuilderImpl()
+                .withName("date")
+                .withNullable(false)
+                .withType(Type.DATETIME)
+                .build();
+        Entry date = new EntryImpl.BuilderImpl()
+                .withName("date")
+                .withNullable(false)
+                .withType(Type.DATETIME)
+                .build();
+        Entry normal = new EntryImpl.BuilderImpl()
+                .withName("normal")
+                .withNullable(true)
+                .withType(Type.STRING)
+                .build();
+        Entry intEntry = new EntryImpl.BuilderImpl()
+                .withName("intValue")
+                .withNullable(false)
+                .withType(Type.INT)
+                .build();
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("date")
-                        .withNullable(false)
-                        .withType(Schema.Type.DATETIME)
-                        .build())
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("normal")
-                        .withNullable(true)
-                        .withType(Type.STRING)
-                        .build())
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
-                        .withName("intValue")
-                        .withNullable(false)
-                        .withType(Type.INT)
-                        .build())
+                .withEntry(dateNull)
+                .withEntry(date)
+                .withEntry(normal)
+                .withEntry(intEntry)
                 .build();
         final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
         System.setProperty(Record.RECORD_ERROR_SUPPORT, "true");
         final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
         final RecordImpl.BuilderImpl builder3 = new RecordImpl.BuilderImpl(schema);
-        final Record record3 = builder3.withError("date", null, "date is null", null)
-                .withString("normal", "normal")
-                .withError("intValue", "string", "wrong int value", null)
+
+        final Record record3 = builder3
+                .with(dateNull, null)
+                .with(date, "not a date")
+                .with(normal, "normal")
+                .with(intEntry, "wrong int value")
                 .build();
         assertFalse(record3.isValid());
         final Entry entry =
@@ -288,7 +300,29 @@ class RecordBuilderImplTest {
         assertNotNull(entry2);
         Assertions.assertFalse(entry2.isValid());
 
+        final Entry entry3 =
+                record3.getSchema().getEntries().stream().filter(e -> "normal".equals(e.getName())).findAny().get();
+        assertNotNull(entry3);
+        Assertions.assertTrue(entry3.isValid());
+
         System.setProperty(Record.RECORD_ERROR_SUPPORT, "false");
+    }
+
+    @Test
+    void testWithWrongEntryType() {
+        Entry entry = new SchemaImpl.EntryImpl.BuilderImpl()
+                .withName("date")
+                .withNullable(false)
+                .withType(Schema.Type.DATETIME)
+                .build();
+        final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(entry)
+                .build();
+        final RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        assertNotNull(builder.getEntry("date"));
+
+        assertThrows(IllegalArgumentException.class, () -> builder.with(entry, "String"));
     }
 
     @Test
