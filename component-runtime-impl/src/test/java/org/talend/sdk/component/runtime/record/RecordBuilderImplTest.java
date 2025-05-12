@@ -294,11 +294,15 @@ class RecordBuilderImplTest {
                 record3.getSchema().getEntries().stream().filter(e -> "date".equals(e.getName())).findAny().get();
         assertNotNull(entry);
         Assertions.assertFalse(entry.isValid());
+        assertEquals("Entry 'date' of type DATETIME is not compatible with value of type 'java.lang.String'",
+                entry.getErrorMessage());
 
         final Entry entry2 =
                 record3.getSchema().getEntries().stream().filter(e -> "intValue".equals(e.getName())).findAny().get();
         assertNotNull(entry2);
         Assertions.assertFalse(entry2.isValid());
+        assertEquals("Entry 'intValue' of type INT is not compatible with value of type 'java.lang.String'",
+                entry2.getErrorMessage());
 
         final Entry entry3 =
                 record3.getSchema().getEntries().stream().filter(e -> "normal".equals(e.getName())).findAny().get();

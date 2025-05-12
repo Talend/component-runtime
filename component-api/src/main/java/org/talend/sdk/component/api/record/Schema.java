@@ -233,7 +233,7 @@ public interface Schema {
         boolean isMetadata();
 
         /**
-          * @return true if the value of this entry is valid; false for invalid value.
+         * @return true if the value of this entry is valid; false for invalid value.
          */
         boolean isValid();
 
@@ -300,6 +300,10 @@ public interface Schema {
         default Entry.Builder toBuilder() {
             throw new UnsupportedOperationException("#toBuilder is not implemented");
         }
+
+        default String getErrorMessage() { return Optional.ofNullable(getProp(SchemaProperty.ENTRY_ERROR_MESSAGE)).orElse(null); }
+
+        default String getErrorFallbackValue() { return Optional.ofNullable(getProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE)).orElse(null); }
 
         /**
          * Plain builder matching {@link Entry} structure.
