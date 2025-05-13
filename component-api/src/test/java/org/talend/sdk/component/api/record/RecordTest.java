@@ -107,6 +107,11 @@ class RecordTest {
             }
 
             @Override
+            public boolean isErrorCapable() {
+                return false;
+            }
+
+            @Override
             public boolean isMetadata() {
                 return false;
             }
@@ -137,7 +142,9 @@ class RecordTest {
             }
 
             @Override
-            public boolean isValid() { return true; }
+            public boolean isValid() {
+                return true;
+            }
         };
         Assertions.assertEquals("value", record.get(String.class, e1));
     }

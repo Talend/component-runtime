@@ -78,6 +78,8 @@ class RecordBuilderFactoryTest {
 
         private final boolean nullable;
 
+        private final boolean errorCapable;
+
         private final boolean metadata;
 
         private final Object defaultVal;
@@ -104,7 +106,9 @@ class RecordBuilderFactoryTest {
         }
 
         @Override
-        public boolean isValid() { return true; }
+        public boolean isValid() {
+            return true;
+        }
     }
 
     @RequiredArgsConstructor
@@ -135,6 +139,12 @@ class RecordBuilderFactoryTest {
         @Override
         public Entry.Builder withNullable(boolean nullable) {
             this.builder.withNullable(nullable);
+            return this;
+        }
+
+        @Override
+        public Entry.Builder withErrorCapable(boolean errorCapable) {
+            this.builder.withErrorCapable(errorCapable);
             return this;
         }
 

@@ -130,6 +130,11 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         }
 
         @Override
+        public boolean isErrorCapable() {
+            return false;
+        }
+
+        @Override
         public boolean isMetadata() {
             return false;
         }
@@ -165,7 +170,9 @@ public class Schema implements org.talend.sdk.component.api.record.Schema {
         }
 
         @Override
-        public boolean isValid() { return true; }
+        public boolean isValid() {
+            return true;
+        }
 
     }
 
