@@ -352,6 +352,7 @@ public class SchemaImpl implements Schema {
                 this.type = builder.type;
             }
             this.nullable = builder.nullable;
+            this.errorCapable = builder.errorCapable;
             this.metadata = builder.metadata;
             this.defaultValue = builder.defaultValue;
             this.elementSchema = builder.elementSchema;
@@ -378,6 +379,11 @@ public class SchemaImpl implements Schema {
          * Is this entry nullable or always valued.
          */
         private final boolean nullable;
+
+        /**
+         * Is this entry can be in error.
+         */
+        private final boolean errorCapable;
 
         /**
          * Is this entry a metadata entry.
@@ -441,6 +447,11 @@ public class SchemaImpl implements Schema {
         }
 
         @Override
+        public boolean isErrorCapable() {
+            return this.errorCapable;
+        }
+
+        @Override
         public boolean isMetadata() {
             return this.metadata;
         }
@@ -487,6 +498,8 @@ public class SchemaImpl implements Schema {
 
             private boolean nullable;
 
+            private boolean errorCapable;
+
             private boolean metadata = false;
 
             private Object defaultValue;
@@ -506,6 +519,7 @@ public class SchemaImpl implements Schema {
                 this.name = entry.getName();
                 this.rawName = entry.getRawName();
                 this.nullable = entry.isNullable();
+                this.errorCapable = entry.isErrorCapable();
                 this.type = entry.getType();
                 this.comment = entry.getComment();
                 this.elementSchema = entry.getElementSchema();
@@ -546,6 +560,12 @@ public class SchemaImpl implements Schema {
             @Override
             public Builder withNullable(final boolean nullable) {
                 this.nullable = nullable;
+                return this;
+            }
+
+            @Override
+            public Builder withErrorCapable(final boolean errorCapable) {
+                this.errorCapable = errorCapable;
                 return this;
             }
 
