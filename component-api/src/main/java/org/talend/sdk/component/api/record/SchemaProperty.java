@@ -43,8 +43,6 @@ public interface SchemaProperty {
 
     String ENTRY_ERROR_FALLBACK_VALUE = "entry.error.fallback.value";
 
-    String ERROR_EXCEPTION = "entry.error.exception";
-
     enum LogicalType {
 
         DATE("date"),
