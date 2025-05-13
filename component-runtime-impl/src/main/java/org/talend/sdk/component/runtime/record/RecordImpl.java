@@ -130,7 +130,7 @@ public final class RecordImpl implements Record {
 
         private OrderState orderState;
 
-        private Map<String, Entry> entriesInError = new HashMap<>();
+        private final Map<String, Entry> entriesInError = new HashMap<>();
 
         public BuilderImpl() {
             this(null);
