@@ -23,7 +23,7 @@
   </parent>
 
   <groupId>org.talend.sdk.component.sample.feature</groupId>
-  <artifactId>supporterror</artifactId>
+  <artifactId>entrywitherror</artifactId>
   <packaging>jar</packaging>
 
   <name>Component Runtime :: Sample Feature :: Entry with error support</name>

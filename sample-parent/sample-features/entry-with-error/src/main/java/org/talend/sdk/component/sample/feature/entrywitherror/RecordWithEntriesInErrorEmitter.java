@@ -89,8 +89,7 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
         createRecordFunction = i -> {
             Builder builder = recordBuilderFactory.newRecordBuilder(recordSchema).withString("name", "name " + i);
 
-            // Generate error only on odd generated records
-            boolean generateErrors = config.isGenerateErrors() && i % 2 == 0;
+            boolean generateErrors = config.getHowManyErrors() >= i;
 
             if (generateErrors) {
                 Entry dateEntry = recordSchema.getEntry("date");
@@ -132,14 +131,14 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
 
     @Data
     @GridLayout(value = {
-            @GridLayout.Row("generateErrors"),
+            @GridLayout.Row("howManyErrors"),
             @GridLayout.Row("nbRecords"),
     })
     public static class Config implements Serializable {
 
         @Option
-        @Documentation("If true, generate some errors.")
-        private boolean generateErrors = true;
+        @Documentation("The number of errors to generate..")
+        private int howManyErrors;
 
         @Option
         @Documentation("Number of generated records.")

@@ -46,18 +46,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public final class Cli {
 
-    static final String GAV = "org.talend.sdk.component.sample.feature:supporterror:jar:"
+    static final String GAV = "org.talend.sdk.component.sample.feature:entrywitherror:jar:"
             + Versions.KIT_VERSION;
 
-    @Command("supporterror")
+    @Command("entry-with-error")
     public static void runInput(
             @Option("gav") @Default(GAV) final String gav,
             @Option("support") @Default("false") final boolean support,
-            @Option("gen-some-errors") @Default("true") final boolean genErrors,
+            @Option("how-many-errors") @Default("0") final int howManyErrors,
             @Option("gen-nbrecords") @Default("10") final int nbRecords,
             @Option("jar") final File jar,
-            @Option("family") @Default("supporterror") final String family,
-            @Option("mapper") @Default("SupportErrorMapper") final String mapper) {
+            @Option("family") @Default("sampleRecordWithEntriesInError") final String family,
+            @Option("mapper") @Default("RecordWithEntriesInErrorEmitter") final String mapper) {
 
         info("support " + support);
         if (support) {
@@ -65,7 +65,7 @@ public final class Cli {
         }
 
         Map<String, String> config = new HashMap<>();
-        config.put("configuration.generateErrors", String.valueOf(genErrors));
+        config.put("configuration.howManyErrors", String.valueOf(howManyErrors));
         config.put("configuration.nbRecords", String.valueOf(nbRecords));
         run(jar, gav, config, "sampleRecordWithEntriesInError", "RecordWithEntriesInErrorEmitter");
     }
