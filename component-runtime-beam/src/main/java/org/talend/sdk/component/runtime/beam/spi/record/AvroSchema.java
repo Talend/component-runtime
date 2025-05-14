@@ -222,6 +222,7 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
                 .withType(type) //
                 .withNullable(field.schema().getType() == UNION) //
+                .withErrorCapable(Boolean.parseBoolean(field.getProp(KeysForAvroProperty.ERROR_CAPABLE)))
                 .withMetadata(AvroSchema.isMetadata(field)) //
                 .withDefaultValue(field.defaultVal()) //
                 .withElementSchema(elementSchema) //
