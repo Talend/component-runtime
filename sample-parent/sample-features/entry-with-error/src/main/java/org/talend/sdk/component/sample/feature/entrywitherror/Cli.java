@@ -59,13 +59,15 @@ public final class Cli {
             @Option("use-avro-impl") @Default("false") final boolean useAvroImpl,
             @Option("how-many-errors") @Default("0") final int howManyErrors,
             @Option("gen-nb-records") @Default("10") final int nbRecords,
+            @Option("fields-in-error") @Default("age,date") final String fieldsInError,
             @Option("jar") final File jar,
             @Option("family") @Default("sampleRecordWithEntriesInError") final String family,
             @Option("mapper") @Default("RecordWithEntriesInErrorEmitter") final String mapper) {
 
         System.out.printf(
-                "Parameters:%n\tgav: %s%n\tsupport-entry-with-error: %s%n\tuse-avro-impl: %s%n\thow-many-errors: %d%n\tgen-nb-records: %d%n\tjar: %s%n\tfamily: %s%n\tmapper: %s%n",
-                gav, supportEntryWithError, useAvroImpl, howManyErrors, nbRecords, jar, family, mapper);
+                "Parameters:%n\tgav: %s%n\tsupport-entry-with-error: %s%n\tuse-avro-impl: %s%n\thow-many-errors: %d%n" +
+                        "\tgen-nb-records: %d%n\tgfields-in-error: %s%n\tjar: %s%n\tfamily: %s%n\tmapper: %s%n",
+                gav, supportEntryWithError, useAvroImpl, howManyErrors, nbRecords, fieldsInError, jar, family, mapper);
 
         System.setProperty(Record.RECORD_ERROR_SUPPORT, String.valueOf(supportEntryWithError));
         System.setProperty("talend.component.beam.record.factory.impl", useAvroImpl ? "avro" : "default");
@@ -73,6 +75,12 @@ public final class Cli {
         Map<String, String> config = new HashMap<>();
         config.put("configuration.howManyErrors", String.valueOf(howManyErrors));
         config.put("configuration.nbRecords", String.valueOf(nbRecords));
+
+        String[] fields = fieldsInError.split(",");
+        for (int i = 0; i < fields.length; i++) {
+            config.put("configuration.fieldsInError[" + i + "]", fields[i]);
+        }
+
         run(jar, gav, config, family, mapper, useAvroImpl);
     }
 
@@ -103,7 +111,7 @@ public final class Cli {
             System.out.println("-----------------------------------------------------");
             info("finished.");
         } catch (Exception e) {
-            error(e);
+            exception(e);
         }
     }
 
@@ -151,9 +159,7 @@ public final class Cli {
         return new Main(Cli.class).exec(args);
     }
 
-    static final String ERROR = "[ERROR] ";
-
-    static final String WARN = "[WARN]  ";
+    static final String EXCEPTION = "[EXCEPTION] ";
 
     static final String INFO = "[INFO]  ";
 
@@ -221,8 +227,8 @@ public final class Cli {
         System.out.println(INFO + message);
     }
 
-    public static void error(final Throwable e) {
-        System.err.println(ERROR + e.getMessage());
+    public static void exception(final Throwable e) {
+        System.err.println(EXCEPTION + e.getMessage());
         System.exit(501);
     }
 

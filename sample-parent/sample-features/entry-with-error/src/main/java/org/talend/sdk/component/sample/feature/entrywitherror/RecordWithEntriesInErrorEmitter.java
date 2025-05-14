@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
@@ -85,11 +87,18 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
                 .build();
 
         createRecordFunction = i -> {
-            Builder builder = recordBuilderFactory.newRecordBuilder(recordSchema).withString("name", "name " + i);
+            Builder builder = recordBuilderFactory.newRecordBuilder(recordSchema);
 
             boolean generateErrors = config.getHowManyErrors() >= i;
 
-            if (generateErrors) {
+            if (generateErrors && config.getFieldsInError().contains("name")) {
+                Entry nameEntry = recordSchema.getEntry("name");
+                builder.with(nameEntry, null);
+            } else {
+                builder.withString("name", "name " + i);
+            }
+
+            if (generateErrors && config.getFieldsInError().contains("date")) {
                 Entry dateEntry = recordSchema.getEntry("date");
                 builder.with(dateEntry, "789-555");
             } else {
@@ -106,7 +115,7 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
                 builder.withDateTime("date", dateTime);
             }
 
-            if (generateErrors) {
+            if (generateErrors && config.getFieldsInError().contains("age")) {
                 Entry ageEntry = recordSchema.getEntry("age");
                 builder.with(ageEntry, "-78");
             } else {
@@ -131,6 +140,7 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
     @GridLayout(value = {
             @GridLayout.Row("howManyErrors"),
             @GridLayout.Row("nbRecords"),
+            @GridLayout.Row("fieldsInError"),
     })
     public static class Config implements Serializable {
 
@@ -141,6 +151,10 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
         @Option
         @Documentation("Number of generated records.")
         private int nbRecords = 5;
+
+        @Option
+        @Documentation("Fields in error.")
+        private List<String> fieldsInError = new ArrayList<>();
 
     }
 
