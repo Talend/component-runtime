@@ -35,7 +35,6 @@ import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 import lombok.Data;
 
@@ -64,21 +63,20 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
 
     @PostConstruct
     public void init() {
-        recordSchema = new SchemaImpl.BuilderImpl()
-                .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+        recordSchema = recordBuilderFactory.newSchemaBuilder(Schema.Type.RECORD)
+                .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("name")
                         .withNullable(false)
                         .withErrorCapable(true)
                         .withType(Schema.Type.STRING)
                         .build())
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("date")
                         .withNullable(false)
                         .withErrorCapable(true)
                         .withType(Schema.Type.DATETIME)
                         .build())
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("age")
                         .withNullable(false)
                         .withErrorCapable(true)

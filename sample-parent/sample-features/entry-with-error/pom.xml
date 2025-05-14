@@ -40,6 +40,15 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.talend.sdk.component</groupId>
+      <artifactId>component-runtime-beam</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.tomitribe</groupId>
       <artifactId>tomitribe-crest</artifactId>
       <version>0.32</version>
@@ -98,18 +107,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>org.talend.sdk.component.sample.feature.entrywitherror.Cli</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.1</version>
         <executions>
@@ -124,18 +121,19 @@
                   <mainClass>org.talend.sdk.component.sample.feature.entrywitherror.Cli</mainClass>
                 </transformer>
               </transformers>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <configuration>
-          <mainClass>org.talend.sdk.component.sample.feature.entrywitherror.Cli</mainClass>
-        </configuration>
       </plugin>
     </plugins>
   </build>
