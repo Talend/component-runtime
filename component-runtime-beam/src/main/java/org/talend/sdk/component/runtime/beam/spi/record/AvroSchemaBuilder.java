@@ -463,7 +463,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
             for (Map.Entry<String, String> e : entry.getProps().entrySet()) {
                 field.addProp(e.getKey(), e.getValue());
             }
-
+            if (entry.isErrorCapable()) {
+                field.addProp(KeysForAvroProperty.ERROR_CAPABLE, String.valueOf(entry.isErrorCapable()));
+            }
             return field;
         }
     }

@@ -213,13 +213,13 @@ class AvroRecordBuilderTest {
     void testWithError() {
         final String val = System.getProperty(Record.RECORD_ERROR_SUPPORT);
         System.setProperty(Record.RECORD_ERROR_SUPPORT, "true");
-        final String val2 = System.getProperty(Record.RECORD_ERROR_SUPPORT);
 
         org.talend.sdk.component.api.record.Schema.Builder schemaBuilder = factory.newSchemaBuilder(Schema.Type.RECORD);
         Schema.Entry nameEntry = factory
                 .newEntryBuilder()
                 .withName("name")
                 .withNullable(false)
+                .withErrorCapable(true)
                 .withType(Schema.Type.STRING)
                 .build();
         Schema.Entry nmEntry = factory
@@ -232,13 +232,15 @@ class AvroRecordBuilderTest {
                 .newEntryBuilder()
                 .withName("age")
                 .withNullable(false)
+                .withErrorCapable(true)
                 .withType(Schema.Type.INT)
                 .build();
         Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(nmEntry).withEntry(ageEntry).build();
         // record 1
         Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
-        Record record1 = recordBuilder.with(nameEntry, null)
+        Record record1 = recordBuilder
                 .with(nmEntry, "normal")
+                .with(nameEntry, null)
                 .with(ageEntry, "is not an int")
                 .build();
         assertFalse(record1.isValid());
