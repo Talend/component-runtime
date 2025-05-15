@@ -41,7 +41,7 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import lombok.Data;
 
 @Version
-@Icon(value = Icon.IconType.CUSTOM, custom = "mapper")
+@Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Emitter(name = "RecordWithEntriesInErrorEmitter")
 @Documentation("Generated record with entries in error.")
 public class RecordWithEntriesInErrorEmitter implements Serializable {
