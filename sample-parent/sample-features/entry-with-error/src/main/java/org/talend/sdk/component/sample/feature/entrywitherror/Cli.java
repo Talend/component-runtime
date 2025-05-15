@@ -24,12 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
+import org.apache.avro.generic.IndexedRecord;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
+import org.talend.sdk.component.runtime.beam.spi.record.AvroRecord;
 import org.talend.sdk.component.runtime.input.InputImpl;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -46,32 +49,43 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public final class Cli {
 
-    static final String GAV = "org.talend.sdk.component.sample.feature:supporterror:jar:"
+    static final String GAV = "org.talend.sdk.component.sample.feature:entrywitherror:jar:"
             + Versions.KIT_VERSION;
 
-    @Command("supporterror")
+    @Command("entry-with-error")
     public static void runInput(
             @Option("gav") @Default(GAV) final String gav,
-            @Option("support") @Default("false") final boolean support,
-            @Option("gen-some-errors") @Default("true") final boolean genErrors,
-            @Option("gen-nbrecords") @Default("10") final int nbRecords,
+            @Option("support-entry-with-error") @Default("false") final boolean supportEntryWithError,
+            @Option("use-avro-impl") @Default("false") final boolean useAvroImpl,
+            @Option("how-many-errors") @Default("0") final int howManyErrors,
+            @Option("gen-nb-records") @Default("10") final int nbRecords,
+            @Option("fields-in-error") @Default("age,date") final String fieldsInError,
             @Option("jar") final File jar,
-            @Option("family") @Default("supporterror") final String family,
-            @Option("mapper") @Default("SupportErrorMapper") final String mapper) {
+            @Option("family") @Default("sampleRecordWithEntriesInError") final String family,
+            @Option("mapper") @Default("RecordWithEntriesInErrorEmitter") final String mapper) {
 
-        info("support " + support);
-        if (support) {
-            setSupportError(support);
-        }
+        System.out.printf(
+                "Parameters:%n\tgav: %s%n\tsupport-entry-with-error: %s%n\tuse-avro-impl: %s%n\thow-many-errors: %d%n" +
+                        "\tgen-nb-records: %d%n\tgfields-in-error: %s%n\tjar: %s%n\tfamily: %s%n\tmapper: %s%n",
+                gav, supportEntryWithError, useAvroImpl, howManyErrors, nbRecords, fieldsInError, jar, family, mapper);
+
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, String.valueOf(supportEntryWithError));
+        System.setProperty("talend.component.beam.record.factory.impl", useAvroImpl ? "avro" : "default");
 
         Map<String, String> config = new HashMap<>();
-        config.put("configuration.generateErrors", String.valueOf(genErrors));
+        config.put("configuration.howManyErrors", String.valueOf(howManyErrors));
         config.put("configuration.nbRecords", String.valueOf(nbRecords));
-        run(jar, gav, config, "sampleRecordWithEntriesInError", "RecordWithEntriesInErrorEmitter");
+
+        String[] fields = fieldsInError.split(",");
+        for (int i = 0; i < fields.length; i++) {
+            config.put("configuration.fieldsInError[" + i + "]", fields[i]);
+        }
+
+        run(jar, gav, config, family, mapper, useAvroImpl);
     }
 
     private static void run(final File jar, final String gav, final Map<String, String> configuration,
-            final String family, final String mapper) {
+            final String family, final String mapper, final boolean avro) {
         try (final ComponentManager manager = manager(jar, gav)) {
             info("configuration: " + configuration);
 
@@ -89,39 +103,52 @@ public final class Cli {
                 input.start();
                 while ((data = (Record) input.next()) != null) {
                     count++;
-                    recordOut(count, data);
+                    recordOut(count, data, avro);
                 }
                 input.stop();
             }
+
+            System.out.println("-----------------------------------------------------");
             info("finished.");
         } catch (Exception e) {
-            error(e);
+            exception(e);
         }
     }
 
-    private static void recordOut(final int count, final Record record) {
-        System.out.printf("Record no %s is valid ? %s\n", count, record.isValid() ? "yes" : "no");
-        System.out.printf("\tName: %s\n", record.getString("name"));
+    private static void recordOut(final int count, final Record record, final boolean avro) {
+        System.out.println("-----------------------------------------------------");
+        System.out.printf("Record (%s) no %s is valid ? %s%n", record.getClass().getSimpleName(), count,
+                record.isValid() ? "yes" : "no");
+        System.out.printf("\tName: %s%n", record.getString("name"));
         Entry date = record.getSchema().getEntry("date");
         if (date.isValid()) {
-            System.out.printf("\tDate: %s\n", record.getDateTime("date"));
+            System.out.printf("\tDate: %s%n", record.getDateTime("date"));
         } else {
-            System.out.printf("\tDate is on error: \n\t\tMessage:%s\n\t\tFallback value: %s\n",
+            System.out.printf("\tDate is on error: %n\t\tMessage:%s%n\t\tFallback value: %s%n",
                     date.getErrorMessage(), date.getErrorFallbackValue());
         }
 
         Entry age = record.getSchema().getEntry("age");
         if (age.isValid()) {
-            System.out.printf("\tAge: %s\n", record.getInt("age"));
+            System.out.printf("\tAge: %s%n", record.getInt("age"));
         } else {
-            System.out.printf("\tAge is on error: \n\t\tMessage:%s\n\t\tFallback value: %s\n",
+            System.out.printf("\tAge is on error: %n\t\tMessage:%s%n\t\tFallback value: %s%n",
                     age.getErrorMessage(), age.getErrorFallbackValue());
         }
-    }
 
-    // set support or not.
-    public static void setSupportError(final boolean supportError) {
-        System.setProperty(Record.RECORD_ERROR_SUPPORT, String.valueOf(supportError));
+        if (avro) {
+            IndexedRecord unwrap = ((AvroRecord) record).unwrap(IndexedRecord.class);
+            System.out.println("\tAvro fields properties:");
+            unwrap.getSchema().getFields().stream().forEach(f -> {
+                String props = f.getObjectProps()
+                        .entrySet()
+                        .stream()
+                        .map(es -> "\t\t\t" + es.getKey() + " = " + es.getValue())
+                        .collect(Collectors.joining("\n"));
+                System.out.printf("\t\tField '%s', properties: %n%s%n", f.name(), props);
+            });
+        }
+
     }
 
     public static void main(final String[] args) throws Exception {
@@ -132,9 +159,7 @@ public final class Cli {
         return new Main(Cli.class).exec(args);
     }
 
-    static final String ERROR = "[ERROR] ";
-
-    static final String WARN = "[WARN]  ";
+    static final String EXCEPTION = "[EXCEPTION] ";
 
     static final String INFO = "[INFO]  ";
 
@@ -202,12 +227,8 @@ public final class Cli {
         System.out.println(INFO + message);
     }
 
-    public static void warn(final String message) {
-        System.err.println(WARN + message);
-    }
-
-    public static void error(final Throwable e) {
-        System.err.println(ERROR + e.getMessage());
+    public static void exception(final Throwable e) {
+        System.err.println(EXCEPTION + e.getMessage());
         System.exit(501);
     }
 

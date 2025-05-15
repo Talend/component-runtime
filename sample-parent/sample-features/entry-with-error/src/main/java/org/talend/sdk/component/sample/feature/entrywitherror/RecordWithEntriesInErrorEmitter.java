@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
@@ -35,7 +37,6 @@ import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 import lombok.Data;
 
@@ -64,21 +65,20 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
 
     @PostConstruct
     public void init() {
-        recordSchema = new SchemaImpl.BuilderImpl()
-                .withType(Schema.Type.RECORD)
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+        recordSchema = recordBuilderFactory.newSchemaBuilder(Schema.Type.RECORD)
+                .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("name")
                         .withNullable(false)
                         .withErrorCapable(true)
                         .withType(Schema.Type.STRING)
                         .build())
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("date")
                         .withNullable(false)
                         .withErrorCapable(true)
                         .withType(Schema.Type.DATETIME)
                         .build())
-                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("age")
                         .withNullable(false)
                         .withErrorCapable(true)
@@ -87,12 +87,18 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
                 .build();
 
         createRecordFunction = i -> {
-            Builder builder = recordBuilderFactory.newRecordBuilder(recordSchema).withString("name", "name " + i);
+            Builder builder = recordBuilderFactory.newRecordBuilder(recordSchema);
 
-            // Generate error only on odd generated records
-            boolean generateErrors = config.isGenerateErrors() && i % 2 == 0;
+            boolean generateErrors = config.getHowManyErrors() >= i;
 
-            if (generateErrors) {
+            if (generateErrors && config.getFieldsInError().contains("name")) {
+                Entry nameEntry = recordSchema.getEntry("name");
+                builder.with(nameEntry, null);
+            } else {
+                builder.withString("name", "name " + i);
+            }
+
+            if (generateErrors && config.getFieldsInError().contains("date")) {
                 Entry dateEntry = recordSchema.getEntry("date");
                 builder.with(dateEntry, "789-555");
             } else {
@@ -109,7 +115,7 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
                 builder.withDateTime("date", dateTime);
             }
 
-            if (generateErrors) {
+            if (generateErrors && config.getFieldsInError().contains("age")) {
                 Entry ageEntry = recordSchema.getEntry("age");
                 builder.with(ageEntry, "-78");
             } else {
@@ -132,18 +138,23 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
 
     @Data
     @GridLayout(value = {
-            @GridLayout.Row("generateErrors"),
+            @GridLayout.Row("howManyErrors"),
             @GridLayout.Row("nbRecords"),
+            @GridLayout.Row("fieldsInError"),
     })
     public static class Config implements Serializable {
 
         @Option
-        @Documentation("If true, generate some errors.")
-        private boolean generateErrors = true;
+        @Documentation("The number of errors to generate..")
+        private int howManyErrors;
 
         @Option
         @Documentation("Number of generated records.")
         private int nbRecords = 5;
+
+        @Option
+        @Documentation("Fields in error.")
+        private List<String> fieldsInError = new ArrayList<>();
 
     }
 
