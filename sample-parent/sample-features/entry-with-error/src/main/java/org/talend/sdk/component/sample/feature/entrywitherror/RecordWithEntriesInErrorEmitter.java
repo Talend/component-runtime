@@ -50,8 +50,6 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
 
     private final Config config;
 
-    private transient Schema recordSchema;
-
     private transient Function<Integer, Record> createRecordFunction;
 
     private transient int index;
@@ -65,7 +63,7 @@ public class RecordWithEntriesInErrorEmitter implements Serializable {
 
     @PostConstruct
     public void init() {
-        recordSchema = recordBuilderFactory.newSchemaBuilder(Schema.Type.RECORD)
+        final Schema recordSchema = recordBuilderFactory.newSchemaBuilder(Schema.Type.RECORD)
                 .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("name")
                         .withNullable(false)

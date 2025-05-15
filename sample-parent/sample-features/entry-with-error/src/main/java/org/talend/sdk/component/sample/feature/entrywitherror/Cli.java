@@ -116,13 +116,13 @@ public final class Cli {
         }
     }
 
-    private static void recordOut(final int count, final Record record, final boolean avro) {
+    private static void recordOut(final int count, final Record aRecord, final boolean avro) {
         System.out.println("-----------------------------------------------------");
-        System.out.printf("Record (%s) no %s is valid ? %s%n", record.getClass().getSimpleName(), count,
-                record.isValid() ? "yes" : "no");
+        System.out.printf("Record (%s) no %s is valid ? %s%n", aRecord.getClass().getSimpleName(), count,
+                aRecord.isValid() ? "yes" : "no");
 
-        Entry name = record.getSchema().getEntry("name");
-        String nameValue = record.getString("name");
+        Entry name = aRecord.getSchema().getEntry("name");
+        String nameValue = aRecord.getString("name");
         if (name.isValid()) {
             System.out.printf("\tName: %s%n", nameValue);
         } else {
@@ -131,8 +131,8 @@ public final class Cli {
                     nameValue, name.getErrorMessage(), name.getErrorFallbackValue());
         }
 
-        Entry date = record.getSchema().getEntry("date");
-        ZonedDateTime dateValue = record.getDateTime("date");
+        Entry date = aRecord.getSchema().getEntry("date");
+        ZonedDateTime dateValue = aRecord.getDateTime("date");
         if (date.isValid()) {
             System.out.printf("\tDate: %s%n", dateValue);
         } else {
@@ -141,8 +141,8 @@ public final class Cli {
                     dateValue, date.getErrorMessage(), date.getErrorFallbackValue());
         }
 
-        Entry age = record.getSchema().getEntry("age");
-        Integer ageValue = record.get(Integer.class, "age");
+        Entry age = aRecord.getSchema().getEntry("age");
+        Integer ageValue = aRecord.get(Integer.class, "age");
         if (age.isValid()) {
             System.out.printf("\tAge: %s%n", ageValue);
         } else {
@@ -152,7 +152,7 @@ public final class Cli {
         }
 
         if (avro) {
-            IndexedRecord unwrap = ((AvroRecord) record).unwrap(IndexedRecord.class);
+            IndexedRecord unwrap = ((AvroRecord) aRecord).unwrap(IndexedRecord.class);
             System.out.println("\tAvro fields properties:");
             unwrap.getSchema().getFields().stream().forEach(f -> {
                 String props = f.getObjectProps()
