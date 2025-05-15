@@ -285,8 +285,6 @@ class AvroRecordBuilderTest {
                 .build();
         Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(noErrorEntry).withEntry(ageEntry).build();
 
-        Entry age = customerSchema.getEntry("age");
-
         Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
         Record record = recordBuilder.with(nameEntry, null)
                 .with(noErrorEntry, "normal")
