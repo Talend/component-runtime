@@ -67,7 +67,7 @@ public final class Cli {
 
         System.out.printf(
                 "Parameters:%n\tgav: %s%n\tsupport-entry-with-error: %s%n\tuse-avro-impl: %s%n\thow-many-errors: %d%n" +
-                        "\tgen-nb-records: %d%n\tgfields-in-error: %s%n\tjar: %s%n\tfamily: %s%n\tmapper: %s%n",
+                        "\tgen-nb-records: %d%n\tfields-in-error: %s%n\tjar: %s%n\tfamily: %s%n\tmapper: %s%n",
                 gav, supportEntryWithError, useAvroImpl, howManyErrors, nbRecords, fieldsInError, jar, family, mapper);
 
         System.setProperty(Record.RECORD_ERROR_SUPPORT, String.valueOf(supportEntryWithError));
