@@ -119,7 +119,15 @@ public final class Cli {
         System.out.println("-----------------------------------------------------");
         System.out.printf("Record (%s) no %s is valid ? %s%n", record.getClass().getSimpleName(), count,
                 record.isValid() ? "yes" : "no");
-        System.out.printf("\tName: %s%n", record.getString("name"));
+
+        Entry name = record.getSchema().getEntry("name");
+        if (name.isValid()) {
+            System.out.printf("\tName: %s%n", record.getString("name"));
+        } else {
+            System.out.printf("\tName is on error: %n\t\tMessage:%s%n\t\tFallback value: %s%n",
+                    name.getErrorMessage(), name.getErrorFallbackValue());
+        }
+
         Entry date = record.getSchema().getEntry("date");
         if (date.isValid()) {
             System.out.printf("\tDate: %s%n", record.getDateTime("date"));
