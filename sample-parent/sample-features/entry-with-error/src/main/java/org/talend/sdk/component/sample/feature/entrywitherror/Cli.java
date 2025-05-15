@@ -20,6 +20,7 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.talend.sdk.component.runtime.manager.ComponentManager.findM2;
 
 import java.io.File;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,27 +122,33 @@ public final class Cli {
                 record.isValid() ? "yes" : "no");
 
         Entry name = record.getSchema().getEntry("name");
+        String nameValue = record.getString("name");
         if (name.isValid()) {
-            System.out.printf("\tName: %s%n", record.getString("name"));
+            System.out.printf("\tName: %s%n", nameValue);
         } else {
-            System.out.printf("\tName is on error: %n\t\tMessage:%s%n\t\tFallback value: %s%n",
-                    name.getErrorMessage(), name.getErrorFallbackValue());
+            System.out.printf(
+                    "\tName is on error: %n\t\tValue (should be null): %s%n\t\tMessage:%s%n\t\tFallback value: %s%n",
+                    nameValue, name.getErrorMessage(), name.getErrorFallbackValue());
         }
 
         Entry date = record.getSchema().getEntry("date");
+        ZonedDateTime dateValue = record.getDateTime("date");
         if (date.isValid()) {
-            System.out.printf("\tDate: %s%n", record.getDateTime("date"));
+            System.out.printf("\tDate: %s%n", dateValue);
         } else {
-            System.out.printf("\tDate is on error: %n\t\tMessage:%s%n\t\tFallback value: %s%n",
-                    date.getErrorMessage(), date.getErrorFallbackValue());
+            System.out.printf(
+                    "\tDate is on error: %n\t\tValue (should be null): %s%n\t\tMessage:%s%n\t\tFallback value: %s%n",
+                    dateValue, date.getErrorMessage(), date.getErrorFallbackValue());
         }
 
         Entry age = record.getSchema().getEntry("age");
+        Integer ageValue = record.get(Integer.class, "age");
         if (age.isValid()) {
-            System.out.printf("\tAge: %s%n", record.getInt("age"));
+            System.out.printf("\tAge: %s%n", ageValue);
         } else {
-            System.out.printf("\tAge is on error: %n\t\tMessage:%s%n\t\tFallback value: %s%n",
-                    age.getErrorMessage(), age.getErrorFallbackValue());
+            System.out.printf(
+                    "\tAge is on error: %n\t\tValue (should be null): %s%n\t\tMessage:%s%n\t\tFallback value: %s%n",
+                    ageValue, age.getErrorMessage(), age.getErrorFallbackValue());
         }
 
         if (avro) {
@@ -175,8 +182,6 @@ public final class Cli {
 
     public static ComponentManager manager(final File jar, final String artifact) {
         return new ComponentManager(findM2()) {
-
-            final ContainerFinder containerFinder = ContainerFinder.Instance.get();
 
             final ComponentManager originalMgr = contextualInstance().get();
 
@@ -236,7 +241,7 @@ public final class Cli {
     }
 
     public static void exception(final Throwable e) {
-        System.err.println(EXCEPTION + e.getMessage());
+        System.err.printf("%s%s%n%s%n", EXCEPTION, e.getMessage(), e);
         System.exit(501);
     }
 
