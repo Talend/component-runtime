@@ -61,6 +61,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaProperty;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -129,6 +130,8 @@ public final class RecordImpl implements Record {
 
         private OrderState orderState;
 
+        private final Map<String, Entry> entriesInError = new HashMap<>();
+
         public BuilderImpl() {
             this(null);
         }
@@ -150,7 +153,7 @@ public final class RecordImpl implements Record {
                 } else {
                     final List<Entry> fields = this.providedSchema.naturalOrder()
                             .getFieldsOrder()
-                            .map(this.providedSchema::getEntry)
+                            .map(n -> this.getEntryWithErrorIfAny(this.providedSchema.getEntry(n)))
                             .collect(Collectors.toList());
                     this.orderState = new OrderState(fields);
                 }
@@ -171,11 +174,16 @@ public final class RecordImpl implements Record {
 
         @Override
         public Builder with(final Entry entry, final Object value) {
-            validateTypeAgainstProvidedSchema(entry.getName(), entry.getType(), value);
+            try {
+                validateTypeAgainstProvidedSchema(entry.getName(), entry.getType(), value);
+            } catch (Exception e) {
+                return withError(entry, value, e.getMessage());
+            }
             if (!entry.getType().isCompatible(value)) {
-                throw new IllegalArgumentException(String
-                        .format("Entry '%s' of type %s is not compatible with value of type '%s'", entry.getName(),
-                                entry.getType(), value.getClass().getName()));
+                return withError(entry, value, String
+                        .format("Entry '%s' of type %s is not compatible with given value of type '%s': '%s'.",
+                                entry.getOriginalFieldName(),
+                                entry.getType(), value.getClass().getName(), value));
             }
 
             if (entry.getType() == Schema.Type.DATETIME) {
@@ -315,12 +323,27 @@ public final class RecordImpl implements Record {
             final Schema.Entry entry = this.findExistingEntry(name);
             if (entry.getType() != type) {
                 throw new IllegalArgumentException(
-                        "Entry '" + name + "' expected to be a " + entry.getType() + ", got a " + type);
+                        "Entry '" + entry.getOriginalFieldName() + "' expected to be a " + entry.getType() + ", got a " + type);
             }
             if (value == null && !entry.isNullable()) {
-                throw new IllegalArgumentException("Entry '" + name + "' is not nullable");
+                throw new IllegalArgumentException("Entry '" + entry.getOriginalFieldName() + "' is not nullable");
             }
             return entry;
+        }
+
+        /**
+         * This method return the updated entry with error information if any.
+         *
+         * @param e The entry to check.
+         * @return The entry updated with error information or the given one.
+         */
+        private Entry getEntryWithErrorIfAny(final Entry e) {
+            if (!e.isErrorCapable()) {
+                // The entry doesn't support error management
+                return e;
+            }
+
+            return entriesInError.getOrDefault(e.getOriginalFieldName(), e);
         }
 
         public Record build() {
@@ -328,20 +351,33 @@ public final class RecordImpl implements Record {
             if (this.providedSchema != null) {
                 final String missing = this.providedSchema
                         .getAllEntries()
+                        .map(this::getEntryWithErrorIfAny)
                         .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
                         .map(Schema.Entry::getName)
                         .collect(joining(", "));
                 if (!missing.isEmpty()) {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
+
+                Schema schemaWithErrors = this.providedSchema;
+                if (!this.entriesInError.isEmpty()) {
+                    Schema.Builder schemaBuilder = new SchemaImpl.BuilderImpl()
+                            .withType(this.providedSchema.getType());
+                    this.providedSchema.getEntries()
+                            .stream()
+                            .map(this::getEntryWithErrorIfAny)
+                            .forEach(schemaBuilder::withEntry);
+                    schemaWithErrors = schemaBuilder.build();
+                }
+
                 if (orderState != null && orderState.isOverride()) {
-                    currentSchema = this.providedSchema.toBuilder().build(this.orderState.buildComparator());
+                    currentSchema = schemaWithErrors.toBuilder().build(this.orderState.buildComparator());
                 } else {
-                    currentSchema = this.providedSchema;
+                    currentSchema = schemaWithErrors;
                 }
             } else {
                 final Schema.Builder builder = new SchemaImpl.BuilderImpl().withType(RECORD);
-                this.entries.forEachValue(builder::withEntry);
+                this.entries.streams().map(this::getEntryWithErrorIfAny).forEach(builder::withEntry);
                 initOrderState();
                 currentSchema = builder.build(orderState.buildComparator());
             }
@@ -511,6 +547,25 @@ public final class RecordImpl implements Record {
             validateTypeAgainstProvidedSchema(entry.getName(), ARRAY, values);
             // todo: check item type?
             return append(entry, values);
+        }
+
+        private Builder withError(final Entry entry, final Object value, final String errorMessage) {
+            final boolean supportError = Boolean.parseBoolean(System.getProperty(RECORD_ERROR_SUPPORT, "false"));
+            if (!supportError || !entry.isErrorCapable()) {
+                throw new IllegalArgumentException(errorMessage);
+            } else {
+                // duplicate the schema instance with a modified Entry
+                final Entry updatedEntry = entry.toBuilder()
+                        .withName(entry.getName())
+                        .withNullable(true)
+                        .withType(entry.getType())
+                        .withProp(SchemaProperty.ENTRY_IS_ON_ERROR, "true")
+                        .withProp(SchemaProperty.ENTRY_ERROR_MESSAGE, errorMessage)
+                        .withProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE, String.valueOf(value))
+                        .build();
+                this.entriesInError.put(updatedEntry.getOriginalFieldName(), updatedEntry);
+                return this;
+            }
         }
 
         private void assertType(final Schema.Type actual, final Schema.Type expected) {

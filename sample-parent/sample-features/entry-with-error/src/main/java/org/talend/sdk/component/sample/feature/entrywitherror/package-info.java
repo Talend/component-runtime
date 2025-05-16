@@ -13,16 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.runtime.beam.spi.record;
+@Components(family = "sampleRecordWithEntriesInError", categories = "sample")
+@Icon(value = Icon.IconType.CUSTOM, custom = "icon")
+package org.talend.sdk.component.sample.feature.entrywitherror;
 
-public interface KeysForAvroProperty {
-
-    String LABEL = "talend.component.label";
-
-    // alias that indicate field is metadata if present.
-    String METADATA_ALIAS_NAME = "talend.field.__METADATA__";
-
-    String IS_ERROR_CAPABLE = "talend.component.record.entry.errorCapable";
-
-    String RECORD_IN_ERROR = "talend.component.record.value.on.error";
-}
+import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;
