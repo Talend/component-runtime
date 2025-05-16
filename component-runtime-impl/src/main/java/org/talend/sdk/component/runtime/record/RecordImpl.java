@@ -182,7 +182,7 @@ public final class RecordImpl implements Record {
             if (!entry.getType().isCompatible(value)) {
                 return withError(entry, value, String
                         .format("Entry '%s' of type %s is not compatible with given value of type '%s': '%s'.",
-                                entry.getName(),
+                                entry.getOriginalFieldName(),
                                 entry.getType(), value.getClass().getName(), value));
             }
 
@@ -323,10 +323,10 @@ public final class RecordImpl implements Record {
             final Schema.Entry entry = this.findExistingEntry(name);
             if (entry.getType() != type) {
                 throw new IllegalArgumentException(
-                        "Entry '" + name + "' expected to be a " + entry.getType() + ", got a " + type);
+                        "Entry '" + entry.getOriginalFieldName() + "' expected to be a " + entry.getType() + ", got a " + type);
             }
             if (value == null && !entry.isNullable()) {
-                throw new IllegalArgumentException("Entry '" + name + "' is not nullable");
+                throw new IllegalArgumentException("Entry '" + entry.getOriginalFieldName() + "' is not nullable");
             }
             return entry;
         }
