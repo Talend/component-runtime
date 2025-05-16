@@ -196,11 +196,6 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>talend-component-kit-intellij-plugin</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
       <artifactId>singer-java</artifactId>
       <version>${project.version}</version>
     </dependency>
