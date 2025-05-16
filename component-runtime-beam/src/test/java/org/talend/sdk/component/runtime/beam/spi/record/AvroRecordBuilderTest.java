@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -212,12 +212,27 @@ class AvroRecordBuilderTest {
 
     @Test
     void testWithoutErrorSupport() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> testWithError("false"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> testWithError("false", true));
     }
 
     @Test
-    void testWithError() {
-        Record record = testWithError("true");
+    void testWithErrorSupportButNoError() {
+        Record record = testWithError("true", false);
+
+        IndexedRecord unwrap = ((AvroRecord) record).unwrap(IndexedRecord.class);
+
+        Assertions.assertTrue(unwrap.getSchema().getProp(KeysForAvroProperty.RECORD_IN_ERROR).equals("false"));
+
+        Field nameField = unwrap.getSchema().getFields().get(0);
+        Assertions.assertNull(nameField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
+
+        Field ageField = unwrap.getSchema().getFields().get(2);
+        Assertions.assertNull(ageField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
+    }
+
+    @Test
+    void testWithErrorSupport() {
+        Record record = testWithError("true", true);
         assertFalse(record.isValid());
 
         final Schema.Entry entry = record.getSchema().getEntry("name");
@@ -232,6 +247,8 @@ class AvroRecordBuilderTest {
 
         IndexedRecord unwrap = ((AvroRecord) record).unwrap(IndexedRecord.class);
 
+        Assertions.assertTrue(unwrap.getSchema().getProp(KeysForAvroProperty.RECORD_IN_ERROR).equals("true"));
+
         Field nameField = unwrap.getSchema().getFields().get(0);
         Assertions.assertEquals("true",
                 nameField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
@@ -244,7 +261,7 @@ class AvroRecordBuilderTest {
         Assertions.assertEquals("true",
                 ageField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
         Assertions.assertEquals("Entry 'age' of type INT is not compatible with given value of type " +
-                "'java.lang.String': 'is not an int'.",
+                        "'java.lang.String': 'is not an int'.",
                 ageField.getProp(SchemaProperty.ENTRY_ERROR_MESSAGE));
         Assertions.assertEquals("is not an int",
                 ageField.getProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE));
@@ -256,7 +273,7 @@ class AvroRecordBuilderTest {
 
     }
 
-    private Record testWithError(final String supported) {
+    private Record testWithError(final String supported, final boolean genError) {
         final String errorSupportBackup = System.getProperty(Record.RECORD_ERROR_SUPPORT);
         System.setProperty(Record.RECORD_ERROR_SUPPORT, supported);
 
@@ -285,9 +302,9 @@ class AvroRecordBuilderTest {
         Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(noErrorEntry).withEntry(ageEntry).build();
 
         Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
-        Record record = recordBuilder.with(nameEntry, null)
+        Record record = recordBuilder.with(nameEntry, genError ? null : "a string")
                 .with(noErrorEntry, "normal")
-                .with(ageEntry, "is not an int")
+                .with(ageEntry, genError ? "is not an int" : 10)
                 .build();
 
         System.setProperty(Record.RECORD_ERROR_SUPPORT, errorSupportBackup == null ? "false" : errorSupportBackup);
@@ -606,8 +623,8 @@ class AvroRecordBuilderTest {
     }
 
     private Schema.Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable,
-            Object defaultValue,
-            String comment) {
+                                  Object defaultValue,
+                                  String comment) {
         return new EntryImpl.BuilderImpl()
                 .withName(name)
                 .withRawName(rawname)
@@ -623,7 +640,7 @@ class AvroRecordBuilderTest {
     }
 
     private Schema.Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
-            Object defaultValue, String comment) {
+                                      Object defaultValue, String comment) {
         return new EntryImpl.BuilderImpl()
                 .withName(name)
                 .withRawName(rawname)
