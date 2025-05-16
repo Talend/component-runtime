@@ -34,6 +34,7 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.dependencies.maven.Artifact;
 import org.talend.sdk.component.dependencies.maven.MvnCoordinateToFileConverter;
 import org.talend.sdk.component.runtime.beam.spi.record.AvroRecord;
+import org.talend.sdk.component.runtime.beam.spi.record.KeysForAvroProperty;
 import org.talend.sdk.component.runtime.input.InputImpl;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
@@ -153,6 +154,8 @@ public final class Cli {
 
         if (avro) {
             IndexedRecord unwrap = ((AvroRecord) aRecord).unwrap(IndexedRecord.class);
+            System.out.printf("\tAvro IndexedRecord on error ? %s=%s%n", KeysForAvroProperty.RECORD_IN_ERROR,
+                    unwrap.getSchema().getProp(KeysForAvroProperty.RECORD_IN_ERROR));
             System.out.println("\tAvro fields properties:");
             unwrap.getSchema().getFields().stream().forEach(f -> {
                 String props = f.getObjectProps()
