@@ -15,9 +15,7 @@
  */
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
-import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
-import org.jetbrains.intellij.platform.gradle.models.ProductRelease
 
 
 plugins {
@@ -36,11 +34,10 @@ kotlin {
     jvmToolchain(17)
 }
 
-// Configure project's dependencies
 repositories {
+    mavenLocal()
     mavenCentral()
 
-    // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
     intellijPlatform {
         defaultRepositories()
     }
@@ -168,13 +165,7 @@ intellijPlatform {
     pluginVerification {
         freeArgs = listOf("-mute", "TemplateWordInPluginId")
         ides {
-            select {
-                types = listOf(IntelliJPlatformType.IntellijIdeaCommunity)
-                channels = listOf(ProductRelease.Channel.RELEASE)
-                sinceBuild = providers.gradleProperty("pluginSinceBuild")
-                untilBuild = providers.gradleProperty("pluginSinceBuild")
-            }
-//            recommended()
+            recommended()
         }
     }
 }

@@ -34,6 +34,8 @@ import org.talend.sdk.component.api.record.Schema.Entry;
 
 public interface Record {
 
+    String RECORD_ERROR_SUPPORT = "talend.component.record.error.support";
+
     /**
      * @return the schema of this record.
      */
@@ -309,6 +311,11 @@ public interface Record {
      */
     default Optional<Record> getOptionalRecord(final String name) {
         return ofNullable(get(Record.class, name));
+    }
+
+    default boolean isValid() {
+        return !getSchema().getAllEntries()
+                .anyMatch(entry -> !entry.isValid());
     }
 
     /**

@@ -292,6 +292,11 @@ class SchemaTest {
         }
 
         @Override
+        public boolean isErrorCapable() {
+            throw new UnsupportedOperationException("#isErrorCapable()");
+        }
+
+        @Override
         public boolean isMetadata() {
             throw new UnsupportedOperationException("#isMetadata()");
         }
@@ -324,6 +329,11 @@ class SchemaTest {
         @Override
         public JsonValue getJsonProp(final String name) {
             return Entry.super.getJsonProp(name);
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
         }
 
     }

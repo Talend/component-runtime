@@ -33,6 +33,7 @@
     <module>database-mapping</module>
     <module>conditional-outputs</module>
     <module>checkpoint-runner</module>
+    <module>entry-with-error</module>
   </modules>
 
   <dependencies>

@@ -78,6 +78,8 @@ class RecordBuilderFactoryTest {
 
         private final boolean nullable;
 
+        private final boolean errorCapable;
+
         private final boolean metadata;
 
         private final Object defaultVal;
@@ -101,6 +103,11 @@ class RecordBuilderFactoryTest {
         @Override
         public Builder toBuilder() {
             throw new UnsupportedOperationException("#toBuilder()");
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
         }
     }
 
@@ -132,6 +139,12 @@ class RecordBuilderFactoryTest {
         @Override
         public Entry.Builder withNullable(boolean nullable) {
             this.builder.withNullable(nullable);
+            return this;
+        }
+
+        @Override
+        public Entry.Builder withErrorCapable(boolean errorCapable) {
+            this.builder.withErrorCapable(errorCapable);
             return this;
         }
 
