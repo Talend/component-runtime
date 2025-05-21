@@ -1,17 +1,16 @@
-= Improve Record API to add error info for invalid entries
+= Error handling in records
 :page-partial:
 :description: How to develop a connector to handle errors in records with Talend Component Kit
-:keywords: component type, producer, emitter, input, record, bookmark
+:keywords: record, schema, error
 
 
 == Introduction
 When we create TCK/Record, in some use case, first with quality applications, we have to return a record even when there is an issue in retrieved value.
 
-For instance, in an Excel file, when the 'A' column is identified as a 'date', and so the related entry as DATETIME type in the schema, there can be an excel cell that contains a String. Currently, it throws an exception. Quality application has to get a record to be able to present the value in error.
+For instance, in an Excel file, when the 'A' column is identified as a DATETIME, and so the related entry as DATETIME type in the schema, there can be an excel cell that contains a String. Currently, it throws an exception. Quality application has to get a record to be able to present the value in error.
 
-We improve the TCK record api to be able to set the entry of a record in error and retrieve a fallback value (the value that has been retrieved but that was inconsistent with the schema) and an error message.
+Now the TCK record api is able to set the entry of a record in error and retrieve a fallback value (the value that has been retrieved but that was inconsistent with the schema) and an error message.
 
-This mechanism should be disengageable to maintain the current behavior that throws an exception (maybe using java property or a parameter in the record builder， switch between withError or not: means throw exception or not.
 
 IMPORTANT: The feature is disabled by default, to use it, you need to add a system property *`talend.component.record.error.support`*  in the runtime jvm like this:
 
@@ -20,11 +19,8 @@ IMPORTANT: The feature is disabled by default, to use it, you need to add a syst
 ```
 
 
-== Mechanism
-Checkpointing in TCK is implemented using specific annotations and an interface that defines the required methods. .
-
 === Connector Implementation
-To support it, the input component used in the lifecycle should call the following interface:
+To support it, the input component call EntryImpl.BuilderImpl..withErrorCapable(true), and builder.with() API as the following code did:
 
 [source,java]
 ----
@@ -48,15 +44,10 @@ public interface Input extends Lifecycle {
         Entry ageEntry = schema .getEntry("age");
         builder.with(ageEntry, value);
 
-        // If an error is identified when the value is given to the with(Entry, Object) method
-        // The entry in error is updated with some properties:
-        // entry.withProp(SchemaProperty.ENTRY_IS_ON_ERROR, "true")
-        // entry.withProp(SchemaProperty.ENTRY_ERROR_MESSAGE, errorMessage): error message genetated by the with(Entry, Object) method
-        // entry.withProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE, stringFallbackValue): The string representation of the given value
 
         Record record = builder.build();
 
-        Entry ageEntry = record..getSchema().getEntry("age");
+        Entry ageEntry = record.getSchema().getEntry("age");
         if(ageEntry.isValid()) {
             Integer age = record.get(Integer.class, "age");
             //  process the age...
@@ -64,11 +55,13 @@ public interface Input extends Lifecycle {
         else{
             String errorMessage = ageEntry.getErrorMessage();
             String errorFallbackValue = ageEntry.getErrorFallbackValue();
-            // Do something with the error value
-            Integer age = record.get(Integer.class, "age"); // returns null since no valid value was set
+            // Do something with the error value， error message, and error fallback value.
+            Integer age = record.get(Integer.class, "age");
+            String errorMessage = age.getErrorMessage();
+            String fallbackValue = age.getErrorFallbackValue()
         }
 
- ----
+----
 
 == Conclusion
 This feature will not interrupt the data processing even with some invalid values. It is important for the whole progress.
