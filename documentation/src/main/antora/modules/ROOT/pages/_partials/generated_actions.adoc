@@ -131,6 +131,7 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
   "entries":[
     {
       "comment":"The column 1",
+      "errorCapable":false,
       "metadata":false,
       "name":"column1",
       "nullable":false,
@@ -138,10 +139,12 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
 
       },
       "rawName":"column 1",
-      "type":"STRING"
+      "type":"STRING",
+      "valid":true
     },
     {
       "comment":"The int column",
+      "errorCapable":false,
       "metadata":false,
       "name":"column2",
       "nullable":false,
@@ -149,7 +152,8 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
 
       },
       "rawName":"column 2",
-      "type":"INT"
+      "type":"INT",
+      "valid":true
     }
   ],
   "metadata":[
@@ -177,6 +181,7 @@ Mark a method as returning a Schema resulting from a connector configuration and
   "entries":[
     {
       "comment":"The column 1",
+      "errorCapable":false,
       "metadata":false,
       "name":"column1",
       "nullable":false,
@@ -184,10 +189,12 @@ Mark a method as returning a Schema resulting from a connector configuration and
 
       },
       "rawName":"column 1",
-      "type":"STRING"
+      "type":"STRING",
+      "valid":true
     },
     {
       "comment":"The int column",
+      "errorCapable":false,
       "metadata":false,
       "name":"column2",
       "nullable":false,
@@ -195,7 +202,8 @@ Mark a method as returning a Schema resulting from a connector configuration and
 
       },
       "rawName":"column 2",
-      "type":"INT"
+      "type":"INT",
+      "valid":true
     }
   ],
   "metadata":[

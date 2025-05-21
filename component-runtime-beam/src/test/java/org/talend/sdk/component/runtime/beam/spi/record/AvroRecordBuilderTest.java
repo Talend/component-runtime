@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -261,7 +261,7 @@ class AvroRecordBuilderTest {
         Assertions.assertEquals("true",
                 ageField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
         Assertions.assertEquals("Entry 'age' of type INT is not compatible with given value of type " +
-                        "'java.lang.String': 'is not an int'.",
+                "'java.lang.String': 'is not an int'.",
                 ageField.getProp(SchemaProperty.ENTRY_ERROR_MESSAGE));
         Assertions.assertEquals("is not an int",
                 ageField.getProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE));
@@ -623,8 +623,8 @@ class AvroRecordBuilderTest {
     }
 
     private Schema.Entry newEntry(final String name, String rawname, Schema.Type type, boolean nullable,
-                                  Object defaultValue,
-                                  String comment) {
+            Object defaultValue,
+            String comment) {
         return new EntryImpl.BuilderImpl()
                 .withName(name)
                 .withRawName(rawname)
@@ -640,7 +640,7 @@ class AvroRecordBuilderTest {
     }
 
     private Schema.Entry newMetaEntry(final String name, String rawname, Schema.Type type, boolean nullable,
-                                      Object defaultValue, String comment) {
+            Object defaultValue, String comment) {
         return new EntryImpl.BuilderImpl()
                 .withName(name)
                 .withRawName(rawname)

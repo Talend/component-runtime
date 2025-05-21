@@ -323,7 +323,8 @@ public final class RecordImpl implements Record {
             final Schema.Entry entry = this.findExistingEntry(name);
             if (entry.getType() != type) {
                 throw new IllegalArgumentException(
-                        "Entry '" + entry.getOriginalFieldName() + "' expected to be a " + entry.getType() + ", got a " + type);
+                        "Entry '" + entry.getOriginalFieldName() + "' expected to be a " + entry.getType() + ", got a "
+                                + type);
             }
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("Entry '" + entry.getOriginalFieldName() + "' is not nullable");
