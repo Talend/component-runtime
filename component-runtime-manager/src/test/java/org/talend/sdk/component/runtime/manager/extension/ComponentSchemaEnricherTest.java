@@ -24,6 +24,9 @@ import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.service.schema.FixedSchema;
+import org.talend.sdk.component.runtime.manager.extension.test.mappings.custom.ProcessorWithDbMapping;
+import org.talend.sdk.component.runtime.manager.extension.test.mappings.mysql.ProcessorWithMySqlMapping;
+import org.talend.sdk.component.runtime.manager.extension.test.nomapping.ProcessorWithoutDbMapping;
 import org.talend.sdk.component.spi.component.ComponentMetadataEnricher;
 
 class ComponentSchemaEnricherTest {
@@ -55,6 +58,33 @@ class ComponentSchemaEnricherTest {
     @Test
     void fixedSchemaMetadataNotPresent() {
         assertEquals(emptyMap(), enricher.onComponent(MyProcessor.class, MyProcessor.class.getAnnotations()));
+    }
+
+    @Test
+    void dbMappingMetadataPresent() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::schema::mapping", "custom");
+                put("tcomp::ui::schema::mapper", "schema_mapping");
+            }
+        }, enricher.onComponent(ProcessorWithDbMapping.class, ProcessorWithDbMapping.class.getAnnotations()));
+    }
+
+    @Test
+    void mysqlMappingMetadataPresent() {
+        assertEquals(new HashMap<String, String>() {
+
+            {
+                put("tcomp::ui::schema::mapping", "mysql");
+            }
+        }, enricher.onComponent(ProcessorWithMySqlMapping.class, ProcessorWithMySqlMapping.class.getAnnotations()));
+    }
+
+    @Test
+    void noDbMappingMetadataPresent() {
+        assertEquals(emptyMap(), enricher.onComponent(ProcessorWithoutDbMapping.class,
+                ProcessorWithoutDbMapping.class.getAnnotations()));
     }
 
     @Processor
