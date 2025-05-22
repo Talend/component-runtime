@@ -7,10 +7,11 @@
 == Introduction
 When we create TCK/Record, in some use case, first with quality applications, we have to return a record even when there is an issue in retrieved value.
 
-For instance, in an Excel file, when the 'A' column is identified as a DATETIME, and so the related entry as DATETIME type in the schema, there can be an excel cell that contains a String. Currently, it throws an exception. Quality application has to get a record to be able to present the value in error.
+For instance, in an Excel file, when the 'A' column is identified as a DATETIME, and so the related entry as DATETIME type in the schema, there can be an excel cell that contains a String.
+Currently, it throws an exception. Quality application has to get a record to be able to present the value in error.
 
-Now the TCK record api is able to set the entry of a record in error and retrieve a fallback value (the value that has been retrieved but that was inconsistent with the schema) and an error message.
-
+Now, with this feature enabled: the TCK record api is able to set the entry of a record in error and retrieve a fallback value (the value that has been retrieved but that was inconsistent with the schema) and an error message.
+If the feature is not enabled (defaule):  Exception is raised with the error message.
 
 IMPORTANT: The feature is disabled by default, to use it, you need to add a system property *`talend.component.record.error.support`*  in the runtime jvm like this:
 
@@ -20,7 +21,7 @@ IMPORTANT: The feature is disabled by default, to use it, you need to add a syst
 
 
 === Connector Implementation
-To support it, the input component call EntryImpl.BuilderImpl..withErrorCapable(true), and builder.with() API as the following code did:
+To support it, the input component call EntryImpl.BuilderImpl.withErrorCapable(true), and builder.with() API as the following code did:
 
 [source,java]
 ----
@@ -55,7 +56,8 @@ public interface Input extends Lifecycle {
         else{
             String errorMessage = ageEntry.getErrorMessage();
             String errorFallbackValue = ageEntry.getErrorFallbackValue();
-            // Do something with the error value， error message, and error fallback value.
+            // Do something with the error value (the value maybe null,here the age is null)，
+            //error message, and error fallback value.
             Integer age = record.get(Integer.class, "age");
             String errorMessage = age.getErrorMessage();
             String fallbackValue = age.getErrorFallbackValue()
