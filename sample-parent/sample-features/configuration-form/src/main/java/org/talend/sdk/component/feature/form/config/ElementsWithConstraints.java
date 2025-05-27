@@ -40,7 +40,6 @@ import lombok.Data;
         @GridLayout.Row({ "aRequiredString" }),
         @GridLayout.Row({ "listWithMaxItems" }),
         @GridLayout.Row({ "listWithMinItems" }),
-        @GridLayout.Row({ "listWithMinItems" }),
         @GridLayout.Row({ "listWithUniqueItems" }),
 })
 public class ElementsWithConstraints implements Serializable {

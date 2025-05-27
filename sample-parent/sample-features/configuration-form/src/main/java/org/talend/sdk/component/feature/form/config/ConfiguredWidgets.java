@@ -47,7 +47,7 @@ import lombok.Data;
 public class ConfiguredWidgets implements Serializable {
 
     @Option
-    @Documentation("String witha default value.")
+    @Documentation("String with a default value.")
     @DefaultValue("A default value.")
     private String stringWithDefault;
 
@@ -63,7 +63,7 @@ public class ConfiguredWidgets implements Serializable {
     private String multiline;
 
     @Option
-    @Documentation("Multiline text area with syntax highlighting, her sql.")
+    @Documentation("Multiline text area with syntax highlighting, here for sql.")
     @Code("sql")
     private String sqlInput;
 
@@ -78,7 +78,7 @@ public class ConfiguredWidgets implements Serializable {
     private String aToken;
 
     @Option
-    @Documentation("A fodler selector, only supported by studio.")
+    @Documentation("A folder selector, only supported by studio.")
     @Path(Type.DIRECTORY)
     private File folder;
 
