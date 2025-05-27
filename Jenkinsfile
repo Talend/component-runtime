@@ -87,6 +87,7 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 pipeline {
   libraries {
     lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("tqa-e2e-tests-tool@main_ttp2024")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
     kubernetes {

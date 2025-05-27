@@ -37,6 +37,12 @@ public interface SchemaProperty {
 
     String ALLOW_SPECIAL_NAME = "field.special.name";
 
+    String ENTRY_IS_ON_ERROR = "record.value.on.error";
+
+    String ENTRY_ERROR_MESSAGE = "record.value.on.error.message";
+
+    String ENTRY_ERROR_FALLBACK_VALUE = "record.value.on.error.fallback_value";
+
     enum LogicalType {
 
         DATE("date"),

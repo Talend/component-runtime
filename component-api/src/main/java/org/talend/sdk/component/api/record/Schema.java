@@ -233,6 +233,16 @@ public interface Schema {
         boolean isMetadata();
 
         /**
+         * @return Is this entry can be in error.
+         */
+        boolean isErrorCapable();
+
+        /**
+         * @return true if the value of this entry is valid; false for invalid value.
+         */
+        boolean isValid();
+
+        /**
          * @param <T> the default value type.
          *
          * @return Default value for this entry.
@@ -296,6 +306,14 @@ public interface Schema {
             throw new UnsupportedOperationException("#toBuilder is not implemented");
         }
 
+        default String getErrorMessage() {
+            return getProp(SchemaProperty.ENTRY_ERROR_MESSAGE);
+        }
+
+        default String getErrorFallbackValue() {
+            return getProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE);
+        }
+
         /**
          * Plain builder matching {@link Entry} structure.
          */
@@ -316,6 +334,8 @@ public interface Schema {
             }
 
             Builder withNullable(boolean nullable);
+
+            Builder withErrorCapable(boolean errorCapable);
 
             Builder withMetadata(boolean metadata);
 

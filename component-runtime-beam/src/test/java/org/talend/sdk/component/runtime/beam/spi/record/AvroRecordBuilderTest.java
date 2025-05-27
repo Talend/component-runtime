@@ -41,6 +41,7 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
+import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.io.EncoderFactory;
@@ -207,6 +208,108 @@ class AvroRecordBuilderTest {
                 .withElementSchema(schema)
                 .build();
         Assertions.assertNotNull(arrayType);
+    }
+
+    @Test
+    void testWithoutErrorSupport() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> testWithError("false", true));
+    }
+
+    @Test
+    void testWithErrorSupportButNoError() {
+        Record record = testWithError("true", false);
+
+        IndexedRecord unwrap = ((AvroRecord) record).unwrap(IndexedRecord.class);
+
+        Assertions.assertTrue(unwrap.getSchema().getProp(KeysForAvroProperty.RECORD_IN_ERROR).equals("false"));
+
+        Field nameField = unwrap.getSchema().getFields().get(0);
+        Assertions.assertNull(nameField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
+
+        Field ageField = unwrap.getSchema().getFields().get(2);
+        Assertions.assertNull(ageField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
+    }
+
+    @Test
+    void testWithErrorSupport() {
+        Record record = testWithError("true", true);
+        assertFalse(record.isValid());
+
+        final Schema.Entry entry = record.getSchema().getEntry("name");
+        assertNotNull(entry);
+        Assertions.assertFalse(entry.isValid());
+        Assertions.assertNull(record.getString("name"));
+
+        final Schema.Entry entry2 = record.getSchema().getEntry("age");
+        assertNotNull(entry2);
+        Assertions.assertFalse(entry2.isValid());
+        Assertions.assertNull(record.get(Integer.class, "age"));
+
+        IndexedRecord unwrap = ((AvroRecord) record).unwrap(IndexedRecord.class);
+
+        Assertions.assertTrue(unwrap.getSchema().getProp(KeysForAvroProperty.RECORD_IN_ERROR).equals("true"));
+
+        Field nameField = unwrap.getSchema().getFields().get(0);
+        Assertions.assertEquals("true",
+                nameField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
+        Assertions.assertEquals("Entry 'name' is not nullable",
+                nameField.getProp(SchemaProperty.ENTRY_ERROR_MESSAGE));
+        Assertions.assertEquals("null",
+                nameField.getProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE));
+
+        Field ageField = unwrap.getSchema().getFields().get(2);
+        Assertions.assertEquals("true",
+                ageField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
+        Assertions.assertEquals("Entry 'age' of type INT is not compatible with given value of type " +
+                "'java.lang.String': 'is not an int'.",
+                ageField.getProp(SchemaProperty.ENTRY_ERROR_MESSAGE));
+        Assertions.assertEquals("is not an int",
+                ageField.getProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE));
+
+        Field noErrorField = unwrap.getSchema().getFields().get(1);
+        Assertions.assertNull(noErrorField.getProp(SchemaProperty.ENTRY_IS_ON_ERROR));
+        Assertions.assertNull(noErrorField.getProp(SchemaProperty.ENTRY_ERROR_MESSAGE));
+        Assertions.assertNull(noErrorField.getProp(SchemaProperty.ENTRY_ERROR_FALLBACK_VALUE));
+
+    }
+
+    private Record testWithError(final String supported, final boolean genError) {
+        final String errorSupportBackup = System.getProperty(Record.RECORD_ERROR_SUPPORT);
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, supported);
+
+        org.talend.sdk.component.api.record.Schema.Builder schemaBuilder = factory.newSchemaBuilder(Schema.Type.RECORD);
+        Schema.Entry nameEntry = factory
+                .newEntryBuilder()
+                .withName("name")
+                .withErrorCapable(true)
+                .withNullable(false)
+                .withType(Schema.Type.STRING)
+                .build();
+        Schema.Entry noErrorEntry = factory
+                .newEntryBuilder()
+                .withName("normal")
+                .withErrorCapable(true)
+                .withNullable(true)
+                .withType(Schema.Type.STRING)
+                .build();
+        Schema.Entry ageEntry = factory
+                .newEntryBuilder()
+                .withName("age")
+                .withErrorCapable(true)
+                .withNullable(false)
+                .withType(Schema.Type.INT)
+                .build();
+        Schema customerSchema = schemaBuilder.withEntry(nameEntry).withEntry(noErrorEntry).withEntry(ageEntry).build();
+
+        Record.Builder recordBuilder = factory.newRecordBuilder(customerSchema);
+        Record record = recordBuilder.with(nameEntry, genError ? null : "a string")
+                .with(noErrorEntry, "normal")
+                .with(ageEntry, genError ? "is not an int" : 10)
+                .build();
+
+        System.setProperty(Record.RECORD_ERROR_SUPPORT, errorSupportBackup == null ? "false" : errorSupportBackup);
+
+        return record;
     }
 
     @Test

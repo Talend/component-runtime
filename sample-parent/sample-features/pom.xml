@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.81.0-SNAPSHOT</version>
+    <version>1.82.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>sample-features</artifactId>
@@ -33,6 +33,7 @@
     <module>conditional-outputs</module>
     <module>checkpoint-runner</module>
     <module>configuration-form</module>
+    <module>entry-with-error</module>
   </modules>
 
   <dependencies>
