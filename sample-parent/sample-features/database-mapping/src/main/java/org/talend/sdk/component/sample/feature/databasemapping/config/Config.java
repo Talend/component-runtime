@@ -16,9 +16,11 @@
 package org.talend.sdk.component.sample.feature.databasemapping.config;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.configuration.ui.widget.Structure;
 import org.talend.sdk.component.api.meta.Documentation;
 
 import lombok.Data;
@@ -28,10 +30,16 @@ import lombok.Data;
  */
 @Data
 @GridLayout({
+        @GridLayout.Row("schema"),
         @GridLayout.Row({ "dse" }),
         @GridLayout.Row({ "aBoolean" })
 })
 public class Config implements Serializable {
+
+    @Option
+    @Structure(type = Structure.Type.OUT)
+    @Documentation("Schema.")
+    private List<SchemaInfo> schema;
 
     @Option
     @Documentation("The dataset configuration.")

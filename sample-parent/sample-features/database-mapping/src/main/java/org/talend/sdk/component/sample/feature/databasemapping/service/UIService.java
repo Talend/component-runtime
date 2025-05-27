@@ -17,6 +17,7 @@ package org.talend.sdk.component.sample.feature.databasemapping.service;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping;
@@ -38,10 +39,26 @@ public class UIService {
     @DiscoverSchema("dse")
     public Schema guessSchema(final Dataset dse) {
         return factory.newSchemaBuilder(Schema.Type.RECORD)
-                .withEntry(factory.newEntryBuilder().withName("id").withType(Schema.Type.INT).build())
-                .withEntry(factory.newEntryBuilder().withName("input").withType(Schema.Type.STRING).build())
-                .withEntry(factory.newEntryBuilder().withName("another").withType(Schema.Type.STRING).build())
-                .withEntry(factory.newEntryBuilder().withName("aBoolean").withType(Schema.Type.BOOLEAN).build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("id")
+                        .withType(Schema.Type.INT)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "INT")
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("input")
+                        .withType(Schema.Type.STRING)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR")
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("another")
+                        .withType(Schema.Type.STRING)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR")
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("aBoolean")
+                        .withType(Schema.Type.BOOLEAN)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "BOOL")
+                        .build())
                 .build();
     }
 
