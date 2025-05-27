@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Building components with Maven</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/build-tools-maven.html">
+    <meta name="description" content="Use Maven or the Maven wrapper as build tool to develop components">
+    <meta name="keywords" content="mvn, mvnw, maven, tool, build">
+    <meta name="generator" content="Talend Component Kit Generator">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Building components with Maven :: Talend Component Kit Developer Reference Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/build-tools-maven.html">
+    <meta name="description" content="Use Maven or the Maven wrapper as build tool to develop components">
+    <meta name="keywords" content="mvn, mvnw, maven, tool, build">
+    <meta name="generator" content="Antora 3.0.1">
+<meta name="date" content="2022-04-29T11:28:17.965Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+
+
+<script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                  messageStyle: "none",
+                  tex2jax: {
+                    inlineMath: [["\\(", "\\)"]],
+                    displayMath: [["\\[", "\\]"]],
+                    ignoreClass: "nostem|nolatexmath"
+                  },
+                  asciimath2jax: {
+                    delimiters: [["\\$", "\\$"]],
+                    ignoreClass: "nostem|noasciimath"
+                  },
+                  TeX: { equationNumbers: { autoNumber: "none" } }
+                });
+                </script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+    <script>var uiRootPath = '../../_'</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                1.43.0
+              <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version">
+                    <a href="../latest/index.html">1.45.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.44.1/index.html">1.44.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.44.0/index.html">1.44.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="index.html">1.43.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.42.0/index.html">1.42.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.41.1/index.html">1.41.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.40.0/index.html">1.40.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.39.3/index.html">1.39.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.30.0/index.html">1.30.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.29.2/index.html">1.29.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.15/index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.13/index.html">0.0.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="changelog.html" class="navbar-single-link">CHANGELOG</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.43.0">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>First steps</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="getting-started.html">Getting Started</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="record-types.html">Record types</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Tutorials</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-tutorials.html">Tutorial overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-output-component.html">Creating a Hazelcast output component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-components-rest-api.html">Creating a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-rest-api.html">Testing a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-your-components.html">Testing a Hazelcast component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-dev-vs-ci-setup.html">Testing in a continuous integration environment</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-handle-talend-component-migration.html">Handling component version migration</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Setting up your environment</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-setup-environment.html">Setup overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="system-prerequisites.html">System requirements</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="installing-talend-intellij-plugin.html">Installing the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Generating a project</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-generating-project.html">Project generation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Using the Starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="generate-project-using-intellij-plugin.html">Using the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Implementing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-creating-components.html">Component implementation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-registering.html">Defining component metadata</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="creating-dataset-datastore.html">Defining datasets and datastores</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-input.html">Defining an input component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-processor-output.html">Defining a processor/output logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-standalone.html">Defining a standalone component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-configuration.html">Defining component configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-execution.html">Component execution logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-internationalization.html">Internationalizing a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-versions-and-migration.html">Managing component versions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-configuration-sensitive-data.html">Masking sensitive data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="concept-processor-and-batch-processing.html">Implementing batch processing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-loading.html">Component loading</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Defining services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-defining-services.html">Service overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-internationalization.html">Internationalizing a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-actions.html">Providing actions through a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-built-in.html">Built-in services</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-interceptors.html">Services and interceptors</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-custom-api.html">Defining a custom API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-testing-components.html">Component testing overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-best-practices.html">Component testing best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="index-sub-testing-runtime.html">Testing component runtime</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-beam.html">Beam testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-multiple-envs.html">Testing in multiple environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-maven-passwords.html">Reusing Maven credentials</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-generating-data.html">Generating data for testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Studio</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-deploying-components.html">Studio integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio.html">Iterating on component development</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-from-car.html">Installing components from a CAR file</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-schema.html">Studio schema</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="compatibility.html">Version compatibility</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="javajet-to-componentkit.html">From Javajet to the Component Kit</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Cloud</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-cloud-integration.html">Cloud integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="vault-proxy.html">Component Server Vault Proxy</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Knowledge base</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-knowledge-base.html">Knowledge base articles</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="changelog.html">Changelog</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Reference Guide</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="gallery.html">Widget and validation gallery</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-actions.html">List of available actions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-conditions.html">List of conditions for binding properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-configuration-types.html">Component data configuration types</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-constraints.html">Component field constraints and validations</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-scanning-exclusions.html">Scanning exclusions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-server-configuration.html">Server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-ui.html">UI API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="apidocs.html">Javadocs</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb"><a href="index-creating-components.html">Implementing components</a></li>
+      <li class="crumb active"><a href="build-tools-maven.html">Building components with Maven</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Building components with Maven</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter.</p>
+</div>
+<div class="paragraph">
+<p>You will then be able to install and deploy it to Talend applications.
+A Talend Component Kit plugin is available for each of the supported build tools.</p>
+</div>
+<div class="paragraph">
+<p><strong>talend-component-maven-plugin</strong> helps you write components that match best practices and generate transparently metadata used by Talend Studio.</p>
+</div>
+<div class="paragraph">
+<p>You can use it as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+  &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;${component.version}&lt;/version&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This plugin is also an extension so you can declare it in your <code>build/extensions</code> block as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;extension&gt;
+  &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+  &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;${component.version}&lt;/version&gt;
+&lt;/extension&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Used as an extension, the goals detailed in this document will be set up.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_maven_lifecycle"><a class="anchor" href="#_maven_lifecycle"></a>Maven lifecycle</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Talend Component Kit plugin integrates some specific goals within Maven build lifecycle.
+For example, to compile the project and prepare for deploying your component, run <code>mvn clean install</code>. Using this command, the following goals are executed:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.43.0/_images/mvn_clean_install.png" target="_blank" rel="noopener"><img src="_images/mvn_clean_install.png" alt="Maven clean install"></a></span></p>
+</div>
+<div class="paragraph">
+<p>The build is split into several phases. The different goals are executed in the order shown above. Talend Component Kit uses default goals from the Maven build lifecycle and adds additional goals to the building and packaging phases.</p>
+</div>
+<div class="paragraph">
+<p>Goals added to the build by Talend Component Kit are detailed below.
+The default lifecycle is detailed in <a href="https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html">Maven documentation</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_talend_component_kit_maven_goals"><a class="anchor" href="#_talend_component_kit_maven_goals"></a>Talend Component Kit Maven goals</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Talend Component Kit plugin for Maven integrates several specific goals into Maven build lifecycle.</p>
+</div>
+<div class="paragraph">
+<p>To run specific goals individually, run the following command from the root of the project, by adapting it with each goal name, parameters and values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ mvn talend-component:&lt;name_of_the_goal&gt;[:&lt;execution id&gt;] -D&lt;param_user_property&gt;=&lt;param_value&gt;</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dependencies"><a class="anchor" href="#_dependencies"></a>Dependencies</h3>
+<div class="paragraph">
+<p>The first goal is a shortcut for the <strong>maven-dependency-plugin</strong>. It creates the <code>TALEND-INF/dependencies.txt</code> file with the <code>compile</code> and <code>runtime</code> dependencies, allowing the component to use it at runtime:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+  &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;${component.version}&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;talend-dependencies&lt;/id&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;dependencies&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scan"><a class="anchor" href="#_scan"></a>Scan</h3>
+<div class="paragraph">
+<p>The <code>scan-descriptor</code> goal scans the current module and optionally other configured folders to precompute the list of interesting classes for the framework (components, services). It allows to save some bootstrap time when launching a job, which can be useful in some execution cases:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+  &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;${component.version}&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;talend-scan-descriptor&lt;/id&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;scan-descriptor&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Configuration - excluding parameters used by default only:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch table-striped table-hover table-ordered">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">User property</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">output</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Where to dump the scan result. Note: It is not supported to change that value in the runtime.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.scan.output</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${project.build.outputDirectory}/TALEND-INF/scanning.properties</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scannedDirectories</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Explicit list of directories to scan.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.scan.scannedDirectories</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If not set, defaults to <code>${project.build.outputDirectory}</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scannedDependencies</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Explicit list of dependencies to scan - set them in the <code>groupId:artifactId</code> format. The list is appended to the file to scan.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.scan.scannedDependencies</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_svg2png"><a class="anchor" href="#_svg2png"></a>SVG2PNG</h3>
+<div class="paragraph">
+<p>The <code>svg2png</code> goal scans a directory - default to <code>target/classes/icons</code> - to find <code>.svg</code> files and copy them in a PNG version size at 32x32px and named with the suffix <code>_icon32.png</code> to enable the studio to read it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+  &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;${component.version}&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;talend-svg2png&lt;/id&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;svg2png&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Configuration:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch table-striped table-hover table-ordered">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">User property</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">icons</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Where to scan for the SVG icons to convert in PNG.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.icons.source</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${project.build.outputDirectory}/icons</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">workarounds</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">By default the shape of the icon will be enforce in the RGB channels (in white) using the alpha as reference. This is useful for black/white images using alpha to shape the picture because Eclipse - Talend Studio - caches icons using RGB but not alpha channel, pictures not using alpha channel to draw their shape should disable that workaround.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.icons.workaround</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+if you use that plugin, ensure to set it before the validate mojo otherwise validation can miss some png files.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_validating_the_component_programming_model"><a class="anchor" href="#_validating_the_component_programming_model"></a>Validating the component programming model</h3>
+<div class="paragraph">
+<p>This goal helps you validate the common programming model of the component. To activate it, you can use following execution definition:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+  &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;${component.version}&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;talend-component-validate&lt;/id&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;validate&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It is bound to the <code>process-classes</code> phase by default. When executed, it performs several validations that can be disabled by setting the corresponding flags to <code>false</code> in the <code>&lt;configuration&gt;</code> block of the execution:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch table-striped table-hover table-ordered">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">User property</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateInternationalization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that resource bundles are presents and contain commonly used keys (for example, <code>_displayName</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.internationalization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateModel</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that components pass validations of the <code>ComponentManager</code> and Talend Component runtime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.model</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateSerializable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that components are <code>Serializable</code>. This is a sanity check, the component is not actually serialized here. If you have a doubt, make sure to test it. It also checks that any <code>@Internationalized</code> class is valid and has its keys.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.serializable</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateMetadata</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that components have an <code>@Icon</code> and a <code>@Version</code> defined.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.metadata</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateDataStore</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that any <code>@DataStore</code> defines a <code>@HealthCheck</code> and has a unique name.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.datastore</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateDataSet</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that any <code>@DataSet</code> has a unique name. Also ensures that there is a source instantiable just filling the dataset properties (all others not being required). Finally, the validation checks that each input or output component uses a dataset and that this dataset has a datastore.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.dataset</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateComponent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that the native programming model is respected. You can disable it when using another programming model like Beam.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.component</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateActions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates action signatures for actions not tolerating dynamic binding (<code>@HealthCheck</code>, <code>@DynamicValues</code>, and so on). It is recommended to keep it set to <code>true</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.action</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateFamily</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates the family by verifying that the package containing the <code>@Components</code> has a <code>@Icon</code> property defined.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.family</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateDocumentation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that all components and <code>@Option</code> properties have a documentation using the <code>@Documentation</code> property.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.documentation</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateLayout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that the layout is referencing existing options and properties.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.layout</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateOptionNames</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that the option names are compliant with the framework. It is highly recommended and safer to keep it set to <code>true</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.options</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateLocalConfiguration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that if any <code>TALEND-INF/local-configuration.properties</code> exists then keys start with the family name.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.localConfiguration</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validateOutputConnection</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that an output has only one input branch.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.validateOutputConnection</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validatePlaceholder</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensures that string options have a placeholder. It is highly recommended to turn this property on.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.placeholder</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">locale</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The locale used to validate internationalization.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.validation.locale</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">root</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_generating_the_component_documentation"><a class="anchor" href="#_generating_the_component_documentation"></a>Generating the component documentation</h3>
+<div class="paragraph">
+<p>The <code>asciidoc</code> goal generates an Asciidoc file documenting your component from the configuration model (<code>@Option</code>) and the <code>@Documentation</code> property that you can add to options and to the component itself.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+  &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;${component.version}&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;talend-component-documentation&lt;/id&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;asciidoc&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch table-striped table-hover table-ordered">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">User property</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">level</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Level of the root title.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.level</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>2 (<code>==</code>)</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">output</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Output folder path. It is recommended to keep it to the default value.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.output</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>${classes}/TALEND-INF/documentation.adoc</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">formats</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Map of the renderings to do. Keys are the format (<code>pdf</code> or <code>html</code>) and values the output paths.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.formats</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">attributes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Asciidoctor attributes to use for the rendering when <strong>formats</strong> is set.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.attributes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">templateEngine</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Template engine configuration for the rendering.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.templateEngine</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">templateDir</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Template directory for the rendering.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.templateDir</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">title</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Document title.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.title</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${project.name}</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The component version. It defaults to the pom version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${project.version}</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">workDir</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The template directory for the Asciidoctor rendering - if 'formats' is set.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.workdDir</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${project.build.directory}/talend-component/workdir</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">attachDocumentations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows to attach (and deploy) the documentations (<code>.adoc</code>, and <code>formats</code> keys) to the project.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.attach</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">htmlAndPdf</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If you use the plugin as an extension, you can add this property and set it to <code>true</code> in your project to automatically get HTML and PDF renderings of the documentation.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.documentation.htmlAndPdf</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect3">
+<h4 id="_rendering_your_documentation"><a class="anchor" href="#_rendering_your_documentation"></a>Rendering your documentation</h4>
+<div class="paragraph">
+<p>To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin (or Gradle equivalent). You can configure both executions if you want both HTML and PDF renderings.</p>
+</div>
+<div class="paragraph">
+<p>Make sure to execute the rendering after the documentation generation.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_html_rendering"><a class="anchor" href="#_html_rendering"></a>HTML rendering</h4>
+<div class="paragraph">
+<p>If you prefer a HTML rendering, you can configure the following execution in the asciidoctor plugin. The example below:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Generates the components documentation in <code>target/classes/TALEND-INF/documentation.adoc</code>.</p>
+</li>
+<li>
+<p>Renders the documentation as an HTML file stored in <code>target/documentation/documentation.html</code>.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+  &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;${talend-component-kit.version}&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;documentation&lt;/id&gt;
+      &lt;phase&gt;prepare-package&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;asciidoc&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;
+&lt;plugin&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+  &lt;groupId&gt;org.asciidoctor&lt;/groupId&gt;
+  &lt;artifactId&gt;asciidoctor-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;1.5.7&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;doc-html&lt;/id&gt;
+      &lt;phase&gt;prepare-package&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;process-asciidoc&lt;/goal&gt;
+      &lt;/goals&gt;
+      &lt;configuration&gt;
+        &lt;sourceDirectory&gt;${project.build.outputDirectory}/TALEND-INF&lt;/sourceDirectory&gt;
+        &lt;sourceDocumentName&gt;documentation.adoc&lt;/sourceDocumentName&gt;
+        &lt;outputDirectory&gt;${project.build.directory}/documentation&lt;/outputDirectory&gt;
+        &lt;backend&gt;html5&lt;/backend&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_pdf_rendering"><a class="anchor" href="#_pdf_rendering"></a>PDF rendering</h4>
+<div class="paragraph">
+<p>If you prefer a PDF rendering, you can configure the following execution in the asciidoctor plugin:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.asciidoctor&lt;/groupId&gt;
+  &lt;artifactId&gt;asciidoctor-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;1.5.7&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;doc-html&lt;/id&gt;
+      &lt;phase&gt;prepare-package&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;process-asciidoc&lt;/goal&gt;
+      &lt;/goals&gt;
+      &lt;configuration&gt;
+        &lt;sourceDirectory&gt;${project.build.outputDirectory}/TALEND-INF&lt;/sourceDirectory&gt;
+        &lt;sourceDocumentName&gt;documentation.adoc&lt;/sourceDocumentName&gt;
+        &lt;outputDirectory&gt;${project.build.directory}/documentation&lt;/outputDirectory&gt;
+        &lt;backend&gt;pdf&lt;/backend&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.asciidoctor&lt;/groupId&gt;
+      &lt;artifactId&gt;asciidoctorj-pdf&lt;/artifactId&gt;
+      &lt;version&gt;1.5.0-alpha.16&lt;/version&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_including_the_documentation_into_a_document"><a class="anchor" href="#_including_the_documentation_into_a_document"></a>Including the documentation into a document</h4>
+<div class="paragraph">
+<p>If you want to add some more content or a title, you can include the generated document into
+another document using Asciidoc <code>include</code> directive.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-adoc hljs" data-lang="adoc">= Super Components
+Super Writer
+:toc:
+:toclevels: 3
+:source-highlighter: prettify
+:numbered:
+:icons: font
+:hide-uri-scheme:
+:imagesdir: images
+
+include::{generated_doc}/documentation.adoc[]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To be able to do that, you need to pass the <code>generated_doc</code> attribute to the plugin. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.asciidoctor&lt;/groupId&gt;
+  &lt;artifactId&gt;asciidoctor-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;1.5.7&lt;/version&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;id&gt;doc-html&lt;/id&gt;
+      &lt;phase&gt;prepare-package&lt;/phase&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;process-asciidoc&lt;/goal&gt;
+      &lt;/goals&gt;
+      &lt;configuration&gt;
+        &lt;sourceDirectory&gt;${project.basedir}/src/main/asciidoc&lt;/sourceDirectory&gt;
+        &lt;sourceDocumentName&gt;my-main-doc.adoc&lt;/sourceDocumentName&gt;
+        &lt;outputDirectory&gt;${project.build.directory}/documentation&lt;/outputDirectory&gt;
+        &lt;backend&gt;html5&lt;/backend&gt;
+        &lt;attributes&gt;
+          &lt;generated_adoc&gt;${project.build.outputDirectory}/TALEND-INF&lt;/generated_adoc&gt;
+        &lt;/attributes&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is optional but allows to reuse Maven placeholders to pass paths, which can be convenient in an automated build.</p>
+</div>
+<div class="paragraph">
+<p>You can find more customization options on Asciidoctor <a href="http://asciidoctor.org/docs/asciidoctor-maven-plugin/">website</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_testing_a_component_web_rendering"><a class="anchor" href="#_testing_a_component_web_rendering"></a>Testing a component web rendering</h3>
+<div class="paragraph">
+<p>Testing the rendering of your component configuration into the Studio requires deploying the component in Talend Studio. Refer to the <a href="studio.html">Studio documentation</a>.</p>
+</div>
+<div class="paragraph">
+<p>In the case where you need to deploy your component into a Cloud (web) environment, you can test its web rendering by using the <code>web</code> goal of the plugin:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Run the <code>mvn talend-component:web</code> command.</p>
+</li>
+<li>
+<p>Open the following URL in a web browser: <code><a href="http://localhost:8080" class="bare">localhost:8080</a></code>.</p>
+</li>
+<li>
+<p>Select the component form you want to see from the treeview on the left. The selected form is displayed on the right.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Two parameters are available with the plugin:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>serverPort</code>, which allows to change the default port (8080) of the embedded server. Its associated user property is <code>talend.web.port</code>.</p>
+</li>
+<li>
+<p><code>serverArguments</code>, that you can use to pass Meecrowave options to the server. Learn more about that configuration at <a href="http://openwebbeans.apache.org/meecrowave/meecrowave-core/cli.html" class="bare">openwebbeans.apache.org/meecrowave/meecrowave-core/cli.html</a>.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Make sure to install the artifact before using this command because it reads the component JAR from the local Maven repository.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Finally, you can switch the lang of the component UI (documentation, form) using <code>language</code> query parameter in the webapp.
+For instance <code><a href="http://localhost:8080?language=fr" class="bare">localhost:8080?language=fr</a></code>.</p>
+</div>
+<div class="sect3">
+<h4 id="_changing_the_ui_bundle"><a class="anchor" href="#_changing_the_ui_bundle"></a>Changing the UI bundle</h4>
+<div class="paragraph">
+<p>If you built a custom UI (JS + CSS) bundle and want to test it in the web application, you can configure it in the <code>pom.xml</code> file as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;configuration&gt;
+  &lt;uiConfiguration&gt;
+    &lt;jsLocation&gt;https://cdn.talend.com/myapp.min.js&lt;/jsLocation&gt;
+    &lt;cssLocation&gt;https://cdn.talend.com/myapp.min.css&lt;/cssLocation&gt;
+  &lt;/uiConfiguration&gt;
+&lt;/configuration&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This is an advanced feature designed for expert users. Use it with caution.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generating_the_component_archive"><a class="anchor" href="#_generating_the_component_archive"></a>Generating the component archive</h3>
+<div class="paragraph">
+<p>Component ARchive (<strong>.car</strong>) is the way to bundle a component to share it in the Talend ecosystem. It is an executable Java ARchive (<strong>.jar</strong>) containing a metadata file and a nested Maven repository containing the component and its dependencies.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">mvn talend-component:car</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command creates a <strong>.car</strong> file in your build directory. This file can be shared on Talend platforms.</p>
+</div>
+<div class="paragraph">
+<p>This command has some optional parameters:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch table-striped table-hover table-ordered">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">User property</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">attach</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies whether the component archive should be attached.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.car.attach</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">classifier</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The classifier to use if attach is set to true.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.car.classifier</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">component</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metadata</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Additional custom metadata to bundle in the component archive.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">output</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the output path and name of the archive</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.car.output</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${project.build.directory}/${project.build.finalName}.car</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">packaging</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the packaging</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${project.packaging}</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>This CAR is executable and exposes the <code>studio-deploy</code> command which takes
+a Talend Studio home path as parameter. When executed, it installs the dependencies into the Studio and registers the component in your instance. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># for a studio
+java -jar mycomponent.car studio-deploy /path/to/my/studio
+or
+java -jar mycomponent.car studio-deploy --location /path/to/my/studio
+
+# for a m2 provisioning
+java -jar mycomponent.car maven-deploy /path/to/.m2/repository
+or
+java -jar mycomponent.car maven-deploy --location /path/to/.m2/repository</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also upload the dependencies to your Nexus server using the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -jar mycomponent.car deploy-to-nexus --url &lt;nexus url&gt; --repo &lt;repository name&gt; --user &lt;username&gt; --pass &lt;password&gt; --threads &lt;parallel threads number&gt; --dir &lt;temp directory&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this command, Nexus URL and repository name are mandatory arguments. All other arguments are optional. If arguments contain spaces or special symbols, you need to quote the whole value of the argument. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">--pass "Y0u will \ not G4iess i' ^"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_deploying_to_the_studio"><a class="anchor" href="#_deploying_to_the_studio"></a>Deploying to the Studio</h3>
+<div class="paragraph">
+<p>The <code>deploy-in-studio</code> goal deploys the current component module into a local Talend Studio instance.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch table-striped table-hover table-ordered">
+<caption class="title">Table 1. Parameters</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">User property</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">studioHome</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to the Studio home directory</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.component.studioHome</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">studioM2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to the Studio maven repository if not the default one</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>talend.component.studioM2</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>You can use the following command from the root folder of your project:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ mvn talend-component:deploy-in-studio -Dtalend.component.studioHome="&lt;studio_path&gt;"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_help"><a class="anchor" href="#_help"></a>Help</h3>
+<div class="paragraph">
+<p>The <code>help</code> goal displays help information on <code>talend-component-maven-plugin</code>.
+Call <code>mvn talend-component:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</code> to display the parameter details of a specific goal.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch table-striped table-hover table-ordered">
+<caption class="title">Table 2. Parameters</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">User property</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">detail</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Displays all settable properties for each goal.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>detail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">goal</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name of the goal for which to show help. If unspecified, all goals are displayed.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>goal</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">indentSize</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of spaces per indentation level. This integer should be positive.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>indentSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lineLength</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum length of a display line. This integer should be positive.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lineLength</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1 relatedlinks">
+<h2 id="_related_articles"><a class="anchor" href="#_related_articles"></a>Related articles</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="best-practices.html" class="xref page">Best practices</a></p>
+</li>
+<li>
+<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
+</li>
+<li>
+<p><a href="studio.html" class="xref page">Integrating to the Studio</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/blob/component-runtime-1.43.0/documentation/src/main/antora/modules/ROOT/pages/build-tools-maven.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Fbuild-tools-maven.html&text=Talend%20Component%20Kit%20%3E%3E%20Building%20components%20with%20Maven%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Fbuild-tools-maven.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Building%20components%20with%20Maven&body=Talend%20Component%20Kit%3A%20Building%20components%20with%20Maven%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Fbuild-tools-maven.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+      <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2019 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchorific/1.2/min/anchorific.min.js" integrity="sha384-ACUAcVkJ3XBvxLPJQqN8h9BfzCtcyqiQoemYyYiS7JJLg9O6aVOVzRYLwqxM2d7/" crossorigin="anonymous"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

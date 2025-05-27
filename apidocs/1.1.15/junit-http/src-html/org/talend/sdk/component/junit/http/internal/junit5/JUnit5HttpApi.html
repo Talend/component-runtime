@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/**<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (C) 2006-2019 Talend Inc. - www.talend.com<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * you may not use this file except in compliance with the License.<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * You may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * See the License for the specific language governing permissions and<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * limitations under the License.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>package org.talend.sdk.component.junit.http.internal.junit5;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.lang.annotation.Annotation;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.lang.reflect.InvocationTargetException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.Optional;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.concurrent.Executor;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.function.Predicate;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.function.Supplier;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>import javax.net.ssl.SSLContext;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.junit.jupiter.api.extension.AfterAllCallback;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.junit.jupiter.api.extension.AfterEachCallback;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.junit.jupiter.api.extension.BeforeAllCallback;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.junit.jupiter.api.extension.BeforeEachCallback;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.junit.jupiter.api.extension.ExtensionContext;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.junit.platform.commons.util.AnnotationUtils;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.talend.sdk.component.junit.base.junit5.JUnit5InjectionSupport;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.talend.sdk.component.junit.http.api.HttpApiHandler;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.talend.sdk.component.junit.http.api.ResponseLocator;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.talend.sdk.component.junit.http.internal.impl.DefaultResponseLocator;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.talend.sdk.component.junit.http.internal.impl.HandlerImpl;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.talend.sdk.component.junit.http.internal.impl.Handlers;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.talend.sdk.component.junit.http.junit5.HttpApi;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.talend.sdk.component.junit.http.junit5.HttpApiInject;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.talend.sdk.component.junit.http.junit5.HttpApiName;<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>public class JUnit5HttpApi extends HttpApiHandler&lt;JUnit5HttpApi&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        implements BeforeAllCallback, AfterAllCallback, JUnit5InjectionSupport, AfterEachCallback, BeforeEachCallback {<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private static final ExtensionContext.Namespace NAMESPACE =<a name="line.46"></a>
+<span class="sourceLineNo">047</span>            ExtensionContext.Namespace.create(JUnit5HttpApi.class.getName());<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>    @Override<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    public void beforeAll(final ExtensionContext extensionContext) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        final HttpApi config =<a name="line.51"></a>
+<span class="sourceLineNo">052</span>                AnnotationUtils.findAnnotation(extensionContext.getElement(), HttpApi.class).orElse(null);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        if (config != null) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>            setGlobalProxyConfiguration(config.globalProxyConfiguration());<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            setLogLevel(config.logLevel());<a name="line.55"></a>
+<span class="sourceLineNo">056</span>            setPort(config.port());<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            newInstance(config.responseLocator(), ResponseLocator.class).ifPresent(this::setResponseLocator);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            newInstance(config.headerFilter(), Predicate.class).ifPresent(this::setHeaderFilter);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            newInstance(config.executor(), Executor.class).ifPresent(this::setExecutor);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            newInstance(config.sslContext(), Supplier.class)<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                    .map(s -&gt; SSLContext.class.cast(s.get()))<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                    .ifPresent(this::setSslContext);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            setSkipProxyHeaders(config.skipProxyHeaders());<a name="line.63"></a>
+<span class="sourceLineNo">064</span>            if (config.useSsl()) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                activeSsl();<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            }<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        }<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        extensionContext.getStore(NAMESPACE).put(HttpApiHandler.class.getName(), this);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        final HandlerImpl&lt;JUnit5HttpApi&gt; handler = new HandlerImpl&lt;&gt;(this, null, null);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        extensionContext.getStore(NAMESPACE).put(HandlerImpl.class.getName(), handler);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        handler.start();<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    @Override<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    public void afterAll(final ExtensionContext extensionContext) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        HandlerImpl.class.cast(extensionContext.getStore(NAMESPACE).get(HandlerImpl.class.getName())).close();<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    }<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>    @Override<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    public Class&lt;? extends Annotation&gt; injectionMarker() {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        return HttpApiInject.class;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    @Override<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    public void beforeEach(final ExtensionContext extensionContext) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        // test name<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        final ResponseLocator responseLocator = getResponseLocator();<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        if (!DefaultResponseLocator.class.isInstance(responseLocator)) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            return;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        final String test = extensionContext.getTestMethod().map(m -&gt; {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            final String displayName = sanitizeDisplayName(extensionContext.getDisplayName());<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            return AnnotationUtils<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                    .findAnnotation(m, HttpApiName.class)<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                    .map(HttpApiName::value)<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                    .map(it -&gt; it.replace("${class}", m.getDeclaringClass().getName()))<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                    .map(it -&gt; it.replace("${method}", m.getName()))<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                    .map(it -&gt; it.replace("${displayName}", displayName))<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                    .orElseGet(() -&gt; m.getDeclaringClass().getName() + "_" + m.getName()<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                            + (displayName.equals(m.getName()) ? "" : ("_" + displayName)));<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        }).orElse(null);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        DefaultResponseLocator.class.cast(responseLocator).setTest(test);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>    @Override<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    public void afterEach(final ExtensionContext extensionContext) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        if (Handlers.isActive("capture")) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            Optional<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                    .of(getResponseLocator())<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                    .filter(DefaultResponseLocator.class::isInstance)<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                    .map(DefaultResponseLocator.class::cast)<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                    .ifPresent(r -&gt; r.flush(Handlers.getBaseCapture()));<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        }<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>    private String sanitizeDisplayName(final String displayName) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        final String base = displayName.replace(" ", "_");<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        final int parenthesis = base.indexOf('(');<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        if (parenthesis &gt; 0) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            return base.substring(0, parenthesis);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        }<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        return base;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    private static &lt;T&gt; Optional&lt;T&gt; newInstance(final Class&lt;?&gt; type, final Class&lt;T&gt; api) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        if (api == type) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            return Optional.empty();<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        try {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            return Optional.of(api.cast(type.getConstructor().newInstance()));<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException e) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>            throw new IllegalArgumentException(e);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        } catch (final InvocationTargetException e) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            throw new IllegalStateException(e.getTargetException());<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        }<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span>}<a name="line.137"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

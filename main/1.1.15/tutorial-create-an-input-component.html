@@ -1,0 +1,3315 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Talend Input component for Hazelcat</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/tutorial-create-an-input-component.html">
+    <meta name="description" content="Example of input component implementation with Talend Component Kit">
+    <meta name="keywords" content="tutorial, example, partition mapper, producer, source, hazelcast, distributed">
+    <meta name="generator" content="Talend Component Kit Generator">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Talend Input component for Hazelcat :: Talend Component Kit Developer Reference Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/tutorial-create-an-input-component.html">
+    <meta name="description" content="Example of input component implementation with Talend Component Kit">
+    <meta name="keywords" content="tutorial, example, partition mapper, producer, source, hazelcast, distributed">
+    <meta name="generator" content="Antora 3.0.1">
+<meta name="date" content="2025-05-27T00:54:39.690Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+
+
+<script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                  messageStyle: "none",
+                  tex2jax: {
+                    inlineMath: [["\\(", "\\)"]],
+                    displayMath: [["\\[", "\\]"]],
+                    ignoreClass: "nostem|nolatexmath"
+                  },
+                  asciimath2jax: {
+                    delimiters: [["\\$", "\\$"]],
+                    ignoreClass: "nostem|noasciimath"
+                  },
+                  TeX: { equationNumbers: { autoNumber: "none" } }
+                });
+                </script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                1.1.15
+              <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version">
+                    <a href="../latest/index.html">1.82.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.81.0/index.html">1.81.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.80.1/index.html">1.80.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.80.0/index.html">1.80.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.79.0/index.html">1.79.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.78.1/index.html">1.78.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.78.0/index.html">1.78.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.67.0/index.html">1.67.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.66.0/index.html">1.66.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.65.0/index.html">1.65.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.8/index.html">1.64.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.7/index.html">1.64.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.6/index.html">1.64.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.5/index.html">1.64.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.4/index.html">1.64.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.3/index.html">1.64.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.2/index.html">1.64.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.1/index.html">1.64.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.64.0/index.html">1.64.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.63.0/index.html">1.63.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.62.1/index.html">1.62.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.62.0/index.html">1.62.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.61.2/index.html">1.61.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.61.1/index.html">1.61.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.61.0/index.html">1.61.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.60.0/index.html">1.60.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.59.0/index.html">1.59.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.58.0/index.html">1.58.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.57.2/index.html">1.57.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.57.1/index.html">1.57.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.57.0/index.html">1.57.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.56.3/index.html">1.56.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.56.2/index.html">1.56.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.56.1/index.html">1.56.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.56.0/index.html">1.56.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.55.2/index.html">1.55.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.55.1/index.html">1.55.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.55.0/index.html">1.55.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.54.1/index.html">1.54.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.53.1/index.html">1.53.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.51.4/index.html">1.51.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.51.3/index.html">1.51.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.51.2/index.html">1.51.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.50.4/index.html">1.50.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.49.1/index.html">1.49.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.48.1/index.html">1.48.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.47.1/index.html">1.47.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.46.1/index.html">1.46.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.45.2/index.html">1.45.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.44.3/index.html">1.44.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.43.1/index.html">1.43.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.42.0/index.html">1.42.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.41.1/index.html">1.41.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.40.0/index.html">1.40.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.39.3/index.html">1.39.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.16/index.html">1.38.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.15/index.html">1.38.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.14/index.html">1.38.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.13/index.html">1.38.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.12/index.html">1.38.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.11/index.html">1.38.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.10/index.html">1.38.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.9/index.html">1.38.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.30.0/index.html">1.30.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.29.2/index.html">1.29.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.13/index.html">0.0.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="changelog.html" class="navbar-single-link">CHANGELOG</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.1.15">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>First steps</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="getting-started.html">Getting Started</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="record-types.html">Record types</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Tutorials</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-tutorials.html">Tutorial overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-output-component.html">Creating a Hazelcast output component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-components-rest-api.html">Creating a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-rest-api.html">Testing a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-your-components.html">Testing a Hazelcast component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-dev-vs-ci-setup.html">Testing in a continuous integration environment</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-handle-talend-component-migration.html">Handling component version migration</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Setting up your environment</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-setup-environment.html">Setup overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="#system-prerequisites.adoc.adoc">System requirements</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="installing-talend-intellij-plugin.html">Installing the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Generating a project</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-generating-project.html">Project generation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Using the Starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="generate-project-using-intellij-plugin.html">Using the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Implementing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-creating-components.html">Component implementation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-registering.html">Defining component metadata</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="creating-dataset-datastore.html">Defining datasets and datastores</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-input.html">Defining an input component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-processor-output.html">Defining a processor/output logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-configuration.html">Defining component configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-execution.html">Component execution logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-internationalization.html">Internationalizing a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-versions-and-migration.html">Managing component versions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-configuration-sensitive-data.html">Masking sensitive data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="concept-processor-and-batch-processing.html">Implementing batch processing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-loading.html">Component loading</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Defining services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-defining-services.html">Service overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-internationalization.html">Internationalizing a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-actions.html">Providing actions through a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-built-in.html">Built-in services</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-interceptors.html">Services and interceptors</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-custom-api.html">Defining a custom API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-testing-components.html">Component testing overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-best-practices.html">Component testing best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="index-sub-testing-runtime.html">Testing component runtime</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-beam.html">Beam testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-multiple-envs.html">Testing in multiple environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-maven-passwords.html">Reusing Maven credentials</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-generating-data.html">Generating data for testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Studio</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-deploying-components.html">Studio integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio.html">Iterating on component development</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-from-car.html">Installing components from a CAR file</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="compatibility.html">Version compatibility</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="javajet-to-componentkit.html">From Javajet to the Component Kit</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Cloud</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-cloud-integration.html">Cloud integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="vault-proxy.html">Component Server Vault Proxy</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Knowledge base</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-knowledge-base.html">Knowledge base articles</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="changelog.html">Changelog</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Reference Guide</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="gallery.html">Widget and validation gallery</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-actions.html">List of available actions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-conditions.html">List of conditions for binding properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-configuration-types.html">Component data configuration types</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-constraints.html">Component field constraints and validations</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-scanning-exclusions.html">Scanning exclusions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-server-configuration.html">Server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-ui.html">UI API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="apidocs.html">Javadocs</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb"><a href="index-tutorials.html">Tutorials</a></li>
+      <li class="crumb active"><a href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Talend Input component for Hazelcat</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div id="tutorial-create-an-input-component2" class="paragraph">
+<p>In this tutorial, we will walk through the creation of a complete Talend input component from scratch for hazelcast using
+Talend Component Framework that we will reference in this tutorial as <strong>TCK</strong>.</p>
+</div>
+<div class="paragraph">
+<p>We will create an input component for hazelcast. Hazelcast will be a prefect example to show how to create an input component
+for distributed systems. Hazelcast is an in-memory distributed data grid. You can read more about it here <a href="https://hazelcast.org/" class="bare">hazelcast.org/</a> but all what you
+will need to know to follow this tutorial is that hazelcast is a distributed system that can store data.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>So, Let&#8217;s start by creating the component project.</p>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_project_creation"><a class="anchor" href="#_project_creation"></a>Project creation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>TCK project is a simple java project with some specific configuration and dependencies. You can choose your
+preferred build tool from <strong>Maven</strong> or <strong>Gradle</strong> as TCK supports both of them. <strong>But, in this tutorial, we will use maven.</strong></p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s generate the project structure using <strong>Talend Starter TOOLKIT</strong> .</p>
+</div>
+<div class="paragraph">
+<p>For that, please go to <a href="https://starter-toolkit.talend.io/" class="bare">starter-toolkit.talend.io/</a> and fill in the project information as shown
+in the screen capture bellow, then click finish and click <strong>download as a zip</strong></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_hazelcast_generateproject_1.png" alt="tutorial hazelcast generateproject 1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_hazelcast_generateproject_2.png" alt="tutorial hazelcast generateproject 2">
+</div>
+</div>
+<div class="paragraph">
+<p>Extract the zip file into your workspace and import it to your preferred IDE. We will use Intellij IDE, but you can use Eclipse
+or any other IDE that you are comfortable with.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+You can use the <strong>starter toolkit</strong> to design the full configuration of the component, but in this tutorial we will do that
+manually to explain some concepts of TCK.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s explore the generated <code>pom.xml</code> file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+          http://maven.apache.org/POM/4.0.0
+          http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+  &lt;groupId&gt;org.talend.components.hazelcast&lt;/groupId&gt;
+  &lt;artifactId&gt;hazelcast-component&lt;/artifactId&gt;
+  &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+  &lt;packaging&gt;jar&lt;/packaging&gt;
+
+  &lt;name&gt;Component Hazelcast&lt;/name&gt;
+  &lt;description&gt;A generated component project&lt;/description&gt;
+
+  &lt;properties&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+
+    &lt;!--
+    Set it to true if you want the documentation to be rendered as HTML and PDF
+
+    You can also use it on the command line: -Dtalend.documentation.htmlAndPdf=true
+    --&gt;
+    &lt;talend.documentation.htmlAndPdf&gt;false&lt;/talend.documentation.htmlAndPdf&gt;
+
+    &lt;!--
+    if you want to deploy into the studio you can use the related goal:
+
+    mvn package talend-component:deploy-in-studio -Dtalend.component.studioHome=/path/to/studio
+
+    TIP: it is recommended to set this property into your settings.xml in an active by default profile.
+    --&gt;
+    &lt;talend.component.studioHome /&gt;
+  &lt;/properties&gt;
+
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+      &lt;artifactId&gt;component-api&lt;/artifactId&gt;
+      &lt;version&gt;1.1.12&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+
+  &lt;build&gt;
+    &lt;extensions&gt;
+      &lt;extension&gt;
+        &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+        &lt;artifactId&gt;talend-component-maven-plugin&lt;/artifactId&gt;
+        &lt;version&gt;1.1.12&lt;/version&gt;
+      &lt;/extension&gt;
+    &lt;/extensions&gt;
+
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+        &lt;version&gt;3.8.1&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;source&gt;1.8&lt;/source&gt;
+          &lt;target&gt;1.8&lt;/target&gt;
+          &lt;forceJavacCompilerUse&gt;true&lt;/forceJavacCompilerUse&gt;
+          &lt;compilerId&gt;javac&lt;/compilerId&gt;
+          &lt;fork&gt;true&lt;/fork&gt;
+          &lt;compilerArgs&gt;
+            &lt;arg&gt;-parameters&lt;/arg&gt;
+          &lt;/compilerArgs&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+        &lt;version&gt;3.0.0-M3&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;trimStackTrace&gt;false&lt;/trimStackTrace&gt;
+          &lt;runOrder&gt;alphabetical&lt;/runOrder&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Change the <code>name</code> tag to a more relevant one, for example <strong>&lt;name&gt;Component Hazelcast&lt;/name&gt;</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>component-api</code> dependency provides us with the necessary API to develop the components.</p>
+</li>
+<li>
+<p><code>talend-component-maven-plugin</code> provides building and validation tools for the components development.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Also the java compiler needs some Talend specific configuration for the components to work correctly.
+The most important is the option <strong>-parameters</strong> that preserve the parameters name needed for some introspection feature that TCK rely on.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s download the mvn dependencies declared in the <code>pom.xml</code> file.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn clean compile</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should get a BUILD SUCCESS at this point as shown bellow.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">[INFO] Scanning for projects...
+[INFO]
+[INFO] -----&lt; org.talend.components.hazelcast:talend-component-hazelcast &gt;-----
+[INFO] Building Component :: Hazelcast 1.0.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+
+...
+
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.311 s
+[INFO] Finished at: 2019-09-03T11:42:41+02:00
+[INFO] ------------------------------------------------------------------------</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, let&#8217;s create the project structure. For that, create the following folder structure as the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mkdir -p src/main/java
+$ mkdir -p src/main/resources</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And then, let&#8217;s create the component java packages.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The Package are mandatory in the component model and you can&#8217;t use the default one (no package).
+It&#8217;s recommended to create unique package by component to be able to reuse them as dependencies in other component
+for example or to guarantee an isolation while writing unit tests.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mkdir -p src/main/java/org/talend/components/hazelcast
+$ mkdir -p src/main/resources/org/talend/components/hazelcast</code></pre>
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Now, the project is correctly setup, let&#8217;s continue by registering the component family and setting up
+some i18n properties</p>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_registering_the_hazelcast_components_family"><a class="anchor" href="#_registering_the_hazelcast_components_family"></a>Registering the Hazelcast components family</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every family (group) of components needs to be registered to be loaded by components server and then to be available
+in Talend Studio components palette for example.</p>
+</div>
+<div class="paragraph">
+<p>The family registration is done via the <code>package-info.java</code> file so let&#8217;s create it.
+For that move to <code>src/main/java/org/talend/components/hazelcast</code> package and create a  <code>package-info.java</code> file as bellow.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Components(family = "Hazelcast", categories = "Databases")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+package org.talend.components.hazelcast;
+
+import org.talend.sdk.component.api.component.Components;
+import org.talend.sdk.component.api.component.Icon;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>@Components</strong>: declare the family name and the categories to which it will belongs <strong>@Icon</strong>: declare the component family icon. this is mostly used in the studio metadata tree.</p>
+</div>
+<div class="paragraph">
+<p>TCK also provides i18n support via java properties files to customize and translate the display name of some properties
+like the family name or, as we will see later in this tutorial, the component configuration labels.</p>
+</div>
+<div class="paragraph">
+<p>So, let&#8217;s create the i18n file in the <code>resources</code> folder.
+For that, please move to <code>src/main/resources/org/talend/components/hazelcast</code> and create a <code>Messages.properties</code> file as bellow:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties"># An i18n name for the component family
+Hazelcast._displayName=Hazelcast</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the family icon, defined in the <code>package-info.java</code> file, an icon image needs to be provided in the <code>resources/icons</code>
+folder.</p>
+</div>
+<div class="paragraph">
+<p>TCK support <code>svg</code> and <code>png</code> format for the icons.</p>
+</div>
+<div class="paragraph">
+<p>So let&#8217;s create the <code>icons</code> folder and put an icon image for our hazelcast family.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mkdir -p /src/main/resources/icons</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I will use the hazelcast icon from there official github repository that you can get from here <a href="https://avatars3.githubusercontent.com/u/1453152?s=200&amp;v=4" class="bare">avatars3.githubusercontent.com/u/1453152?s=200&amp;v=4</a></p>
+</div>
+<div class="paragraph">
+<p>Download the image and rename it to <code>Hazelcast_icon32.png</code>.
+The name template is important and it should match <code>&lt;Icon id from the package-info&gt;_icon.32.png</code></p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>That&#8217;s all for the component registration.
+Now we can start designing the component configuration</p>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hazelcast_component_configuration"><a class="anchor" href="#_hazelcast_component_configuration"></a>Hazelcast component configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>All the I/O components follow a predefined model of configuration.
+The configuration needs to be composed of two parts:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Datastore</strong>: define all the properties that will let the component connect to the targeted system.</p>
+</li>
+<li>
+<p><strong>Dataset</strong>: define the data that will be read or written from/to the targeted system.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_datastore"><a class="anchor" href="#_datastore"></a>Datastore</h3>
+<div class="paragraph">
+<p>To connect to hazelcast cluster we will need the cluster ip address, the group name and the password of the targeted cluster.</p>
+</div>
+<div class="paragraph">
+<p>In the component this will be represented by a simple POJO.
+So, let&#8217;s create a class file <code>HazelcastDatastore.java</code> in <code>serc/main/java/org/talend/components/hazelcast</code>
+folder.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.constraint.Required;
+import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.configuration.ui.widget.Credential;
+import org.talend.sdk.component.api.meta.Documentation;
+
+import java.io.Serializable;
+
+@GridLayout({
+        @GridLayout.Row("clusterIpAddress"),
+        @GridLayout.Row({"groupName", "password"})
+})
+@DataStore("HazelcastDatastore")
+@Documentation("Hazelcast Datastore configuration")
+public class HazelcastDatastore implements Serializable {
+
+    @Option
+    @Required
+    @Documentation("The hazelcast cluster ip address")
+    private String clusterIpAddress;
+
+    @Option
+    @Documentation("cluster group name")
+    private String groupName;
+
+    @Option
+    @Credential
+    @Documentation("cluster password")
+    private String password;
+
+    // Getters &amp; Setters omitted for simplicity
+    // You need to generate them
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s walk through the annotations used here :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>@GridLayout</code>: define the ui layout of this configuration in a grid manner.</p>
+</li>
+<li>
+<p><code>@DataStore</code>: mark this POJO as being a data store with the id <code>HazelcastDatastore</code> that can be used to reference the datastore in the i18n files or some services</p>
+</li>
+<li>
+<p><code>@Documentation</code>: document classes and properties. then TCK rely on those metadata to generate a documentation for the component.</p>
+</li>
+<li>
+<p><code>@Option</code>: mark class&#8217;s attributes as being a configuration entry.</p>
+</li>
+<li>
+<p><code>@Credential</code>: mark an Option as being a sensible data that need to be encrypted before it&#8217;s stored.</p>
+</li>
+<li>
+<p><code>@Required</code>: mark a configuration as being required.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s define the i18n properties of the data store.
+In the <code>Messages.properties</code> file let add the following lines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">#datastore
+Hazelcast.datastore.HazelcastDatastore._displayName=Hazelcast Connection
+HazelcastDatastore.clusterIpAddress._displayName=Cluster ip address
+HazelcastDatastore.groupName._displayName=Group Name
+HazelcastDatastore.password._displayName=Passowrd</code></pre>
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>By this, we have defined the hazelcast datastore.
+Let&#8217;s see now for the dataset</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dataset"><a class="anchor" href="#_dataset"></a>Dataset</h3>
+<div class="paragraph">
+<p>In hazelcast there is different types of data store that can be found.
+You can manipulate Maps, List, Set, Cache, Locks, Queue, Topic&#8230;&#8203;.</p>
+</div>
+<div class="paragraph">
+<p>In this tutorial we will focus on Maps as an example, but all what we will see is also applicable to all the other data structures.</p>
+</div>
+<div class="paragraph">
+<p>To read/write from a map we will need the map name.
+So, let&#8217;s create the dataset classe.
+For that create <code>HazelcastDataset.java</code>
+file in <code>src/main/java/org/talend/components/hazelcast</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.configuration.type.DataSet;
+import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
+import org.talend.sdk.component.api.meta.Documentation;
+
+import java.io.Serializable;
+
+@GridLayout({
+        @GridLayout.Row("connection"),
+        @GridLayout.Row("mapName")
+})
+@DataSet("HazelcastDataset")
+@Documentation("Hazelcast dataset")
+public class HazelcastDataset implements Serializable {
+
+
+    @Option
+    @Documentation("Hazelcast connection")
+    private HazelcastDatastore connection;
+
+    @Option
+    @Documentation("Hazelcast map name")
+    private String mapName;
+
+    // Getters &amp; Setters omitted for simplicity
+    // You need to generate them
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here, we have a new annotation <code>@Dataset</code> that mark this classe as being a dataset.
+Note that we also have a reference to the datastore. this is a part of the components model.</p>
+</div>
+<div class="paragraph">
+<p>Now and as we have done with the datastore, let&#8217;s define the i18n properties of the dataset.
+for that add the following lines to the <code>Messages.properties</code> file</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">#dataset
+Hazelcast.dataset.HazelcastDataset._displayName=Hazelcast Map
+HazelcastDataset.connection._displayName=Connection
+HazelcastDataset.mapName._displayName=Map Name</code></pre>
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>That&#8217;s all we need for the component configuration. Now let&#8217;s create the Source that will read the data from the hazelcast
+map.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_source"><a class="anchor" href="#_source"></a>Source</h3>
+<div class="paragraph">
+<p>Source is the class responsible of reading the data from the configured dataset.</p>
+</div>
+<div class="paragraph">
+<p>A source get the configuration instance that will be injected by TCK at runtime and will use it to connect to the targeted
+system to read the data.</p>
+</div>
+<div class="paragraph">
+<p>Here is a simple source for Hazelcast.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.record.Record;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.io.Serializable;
+
+@Version
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Emitter(name = "Input")
+@Documentation("Hazelcast source")
+public class HazelcastSource implements Serializable {
+
+    private final HazelcastDataset dataset;
+
+    public HazelcastSource(@Option("configuration") final HazelcastDataset configuration) {
+        this.dataset = configuration;
+    }
+
+    @PostConstruct
+    public void init() throws IOException {
+        //Here we can init connections
+    }
+
+    @Producer
+    public Record next() {
+        // provide a record every time it called. return null if there is no more data
+        return null;
+    }
+
+    @PreDestroy
+    public void release() {
+        // clean and release any resources
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that this class is annotated with <code>@Emitter</code> which mark this class as being a source that will produce records. We find
+the <code>Icon</code> annotation that define the icon of the component. Here we will use the same icon as the family one but you can use
+different icon if you want.</p>
+</div>
+<div class="paragraph">
+<p>The constructor of the source class let TCK inject the required configuration to the source. We can also inject some common
+services provided by TCK or other services that we can define in the component. We will see the service part later in this tutorial.</p>
+</div>
+<div class="paragraph">
+<p>The method annotated with <code>@PostConstruct</code> is used to prepare resource or open a connection for example.</p>
+</div>
+<div class="paragraph">
+<p>The method annotated with <code>@Producer</code> is responsible of retuning the next record if any. the method will return null if no
+more record can be read.</p>
+</div>
+<div class="paragraph">
+<p>The method annotated with <code>@PreDestroy</code> is responsible of cleaning any resource that was used or opened in the Source.</p>
+</div>
+<div class="paragraph">
+<p>As for the configuration. the source also need some i18n properties to provide human readable display name of the source.</p>
+</div>
+<div class="paragraph">
+<p>For that, please add the following line to the Messages.properties file.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">#Source
+Hazelcast.Input._displayName=Input</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At this point we can already see the result in the Talend component web tester to see how the configuration looks like and validate
+our layout visually.</p>
+</div>
+<div class="paragraph">
+<p>For that, let&#8217;s execute this command in the project folder.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn clean install talend-component:web</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will start the component web tester and deploy the component to it. Then you can browse it at <a href="http://localhost:8080/" class="bare">localhost:8080/</a></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">[INFO]
+[INFO] --- talend-component-maven-plugin:1.1.12:web (default-cli) @ talend-component-hazelcast ---
+[16:46:52.361][INFO ][.WebServer_8080][oyote.http11.Http11NioProtocol] Initializing ProtocolHandler ["http-nio-8080"]
+[16:46:52.372][INFO ][.WebServer_8080][.catalina.core.StandardService] Starting service [Tomcat]
+[16:46:52.372][INFO ][.WebServer_8080][e.catalina.core.StandardEngine] Starting Servlet engine: [Apache Tomcat/9.0.22]
+[16:46:52.378][INFO ][.WebServer_8080][oyote.http11.Http11NioProtocol] Starting ProtocolHandler ["http-nio-8080"]
+[16:46:52.390][INFO ][.WebServer_8080][g.apache.meecrowave.Meecrowave] --------------- http://localhost:8080
+...
+[INFO]
+
+  You can now access the UI at http://localhost:8080
+
+
+[INFO] Enter 'exit' to quit
+[INFO] Initializing class org.talend.sdk.component.server.front.ComponentResourceImpl</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/tutorial_hazelcast_webtester.png" alt="tutorial hazelcast webtester">
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Now that we have setup our source let start creating some hazelcast specific code to connect to a cluster and read some
+values for a map.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_source_implementation_for_hazelcast"><a class="anchor" href="#_source_implementation_for_hazelcast"></a>Source implementation for Hazelcast</h3>
+<div class="paragraph">
+<p>To work with hazelcast we will need to add the <code>hazelcast-client</code> maven dependency to the <code>pom.xml</code> of the project.</p>
+</div>
+<div class="paragraph">
+<p>Add this dependency into the dependencies tag in the <code>pom.xml</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">    &lt;dependency&gt;
+      &lt;groupId&gt;com.hazelcast&lt;/groupId&gt;
+      &lt;artifactId&gt;hazelcast-client&lt;/artifactId&gt;
+      &lt;version&gt;3.12.2&lt;/version&gt;
+    &lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s get an hazelcast instance in the <code>@PostConstruct</code> method. for that, let&#8217;s start by declaring a HazelcastInstance
+attribute in the source class. Note that any non serializable attribute needs to be marked as transient to avoid serialization
+issues. Then let&#8217;s implement the post construct method.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.record.Record;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.Serializable;
+
+import static java.util.Collections.singletonList;
+
+@Version
+@Emitter(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Documentation("Hazelcast source")
+public class HazelcastSource implements Serializable {
+
+    private final HazelcastDataset dataset;
+
+    /**
+     * Hazelcast instance is a client in a Hazelcast cluster
+     */
+    private transient HazelcastInstance hazelcastInstance;
+
+    public HazelcastSource(@Option("configuration") final HazelcastDataset configuration) {
+        this.dataset = configuration;
+    }
+
+    @PostConstruct
+    public void init() {
+        //Here we can init connections
+        final HazelcastDatastore connection = dataset.getConnection();
+        final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+        networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+        final ClientConfig config = new ClientConfig();
+        config.setNetworkConfig(networkConfig);
+        config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+        hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+    }
+
+    @Producer
+    public Record next() {
+        // provide a record every time it called. return null if there is no more data
+        return null;
+    }
+
+    @PreDestroy
+    public void release() {
+        // clean and release any resources
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here, we have mapped the component configuration to hazelcast client configuration to create a hazelcast instance that
+we will use later to get the map by it&#8217;s name and then read the data from it.
+The code is straight forward as you can notice. To keep it simple, we did expose only the required configuration in the component.</p>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s implement the code that will be responsible of reading the data from the hazelcast map.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
+
+@Version
+@Emitter(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Documentation("Hazelcast source")
+public class HazelcastSource implements Serializable {
+
+    private final HazelcastDataset dataset;
+
+    /**
+     * Hazelcast instance is a client in a Hazelcast cluster
+     */
+    private transient HazelcastInstance hazelcastInstance;
+
+    private transient Iterator&lt;Map.Entry&lt;String, String&gt;&gt; mapIterator;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    public HazelcastSource(@Option("configuration") final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+    }
+
+    @PostConstruct
+    public void init() {
+        //Here we can init connections
+        final HazelcastDatastore connection = dataset.getConnection();
+        final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+        networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+        final ClientConfig config = new ClientConfig();
+        config.setNetworkConfig(networkConfig);
+        config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+        hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+    }
+
+    @Producer
+    public Record next() {
+        // provide a record every time it called. return null if there is no more data
+        if (mapIterator == null) {
+            // Get the Distributed Map from Cluster.
+            IMap&lt;String, String&gt; map = hazelcastInstance.getMap(dataset.getMapName());
+            mapIterator = map.entrySet().iterator();
+        }
+
+        if (!mapIterator.hasNext()) {
+            return null;
+        }
+
+        final Map.Entry&lt;String, String&gt; entry = mapIterator.next();
+        return recordBuilderFactory.newRecordBuilder().withString(entry.getKey(), entry.getValue()).build();
+    }
+
+    @PreDestroy
+    public void release() {
+        // clean and release any resources
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s walk thought the implementation of the <code>Producer</code> annotated method.</p>
+</div>
+<div class="paragraph">
+<p>We start by checking if the map iterator was already initialized and if not we get the map by it&#8217;s name and we initialize it.
+we do that in the <code>@Producer</code> method to ensure the map is only initialized if the <code>next()</code> method is called (a lazy initialisation). we also avoid the
+map initialization in the <code>PostConstruct</code> as the hazelcast map is not serializable.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Note that all the objects initialized in the <code>PostConstruct</code> method needs to be serializable as the source
+may be serialized and sent to an other worker in a distributed cluster for it&#8217;s execution.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>From the map, we create an iterator on the map keys that we will use to read from the map. then we will transform every pair
+of key/value to a Talend Record with a key, value Object on every call to next.</p>
+</div>
+<div class="paragraph">
+<p>Notice here that we have used the <code>RecordBuilderFactory</code> class which is a built in service in TCK that we have injected via
+the Source constructor. This service is a factory to create Talend Records.</p>
+</div>
+<div class="paragraph">
+<p>Now the <code>next()</code> method will produce a Record every time it&#8217;s called. the method will return null if no more data is in the map.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>That&#8217;s all for the <code>@Producer</code> annotated method.</p>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s implement the <code>@PreDestroy</code> annotated method which will be responsible of releasing
+all the resource used by the Source. So here we will need to shutdown the hazelcast client instance to release any connection
+between the component and hazelcast cluster.</p>
+</div>
+</blockquote>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
+
+@Version
+@Emitter(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Documentation("Hazelcast source")
+public class HazelcastSource implements Serializable {
+
+    private final HazelcastDataset dataset;
+
+    /**
+     * Hazelcast instance is a client in a Hazelcast cluster
+     */
+    private transient HazelcastInstance hazelcastInstance;
+
+    private transient Iterator&lt;Map.Entry&lt;String, String&gt;&gt; mapIterator;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    public HazelcastSource(@Option("configuration") final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+    }
+
+    @PostConstruct
+    public void init() {
+        //Here we can init connections
+        final HazelcastDatastore connection = dataset.getConnection();
+        final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+        networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+        final ClientConfig config = new ClientConfig();
+        config.setNetworkConfig(networkConfig);
+        config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+        hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+    }
+
+    @Producer
+    public Record next() {
+        // provide a record every time it called. return null if there is no more data
+        if (mapIterator == null) {
+            // Get the Distributed Map from Cluster.
+            IMap&lt;String, String&gt; map = hazelcastInstance.getMap(dataset.getMapName());
+            mapIterator = map.entrySet().iterator();
+        }
+
+        if (!mapIterator.hasNext()) {
+            return null;
+        }
+
+        final Map.Entry&lt;String, String&gt; entry = mapIterator.next();
+        return recordBuilderFactory.newRecordBuilder().withString(entry.getKey(), entry.getValue()).build();
+    }
+
+    @PreDestroy
+    public void release() {
+        // clean and release any resources
+        if (hazelcastInstance != null) {
+            hazelcastInstance.shutdown();
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Now, The hazel cast Source is completed. Let&#8217;s write a simple unit test to check that it&#8217;s working.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_test_the_source"><a class="anchor" href="#_test_the_source"></a>Test the source</h3>
+<div class="paragraph">
+<p>TCK provide a set of testing api and tools that makes the testing simple and straight forward.
+So let&#8217;s create our first test.</p>
+</div>
+<div class="paragraph">
+<p>To test our hazelcast Source, we will create an embedded hazelcast instance of only one member, for now,
+and initialize it with some data. Then we will create a test Job that will read the data from it using the Source
+that we have just implemented.</p>
+</div>
+<div class="paragraph">
+<p>So for that, let&#8217;s start by adding the the required test maven dependencies to our project.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">        &lt;dependency&gt;
+            &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+            &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+            &lt;version&gt;5.5.1&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.talend.sdk.component&lt;/groupId&gt;
+            &lt;artifactId&gt;component-runtime-junit&lt;/artifactId&gt;
+            &lt;version&gt;1.1.12&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s start initializing a hazelcast test instance. and let&#8217;s create a map with some test data.</p>
+</div>
+<div class="paragraph">
+<p>For that, create the test class <code>HazelcastSourceTest.java</code> in <code>src/test/java</code> folder that you will need to create before.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class HazelcastSourceTest {
+
+    private static final String MAP_NAME = "MY-DISTRIBUTED-MAP";
+
+    private static HazelcastInstance hazelcastInstance;
+
+    @BeforeAll
+    static void init() {
+        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        IMap&lt;String, String&gt; map = hazelcastInstance.getMap(MAP_NAME);
+        map.put("key1", "value1");
+        map.put("key2", "value2");
+        map.put("key3", "value3");
+        map.put("key4", "value4");
+    }
+
+    @Test
+    void initTest() {
+        IMap&lt;String, String&gt; map = hazelcastInstance.getMap(MAP_NAME);
+        assertEquals(4, map.size());
+    }
+
+    @AfterAll
+    static void shutdown() {
+        hazelcastInstance.shutdown();
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we start by creating a hazelcast instance for our test. then we create the <code>MY-DISTRIBUTED-MAP</code> map. The get map will
+create the map if it&#8217;s not already exists. Then we add some key, values that we will use in our test.
+After that we have a simple test that check that the data was correctly initialized. By the end, we shutdown the hazelcast test
+instance.</p>
+</div>
+<div class="paragraph">
+<p>Run the test by execution and check in the logs that a hazelcast cluster of one member is created and that the test is
+passing.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn clean test</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, let&#8217;s create our test job to test our Source.</p>
+</div>
+<div class="paragraph">
+<p>To be able to test the component. TCK provides the annotation <code>@WithComponents</code> which enable component testing. So, let&#8217;s
+start by adding this annotation to our test. The annotation takes the components java package as a value parameter.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.junit5.WithComponents;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@WithComponents("org.talend.components.hazelcast")
+class HazelcastSourceTest {
+
+    private static final String MAP_NAME = "MY-DISTRIBUTED-MAP";
+
+    private static HazelcastInstance hazelcastInstance;
+
+    @BeforeAll
+    static void init() {
+        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        IMap&lt;String, String&gt; map = hazelcastInstance.getMap(MAP_NAME);
+        map.put("key1", "value1");
+        map.put("key2", "value2");
+        map.put("key3", "value3");
+        map.put("key4", "value4");
+    }
+
+    @Test
+    void initTest() {
+        IMap&lt;String, String&gt; map = hazelcastInstance.getMap(MAP_NAME);
+        assertEquals(4, map.size());
+    }
+
+    @AfterAll
+    static void shutdown() {
+        hazelcastInstance.shutdown();
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s create the test job that will configure the hazelcast and link it to an output that will collect the data
+that will be produced by the source.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.junit.BaseComponentsHandler;
+import org.talend.sdk.component.junit5.Injected;
+import org.talend.sdk.component.junit5.WithComponents;
+import org.talend.sdk.component.runtime.manager.chain.Job;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
+
+@WithComponents("org.talend.components.hazelcast")
+class HazelcastSourceTest {
+
+    private static final String MAP_NAME = "MY-DISTRIBUTED-MAP";
+
+    private static HazelcastInstance hazelcastInstance;
+
+    @Injected
+    protected BaseComponentsHandler componentsHandler;
+
+    @BeforeAll
+    static void init() {
+        hazelcastInstance = Hazelcast.newHazelcastInstance();
+        IMap&lt;String, String&gt; map = hazelcastInstance.getMap(MAP_NAME);
+        map.put("key1", "value1");
+        map.put("key2", "value2");
+        map.put("key3", "value3");
+        map.put("key4", "value4");
+    }
+
+    @Test
+    void initTest() {
+        IMap&lt;String, String&gt; map = hazelcastInstance.getMap(MAP_NAME);
+        assertEquals(4, map.size());
+    }
+
+    @Test
+    void sourceTest() {
+        final HazelcastDatastore connection = new HazelcastDatastore();
+        connection.setClusterIpAddress(hazelcastInstance.getCluster().getMembers().iterator().next().getAddress().getHost());
+        connection.setGroupName(hazelcastInstance.getConfig().getGroupConfig().getName());
+        connection.setPassword(hazelcastInstance.getConfig().getGroupConfig().getPassword());
+        final HazelcastDataset dataset = new HazelcastDataset();
+        dataset.setConnection(connection);
+        dataset.setMapName(MAP_NAME);
+
+        final String configUri = configurationByExample().forInstance(dataset).configured().toQueryString();
+
+        Job.components()
+                .component("Input", "Hazelcast://Input?" + configUri)
+                .component("Output", "test://collector")
+            .connections()
+                .from("Input").to("Output")
+            .build()
+            .run();
+
+        List&lt;Record&gt; data = componentsHandler.getCollectedData(Record.class);
+        assertEquals(4, data.size());
+    }
+
+    @AfterAll
+    static void shutdown() {
+        hazelcastInstance.shutdown();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that we have added the <code>componentsHandler</code> attribute which will be injected by TCK to our test. This component handler
+gives us access to the collected data.</p>
+</div>
+<div class="paragraph">
+<p>In <code>sourceTest</code> method we have instantiated the configuration of the source and fill it we the configuration of our hazelcast
+test instance created before to let the source connect to it.
+The Job API provide a simple way to build a DAG (directed acyclic graph) job using Talend components and then run it on
+a specific runner (standalone, beam or spark). in this test we will first start using only the default runner which is the
+standalone one.</p>
+</div>
+<div class="paragraph">
+<p>the <code>configurationByExample()</code> method create the <code>ByExample</code> factory which provide a simple way to convert the configuration
+instance to an URI configuration that can be used with the Job API to configure the component correctly.</p>
+</div>
+<div class="paragraph">
+<p>At the end we run the job and check that the collected data size is equals to the initialized test data.</p>
+</div>
+<div class="paragraph">
+<p>Execute the unit test and check that it&#8217;s passing. So our source is reading the data correctly from hazelcast.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn clean test</code></pre>
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>By that, our simple source is completed and tested. In the next section we will implement a the partition mapper for the source
+which will be responsible of spiting the work (data reading) corresponding to the available cluster members to distribute
+the work load.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_partition_mapper"><a class="anchor" href="#_partition_mapper"></a>Partition Mapper</h3>
+<div class="paragraph">
+<p>The partition mapper will be responsible of calculating the number of Source that can be created and executed in parallel
+on different available worker in a distributed system. (in hazelcast it will corresponds to the  cluster members counts)</p>
+</div>
+<div class="paragraph">
+<p>So, le&#8217;s evolve our test environment to add more hazelcast members and initialize it with more data.</p>
+</div>
+<div class="paragraph">
+<p>For that, we will need to instantiate more hazelcast instance as every hazelcast instance correspond to one member
+in a cluster. In our test this can be done as the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.junit.BaseComponentsHandler;
+import org.talend.sdk.component.junit5.Injected;
+import org.talend.sdk.component.junit5.WithComponents;
+import org.talend.sdk.component.runtime.manager.chain.Job;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
+
+@WithComponents("org.talend.components.hazelcast")
+class HazelcastSourceTest {
+
+    private static final String MAP_NAME = "MY-DISTRIBUTED-MAP";
+
+    private static final int CLUSTER_MEMBERS_COUNT = 2;
+
+    private static final int MAX_DATA_COUNT_BY_MEMBER = 50;
+
+    private static List&lt;HazelcastInstance&gt; hazelcastInstances;
+
+    @Injected
+    protected BaseComponentsHandler componentsHandler;
+
+    @BeforeAll
+    static void init() {
+        hazelcastInstances = IntStream.range(0, CLUSTER_MEMBERS_COUNT)
+                .mapToObj(i -&gt; Hazelcast.newHazelcastInstance())
+                .collect(Collectors.toList());
+        //add some data
+        hazelcastInstances.forEach(hz -&gt; {
+            final IMap&lt;String, String&gt; map = hz.getMap(MAP_NAME);
+            IntStream.range(0, MAX_DATA_COUNT_BY_MEMBER)
+                    .forEach(i -&gt; map.put(UUID.randomUUID().toString(), "value " + i));
+        });
+    }
+
+    @Test
+    void initTest() {
+        IMap&lt;String, String&gt; map = hazelcastInstances.get(0).getMap(MAP_NAME);
+        assertEquals(CLUSTER_MEMBERS_COUNT * MAX_DATA_COUNT_BY_MEMBER, map.size());
+    }
+
+    @Test
+    void sourceTest() {
+        final HazelcastDatastore connection = new HazelcastDatastore();
+        HazelcastInstance hazelcastInstance = hazelcastInstances.get(0);
+        connection.setClusterIpAddress(
+                hazelcastInstance.getCluster().getMembers().iterator().next().getAddress().getHost());
+        connection.setGroupName(hazelcastInstance.getConfig().getGroupConfig().getName());
+        connection.setPassword(hazelcastInstance.getConfig().getGroupConfig().getPassword());
+        final HazelcastDataset dataset = new HazelcastDataset();
+        dataset.setConnection(connection);
+        dataset.setMapName(MAP_NAME);
+
+        final String configUri = configurationByExample().forInstance(dataset).configured().toQueryString();
+
+        Job.components()
+                .component("Input", "Hazelcast://Input?" + configUri)
+                .component("Output", "test://collector")
+                .connections()
+                .from("Input")
+                .to("Output")
+                .build()
+                .run();
+
+        List&lt;Record&gt; data = componentsHandler.getCollectedData(Record.class);
+        assertEquals(CLUSTER_MEMBERS_COUNT * MAX_DATA_COUNT_BY_MEMBER, data.size());
+    }
+
+    @AfterAll
+    static void shutdown() {
+        hazelcastInstances.forEach(HazelcastInstance::shutdown);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we create two hazelcast instance which will create two hazelcast members. So we will get a cluster
+of two members (nodes) where we can distribute the data.
+We also added more data to the test map and update the shutdown method and our test.</p>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s run our test on our multi nodes cluster.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">mvn clean test</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the Source is a simple implementation that don&#8217;t distribute the work load and read all the data in a classic way
+without distributing the read action on different cluster member.</p>
+</div>
+<div class="paragraph">
+<p>Now that we have our multi members hazelcast cluster, we can start implementing a partition mapper that takes
+into account the cluster size and the available dataset size to distribute the work on the members efficiently.</p>
+</div>
+<div class="paragraph">
+<p>So let&#8217;s implement the partition mapper class. For that, start creating a class file <code>HazelcastPartitionMapper.java</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Assessor;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.PartitionSize;
+import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.List;
+import java.util.UUID;
+
+import static java.util.Collections.singletonList;
+
+@Version
+@PartitionMapper(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Documentation("Hazelcast source")
+public class HazelcastPartitionMapper {
+
+    private final HazelcastDataset dataset;
+
+    /**
+     * Hazelcast instance is a client in a Hazelcast cluster
+     */
+    private transient HazelcastInstance hazelcastInstance;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    public HazelcastPartitionMapper(@Option("configuration") final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+    }
+
+    @PostConstruct
+    public void init() {
+        //Here we can init connections
+        final HazelcastDatastore connection = dataset.getConnection();
+        final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+        networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+        final ClientConfig config = new ClientConfig();
+        config.setNetworkConfig(networkConfig);
+        config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+        config.setInstanceName(getClass().getName()+"-"+ UUID.randomUUID().toString());
+        config.setClassLoader(Thread.currentThread().getContextClassLoader());
+        hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+    }
+
+    @Assessor
+    public long estimateSize() {
+        return 0;
+    }
+
+    @Split
+    public List&lt;HazelcastPartitionMapper&gt; split(@PartitionSize final long bundleSize) {
+        return null;
+    }
+
+    @Emitter
+    public HazelcastSource createSource() {
+        return null;
+    }
+
+    @PreDestroy
+    public void release() {
+        if(hazelcastInstance != null) {
+            hazelcastInstance.shutdown();
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When introducing a partition mapper with a Source.
+The partition mapper will be responsible of parameter injection and source instance creation. This way we move all the
+attribute initialization from the source to the partition mapper class.</p>
+</div>
+<div class="paragraph">
+<p>in the configuration we also set an instance name to make it easy to find the client instance in logs and while debugging.
+We also set the instance class loader to be the tccl.</p>
+</div>
+<div class="paragraph">
+<p>The partition mapper class is composed of :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>constructor</code>: responsible of configuration and services injection</p>
+</li>
+<li>
+<p><code>Assessor</code>: method annotated with Assessor is responsible of the dataset size estimation. the estimated dataset size is
+used by the underlying runner to calculate the optimal bundle size to ditribute the work load efficiently.</p>
+</li>
+<li>
+<p><code>Split</code>: method annotated with Split is responsible of the calculation and the creation of partition mapper instance
+based on the requested bundle size  by the underlying runner.it will create as much partition as possible to handle
+the work load according to the requested bundle size and the dataset size in a way that bundles can be palatalized
+efficiently on different available worker (members in hazelcast)</p>
+</li>
+<li>
+<p><code>Emitter</code>: method annotated by Emitter is responsible of the creation of the source instance with an adapted configuration
+that will let the source to be able of the bundle size to handle the records amount that it will produce. and the required services
+In other words, it will adapt the configuration to let the source read only the requested bundle of data.
+The source will need to control the bundle that will be read. Think of it like a pagination pattern where every source
+instance  will read only one page.</p>
+</li>
+</ul>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Let&#8217;s implement the Assessor method</p>
+</div>
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_assessor"><a class="anchor" href="#_assessor"></a>Assessor</h4>
+<div class="paragraph">
+<p>The assessor method will need to calculate the memory size of every member on the cluster. for that we will need to submit
+the some calculation task to the members. for that we will nead a serializable task that is aware of the hazelcast instance</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s create our serializable task first.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.HazelcastInstanceAware;
+
+import java.io.Serializable;
+import java.util.concurrent.Callable;
+
+public abstract class SerializableTask&lt;T&gt; implements Callable&lt;T&gt;, Serializable, HazelcastInstanceAware {
+
+    protected transient HazelcastInstance localInstance;
+
+    @Override
+    public void setHazelcastInstance(final HazelcastInstance hazelcastInstance) {
+        localInstance = hazelcastInstance;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We will use this class to submit any task to hazelcast cluster. Now, let&#8217;s use it to estimate the dataset size in the assessor
+method.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Assessor;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.PartitionSize;
+import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
+import static java.util.Collections.singletonList;
+
+@Version
+@PartitionMapper(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Documentation("Hazelcast source")
+public class HazelcastPartitionMapper {
+
+    private final HazelcastDataset dataset;
+
+    /**
+     * Hazelcast instance is a client in a Hazelcast cluster
+     */
+    private transient HazelcastInstance hazelcastInstance;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    private transient IExecutorService executorService;
+
+    public HazelcastPartitionMapper(@Option("configuration") final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+    }
+
+    @PostConstruct
+    public void init() {
+        //Here we can init connections
+        final HazelcastDatastore connection = dataset.getConnection();
+        final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+        networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+        final ClientConfig config = new ClientConfig();
+        config.setNetworkConfig(networkConfig);
+        config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+        config.setInstanceName(getClass().getName()+"-"+ UUID.randomUUID().toString());
+        config.setClassLoader(Thread.currentThread().getContextClassLoader());
+        hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+    }
+
+    @Assessor
+    public long estimateSize() {
+        return getExecutorService().submitToAllMembers(new SerializableTask&lt;Long&gt;() {
+
+            @Override
+            public Long call() {
+                return localInstance.getMap(dataset.getMapName()).getLocalMapStats().getHeapCost();
+            }
+        }).values().stream().mapToLong(feature -&gt; {
+            try {
+                return feature.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new IllegalStateException(e);
+            }
+        }).sum();
+    }
+
+    @Split
+    public List&lt;HazelcastPartitionMapper&gt; split(@PartitionSize final long bundleSize) {
+          return null;
+    }
+
+    @Emitter
+    public HazelcastSource createSource() {
+        return null;
+    }
+
+    @PreDestroy
+    public void release() {
+        if(hazelcastInstance != null) {
+            hazelcastInstance.shutdown();
+        }
+    }
+
+    private IExecutorService getExecutorService() {
+        return executorService == null ?
+                executorService = hazelcastInstance.getExecutorService("talend-executor-service") :
+                executorService;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the Assessor method we calculate the memory size that our map occupies on all the members.
+In hazelcast, to distribute the a task to all the members we use an execution service which we initialize in <code>getExecutorService()</code>
+method. So we request the size of the map on every available member and then we sum the result to get the total size of the
+map in the distributed cluster.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Now, let&#8217;s implement the <code>Split</code> method.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_split"><a class="anchor" href="#_split"></a>Split</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.Member;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Assessor;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.PartitionSize;
+import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
+import static java.util.Collections.singletonList;
+import static java.util.Collections.synchronizedMap;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+@Version
+@PartitionMapper(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Documentation("Hazelcast source")
+public class HazelcastPartitionMapper {
+
+    private final HazelcastDataset dataset;
+
+    /**
+     * Hazelcast instance is a client in a Hazelcast cluster
+     */
+    private transient HazelcastInstance hazelcastInstance;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    private transient IExecutorService executorService;
+
+    private List&lt;String&gt; members;
+
+    public HazelcastPartitionMapper(@Option("configuration") final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+    }
+
+    private HazelcastPartitionMapper(final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory, List&lt;String&gt; membersUUID) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+        this.members = membersUUID;
+    }
+
+    @PostConstruct
+    public void init() {
+        //Here we can init connections
+        final HazelcastDatastore connection = dataset.getConnection();
+        final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+        networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+        final ClientConfig config = new ClientConfig();
+        config.setNetworkConfig(networkConfig);
+        config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+        config.setInstanceName(getClass().getName() + "-" + UUID.randomUUID().toString());
+        config.setClassLoader(Thread.currentThread().getContextClassLoader());
+        hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+    }
+
+    @Assessor
+    public long estimateSize() {
+        return executorService.submitToAllMembers(
+                () -&gt; hazelcastInstance.getMap(dataset.getMapName()).getLocalMapStats().getHeapCost())
+                .values()
+                .stream()
+                .mapToLong(feature -&gt; {
+                    try {
+                        return feature.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new IllegalStateException(e);
+                    }
+                })
+                .sum();
+    }
+
+    @Split
+    public List&lt;HazelcastPartitionMapper&gt; split(@PartitionSize final long bundleSize) {
+        final Map&lt;String, Long&gt; heapSizeByMember =
+                getExecutorService().submitToAllMembers(new SerializableTask&lt;Long&gt;() {
+
+                    @Override
+                    public Long call() {
+                        return localInstance.getMap(dataset.getMapName()).getLocalMapStats().getHeapCost();
+                    }
+                }).entrySet().stream().map(heapSizeMember -&gt; {
+                    try {
+                        return new AbstractMap.SimpleEntry&lt;&gt;(heapSizeMember.getKey().getUuid(),
+                                heapSizeMember.getValue().get());
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }).collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+
+        final List&lt;HazelcastPartitionMapper&gt; partitions = new ArrayList&lt;&gt;(heapSizeByMember.keySet()).stream()
+                .map(e -&gt; combineMembers(e, bundleSize, heapSizeByMember))
+                .filter(Objects::nonNull)
+                .map(m -&gt; new HazelcastPartitionMapper(dataset, recordBuilderFactory, m))
+                .collect(toList());
+
+        if (partitions.isEmpty()) {
+            List&lt;String&gt; allMembers =
+                    hazelcastInstance.getCluster().getMembers().stream().map(Member::getUuid).collect(toList());
+            partitions.add(new HazelcastPartitionMapper(dataset, recordBuilderFactory, allMembers));
+        }
+
+        return partitions;
+    }
+
+    private List&lt;String&gt; combineMembers(String current, final long bundleSize, final Map&lt;String, Long&gt; sizeByMember) {
+
+        if (sizeByMember.isEmpty() || !sizeByMember.containsKey(current)) {
+            return null;
+        }
+
+        final List&lt;String&gt; combined = new ArrayList&lt;&gt;();
+        long size = sizeByMember.remove(current);
+        combined.add(current);
+        for (Iterator&lt;Map.Entry&lt;String, Long&gt;&gt; it = sizeByMember.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry&lt;String, Long&gt; entry = it.next();
+            if (size + entry.getValue() &lt;= bundleSize) {
+                combined.add(entry.getKey());
+                size += entry.getValue();
+                it.remove();
+            }
+        }
+        return combined;
+    }
+
+    @Emitter
+    public HazelcastSource createSource() {
+        return null;
+    }
+
+    @PreDestroy
+    public void release() {
+        if (hazelcastInstance != null) {
+            hazelcastInstance.shutdown();
+        }
+    }
+
+    private IExecutorService getExecutorService() {
+        return executorService == null ?
+                executorService = hazelcastInstance.getExecutorService("talend-executor-service") :
+                executorService;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>the split method calculate the heap size of our map on every member of the cluster.
+Then, it calculate how much members, a source can handle.
+As the only thing that we can distribute with a configuration like this is to split the reading task from the different
+members.</p>
+</div>
+<div class="paragraph">
+<p>So if a member contains less data than the requested bundle size we check if we can combine it with the data from
+an other member where the combination of the two members data size is less or equals to the requested bundle size.</p>
+</div>
+<div class="paragraph">
+<p>Read the code carefully to fully understand the logic implemented here.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Now, that we have finished the implementation of the split, let adapt the source to take into account the split.
+The source will get the list of members from where it will read data.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_source_2"><a class="anchor" href="#_source_2"></a>Source</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toMap;
+
+public class HazelcastSource implements Serializable {
+
+    private final HazelcastDataset dataset;
+
+    private transient HazelcastInstance hazelcastInstance;
+
+    private final List&lt;String&gt; members;
+
+    private transient Iterator&lt;Map.Entry&lt;String, String&gt;&gt; mapIterator;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    private transient Iterator&lt;Map.Entry&lt;Member, Future&lt;Map&lt;String, String&gt;&gt;&gt;&gt; dataByMember;
+
+    public HazelcastSource(final HazelcastDataset configuration, final RecordBuilderFactory recordBuilderFactory,
+            final List&lt;String&gt; members) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+        this.members = members;
+    }
+
+    @PostConstruct
+    public void init() {
+        //Here we can init connections
+        final HazelcastDatastore connection = dataset.getConnection();
+        final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+        networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+        final ClientConfig config = new ClientConfig();
+        config.setNetworkConfig(networkConfig);
+        config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+        config.setInstanceName(getClass().getName() + "-" + UUID.randomUUID().toString());
+        config.setClassLoader(Thread.currentThread().getContextClassLoader());
+        hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+    }
+
+    @Producer
+    public Record next() {
+        if (dataByMember == null) {
+            dataByMember = hazelcastInstance.getExecutorService("talend-source")
+                    .submitToMembers(new SerializableTask&lt;Map&lt;String, String&gt;&gt;() {
+
+                        @Override
+                        public Map&lt;String, String&gt; call() {
+                            final IMap&lt;String, String&gt; map = localInstance.getMap(dataset.getMapName());
+                            final Set&lt;String&gt; localKeySet = map.localKeySet();
+                            return localKeySet.stream().collect(toMap(k -&gt; k, map::get));
+                        }
+                    }, member -&gt; members.contains(member.getUuid()))
+                    .entrySet()
+                    .iterator();
+        }
+
+        if (mapIterator != null &amp;&amp; !mapIterator.hasNext() &amp;&amp; !dataByMember.hasNext()) {
+            return null;
+        }
+
+        if (mapIterator == null || !mapIterator.hasNext()) {
+            Map.Entry&lt;Member, Future&lt;Map&lt;String, String&gt;&gt;&gt; next = dataByMember.next();
+            try {
+                mapIterator = next.getValue().get().entrySet().iterator();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        Map.Entry&lt;String, String&gt; entry = mapIterator.next();
+        return recordBuilderFactory.newRecordBuilder().withString(entry.getKey(), entry.getValue()).build();
+
+    }
+
+    @PreDestroy
+    public void release() {
+        if (hazelcastInstance != null) {
+            hazelcastInstance.shutdown();
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the <code>next</code> method we read the data from the members that we will get from the partition mapper.</p>
+</div>
+<div class="paragraph">
+<p>In a bigdata runner (like spark) we will get multiple source instance. and every source instance will be responsible of
+reading data from a specific set of members already calculated by the partition mapper.</p>
+</div>
+<div class="paragraph">
+<p>Take some time to read the code and to understand what it&#8217;s going on and how we iterate on the data member by member.
+The data is fetched only when the <code>next</code> method is called. Which let us stream the data from members without loading it
+all into the memory.</p>
+</div>
+<div class="paragraph">
+<p>Now, let&#8217;s implement the last method of this component. The method annotated by <code>@Emitter</code> in the <code>HazelcastPartitionMapper</code>
+class.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.Member;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Assessor;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.PartitionSize;
+import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.Serializable;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+@Version
+@PartitionMapper(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Documentation("Hazelcast source")
+public class HazelcastPartitionMapper implements Serializable {
+
+    private final HazelcastDataset dataset;
+
+    /**
+     * Hazelcast instance is a client in a Hazelcast cluster
+     */
+    private transient HazelcastInstance hazelcastInstance;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    private transient IExecutorService executorService;
+
+    private List&lt;String&gt; members;
+
+    public HazelcastPartitionMapper(@Option("configuration") final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+    }
+
+    private HazelcastPartitionMapper(final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory, List&lt;String&gt; membersUUID) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+        this.members = membersUUID;
+    }
+
+    @PostConstruct
+    public void init() {
+        //Here we can init connections
+        final HazelcastDatastore connection = dataset.getConnection();
+        final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+        networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+        final ClientConfig config = new ClientConfig();
+        config.setNetworkConfig(networkConfig);
+        config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+        config.setInstanceName(getClass().getName() + "-" + UUID.randomUUID().toString());
+        config.setClassLoader(Thread.currentThread().getContextClassLoader());
+        hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+    }
+
+    @Assessor
+    public long estimateSize() {
+        return getExecutorService().submitToAllMembers(new SerializableTask&lt;Long&gt;() {
+
+            @Override
+            public Long call() {
+                return localInstance.getMap(dataset.getMapName()).getLocalMapStats().getHeapCost();
+            }
+        }).values().stream().mapToLong(feature -&gt; {
+            try {
+                return feature.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new IllegalStateException(e);
+            }
+        }).sum();
+    }
+
+    @Split
+    public List&lt;HazelcastPartitionMapper&gt; split(@PartitionSize final long bundleSize) {
+        final Map&lt;String, Long&gt; heapSizeByMember =
+                getExecutorService().submitToAllMembers(new SerializableTask&lt;Long&gt;() {
+
+                    @Override
+                    public Long call() {
+                        return localInstance.getMap(dataset.getMapName()).getLocalMapStats().getHeapCost();
+                    }
+                }).entrySet().stream().map(heapSizeMember -&gt; {
+                    try {
+                        return new AbstractMap.SimpleEntry&lt;&gt;(heapSizeMember.getKey().getUuid(),
+                                heapSizeMember.getValue().get());
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }).collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+
+        final List&lt;HazelcastPartitionMapper&gt; partitions = new ArrayList&lt;&gt;(heapSizeByMember.keySet()).stream()
+                .map(e -&gt; combineMembers(e, bundleSize, heapSizeByMember))
+                .filter(Objects::nonNull)
+                .map(m -&gt; new HazelcastPartitionMapper(dataset, recordBuilderFactory, m))
+                .collect(toList());
+
+        if (partitions.isEmpty()) {
+            List&lt;String&gt; allMembers =
+                    hazelcastInstance.getCluster().getMembers().stream().map(Member::getUuid).collect(toList());
+            partitions.add(new HazelcastPartitionMapper(dataset, recordBuilderFactory, allMembers));
+        }
+
+        return partitions;
+    }
+
+    private List&lt;String&gt; combineMembers(String current, final long bundleSize, final Map&lt;String, Long&gt; sizeByMember) {
+
+        if (sizeByMember.isEmpty() || !sizeByMember.containsKey(current)) {
+            return null;
+        }
+
+        final List&lt;String&gt; combined = new ArrayList&lt;&gt;();
+        long size = sizeByMember.remove(current);
+        combined.add(current);
+        for (Iterator&lt;Map.Entry&lt;String, Long&gt;&gt; it = sizeByMember.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry&lt;String, Long&gt; entry = it.next();
+            if (size + entry.getValue() &lt;= bundleSize) {
+                combined.add(entry.getKey());
+                size += entry.getValue();
+                it.remove();
+            }
+        }
+        return combined;
+    }
+
+    @Emitter
+    public HazelcastSource createSource() {
+        return new HazelcastSource(dataset, recordBuilderFactory, members);
+    }
+
+    @PreDestroy
+    public void release() {
+        if (hazelcastInstance != null) {
+            hazelcastInstance.shutdown();
+        }
+    }
+
+    private IExecutorService getExecutorService() {
+        return executorService == null ?
+                executorService = hazelcastInstance.getExecutorService("talend-executor-service") :
+                executorService;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the <code>createSource()</code> method we create the source instance and we passe the required services and the selected hazelcast
+members to the the source instance.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Now, our component is done. It will be able to read data and distribute the work load upon members in a big data
+execution engine that will manage the distribution of the work load.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>Run the test and check that it&#8217;s working.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn clean test</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introduce_tck_service"><a class="anchor" href="#_introduce_tck_service"></a>Introduce TCK service</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s refactor the component by introducing a service to make some piece of code reusable and avoid code duplication.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s refactor the hazelcast instance creation in a service as the service executor creation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
+import org.talend.sdk.component.api.service.Service;
+
+import java.io.Serializable;
+import java.util.UUID;
+
+import static java.util.Collections.singletonList;
+
+@Service
+public class HazelcastService implements Serializable {
+
+    private transient HazelcastInstance hazelcastInstance;
+
+    private transient IExecutorService executorService;
+
+    public HazelcastInstance getOrCreateIntance(final HazelcastDatastore connection) {
+        if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) {
+            final ClientNetworkConfig networkConfig = new ClientNetworkConfig();
+            networkConfig.setAddresses(singletonList(connection.getClusterIpAddress()));
+            final ClientConfig config = new ClientConfig();
+            config.setNetworkConfig(networkConfig);
+            config.getGroupConfig().setName(connection.getGroupName()).setPassword(connection.getPassword());
+            config.setInstanceName(getClass().getName() + "-" + UUID.randomUUID().toString());
+            config.setClassLoader(Thread.currentThread().getContextClassLoader());
+            hazelcastInstance = HazelcastClient.newHazelcastClient(config);
+        }
+        return hazelcastInstance;
+    }
+
+    public void shutdownInstance() {
+        if (hazelcastInstance != null) {
+            hazelcastInstance.shutdown();
+        }
+    }
+
+    public IExecutorService getExecutorService(final HazelcastDatastore connection) {
+        return executorService == null ?
+                executorService = getOrCreateIntance(connection).getExecutorService("talend-executor-service") :
+                executorService;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This service can be injected to the partition mapper and reused from there. so let&#8217;s do that.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.Member;
+import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.Version;
+import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.input.Assessor;
+import org.talend.sdk.component.api.input.Emitter;
+import org.talend.sdk.component.api.input.PartitionMapper;
+import org.talend.sdk.component.api.input.PartitionSize;
+import org.talend.sdk.component.api.input.Split;
+import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.Serializable;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+@Version
+@PartitionMapper(name = "Input")
+@Icon(value = Icon.IconType.CUSTOM, custom = "Hazelcast")
+@Documentation("Hazelcast source")
+public class HazelcastPartitionMapper implements Serializable {
+
+    private final HazelcastDataset dataset;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    private transient IExecutorService executorService;
+
+    private List&lt;String&gt; members;
+
+    private final HazelcastService hazelcastService;
+
+    public HazelcastPartitionMapper(@Option("configuration") final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory, final HazelcastService hazelcastService) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+        this.hazelcastService = hazelcastService;
+    }
+
+    private HazelcastPartitionMapper(final HazelcastDataset configuration,
+            final RecordBuilderFactory recordBuilderFactory, List&lt;String&gt; membersUUID,
+            final HazelcastService hazelcastService) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+        this.hazelcastService = hazelcastService;
+        this.members = membersUUID;
+
+    }
+
+    @PostConstruct
+    public void init() {
+        // We initialize the hazelcast instance only on it first usage now
+    }
+
+    @Assessor
+    public long estimateSize() {
+        return hazelcastService.getExecutorService(dataset.getConnection())
+                .submitToAllMembers(new SerializableTask&lt;Long&gt;() {
+
+                    @Override
+                    public Long call() {
+                        return localInstance.getMap(dataset.getMapName()).getLocalMapStats().getHeapCost();
+                    }
+                })
+                .values()
+                .stream()
+                .mapToLong(feature -&gt; {
+                    try {
+                        return feature.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new IllegalStateException(e);
+                    }
+                })
+                .sum();
+    }
+
+    @Split
+    public List&lt;HazelcastPartitionMapper&gt; split(@PartitionSize final long bundleSize) {
+        final Map&lt;String, Long&gt; heapSizeByMember = hazelcastService.getExecutorService(dataset.getConnection())
+                .submitToAllMembers(new SerializableTask&lt;Long&gt;() {
+
+                    @Override
+                    public Long call() {
+                        return localInstance.getMap(dataset.getMapName()).getLocalMapStats().getHeapCost();
+                    }
+                })
+                .entrySet()
+                .stream()
+                .map(heapSizeMember -&gt; {
+                    try {
+                        return new AbstractMap.SimpleEntry&lt;&gt;(heapSizeMember.getKey().getUuid(),
+                                heapSizeMember.getValue().get());
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new IllegalStateException(e);
+                    }
+                })
+                .collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+
+        final List&lt;HazelcastPartitionMapper&gt; partitions = new ArrayList&lt;&gt;(heapSizeByMember.keySet()).stream()
+                .map(e -&gt; combineMembers(e, bundleSize, heapSizeByMember))
+                .filter(Objects::nonNull)
+                .map(m -&gt; new HazelcastPartitionMapper(dataset, recordBuilderFactory, m, hazelcastService))
+                .collect(toList());
+
+        if (partitions.isEmpty()) {
+            List&lt;String&gt; allMembers = hazelcastService.getOrCreateIntance(dataset.getConnection())
+                    .getCluster()
+                    .getMembers()
+                    .stream()
+                    .map(Member::getUuid)
+                    .collect(toList());
+            partitions.add(new HazelcastPartitionMapper(dataset, recordBuilderFactory, allMembers, hazelcastService));
+        }
+
+        return partitions;
+    }
+
+    private List&lt;String&gt; combineMembers(String current, final long bundleSize, final Map&lt;String, Long&gt; sizeByMember) {
+
+        if (sizeByMember.isEmpty() || !sizeByMember.containsKey(current)) {
+            return null;
+        }
+
+        final List&lt;String&gt; combined = new ArrayList&lt;&gt;();
+        long size = sizeByMember.remove(current);
+        combined.add(current);
+        for (Iterator&lt;Map.Entry&lt;String, Long&gt;&gt; it = sizeByMember.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry&lt;String, Long&gt; entry = it.next();
+            if (size + entry.getValue() &lt;= bundleSize) {
+                combined.add(entry.getKey());
+                size += entry.getValue();
+                it.remove();
+            }
+        }
+        return combined;
+    }
+
+    @Emitter
+    public HazelcastSource createSource() {
+        return new HazelcastSource(dataset, recordBuilderFactory, members, hazelcastService);
+    }
+
+    @PreDestroy
+    public void release() {
+        hazelcastService.shutdownInstance();
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And let&#8217;s adapt the Source class to reuse the service.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package org.talend.components.hazelcast;
+
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
+import org.talend.sdk.component.api.input.Producer;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import static java.util.stream.Collectors.toMap;
+
+public class HazelcastSource implements Serializable {
+
+    private final HazelcastDataset dataset;
+
+    private final List&lt;String&gt; members;
+
+    private transient Iterator&lt;Map.Entry&lt;String, String&gt;&gt; mapIterator;
+
+    private final RecordBuilderFactory recordBuilderFactory;
+
+    private transient Iterator&lt;Map.Entry&lt;Member, Future&lt;Map&lt;String, String&gt;&gt;&gt;&gt; dataByMember;
+
+    private final HazelcastService hazelcastService;
+
+    public HazelcastSource(final HazelcastDataset configuration, final RecordBuilderFactory recordBuilderFactory,
+            final List&lt;String&gt; members, final HazelcastService hazelcastService) {
+        this.dataset = configuration;
+        this.recordBuilderFactory = recordBuilderFactory;
+        this.members = members;
+        this.hazelcastService = hazelcastService;
+    }
+
+    @PostConstruct
+    public void init() {
+        // We initialize the hazelcast instance only on it first usage now
+    }
+
+    @Producer
+    public Record next() {
+        if (dataByMember == null) {
+            dataByMember = hazelcastService.getOrCreateIntance(dataset.getConnection())
+                    .getExecutorService("talend-source")
+                    .submitToMembers(new SerializableTask&lt;Map&lt;String, String&gt;&gt;() {
+
+                        @Override
+                        public Map&lt;String, String&gt; call() {
+                            final IMap&lt;String, String&gt; map = localInstance.getMap(dataset.getMapName());
+                            final Set&lt;String&gt; localKeySet = map.localKeySet();
+                            return localKeySet.stream().collect(toMap(k -&gt; k, map::get));
+                        }
+                    }, member -&gt; members.contains(member.getUuid()))
+                    .entrySet()
+                    .iterator();
+        }
+
+        if (mapIterator != null &amp;&amp; !mapIterator.hasNext() &amp;&amp; !dataByMember.hasNext()) {
+            return null;
+        }
+
+        if (mapIterator == null || !mapIterator.hasNext()) {
+            Map.Entry&lt;Member, Future&lt;Map&lt;String, String&gt;&gt;&gt; next = dataByMember.next();
+            try {
+                mapIterator = next.getValue().get().entrySet().iterator();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        Map.Entry&lt;String, String&gt; entry = mapIterator.next();
+        return recordBuilderFactory.newRecordBuilder().withString(entry.getKey(), entry.getValue()).build();
+
+    }
+
+    @PreDestroy
+    public void release() {
+        hazelcastService.shutdownInstance();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>rerun the test to ensure everything still working correctly.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>That&#8217;s all for this tutorial. Now you should be able to create any input component for any system ;)</p>
+</div>
+</blockquote>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/blob/component-runtime-1.1.15.2/documentation/src/main/antora/modules/ROOT/pages/tutorial-create-an-input-component.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Ftutorial-create-an-input-component.html&text=Talend%20Component%20Kit%20%3E%3E%20Talend%20Input%20component%20for%20Hazelcat%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Ftutorial-create-an-input-component.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Talend%20Input%20component%20for%20Hazelcat&body=Talend%20Component%20Kit%3A%20Talend%20Input%20component%20for%20Hazelcat%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Ftutorial-create-an-input-component.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+      <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2019 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchorific/1.2/min/anchorific.min.js" integrity="sha384-ACUAcVkJ3XBvxLPJQqN8h9BfzCtcyqiQoemYyYiS7JJLg9O6aVOVzRYLwqxM2d7/" crossorigin="anonymous"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

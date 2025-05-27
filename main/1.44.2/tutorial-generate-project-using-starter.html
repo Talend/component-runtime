@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Generating a project using the Component Kit Starter</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/tutorial-generate-project-using-starter.html">
+    <meta name="description" content="Learn how to define the basic configuration of a component using the Talend Component Kit Starter to start your project">
+    <meta name="keywords" content="tutorial, example, starter">
+    <meta name="generator" content="Talend Component Kit Generator">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Generating a project using the Component Kit Starter :: Talend Component Kit Developer Reference Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/tutorial-generate-project-using-starter.html">
+    <meta name="description" content="Learn how to define the basic configuration of a component using the Talend Component Kit Starter to start your project">
+    <meta name="keywords" content="tutorial, example, starter">
+    <meta name="generator" content="Antora 3.0.1">
+<meta name="date" content="2022-06-06T11:16:27.672Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+
+
+<script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                  messageStyle: "none",
+                  tex2jax: {
+                    inlineMath: [["\\(", "\\)"]],
+                    displayMath: [["\\[", "\\]"]],
+                    ignoreClass: "nostem|nolatexmath"
+                  },
+                  asciimath2jax: {
+                    delimiters: [["\\$", "\\$"]],
+                    ignoreClass: "nostem|noasciimath"
+                  },
+                  TeX: { equationNumbers: { autoNumber: "none" } }
+                });
+                </script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+    <script>var uiRootPath = '../../_'</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                1.44.2
+              <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version">
+                    <a href="../latest/index.html">1.46.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.45.2/index.html">1.45.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.45.1/index.html">1.45.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.45.0/index.html">1.45.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.44.3/index.html">1.44.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="index.html">1.44.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.43.1/index.html">1.43.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.42.0/index.html">1.42.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.41.1/index.html">1.41.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.40.0/index.html">1.40.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.39.3/index.html">1.39.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.38.6/index.html">1.38.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.30.0/index.html">1.30.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.29.2/index.html">1.29.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.15/index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.13/index.html">0.0.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="changelog.html" class="navbar-single-link">CHANGELOG</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.44.2">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>First steps</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="getting-started.html">Getting Started</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="record-types.html">Record types</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Tutorials</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-tutorials.html">Tutorial overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-output-component.html">Creating a Hazelcast output component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-components-rest-api.html">Creating a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-rest-api.html">Testing a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-your-components.html">Testing a Hazelcast component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-dev-vs-ci-setup.html">Testing in a continuous integration environment</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-handle-talend-component-migration.html">Handling component version migration</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Setting up your environment</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-setup-environment.html">Setup overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="system-prerequisites.html">System requirements</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="installing-talend-intellij-plugin.html">Installing the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Generating a project</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-generating-project.html">Project generation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Using the Starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="generate-project-using-intellij-plugin.html">Using the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Implementing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-creating-components.html">Component implementation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-registering.html">Defining component metadata</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="creating-dataset-datastore.html">Defining datasets and datastores</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-input.html">Defining an input component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-processor-output.html">Defining a processor/output logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-standalone.html">Defining a standalone component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-configuration.html">Defining component configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-execution.html">Component execution logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-internationalization.html">Internationalizing a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-versions-and-migration.html">Managing component versions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-configuration-sensitive-data.html">Masking sensitive data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="concept-processor-and-batch-processing.html">Implementing batch processing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-loading.html">Component loading</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Defining services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-defining-services.html">Service overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-internationalization.html">Internationalizing a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-actions.html">Providing actions through a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-built-in.html">Built-in services</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-interceptors.html">Services and interceptors</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-custom-api.html">Defining a custom API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-testing-components.html">Component testing overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-best-practices.html">Component testing best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="index-sub-testing-runtime.html">Testing component runtime</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-beam.html">Beam testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-multiple-envs.html">Testing in multiple environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-maven-passwords.html">Reusing Maven credentials</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-generating-data.html">Generating data for testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Studio</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-deploying-components.html">Studio integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio.html">Iterating on component development</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-from-car.html">Installing components from a CAR file</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-schema.html">Studio schema</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="compatibility.html">Version compatibility</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="javajet-to-componentkit.html">From Javajet to the Component Kit</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Cloud</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-cloud-integration.html">Cloud integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="vault-proxy.html">Component Server Vault Proxy</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Knowledge base</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-knowledge-base.html">Knowledge base articles</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="changelog.html">Changelog</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Reference Guide</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="gallery.html">Widget and validation gallery</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-actions.html">List of available actions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-conditions.html">List of conditions for binding properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-configuration-types.html">Component data configuration types</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-constraints.html">Component field constraints and validations</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-scanning-exclusions.html">Scanning exclusions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-server-configuration.html">Server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-ui.html">UI API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="apidocs.html">Javadocs</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb"><a href="index-tutorials.html">Tutorials</a></li>
+      <li class="crumb active"><a href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Generating a project using the Component Kit Starter</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div id="tutorial-generate-project-using-starter" class="paragraph">
+<p>The Component Kit Starter lets you design your components configuration and generates a ready-to-implement project structure.</p>
+</div>
+<div class="paragraph">
+<p>The Starter is available on the web or as an <a href="generate-project-using-intellij-plugin.html" class="xref page">IntelliJ plugin</a>.</p>
+</div>
+<div class="paragraph">
+<p>This tutorial shows you how to use the Component Kit Starter to generate new components for MySQL databases. Before starting, make sure that you have correctly setup your environment. See <a href="system-prerequisites.html" class="xref page">this section</a>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+When defining a project using the Starter, do not refresh the page to avoid losing your configuration.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuring_the_project"><a class="anchor" href="#_configuring_the_project"></a>Configuring the project</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before being able to create components, you need to define the general settings of the project:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a folder on your local machine to store the resource files of the component you want to create. For example, <code>C:/my_components</code>.</p>
+</li>
+<li>
+<p>Open the <a href="https://starter-toolkit.talend.io">Starter</a> in the web browser of your choice.</p>
+</li>
+<li>
+<p>Select your build tool. This tutorial uses Maven, but you can select Gradle instead.</p>
+</li>
+<li>
+<p>Add any facet you need. For example, add the <strong>Talend Component Kit Testing</strong> facet to your project to automatically generate unit tests for the components created in the project.<br></p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter/starter_test_facet.png" target="_blank" rel="noopener"><img src="_images/starter/starter_test_facet.png" alt="Test facet"></a>
+</div>
+</div>
+</li>
+<li>
+<p>Enter the <strong>Component Family</strong> of the components you want to develop in the project. This name must be a valid java name and is recommended to be capitalized, for example 'MySQL'.<br>
+Once you have implemented your components in the Studio, this name is displayed in the Palette to group all of the MySQL-related components you develop, and is also part of your component name.</p>
+</li>
+<li>
+<p>Select the <strong>Category</strong> of the components you want to create in the current project. As MySQL is a kind of database, select <strong>Databases</strong> in this tutorial.<br>
+This <strong>Databases</strong> category is used and displayed as the parent family of the MySQL group in the Palette of the Studio.</p>
+</li>
+<li>
+<p>Complete the project metadata by entering the <strong>Group</strong>, <strong>Artifact</strong> and <strong>Package</strong>.</p>
+</li>
+<li>
+<p>By default, you can only create <strong>processors</strong>. If you need to create <strong>Input</strong> or <strong>Output</strong> components, select <strong>Activate IO</strong>. By doing this:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Two new menu entries let you add datasets and datastores to your project, as they are required for input and output components.<br></p>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Input and Output components without dataset (itself containing a datastore) will not pass the validation step when building the components. Learn more about datasets and datastores in <a href="component-configuration.html#dataset-and-datastore" class="xref page">this document</a>.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>An Input component and an Output component are automatically added to your project and ready to be configured.</p>
+</li>
+<li>
+<p>Components added to the project using <strong>Add A Component</strong> can now be processors, input or output components.<br></p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter/starter_activate_io.png" target="_blank" rel="noopener"><img src="_images/starter/starter_activate_io.png" alt="Activate IO"></a>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_defining_a_datastore"><a class="anchor" href="#_defining_a_datastore"></a>Defining a Datastore</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A datastore represents the data needed by an input or output component to connect to a database.</p>
+</div>
+<div class="paragraph">
+<p>When building a component, the <code>validateDataSet</code> validation checks that each input or output (processor without output branch) component uses a dataset and that this dataset has a datastore.</p>
+</div>
+<div class="paragraph">
+<p>You can define one or several datastores if you have selected the <strong>Activate IO</strong> step.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Select <strong>Datastore</strong>. The list of datastores opens. By default, a datastore is already open but not configured. You can configure it or create a new one using <strong>Add new Datastore</strong>.</p>
+</li>
+<li>
+<p>Specify the name of the datastore. Modify the default value to a meaningful name for your project.<br>
+This name must be a valid Java name as it will represent the datastore class in your project. It is a good practice to start it with an uppercase letter.</p>
+</li>
+<li>
+<p>Edit the datastore configuration. Parameter names must be valid Java names. Use lower case as much as possible. A typical configuration includes connection details to a database:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>url</p>
+</li>
+<li>
+<p>username</p>
+</li>
+<li>
+<p>password.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Save</strong> the datastore configuration.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_defining_a_dataset"><a class="anchor" href="#_defining_a_dataset"></a>Defining a Dataset</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A dataset represents the data coming from or sent to a database and needed by input and output components to operate.</p>
+</div>
+<div class="paragraph">
+<p>The <code>validateDataSet</code> validation checks that each input or output (processor without output branch) component uses a dataset and that this dataset has a datastore.</p>
+</div>
+<div class="paragraph">
+<p>You can define one or several datasets if you have selected the <strong>Activate IO</strong> step.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Select <strong>Dataset</strong>. The list of datasets opens. By default, a dataset is already open but not configured. You can configure it or create a new one using the <strong>Add new Dataset</strong> button.</p>
+</li>
+<li>
+<p>Specify the name of the dataset. Modify the default value to a meaningful name for your project.<br>
+This name must be a valid Java name as it will represent the dataset class in your project. It is a good practice to start it with an uppercase letter.</p>
+</li>
+<li>
+<p>Edit the dataset configuration. Parameter names must be valid Java names. Use lower case as much as possible. A typical configuration includes details of the data to retrieve:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Datastore to use (that contains the connection details to the database)</p>
+</li>
+<li>
+<p>table name</p>
+</li>
+<li>
+<p>data</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Save</strong> the dataset configuration.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_creating_an_input_component"><a class="anchor" href="#_creating_an_input_component"></a>Creating an Input component</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To create an input component, make sure you have selected <strong>Activate IO</strong>.</p>
+</div>
+<div class="paragraph">
+<p>When clicking <strong>Add A Component</strong> in the Starter, a new step allows you to define a new component in your project.<br>
+The intent in this tutorial is to create an input component that connects to a MySQL database, executes a SQL query and gets the result.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter/starter_add_component.png" target="_blank" rel="noopener"><img src="_images/starter/starter_add_component.png" alt="Input configuration"></a>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Choose the component type. <strong>Input</strong> in this case.</p>
+</li>
+<li>
+<p>Enter the component name. For example, <em>MySQLInput</em>.</p>
+</li>
+<li>
+<p>Click <strong>Configuration model</strong>. This button lets you specify the required configuration for the component. By default, a dataset is already specified.</p>
+</li>
+<li>
+<p>For each parameter that you need to add, click the <strong>(+)</strong> button on the right panel. Enter the parameter name and choose its type then click the tick button to save the changes.<br>
+In this tutorial, to be able to execute a SQL query on the Input MySQL database, the configuration requires the following parameters:+</p>
+<div class="ulist">
+<ul>
+<li>
+<p>a dataset (which contains the datastore with the connection information)</p>
+</li>
+<li>
+<p>a timeout parameter.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Closing the configuration panel on the right does <strong>not</strong> delete your configuration. However, refreshing the page resets the configuration.<br>
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter/starter_input-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_input-config.png" alt="Input configuration"></a>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Specify whether the component issues a stream or not. In this tutorial, the MySQL input component created is an ordinary (non streaming) component. In this case, leave the <strong>Stream</strong> option disabled.</p>
+</li>
+<li>
+<p>Select the <strong>Record Type</strong> generated by the component. In this tutorial, select <strong>Generic</strong> because the component is designed to generate records in the default <code>Record</code> format.<br>
+You can also select <strong>Custom</strong> to define a POJO that represents your records.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Your input component is now defined. You can add another component or generate and download your project.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_creating_a_processor_component"><a class="anchor" href="#_creating_a_processor_component"></a>Creating a Processor component</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When clicking <strong>Add A Component</strong> in the Starter, a new step allows you to define a new component in your project.
+The intent in this tutorial is to create a simple processor component that receives a record, logs it and returns it at it is.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you did not select <strong>Activate IO</strong>, all new components you add to the project are processors by default.<br>
+If you selected <strong>Activate IO</strong>, you can choose the component type. In this case, to create a Processor component, you have to manually add at least one output.
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If required, choose the component type: <strong>Processor</strong> in this case.</p>
+</li>
+<li>
+<p>Enter the component name. For example, <em>RecordLogger</em>, as the processor created in this tutorial logs the records.</p>
+</li>
+<li>
+<p>Specify the <strong>Configuration Model</strong> of the component. In this tutorial, the component doesn&#8217;t need any specific configuration. Skip this step.</p>
+</li>
+<li>
+<p>Define the <strong>Input(s)</strong> of the component. For each input that you need to define, click <strong>Add Input</strong>. In this tutorial, only one input is needed to receive the record to log.</p>
+</li>
+<li>
+<p>Click the input name to access its configuration. You can change the name of the input and define its structure using a POJO. If you added several inputs, repeat this step for each one of them.<br>
+The input in this tutorial is a generic record. Enable the <strong>Generic</strong> option and click <strong>Save</strong>.<br></p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter/starter_processor-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_processor-config.png" alt="Processor configuration"></a>
+</div>
+</div>
+</li>
+<li>
+<p>Define the <strong>Output(s)</strong> of the component. For each output that you need to define, click <strong>Add Output</strong>. The first output must be named <code>MAIN</code>. In this tutorial, only one generic output is needed to return the received record.<br>
+Outputs can be configured the same way as inputs (see previous steps).<br>
+You can define a reject output connection by naming it <code>REJECT</code>. This naming is used by Talend applications to automatically set the connection type to Reject.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Your processor component is now defined. You can add another component or generate and download your project.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_creating_an_output_component"><a class="anchor" href="#_creating_an_output_component"></a>Creating an Output component</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To create an output component, make sure you have selected <strong>Activate IO</strong>.</p>
+</div>
+<div class="paragraph">
+<p>When clicking <strong>Add A Component</strong> in the Starter, a new step allows you to define a new component in your project.<br>
+The intent in this tutorial is to create an output component that receives a record and inserts it into a MySQL database table.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<strong>Output</strong> components are <strong>Processors</strong> without any output. In other words, the output is a processor that does not produce any records.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter/starter_output-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_output-config.png" alt="Output configuration"></a>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Choose the component type. <strong>Output</strong> in this case.</p>
+</li>
+<li>
+<p>Enter the component name. For example, <em>MySQLOutput</em>.</p>
+</li>
+<li>
+<p>Click <strong>Configuration Model</strong>. This button lets you specify the required configuration for the component. By default, a dataset is already specified.</p>
+</li>
+<li>
+<p>For each parameter that you need to add, click the <strong>(+)</strong> button on the right panel. Enter the name and choose the type of the parameter, then click the tick button to save the changes.<br>
+In this tutorial, to be able to insert a record in the output MySQL database, the configuration requires the following parameters:+</p>
+<div class="ulist">
+<ul>
+<li>
+<p>a dataset (which contains the datastore with the connection information)</p>
+</li>
+<li>
+<p>a timeout parameter.<br></p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Closing the configuration panel on the right does <strong>not</strong> delete your configuration. However, refreshing the page resets the configuration.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Define the <strong>Input(s)</strong> of the component. For each input that you need to define, click <strong>Add Input</strong>. In this tutorial, only one input is needed.</p>
+</li>
+<li>
+<p>Click the input name to access its configuration. You can change the name of the input and define its structure using a POJO. If you added several inputs, repeat this step for each one of them.<br>
+The input in this tutorial is a generic record. Enable the <strong>Generic</strong> option and click <strong>Save</strong>.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Do not create any output because the component does not produce any record. This is the only difference between an output an a processor component.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Your output component is now defined. You can add another component or generate and download your project.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_generating_and_downloading_the_final_project"><a class="anchor" href="#_generating_and_downloading_the_final_project"></a>Generating and downloading the final project</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Once your project is configured and all the components you need are created, you can generate and download the final project.
+In this tutorial, the project was configured and three components of different types (input, processor and output) have been defined.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Click <strong>Finish</strong> on the left panel. You are redirected to a page that summarizes the project. On the left panel, you can also see all the components that you added to the project.</p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter/starter_project-download.png" target="_blank" rel="noopener"><img src="_images/starter/starter_project-download.png" alt="Output configuration"></a>
+</div>
+</div>
+</li>
+<li>
+<p>Generate the project using one of the two options available:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Download it locally as a ZIP file using the <strong>Download as ZIP</strong> button.</p>
+</li>
+<li>
+<p>Create a GitHub repository and push the project to it using the <strong>Create on Github</strong> button.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>In this tutorial, the project is downloaded to the local machine as a ZIP file.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_compiling_and_exploring_the_generated_project_files"><a class="anchor" href="#_compiling_and_exploring_the_generated_project_files"></a>Compiling and exploring the generated project files</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Once the package is available on your machine, you can compile it using the build tool selected when configuring the project.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>In the tutorial, <strong>Maven</strong> is the build tool selected for the project.<br>
+In the project directory, execute the <code>mvn package</code> command.<br>
+If you don&#8217;t have Maven installed on your machine, you can use the Maven wrapper provided in the generated project, by executing the <code>./mvnw package</code> command.</p>
+</li>
+<li>
+<p>If you have created a Gradle project, you can compile it using the <code>gradle build</code> command or using the Gradle wrapper: <code>./gradlew build</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The generated project code contains documentation that can guide and help you implementing the component logic.
+Import the project to your favorite IDE to start the implementation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_generating_a_project_using_an_openapi_json_descriptor"><a class="anchor" href="#_generating_a_project_using_an_openapi_json_descriptor"></a>Generating a project using an OpenAPI JSON descriptor</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Component Kit Starter allows you to generate a component development project from an OpenAPI JSON descriptor.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the <a href="https://starter-toolkit.talend.io">Starter</a> in the web browser of your choice.</p>
+</li>
+<li>
+<p>Enable the <strong>OpenAPI</strong> mode using the toggle in the header.<br></p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter_openapi_toggle.png" target="_blank" rel="noopener"><img src="_images/starter_openapi_toggle.png" alt="Open API toggle"></a>
+</div>
+</div>
+</li>
+<li>
+<p>Go to the <strong>API</strong> menu.</p>
+</li>
+<li>
+<p>Paste the OpenAPI JSON descriptor in the right part of the screen. All the described endpoints are detected.</p>
+</li>
+<li>
+<p>Unselect the endpoints that you do not want to use in the future components. By default, all detected endpoints are selected.<br></p>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://talend.github.io/component-runtime/main/1.44.2/_images/starter_openapi_json.png" target="_blank" rel="noopener"><img src="_images/starter_openapi_json.png" alt="Open API menu"></a>
+</div>
+</div>
+</li>
+<li>
+<p>Go to the <strong>Finish</strong> menu.</p>
+</li>
+<li>
+<p>Download the project.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>When exploring the project generated from an OpenAPI descriptor, you can notice the following elements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>sources</p>
+</li>
+<li>
+<p>the API dataset</p>
+</li>
+<li>
+<p>an HTTP client for the API</p>
+</li>
+<li>
+<p>a connection folder containing the component configuration. By default, the configuration is only made of a simple datastore with a <code>baseUrl</code> parameter.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1 relatedlinks">
+<h2 id="_related_articles"><a class="anchor" href="#_related_articles"></a>Related articles</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="methodology-creating-components.html" class="xref page">Methodology</a></p>
+</li>
+<li>
+<p><a href="tutorial-create-an-input-component.html" class="xref page">Creating a Hazelcast input component</a></p>
+</li>
+<li>
+<p><a href="tutorial-create-an-output-component.html" class="xref page">Creating a Hazelcast output component</a></p>
+</li>
+<li>
+<p><a href="tutorial-create-components-rest-api.html" class="xref page">Creating a Zendesk REST API connector</a></p>
+</li>
+<li>
+<p><a href="component-define-input.html" class="xref page">Defining an input component</a></p>
+</li>
+<li>
+<p><a href="component-define-processor-output.html" class="xref page">Defining a processor or output component</a></p>
+</li>
+<li>
+<p><a href="component-define-standalone.html" class="xref page">Defining a processor or output component</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/blob/component-runtime-1.44.2/documentation/src/main/antora/modules/ROOT/pages/tutorial-generate-project-using-starter.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Ftutorial-generate-project-using-starter.html&text=Talend%20Component%20Kit%20%3E%3E%20Generating%20a%20project%20using%20the%20Component%20Kit%20Starter%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Ftutorial-generate-project-using-starter.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Generating%20a%20project%20using%20the%20Component%20Kit%20Starter&body=Talend%20Component%20Kit%3A%20Generating%20a%20project%20using%20the%20Component%20Kit%20Starter%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2Flatest%2Ftutorial-generate-project-using-starter.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+      <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2019 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchorific/1.2/min/anchorific.min.js" integrity="sha384-ACUAcVkJ3XBvxLPJQqN8h9BfzCtcyqiQoemYyYiS7JJLg9O6aVOVzRYLwqxM2d7/" crossorigin="anonymous"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

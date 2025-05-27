@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Component Server Vault Proxy</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.43.0/vault-proxy.html">
+    <meta name="description" content="A Vault Proxy manages credential encryption before the data reaches the component server.">
+    <meta name="keywords" content="component server vault proxy, credentials, cloud">
+    <meta name="generator" content="Talend Component Kit Generator">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Component Server Vault Proxy :: Talend Component Kit Developer Reference Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.43.0/vault-proxy.html">
+    <meta name="description" content="A Vault Proxy manages credential encryption before the data reaches the component server.">
+    <meta name="keywords" content="component server vault proxy, credentials, cloud">
+    <meta name="generator" content="Antora 2.3.4">
+<meta name="date" content="2022-03-01T11:32:29.888Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+
+
+<script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                  messageStyle: "none",
+                  tex2jax: {
+                    inlineMath: [["\\(", "\\)"]],
+                    displayMath: [["\\[", "\\]"]],
+                    ignoreClass: "nostem|nolatexmath"
+                  },
+                  asciimath2jax: {
+                    delimiters: [["\\$", "\\$"]],
+                    ignoreClass: "nostem|noasciimath"
+                  },
+                  TeX: { equationNumbers: { autoNumber: "none" } }
+                });
+                </script>
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+    <script>var uiRootPath = '../../_'</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                1.35.0
+              <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version">
+                    <a href="../1.43.0/index.html">1.43.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.42.0/index.html">1.42.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.41.1/index.html">1.41.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.41.0/index.html">1.41.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.40.0/index.html">1.40.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.37.0/index.html">1.37.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.0/index.html">1.36.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="index.html">1.35.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.0/index.html">1.34.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.1/index.html">1.33.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.0/index.html">1.33.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.1/index.html">1.32.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.0/index.html">1.32.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.1/index.html">1.31.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.0/index.html">1.31.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.1/index.html">1.28.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.0/index.html">1.28.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.15/index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Blog <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://talend.github.io/component-runtime/blog/release-notes.html" target="_blank">Release Notes</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">GitHub Repository</a></li>
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.35.0">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>First steps</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="getting-started.html">Getting Started</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="record-types.html">Record types</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Tutorials</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-tutorials.html">Tutorial overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-output-component.html">Creating a Hazelcast output component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-components-rest-api.html">Creating a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-rest-api.html">Testing a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-your-components.html">Testing a Hazelcast component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-dev-vs-ci-setup.html">Testing in a continuous integration environment</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-handle-talend-component-migration.html">Handling component version migration</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Setting up your environment</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-setup-environment.html">Setup overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="#system-prerequisites.adoc.adoc">System requirements</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="installing-talend-intellij-plugin.html">Installing the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Generating a project</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-generating-project.html">Project generation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Using the Starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="generate-project-using-intellij-plugin.html">Using the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Implementing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-creating-components.html">Component implementation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-registering.html">Defining component metadata</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="creating-dataset-datastore.html">Defining datasets and datastores</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-input.html">Defining an input component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-processor-output.html">Defining a processor/output logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-standalone.html">Defining a standalone component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-configuration.html">Defining component configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-execution.html">Component execution logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-internationalization.html">Internationalizing a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-versions-and-migration.html">Managing component versions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-configuration-sensitive-data.html">Masking sensitive data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="concept-processor-and-batch-processing.html">Implementing batch processing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-loading.html">Component loading</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Defining services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-defining-services.html">Service overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-internationalization.html">Internationalizing a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-actions.html">Providing actions through a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-built-in.html">Built-in services</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-interceptors.html">Services and interceptors</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-custom-api.html">Defining a custom API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-testing-components.html">Component testing overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-best-practices.html">Component testing best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="index-sub-testing-runtime.html">Testing component runtime</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-beam.html">Beam testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-multiple-envs.html">Testing in multiple environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-maven-passwords.html">Reusing Maven credentials</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-generating-data.html">Generating data for testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Studio</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-deploying-components.html">Studio integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio.html">Iterating on component development</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-from-car.html">Installing components from a CAR file</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio-schema.html">Studio schema</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="compatibility.html">Version compatibility</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="javajet-to-componentkit.html">From Javajet to the Component Kit</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Cloud</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-cloud-integration.html">Cloud integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="vault-proxy.html">Component Server Vault Proxy</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Knowledge base</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-knowledge-base.html">Knowledge base articles</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="changelog.html">Changelog</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Reference Guide</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="gallery.html">Widget and validation gallery</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-actions.html">List of available actions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-conditions.html">List of conditions for binding properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-configuration-types.html">Component data configuration types</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-constraints.html">Component field constraints and validations</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-scanning-exclusions.html">Scanning exclusions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-server-configuration.html">Server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-ui.html">UI API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="apidocs.html">Javadocs</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb"><a href="index-cloud-integration.html">Integrating into Talend Cloud</a></li>
+      <li class="crumb active"><a href="vault-proxy.html">Component Server Vault Proxy</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Component Server Vault Proxy</h1>
+            <div class="article-content">
+              <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Browse the API description using <a href="rest-openapi-vault.html" class="page">OpenAPI</a>.</p>
+</div>
+<div class="paragraph">
+<p>A Vault proxy dedicated to the component server allows to safely manage credential encryption when operating in a Cloud environment.</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.35.0/_images/tacokit_vault_proxy.png" target="_blank" rel="noopener"><img src="_images/tacokit_vault_proxy.png" alt="Vault proxy"></a></span></p>
+</div>
+<div class="paragraph">
+<p>The Vault Proxy only concerns data marked as <code>@Credential</code> in the <a href="tutorial-configuration-sensitive-data.html" class="page">component configuration</a>.</p>
+</div>
+<div class="paragraph">
+<p>This Vault proxy:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>receives an encrypted payload containing sensitive data from the remote engine, via HTTP.</p>
+</li>
+<li>
+<p>decrypts the data</p>
+</li>
+<li>
+<p>caches in memory the decrypted value of the data for performance reasons.</p>
+</li>
+<li>
+<p>sends unencrypted data to the component server using HTTPS. An SSL certificate can be automatically generated and secures the data.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_vault_proxy_configuration"><a class="anchor" href="#_vault_proxy_configuration"></a>Vault proxy configuration</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+the configuration is read from system properties, environment variables, &#8230;&#8203;.
+</td>
+</tr>
+</table>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">talend.vault.cache.client.certificate.acceptAny</dt>
+<dd>
+<p>Default value: <code>false</code>. Should any certificate be accepted - only for dev purposes.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.executor.server.core</dt>
+<dd>
+<p>Default value: <code>64</code>. Thread pool core size for Component Server client.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.executor.server.keepAlive</dt>
+<dd>
+<p>Default value: <code>60000</code>. Thread keep alive (in ms) for Component Server client thread pool.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.executor.server.max</dt>
+<dd>
+<p>Default value: <code>256</code>. Thread pool max size for Component Server client.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.executor.vault.core</dt>
+<dd>
+<p>Default value: <code>64</code>. Thread pool core size for Vault client.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.executor.vault.keepAlive</dt>
+<dd>
+<p>Default value: <code>60000</code>. Thread keep alive (in ms) for Vault client thread pool.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.executor.vault.max</dt>
+<dd>
+<p>Default value: <code>256</code>. Thread pool max size for Vault client.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.providers</dt>
+<dd>
+<p>JAX-RS fully qualified name of the provides (message body readers/writers) for vault and component-server clients.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.server.authorization</dt>
+<dd>
+<p>The token to use to call component-server if any.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.server.certificate.keystore.location</dt>
+<dd>
+<p>Where the keystore to use to connect to Component Server is located.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.server.certificate.keystore.password</dt>
+<dd>
+<p>Default value: <code>changeit</code>. The keystore password for <code>talend.vault.cache.client.server.certificate.keystore.location</code>.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.server.certificate.keystore.type</dt>
+<dd>
+<p>The keystore type for <code>talend.vault.cache.client.server.certificate.keystore.location</code>.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.server.certificate.truststore.type</dt>
+<dd>
+<p>The truststore type for <code>talend.vault.cache.client.server.certificate.keystore.location</code>.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.server.hostname.accepted</dt>
+<dd>
+<p>Default value: <code>localhost,127.0.0.1,0:0:0:0:0:0:0:1</code>. Valid hostnames for the Component Server certificates (see <code>java.net.ssl.HostnameVerifier</code>).</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.timeout.connect</dt>
+<dd>
+<p>Default value: <code>30000</code>. HTTP connection timeout to vault server.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.timeout.read</dt>
+<dd>
+<p>Default value: <code>30000</code>. HTTP read timeout to vault server.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.vault.certificate.keystore.location</dt>
+<dd>
+<p>Where the keystore to use to connect to vault is located.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.vault.certificate.keystore.password</dt>
+<dd>
+<p>Default value: <code>changeit</code>. The keystore password for <code>talend.vault.cache.client.vault.certificate.keystore.location</code>.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.vault.certificate.keystore.type</dt>
+<dd>
+<p>The keystore type for <code>talend.vault.cache.client.vault.certificate.keystore.location</code>.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.vault.certificate.truststore.type</dt>
+<dd>
+<p>The truststore type for <code>talend.vault.cache.client.vault.certificate.keystore.location</code>.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.client.vault.hostname.accepted</dt>
+<dd>
+<p>Default value: <code>localhost,127.0.0.1,0:0:0:0:0:0:0:1</code>. Valid hostnames for the Vault certificates (see <code>java.net.ssl.HostnameVerifier</code>).</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.jcache.cache.expiry</dt>
+<dd>
+<p>Default value: <code>3600</code>. JCache expiry for decrypted values (ms).</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.jcache.cache.management</dt>
+<dd>
+<p>Default value: <code>false</code>. Should JCache MBeans be registered.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.jcache.cache.statistics</dt>
+<dd>
+<p>Default value: <code>false</code>. Should JCache statistics be enabled.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.jcache.manager.properties</dt>
+<dd>
+<p>Default value: <code>`. JCache `CacheManager</code> properties used to initialized the instance.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.jcache.manager.uri</dt>
+<dd>
+<p>Default value: <code>geronimo://simple-jcache.properties</code>. Configuration for JCache setup, default implementation is Geronimo Simple Cache.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.jcache.maxCacheSize</dt>
+<dd>
+<p>Default value: <code>100000</code>. JCache max size per cache.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.jcache.refresh.period</dt>
+<dd>
+<p>Default value: <code>30000</code>. How often (in ms) the Component Server should be checked to invalidate the caches on the component parameters (to identify credentials).</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.security.allowedIps</dt>
+<dd>
+<p>Default value: <code>localhost,127.0.0.1,0:0:0:0:0:0:0:1</code>. The IP or hosts allowed to call that server on <code>/api/*</code> if no token is passed.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.security.hostname.sanitizer</dt>
+<dd>
+<p>Default value: <code>none</code>. Enable to sanitize the hostname before testing them. Default to <code>none</code> which is a noop. Supported values are <code>docker</code> (for <code>&lt;folder&gt;_&lt;service&gt;_&lt;number&gt;.&lt;folder&gt;_&lt;network&gt;</code> pattern) and <code>weave</code> (for <code>&lt;prefix&gt;_dataset_&lt;number&gt;.&lt;suffix&gt;</code> pattern).</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.security.tokens</dt>
+<dd>
+<p>Default value: <code>-</code>. The tokens enabling a client to call this server without being in <code>allowedIp</code> whitelist.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.service.auth.cantDecipherStatusCode</dt>
+<dd>
+<p>Default value: <code>422</code>. Status code sent when vault can&#8217;t decipher some values.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.service.auth.refreshDelayMargin</dt>
+<dd>
+<p>Default value: <code>600000</code>. How often (in ms) to refresh the vault token.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.service.auth.refreshDelayOnFailure</dt>
+<dd>
+<p>Default value: <code>10000</code>. How often (in ms) to refresh the vault token in case of an authentication failure.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.service.decipher.skip.regex</dt>
+<dd>
+<p>Default value: <code>vault\:v[0-9]+\:.*</code>. The regex to whitelist ciphered keys, others will be passthrough in the output without going to vault.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.talendComponentKit.url</dt>
+<dd>
+<p>Base URL to connect to Component Server</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.vault.auth.endpoint</dt>
+<dd>
+<p>Default value: <code>v1/auth/engines/login</code>. The vault path to retrieve a token.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.vault.auth.roleId</dt>
+<dd>
+<p>Default value: <code>-</code>. The vault role identifier to use to log in (if token is not set). <code>-</code> means it is ignored.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.vault.auth.secretId</dt>
+<dd>
+<p>Default value: <code>-</code>. The vault secret identifier to use to log in (if token is not set). <code>-</code> means it is ignored.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.vault.auth.token</dt>
+<dd>
+<p>Default value: <code>-</code>. The vault token to use to log in (will make roleId and secretId ignored). <code>-</code> means it is ignored.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.vault.decrypt.endpoint</dt>
+<dd>
+<p>Default value: <code>v1/tenants-keyrings/decrypt/{x-talend-tenant-id}</code>. The vault path to decrypt values. You can use the variable <code>{x-talend-tenant-id}</code> to replace by <code>x-talend-tenant-id</code> header value.</p>
+</dd>
+<dt class="hdlist1">talend.vault.cache.vault.url</dt>
+<dd>
+<p>Base URL to connect to Vault.</p>
+</dd>
+</dl>
+</div>
+<div class="sect2">
+<h3 id="_configuration_mechanism"><a class="anchor" href="#_configuration_mechanism"></a>Configuration mechanism</h3>
+<div class="paragraph">
+<p>The configuration uses Microprofile Config for most entries. It means it can be passed through system properties and environment variables (by replacing dots with underscores and making the keys uppercase).</p>
+</div>
+<div class="paragraph">
+<p>To configure a Docker image rather than a standalone instance, Docker Config and secrets integration allows you to read the configuration from files. You can customize the configuration of these integrations through system properties.</p>
+</div>
+<div class="paragraph">
+<p>Docker integration provides a <code>secure:</code> support to encrypt values and  system properties, when required.</p>
+</div>
+<div class="paragraph">
+<p>It is fully implemented using the <a href="http://geronimo.apache.org/microprofile/extensions.html">Apache Geronimo Microprofile Config</a> extensions.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_adding_the_vault_proxy_to_your_docker_compose"><a class="anchor" href="#_adding_the_vault_proxy_to_your_docker_compose"></a>Adding the Vault Proxy to your Docker Compose</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The YAML below is the recommended configuration to enable the Vault Proxy and Component Server to communicate over HTTPS.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_docker_compose"><a class="anchor" href="#_docker_compose"></a>Docker Compose</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">version: '3.2'
+
+services:
+  component-server: <i class="conum" data-value="1"></i><b>(1)</b>
+    healthcheck:
+      timeout: 3s
+      interval: 3s
+      retries: 3
+      test: curl --fail http://localhost:8080/api/v1/environment
+    image: tacokit/component-server:${COMPONENT_SERVER_IMAGE_VERSION:-1.1.6_20190208104207}
+    environment:
+    - _JAVA_OPTIONS=
+        -Dtalend.component.server.filter.secured.tokens=vault-proxy <i class="conum" data-value="2"></i><b>(2)</b>
+        -Dtalend.component.server.ssl.active=true <i class="conum" data-value="3"></i><b>(3)</b>
+        -Dtalend.component.server.ssl.keystore.location=/opt/talend/configuration/https.p12 <i class="conum" data-value="3"></i><b>(3)</b>
+        -Dtalend.component.server.ssl.keystore.type=PKCS12 <i class="conum" data-value="3"></i><b>(3)</b>
+        -Dtalend.component.server.component.registry=/opt/talend/connectors/component-registry.properties <i class="conum" data-value="4"></i><b>(4)</b>
+        -Dtalend.component.server.maven.repository=/opt/talend/connectors <i class="conum" data-value="4"></i><b>(4)</b>
+    volumes:
+    - connectors:/opt/talend/connectors:ro  <i class="conum" data-value="4"></i><b>(4)</b>
+    - vault-proxy-configuration:/opt/talend/configuration <i class="conum" data-value="3"></i><b>(3)</b>
+
+
+  component-server-vault-proxy: <i class="conum" data-value="5"></i><b>(5)</b>
+    healthcheck:
+      timeout: 3s
+      interval: 3s
+      retries: 3
+      test: curl --fail http://localhost:8080/api/v1/proxy/environment
+    image: tacokit/component-server-vault-proxy:${COMPONENT_SERVER_VAULT_PROXY_IMAGE_VERSION:-1.1.6_20190208104221}
+    environment:
+    - _JAVA_OPTIONS=
+        -Dtalend.vault.cache.client.server.certificate.keystore.location=/opt/talend/configuration/https.p12 <i class="conum" data-value="6"></i><b>(6)</b>
+        -Dtalend.vault.cache.client.server.certificate.keystore.type=PKCS12 <i class="conum" data-value="6"></i><b>(6)</b>
+        -Dtalend.vault.cache.client.server.hostname.accepted=component-server <i class="conum" data-value="6"></i><b>(6)</b>
+        -Dtalend.vault.cache.client.server.authorization=vault-proxy <i class="conum" data-value="7"></i><b>(7)</b>
+        -Dtalend.vault.cache.talendComponentKit.url=https://component-server:8080/api/v1 <i class="conum" data-value="7"></i><b>(7)</b>
+        -Dtalend.vault.cache.vault.url=http://vault:8200 <i class="conum" data-value="8"></i><b>(8)</b>
+        -Dtalend.vault.cache.vault.auth.roleId=myrole <i class="conum" data-value="8"></i><b>(8)</b>
+        -Dtalend.vault.cache.vault.decrypt.endpoint=v1/something/decrypt/00000001 <i class="conum" data-value="8"></i><b>(8)</b>
+        -Dtalend.vault.cache.security.allowedIps=${COMPONENT_SERVER_VAULT_PROXY_CLIENT_IP:-127.0.0.1} <i class="conum" data-value="9"></i><b>(9)</b>
+    ports:
+    - 9090:8080/tcp
+    links: <i class="conum" data-value="10"></i><b>(10)</b>
+    - "component-server:component-server"
+    # - "vault:vault"
+    volumes:
+    - vault-proxy-configuration:/opt/talend/configuration:ro
+
+  connectors: <i class="conum" data-value="11"></i><b>(11)</b>
+    image: registry.datapwn.com/talend/connectors:${CONNECTORS_IMAGE_VERSION:-1.0.0_master_20190208091312}
+    environment:
+    - CONNECTORS_SETUP_OPTS=setup --wait-for-end
+    volumes:
+    - connectors:/opt/talend/connectors:ro
+
+volumes: <i class="conum" data-value="12"></i><b>(12)</b>
+  connectors:
+  vault-proxy-configuration:</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The standard Component Server entry.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Ensures only a client with a particular token can call the server. It is similar to a shared secret and only allows to call the server in "remote" mode, since only the local mode is enabled by default.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Activates and configures the auto generation of a X.509 certificate which is used for the HTTPS connector on the server.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Binds the components to deploy into the server.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Definition of the Vault proxy service which handles the mediation between Vault and the Component Server.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Since both servers are colocalized, the generated certificate is inherited from the Component Server, which allows to create the client that connects to it.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Configuration of the base URL to connect to the server - see &lt;10&gt;.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Configuration of the vault connection and security information.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Ensuring that connecting from <code>$COMPONENT_SERVER_VAULT_PROXY_CLIENT_IP</code> to vault proxy is possible. Any other IP will be rejected.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Linking both services so they can communicate. It allows not to expose the Component Server port outside of its own container (no <code>ports</code> mapping in the Component Server service definition). Note that if your vault is a service, you can link it here as well.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>Common component image service definition.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td>Volumes used by the services. The <code>connectors</code> has not changed but  <code>vault-proxy-configuration</code> was added for the automatic HTTPS configuration.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This setup enables the Vault Proxy and Component Server to communicate. You can now use the Vault Proxy as if it was the Component Server, by using <code><a href="http://localhost:9090" class="bare">localhost:9090</a></code> (or any other host matching your deployment) instead of the Component Server directly.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_linking_the_vault_proxy_to_the_component_server_through_https"><a class="anchor" href="#_linking_the_vault_proxy_to_the_component_server_through_https"></a>Linking the Vault Proxy to the Component Server through HTTPS</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When the Vault Proxy is enabled, ensure you configure HTTPS on the Component Server using the following parameters:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">talend.component.server.ssl.active</dt>
+<dd>
+<p><code>true</code> or <code>false</code>. Indicates if the SSL protocol is enabled.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.password</dt>
+<dd>
+<p>Keystore password.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.keystore.location</dt>
+<dd>
+<p>Path to Keystore.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.keystore.alias</dt>
+<dd>
+<p>Private key/certificate alias.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.keystore.type</dt>
+<dd>
+<p>Keystore type.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.keystore.generation.force</dt>
+<dd>
+<p><code>true</code> or <code>false</code>.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.keystore.generation.command</dt>
+<dd>
+<p>Specifies if a custom command is to be used to generate the certificate.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.keypair.algorithm</dt>
+<dd>
+<p>Encryption algorithm. <code>RSA</code> by default.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.certificate.dname</dt>
+<dd>
+<p>Distinguished name.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.keypair.size</dt>
+<dd>
+<p>Size of the key. <code>2048</code> by default.</p>
+</dd>
+<dt class="hdlist1">talend.component.server.ssl.port</dt>
+<dd>
+<p>SSL port to use.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_adding_extensions_to_the_instance"><a class="anchor" href="#_adding_extensions_to_the_instance"></a>Adding extensions to the instance</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can mount a volume in <code>/opt/talend/component-kit-vault-proxy/custom/</code> and the jars in that folder which will be deployed with the server.
+Since the server relies on CDI (Apache OpenWebBeans) you can use that technology to enrich it, including JAX-RS endpoints, interceptors etc&#8230;&#8203;or just libraries needing to be in the JVM.</p>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/blob/component-runtime-1.35.0/documentation/src/main/antora/modules/ROOT/pages/vault-proxy.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.43.0%2Fvault-proxy.html&text=Talend%20Component%20Kit%20%3E%3E%20Component%20Server%20Vault%20Proxy%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.43.0%2Fvault-proxy.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Component%20Server%20Vault%20Proxy&body=Talend%20Component%20Kit%3A%20Component%20Server%20Vault%20Proxy%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.43.0%2Fvault-proxy.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+              <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2019 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="../../_/../js/anchorific.js"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

@@ -1,0 +1,5845 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Talend Component Kit Reference guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.0.5/index-reference-guide.html">
+    <meta name="generator" content="Talend Component Kit Generator">
+<meta name="date" content="2018-09-19T14:36:12.838Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch.min.css" integrity="sha256-vusmcqkVvKdkwoueSJZLlO9y2P+Lp9fN3WwQUV9Uwfw=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch-theme-algolia.min.css" integrity="sha256-ZqsS4QagZnfArbOyheCO4qVjzzsMbg/WMvf5tLtId/Q=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M9.694 14.652a1.076 1.076 0 0 1-.715.421 1.086 1.086 0 1 1-.148-2.158c.235 0 .462.075.652.22.23.173.38.427.42.714a1.07 1.07 0 0 1-.209.803M2.15 2.627A1.084 1.084 0 1 1 .418 1.322 1.084 1.084 0 0 1 2.15 2.627m11.383 2.491a2.46 2.46 0 0 0-1.482.494L8.94 1.798a.59.59 0 1 0-.156.125l3.111 3.816a2.486 2.486 0 0 0-.557.718l-8.84-4.062c.065-.19.086-.394.057-.599A1.274 1.274 0 0 0 2.058.95a1.278 1.278 0 0 0-.952-.247 1.286 1.286 0 0 0 .356 2.544 1.279 1.279 0 0 0 .956-.668l8.838 4.06c-.11.264-.176.55-.187.85H3.563a.788.788 0 0 0-.31-.533.799.799 0 0 0-1.113.155.786.786 0 0 0 .156 1.105.799.799 0 0 0 1.267-.527h7.506c.014.323.088.63.215.91l-1.903.941a.592.592 0 1 0 .089.179l1.904-.94c.162.292.382.548.645.753l-2.473 3.404a1.28 1.28 0 0 0-1.742.291 1.288 1.288 0 0 0 .253 1.8 1.28 1.28 0 0 0 .952.246c.34-.048.64-.225.847-.499.207-.274.294-.612.246-.952a1.276 1.276 0 0 0-.399-.763l2.479-3.41a2.468 2.468 0 1 0 1.352-4.53"></path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Version 1.0.5 <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version is-current is-latest">
+                    <a href="index.html">1.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.0/index.html">1.0.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-api" target="_blank">API</a></li>
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">Runtime</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="main">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.0.5">
+  <aside class="navigation" role="navigation">
+    <div class="panels">
+      <div class="input-group nav-filter-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" placeholder="Filter menu entries..." id="navFilterInput">
+      </div>
+      <div class="navigation-menu is-active" data-panel="menu">
+        <nav class="nav-menu">
+          <!-- <label>Talend Component Kit Developer Reference Guide</label> -->
+          <ul class="nav nav-list tree" >
+  <li data-depth="0">
+      
+    <ul class="nav nav-list tree" >
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Getting Started</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-getting-started-with-tck.html">Getting Started overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="methodology-creating-components.html">Development methodology</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tck-framework-overview.html">Framework Overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-execution.html">General component execution logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Tutorials</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-tutorials.html">Tutorial overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-my-first-component.html">Creating your first component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Generating a project from the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-input-component.html">Creating a Hazelcast input component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-an-output-component.html">Creating a Hazelcast output component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-create-components-rest-api.html">Creating a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-rest-api.html">Testing a Zendesk REST API connector</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-test-your-components.html">Testing a Hazelcast component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-dev-vs-ci-setup.html">Testing in a continuous integration environment</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-handle-talend-component-migration.html">Handling component version migration</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Setting up your environment</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-setup-environment.html">Setup overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="system-prerequisites.html">System requirements</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="installing-talend-intellij-plugin.html">Installing the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Generating a project</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-generating-project.html">Project generation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-generate-project-using-starter.html">Using the starter</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="generate-project-using-intellij-plugin.html">Using the IntelliJ plugin</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Implementing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-creating-components.html">Component implementation overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-registering.html">Defining component metadata</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-input.html">Defining an input component logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-define-processor-output.html">Defining a processor/output logic</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-configuration.html">Defining component configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-internationalization.html">Internationalizing a component</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-versions-and-migration.html">Managing component versions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="tutorial-configuration-sensitive-data.html">Masking sensitive data</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="concept-processor-and-batch-processing.html">Implementing batch processing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="best-practices.html">Best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="component-loading.html">Component loading</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Defining services</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-defining-services.html">Service overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-internationalization.html">Internationalizing a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-actions.html">Providing actions through a service</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-built-in.html">Built-in services</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-interceptors.html">Services and interceptors</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-custom-api.html">Defining a custom API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Testing components</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-testing-components.html">Component testing overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-best-practices.html">Component testing best practices</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="index-sub-testing-runtime.html">Testing component runtime</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-beam.html">Beam testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-multiple-envs.html">Testing in multiple environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-maven-passwords.html">Reusing Maven credentials</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="testing-generating-data.html">Generating data for testing</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="services-pipeline.html">Simple/Test Pipeline API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="https://beam.apache.org/documentation/programming-guide/#creating-a-pipeline">Beam Pipeline API</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Studio</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-deploying-components.html">Studio integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="studio.html">Deploying to Talend Studio</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Integrating into Talend Cloud</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-cloud-integration.html">Cloud integration overview</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="server-uispec.html">UiSpec Server</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Knowledge base</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="index-knowledge-base.html">Knowledge base articles</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="changelog.html">Changelog</a>
+  </li>
+</ul>
+  </li>
+  <li data-depth="1">
+      <label class="tree-toggler nav-header"><i class="fa fa-angle-right"></i><span>Reference Guide</span></label>
+    <ul class="nav nav-list tree"  style="display:none">
+  <li data-depth="2">
+    <a class="menu-link" href="gallery.html">Widget and validation gallery</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-actions.html">List of available actions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-conditions.html">List of conditions for binding properties</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-configuration-types.html">Component data configuration types</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-constraints.html">Component field constraints and validations</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-junit-environments.html">Provided JUnit testing environments</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-proxy-server-api.html">UiSpec proxy server API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-proxy-server-configuration.html">UiSpec proxy server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-rest-resources.html">Component Server HTTP API reference</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-scanning-exclusions.html">Scanning exclusions</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-server-configuration.html">Server configuration</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="ref-ui.html">UI API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="apidocs.html">Javadocs</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+        </nav>
+      </div>
+    </div>
+  </aside>
+</div>
+              <div class="col-xs-12 col-sm-10 maincontent">
+                <div class="toolbar" role="navigation">
+
+    <ol class="breadcrumb">
+      <li class="crumb active"><a href="index-reference-guide.html">Reference Guide</a></li>
+    </ol>
+</div>
+                <article class="doc">
+        <div class="row">
+          <div class="col-sm-9 row">
+              <h1>Talend Component Kit Reference guide</h1>
+            <div class="article-content">
+              <div class="sect1">
+<h2 id="_widget_and_validation_gallery"><a class="anchor" href="#_widget_and_validation_gallery"></a>Widget and validation gallery</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This gallery shows how widgets and validations are rendered in both Studio and web environments, along with sample implementation code.</p>
+</div>
+<div class="sect2">
+<h3 id="_widgets"><a class="anchor" href="#_widgets"></a>Widgets</h3>
+<div class="paragraph">
+<p>Widgets allow to easily implement different types of input fields to your components.</p>
+</div>
+<div class="sect3">
+<h4 id="_input_text"><a class="anchor" href="#_input_text"></a>Input/Text</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+String config;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/input.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/input.png" alt="Studio Input" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/input.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/input.png" alt="Web Input" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_password"><a class="anchor" href="#_password"></a>Password</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@Credential
+String config;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/password.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/password.png" alt="Studio Password" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/password.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/password.png" alt="Web Password" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_textarea"><a class="anchor" href="#_textarea"></a>Textarea</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@Textarea
+String config;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/textarea.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/textarea.png" alt="Studio Textarea" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/textarea.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/textarea.png" alt="Web Textarea" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_checkbox"><a class="anchor" href="#_checkbox"></a>Checkbox</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+Boolean config;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/checkbox.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/checkbox.png" alt="Studio Checkbox" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/checkbox.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/checkbox.png" alt="Web Checkbox" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_list"><a class="anchor" href="#_list"></a>List</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@Proposable("valuesProvider")
+String config;
+/** service class */
+@DynamicValues("valuesProvider")
+public Values actions(){
+  return new Values(asList(new Values.Item("1", "Delete"),
+                    new Values.Item("2", "Insert"),
+                    new Values.Item("3", "Update")));
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+ActionEnum config;
+
+/** Define enum */
+enum ActionEnum {
+    Delete,
+    Insert,
+    Update
+}</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/list.png" alt="Studio List" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/list.png" alt="Web List" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_table"><a class="anchor" href="#_table"></a>Table</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+List&lt;MyObject&gt; config;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/table.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/table.png" alt="Studio Table" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/table.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/table.png" alt="Web Table" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_code"><a class="anchor" href="#_code"></a>Code</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Code("java")
+@Option
+String config;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/javaCode.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/javaCode.png" alt="Studio Code" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/javaCode.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/javaCode.png" alt="Web Code" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_schema"><a class="anchor" href="#_schema"></a>Schema</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Option
+@Structure
+List&lt;String&gt; config;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/schema.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/schema.png" alt="Studio Schema" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/schema.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/schema.png" alt="Web Schema" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_validations"><a class="anchor" href="#_validations"></a>Validations</h3>
+<div class="paragraph">
+<p>Validations help restricting what can be entered or selected in an input field, to make sure that the value complies with the expected type of information.</p>
+</div>
+<div class="sect3">
+<h4 id="_property_validation"><a class="anchor" href="#_property_validation"></a>Property validation</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">/** configuration class */
+@Option
+@Validable("url")
+String config;
+
+/** service class */
+@AsyncValidation("url")
+ValidationResult doValidate(String url) {
+//validate the property
+}</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/validation_property.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_property.png" alt="Studio Code" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/validation_property.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_property.png" alt="Web Code" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_property_validation_with_pattern"><a class="anchor" href="#_property_validation_with_pattern"></a>Property validation with Pattern</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">/** configuration class */
+@Option
+@Pattern("/^[a-zA-Z\\-]+$/")
+String username;</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/validation_pattern.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_pattern.png" alt="Studio Code" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/validation_pattern.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_pattern.png" alt="Web Code" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_data_store_validation"><a class="anchor" href="#_data_store_validation"></a>Data store validation</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Datastore
+@Checkable
+public class config {
+/** config ...*/
+}
+
+/** service class */
+@HealthCheck
+public HealthCheckStatus testConnection(){
+
+//validate the connection
+}</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all table gallery table-striped">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Studio Rendering</th>
+<th class="tableblock halign-left valign-top">Web Rendering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/studio/prop_validation.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_datastore.png" alt="Studio Code" width="100%"></a>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="imageblock">
+<div class="content">
+<a class="image" href="_images/gallery/widgets/web/prop_validation.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_datastore.png" alt="Web Code" width="100%"></a>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>You can also use other types of validation that are similar to <code>@Pattern</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>@Min</code>, <code>@Max</code> for numbers.</p>
+</li>
+<li>
+<p><code>@Unique</code> for collection values.</p>
+</li>
+<li>
+<p><code>@Required</code> for a required configuration.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_actions"><a class="anchor" href="#_actions"></a>Actions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_dynamic_values"><a class="anchor" href="#_dynamic_values"></a>Dynamic Values</h3>
+<div class="paragraph">
+<p>Mark a method as being useful to fill potential values of a string option for a property denoted by its value. You can link a field as being completable using @Proposable(value). The resolution of the completion action is then done through the component family and value of the action. The callback doesn&#8217;t take any parameter.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>dynamic_values</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.completion.DynamicValues</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.completion.Values</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "items":[
+    {
+      "id":"value",
+      "label":"label"
+    }
+  ]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_healthcheck"><a class="anchor" href="#_healthcheck"></a>Healthcheck</h3>
+<div class="paragraph">
+<p>This class marks an action doing a connection test</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>healthcheck</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.healthcheck.HealthCheck</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "comment":"Something went wrong",
+  "status":"KO"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_schema_2"><a class="anchor" href="#_schema_2"></a>Schema</h3>
+<div class="paragraph">
+<p>Mark an action as returning a discovered schema. Its parameter MUST be the type decorated with <code>@Structure</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>schema</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.schema.DiscoverSchema</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.schema.Schema</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "entries":[
+    {
+      "name":"column1",
+      "type":"STRING"
+    }
+  ]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_suggestions"><a class="anchor" href="#_suggestions"></a>Suggestions</h3>
+<div class="paragraph">
+<p>Mark a method as being useful to fill potential values of a string option. You can link a field as being completable using @Suggestable(value). The resolution of the completion action is then done when the user requests it (generally by clicking on a button or entering the field depending the environment).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>suggestions</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.completion.Suggestions</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.completion.SuggestionValues</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "cacheable":false,
+  "items":[
+    {
+      "id":"value",
+      "label":"label"
+    }
+  ]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_update"><a class="anchor" href="#_update"></a>Update</h3>
+<div class="paragraph">
+<p>This class marks an action returning a new instance replacing part of a form/configuration.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>update</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.update.Update</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_user"><a class="anchor" href="#_user"></a>User</h3>
+<div class="paragraph">
+<p>Extension point for custom UI integrations and custom actions.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>user</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.Action</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_validation"><a class="anchor" href="#_validation"></a>Validation</h3>
+<div class="paragraph">
+<p>Mark a method as being used to validate a configuration.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+this is a server validation so only use it if you can&#8217;t use other client side validation to implement it.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Type: <code>validation</code></p>
+</li>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.service.asyncvalidation.AsyncValidation</code></p>
+</li>
+<li>
+<p>Returned type: <code>org.talend.sdk.component.api.service.asyncvalidation.ValidationResult</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "comment":"Something went wrong",
+  "status":"KO"
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conditions"><a class="anchor" href="#_conditions"></a>Conditions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_activeif"><a class="anchor" href="#_activeif"></a>ActiveIf</h3>
+<div class="paragraph">
+<p>If the evaluation of the element at the location matches value then the element is considered active, otherwise it is deactivated.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.condition.ActiveIf</code></p>
+</li>
+<li>
+<p>Type: <code>if</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "condition::if::evaluationStrategy":"DEFAULT",
+  "condition::if::negate":"false",
+  "condition::if::target":"test",
+  "condition::if::value":"value1,value2"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activeifs"><a class="anchor" href="#_activeifs"></a>ActiveIfs</h3>
+<div class="paragraph">
+<p>Allows to set multiple visibility conditions on the same property.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.condition.ActiveIfs</code></p>
+</li>
+<li>
+<p>Type: <code>ifs</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "condition::if::evaluationStrategy::0":"DEFAULT",
+  "condition::if::evaluationStrategy::1":"LENGTH",
+  "condition::if::negate::0":"false",
+  "condition::if::negate::1":"true",
+  "condition::if::target::0":"sibling1",
+  "condition::if::target::1":"../../other",
+  "condition::if::value::0":"value1,value2",
+  "condition::if::value::1":"SELECTED",
+  "condition::ifs::operator":"AND"
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration_types"><a class="anchor" href="#_configuration_types"></a>Configuration types</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_dataset"><a class="anchor" href="#_dataset"></a>Dataset</h3>
+<div class="paragraph">
+<p>Mark a model (complex object) as being a dataset.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: @org.talend.sdk.component.api.configuration.type.DataSet</p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"dataset"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_datastore"><a class="anchor" href="#_datastore"></a>Datastore</h3>
+<div class="paragraph">
+<p>Mark a model (complex object) as being a datastore (connection to a backend).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: @org.talend.sdk.component.api.configuration.type.DataStore</p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "tcomp::configurationtype::name":"test",
+  "tcomp::configurationtype::type":"datastore"
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_constraints"><a class="anchor" href="#_constraints"></a>Constraints</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_maxlength"><a class="anchor" href="#_maxlength"></a>MaxLength</h3>
+<div class="paragraph">
+<p>Ensure the decorated option size is validated with a higher bound.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Max</code></p>
+</li>
+<li>
+<p>Name: <code>maxLength</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>double</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.lang.CharSequence</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::maxLength":"12.34"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_minlength"><a class="anchor" href="#_minlength"></a>MinLength</h3>
+<div class="paragraph">
+<p>Ensure the decorated option size is validated with a lower bound.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Min</code></p>
+</li>
+<li>
+<p>Name: <code>minLength</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>double</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.lang.CharSequence</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::minLength":"12.34"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pattern"><a class="anchor" href="#_pattern"></a>Pattern</h3>
+<div class="paragraph">
+<p>Validate the decorated string with a <strong>javascript</strong> pattern (even into the Studio).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Pattern</code></p>
+</li>
+<li>
+<p>Name: <code>pattern</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>java.lang.string</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.lang.CharSequence</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::pattern":"test"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_max"><a class="anchor" href="#_max"></a>Max</h3>
+<div class="paragraph">
+<p>Ensure the decorated option size is validated with a higher bound.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Max</code></p>
+</li>
+<li>
+<p>Name: <code>max</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>double</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.lang.Number</code>&#8201;&#8212;&#8201;<code>int</code>&#8201;&#8212;&#8201;<code>short</code>&#8201;&#8212;&#8201;<code>byte</code>&#8201;&#8212;&#8201;<code>long</code>&#8201;&#8212;&#8201;<code>double</code>&#8201;&#8212;&#8201;<code>float</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::max":"12.34"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_min"><a class="anchor" href="#_min"></a>Min</h3>
+<div class="paragraph">
+<p>Ensure the decorated option size is validated with a lower bound.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Min</code></p>
+</li>
+<li>
+<p>Name: <code>min</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>double</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.lang.Number</code>&#8201;&#8212;&#8201;<code>int</code>&#8201;&#8212;&#8201;<code>short</code>&#8201;&#8212;&#8201;<code>byte</code>&#8201;&#8212;&#8201;<code>long</code>&#8201;&#8212;&#8201;<code>double</code>&#8201;&#8212;&#8201;<code>float</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::min":"12.34"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_required"><a class="anchor" href="#_required"></a>Required</h3>
+<div class="paragraph">
+<p>Mark the field as being mandatory.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Required</code></p>
+</li>
+<li>
+<p>Name: <code>required</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>-</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.lang.Object</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::required":"true"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_maxitems"><a class="anchor" href="#_maxitems"></a>MaxItems</h3>
+<div class="paragraph">
+<p>Ensure the decorated option size is validated with a higher bound.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Max</code></p>
+</li>
+<li>
+<p>Name: <code>maxItems</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>double</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.util.Collection</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::maxItems":"12.34"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_minitems"><a class="anchor" href="#_minitems"></a>MinItems</h3>
+<div class="paragraph">
+<p>Ensure the decorated option size is validated with a lower bound.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Min</code></p>
+</li>
+<li>
+<p>Name: <code>minItems</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>double</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.util.Collection</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::minItems":"12.34"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_uniqueitems"><a class="anchor" href="#_uniqueitems"></a>UniqueItems</h3>
+<div class="paragraph">
+<p>Ensure the elements of the collection must be distinct (kind of set).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.constraint.Uniques</code></p>
+</li>
+<li>
+<p>Name: <code>uniqueItems</code></p>
+</li>
+<li>
+<p>Parameter Type: <code>-</code></p>
+</li>
+<li>
+<p>Supported Types:&#8201;&#8212;&#8201;<code>java.util.Collection</code></p>
+</li>
+<li>
+<p>Sample:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "validation::uniqueItems":"true"
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_junit_environments"><a class="anchor" href="#_junit_environments"></a>Junit environments</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+the configuration is read from system properties, environment variables, &#8230;&#8203;.
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all table-striped table-hover table-ordered">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Class</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ContextualEnvironment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contextual</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contextual runner</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DirectRunnerEnvironment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Direct</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Direct runner</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FlinkRunnerEnvironment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flink</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flink runner</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SparkRunnerEnvironment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Spark</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Spark runner</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_proxy_server_api"><a class="anchor" href="#_proxy_server_api"></a>Proxy server API</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<h1 id="_component_uispec_server" class="sect0"><a class="anchor" href="#_component_uispec_server"></a>Component UiSpec Server</h1>
+<div class="sect1">
+<h2 id="_overview"><a class="anchor" href="#_overview"></a>Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These endpoints allow to obtain UiSpec representations of the component/configuration types properties.</p>
+</div>
+<div class="sect2">
+<h3 id="_version_information"><a class="anchor" href="#_version_information"></a>Version information</h3>
+<div class="paragraph">
+<p><em>Version</em> : v1</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_contact_information"><a class="anchor" href="#_contact_information"></a>Contact information</h3>
+<div class="paragraph">
+<p><em>Contact</em> : Talend<br>
+<em>Contact Email</em> : <a href="mailto:contact@talend.com">contact@talend.com</a></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_license_information"><a class="anchor" href="#_license_information"></a>License information</h3>
+<div class="paragraph">
+<p><em>License</em> : Apache 2.0<br>
+<em>License URL</em> : <a href="http://www.apache.org/licenses/LICENSE-2.0.html" class="bare">www.apache.org/licenses/LICENSE-2.0.html</a><br>
+<em>Terms of service</em> : null</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_uri_scheme"><a class="anchor" href="#_uri_scheme"></a>URI scheme</h3>
+<div class="paragraph">
+<p><em>Host</em> : host:port<br>
+<em>BasePath</em> : /componentproxy/api/v1<br>
+<em>Schemes</em> : HTTP, HTTPS</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_tags"><a class="anchor" href="#_tags"></a>Tags</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>action</p>
+</li>
+<li>
+<p>configuration</p>
+</li>
+<li>
+<p>configurations</p>
+</li>
+<li>
+<p>dataset</p>
+</li>
+<li>
+<p>datastore</p>
+</li>
+<li>
+<p>form</p>
+</li>
+<li>
+<p>icon</p>
+</li>
+<li>
+<p>persistence</p>
+</li>
+<li>
+<p>ui spec</p>
+</li>
+<li>
+<p>uispec</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_paths"><a class="anchor" href="#_paths"></a>Paths</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_execute"><a class="anchor" href="#_execute"></a>This endpoint execute an action required by a form.</h3>
+<div class="literalblock">
+<div class="content">
+<pre>POST /actions/execute</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_description"><a class="anchor" href="#_description"></a>Description</h4>
+<div class="paragraph">
+<p>configuration types has action that can be executed using this endpoint</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters"><a class="anchor" href="#_parameters"></a>Parameters</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 44.4445%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Query</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>action</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Query</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>family</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Query</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>language</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Query</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>type</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_responses"><a class="anchor" href="#_responses"></a>Responses</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>200</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>successful operation<br>
+<strong>Headers</strong> : <br>
+<code>Talend-Component-Server-Error</code> (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; string, <a href="#_completionstagemapstringobject">CompletionStageMapStringObject</a> &gt; map</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>400</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>This response is returned when the action is null</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_proxyerrorpayload">ProxyErrorPayload</a></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>404</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>This response is returned when no action is found</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_proxyerrorpayload">ProxyErrorPayload</a></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>520</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>This response is returned when the action raise an unhandled error</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_proxyerrorpayload">ProxyErrorPayload</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consumes"><a class="anchor" href="#_consumes"></a>Consumes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_produces"><a class="anchor" href="#_produces"></a>Produces</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tags_2"><a class="anchor" href="#_tags_2"></a>Tags</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>action</p>
+</li>
+<li>
+<p>configurations</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_getrootconfig"><a class="anchor" href="#_getrootconfig"></a>Return all the available root configuration (Data store like) from the component server</h3>
+<div class="literalblock">
+<div class="content">
+<pre>GET /configurations</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_description_2"><a class="anchor" href="#_description_2"></a>Description</h4>
+<div class="paragraph">
+<p>Every configuration has an icon. In the response an icon key is returned. this icon key can be one of the bundled icons or a custom one. The consumer of this endpoint will need to check if the icon key is in the icons bundle otherwise the icon need to be gathered using the <code>familyId</code> from this endpoint <code>configurations/{id}/icon</code></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_responses_2"><a class="anchor" href="#_responses_2"></a>Responses</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>200</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>successful operation<br>
+<strong>Headers</strong> : <br>
+<code>Talend-Component-Server-Error</code> (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_nodes">Nodes</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consumes_2"><a class="anchor" href="#_consumes_2"></a>Consumes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_produces_2"><a class="anchor" href="#_produces_2"></a>Produces</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tags_3"><a class="anchor" href="#_tags_3"></a>Tags</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>configurations</p>
+</li>
+<li>
+<p>datastore</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_getinitialform"><a class="anchor" href="#_getinitialform"></a>Return a form description ( Ui Spec ) without a specific configuration</h3>
+<div class="literalblock">
+<div class="content">
+<pre>GET /configurations/form/initial/{type}</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters_2"><a class="anchor" href="#_parameters_2"></a>Parameters</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 44.4445%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Path</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>type</strong><br>
+<em>required</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_responses_3"><a class="anchor" href="#_responses_3"></a>Responses</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>200</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>successful operation<br>
+<strong>Headers</strong> : <br>
+<code>Talend-Component-Server-Error</code> (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_nodes">Nodes</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consumes_3"><a class="anchor" href="#_consumes_3"></a>Consumes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_produces_3"><a class="anchor" href="#_produces_3"></a>Produces</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tags_4"><a class="anchor" href="#_tags_4"></a>Tags</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>configurations</p>
+</li>
+<li>
+<p>dataset</p>
+</li>
+<li>
+<p>datastore</p>
+</li>
+<li>
+<p>form</p>
+</li>
+<li>
+<p>ui spec</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_getform"><a class="anchor" href="#_getform"></a>Return a form description ( Ui Spec ) of a specific configuration</h3>
+<div class="literalblock">
+<div class="content">
+<pre>GET /configurations/form/{id}</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters_3"><a class="anchor" href="#_parameters_3"></a>Parameters</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 44.4445%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Path</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>id</strong><br>
+<em>required</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_responses_4"><a class="anchor" href="#_responses_4"></a>Responses</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>200</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>successful operation<br>
+<strong>Headers</strong> : <br>
+<code>Talend-Component-Server-Error</code> (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_uinode">UiNode</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consumes_4"><a class="anchor" href="#_consumes_4"></a>Consumes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_produces_4"><a class="anchor" href="#_produces_4"></a>Produces</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tags_5"><a class="anchor" href="#_tags_5"></a>Tags</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>configurations</p>
+</li>
+<li>
+<p>dataset</p>
+</li>
+<li>
+<p>datastore</p>
+</li>
+<li>
+<p>form</p>
+</li>
+<li>
+<p>ui spec</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_getconfigurationiconbyid"><a class="anchor" href="#_getconfigurationiconbyid"></a>Return the configuration icon file in png format</h3>
+<div class="literalblock">
+<div class="content">
+<pre>GET /configurations/icon/{id}</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters_4"><a class="anchor" href="#_parameters_4"></a>Parameters</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 44.4445%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Path</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>id</strong><br>
+<em>required</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_responses_5"><a class="anchor" href="#_responses_5"></a>Responses</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>200</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>successful operation<br>
+<strong>Headers</strong> : <br>
+<code>Talend-Component-Server-Error</code> (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_completionstagebyte">CompletionStageByte[]</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consumes_5"><a class="anchor" href="#_consumes_5"></a>Consumes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_produces_5"><a class="anchor" href="#_produces_5"></a>Produces</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+<li>
+<p><code>application/octet-stream</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tags_6"><a class="anchor" href="#_tags_6"></a>Tags</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>icon</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_putconfiguration"><a class="anchor" href="#_putconfiguration"></a>Update a configuration.</h3>
+<div class="literalblock">
+<div class="content">
+<pre>POST /configurations/persistence/edit/{id}</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters_5"><a class="anchor" href="#_parameters_5"></a>Parameters</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 44.4445%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Path</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>id</strong><br>
+<em>required</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_responses_6"><a class="anchor" href="#_responses_6"></a>Responses</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>200</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>successful operation<br>
+<strong>Headers</strong> : <br>
+<code>Talend-Component-Server-Error</code> (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_entityref">EntityRef</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consumes_6"><a class="anchor" href="#_consumes_6"></a>Consumes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_produces_6"><a class="anchor" href="#_produces_6"></a>Produces</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tags_7"><a class="anchor" href="#_tags_7"></a>Tags</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>configurations</p>
+</li>
+<li>
+<p>dataset</p>
+</li>
+<li>
+<p>datastore</p>
+</li>
+<li>
+<p>form</p>
+</li>
+<li>
+<p>persistence</p>
+</li>
+<li>
+<p>ui spec</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_postconfigurationfromtype"><a class="anchor" href="#_postconfigurationfromtype"></a>Saves a configuration based on a type. Concretely it is the same as <code>/persistence/save/{formId}</code> but the <code>formId</code> is contained into the payload itself and marked in the metadata as such.</h3>
+<div class="literalblock">
+<div class="content">
+<pre>POST /configurations/persistence/save-from-type/{type}</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters_6"><a class="anchor" href="#_parameters_6"></a>Parameters</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 44.4445%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Path</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>type</strong><br>
+<em>required</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_responses_7"><a class="anchor" href="#_responses_7"></a>Responses</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>200</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>successful operation<br>
+<strong>Headers</strong> : <br>
+<code>Talend-Component-Server-Error</code> (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_entityref">EntityRef</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consumes_7"><a class="anchor" href="#_consumes_7"></a>Consumes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_produces_7"><a class="anchor" href="#_produces_7"></a>Produces</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tags_8"><a class="anchor" href="#_tags_8"></a>Tags</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>configurations</p>
+</li>
+<li>
+<p>dataset</p>
+</li>
+<li>
+<p>datastore</p>
+</li>
+<li>
+<p>form</p>
+</li>
+<li>
+<p>persistence</p>
+</li>
+<li>
+<p>ui spec</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_postconfigurationfromformid"><a class="anchor" href="#_postconfigurationfromformid"></a>Saves a configuration based on a form identifier.</h3>
+<div class="literalblock">
+<div class="content">
+<pre>POST /configurations/persistence/save/{formId}</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters_7"><a class="anchor" href="#_parameters_7"></a>Parameters</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 44.4445%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>Path</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>formId</strong><br>
+<em>required</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_responses_8"><a class="anchor" href="#_responses_8"></a>Responses</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>200</strong></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>successful operation<br>
+<strong>Headers</strong> : <br>
+<code>Talend-Component-Server-Error</code> (boolean) : This header indicate the error origin. true indicate an error from the component server, false indicate that the error is from this proxy.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_entityref">EntityRef</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consumes_8"><a class="anchor" href="#_consumes_8"></a>Consumes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_produces_8"><a class="anchor" href="#_produces_8"></a>Produces</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_tags_9"><a class="anchor" href="#_tags_9"></a>Tags</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>configurations</p>
+</li>
+<li>
+<p>dataset</p>
+</li>
+<li>
+<p>datastore</p>
+</li>
+<li>
+<p>form</p>
+</li>
+<li>
+<p>persistence</p>
+</li>
+<li>
+<p>ui spec</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_definitions"><a class="anchor" href="#_definitions"></a>Definitions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_completionstage"><a class="anchor" href="#_completionstage"></a>CompletionStage</h3>
+<div class="paragraph">
+<p><em>Type</em> : object</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_completionstagebyte"><a class="anchor" href="#_completionstagebyte"></a>CompletionStageByte[]</h3>
+<div class="paragraph">
+<p><em>Type</em> : object</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_completionstagecollectionsimplepropertydefinition"><a class="anchor" href="#_completionstagecollectionsimplepropertydefinition"></a>CompletionStageCollectionSimplePropertyDefinition</h3>
+<div class="paragraph">
+<p><em>Type</em> : object</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_completionstagemapstringobject"><a class="anchor" href="#_completionstagemapstringobject"></a>CompletionStageMapStringObject</h3>
+<div class="paragraph">
+<p><em>Type</em> : object</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_completionstagemapstringstring"><a class="anchor" href="#_completionstagemapstringstring"></a>CompletionStageMapStringString</h3>
+<div class="paragraph">
+<p><em>Type</em> : object</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_completionstagenodes"><a class="anchor" href="#_completionstagenodes"></a>CompletionStageNodes</h3>
+<div class="paragraph">
+<p><em>Type</em> : object</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_entityref"><a class="anchor" href="#_entityref"></a>EntityRef</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>id</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The identifier of the entity related to current request. It is generally thecreated entity of updated one.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_jsonschema"><a class="anchor" href="#_jsonschema"></a>JsonSchema</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>defaultValue</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>object</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>description</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>enumValues</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; string &gt; array</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>id</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>items</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_jsonschema">JsonSchema</a></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>maxItems</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>integer (int32)</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>maxLength</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>integer (int32)</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>maximum</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>number (double)</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>minItems</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>integer (int32)</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>minLength</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>integer (int32)</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>minimum</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>number (double)</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>pattern</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>properties</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; string, <a href="#_jsonschema">JsonSchema</a> &gt; map</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>ref</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>required</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; string &gt; array</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>schema</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>title</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>type</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>uniqueItems</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>boolean</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_namevalue"><a class="anchor" href="#_namevalue"></a>NameValue</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>name</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>value</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_node"><a class="anchor" href="#_node"></a>Node</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>children</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The list of configuration reusing this one as a reference (can be created "next").</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; string &gt; array</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>familyId</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The identifier of the family of this configuration.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>familyLabel</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The display name of the family of this configuration.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>icon</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The icon of this configuration. If you use an existing bundle (@talend/ui/icon), ensure it is present by default and if not do a request using the family on the related endpoint.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>id</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The identifier of this configuration/node.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>label</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The display name of this configuration.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>name</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The technical name of this node (it is human readable but not i18n friendly), useful for debug purposes.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>version</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The version of this configuration for the migration management.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>integer (int32)</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_nodes"><a class="anchor" href="#_nodes"></a>Nodes</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>nodes</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The list of nodes matching the request. The key is the node identifier.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; string, <a href="#_node">Node</a> &gt; map</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_option"><a class="anchor" href="#_option"></a>Option</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>path</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>type</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_parameter"><a class="anchor" href="#_parameter"></a>Parameter</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>key</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>path</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_proxyerrorpayload"><a class="anchor" href="#_proxyerrorpayload"></a>ProxyErrorPayload</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>code</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The error code independently of the locale and not as precise as a message (not context aware).</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>message</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>A human readable message to help understanding the error</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_trigger"><a class="anchor" href="#_trigger"></a>Trigger</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>action</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>family</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>onEvent</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>options</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; <a href="#_option">Option</a> &gt; array</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>parameters</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; <a href="#_parameter">Parameter</a> &gt; array</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>type</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_ui"><a class="anchor" href="#_ui"></a>Ui</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>jsonSchema</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_jsonschema">JsonSchema</a></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>properties</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>object</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>uiSchema</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; <a href="#_uischema">UiSchema</a> &gt; array</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_uinode"><a class="anchor" href="#_uinode"></a>UiNode</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>metadata</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The metadata associated to the node if needed by the UI.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_node">Node</a></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>ui</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>The ui specification corresponding to the requested node. It is literally the form representing this configuration.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><a href="#_ui">Ui</a></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_uischema"><a class="anchor" href="#_uischema"></a>UiSchema</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>autoFocus</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>boolean</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>condition</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; string, &lt; object &gt; array &gt; map</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>description</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>disabled</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>boolean</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>itemWidget</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>items</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; <a href="#_uischema">UiSchema</a> &gt; array</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>key</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>options</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; string, string &gt; map</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>placeholder</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>readOnly</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>boolean</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>required</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>boolean</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>restricted</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>boolean</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>title</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>titleMap</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; <a href="#_namevalue">NameValue</a> &gt; array</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>triggers</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>&lt; <a href="#_trigger">Trigger</a> &gt; array</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>type</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p><strong>widget</strong><br>
+<em>optional</em></p>
+</div></div></td>
+<td class="tableblock halign-left valign-middle"><div><div class="paragraph">
+<p>string</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_proxy_server_configuration"><a class="anchor" href="#_proxy_server_configuration"></a>Proxy server configuration</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+the configuration is read from system properties, environment variables, &#8230;&#8203;.
+If you use <code>playx-microprofile-config</code>, you can also use typesafe configuration.
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all table-striped table-hover table-ordered">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.actions.proposable.cached</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true the proposable (suggestion lists only depending on the server state) will be cached, otherwise they will be requested for each form rendering.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.application.home</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A home location for relative path resolution (optional).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">${playx.application.home}</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.client.executor.threads</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For the client executor, the number of threads.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.client.providers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of JAX-RS providers to register on the client, at least a JSON-B one should be here.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.client.timeouts.connect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The connect timeout for the communication with the server.base in ms.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">60000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.client.timeouts.read</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The read timeout for the communication with the server.base in ms.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">600000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.jcache.active</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should the server use jcache to store catalog information and refresh it with some polling. If so the keys <code>talend.component.proxy.jcache.caches.$cacheName.expiry.duration</code>, <code>talend.component.proxy.jcache.caches.$cacheName.management.active</code> and <code>talend.component.proxy.jcache.caches.$cacheName.statistics.active</code> will be read to create a JCache <code>MutableConfiguration</code>. Also note that if all the cachesshare the same configuration you can ignore the <code>$cacheName</code> layer.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.jcache.cache-key.name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A header to use in the cache key (to represent a tenant or equivalent).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.jcache.provider</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Caching provider implementation to use (only set it if ambiguous).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.jcache.refresh.period</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of seconds used to check if the server must be refreshed.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">60</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.processing.headers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The headers to append to the request when contacting the server. Format is a properties one. You can put a hardcoded value or a placeholder (<code>${key}</code>).In this case it will be read from the request attributes and headers.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.processing.uiSpec.patch</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An optional location (absolute or resolved from <code>APP_HOME</code> environment variable). It can take an optional query parameter <code>force</code> which specifies if the startup should fail if the  file is not resolved. The resolution is done per configuration type (<code>datastore</code>, <code>dataset</code>, &#8230;&#8203;) but fallbacks on <code>default</code> type if the file is not found.</p>
+<p class="tableblock">The values can be keys in the resource bundle <code>org.talend.sdk.component.proxy.enrichment.i18n.Messages</code>. Use that for display names, placeholders etc&#8230;&#8203;The content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">component-uispec-metadata.%s.json?force=false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.proxy.server.base</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The base to contact the remote server (NOTE: it is recommanded to put a load balancer if you have multiple instances.)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_component_server_api"><a class="anchor" href="#_component_server_api"></a>Component Server API</h2>
+<div class="sectionbody">
+<script>
+(window.talend = (window.talend || {})).swaggerUi = {"openapi":"3.0.1","paths":{"/api/v1/action/index":{"get":{"deprecated":false,"description":"This endpoint returns the list of available actions for a certain family and potentially filters the output limiting it to some families and types of actions.","operationId":"getIndex","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the types of actions","in":"query","name":"type","required":false,"schema":{"items":{},"properties":{}}},{"allowEmptyValue":false,"allowReserved":false,"description":"the families","in":"query","name":"family","required":false,"schema":{"items":{},"properties":{}}},{"allowEmptyValue":false,"allowReserved":false,"description":"the language to use","in":"query","name":"language","required":false,"schema":{"type":"string"}}],"responses":{"200":{"content":{"application/json":{}},"description":"The action index."}},"tags":["Action"]}},"/api/v1/action/execute":{"post":{"deprecated":false,"description":"This endpoint will execute any UI action and serialize the response as a JSON (pojo model). It takes as input the family, type and name of the related action to identify it and its configuration as a flat key value set using the same kind of mapping than for components (option path as key).","operationId":"execute","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the component family","in":"query","name":"family","required":true,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the type of action","in":"query","name":"type","required":true,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the action name","in":"query","name":"action","required":true,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the requested language (as in a Locale) if supported by the action","in":"query","name":"language","required":false,"schema":{"type":"string"}}],"requestBody":{"content":{"application/json":{"schema":{"type":"object"}}},"description":"the action parameters as a flat map of strings","required":true},"responses":{"200":{"content":{"application/json":{}},"description":"The action payload serialized in JSON."},"520":{"content":{"application/json":{}},"description":"If the action execution failed, payload will be an ErrorPayload with the code ACTION_ERROR."},"400":{"content":{"application/json":{}},"description":"If the action is not set, payload will be an ErrorPayload with the code ACTION_MISSING."},"404":{"content":{"application/json":{}},"description":"If the action can't be found, payload will be an ErrorPayload with the code ACTION_MISSING."}},"tags":["Action"]}},"/api/v1/component/index":{"get":{"deprecated":false,"description":"Returns the list of available components.","operationId":"getIndex","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the language for display names.","in":"query","name":"language","required":false,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"should the icon binary format be included in the payload.","in":"query","name":"includeIconContent","required":false,"schema":{"type":"string"}}],"responses":{"200":{"content":{"application/octet-stream":{}},"description":"The index of available components."}},"tags":["Component"]}},"/api/v1/component/details":{"get":{"deprecated":false,"description":"Returns the set of metadata about a few components identified by their 'id'.","operationId":"getDetail","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the language for display names.","in":"query","name":"language","required":false,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the component identifiers to request.","in":"query","name":"identifiers","required":false,"schema":{"items":{},"properties":{}}}],"responses":{"200":{"content":{"application/json":{}},"description":"the list of details for the requested components."},"400":{"content":{"application/json":{}},"description":"Some identifiers were not valid."}},"tags":["Component"]}},"/api/v1/component/dependencies":{"get":{"deprecated":false,"description":"Returns a list of dependencies for the given components. IMPORTANT: don't forget to add the component itself since it will not be part of the dependencies.Then you can use /dependency/{id} to download the binary.","operationId":"getDependencies","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the list of component identifiers to find the dependencies for.","in":"query","name":"identifier","required":false,"schema":{"items":{},"properties":{}}}],"responses":{"200":{"content":{"application/json":{}},"description":"The list of dependencies per component"}},"tags":["Component"]}},"/api/v1/component/dependency/{id}":{"get":{"deprecated":false,"description":"Return a binary of the dependency represented by `id`. It can be maven coordinates for dependencies or a component id.","operationId":"getDependency","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the dependency binary (jar).","in":"path","name":"id","required":false,"schema":{"type":"string"}}],"responses":{"200":{"content":{"application/octet-stream":{}},"description":"The dependency binary (jar)."}},"tags":["Component"]}},"/api/v1/component/icon/{id}":{"get":{"deprecated":false,"description":"Returns a particular component icon in raw bytes.","operationId":"icon","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the component icon identifier","in":"path","name":"id","required":false,"schema":{"type":"string"}}],"responses":{"200":{"content":{"application/octet-stream":{}},"description":"The component icon in binary form."},"404":{"content":{"application/json":{}},"description":"The family or icon is not found"}},"tags":["Component"]}},"/api/v1/component/icon/family/{id}":{"get":{"deprecated":false,"description":"Returns the icon for a family.","operationId":"familyIcon","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the family identifier","in":"path","name":"id","required":false,"schema":{"type":"string"}}],"responses":{"200":{"content":{"application/octet-stream":{}},"description":"Returns a particular family icon in raw bytes."},"404":{"content":{"application/json":{}},"description":"The family or icon is not found"}},"tags":["Component"]}},"/api/v1/component/migrate/{id}/{configurationVersion}":{"post":{"deprecated":false,"description":"Allows to migrate a component configuration without calling any component execution.","operationId":"migrate","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the component identifier","in":"path","name":"id","required":false,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the configuration version you send","in":"path","name":"configurationVersion","required":false,"schema":{"type":"integer"}}],"requestBody":{"content":{"application/json":{"schema":{"type":"object"}}},"description":"the actual configuration in key/value form.","required":true},"responses":{"200":{"content":{"application/json":{}},"description":"the new configuration for that component (or the same if no migration was needed)."},"404":{"content":{"application/json":{}},"description":"The component is not found"}},"tags":["Component"]}},"/api/v1/configurationtype/index":{"get":{"deprecated":false,"description":"Returns all available configuration type - storable models. Note that the lightPayload flag allows to load all of them at once when you eagerly need  to create a client model for all configurations.","operationId":"getRepositoryModel","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the language for display names.","in":"query","name":"language","required":false,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"should the payload skip the forms and actions associated to the configuration.","in":"query","name":"lightPayload","required":false,"schema":{"type":"boolean"}}],"responses":{"200":{"content":{"application/json":{}},"description":"the list of available and storable configurations (datastore, dataset, ...)."}},"tags":["Configuration Type"]}},"/api/v1/configurationtype/details":{"get":{"deprecated":false,"description":"Returns all available configuration type - storable models. Note that the lightPayload flag allows to load all of them at once when you eagerly need  to create a client model for all configurations.","operationId":"getDetail","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the language for display names.","in":"query","name":"language","required":false,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the comma separated list of identifiers to request.","in":"query","name":"identifiers","required":false,"schema":{"items":{},"properties":{}}}],"responses":{"200":{"content":{"application/json":{}},"description":"the list of available and storable configurations (datastore, dataset, ...)."}},"tags":["Configuration Type"]}},"/api/v1/configurationtype/migrate/{id}/{configurationVersion}":{"post":{"deprecated":false,"description":"Allows to migrate a configuration without calling any component execution.","operationId":"migrate","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the configuration identifier","in":"path","name":"id","required":false,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the configuration version you send","in":"path","name":"configurationVersion","required":false,"schema":{"type":"integer"}}],"requestBody":{"content":{"application/json":{"schema":{"type":"object"}}},"description":"the actual configuration in key/value form.","required":true},"responses":{"200":{"content":{"application/json":{}},"description":"the new values for that configuration (or the same if no migration was needed)."},"404":{"content":{"application/json":{}},"description":"The configuration is not found"}},"tags":["Configuration Type"]}},"/api/v1/documentation/component/{id}":{"get":{"deprecated":false,"description":"Returns an asciidoctor version of the documentation for the component represented by its identifier `id`. Format can be either asciidoc or html - if not it will fallback on asciidoc - and if html is selected you get a partial document. IMPORTANT: it is recommended to use asciidoc format and handle the conversion on your side if you can, the html flavor handles a limited set of the asciidoc syntax only like plain arrays, paragraph and titles. The documentation will likely be the family documentation but you can use anchors to access a particular component (_componentname_inlowercase).","operationId":"getDocumentation","parameters":[{"allowEmptyValue":false,"allowReserved":false,"description":"the component identifier","in":"path","name":"id","required":false,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the language for display names.","in":"query","name":"language","required":false,"schema":{"type":"string"}},{"allowEmptyValue":false,"allowReserved":false,"description":"the expected format (asciidoc or html).","in":"query","name":"format","required":false,"schema":{"type":"string"}}],"responses":{"200":{"content":{"application/json":{}},"description":"the list of available and storable configurations (datastore, dataset, ...)."}},"tags":["Documentation"]}},"/api/v1/environment":{"get":{"deprecated":false,"description":"Returns the environment of this instance. Useful to check the version or configure a healthcheck for the server.","operationId":"get","parameters":[],"responses":{"200":{"content":{"application/json":{}},"description":"Current environment representation."}},"tags":["Environment"]}}},"tags":[{"description":"Endpoints related to callbacks/triggers execution.","name":"Action"},{"description":"Endpoints related to callbacks/triggers execution.","name":"Action"},{"description":"Endpoints related to callbacks/triggers execution.","name":"Action"},{"description":"Endpoints related to component metadata access.","name":"Component"},{"description":"Endpoints related to component metadata access.","name":"Component"},{"description":"Endpoints related to component metadata access.","name":"Component"},{"description":"Endpoints related to component metadata access.","name":"Component"},{"description":"Endpoints related to component metadata access.","name":"Component"},{"description":"Endpoints related to component metadata access.","name":"Component"},{"description":"Endpoints related to component metadata access.","name":"Component"},{"description":"Endpoints related to component metadata access.","name":"Component"},{"description":"Endpoints related to configuration types (reusable configuration) metadata access.","name":"Configuration Type"},{"description":"Endpoints related to configuration types (reusable configuration) metadata access.","name":"Configuration Type"},{"description":"Endpoints related to configuration types (reusable configuration) metadata access.","name":"Configuration Type"},{"description":"Endpoints related to configuration types (reusable configuration) metadata access.","name":"Configuration Type"},{"description":"Endpoint to retrieve embedded component documentation.","name":"Documentation"},{"description":"Endpoint to retrieve embedded component documentation.","name":"Documentation"},{"description":"Endpoint giving access to versions and last update timestamp of the server.","name":"Environment"},{"description":"Endpoint giving access to versions and last update timestamp of the server.","name":"Environment"}],"servers":[{"url":"https://tacokitexample.000webhostapp.com"}]};</script>
+<div id="swagger-ui"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_scanning"><a class="anchor" href="#_scanning"></a>Scanning</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_jars_scanning"><a class="anchor" href="#_jars_scanning"></a>Jars Scanning</h3>
+<div class="paragraph">
+<p>To find components the framework can scan the classpath but in this case,
+to avoid to scan the whole classpath which can be really huge
+an impacts a lot the startup time, several jars are excluded out of the box.</p>
+</div>
+<div class="paragraph">
+<p>These jars use the following prefix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ApacheJMeter</p>
+</li>
+<li>
+<p>FastInfoset</p>
+</li>
+<li>
+<p>HdrHistogram</p>
+</li>
+<li>
+<p>HikariCP</p>
+</li>
+<li>
+<p>PDFBox</p>
+</li>
+<li>
+<p>RoaringBitmap-</p>
+</li>
+<li>
+<p>XmlSchema-</p>
+</li>
+<li>
+<p>accessors-smart</p>
+</li>
+<li>
+<p>activation-</p>
+</li>
+<li>
+<p>activeio-</p>
+</li>
+<li>
+<p>activemq-</p>
+</li>
+<li>
+<p>aeron</p>
+</li>
+<li>
+<p>aether-</p>
+</li>
+<li>
+<p>agrona</p>
+</li>
+<li>
+<p>akka-</p>
+</li>
+<li>
+<p>animal-sniffer-annotation</p>
+</li>
+<li>
+<p>annotation</p>
+</li>
+<li>
+<p>ant-</p>
+</li>
+<li>
+<p>antlr-</p>
+</li>
+<li>
+<p>antlr4-</p>
+</li>
+<li>
+<p>aopalliance-</p>
+</li>
+<li>
+<p>apache-el</p>
+</li>
+<li>
+<p>apache-mime4j</p>
+</li>
+<li>
+<p>apacheds-</p>
+</li>
+<li>
+<p>api-asn1-</p>
+</li>
+<li>
+<p>api-common-</p>
+</li>
+<li>
+<p>api-util-</p>
+</li>
+<li>
+<p>apiguardian-api-</p>
+</li>
+<li>
+<p>app-</p>
+</li>
+<li>
+<p>archaius-core</p>
+</li>
+<li>
+<p>args4j-</p>
+</li>
+<li>
+<p>arquillian-</p>
+</li>
+<li>
+<p>asciidoctorj-</p>
+</li>
+<li>
+<p>asm-</p>
+</li>
+<li>
+<p>aspectj</p>
+</li>
+<li>
+<p>async-http-client-</p>
+</li>
+<li>
+<p>auto-value-</p>
+</li>
+<li>
+<p>autoschema-</p>
+</li>
+<li>
+<p>avalon-framework-</p>
+</li>
+<li>
+<p>avro-</p>
+</li>
+<li>
+<p>avro4s-</p>
+</li>
+<li>
+<p>awaitility-</p>
+</li>
+<li>
+<p>aws-</p>
+</li>
+<li>
+<p>axis-</p>
+</li>
+<li>
+<p>axis2-</p>
+</li>
+<li>
+<p>base64-</p>
+</li>
+<li>
+<p>batchee-jbatch</p>
+</li>
+<li>
+<p>batik-</p>
+</li>
+<li>
+<p>bcmail</p>
+</li>
+<li>
+<p>bcpkix</p>
+</li>
+<li>
+<p>bcprov-</p>
+</li>
+<li>
+<p>beam-model-</p>
+</li>
+<li>
+<p>beam-runners-</p>
+</li>
+<li>
+<p>beam-sdks-</p>
+</li>
+<li>
+<p>bigtable-client-</p>
+</li>
+<li>
+<p>bigtable-protos-</p>
+</li>
+<li>
+<p>boilerpipe-</p>
+</li>
+<li>
+<p>bonecp</p>
+</li>
+<li>
+<p>bootstrap.jar</p>
+</li>
+<li>
+<p>brave-</p>
+</li>
+<li>
+<p>bsf-</p>
+</li>
+<li>
+<p>build-link</p>
+</li>
+<li>
+<p>bval</p>
+</li>
+<li>
+<p>byte-buddy</p>
+</li>
+<li>
+<p>c3p0-</p>
+</li>
+<li>
+<p>cache</p>
+</li>
+<li>
+<p>carrier</p>
+</li>
+<li>
+<p>cassandra-driver-core</p>
+</li>
+<li>
+<p>catalina-</p>
+</li>
+<li>
+<p>catalina.jar</p>
+</li>
+<li>
+<p>cats</p>
+</li>
+<li>
+<p>cdi-</p>
+</li>
+<li>
+<p>cglib-</p>
+</li>
+<li>
+<p>charsets.jar</p>
+</li>
+<li>
+<p>chill</p>
+</li>
+<li>
+<p>classindex</p>
+</li>
+<li>
+<p>classmate</p>
+</li>
+<li>
+<p>classutil</p>
+</li>
+<li>
+<p>classycle</p>
+</li>
+<li>
+<p>cldrdata</p>
+</li>
+<li>
+<p>commands-</p>
+</li>
+<li>
+<p>common-</p>
+</li>
+<li>
+<p>commons-</p>
+</li>
+<li>
+<p>component-api</p>
+</li>
+<li>
+<p>component-form</p>
+</li>
+<li>
+<p>component-runtime</p>
+</li>
+<li>
+<p>component-server</p>
+</li>
+<li>
+<p>component-spi</p>
+</li>
+<li>
+<p>component-studio</p>
+</li>
+<li>
+<p>components-adapter-beam</p>
+</li>
+<li>
+<p>components-api</p>
+</li>
+<li>
+<p>components-common</p>
+</li>
+<li>
+<p>compress-lzf</p>
+</li>
+<li>
+<p>config</p>
+</li>
+<li>
+<p>constructr</p>
+</li>
+<li>
+<p>container-core</p>
+</li>
+<li>
+<p>contenttype</p>
+</li>
+<li>
+<p>coverage-agent</p>
+</li>
+<li>
+<p>cryptacular-</p>
+</li>
+<li>
+<p>cssparser-</p>
+</li>
+<li>
+<p>curator-</p>
+</li>
+<li>
+<p>curvesapi-</p>
+</li>
+<li>
+<p>cxf-</p>
+</li>
+<li>
+<p>daikon</p>
+</li>
+<li>
+<p>databinding</p>
+</li>
+<li>
+<p>dataquality</p>
+</li>
+<li>
+<p>dataset-</p>
+</li>
+<li>
+<p>datastore-</p>
+</li>
+<li>
+<p>debugger-agent</p>
+</li>
+<li>
+<p>deltaspike-</p>
+</li>
+<li>
+<p>deploy.jar</p>
+</li>
+<li>
+<p>derby-</p>
+</li>
+<li>
+<p>derbyclient-</p>
+</li>
+<li>
+<p>derbynet-</p>
+</li>
+<li>
+<p>dnsns</p>
+</li>
+<li>
+<p>dom4j</p>
+</li>
+<li>
+<p>draw2d</p>
+</li>
+<li>
+<p>easymock-</p>
+</li>
+<li>
+<p>ecj-</p>
+</li>
+<li>
+<p>eclipselink-</p>
+</li>
+<li>
+<p>ehcache-</p>
+</li>
+<li>
+<p>el-api</p>
+</li>
+<li>
+<p>enumeratum</p>
+</li>
+<li>
+<p>enunciate-core-annotations</p>
+</li>
+<li>
+<p>error_prone_annotations</p>
+</li>
+<li>
+<p>expressions</p>
+</li>
+<li>
+<p>fastutil</p>
+</li>
+<li>
+<p>feign-core</p>
+</li>
+<li>
+<p>feign-hystrix</p>
+</li>
+<li>
+<p>feign-slf4j</p>
+</li>
+<li>
+<p>filters-helpers</p>
+</li>
+<li>
+<p>findbugs-</p>
+</li>
+<li>
+<p>fluent-hc</p>
+</li>
+<li>
+<p>fluentlenium-core</p>
+</li>
+<li>
+<p>fontbox</p>
+</li>
+<li>
+<p>freemarker-</p>
+</li>
+<li>
+<p>fusemq-leveldb-</p>
+</li>
+<li>
+<p>gax-</p>
+</li>
+<li>
+<p>gcsio-</p>
+</li>
+<li>
+<p>gef-</p>
+</li>
+<li>
+<p>geocoder</p>
+</li>
+<li>
+<p>geronimo-</p>
+</li>
+<li>
+<p>gmbal</p>
+</li>
+<li>
+<p>google-</p>
+</li>
+<li>
+<p>gpars-</p>
+</li>
+<li>
+<p>gragent.jar</p>
+</li>
+<li>
+<p>graph</p>
+</li>
+<li>
+<p>grizzled-scala</p>
+</li>
+<li>
+<p>grizzly-</p>
+</li>
+<li>
+<p>groovy-</p>
+</li>
+<li>
+<p>grpc-</p>
+</li>
+<li>
+<p>gson-</p>
+</li>
+<li>
+<p>guava-</p>
+</li>
+<li>
+<p>guice-</p>
+</li>
+<li>
+<p>h2-</p>
+</li>
+<li>
+<p>hadoop-</p>
+</li>
+<li>
+<p>hamcrest-</p>
+</li>
+<li>
+<p>hawtbuf-</p>
+</li>
+<li>
+<p>hawtdispatch-</p>
+</li>
+<li>
+<p>hawtio-</p>
+</li>
+<li>
+<p>hawtjni-runtime</p>
+</li>
+<li>
+<p>help-</p>
+</li>
+<li>
+<p>hibernate-</p>
+</li>
+<li>
+<p>hk2-</p>
+</li>
+<li>
+<p>howl-</p>
+</li>
+<li>
+<p>hsqldb-</p>
+</li>
+<li>
+<p>htmlunit-</p>
+</li>
+<li>
+<p>htrace-</p>
+</li>
+<li>
+<p>httpclient-</p>
+</li>
+<li>
+<p>httpcore-</p>
+</li>
+<li>
+<p>httpmime</p>
+</li>
+<li>
+<p>hystrix</p>
+</li>
+<li>
+<p>iban4j-</p>
+</li>
+<li>
+<p>icu4j-</p>
+</li>
+<li>
+<p>idb-</p>
+</li>
+<li>
+<p>idea_rt.jar</p>
+</li>
+<li>
+<p>instrumentation-api</p>
+</li>
+<li>
+<p>ion-java</p>
+</li>
+<li>
+<p>isoparser-</p>
+</li>
+<li>
+<p>istack-commons-runtime-</p>
+</li>
+<li>
+<p>ivy-</p>
+</li>
+<li>
+<p>j2objc-annotations</p>
+</li>
+<li>
+<p>jBCrypt</p>
+</li>
+<li>
+<p>jaccess</p>
+</li>
+<li>
+<p>jackcess-</p>
+</li>
+<li>
+<p>jackson-</p>
+</li>
+<li>
+<p>janino-</p>
+</li>
+<li>
+<p>jansi-</p>
+</li>
+<li>
+<p>jasper-el.jar</p>
+</li>
+<li>
+<p>jasper.jar</p>
+</li>
+<li>
+<p>jasypt-</p>
+</li>
+<li>
+<p>java-atk-wrapper</p>
+</li>
+<li>
+<p>java-libpst-</p>
+</li>
+<li>
+<p>java-support-</p>
+</li>
+<li>
+<p>java-xmlbuilder-</p>
+</li>
+<li>
+<p>javacsv</p>
+</li>
+<li>
+<p>javaee-</p>
+</li>
+<li>
+<p>javaee-api</p>
+</li>
+<li>
+<p>javassist-</p>
+</li>
+<li>
+<p>javaws.jar</p>
+</li>
+<li>
+<p>javax.</p>
+</li>
+<li>
+<p>jaxb-</p>
+</li>
+<li>
+<p>jaxp-</p>
+</li>
+<li>
+<p>jbake-</p>
+</li>
+<li>
+<p>jboss-</p>
+</li>
+<li>
+<p>jbossall-</p>
+</li>
+<li>
+<p>jbosscx-</p>
+</li>
+<li>
+<p>jbossjts-</p>
+</li>
+<li>
+<p>jbosssx-</p>
+</li>
+<li>
+<p>jcache</p>
+</li>
+<li>
+<p>jce.jar</p>
+</li>
+<li>
+<p>jcip-annotations</p>
+</li>
+<li>
+<p>jcl-over-slf4j-</p>
+</li>
+<li>
+<p>jcommander-</p>
+</li>
+<li>
+<p>jdbcdslog-1</p>
+</li>
+<li>
+<p>jempbox</p>
+</li>
+<li>
+<p>jersey-</p>
+</li>
+<li>
+<p>jets3t</p>
+</li>
+<li>
+<p>jettison-</p>
+</li>
+<li>
+<p>jetty-</p>
+</li>
+<li>
+<p>jface</p>
+</li>
+<li>
+<p>jfairy</p>
+</li>
+<li>
+<p>jffi</p>
+</li>
+<li>
+<p>jfr.jar</p>
+</li>
+<li>
+<p>jfxrt.jar</p>
+</li>
+<li>
+<p>jfxswt</p>
+</li>
+<li>
+<p>jhighlight</p>
+</li>
+<li>
+<p>jjwt</p>
+</li>
+<li>
+<p>jline</p>
+</li>
+<li>
+<p>jmatio-</p>
+</li>
+<li>
+<p>jmdns-</p>
+</li>
+<li>
+<p>jmespath-</p>
+</li>
+<li>
+<p>jms</p>
+</li>
+<li>
+<p>jmustache</p>
+</li>
+<li>
+<p>jna-</p>
+</li>
+<li>
+<p>jnr-</p>
+</li>
+<li>
+<p>jobs-</p>
+</li>
+<li>
+<p>joda-convert</p>
+</li>
+<li>
+<p>joda-time-</p>
+</li>
+<li>
+<p>johnzon-</p>
+</li>
+<li>
+<p>jolokia-</p>
+</li>
+<li>
+<p>jopt-simple</p>
+</li>
+<li>
+<p>jruby-</p>
+</li>
+<li>
+<p>json-</p>
+</li>
+<li>
+<p>json4s-</p>
+</li>
+<li>
+<p>jsonb-api</p>
+</li>
+<li>
+<p>jsoup-</p>
+</li>
+<li>
+<p>jsp-api</p>
+</li>
+<li>
+<p>jsr</p>
+</li>
+<li>
+<p>jsse.jar</p>
+</li>
+<li>
+<p>jta</p>
+</li>
+<li>
+<p>jul-to-slf4j-</p>
+</li>
+<li>
+<p>juli-</p>
+</li>
+<li>
+<p>junit-</p>
+</li>
+<li>
+<p>junit5-</p>
+</li>
+<li>
+<p>juniversalchardet</p>
+</li>
+<li>
+<p>junrar-</p>
+</li>
+<li>
+<p>jwt</p>
+</li>
+<li>
+<p>jython</p>
+</li>
+<li>
+<p>kafka</p>
+</li>
+<li>
+<p>kahadb-</p>
+</li>
+<li>
+<p>kotlin-runtime</p>
+</li>
+<li>
+<p>kryo</p>
+</li>
+<li>
+<p>leveldb</p>
+</li>
+<li>
+<p>libphonenumber</p>
+</li>
+<li>
+<p>lift-json</p>
+</li>
+<li>
+<p>lmdbjava</p>
+</li>
+<li>
+<p>localedata</p>
+</li>
+<li>
+<p>log4j-</p>
+</li>
+<li>
+<p>logback</p>
+</li>
+<li>
+<p>logging-event-layout</p>
+</li>
+<li>
+<p>logkit-</p>
+</li>
+<li>
+<p>lombok</p>
+</li>
+<li>
+<p>lucene</p>
+</li>
+<li>
+<p>lz4</p>
+</li>
+<li>
+<p>machinist</p>
+</li>
+<li>
+<p>macro-compat</p>
+</li>
+<li>
+<p>mail-</p>
+</li>
+<li>
+<p>management-</p>
+</li>
+<li>
+<p>mapstruct-</p>
+</li>
+<li>
+<p>maven-</p>
+</li>
+<li>
+<p>mbean-annotation-api-</p>
+</li>
+<li>
+<p>meecrowave-</p>
+</li>
+<li>
+<p>mesos-</p>
+</li>
+<li>
+<p>metadata-extractor-</p>
+</li>
+<li>
+<p>metrics-</p>
+</li>
+<li>
+<p>microprofile-config-api-</p>
+</li>
+<li>
+<p>mimepull-</p>
+</li>
+<li>
+<p>mina-</p>
+</li>
+<li>
+<p>minlog</p>
+</li>
+<li>
+<p>mockito-core</p>
+</li>
+<li>
+<p>mqtt-client-</p>
+</li>
+<li>
+<p>multitenant-core</p>
+</li>
+<li>
+<p>multiverse-core-</p>
+</li>
+<li>
+<p>mx4j-</p>
+</li>
+<li>
+<p>myfaces-</p>
+</li>
+<li>
+<p>mysql-connector-java-</p>
+</li>
+<li>
+<p>nashorn</p>
+</li>
+<li>
+<p>neethi-</p>
+</li>
+<li>
+<p>neko-htmlunit</p>
+</li>
+<li>
+<p>nekohtml-</p>
+</li>
+<li>
+<p>netflix</p>
+</li>
+<li>
+<p>netty-</p>
+</li>
+<li>
+<p>nimbus-jose-jwt</p>
+</li>
+<li>
+<p>objenesis-</p>
+</li>
+<li>
+<p>okhttp</p>
+</li>
+<li>
+<p>okio</p>
+</li>
+<li>
+<p>opencensus-</p>
+</li>
+<li>
+<p>openjpa-</p>
+</li>
+<li>
+<p>openmdx-</p>
+</li>
+<li>
+<p>opennlp-</p>
+</li>
+<li>
+<p>opensaml-</p>
+</li>
+<li>
+<p>opentest4j-</p>
+</li>
+<li>
+<p>openwebbeans-</p>
+</li>
+<li>
+<p>openws-</p>
+</li>
+<li>
+<p>ops4j-</p>
+</li>
+<li>
+<p>org.apache.aries</p>
+</li>
+<li>
+<p>org.apache.commons</p>
+</li>
+<li>
+<p>org.apache.log4j</p>
+</li>
+<li>
+<p>org.eclipse.</p>
+</li>
+<li>
+<p>org.junit.</p>
+</li>
+<li>
+<p>org.osgi.core-</p>
+</li>
+<li>
+<p>org.osgi.enterprise</p>
+</li>
+<li>
+<p>org.talend</p>
+</li>
+<li>
+<p>orient-commons-</p>
+</li>
+<li>
+<p>orientdb-core-</p>
+</li>
+<li>
+<p>orientdb-nativeos-</p>
+</li>
+<li>
+<p>oro-</p>
+</li>
+<li>
+<p>osgi</p>
+</li>
+<li>
+<p>paranamer</p>
+</li>
+<li>
+<p>parquet</p>
+</li>
+<li>
+<p>pax-url</p>
+</li>
+<li>
+<p>pdfbox</p>
+</li>
+<li>
+<p>play</p>
+</li>
+<li>
+<p>plexus-</p>
+</li>
+<li>
+<p>plugin.jar</p>
+</li>
+<li>
+<p>poi-</p>
+</li>
+<li>
+<p>postgresql</p>
+</li>
+<li>
+<p>preferences-</p>
+</li>
+<li>
+<p>prefixmapper</p>
+</li>
+<li>
+<p>proto-</p>
+</li>
+<li>
+<p>protobuf-</p>
+</li>
+<li>
+<p>py4j-</p>
+</li>
+<li>
+<p>pyrolite-</p>
+</li>
+<li>
+<p>qdox-</p>
+</li>
+<li>
+<p>quartz-2</p>
+</li>
+<li>
+<p>quartz-openejb-</p>
+</li>
+<li>
+<p>reactive-streams</p>
+</li>
+<li>
+<p>reflectasm-</p>
+</li>
+<li>
+<p>reflections</p>
+</li>
+<li>
+<p>regexp-</p>
+</li>
+<li>
+<p>registry-</p>
+</li>
+<li>
+<p>resources.jar</p>
+</li>
+<li>
+<p>rhino</p>
+</li>
+<li>
+<p>ribbon</p>
+</li>
+<li>
+<p>rmock-</p>
+</li>
+<li>
+<p>rome</p>
+</li>
+<li>
+<p>routes-compiler</p>
+</li>
+<li>
+<p>routines</p>
+</li>
+<li>
+<p>rt.jar</p>
+</li>
+<li>
+<p>runners</p>
+</li>
+<li>
+<p>runtime-</p>
+</li>
+<li>
+<p>rxjava</p>
+</li>
+<li>
+<p>rxnetty</p>
+</li>
+<li>
+<p>saaj-</p>
+</li>
+<li>
+<p>sac-</p>
+</li>
+<li>
+<p>scala</p>
+</li>
+<li>
+<p>scalap</p>
+</li>
+<li>
+<p>scalatest</p>
+</li>
+<li>
+<p>scannotation-</p>
+</li>
+<li>
+<p>selenium</p>
+</li>
+<li>
+<p>serializer-</p>
+</li>
+<li>
+<p>serp-</p>
+</li>
+<li>
+<p>service-common</p>
+</li>
+<li>
+<p>servlet-api-</p>
+</li>
+<li>
+<p>servo-</p>
+</li>
+<li>
+<p>shaded</p>
+</li>
+<li>
+<p>shapeless</p>
+</li>
+<li>
+<p>shrinkwrap-</p>
+</li>
+<li>
+<p>sisu-guice</p>
+</li>
+<li>
+<p>sisu-inject</p>
+</li>
+<li>
+<p>slf4j-</p>
+</li>
+<li>
+<p>slick</p>
+</li>
+<li>
+<p>smack-</p>
+</li>
+<li>
+<p>smackx-</p>
+</li>
+<li>
+<p>snakeyaml-</p>
+</li>
+<li>
+<p>snappy-</p>
+</li>
+<li>
+<p>spark-</p>
+</li>
+<li>
+<p>specs2</p>
+</li>
+<li>
+<p>spring-</p>
+</li>
+<li>
+<p>sshd-</p>
+</li>
+<li>
+<p>ssl-config-core</p>
+</li>
+<li>
+<p>stax-api-</p>
+</li>
+<li>
+<p>stax2-api-</p>
+</li>
+<li>
+<p>stream</p>
+</li>
+<li>
+<p>sunec.jar</p>
+</li>
+<li>
+<p>sunjce_provider</p>
+</li>
+<li>
+<p>sunpkcs11</p>
+</li>
+<li>
+<p>surefire-</p>
+</li>
+<li>
+<p>swagger-</p>
+</li>
+<li>
+<p>swizzle-</p>
+</li>
+<li>
+<p>sxc-</p>
+</li>
+<li>
+<p>system-rules</p>
+</li>
+<li>
+<p>tachyon-</p>
+</li>
+<li>
+<p>tagsoup-</p>
+</li>
+<li>
+<p>talend-icon</p>
+</li>
+<li>
+<p>test-agent</p>
+</li>
+<li>
+<p>test-interface</p>
+</li>
+<li>
+<p>testng-</p>
+</li>
+<li>
+<p>threetenbp</p>
+</li>
+<li>
+<p>tika-</p>
+</li>
+<li>
+<p>tomcat</p>
+</li>
+<li>
+<p>tomee-</p>
+</li>
+<li>
+<p>tools.jar</p>
+</li>
+<li>
+<p>twirl</p>
+</li>
+<li>
+<p>twitter4j-</p>
+</li>
+<li>
+<p>tyrex</p>
+</li>
+<li>
+<p>uncommons</p>
+</li>
+<li>
+<p>unused</p>
+</li>
+<li>
+<p>util</p>
+</li>
+<li>
+<p>validation-api-</p>
+</li>
+<li>
+<p>velocity-</p>
+</li>
+<li>
+<p>wagon-</p>
+</li>
+<li>
+<p>wandou</p>
+</li>
+<li>
+<p>webbeans-</p>
+</li>
+<li>
+<p>websocket</p>
+</li>
+<li>
+<p>woodstox-core</p>
+</li>
+<li>
+<p>workbench</p>
+</li>
+<li>
+<p>ws-commons-util-</p>
+</li>
+<li>
+<p>wsdl4j-</p>
+</li>
+<li>
+<p>wss4j-</p>
+</li>
+<li>
+<p>wstx-asl-</p>
+</li>
+<li>
+<p>xalan-</p>
+</li>
+<li>
+<p>xbean-</p>
+</li>
+<li>
+<p>xercesImpl-</p>
+</li>
+<li>
+<p>xlsx-streamer-</p>
+</li>
+<li>
+<p>xml-apis-</p>
+</li>
+<li>
+<p>xml-resolver-</p>
+</li>
+<li>
+<p>xmlbeans-</p>
+</li>
+<li>
+<p>xmlenc-</p>
+</li>
+<li>
+<p>xmlgraphics-</p>
+</li>
+<li>
+<p>xmlpcore</p>
+</li>
+<li>
+<p>xmlpull-</p>
+</li>
+<li>
+<p>xmlrpc-</p>
+</li>
+<li>
+<p>xmlschema-</p>
+</li>
+<li>
+<p>xmlsec-</p>
+</li>
+<li>
+<p>xmltooling-</p>
+</li>
+<li>
+<p>xmlunit-</p>
+</li>
+<li>
+<p>xstream-</p>
+</li>
+<li>
+<p>xz-</p>
+</li>
+<li>
+<p>zipfs.jar</p>
+</li>
+<li>
+<p>zipkin-</p>
+</li>
+<li>
+<p>ziplock-</p>
+</li>
+<li>
+<p>zkclient</p>
+</li>
+<li>
+<p>zookeeper-</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_package_scanning"><a class="anchor" href="#_package_scanning"></a>Package Scanning</h3>
+<div class="paragraph">
+<p>Since the framework can be used in the case of <em>fatjars</em> or <em>shades</em>,
+and because it still uses scanning,
+it is important to ensure we don&#8217;t scan the whole classes for performances reason.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, the following packages are ignored:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>avro.shaded</p>
+</li>
+<li>
+<p>com.codehale.metrics</p>
+</li>
+<li>
+<p>com.ctc.wstx</p>
+</li>
+<li>
+<p>com.datastax.driver.core</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.annotation</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.core</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.databind</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.dataformat</p>
+</li>
+<li>
+<p>com.fasterxml.jackson.module</p>
+</li>
+<li>
+<p>com.google.common</p>
+</li>
+<li>
+<p>com.google.thirdparty</p>
+</li>
+<li>
+<p>com.ibm.wsdl</p>
+</li>
+<li>
+<p>com.jcraft.jsch</p>
+</li>
+<li>
+<p>com.kenai.jffi</p>
+</li>
+<li>
+<p>com.kenai.jnr</p>
+</li>
+<li>
+<p>com.sun.istack</p>
+</li>
+<li>
+<p>com.sun.xml.bind</p>
+</li>
+<li>
+<p>com.sun.xml.messaging.saaj</p>
+</li>
+<li>
+<p>com.sun.xml.txw2</p>
+</li>
+<li>
+<p>com.thoughtworks</p>
+</li>
+<li>
+<p>io.jsonwebtoken</p>
+</li>
+<li>
+<p>io.netty</p>
+</li>
+<li>
+<p>io.swagger.annotations</p>
+</li>
+<li>
+<p>io.swagger.config</p>
+</li>
+<li>
+<p>io.swagger.converter</p>
+</li>
+<li>
+<p>io.swagger.core</p>
+</li>
+<li>
+<p>io.swagger.jackson</p>
+</li>
+<li>
+<p>io.swagger.jaxrs</p>
+</li>
+<li>
+<p>io.swagger.model</p>
+</li>
+<li>
+<p>io.swagger.models</p>
+</li>
+<li>
+<p>io.swagger.util</p>
+</li>
+<li>
+<p>javax</p>
+</li>
+<li>
+<p>jnr</p>
+</li>
+<li>
+<p>junit</p>
+</li>
+<li>
+<p>net.sf.ehcache</p>
+</li>
+<li>
+<p>net.shibboleth.utilities.java.support</p>
+</li>
+<li>
+<p>org.aeonbits.owner</p>
+</li>
+<li>
+<p>org.apache.activemq</p>
+</li>
+<li>
+<p>org.apache.beam</p>
+</li>
+<li>
+<p>org.apache.bval</p>
+</li>
+<li>
+<p>org.apache.camel</p>
+</li>
+<li>
+<p>org.apache.catalina</p>
+</li>
+<li>
+<p>org.apache.commons.beanutils</p>
+</li>
+<li>
+<p>org.apache.commons.cli</p>
+</li>
+<li>
+<p>org.apache.commons.codec</p>
+</li>
+<li>
+<p>org.apache.commons.collections</p>
+</li>
+<li>
+<p>org.apache.commons.compress</p>
+</li>
+<li>
+<p>org.apache.commons.dbcp2</p>
+</li>
+<li>
+<p>org.apache.commons.digester</p>
+</li>
+<li>
+<p>org.apache.commons.io</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.access</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.admin</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.auxiliary</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.engine</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.io</p>
+</li>
+<li>
+<p>org.apache.commons.jcs.utils</p>
+</li>
+<li>
+<p>org.apache.commons.lang</p>
+</li>
+<li>
+<p>org.apache.commons.lang3</p>
+</li>
+<li>
+<p>org.apache.commons.logging</p>
+</li>
+<li>
+<p>org.apache.commons.pool2</p>
+</li>
+<li>
+<p>org.apache.coyote</p>
+</li>
+<li>
+<p>org.apache.cxf</p>
+</li>
+<li>
+<p>org.apache.geronimo.javamail</p>
+</li>
+<li>
+<p>org.apache.geronimo.mail</p>
+</li>
+<li>
+<p>org.apache.geronimo.osgi</p>
+</li>
+<li>
+<p>org.apache.geronimo.specs</p>
+</li>
+<li>
+<p>org.apache.http</p>
+</li>
+<li>
+<p>org.apache.jcp</p>
+</li>
+<li>
+<p>org.apache.johnzon</p>
+</li>
+<li>
+<p>org.apache.juli</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.core</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.jul</p>
+</li>
+<li>
+<p>org.apache.logging.log4j.util</p>
+</li>
+<li>
+<p>org.apache.logging.slf4j</p>
+</li>
+<li>
+<p>org.apache.meecrowave</p>
+</li>
+<li>
+<p>org.apache.myfaces</p>
+</li>
+<li>
+<p>org.apache.naming</p>
+</li>
+<li>
+<p>org.apache.neethi</p>
+</li>
+<li>
+<p>org.apache.openejb</p>
+</li>
+<li>
+<p>org.apache.openjpa</p>
+</li>
+<li>
+<p>org.apache.oro</p>
+</li>
+<li>
+<p>org.apache.tomcat</p>
+</li>
+<li>
+<p>org.apache.tomee</p>
+</li>
+<li>
+<p>org.apache.velocity</p>
+</li>
+<li>
+<p>org.apache.webbeans</p>
+</li>
+<li>
+<p>org.apache.ws</p>
+</li>
+<li>
+<p>org.apache.wss4j</p>
+</li>
+<li>
+<p>org.apache.xbean</p>
+</li>
+<li>
+<p>org.apache.xml</p>
+</li>
+<li>
+<p>org.apache.xml.resolver</p>
+</li>
+<li>
+<p>org.bouncycastle</p>
+</li>
+<li>
+<p>org.codehaus.jackson</p>
+</li>
+<li>
+<p>org.codehaus.stax2</p>
+</li>
+<li>
+<p>org.codehaus.swizzle.Grep</p>
+</li>
+<li>
+<p>org.codehaus.swizzle.Lexer</p>
+</li>
+<li>
+<p>org.cryptacular</p>
+</li>
+<li>
+<p>org.eclipse.jdt.core</p>
+</li>
+<li>
+<p>org.eclipse.jdt.internal</p>
+</li>
+<li>
+<p>org.fusesource.hawtbuf</p>
+</li>
+<li>
+<p>org.h2</p>
+</li>
+<li>
+<p>org.hamcrest</p>
+</li>
+<li>
+<p>org.hsqldb</p>
+</li>
+<li>
+<p>org.jasypt</p>
+</li>
+<li>
+<p>org.jboss.marshalling</p>
+</li>
+<li>
+<p>org.joda.time</p>
+</li>
+<li>
+<p>org.jose4j</p>
+</li>
+<li>
+<p>org.junit</p>
+</li>
+<li>
+<p>org.jvnet.mimepull</p>
+</li>
+<li>
+<p>org.metatype.sxc</p>
+</li>
+<li>
+<p>org.objectweb.asm</p>
+</li>
+<li>
+<p>org.objectweb.howl</p>
+</li>
+<li>
+<p>org.openejb</p>
+</li>
+<li>
+<p>org.opensaml</p>
+</li>
+<li>
+<p>org.slf4j</p>
+</li>
+<li>
+<p>org.swizzle</p>
+</li>
+<li>
+<p>org.terracotta.context</p>
+</li>
+<li>
+<p>org.terracotta.entity</p>
+</li>
+<li>
+<p>org.terracotta.modules.ehcache</p>
+</li>
+<li>
+<p>org.terracotta.statistics</p>
+</li>
+<li>
+<p>org.tukaani</p>
+</li>
+<li>
+<p>org.yaml.snakeyaml</p>
+</li>
+<li>
+<p>serp</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+it is not recommanded but possible to add in your plugin module a
+<code>TALEND-INF/scanning.properties</code> file with <code>classloader.includes</code> and
+<code>classloader.excludes</code> entries to refine the scanning with custom rules.
+In such a case, exclusions win over inclusions.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_server_configuration"><a class="anchor" href="#_server_configuration"></a>Server configuration</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+the configuration is read from system properties, environment variables, &#8230;&#8203;.
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all table-striped table-hover table-ordered">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.component.coordinates</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A comma separated list of gav to locate the components</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.component.extend.dependencies</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should the component extensions add required dependencies.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.component.registry</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A property file where the value is a gav of a component to register (complementary with <code>coordinates</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.documentation.active</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should the /documentation endpoint be activated.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.execution.dataset.retriever.timeout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How long the read execution endpoint can last (max)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">180</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.execution.pool.size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The size of the execution pool for runtime endpoints.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.execution.pool.wait</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How long the application waits during shutdown for the execution tasks to complete</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PT10S</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.jaxrs.exceptionhandler.defaultMessage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If set it will replace any message for exceptions. Set to <code>false</code> to use the actual exception message.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.maven.repository</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The local maven repository used to locate components and their dependencies</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.reporter.async</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When using url or kafka reporter, you can configure the async reporter with properties passed to this configuration entry.Ex: <code>messageTimeout=5000,closeTimeout=5000</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">console</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.reporter.type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The brave reporter to use to send the spans. Supported values are [log, noop]. When configuration is needed,you can use this syntax to configure the repoter if needed: <code>&lt;name&gt;(config1=value1, config2=value2)</code>, for example: <code>url(endpoint=http://brave.company.com</code>.</p>
+<p class="tableblock">In <code>log</code> mode, if environment variable <code>TRACING_ON</code> doesn&#8217;t exist or is set to <code>false</code>, <code>noop</code> will be selected, and is set to <code>true</code>, <code>TRACING_KAFKA_URL</code>, <code>TRACING_KAFKA_TOPIC</code> and <code>TRACING_SAMPLING_RATE</code> will configure <code>kafka</code> reporter..</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">noop</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.sampling.action.rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The accuracy rate of the sampling for action endpoints.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.sampling.component.rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The accuracy rate of the sampling for component endpoints.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.sampling.configurationtype.rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The accuracy rate of the sampling for environment endpoints.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.sampling.documentation.rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The accuracy rate of the sampling for documentation endpoint.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.sampling.environment.rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The accuracy rate of the sampling for environment endpoints.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.sampling.execution.rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The accuracy rate of the sampling for execution endpoints.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.sampling.rate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The accuracy rate of the sampling.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-1.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.monitoring.brave.service.name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name used by the brave integration (zipkin)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">component-server</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.security.command.handler</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How to validate a command/request. Accepted values: securityNoopHandler.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">securityNoopHandler</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">talend.component.server.security.connection.handler</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How to validate a connection. Accepted values: securityNoopHandler.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">securityNoopHandler</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_user_interface_api"><a class="anchor" href="#_user_interface_api"></a>User Interface API</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_defaultvalue"><a class="anchor" href="#_defaultvalue"></a>@DefaultValue</h3>
+<div class="paragraph">
+<p>Provide a default value the UI can use - only for primitive fields.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.DefaultValue</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::defaultvalue::value":"test"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_optionsorder"><a class="anchor" href="#_optionsorder"></a>@OptionsOrder</h3>
+<div class="paragraph">
+<p>Allows to sort a class properties.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.OptionsOrder</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::optionsorder::value":"value1,value2"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_autolayout"><a class="anchor" href="#_autolayout"></a>@AutoLayout</h3>
+<div class="paragraph">
+<p>Request the rendered to do what it thinks is best.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.layout.AutoLayout</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::autolayout":"true"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gridlayout"><a class="anchor" href="#_gridlayout"></a>@GridLayout</h3>
+<div class="paragraph">
+<p>Advanced layout to place properties by row, this is exclusive with <code>@OptionsOrder</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.layout.GridLayout</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::gridlayout::value1::value":"first|second,third",
+  "ui::gridlayout::value2::value":"first|second,third"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gridlayouts"><a class="anchor" href="#_gridlayouts"></a>@GridLayouts</h3>
+<div class="paragraph">
+<p>Allow to configure multiple grid layouts on the same class, qualified with a classifier (name)</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.layout.GridLayouts</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::gridlayout::Advanced::value":"another",
+  "ui::gridlayout::Main::value":"first|second,third"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_horizontallayout"><a class="anchor" href="#_horizontallayout"></a>@HorizontalLayout</h3>
+<div class="paragraph">
+<p>Put on a configuration class it notifies the UI an horizontal layout is preferred.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.layout.HorizontalLayout</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::horizontallayout":"true"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_verticallayout"><a class="anchor" href="#_verticallayout"></a>@VerticalLayout</h3>
+<div class="paragraph">
+<p>Put on a configuration class it notifies the UI a vertical layout is preferred.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.layout.VerticalLayout</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::verticallayout":"true"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_code_2"><a class="anchor" href="#_code_2"></a>@Code</h3>
+<div class="paragraph">
+<p>Mark a field as being represented by some code widget (vs textarea for instance).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.Code</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::code::value":"test"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_credential"><a class="anchor" href="#_credential"></a>@Credential</h3>
+<div class="paragraph">
+<p>Mark a field as being a credential. It is typically used to hide the value in the UI.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.Credential</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::credential":"true"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_structure"><a class="anchor" href="#_structure"></a>@Structure</h3>
+<div class="paragraph">
+<p>Mark a List&lt;String&gt; or Map&lt;String, String&gt; field as being represented as the component data selector (field names generally or field names as key and type as value).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.Structure</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::structure::discoverSchema":"test",
+  "ui::structure::type":"IN",
+  "ui::structure::value":"test"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_textarea_2"><a class="anchor" href="#_textarea_2"></a>@TextArea</h3>
+<div class="paragraph">
+<p>Mark a field as being represented by a textarea(multiline text input).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.TextArea</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
+  "ui::textarea":"true"
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+            </div>
+          </div>
+          <div class="col-sm-3 container article-side-panel">
+            <nav class="article-anchors">
+              <div class="article-side-actions">
+
+                <ul>
+                    <li>
+                      <a class="article-side-actions-link" target="_blank" href="https://github.com/Talend/component-runtime/edit/master/documentation/src/main/antora/modules/ROOT/pages/index-reference-guide.adoc">
+                        <i class="fa fa-edit"></i> &nbsp; &nbsp; Suggest an edit
+                      </a>
+                    </li>
+
+                    <li>
+                                <a class="article-side-actions-link" target="_blank"
+                                   href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Findex-reference-guide.html&text=Talend%20Component%20Kit%20%3E%3E%20Talend%20Component%20Kit%20Reference%20guide%20%3E%3E%20&tw_p=tweetbutton&url=https%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Findex-reference-guide.html">
+                                    <i class="fab fa-twitter"></i> &nbsp; &nbsp; Tweet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="article-side-actions-link"
+                                   href="mailto:?subject=Talend%20Component%20Kit%3A%20Talend%20Component%20Kit%20Reference%20guide&body=Talend%20Component%20Kit%3A%20Talend%20Component%20Kit%20Reference%20guide%0A%0Ahttps%3A%2F%2Ftalend.github.io%2Fcomponent-runtime%2Fmain%2F1.0.5%2Findex-reference-guide.html">
+                                    <i class="far fa-envelope"></i> &nbsp; &nbsp; Mail
+                                </a>
+                            </li>
+
+                </ul>
+              </div>
+              <h1 class="article-side-toc">In this article</h1>
+            </nav>
+          </div>
+          <a href="#top" class="top">Scroll to top</a>
+        </div>
+        <script>(window.talend = (window.talend || {})).article = true;</script>
+    </article>
+              </div>
+            </main>
+      </main>
+      <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2018 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="https://cdn.rawgit.com/rmannibucau/00206484a54ac569e091513e6d2a1c01/raw/46cd5d77ba1abe678f83d11490e12a327b62d7ee/anchorific.js"></script>
+<script src="../../_/js/talend.js"></script>
+  </body>
+</html>

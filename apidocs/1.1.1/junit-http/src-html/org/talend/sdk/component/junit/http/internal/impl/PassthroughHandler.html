@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/**<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (C) 2006-2018 Talend Inc. - www.talend.com<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * you may not use this file except in compliance with the License.<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * You may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * See the License for the specific language governing permissions and<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * limitations under the License.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>package org.talend.sdk.component.junit.http.internal.impl;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static io.netty.handler.codec.http.HttpUtil.setContentLength;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static io.netty.handler.codec.http.HttpUtil.setKeepAlive;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static java.util.Optional.ofNullable;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import static java.util.stream.Collectors.toMap;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import static org.talend.sdk.component.junit.http.internal.impl.Handlers.BASE;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOnFlush;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import static org.talend.sdk.component.junit.http.internal.impl.Handlers.sendError;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>import java.io.ByteArrayOutputStream;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import java.io.IOException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import java.io.InputStream;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import java.net.HttpURLConnection;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import java.net.Proxy;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import java.net.URL;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import java.util.HashMap;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import java.util.List;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.util.Map;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.util.Objects;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import java.util.TreeMap;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.util.function.Predicate;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.util.stream.Collectors;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.util.stream.Stream;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>import javax.net.ssl.HttpsURLConnection;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import javax.net.ssl.SSLEngine;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>import org.talend.sdk.component.junit.http.api.HttpApiHandler;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import org.talend.sdk.component.junit.http.api.Response;<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>import io.netty.buffer.ByteBuf;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import io.netty.buffer.Unpooled;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>import io.netty.channel.ChannelHandlerContext;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>import io.netty.channel.SimpleChannelInboundHandler;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>import io.netty.handler.codec.http.DefaultFullHttpResponse;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>import io.netty.handler.codec.http.FullHttpRequest;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>import io.netty.handler.codec.http.FullHttpResponse;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>import io.netty.handler.codec.http.HttpMethod;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>import io.netty.handler.codec.http.HttpResponse;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>import io.netty.handler.codec.http.HttpResponseStatus;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>import io.netty.handler.codec.http.HttpUtil;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>import io.netty.handler.codec.http.HttpVersion;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>import io.netty.handler.ssl.SslHandler;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>import io.netty.util.Attribute;<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>import lombok.AllArgsConstructor;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>import lombok.extern.slf4j.Slf4j;<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>@Slf4j<a name="line.65"></a>
+<span class="sourceLineNo">066</span>@AllArgsConstructor<a name="line.66"></a>
+<span class="sourceLineNo">067</span>public class PassthroughHandler extends SimpleChannelInboundHandler&lt;FullHttpRequest&gt; {<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    protected final HttpApiHandler api;<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>    @Override<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    protected void channelRead0(final ChannelHandlerContext ctx, final FullHttpRequest request) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            final FullHttpResponse response =<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.EMPTY_BUFFER);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            setKeepAlive(response, true);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>            setContentLength(response, 0);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            if (api.getSslContext() != null) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                final SSLEngine sslEngine = api.getSslContext().createSSLEngine();<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                sslEngine.setUseClientMode(false);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                ctx.channel().pipeline().addFirst("ssl", new SslHandler(sslEngine, true));<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>                final String uri = request.uri();<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                final String[] parts = uri.split(":");<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                ctx.channel().attr(BASE).set(<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                        "https://" + parts[0] + (parts.length &gt; 1 &amp;&amp; !"443".equals(parts[1]) ? ":" + parts[1] : ""));<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            ctx.writeAndFlush(response);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            return;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        final FullHttpRequest req = request.copy(); // copy to use in a separated thread<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        api.getExecutor().execute(() -&gt; doHttpRequest(req, ctx));<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    private void doHttpRequest(final FullHttpRequest request, final ChannelHandlerContext ctx) {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        try {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            final Attribute&lt;String&gt; baseAttr = ctx.channel().attr(Handlers.BASE);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>            final String requestUri =<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                    (baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri();<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>            // do the remote request with all the incoming data and save it<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            // note: this request must be synchronous for now<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            final Response resp;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            final Map&lt;String, String&gt; otherHeaders = new HashMap&lt;&gt;();<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            try {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                final URL url = new URL(requestUri);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                final HttpURLConnection connection = HttpURLConnection.class.cast(url.openConnection(Proxy.NO_PROXY));<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                connection.setConnectTimeout(30000);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                connection.setReadTimeout(20000);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                if (HttpsURLConnection.class.isInstance(connection) &amp;&amp; api.getSslContext() != null) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                    final HttpsURLConnection httpsURLConnection = HttpsURLConnection.class.cast(connection);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                    httpsURLConnection.setHostnameVerifier((h, s) -&gt; true);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                    httpsURLConnection.setSSLSocketFactory(api.getSslContext().getSocketFactory());<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                request.headers().forEach(e -&gt; connection.setRequestProperty(e.getKey(), e.getValue()));<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                if (request.method() != null) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                    final String requestMethod = request.method().name();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                    connection.setRequestMethod(requestMethod);<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>                    if (!"HEAD".equalsIgnoreCase(requestMethod) &amp;&amp; request.content().readableBytes() &gt; 0) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                        connection.setDoOutput(true);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                        request.content().readBytes(connection.getOutputStream(), request.content().readableBytes());<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>                final int responseCode = connection.getResponseCode();<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                final int defaultLength =<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                        ofNullable(connection.getHeaderField("content-length")).map(Integer::parseInt).orElse(8192);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                resp = new ResponseImpl(collectHeaders(connection, api.getHeaderFilter().negate()), responseCode,<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                        responseCode &lt;= 399 ? slurp(connection.getInputStream(), defaultLength)<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                                : slurp(connection.getErrorStream(), defaultLength));<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>                otherHeaders.putAll(collectHeaders(connection, api.getHeaderFilter()));<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>                beforeResponse(requestUri, request, resp,<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                        new TreeMap&lt;String, List&lt;String&gt;&gt;(String.CASE_INSENSITIVE_ORDER) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>                            {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                                connection<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                                        .getHeaderFields()<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                                        .entrySet()<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                                        .stream()<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                                        .filter(it -&gt; it.getKey() != null &amp;&amp; it.getValue() != null)<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                                        .forEach(e -&gt; put(e.getKey(), e.getValue()));<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                            }<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                        });<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            } catch (final Exception e) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                log.error(e.getMessage(), e);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                sendError(ctx, HttpResponseStatus.BAD_REQUEST);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                return;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>            final ByteBuf bytes = ofNullable(resp.payload()).map(Unpooled::copiedBuffer).orElse(Unpooled.EMPTY_BUFFER);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            final HttpResponse response =<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            HttpUtil.setContentLength(response, bytes.array().length);<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>            Stream.of(resp.headers(), otherHeaders).filter(Objects::nonNull).forEach(<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                    h -&gt; h.forEach((k, v) -&gt; response.headers().set(k, v)));<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            ctx.writeAndFlush(response);<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>        } finally {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            request.release();<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        }<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>    private TreeMap&lt;String, String&gt; collectHeaders(final HttpURLConnection connection, final Predicate&lt;String&gt; filter) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        return connection<a name="line.168"></a>
+<span class="sourceLineNo">169</span>                .getHeaderFields()<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                .entrySet()<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                .stream()<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                .filter(e -&gt; e.getKey() != null)<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                .filter(h -&gt; filter.test(h.getKey()))<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                .collect(toMap(Map.Entry::getKey, e -&gt; e.getValue().stream().collect(Collectors.joining(",")),<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                        (a, b) -&gt; a, () -&gt; new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER)));<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    }<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>    protected void beforeResponse(final String requestUri, final FullHttpRequest request, final Response resp,<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            final Map&lt;String, List&lt;String&gt;&gt; headerFields) {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        // no-op<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>    private byte[] slurp(final InputStream inputStream, final int defaultLen) throws IOException {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        if (inputStream == null) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            return null;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        }<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(defaultLen);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        final byte[] bytes = new byte[defaultLen];<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        int read;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        while ((read = inputStream.read(bytes)) &gt;= 0) {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            byteArrayOutputStream.write(bytes, 0, read);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        }<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        return byteArrayOutputStream.toByteArray();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    }<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>    @Override<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        log.error(cause.getMessage(), cause);<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        closeOnFlush(ctx.channel());<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    }<a name="line.201"></a>
+<span class="sourceLineNo">202</span>}<a name="line.202"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

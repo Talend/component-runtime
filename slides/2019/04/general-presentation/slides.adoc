@@ -1,0 +1,199 @@
+= Talend Component Kit
+:customcss: talend.css
+:icons: font
+:imagesdir: images
+:imagesoutdir: images
+:source-highlighter: highlightjs
+:revealjs_theme: black
+:revealjs_slideNumber: true
+:revealjs_history: true
+
+// hit 's' to open presenter notes
+
+== Quick Reminder
+
+[quote]
+Talend Component Kit enables you to develop components compatible to Talend Studio *AND* Talend Cloud Apps.
+
+[.notes]
+--
+* The framework goal is to avoid to do the work twice in Talend's context.
+* Any component respecting Talend Component Kit constraints will run in both environments.
+* It can be seen as a Talend SDK.
+--
+
+== Reminder: SDK deliverables
+
+* Component API - UI and runtime
+* Testing kit - JUnit 5 or 4 based
+* Dev tools - validation, packaging, web UI preview, ...
+* link:https://talend.github.io/component-runtime/[Documentation]
+* link:https://starter-toolkit.talend.io/[Component Starter]
+
+[.notes]
+--
+* These are the *dev* deliverables (it ignores Beam, Server, .... deliverables)
+* Any component respecting Talend Component Kit constraints will run in both environments.
+* It can be seen as a Talend SDK.
+--
+
+== Write your first component
+
+[%step]
+* Go to the link:https://starter-toolkit.talend.io/[Component Starter]
+* Configure your component and facets
+* Download the generated project
+* Customize it in your preferred IDE (Intellij recommended)
+
+[.notes]
+--
+* Facets enable to select the features of the project (typically tests)
+* At that time you have a ready to deploy component
+* You can customize the implementation
+--
+
+== Input/Output 1/2
+
+* Because of Talend portofolio we enforce consistency between products
+* Therefore any Input/Output must rely on a _connection_/_dataset_ pair
+
+[ditaa, generated-diagram_io-configuration,transparent=true]
+....
++------------------------------------+
+| Component Configuration            |
+|                                    |
+| +--------------------------+       |
+| | Dataset                  |       |
+| |                          |       |
+| | +--------------------+   |       |
+| | | Datastore          |   |       |
+| | +--------------------+   |       |
+| +--------------------------+       |
++------------------------------------+
+....
+
+== Input/Output 2/2
+
+* Any input or output must have a dataset in their configuration
+* Any dataset must have a datastore in its configuration
+* Any dataset must match an input without any additional required parameter outside the dataset
+
+
+TIP: use _Activate I/O_ step in the starter.
+
+
+[.notes]
+--
+* Rules to write I/O ensuring _Data Catalog_ + _Pipeline Designer_ are functional
+--
+
+== Code organization
+
+. `.java`
+.. Configuration (UI)
+.. Runtime
+.. Services (shared logic, local caching, ...)
+. `Messages.properties`: i18n
+. `pom.xml`: build descriptor
+. `icons/${name}_icon32.png`
+
+== Tooling
+
+* Build based on link:https://maven.apache.org/[Apache Maven]
+* Recommended IDE: link:https://www.jetbrains.com/idea/[Intellij Idea],
+
+[.notes]
+--
+* Maven enables to build components
+* Idea has integration to create a project and to complete i18n files
+--
+
+== Apache Maven integration
+
+image::mvn_clean_install.png[Maven Integration,70%]
+
+[.notes]
+--
+. Adds all needed steps to generate metadata for the component
+.. dependencies management
+.. documentation generation from annotations
+.. validation of component model
+.. bundling as a shareable "zip" (a.k.a. _Component ARchive_)
+--
+
+link:https://talend.github.io/component-runtime/main/1.1.9/build-tools-maven.html[Documentation]
+
+== Testing
+
+* Preferred engine: link:https://junit.org/junit5/[JUnit 5],
+* Emit/Collect records,
+* Run small jobs,
+* Reuse services.
+
+[.notes]
+--
+* Junit 5 preferred over JUnit 4 for a better flexibility and maintenance
+--
+
+link:https://talend.github.io/component-runtime/main/1.1.9/index-sub-testing-runtime.html[Documentation]
+
+== Big Data implications
+
+. Record
+.. Structure *copy* if mutation are needed
+. `Serializable`
+.. Component instances, use `transient` when possible
+.. Lifecycle based on _Groups_ and not root instance for not serializable instances
+
+
+[.notes]
+--
+* Before Big Data is distributed we only have by value instances (`Record`)
+--
+
+== Tip 1/2
+
+* Set up Studio instance for Maven in `~/.m2/settings.xml`:
+
+[source,xml]
+----
+<settings>
+  <profiles>
+    <profile>
+      <id>studio</id>
+      <properties>
+        <talend.component.studioHome>/path/to/studio</talend.component.studioHome>
+        <talend.component.enforceDeployment>true</talend.component.enforceDeployment>
+      </properties>
+    </profile>
+  </profiles>
+</settings>
+----
+
+[source,bash]
+----
+mvn package talend-component:deploy-in-studio -Pstudio
+----
+
+== Tip 2/2
+
+* See the web UI without _Pipeline Designer_
+
+[source,bash]
+--
+mvn talend-component:web
+--
+
+* Reload component from the studio without `deploy-in-studio` - `configuration/config.ini`:
+
+[source,bash]
+----
+maven.repository = global
+component.environment = dev
+----
+
+More tips in the link:https://talend.github.io/component-runtime/main/1.1.9/studio.html[documentation].
+
+== Thanks
+
+Questions?

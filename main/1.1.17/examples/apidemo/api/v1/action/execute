@@ -1,0 +1,1 @@
+{"comment":"Connection failed!\nCause: java.net.MalformedURLException: no protocol: nullapi/now/v2/table/incident?SYSPARM_OFFSET=0&SYSPARM_LIMIT=1&SYSPARM_EXCLUDE_REFERENCE_LINK=true&SYSPARM_SUPPRESS_PAGINATION_HEADER=true.","status":"KO"}

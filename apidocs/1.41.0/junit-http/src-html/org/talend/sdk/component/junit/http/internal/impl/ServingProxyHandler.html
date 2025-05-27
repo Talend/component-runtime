@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/**</a>
+<span class="sourceLineNo">002</span><a id="line.2"> * Copyright (C) 2006-2022 Talend Inc. - www.talend.com</a>
+<span class="sourceLineNo">003</span><a id="line.3"> *</a>
+<span class="sourceLineNo">004</span><a id="line.4"> * Licensed under the Apache License, Version 2.0 (the "License");</a>
+<span class="sourceLineNo">005</span><a id="line.5"> * you may not use this file except in compliance with the License.</a>
+<span class="sourceLineNo">006</span><a id="line.6"> * You may obtain a copy of the License at</a>
+<span class="sourceLineNo">007</span><a id="line.7"> *</a>
+<span class="sourceLineNo">008</span><a id="line.8"> * http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">009</span><a id="line.9"> *</a>
+<span class="sourceLineNo">010</span><a id="line.10"> * Unless required by applicable law or agreed to in writing, software</a>
+<span class="sourceLineNo">011</span><a id="line.11"> * distributed under the License is distributed on an "AS IS" BASIS,</a>
+<span class="sourceLineNo">012</span><a id="line.12"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</a>
+<span class="sourceLineNo">013</span><a id="line.13"> * See the License for the specific language governing permissions and</a>
+<span class="sourceLineNo">014</span><a id="line.14"> * limitations under the License.</a>
+<span class="sourceLineNo">015</span><a id="line.15"> */</a>
+<span class="sourceLineNo">016</span><a id="line.16">package org.talend.sdk.component.junit.http.internal.impl;</a>
+<span class="sourceLineNo">017</span><a id="line.17"></a>
+<span class="sourceLineNo">018</span><a id="line.18">import static java.util.Optional.of;</a>
+<span class="sourceLineNo">019</span><a id="line.19">import static java.util.Optional.ofNullable;</a>
+<span class="sourceLineNo">020</span><a id="line.20">import static java.util.stream.Collectors.toMap;</a>
+<span class="sourceLineNo">021</span><a id="line.21">import static org.talend.sdk.component.junit.http.internal.impl.Handlers.closeOnFlush;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import static org.talend.sdk.component.junit.http.internal.impl.Handlers.sendError;</a>
+<span class="sourceLineNo">023</span><a id="line.23"></a>
+<span class="sourceLineNo">024</span><a id="line.24">import java.net.HttpURLConnection;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import java.nio.charset.StandardCharsets;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import java.util.HashMap;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import java.util.Map;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import java.util.Optional;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import java.util.Spliterator;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import java.util.Spliterators;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import java.util.stream.StreamSupport;</a>
+<span class="sourceLineNo">032</span><a id="line.32"></a>
+<span class="sourceLineNo">033</span><a id="line.33">import javax.net.ssl.SSLEngine;</a>
+<span class="sourceLineNo">034</span><a id="line.34"></a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.talend.sdk.component.junit.http.api.HttpApiHandler;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.talend.sdk.component.junit.http.api.Response;</a>
+<span class="sourceLineNo">037</span><a id="line.37"></a>
+<span class="sourceLineNo">038</span><a id="line.38">import io.netty.buffer.ByteBuf;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import io.netty.buffer.Unpooled;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import io.netty.channel.ChannelHandler;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import io.netty.channel.ChannelHandlerContext;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import io.netty.channel.SimpleChannelInboundHandler;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import io.netty.handler.codec.http.DefaultFullHttpResponse;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import io.netty.handler.codec.http.FullHttpRequest;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import io.netty.handler.codec.http.HttpHeaderNames;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import io.netty.handler.codec.http.HttpHeaderValues;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import io.netty.handler.codec.http.HttpMethod;</a>
+<span class="sourceLineNo">048</span><a id="line.48">import io.netty.handler.codec.http.HttpResponse;</a>
+<span class="sourceLineNo">049</span><a id="line.49">import io.netty.handler.codec.http.HttpResponseStatus;</a>
+<span class="sourceLineNo">050</span><a id="line.50">import io.netty.handler.codec.http.HttpUtil;</a>
+<span class="sourceLineNo">051</span><a id="line.51">import io.netty.handler.codec.http.HttpVersion;</a>
+<span class="sourceLineNo">052</span><a id="line.52">import io.netty.handler.ssl.SslHandler;</a>
+<span class="sourceLineNo">053</span><a id="line.53">import io.netty.util.Attribute;</a>
+<span class="sourceLineNo">054</span><a id="line.54"></a>
+<span class="sourceLineNo">055</span><a id="line.55">import lombok.AllArgsConstructor;</a>
+<span class="sourceLineNo">056</span><a id="line.56">import lombok.extern.slf4j.Slf4j;</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">@Slf4j</a>
+<span class="sourceLineNo">059</span><a id="line.59">@AllArgsConstructor</a>
+<span class="sourceLineNo">060</span><a id="line.60">@ChannelHandler.Sharable</a>
+<span class="sourceLineNo">061</span><a id="line.61">public class ServingProxyHandler extends SimpleChannelInboundHandler&lt;FullHttpRequest&gt; {</a>
+<span class="sourceLineNo">062</span><a id="line.62"></a>
+<span class="sourceLineNo">063</span><a id="line.63">    private final HttpApiHandler api;</a>
+<span class="sourceLineNo">064</span><a id="line.64"></a>
+<span class="sourceLineNo">065</span><a id="line.65">    @Override</a>
+<span class="sourceLineNo">066</span><a id="line.66">    protected void channelRead0(final ChannelHandlerContext ctx, final FullHttpRequest request) {</a>
+<span class="sourceLineNo">067</span><a id="line.67">        if (!request.decoderResult().isSuccess()) {</a>
+<span class="sourceLineNo">068</span><a id="line.68">            sendError(ctx, HttpResponseStatus.BAD_REQUEST);</a>
+<span class="sourceLineNo">069</span><a id="line.69">            return;</a>
+<span class="sourceLineNo">070</span><a id="line.70">        }</a>
+<span class="sourceLineNo">071</span><a id="line.71"></a>
+<span class="sourceLineNo">072</span><a id="line.72">        final String payload = request.content().toString(StandardCharsets.UTF_8);</a>
+<span class="sourceLineNo">073</span><a id="line.73"></a>
+<span class="sourceLineNo">074</span><a id="line.74">        api.getExecutor().execute(() -&gt; {</a>
+<span class="sourceLineNo">075</span><a id="line.75">            final Map&lt;String, String&gt; headers = StreamSupport</a>
+<span class="sourceLineNo">076</span><a id="line.76">                    .stream(Spliterators</a>
+<span class="sourceLineNo">077</span><a id="line.77">                            .spliteratorUnknownSize(request.headers().iteratorAsString(), Spliterator.IMMUTABLE), false)</a>
+<span class="sourceLineNo">078</span><a id="line.78">                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));</a>
+<span class="sourceLineNo">079</span><a id="line.79">            final Attribute&lt;String&gt; baseAttr = ctx.channel().attr(Handlers.BASE);</a>
+<span class="sourceLineNo">080</span><a id="line.80">            Optional&lt;Response&gt; matching = api</a>
+<span class="sourceLineNo">081</span><a id="line.81">                    .getResponseLocator()</a>
+<span class="sourceLineNo">082</span><a id="line.82">                    .findMatching(new RequestImpl(</a>
+<span class="sourceLineNo">083</span><a id="line.83">                            (baseAttr == null || baseAttr.get() == null ? "" : baseAttr.get()) + request.uri(),</a>
+<span class="sourceLineNo">084</span><a id="line.84">                            request.method().name().toString(), payload, headers), api.getHeaderFilter());</a>
+<span class="sourceLineNo">085</span><a id="line.85">            if (!matching.isPresent()) {</a>
+<span class="sourceLineNo">086</span><a id="line.86">                if (HttpMethod.CONNECT.name().equalsIgnoreCase(request.method().name())) {</a>
+<span class="sourceLineNo">087</span><a id="line.87">                    final Map&lt;String, String&gt; responseHeaders = new HashMap&lt;&gt;();</a>
+<span class="sourceLineNo">088</span><a id="line.88">                    responseHeaders.put(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());</a>
+<span class="sourceLineNo">089</span><a id="line.89">                    responseHeaders.put(HttpHeaderNames.CONTENT_LENGTH.toString(), "0");</a>
+<span class="sourceLineNo">090</span><a id="line.90">                    matching = of(new ResponseImpl(responseHeaders, HttpResponseStatus.OK.code(),</a>
+<span class="sourceLineNo">091</span><a id="line.91">                            Unpooled.EMPTY_BUFFER.array()));</a>
+<span class="sourceLineNo">092</span><a id="line.92">                    if (api.getSslContext() != null) {</a>
+<span class="sourceLineNo">093</span><a id="line.93">                        final SSLEngine sslEngine = api.getSslContext().createSSLEngine();</a>
+<span class="sourceLineNo">094</span><a id="line.94">                        sslEngine.setUseClientMode(false);</a>
+<span class="sourceLineNo">095</span><a id="line.95">                        ctx.channel().pipeline().addFirst("ssl", new SslHandler(sslEngine, true));</a>
+<span class="sourceLineNo">096</span><a id="line.96"></a>
+<span class="sourceLineNo">097</span><a id="line.97">                        final String uri = request.uri();</a>
+<span class="sourceLineNo">098</span><a id="line.98">                        final String[] parts = uri.split(":");</a>
+<span class="sourceLineNo">099</span><a id="line.99">                        ctx</a>
+<span class="sourceLineNo">100</span><a id="line.100">                                .channel()</a>
+<span class="sourceLineNo">101</span><a id="line.101">                                .attr(Handlers.BASE)</a>
+<span class="sourceLineNo">102</span><a id="line.102">                                .set("https://" + parts[0]</a>
+<span class="sourceLineNo">103</span><a id="line.103">                                        + (parts.length &gt; 1 &amp;&amp; !"443".equals(parts[1]) ? ":" + parts[1] : ""));</a>
+<span class="sourceLineNo">104</span><a id="line.104">                    }</a>
+<span class="sourceLineNo">105</span><a id="line.105">                } else {</a>
+<span class="sourceLineNo">106</span><a id="line.106">                    sendError(ctx, new HttpResponseStatus(HttpURLConnection.HTTP_BAD_REQUEST,</a>
+<span class="sourceLineNo">107</span><a id="line.107">                            "You are in proxy mode. No response was found for the simulated request. Please ensure to capture it for next executions. "</a>
+<span class="sourceLineNo">108</span><a id="line.108">                                    + request.method().name() + " " + request.uri()));</a>
+<span class="sourceLineNo">109</span><a id="line.109">                    return;</a>
+<span class="sourceLineNo">110</span><a id="line.110">                }</a>
+<span class="sourceLineNo">111</span><a id="line.111">            }</a>
+<span class="sourceLineNo">112</span><a id="line.112"></a>
+<span class="sourceLineNo">113</span><a id="line.113">            final Response resp = matching.get();</a>
+<span class="sourceLineNo">114</span><a id="line.114">            final ByteBuf bytes = ofNullable(resp.payload()).map(Unpooled::copiedBuffer).orElse(Unpooled.EMPTY_BUFFER);</a>
+<span class="sourceLineNo">115</span><a id="line.115">            final HttpResponse response =</a>
+<span class="sourceLineNo">116</span><a id="line.116">                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(resp.status()), bytes);</a>
+<span class="sourceLineNo">117</span><a id="line.117">            HttpUtil.setContentLength(response, bytes.array().length);</a>
+<span class="sourceLineNo">118</span><a id="line.118"></a>
+<span class="sourceLineNo">119</span><a id="line.119">            if (!api.isSkipProxyHeaders()) {</a>
+<span class="sourceLineNo">120</span><a id="line.120">                response.headers().set("X-Talend-Proxy-JUnit", "true");</a>
+<span class="sourceLineNo">121</span><a id="line.121">            }</a>
+<span class="sourceLineNo">122</span><a id="line.122"></a>
+<span class="sourceLineNo">123</span><a id="line.123">            ofNullable(resp.headers()).ifPresent(h -&gt; h.forEach((k, v) -&gt; response.headers().set(k, v)));</a>
+<span class="sourceLineNo">124</span><a id="line.124">            ctx.writeAndFlush(response);</a>
+<span class="sourceLineNo">125</span><a id="line.125">        });</a>
+<span class="sourceLineNo">126</span><a id="line.126">    }</a>
+<span class="sourceLineNo">127</span><a id="line.127"></a>
+<span class="sourceLineNo">128</span><a id="line.128">    @Override</a>
+<span class="sourceLineNo">129</span><a id="line.129">    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {</a>
+<span class="sourceLineNo">130</span><a id="line.130">        log.error(cause.getMessage(), cause);</a>
+<span class="sourceLineNo">131</span><a id="line.131">        closeOnFlush(ctx.channel());</a>
+<span class="sourceLineNo">132</span><a id="line.132">    }</a>
+<span class="sourceLineNo">133</span><a id="line.133">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talend Component Kit Developer Reference Guide :: Talend Component Kit Developer Guide</title>
+    <link rel="canonical" href="https://talend.github.io/component-runtime/main/1.0.5/index.html">
+    <meta name="description" content="Talend Component Kit documentation for developers">
+    <meta name="keywords" content="Talend Component Kit, Talend Component, documentation">
+    <meta name="generator" content="Talend Component Kit Generator">
+<meta name="date" content="2018-09-19T14:36:12.852Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch.min.css" integrity="sha256-vusmcqkVvKdkwoueSJZLlO9y2P+Lp9fN3WwQUV9Uwfw=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/instantsearch.js/2.8.0/instantsearch-theme-algolia.min.css" integrity="sha256-ZqsS4QagZnfArbOyheCO4qVjzzsMbg/WMvf5tLtId/Q=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@talend/bootstrap-theme@0.200.1/dist/bootstrap.css">
+<link rel="stylesheet" href="../../_/css/talend.css">
+<link rel="shortcut icon" href="../../_/images/favicon_0.ico" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
+    <script>dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+  </head>
+  <body>
+      <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
+    <symbol id="talend-logo-square">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path fill="#FFF" d="M9.694 14.652a1.076 1.076 0 0 1-.715.421 1.086 1.086 0 1 1-.148-2.158c.235 0 .462.075.652.22.23.173.38.427.42.714a1.07 1.07 0 0 1-.209.803M2.15 2.627A1.084 1.084 0 1 1 .418 1.322 1.084 1.084 0 0 1 2.15 2.627m11.383 2.491a2.46 2.46 0 0 0-1.482.494L8.94 1.798a.59.59 0 1 0-.156.125l3.111 3.816a2.486 2.486 0 0 0-.557.718l-8.84-4.062c.065-.19.086-.394.057-.599A1.274 1.274 0 0 0 2.058.95a1.278 1.278 0 0 0-.952-.247 1.286 1.286 0 0 0 .356 2.544 1.279 1.279 0 0 0 .956-.668l8.838 4.06c-.11.264-.176.55-.187.85H3.563a.788.788 0 0 0-.31-.533.799.799 0 0 0-1.113.155.786.786 0 0 0 .156 1.105.799.799 0 0 0 1.267-.527h7.506c.014.323.088.63.215.91l-1.903.941a.592.592 0 1 0 .089.179l1.904-.94c.162.292.382.548.645.753l-2.473 3.404a1.28 1.28 0 0 0-1.742.291 1.288 1.288 0 0 0 .253 1.8 1.28 1.28 0 0 0 .952.246c.34-.048.64-.225.847-.499.207-.274.294-.612.246-.952a1.276 1.276 0 0 0-.399-.763l2.479-3.41a2.468 2.468 0 1 0 1.352-4.53"></path>
+        </svg>
+    </symbol>
+    <symbol id="talend-component-kit-positive">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <g fill="none">
+                <path fill="#005695" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+                <path fill="#FFF" d="M5.69 10.662a2.3 2.3 0 0 0 1.425.492 2.3 2.3 0 0 0 1.664-.709l-.631-.632 1.005-1.005a.33.33 0 0 0 0-.466.332.332 0 0 0-.467 0L7.68 9.347 6.633 8.3l1.005-1.005a.33.33 0 0 0-.467-.466L6.167 7.832l-.653-.652a2.3 2.3 0 0 0-.71 1.664c0 .54.187 1.037.498 1.43L3.878 11.7a.721.721 0 0 0-.358.027 5.824 5.824 0 0 1-.722-6.368c1.364-2.7 4.612-3.914 7.41-2.777l-.348.69 1.584-.369-.643-1.495-.351.695C7.384.832 3.818 2.15 2.32 5.117a6.359 6.359 0 0 0 .798 6.962.704.704 0 0 0 1.26.631.704.704 0 0 0-.036-.699l1.349-1.349z"></path>
+                <path fill="#FFF" d="M12.623 3.031a.706.706 0 0 0-.973.894l-1.296 1.298a2.304 2.304 0 0 0-3.092.215l3.266 3.265a2.304 2.304 0 0 0 .213-3.092l1.299-1.297a.701.701 0 0 0 .504.006 5.838 5.838 0 0 1 .675 6.311c-1.332 2.636-4.524 3.871-7.284 2.826l.339-.67-1.585.368.643 1.494.36-.712c3.028 1.18 6.538-.162 8.005-3.064a6.375 6.375 0 0 0-.758-6.912.703.703 0 0 0-.316-.93z"></path>
+            </g>
+        </svg>
+    </symbol>
+</svg>
+
+<header class="global-header">
+  <nav class="navbar navbar-default">
+      <div class="navbar-text-content nav navbar-nav">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <button aria-label="Go to Portal" id="header-talend-logo" type="button" class="btn-icon-only btn btn-link">
+            <svg name="talend-logo-square" focusable="false" aria-hidden="true">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-logo-square"></use>
+            </svg>
+        </button>
+        <button aria-label="Kit logo" id="header-kit-logo" type="button" class="btn-icon-only btn btn-link">
+          <svg name="talend-component-kit-positive" focusable="false" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#talend-component-kit-positive"></use>
+          </svg>
+        </button>
+        <a class="navbar-single-link" href="index.html">Talend Component Kit</a>
+        <div class="btn-group navbar-versions">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Version 1.0.5 <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+                <li class="navbar-item version is-current is-latest">
+                    <a href="index.html">1.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.0/index.html">1.0.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
+                </li>
+          </ul>
+        </div>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="https://github.com/talend/component-api" target="_blank">API</a></li>
+              <li><a class="navbar-item" href="https://github.com/talend/component-runtime" target="_blank">Runtime</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Community <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a class="navbar-item" href="contributors.html">Contributors</a></li>
+              <li><a class="navbar-item" href="https://community.talend.com/t5/Component-Development/bd-p/ComponentDevelopment" target="_blank">Forum</a></li>
+              <li><a class="navbar-item" href="https://help.talend.com/" target="_blank">Talend Help Center</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form role="search" action="search.html" class="navbar-form navbar-right">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+            <input class="form-control" type="text" placeholder="Search" name="query" id="searchInput">
+          </div>
+        </form>
+      </div>
+    </nav>
+</header>
+            <main class="documentationindex">
+              <div class="documentationindex-wrapper">
+  <div class="documentationindex-top-wrapper">
+    <div class="col-sm-offset-1 col-sm-10">
+        <h1 class="documentationindex-sectiontitle">Talend Component Kit Developer Guide</h1>
+            <div class="documentationindex-before col-sm-12">
+              <div class="paragraph">
+<p>Talend Component Kit is a framework designed to help you create Talend components for both Talend Studio and Cloud applications.<br>
+This framework unifies the way components are built to ensure they are standardized and easy to deploy in different environments, as well as 'upgrade-compliant' as Talend applications are getting updated on a regular basis.</p>
+</div>
+<div class="paragraph">
+<p>Start developing components by generating a project from the <a href="https://starter-toolkit.talend.io">Component Kit Starter</a> or by downloading the <a href="https://plugins.jetbrains.com/plugin/10558-talend-component-kit&#8212;&#8203;intellij-plugin">Component Kit IntelliJ plugin</a>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This is a version under development which has not yet been deployed. You can however use it using the <code>-SNAPSHOT</code> version and Sonatype snapshot <a href="https://oss.sonatype.org/content/repositories/snapshots/">repository</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+A PDF version of the documentation is available <a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation&amp;v=1.0.5-SNAPSHOT&amp;e=pdf&amp;c=all-in-one">here</a>.
+</td>
+</tr>
+</table>
+</div>
+
+            </div>
+    </div>
+    <div class="clearfix"></div>
+  </div>
+  <div class="documentationindex-items-wrapper">
+    <div class="col-sm-offset-1 col-sm-10">
+            <h2 class="documentationindex-sectiontitle">Table of Contents</h2>
+      <div class="documentationindex-items">
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-getting-started-with-tck.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-play-circle"></i>
+            </div>
+            <div class="documentationindex-title">
+             Getting Started
+            </div>
+            <p class="documentationindex-description">
+              Get an overview of the framework and create your first component
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-tutorials.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-book-open"></i>
+            </div>
+            <div class="documentationindex-title">
+             Tutorials
+            </div>
+            <p class="documentationindex-description">
+              Follow guided and practical examples to know more about the framework
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-setup-environment.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-cog"></i>
+            </div>
+            <div class="documentationindex-title">
+             Setup
+            </div>
+            <p class="documentationindex-description">
+              Install the right tools and set up your environment
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-generating-project.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-power-off"></i>
+            </div>
+            <div class="documentationindex-title">
+             Generating a project
+            </div>
+            <p class="documentationindex-description">
+              Define the skeleton and general settings of your components
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-creating-components.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-code"></i>
+            </div>
+            <div class="documentationindex-title">
+             Implementing components
+            </div>
+            <p class="documentationindex-description">
+              Define the logic and UI of your components using a Java IDE
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-defining-services.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-share-alt"></i>
+            </div>
+            <div class="documentationindex-title">
+             Defining services
+            </div>
+            <p class="documentationindex-description">
+              Create configurations that can be reused across several components
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-testing-components.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-check-circle"></i>
+            </div>
+            <div class="documentationindex-title">
+             Testing components
+            </div>
+            <p class="documentationindex-description">
+              Learn how to test your component logic in the environment you need
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-deploying-components.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-share-square"></i>
+            </div>
+            <div class="documentationindex-title">
+             Studio integration
+            </div>
+            <p class="documentationindex-description">
+              Learn how to deploy your custom components to Talend Studio
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-cloud-integration.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-cloud"></i>
+            </div>
+            <div class="documentationindex-title">
+             Cloud integration
+            </div>
+            <p class="documentationindex-description">
+              Integrate components into Talend Cloud and learn about the component server
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="index-knowledge-base.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-list-alt"></i>
+            </div>
+            <div class="documentationindex-title">
+             Knowledge base
+            </div>
+            <p class="documentationindex-description">
+              Read advanced articles about Talend Component Kit
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="changelog.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-pen"></i>
+            </div>
+            <div class="documentationindex-title">
+             Changelog
+            </div>
+            <p class="documentationindex-description">
+              See the latest changes of the framework
+            </p>
+          </a>
+        </div>
+        <div class="documentationindex-item col-sm-3">
+          <a href="apidocs.html" class="documentationindex-link">
+            <div class="documentationindex-icon">
+              <i class="fa fa-5x fa-file-alt"></i>
+            </div>
+            <div class="documentationindex-title">
+             Javadocs
+            </div>
+            <p class="documentationindex-description">
+              Access the detailed API reference documentation
+            </p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>(window.talend = (window.talend || {})).documentationIndex = true;</script>
+            </main>
+      </main>
+      <footer class="footer ">
+    <div class="footer-with-copyright footer-with-links">
+        <ul class="footer-links pull-left">
+            <li><a class="gwt-Anchor" href="http://www.talend.com/">Talend</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/contact">Contact</a></li>
+            <li><a class="gwt-Anchor" href="http://www.talend.com/legal-terms/us-eula">Talend EULA</a></li>
+        </ul>
+        <div class="footer-copyright pull-right" style="">&copy; 2018 Talend Inc. All rights reserved.</div>
+    </div>
+</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script src="https://cdn.rawgit.com/rmannibucau/00206484a54ac569e091513e6d2a1c01/raw/46cd5d77ba1abe678f83d11490e12a327b62d7ee/anchorific.js"></script>
+<script src="../../_/js/talend.js"></script>
+<script src="../../_/js/talend-documentationindex.js"></script>
+  </body>
+</html>
