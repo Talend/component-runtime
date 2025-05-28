@@ -160,7 +160,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
-        <version>${clean-plugin.version}</version>
+        <version>${maven-clean-plugin.version}</version>
         <executions>
           <execution>
             <id>clean-frontend</id>
@@ -396,7 +396,7 @@
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>${gmavenplus.version}</version>
+        <version>${gmavenplus-plugin.version}</version>
         <configuration>
           <allowSystemExits>true</allowSystemExits>
           <scripts>

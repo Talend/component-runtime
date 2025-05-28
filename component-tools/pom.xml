@@ -192,7 +192,7 @@
         <!-- customize asciidoctor.css to use Talend colors -->
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>${gmavenplus.version}</version>
+        <version>${gmavenplus-plugin.version}</version>
         <configuration>
           <allowSystemExits>true</allowSystemExits>
           <scripts>

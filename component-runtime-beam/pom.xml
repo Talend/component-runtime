@@ -239,7 +239,7 @@
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>${gmavenplus.version}</version>
+        <version>${gmavenplus-plugin.version}</version>
         <executions>
           <execution>
             <id>runner-dependencies</id>
