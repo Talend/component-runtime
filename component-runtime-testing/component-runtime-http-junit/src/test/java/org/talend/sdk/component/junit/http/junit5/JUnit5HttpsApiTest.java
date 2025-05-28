@@ -42,7 +42,7 @@ class JUnit5HttpsApiTest {
     void getProxy() throws Exception {
         final Response response = get();
         assertEquals(HttpURLConnection.HTTP_OK, response.status());
-        assertEquals(new String(response.payload()), "worked as expected");
+        assertEquals("worked as expected", new String(response.payload()));
         assertEquals("text/plain", response.headers().get("content-type"));
         assertEquals("true", response.headers().get("mocked"));
         assertEquals("true", response.headers().get("X-Talend-Proxy-JUnit"));

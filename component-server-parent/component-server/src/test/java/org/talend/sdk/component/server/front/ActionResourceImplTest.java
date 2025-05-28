@@ -350,7 +350,7 @@ class ActionResourceImplTest {
 
     @Test
     void executeDynamicDependencies() {
-        HashMap<String, String> params = new HashMap();
+        HashMap<String, String> params = new HashMap<>();
         List<String> drivers;
         //
         params.put("configuration.url", "zorglub://vault:8200/fail");

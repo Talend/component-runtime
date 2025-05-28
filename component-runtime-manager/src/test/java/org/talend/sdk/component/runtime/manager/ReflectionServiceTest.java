@@ -1199,9 +1199,9 @@ class ReflectionServiceTest {
                 put("open", "OPEN");
             }
         };
-        assertEquals(reflectionService.createObjectFactory(State.class).apply("state", conf), State.PENDING);
-        assertEquals(reflectionService.createObjectFactory(State.class).apply("closed", conf), State.CLOSED);
-        assertEquals(reflectionService.createObjectFactory(State.class).apply("open", conf), State.OPEN);
+        assertEquals(State.PENDING, reflectionService.createObjectFactory(State.class).apply("state", conf));
+        assertEquals(State.CLOSED, reflectionService.createObjectFactory(State.class).apply("closed", conf));
+        assertEquals(State.OPEN, reflectionService.createObjectFactory(State.class).apply("open", conf));
     }
 
     public enum State {

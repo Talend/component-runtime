@@ -81,7 +81,7 @@ class CarBundlerTest {
                         fakeStudio.getAbsolutePath()).inheritIO().start().waitFor());
 
         assertEquals("component.java.coordinates = foo.bar:dummy:1.2",
-                Files.readAllLines(fakeConfig.toPath()).stream().collect(joining("\n")).trim());
+                String.join("\n", Files.readAllLines(fakeConfig.toPath())).trim());
     }
 
     @Test
@@ -180,7 +180,7 @@ class CarBundlerTest {
         // asserts the jar was installed and the component registered
         assertTrue(new File(fakeM2, "foo/bar/dummy/1.2/dummy-1.2.jar").exists());
         assertEquals("component.java.coordinates = foo.bar:dummy:1.2",
-                Files.readAllLines(fakeConfig.toPath()).stream().collect(joining("\n")).trim());
+                String.join("\n", Files.readAllLines(fakeConfig.toPath())).trim());
     }
 
     @Test

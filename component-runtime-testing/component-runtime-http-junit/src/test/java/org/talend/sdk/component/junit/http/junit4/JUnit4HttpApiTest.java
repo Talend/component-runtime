@@ -61,7 +61,7 @@ public class JUnit4HttpApiTest {
         assertEquals(HttpURLConnection.HTTP_OK, response.status());
         try (final BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(response.payload()))))) {
-            assertEquals(reader.lines().collect(joining("\n")), "worked as expected");
+            assertEquals("worked as expected", reader.lines().collect(joining("\n")));
         }
         assertEquals("text/plain", response.headers().get("content-type"));
         assertEquals("true", response.headers().get("mocked"));
@@ -73,7 +73,7 @@ public class JUnit4HttpApiTest {
         final Response response =
                 execute("GET", "http://foo.bar.not.existing.talend.com/component/test?api=true", null, null);
         assertEquals(HttpURLConnection.HTTP_OK, response.status());
-        assertEquals(new String(response.payload()), "worked as expected");
+        assertEquals("worked as expected", new String(response.payload()));
         assertEquals("text/plain", response.headers().get("content-type"));
         assertEquals("true", response.headers().get("mocked"));
         assertEquals("true", response.headers().get("X-Talend-Proxy-JUnit"));

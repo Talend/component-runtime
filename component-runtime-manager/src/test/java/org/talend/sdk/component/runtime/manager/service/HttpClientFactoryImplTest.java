@@ -22,6 +22,7 @@ import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.service.http.QueryFormat.MULTI;
@@ -330,7 +331,7 @@ class HttpClientFactoryImplTest {
             }).collect(toMap(s -> s[0], s -> s[1]));
             assertTrue(params.containsKey("param"));
             assertTrue(params.containsKey("emptyParam"));
-            assertTrue(!params.containsKey("nullParam"));
+            assertFalse(params.containsKey("nullParam"));
         } finally {
             server.stop(0);
         }
