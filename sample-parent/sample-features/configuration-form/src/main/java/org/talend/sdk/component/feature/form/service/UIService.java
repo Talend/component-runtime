@@ -132,7 +132,7 @@ public class UIService {
         }
 
         if (someComplexConfig.getAString().toLowerCase().contains("abc")) {
-            return new ValidationResult(Status.KO, "The string must not contains 'abc' in any character case.");
+            return new ValidationResult(Status.KO, "The string must not contain 'abc' in any character case.");
         }
 
         return new ValidationResult(Status.OK, "The configuration is ok.");
@@ -141,7 +141,7 @@ public class UIService {
     @AsyncValidation(ASYNC_VALIDATION_ONSTRING)
     public ValidationResult asyncValidation(final String someComplexConfig) {
         if (someComplexConfig.toLowerCase().contains("abc")) {
-            return new ValidationResult(Status.KO, "The string must not not contains 'abc' in any character case.");
+            return new ValidationResult(Status.KO, "The string must not not contain 'abc' in any character case.");
         }
 
         return new ValidationResult(Status.OK, "The configuration is ok.");
