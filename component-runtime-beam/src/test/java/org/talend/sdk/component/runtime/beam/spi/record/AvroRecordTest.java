@@ -21,6 +21,7 @@ import static org.apache.avro.Schema.createFixed;
 import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -99,7 +100,7 @@ class AvroRecordTest {
      * Avro logical type must be an int and contains milliseconds from 00:00:00.
      *
      * Please have a look to Avro specification:
-     * {@link https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29}.
+     * {@link <a href="https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29">Timestamp</a>}.
      *
      * <pre>
      * Time (millisecond precision)
@@ -565,7 +566,7 @@ class AvroRecordTest {
         avro.put(0, new Utf8("test"));
         final Record record = new AvroRecord(avro);
         final Object str = record.get(Object.class, "str");
-        assertFalse(str.getClass().getName(), Utf8.class.isInstance(str));
+        assertFalse(str instanceof Utf8, str.getClass().getName());
         assertEquals("test", str);
     }
 
@@ -796,7 +797,7 @@ class AvroRecordTest {
         next = iterator.next();
         Assertions.assertEquals("XX", next.get(0));
         Assertions.assertEquals(null, next.get(1));
-        Assertions.assertFalse(iterator.hasNext());
+        assertFalse(iterator.hasNext());
     }
 
     @Test
