@@ -19,7 +19,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PROTECTED;
-import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeConnectionName;
 
 import java.util.Map;
 

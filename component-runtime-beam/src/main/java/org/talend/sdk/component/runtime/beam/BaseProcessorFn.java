@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.beam;
 
 import static java.util.Collections.emptyIterator;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeConnectionName;
 
 import java.util.ArrayList;
 import java.util.Collection;

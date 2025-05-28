@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 
 import java.math.BigDecimal;

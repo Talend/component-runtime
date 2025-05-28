@@ -84,6 +84,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaCompanionUtil;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
@@ -1060,24 +1061,32 @@ class AvroRecordTest {
     }
 
     @Test
-    void recordCollisionName() {
+    void abilityToOverwrite() {
         // Case with collision without sanitize.
         final Record record = new AvroRecordBuilder() //
                 .withString("field", "value1") //
                 .withInt("field", 234) //
                 .build();
         final Object value = record.get(Object.class, "field");
-        Assertions.assertEquals(Integer.valueOf(234), value);
+        Assertions.assertEquals(234, value);
+    }
 
+    @Test
+    void recordCollisionName() {
         // Case with collision and sanitize.
-        final Record recordSanitize = new AvroRecordBuilder() //
-                .withString("70歳以上", "value70") //
-                .withString("60歳以上", "value60") //
+        final Record recordSanitize = new AvroRecordBuilder()
+                .withString("70歳以上", "value70")
+                .withString("60歳以上", "value60")
                 .build();
+
         Assertions.assertEquals(2, recordSanitize.getSchema().getEntries().size());
-        final String name1 = Schema.sanitizeConnectionName("70歳以上");
-        Assertions.assertEquals("value70", recordSanitize.getString(name1));
-        Assertions.assertEquals("value60", recordSanitize.getString(name1 + "_1"));
+
+        // both names are sanitized to the one name, but with replacement mechanism inside and prefixes the ordering
+        // will be changed
+        // last entered will take the simpler name
+        final String sanitizedName = SchemaCompanionUtil.sanitizeConnectionName("70歳以上");
+        Assertions.assertEquals("value60", recordSanitize.getString(sanitizedName));
+        Assertions.assertEquals("value70", recordSanitize.getString(sanitizedName + "_1"));
     }
 
     @Test
