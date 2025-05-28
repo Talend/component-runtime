@@ -17,7 +17,7 @@ package org.talend.sdk.component.junit.http.junit5;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.HttpURLConnection;
 import java.net.URL;

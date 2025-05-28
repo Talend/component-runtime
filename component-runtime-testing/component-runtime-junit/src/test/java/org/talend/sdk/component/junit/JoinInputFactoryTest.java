@@ -16,9 +16,10 @@
 package org.talend.sdk.component.junit;
 
 import static java.util.Collections.singleton;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.json.Json;
 
@@ -47,7 +48,7 @@ class JoinInputFactoryTest {
                 .withInput("__default__", singleton(Json.createObjectBuilder().add("test", "foo").build()));
         assertTrue(factory.hasMoreData());
         final Object main = factory.read("__default__");
-        assertTrue(Record.class.isInstance(main));
+        assertInstanceOf(Record.class, main);
         assertEquals("AvroRecord{delegate={\"test\": \"foo\"}}", main.toString());
         assertFalse(factory.hasMoreData());
     }

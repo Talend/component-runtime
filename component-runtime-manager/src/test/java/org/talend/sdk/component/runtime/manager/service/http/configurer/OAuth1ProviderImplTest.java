@@ -16,7 +16,7 @@
 package org.talend.sdk.component.runtime.manager.service.http.configurer;
 
 import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Map;

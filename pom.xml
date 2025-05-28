@@ -150,6 +150,9 @@
     <scm.repository>talend/component-runtime</scm.repository>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.release>8</maven.compiler.release>
 
     <!-- when using -T X, X > 1 you can set -DsimpleLogger.showThreadName=true to have something a bit more readable -->
     <org.slf4j.simpleLogger.showThreadName>${simpleLogger.showThreadName}</org.slf4j.simpleLogger.showThreadName>
