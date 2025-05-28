@@ -72,7 +72,7 @@ public class StudioSchema implements Serializable {
     private int length;
 
     @Option
-    @Documentation("The schema zttribute precision.")
+    @Documentation("The schema attribute precision.")
     private int precision;
 
     @Option

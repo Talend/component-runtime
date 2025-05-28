@@ -41,10 +41,10 @@ import lombok.NoArgsConstructor;
 public class DynamicElements implements Serializable {
 
     @Option
-    @Documentation("A single option used as paramete for dynamic elements.")
+    @Documentation("A single option used as parameter for dynamic elements.")
     private String singleString;
 
-    // Todo: Issue in webUI and studio, the update is not completly effective.
+    // Todo: Issue in webUI and studio, the update is not completely effective.
     @Option
     @Documentation("Some configuration used by dynamics elements. This object is validated by a service call.")
     @Updatable(value = UIService.UPDATABLE, parameters = { "singleString", "suggestedElement" },
@@ -53,7 +53,7 @@ public class DynamicElements implements Serializable {
     private SomeComplexConfig someComplexConfig = new SomeComplexConfig();
 
     @Option
-    @Documentation("A test.")
+    @Documentation("A String with async validation.")
     @Validable(UIService.ASYNC_VALIDATION_ONSTRING)
     private String asyncValidation = "";
 
