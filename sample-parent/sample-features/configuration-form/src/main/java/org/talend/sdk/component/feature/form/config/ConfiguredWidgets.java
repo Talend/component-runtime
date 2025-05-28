@@ -63,12 +63,12 @@ public class ConfiguredWidgets implements Serializable {
     private String multiline;
 
     @Option
-    @Documentation("Multiline text area with syntax highlighting, here for sql.")
+    @Documentation("Multiline text area with syntax highlighting, here with sql syntax highlighting.")
     @Code("sql")
     private String sqlInput;
 
     @Option
-    @Documentation("Multiline text area with syntax highlighting, her json.")
+    @Documentation("Multiline text area with syntax highlighting, here with json syntax highlighting.")
     @Code("json")
     private String jsonInput;
 
