@@ -270,6 +270,7 @@
     <tidy-maven-plugin.version>1.4.0</tidy-maven-plugin.version>
     <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+    <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
 
     <jgit.version>6.7.0.202309050840-r</jgit.version>
     <jruby.version>9.2.19.0</jruby.version>
@@ -1330,7 +1331,7 @@
           <!--  mvn ossindex:audit -->
           <groupId>org.sonatype.ossindex.maven</groupId>
           <artifactId>ossindex-maven-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>${ossindex-maven-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>com.github.rmannibucau</groupId>
