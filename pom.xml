@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.talend.sdk.component</groupId>
@@ -269,6 +269,8 @@
     <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
     <tidy-maven-plugin.version>1.4.0</tidy-maven-plugin.version>
+    <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
+    <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
 
     <jgit.version>6.7.0.202309050840-r</jgit.version>
     <jruby.version>9.2.19.0</jruby.version>
@@ -302,8 +304,6 @@
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
     <tomitribe-crest.version>0.32</tomitribe-crest.version>
-    <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
-    <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -1054,7 +1054,8 @@
             <windowtitle>${project.name}</windowtitle>
             <header>${project.name} - ${project.version}</header>
             <doctitle>${project.name} - ${project.version}</doctitle>
-            <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a
+              href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
           </configuration>
         </plugin>
