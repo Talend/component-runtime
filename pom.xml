@@ -1327,8 +1327,7 @@
           <artifactId>tidy-maven-plugin</artifactId>
           <version>${tidy-maven-plugin.version}</version>
         </plugin>
-        <plugin>
-          <!--  mvn ossindex:audit -->
+        <plugin><!--  mvn ossindex:audit -->
           <groupId>org.sonatype.ossindex.maven</groupId>
           <artifactId>ossindex-maven-plugin</artifactId>
           <version>3.1.0</version>
@@ -1404,8 +1403,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <!--  mvn ossindex:audit -->
+      <plugin><!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
         <configuration>
