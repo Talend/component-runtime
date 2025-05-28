@@ -234,7 +234,6 @@
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>${gmavenplus-plugin.version}</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.johnzon</groupId>
@@ -502,7 +501,6 @@
       <plugin>
         <groupId>com.github.rmannibucau</groupId>
         <artifactId>common-maven-plugin</artifactId>
-        <version>${common-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>filter-antora</id>
@@ -860,7 +858,6 @@
           <plugin>
             <groupId>org.codehaus.gmavenplus</groupId>
             <artifactId>gmavenplus-plugin</artifactId>
-            <version>${gmavenplus-plugin.version}</version>
             <dependencies>
               <dependency>
                 <groupId>org.eclipse.jgit</groupId>
