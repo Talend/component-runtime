@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import javax.json.Json;
@@ -82,45 +79,6 @@ class SchemaTest {
         Assertions.assertEquals(ValueType.ARRAY, value3.getValueType());
         Assertions.assertEquals(1, value3.asJsonArray().getJsonNumber(0).intValue());
         Assertions.assertEquals(2, value3.asJsonArray().getJsonNumber(1).intValue());
-    }
-
-    @Test
-    void testSanitize() {
-        Assertions.assertNull(Schema.sanitizeConnectionName(null));
-        Assertions.assertEquals("", Schema.sanitizeConnectionName(""));
-        Assertions.assertEquals("_", Schema.sanitizeConnectionName("$"));
-        Assertions.assertEquals("_", Schema.sanitizeConnectionName("1"));
-        Assertions.assertEquals("_", Schema.sanitizeConnectionName("é"));
-        Assertions.assertEquals("H", Schema.sanitizeConnectionName("éH"));
-        Assertions.assertEquals("_1", Schema.sanitizeConnectionName("é1"));
-        Assertions.assertEquals("H_lloWorld", Schema.sanitizeConnectionName("HélloWorld"));
-        Assertions.assertEquals("oid", Schema.sanitizeConnectionName("$oid"));
-        Assertions.assertEquals("Hello_World_", Schema.sanitizeConnectionName(" Hello World "));
-        Assertions.assertEquals("_23HelloWorld", Schema.sanitizeConnectionName("123HelloWorld"));
-
-        Assertions.assertEquals("Hello_World_", Schema.sanitizeConnectionName("Hello-World$"));
-
-        final Pattern checkPattern = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
-        final String nonAscii1 = Schema.sanitizeConnectionName("30_39歳");
-        Assertions.assertTrue(checkPattern.matcher(nonAscii1).matches(), "'" + nonAscii1 + "' don't match");
-
-        final String ch1 = Schema.sanitizeConnectionName("世帯数分布");
-        final String ch2 = Schema.sanitizeConnectionName("抽出率調整");
-        Assertions.assertTrue(checkPattern.matcher(ch1).matches(), "'" + ch1 + "' don't match");
-        Assertions.assertTrue(checkPattern.matcher(ch2).matches(), "'" + ch2 + "' don't match");
-        Assertions.assertNotEquals(ch1, ch2);
-
-        final Random rnd = new Random();
-        final byte[] array = new byte[20]; // length is bounded by 7
-        for (int i = 0; i < 150; i++) {
-            rnd.nextBytes(array);
-            final String randomString = new String(array, StandardCharsets.UTF_8);
-            final String sanitize = Schema.sanitizeConnectionName(randomString);
-            Assertions.assertTrue(checkPattern.matcher(sanitize).matches(), "'" + sanitize + "' don't match");
-
-            final String sanitize2 = Schema.sanitizeConnectionName(sanitize);
-            Assertions.assertEquals(sanitize, sanitize2);
-        }
     }
 
     @Test
