@@ -17,7 +17,6 @@ package org.talend.sdk.component.tools.validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

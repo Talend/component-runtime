@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.serialization.DynamicContainerFinder;
 
@@ -108,5 +109,34 @@ class RecordBuilderFactoryImplTest {
             final RecordBuilderFactory factory2 = (RecordBuilderFactory) ois.readObject();
             Assertions.assertNotNull(factory2);
         }
+    }
+
+    @Test
+    void sanitizeCyrillicEqualLength() {
+        final String firstRawName = "Світло";
+        final String secondRawName = "Мріяти";
+
+        final Record record = factory.newRecordBuilder()
+                .withString(firstRawName, firstRawName)
+                .withString(secondRawName, secondRawName)
+                .build();
+
+        String sanitized1 = findNameByRawName(firstRawName, record);
+        String value1 = record.getString(sanitized1);
+        Assertions.assertEquals(firstRawName, value1);
+
+        String sanitized2 = findNameByRawName(secondRawName, record);
+        String value2 = record.getString(sanitized2);
+        Assertions.assertEquals(secondRawName, value2);
+    }
+
+    private static String findNameByRawName(final String n, final Record record) {
+        return record.getSchema()
+                .getEntries()
+                .stream()
+                .filter(e -> e.getRawName().equals(n))
+                .map(Entry::getName)
+                .findAny()
+                .orElseThrow(AssertionError::new);
     }
 }
