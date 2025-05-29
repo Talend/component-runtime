@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.junit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.talend.sdk.component.junit.SimpleFactory.configurationByExample;
 
 import java.net.URI;

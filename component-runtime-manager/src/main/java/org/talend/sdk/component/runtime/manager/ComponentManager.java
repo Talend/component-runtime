@@ -268,7 +268,7 @@ public class ComponentManager implements AutoCloseable {
             return manager;
         }
 
-        private static final Thread buildShutDownHook() {
+        private static Thread buildShutDownHook() {
             return new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
 
                 @Override

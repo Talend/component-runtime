@@ -177,8 +177,8 @@ class ComponentManagerTest {
             });
             th[ind].start();
         }
-        for (int ind = 0; ind < th.length; ind++) {
-            th[ind].join();
+        for (final Thread thread : th) {
+            thread.join();
         }
         Assertions.assertNotNull(managers[0]);
         for (int i = 1; i < managers.length; i++) {
@@ -204,11 +204,11 @@ class ComponentManagerTest {
                     manager.addPlugin(pluginPath);
                 });
             }
-            for (int ind = 0; ind < th.length; ind++) {
-                th[ind].start();
+            for (final Thread thread : th) {
+                thread.start();
             }
-            for (int ind = 0; ind < th.length; ind++) {
-                th[ind].join();
+            for (final Thread thread : th) {
+                thread.join();
             }
         } finally { // clean temp files
             DynamicContainerFinder.SERVICES.clear();

@@ -56,7 +56,7 @@ public class QueryBuilder implements Serializable {
         Less_Than("<"),
         Less_Than_Or_Equals("<=");
 
-        private String op;
+        private final String op;
 
         Operation(final String op) {
             this.op = op;
