@@ -1,0 +1,70 @@
+= Error handling in records
+:page-partial:
+:description: How to develop a connector to handle errors in records with Talend Component Kit
+:keywords: record, schema, error
+
+
+== Introduction
+When we create TCK/Record, in some use case, first with quality applications, we have to return a record even when there is an issue in retrieved value.
+
+For instance, in an Excel file, when the 'A' column is identified as a DATETIME, and so the related entry as DATETIME type in the schema, there can be an excel cell that contains a String.
+Currently, it throws an exception. Quality application has to get a record to be able to present the value in error.
+
+Now, with this feature enabled: the TCK record api is able to set the entry of a record in error and retrieve a fallback value (the value that has been retrieved but that was inconsistent with the schema) and an error message.
+If the feature is not enabled (defaule):  Exception is raised with the error message.
+
+IMPORTANT: The feature is disabled by default, to use it, you need to add a system property *`talend.component.record.error.support`*  in the runtime jvm like this:
+
+```
+-Dtalend.component.record.error.support=true
+```
+
+
+=== Connector Implementation
+To support it, the input component call EntryImpl.BuilderImpl.withErrorCapable(true), and builder.with() API as the following code did:
+
+[source,java]
+----
+public interface Input extends Lifecycle {
+
+...
+ final Schema schema = new SchemaImpl.BuilderImpl()
+                .withType(Schema.Type.RECORD)
+                .withEntry(new SchemaImpl.EntryImpl.BuilderImpl()
+                        .withName("age")
+                        .withNullable(false)
+                        .withType(Type.INT)
+                        .withErrorCapable(true) // The entry accept wrong values without raising exception
+                        .build())
+                .build();
+        // The schema is built and is immutable
+
+        String value = "12";
+
+        RecordImpl.BuilderImpl builder = new RecordImpl.BuilderImpl(schema);
+        Entry ageEntry = schema .getEntry("age");
+        builder.with(ageEntry, value);
+
+
+        Record record = builder.build();
+
+        Entry ageEntry = record.getSchema().getEntry("age");
+        if(ageEntry.isValid()) {
+            Integer age = record.get(Integer.class, "age");
+            //  process the age...
+        }
+        else{
+            String errorMessage = ageEntry.getErrorMessage();
+            String errorFallbackValue = ageEntry.getErrorFallbackValue();
+            // Do something with the error value (if the entry is on error, the value is ALWAYS null)，
+            // error message, and error fallback value.
+            Integer age = record.get(Integer.class, "age");
+            String errorMessage = age.getErrorMessage();
+            String fallbackValue = age.getErrorFallbackValue()
+        }
+
+----
+
+== Conclusion
+This feature will not interrupt the data processing even with some invalid values. It is important for the whole progress.
+And the invalid values can be handled after records were build.
