@@ -56,8 +56,8 @@ public interface Input extends Lifecycle {
         else{
             String errorMessage = ageEntry.getErrorMessage();
             String errorFallbackValue = ageEntry.getErrorFallbackValue();
-            // Do something with the error value (the value maybe null,here the age is null)，
-            //error message, and error fallback value.
+            // Do something with the error value (if the entry is on error, the value is ALWAYS null)，
+            // error message, and error fallback value.
             Integer age = record.get(Integer.class, "age");
             String errorMessage = age.getErrorMessage();
             String fallbackValue = age.getErrorFallbackValue()
