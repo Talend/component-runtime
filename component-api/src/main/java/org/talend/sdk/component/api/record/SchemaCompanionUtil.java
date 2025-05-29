@@ -38,7 +38,7 @@ public class SchemaCompanionUtil {
      *
      * @return avro compatible name.
      */
-    public static String sanitizeConnectionName(final String name) {
+    public static String sanitizeName(final String name) {
         if (Schema.SKIP_SANITIZE || name == null || name.isEmpty()) {
             return name;
         }
@@ -149,7 +149,7 @@ public class SchemaCompanionUtil {
     }
 
     private static String newNotCollidedName(final Function<String, Entry> entryGetter, final String rawName) {
-        final String baseName = sanitizeConnectionName(rawName);
+        final String baseName = sanitizeName(rawName);
         int indexForAnticollision = 1;
         String newName = baseName + "_" + indexForAnticollision;
         while (entryGetter.apply(newName) != null) {

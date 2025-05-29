@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
-import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
@@ -443,13 +443,13 @@ public class AvroSchemaBuilder implements Schema.Builder {
         public static Field toField(final org.apache.avro.Schema schema, final Schema.Entry entry) {
             Field field = null;
             try {
-                field = new Field(sanitizeConnectionName(entry.getName()),
+                field = new Field(sanitizeName(entry.getName()),
                         entry.isNullable() && schema.getType() != Type.UNION
                                 ? org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA))
                                 : schema,
                         entry.getComment(), (Object) entry.getDefaultValue());
             } catch (AvroTypeException e) {
-                field = new Field(sanitizeConnectionName(entry.getName()),
+                field = new Field(sanitizeName(entry.getName()),
                         entry.isNullable() && schema.getType() != Type.UNION
                                 ? org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA))
                                 : schema,

@@ -530,7 +530,7 @@ public class SchemaImpl implements Schema {
             }
 
             public Builder withName(final String name) {
-                this.name = SchemaCompanionUtil.sanitizeConnectionName(name);
+                this.name = SchemaCompanionUtil.sanitizeName(name);
                 // if raw name is changed as follow name rule, use label to store raw name
                 // if not changed, not set label to save space
                 if (!name.equals(this.name)) {

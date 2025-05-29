@@ -1061,7 +1061,7 @@ class AvroRecordTest {
     }
 
     @Test
-    void abilityToOverwrite() {
+    void collisionWithAcceptedNamesAndDifferentTypes() {
         // Case with collision without sanitize.
         final Record record = new AvroRecordBuilder() //
                 .withString("field", "value1") //
@@ -1084,7 +1084,7 @@ class AvroRecordTest {
         // both names are sanitized to the one name, but with replacement mechanism inside and prefixes the ordering
         // will be changed
         // last entered will take the simpler name
-        final String sanitizedName = SchemaCompanionUtil.sanitizeConnectionName("70歳以上");
+        final String sanitizedName = SchemaCompanionUtil.sanitizeName("70歳以上");
         Assertions.assertEquals("value60", recordSanitize.getString(sanitizedName));
         Assertions.assertEquals("value70", recordSanitize.getString(sanitizedName + "_1"));
     }

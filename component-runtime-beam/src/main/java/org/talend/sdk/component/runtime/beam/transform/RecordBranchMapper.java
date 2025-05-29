@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.runtime.beam.transform;
 
-import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 
 import java.util.Collection;
 
@@ -44,8 +44,8 @@ public class RecordBranchMapper extends DoFn<Record, Record> {
     public RecordBranchMapper(final RecordBuilderFactory factory, final String sourceBranch,
             final String targetBranch) {
         this.factory = factory;
-        this.sourceBranch = sanitizeConnectionName(sourceBranch);
-        this.targetBranch = sanitizeConnectionName(targetBranch);
+        this.sourceBranch = sanitizeName(sourceBranch);
+        this.targetBranch = sanitizeName(targetBranch);
     }
 
     protected RecordBranchMapper() {

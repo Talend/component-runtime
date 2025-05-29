@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.beam;
 
 import static java.util.Collections.emptyIterator;
 import static java.util.stream.Collectors.toMap;
-import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -154,7 +154,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
         @Override
         public Object read(final String name) {
-            final Iterator<Record> values = objects.getOrDefault(sanitizeConnectionName(name), emptyIterator());
+            final Iterator<Record> values = objects.getOrDefault(sanitizeName(name), emptyIterator());
             return values.hasNext() ? values.next() : null;
         }
     }
@@ -172,7 +172,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
         @Override
         public OutputEmitter create(final String name) {
-            return new BeamOutputEmitter(outputs.computeIfAbsent(sanitizeConnectionName(name), k -> new ArrayList<>()),
+            return new BeamOutputEmitter(outputs.computeIfAbsent(sanitizeName(name), k -> new ArrayList<>()),
                     factory, jsonb);
         }
 
@@ -190,7 +190,7 @@ abstract class BaseProcessorFn<O> extends DoFn<Record, O> {
 
         @Override
         public OutputEmitter create(final String name) {
-            return new BeamOutputEmitter(outputs.computeIfAbsent(sanitizeConnectionName(name), k -> new ArrayList<>()),
+            return new BeamOutputEmitter(outputs.computeIfAbsent(sanitizeName(name), k -> new ArrayList<>()),
                     factory, jsonb);
         }
 

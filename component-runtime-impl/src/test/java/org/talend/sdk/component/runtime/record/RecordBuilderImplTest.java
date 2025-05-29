@@ -849,12 +849,13 @@ class RecordBuilderImplTest {
     }
 
     @Test
-    void abilityToOverwrite() {
+    void collisionWithSameNameAndType() {
         // Case with collision without sanitize.
-        final Record record = new RecordImpl.BuilderImpl() //
-                .withString("goodName", "v1") //
-                .withString("goodName", "v2") //
+        final Record record = new RecordImpl.BuilderImpl()
+                .withString("goodName", "v1")
+                .withString("goodName", "v2")
                 .build();
+        Assertions.assertEquals(1, record.getSchema().getEntries().size());
         Assertions.assertEquals("v2", record.getString("goodName"));
     }
 
@@ -870,7 +871,7 @@ class RecordBuilderImplTest {
         // both names are sanitized to the one name, but with replacement mechanism inside and prefixes the ordering
         // will be changed
         // last entered will take the simpler name
-        final String name1 = SchemaCompanionUtil.sanitizeConnectionName("70歳以上");
+        final String name1 = SchemaCompanionUtil.sanitizeName("70歳以上");
         Assertions.assertEquals("value60", recordSanitize.getString(name1));
         Assertions.assertEquals("value70", recordSanitize.getString(name1 + "_1"));
     }
