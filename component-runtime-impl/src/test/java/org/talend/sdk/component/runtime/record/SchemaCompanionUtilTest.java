@@ -47,17 +47,11 @@ class SchemaCompanionUtilTest {
     void testAvoidCollision() {
         final Map<String, Entry> entries = new HashMap<>();
         for (int index = 1; index < 8; index++) {
-            final Schema.Entry e = newEntry(index + "name_b", Type.STRING);
-            final Schema.Entry realEntry =
-                    SchemaCompanionUtil.avoidCollision(e, entries::get, new ReplaceFunction(entries));
-            entries.put(realEntry.getName(), realEntry);
+            addNewEntry(newEntry(index + "name_b", Type.STRING), entries);
         }
 
         // this one should collide with the previous ones
-        final Entry last = newEntry("name_b_5", Type.STRING);
-        final Schema.Entry realEntry =
-                SchemaCompanionUtil.avoidCollision(last, entries::get, new ReplaceFunction(entries));
-        entries.put(realEntry.getName(), realEntry);
+        addNewEntry(newEntry("name_b_5", Type.STRING), entries);
 
         // in total 7 + 1 = 8 entries
         Assertions.assertEquals(8, entries.size());
@@ -68,16 +62,17 @@ class SchemaCompanionUtilTest {
                         .range(1, 8)
                         .mapToObj((int i) -> "name_b_" + i)
                         .allMatch((String name) -> entries.get(name).getName().equals(name)));
+    }
 
+    @Test
+    void collisionDuplicatedNormalName() {
         final Map<String, Entry> entriesDuplicate = new HashMap<>();
         final Schema.Entry e1 = newEntry("goodName", Type.STRING);
-        final Schema.Entry realEntry1 =
-                SchemaCompanionUtil.avoidCollision(e1, entriesDuplicate::get, new ReplaceFunction(entriesDuplicate));
+        final Schema.Entry realEntry1 = addNewEntry(e1, entriesDuplicate);
         Assertions.assertSame(e1, realEntry1);
-        entriesDuplicate.put(realEntry1.getName(), realEntry1);
+
         final Schema.Entry e2 = newEntry("goodName", Type.STRING);
-        final Schema.Entry realEntry2 =
-                SchemaCompanionUtil.avoidCollision(e2, entriesDuplicate::get, new ReplaceFunction(entriesDuplicate));
+        final Schema.Entry realEntry2 = addNewEntry(e2, entriesDuplicate);
 
         Assertions.assertSame(realEntry2, e2);
     }
@@ -93,12 +88,8 @@ class SchemaCompanionUtilTest {
 
         final Map<String, Entry> entries = new HashMap<>();
 
-        final Schema.Entry sanitizedFirst = SchemaCompanionUtil.avoidCollision(newEntry(firstRawName, Type.STRING),
-                entries::get, new ReplaceFunction(entries));
-        entries.put(sanitizedFirst.getName(), sanitizedFirst);
-        final Schema.Entry sanitizedSecond = SchemaCompanionUtil.avoidCollision(newEntry(secondRawName, Type.STRING),
-                entries::get, new ReplaceFunction(entries));
-        entries.put(sanitizedSecond.getName(), sanitizedSecond);
+        addNewEntry(newEntry(firstRawName, Type.STRING), entries);
+        addNewEntry(newEntry(secondRawName, Type.STRING), entries);
 
         Assertions.assertEquals(2, entries.size());
 
@@ -106,6 +97,13 @@ class SchemaCompanionUtilTest {
         // it was a strange behavior when we replace the existed entry with the same name
         Assertions.assertEquals(secondRawName, entries.get("_____").getRawName());
         Assertions.assertEquals(firstRawName, entries.get("______1").getRawName());
+    }
+
+    private static Entry addNewEntry(final Entry entry, final Map<String, Entry> entries) {
+        final ReplaceFunction replaceFunction = new ReplaceFunction(entries);
+        final Entry sanitized = SchemaCompanionUtil.avoidCollision(entry, entries::get, replaceFunction);
+        entries.put(sanitized.getName(), sanitized);
+        return sanitized;
     }
 
     private static Schema.Entry newEntry(final String name, final Schema.Type type) {

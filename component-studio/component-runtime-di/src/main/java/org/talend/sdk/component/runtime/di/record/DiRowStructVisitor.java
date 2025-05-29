@@ -29,7 +29,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.INT;
 import static org.talend.sdk.component.api.record.Schema.Type.LONG;
 import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
-import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -166,7 +166,7 @@ public class DiRowStructVisitor {
         final DynamicWrapper dynamic = new DynamicWrapper(raw);
         dynamic.getDynamic().metadatas.forEach(meta -> {
             final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
-            final String metaName = sanitizeConnectionName(meta.getName());
+            final String metaName = sanitizeName(meta.getName());
             final String metaOriginalName = meta.getDbName();
             log.trace("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
             if (value == null) {
@@ -280,7 +280,7 @@ public class DiRowStructVisitor {
                     log.trace("[inferSchema] Skipping technical field {}.", field.getName());
                     return;
                 }
-                final String name = sanitizeConnectionName(field.getName());
+                final String name = sanitizeName(field.getName());
                 final Object raw = field.get(data);
                 final boolean isNullable =
                         ofNullable(getMetadata(name + "IsNullable", data, Boolean.class)).orElse(true);
@@ -348,7 +348,7 @@ public class DiRowStructVisitor {
                         final DynamicWrapper dynamic = new DynamicWrapper(raw);
                         dynamic.getDynamic().metadatas.forEach(meta -> {
                             final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
-                            final String metaName = sanitizeConnectionName(meta.getName());
+                            final String metaName = sanitizeName(meta.getName());
                             final String metaOriginalName = meta.getDbName();
                             final boolean metaIsNullable = meta.isNullable();
                             final boolean metaIsKey = meta.isKey();

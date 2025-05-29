@@ -490,7 +490,7 @@ public interface Schema {
      */
     @Deprecated
     static String sanitizeConnectionName(final String name) {
-        return SchemaCompanionUtil.sanitizeConnectionName(name);
+        return SchemaCompanionUtil.sanitizeName(name);
     }
 
     @RequiredArgsConstructor

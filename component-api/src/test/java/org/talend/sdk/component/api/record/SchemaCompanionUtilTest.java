@@ -39,11 +39,11 @@ class SchemaCompanionUtilTest {
     @Test
     void sanitizationPatternBasedCheck() {
         final Pattern checkPattern = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
-        final String nonAscii1 = SchemaCompanionUtil.sanitizeConnectionName("30_39歳");
+        final String nonAscii1 = SchemaCompanionUtil.sanitizeName("30_39歳");
         Assertions.assertTrue(checkPattern.matcher(nonAscii1).matches(), "'" + nonAscii1 + "' don't match");
 
-        final String ch1 = SchemaCompanionUtil.sanitizeConnectionName("世帯数分布");
-        final String ch2 = SchemaCompanionUtil.sanitizeConnectionName("抽出率調整");
+        final String ch1 = SchemaCompanionUtil.sanitizeName("世帯数分布");
+        final String ch2 = SchemaCompanionUtil.sanitizeName("抽出率調整");
         Assertions.assertTrue(checkPattern.matcher(ch1).matches(), "'" + ch1 + "' don't match");
         Assertions.assertTrue(checkPattern.matcher(ch2).matches(), "'" + ch2 + "' don't match");
         Assertions.assertNotEquals(ch1, ch2);
@@ -53,23 +53,23 @@ class SchemaCompanionUtilTest {
         for (int i = 0; i < 150; i++) {
             rnd.nextBytes(array);
             final String randomString = new String(array, StandardCharsets.UTF_8);
-            final String sanitize = SchemaCompanionUtil.sanitizeConnectionName(randomString);
+            final String sanitize = SchemaCompanionUtil.sanitizeName(randomString);
             Assertions.assertTrue(checkPattern.matcher(sanitize).matches(), "'" + sanitize + "' don't match");
 
-            final String sanitize2 = SchemaCompanionUtil.sanitizeConnectionName(sanitize);
+            final String sanitize2 = SchemaCompanionUtil.sanitizeName(sanitize);
             Assertions.assertEquals(sanitize, sanitize2);
         }
     }
 
     @Test
     void sanitizeNull() {
-        Assertions.assertNull(SchemaCompanionUtil.sanitizeConnectionName(null));
+        Assertions.assertNull(SchemaCompanionUtil.sanitizeName(null));
     }
 
     @MethodSource("sanitizeCasesSource")
     @ParameterizedTest
     void sanitizeCases(final String expected, final String rawName) {
-        Assertions.assertEquals(expected, SchemaCompanionUtil.sanitizeConnectionName(rawName));
+        Assertions.assertEquals(expected, SchemaCompanionUtil.sanitizeName(rawName));
     }
 
     public static Stream<Arguments> sanitizeCasesSource() {
@@ -97,12 +97,9 @@ class SchemaCompanionUtilTest {
     void noCollisionDuplicatedEntry() {
         final String name = "name_b";
 
-        final Entry entry1 = newEntry(name, Type.STRING);
-        final Entry entry2 = newEntry(name, Type.STRING);
-
         final Map<String, Entry> entries = new HashMap<>();
-        addNewEntry(entry1, entries);
-        addNewEntry(entry2, entries);
+        addNewEntry(newEntry(name, Type.STRING), entries);
+        addNewEntry(newEntry(name, Type.STRING), entries);
 
         // second entry with the same name was ignored (can't be two same raw names)
         Assertions.assertEquals(1, entries.size());
@@ -115,12 +112,9 @@ class SchemaCompanionUtilTest {
     void avoidCollisionWithSanitization() {
         final String name = "name_b";
 
-        final Entry entry1 = newEntry(name, Type.STRING);
-        final Entry entry2 = newEntry(name, Type.INT);
-
         final Map<String, Entry> entries = new HashMap<>();
-        addNewEntry(entry1, entries);
-        addNewEntry(entry2, entries);
+        addNewEntry(newEntry(name, Type.STRING), entries);
+        addNewEntry(newEntry(name, Type.INT), entries);
 
         // second entry with the same name was ignored (can't be two same raw names)
         Assertions.assertEquals(1, entries.size());
@@ -137,14 +131,10 @@ class SchemaCompanionUtilTest {
         final String secondRawName = "Мріяти";
         final String thirdRawName = "Копати";
 
-        final Entry entry1 = newEntry(firstRawName, Type.STRING);
-        final Entry entry2 = newEntry(secondRawName, Type.STRING);
-        final Entry entry3 = newEntry(thirdRawName, Type.STRING);
-
         final Map<String, Entry> entries = new HashMap<>();
-        addNewEntry(entry1, entries);
-        addNewEntry(entry2, entries);
-        addNewEntry(entry3, entries);
+        addNewEntry(newEntry(firstRawName, Type.STRING), entries);
+        addNewEntry(newEntry(secondRawName, Type.STRING), entries);
+        addNewEntry(newEntry(thirdRawName, Type.STRING), entries);
 
         Assertions.assertEquals(3, entries.size());
 
@@ -160,12 +150,9 @@ class SchemaCompanionUtilTest {
         final String firstRawName = "name_b";
         final String secondRawName = "1name_b";
 
-        final Entry entry1 = newEntry(firstRawName, Type.STRING);
-        final Entry entry2 = newEntry(secondRawName, Type.STRING);
-
         final Map<String, Entry> entries = new HashMap<>();
-        addNewEntry(entry1, entries);
-        addNewEntry(entry2, entries);
+        addNewEntry(newEntry(firstRawName, Type.STRING), entries);
+        addNewEntry(newEntry(secondRawName, Type.STRING), entries);
 
         Assertions.assertEquals(2, entries.size());
 
@@ -181,12 +168,9 @@ class SchemaCompanionUtilTest {
         final String firstRawName = "1name_b";
         final String secondRawName = "name_b";
 
-        final Entry entry1 = newEntry(firstRawName, Type.STRING);
-        final Entry entry2 = newEntry(secondRawName, Type.STRING);
-
         final Map<String, Entry> entries = new HashMap<>();
-        addNewEntry(entry1, entries);
-        addNewEntry(entry2, entries);
+        addNewEntry(newEntry(firstRawName, Type.STRING), entries);
+        addNewEntry(newEntry(secondRawName, Type.STRING), entries);
 
         Assertions.assertEquals(2, entries.size());
 
@@ -198,7 +182,7 @@ class SchemaCompanionUtilTest {
     }
 
     private static Schema.Entry newEntry(final String name, final Schema.Type type) {
-        final String sanitizedName = SchemaCompanionUtil.sanitizeConnectionName(name);
+        final String sanitizedName = SchemaCompanionUtil.sanitizeName(name);
         return MockEntry.internalBuilder()
                 .withName(sanitizedName)
                 .withRawName(name.equals(sanitizedName) ? null : name)
