@@ -177,9 +177,15 @@ public class ComponentValidator extends BaseTask {
 
             final List<File> missingSvgs = new ArrayList<>();
 
-            final Map<String, List<File>> iconsToFiles = of(expectedIcons)
-                    .collect(Collectors.groupingBy(Function.identity(), Collectors
-                            .flatMapping((String it) -> of(classes).map(cl -> new File(cl, it)), toList())));
+            final Map<String, List<File>> iconsToFiles = new HashMap<>();
+            for (final String iconName : expectedIcons) {
+                final List<File> files = new ArrayList<>();
+                for (final File cl : classes) {
+                    files.add(new File(cl, iconName));
+                }
+                iconsToFiles.put(iconName, files);
+            }
+
             for (final List<File> potentialPaths : iconsToFiles.values()) {
                 final Map<Boolean, List<File>> partitionedByExistence =
                         potentialPaths.stream().collect(Collectors.partitioningBy(File::exists));

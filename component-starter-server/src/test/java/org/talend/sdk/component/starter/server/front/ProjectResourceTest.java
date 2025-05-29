@@ -120,7 +120,7 @@ class ProjectResourceTest {
                     final String filePath = "generated/ProjectResourceTest/openapi/" + name;
                     assertEquals(resourceFileToString(filePath)
                             .replace("@runtime.version@", snapshot.getKit())
-                            .replace("@surefire.version@", snapshot.getSurefire()), files.get(file), file);
+                            .replace("@maven-surefire-plugin.version@", snapshot.getSurefire()), files.get(file), file);
                 });
     }
 
@@ -168,7 +168,7 @@ class ProjectResourceTest {
         final ServerInfo.Snapshot snapshot = versions.getSnapshot();
         assertEquals(resourceFileToString("generated/ProjectResourceTest/emptyProject/pom.xml")
                 .replace("@runtime.version@", snapshot.getKit())
-                .replace("@surefire.version@", snapshot.getSurefire())
+                .replace("@maven-surefire-plugin.version@", snapshot.getSurefire())
                 .replace("@api.version@", snapshot.getApiKit()), files.get("application/pom.xml"));
     }
 

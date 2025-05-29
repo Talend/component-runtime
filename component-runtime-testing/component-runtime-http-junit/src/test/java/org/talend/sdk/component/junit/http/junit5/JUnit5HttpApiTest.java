@@ -16,7 +16,7 @@
 package org.talend.sdk.component.junit.http.junit5;
 
 import static java.util.stream.Collectors.toMap;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -87,7 +87,7 @@ class JUnit5HttpApiTest {
         final Response response =
                 execute("GET", "http://foo.bar.not.existing.talend.com/component/test?api=true", null);
         assertEquals(HttpURLConnection.HTTP_OK, response.status());
-        assertEquals(new String(response.payload()), "worked as expected");
+        assertEquals("worked as expected", new String(response.payload()));
         assertEquals("text/plain", response.headers().get("content-type"));
         assertEquals("true", response.headers().get("mocked"));
         assertEquals("true", response.headers().get("X-Talend-Proxy-JUnit"));
