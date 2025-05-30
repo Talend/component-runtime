@@ -721,7 +721,7 @@
                           "widget": "text"
                         },
                         {
-                          "description": "The schema zttribute precision.",
+                          "description": "The schema attribute precision.",
                           "key": "config.dataset.schema[].precision",
                           "placeholder": "",
                           "title": "<precision>",
@@ -915,7 +915,7 @@
               "description": "Configured widgets section.",
               "items": [
                 {
-                  "description": "String witha default value.",
+                  "description": "String with a default value.",
                   "key": "config.configuredWidgets.stringWithDefault",
                   "placeholder": "",
                   "title": "String with default",
@@ -942,7 +942,7 @@
                   "widget": "textarea"
                 },
                 {
-                  "description": "Multiline text area with syntax highlighting, her sql.",
+                  "description": "Multiline text area with syntax highlighting, here with sql syntax highlighting.",
                   "key": "config.configuredWidgets.sqlInput",
                   "options": {
                     "language": "sql"
@@ -952,7 +952,7 @@
                   "widget": "code"
                 },
                 {
-                  "description": "Multiline text area with syntax highlighting, her json.",
+                  "description": "Multiline text area with syntax highlighting, here with json syntax highlighting.",
                   "key": "config.configuredWidgets.jsonInput",
                   "options": {
                     "language": "json"
@@ -970,7 +970,7 @@
                   "widget": "text"
                 },
                 {
-                  "description": "A fodler selector, only supported by studio.",
+                  "description": "A folder selector, only supported by studio.",
                   "key": "config.configuredWidgets.folder",
                   "placeholder": "folder",
                   "title": "Folder selection",
@@ -1278,36 +1278,6 @@
                   "title": "List with minimum number of items"
                 },
                 {
-                  "description": "A list of key/value pairs with a minimum number of items.",
-                  "itemWidget": "collapsibleFieldset",
-                  "items": [
-                    {
-                      "description": "A list of key/value pairs with a minimum number of items.",
-                      "items": [
-                        {
-                          "description": "The key.",
-                          "key": "config.elementsWithConstraints.listWithMinItems[].key",
-                          "placeholder": "",
-                          "title": "Key",
-                          "widget": "text"
-                        },
-                        {
-                          "description": "The value.",
-                          "key": "config.elementsWithConstraints.listWithMinItems[].value",
-                          "placeholder": "",
-                          "title": "Value",
-                          "widget": "text"
-                        }
-                      ],
-                      "key": "config.elementsWithConstraints.listWithMinItems[]",
-                      "placeholder": "listWithMinItems"
-                    }
-                  ],
-                  "key": "config.elementsWithConstraints.listWithMinItems",
-                  "placeholder": "listWithMinItems",
-                  "title": "List with minimum number of items"
-                },
-                {
                   "description": "A list of key/value pairs with a uniq items.",
                   "itemWidget": "collapsibleFieldset",
                   "items": [
@@ -1529,7 +1499,7 @@
               "description": "Elements binded to some services.",
               "items": [
                 {
-                  "description": "A single option used as paramete for dynamic elements.",
+                  "description": "A single option used as parameter for dynamic elements.",
                   "key": "config.dynamicElements.singleString",
                   "placeholder": "",
                   "title": "A single string",
@@ -1611,7 +1581,7 @@
                   "widget": "fieldset"
                 },
                 {
-                  "description": "A test.",
+                  "description": "A String with async validation.",
                   "key": "config.dynamicElements.asyncValidation",
                   "placeholder": "Should not contain 'abc'",
                   "title": "Async validation on a field",

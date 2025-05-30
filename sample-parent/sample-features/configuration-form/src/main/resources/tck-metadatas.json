@@ -31,20 +31,10 @@
                                             "type":  "update"
                                         },
                                         {
-                                            "displayName":  "Suggestable",
+                                            "displayName":  "Async validation",
                                             "family":  "sampleForm",
-                                            "name":  "SUGGESTABLE",
+                                            "name":  "ASYNC_VALIDATION",
                                             "properties":  [
-                                                               {
-                                                                   "displayName":  "singleString",
-                                                                   "metadata":  {
-                                                                                    "definition::parameter::index":  "1"
-                                                                                },
-                                                                   "name":  "singleString",
-                                                                   "path":  "singleString",
-                                                                   "placeholder":  "singleString",
-                                                                   "type":  "STRING"
-                                                               },
                                                                {
                                                                    "displayName":  "someComplexConfig",
                                                                    "metadata":  {
@@ -93,7 +83,25 @@
                                                                                   }
                                                                }
                                                            ],
-                                            "type":  "suggestions"
+                                            "type":  "validation"
+                                        },
+                                        {
+                                            "displayName":  "Async validation 2",
+                                            "family":  "sampleForm",
+                                            "name":  "ASYNC_VALIDATION2",
+                                            "properties":  [
+                                                               {
+                                                                   "displayName":  "someComplexConfig",
+                                                                   "metadata":  {
+                                                                                    "definition::parameter::index":  "0"
+                                                                                },
+                                                                   "name":  "someComplexConfig",
+                                                                   "path":  "someComplexConfig",
+                                                                   "placeholder":  "someComplexConfig",
+                                                                   "type":  "STRING"
+                                                               }
+                                                           ],
+                                            "type":  "validation"
                                         },
                                         {
                                             "displayName":  "Discover schema",
@@ -312,7 +320,7 @@
                                                                    "defaultValue":  "0",
                                                                    "displayName":  "\u003cprecision\u003e",
                                                                    "metadata":  {
-                                                                                    "documentation::value":  "The schema zttribute precision."
+                                                                                    "documentation::value":  "The schema attribute precision."
                                                                                 },
                                                                    "name":  "precision",
                                                                    "path":  "configuration.schema[].precision",
@@ -347,10 +355,20 @@
                                             "type":  "schema"
                                         },
                                         {
-                                            "displayName":  "Async validation",
+                                            "displayName":  "Suggestable",
                                             "family":  "sampleForm",
-                                            "name":  "ASYNC_VALIDATION",
+                                            "name":  "SUGGESTABLE",
                                             "properties":  [
+                                                               {
+                                                                   "displayName":  "singleString",
+                                                                   "metadata":  {
+                                                                                    "definition::parameter::index":  "1"
+                                                                                },
+                                                                   "name":  "singleString",
+                                                                   "path":  "singleString",
+                                                                   "placeholder":  "singleString",
+                                                                   "type":  "STRING"
+                                                               },
                                                                {
                                                                    "displayName":  "someComplexConfig",
                                                                    "metadata":  {
@@ -399,25 +417,7 @@
                                                                                   }
                                                                }
                                                            ],
-                                            "type":  "validation"
-                                        },
-                                        {
-                                            "displayName":  "Async validation 2",
-                                            "family":  "sampleForm",
-                                            "name":  "ASYNC_VALIDATION2",
-                                            "properties":  [
-                                                               {
-                                                                   "displayName":  "someComplexConfig",
-                                                                   "metadata":  {
-                                                                                    "definition::parameter::index":  "0"
-                                                                                },
-                                                                   "name":  "someComplexConfig",
-                                                                   "path":  "someComplexConfig",
-                                                                   "placeholder":  "someComplexConfig",
-                                                                   "type":  "STRING"
-                                                               }
-                                                           ],
-                                            "type":  "validation"
+                                            "type":  "suggestions"
                                         },
                                         {
                                             "displayName":  "Healthcheck",
@@ -498,7 +498,7 @@
                                    "id":  "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA",
                                    "name":  "Input",
                                    "plugin":  "configurationFormSample",
-                                   "pluginLocation":  "org.talend.sdk.component:configurationFormSample:1.81.0-SNAPSHOT"
+                                   "pluginLocation":  "org.talend.sdk.component:configurationFormSample:1.82.0-SNAPSHOT"
                                },
                         "inputFlows":  [
 
@@ -845,7 +845,7 @@
                                            {
                                                "displayName":  "Folder selection",
                                                "metadata":  {
-                                                                "documentation::value":  "A fodler selector, only supported by studio.",
+                                                                "documentation::value":  "A folder selector, only supported by studio.",
                                                                 "ui::path::value":  "DIRECTORY"
                                                             },
                                                "name":  "folder",
@@ -869,7 +869,7 @@
                                                "displayName":  "JSON input",
                                                "metadata":  {
                                                                 "ui::code::value":  "json",
-                                                                "documentation::value":  "Multiline text area with syntax highlighting, her json."
+                                                                "documentation::value":  "Multiline text area with syntax highlighting, here with json syntax highlighting."
                                                             },
                                                "name":  "jsonInput",
                                                "path":  "config.configuredWidgets.jsonInput",
@@ -902,7 +902,7 @@
                                                "displayName":  "SQL input",
                                                "metadata":  {
                                                                 "ui::code::value":  "sql",
-                                                                "documentation::value":  "Multiline text area with syntax highlighting, her sql."
+                                                                "documentation::value":  "Multiline text area with syntax highlighting, here with sql syntax highlighting."
                                                             },
                                                "name":  "sqlInput",
                                                "path":  "config.configuredWidgets.sqlInput",
@@ -913,7 +913,7 @@
                                                "displayName":  "String with default",
                                                "metadata":  {
                                                                 "ui::defaultvalue::value":  "A default value.",
-                                                                "documentation::value":  "String witha default value."
+                                                                "documentation::value":  "String with a default value."
                                                             },
                                                "name":  "stringWithDefault",
                                                "path":  "config.configuredWidgets.stringWithDefault",
@@ -1132,7 +1132,7 @@
                                                "defaultValue":  "0",
                                                "displayName":  "\u003cprecision\u003e",
                                                "metadata":  {
-                                                                "documentation::value":  "The schema zttribute precision."
+                                                                "documentation::value":  "The schema attribute precision."
                                                             },
                                                "name":  "precision",
                                                "path":  "config.dataset.schema[].precision",
@@ -1249,7 +1249,7 @@
                                                "displayName":  "Async validation on a field",
                                                "metadata":  {
                                                                 "action::validation::parameters":  ".",
-                                                                "documentation::value":  "A test.",
+                                                                "documentation::value":  "A String with async validation.",
                                                                 "action::validation":  "ASYNC_VALIDATION2"
                                                             },
                                                "name":  "asyncValidation",
@@ -1260,7 +1260,7 @@
                                            {
                                                "displayName":  "A single string",
                                                "metadata":  {
-                                                                "documentation::value":  "A single option used as paramete for dynamic elements."
+                                                                "documentation::value":  "A single option used as parameter for dynamic elements."
                                                             },
                                                "name":  "singleString",
                                                "path":  "config.dynamicElements.singleString",
@@ -1335,7 +1335,7 @@
                                            {
                                                "displayName":  "Elements with constraints",
                                                "metadata":  {
-                                                                "ui::gridlayout::Main::value":  "stringWithMaxLength|stringWithMinLength|stringWithPattern|intWithMin|intWithMax|aRequiredString|listWithMaxItems|listWithMinItems|listWithMinItems|listWithUniqueItems",
+                                                                "ui::gridlayout::Main::value":  "stringWithMaxLength|stringWithMinLength|stringWithPattern|intWithMin|intWithMax|aRequiredString|listWithMaxItems|listWithMinItems|listWithUniqueItems",
                                                                 "condition::if::target":  "displayElementsWithConstraints",
                                                                 "documentation::value":  "Elements with constraints.",
                                                                 "condition::if::evaluationStrategy":  "DEFAULT",
