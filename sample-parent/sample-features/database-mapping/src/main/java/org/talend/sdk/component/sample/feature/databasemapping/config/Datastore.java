@@ -39,7 +39,7 @@ public class Datastore implements Serializable {
     public enum DBMS {
 
         MYSQL("mysql"),
-        POSTGRESQL("postgresql"),
+        POSTGRESQL("postgres"),
         DB2("db2");
 
         @Getter

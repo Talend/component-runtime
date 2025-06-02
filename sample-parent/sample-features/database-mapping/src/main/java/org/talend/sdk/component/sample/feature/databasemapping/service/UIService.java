@@ -25,6 +25,9 @@ import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.sample.feature.databasemapping.config.Dataset;
 import org.talend.sdk.component.sample.feature.databasemapping.config.Datastore;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class UIService {
 
@@ -33,7 +36,14 @@ public class UIService {
 
     @DatabaseSchemaMapping("processor_mapping")
     public String getDatabaseMapping(@Option("configuration") final Datastore datastore) {
+        log.warn("[getDatabaseMapping] received datastore: {}", datastore);
         return datastore.getBackend().getKey();
+    }
+
+    @DatabaseSchemaMapping("processor_mapping_extended")
+    public String getDatabaseMappingExtended(@Option("configuration") final Dataset config) {
+        log.warn("[getDatabaseMappingExtended] received dataset: {}", config);
+        return config.getDso().getBackend().getKey();
     }
 
     @DiscoverSchema("dse")
