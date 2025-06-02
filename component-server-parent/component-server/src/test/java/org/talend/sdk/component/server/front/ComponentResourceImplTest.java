@@ -256,7 +256,7 @@ class ComponentResourceImplTest {
                 }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
                 });
         assertEquals(1, migrated.size());
-        assertEquals(null, migrated.get("migrated"));
+        assertNull(migrated.get("migrated"));
     }
 
     @Test

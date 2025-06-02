@@ -18,12 +18,14 @@ package org.talend.sdk.component.tools.validator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 
@@ -34,7 +36,7 @@ public class RecordValidatorTest {
         final RecordValidator validator = new RecordValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(MyRecord.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(MyRecord.class));
+                validator.validate(finder, Collections.singletonList(MyRecord.class));
         assertEquals(2, errors.count());
     }
 
@@ -43,7 +45,7 @@ public class RecordValidatorTest {
         final RecordValidator validator = new RecordValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(RecordImpl.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(RecordImpl.class));
+                validator.validate(finder, Collections.singletonList(RecordImpl.class));
         assertEquals(0, noerrors.count());
     }
 
@@ -52,7 +54,7 @@ public class RecordValidatorTest {
         final RecordValidator validator = new RecordValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(Record.Builder.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(Record.Builder.class));
+                validator.validate(finder, Collections.singletonList(Builder.class));
         assertEquals(0, noerrors.count());
     }
 

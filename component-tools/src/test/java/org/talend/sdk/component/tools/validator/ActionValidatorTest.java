@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.completion.Values;
+import org.talend.sdk.component.api.service.completion.Values.Item;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.discovery.DiscoverDatasetResult;
@@ -66,7 +68,7 @@ class ActionValidatorTest {
         final ActionValidator validator = new ActionValidator(new FakeHelper());
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionDatasetDiscoveryKo.class));
         final Stream<String> errorsStreamKO =
-                validator.validate(finderKO, Arrays.asList(ActionDatasetDiscoveryKo.class));
+                validator.validate(finderKO, Collections.singletonList(ActionDatasetDiscoveryKo.class));
 
         final String error = errorsStreamKO.collect(Collectors.joining(" / "));
         final String expected =
@@ -79,10 +81,10 @@ class ActionValidatorTest {
         final ActionValidator validator = new ActionValidator(new FakeHelper());
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaOk.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaOk.class));
+                validator.validate(finder, Collections.singletonList(ActionDiscoverProcessorSchemaOk.class));
         assertEquals(0, noerrors.count());
         finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaKo.class));
-        final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDiscoverProcessorSchemaKo.class));
+        final Stream<String> errors = validator.validate(finder, Collections.singletonList(ActionDiscoverProcessorSchemaKo.class));
         assertEquals(13, errors.count());
     }
 
@@ -103,11 +105,11 @@ class ActionValidatorTest {
         final ActionValidator validator = new ActionValidator(new FakeHelper());
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ActionDynamicDependenciesOK.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(ActionDynamicDependenciesOK.class));
+                validator.validate(finder, Collections.singletonList(ActionDynamicDependenciesOK.class));
         assertEquals(0, noerrors.count());
 
         finder = new AnnotationFinder(new ClassesArchive(ActionDynamicDependenciesKO.class));
-        final Stream<String> errors = validator.validate(finder, Arrays.asList(ActionDynamicDependenciesKO.class));
+        final Stream<String> errors = validator.validate(finder, Collections.singletonList(ActionDynamicDependenciesKO.class));
         assertEquals(9, errors.count());
     }
 
@@ -123,7 +125,7 @@ class ActionValidatorTest {
         Assertions.assertTrue(errors.isEmpty(), () -> errors.get(0) + " as first error");
 
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionClassKO.class));
-        final Stream<String> errorsStreamKO = validator.validate(finderKO, Arrays.asList(ActionClassKO.class));
+        final Stream<String> errorsStreamKO = validator.validate(finderKO, Collections.singletonList(ActionClassKO.class));
         final List<String> errorsKO = errorsStreamKO.collect(Collectors.toList());
         assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
 
@@ -147,13 +149,13 @@ class ActionValidatorTest {
         assertEquals(0, noerrors.count());
 
         finder = new AnnotationFinder(new ClassesArchive(AvailableOutputFlowsKO.class));
-        final Stream<String> errors = validator.validate(finder, Arrays.asList(AvailableOutputFlowsKO.class));
+        final Stream<String> errors = validator.validate(finder, Collections.singletonList(AvailableOutputFlowsKO.class));
         assertEquals(3, errors.count());
     }
 
     private void assertContains(List<String> errors, String contentPart) {
         final boolean present =
-                errors.stream().filter((String err) -> err.contains(contentPart)).findFirst().isPresent();
+                errors.stream().anyMatch((String err) -> err.contains(contentPart));
         Assertions.assertTrue(present, "Errors don't have '" + contentPart + "'");
     }
 
@@ -181,7 +183,7 @@ class ActionValidatorTest {
 
         @DynamicValues("testOK")
         public Values hello() {
-            return new Values(Arrays.asList(new Values.Item("", "")));
+            return new Values(Collections.singletonList(new Item("", "")));
 
         }
 

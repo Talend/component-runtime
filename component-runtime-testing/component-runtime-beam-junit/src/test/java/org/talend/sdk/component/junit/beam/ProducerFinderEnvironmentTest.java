@@ -36,7 +36,6 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -149,7 +148,7 @@ public class ProducerFinderEnvironmentTest implements Serializable {
                         .build())
                 .collect(toList());
         PAssert.that(out).containsInAnyOrder(records);
-        Assert.assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
+        Assertions.assertEquals(PipelineResult.State.DONE, pipeline.run().waitUntilFinish());
     }
 
     @EnvironmentalTest
