@@ -22,8 +22,8 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
-import org.talend.sdk.component.sample.feature.databasemapping.config.Config;
 import org.talend.sdk.component.sample.feature.databasemapping.config.Dataset;
+import org.talend.sdk.component.sample.feature.databasemapping.config.Datastore;
 
 @Service
 public class UIService {
@@ -32,8 +32,8 @@ public class UIService {
     private RecordBuilderFactory factory;
 
     @DatabaseSchemaMapping("processor_mapping")
-    public String getDatabaseMapping(@Option("configuration") final Config configuration) {
-        return configuration.getDse().getDso().getBackend().getKey();
+    public String getDatabaseMapping(@Option("configuration") final Datastore datastore) {
+        return datastore.getBackend().getKey();
     }
 
     @DiscoverSchema("dse")
