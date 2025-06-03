@@ -45,7 +45,9 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Stream;
@@ -61,6 +63,9 @@ import org.apache.xbean.finder.util.Files;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opentest4j.AssertionFailedError;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.configuration.LocalConfiguration;
@@ -217,6 +222,72 @@ class ComponentManagerTest {
                 System.setProperty("java.version.date", jvd);
             }
         }
+    }
+
+    @MethodSource("autoDiscoveryMultiThreadSource")
+    @ParameterizedTest
+    void autoDiscoveryMultiThread(final Consumer<ComponentManager> consumer, @TempDir final File temporaryFolder)
+            throws InterruptedException, IOException {
+        final File pluginFolder = new File(temporaryFolder, "test-plugins_" + UUID.randomUUID());
+        pluginFolder.mkdirs();
+        final File plugin1 = pluginGenerator.createChainPlugin(pluginFolder, "plugin1.jar");
+        final File plugin2 = pluginGenerator.createChainPlugin(pluginFolder, "plugin2.jar");
+
+        final int threadCount = 50;
+        final AtomicBoolean intermittentState = new AtomicBoolean(false);
+
+        final ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+        final URL[] array = new URL[2];
+        array[0] = plugin1.toURI().toURL();
+        array[1] = plugin2.toURI().toURL();
+
+        try (final URLClassLoader tmpLoader = new URLClassLoader(array, contextLoader)) {
+            Thread.currentThread().setContextClassLoader(tmpLoader);
+            try (final ComponentManager manager =
+                    new ComponentManager(new File("target/test-dependencies"), "META-INF/test/dependencies", null)) {
+
+                Assertions.assertTrue(manager.availablePlugins().isEmpty());
+
+                final Thread monitor = new Thread(() -> {
+                    final Thread thread = Thread.currentThread();
+                    while (!thread.isInterrupted()) {
+                        if (manager.availablePlugins().size() % 2 != 0) {
+                            intermittentState.set(true);
+                        }
+                    }
+                });
+                monitor.setDaemon(true);
+                monitor.start();
+
+                final Thread[] th = new Thread[threadCount];
+                for (int ind = 0; ind < th.length; ind++) {
+                    th[ind] = new Thread(() -> consumer.accept(manager));
+                }
+                for (final Thread thread : th) {
+                    thread.start();
+                }
+                for (final Thread thread : th) {
+                    thread.join();
+                }
+                monitor.interrupt();
+
+                Assertions.assertEquals(2, manager.availablePlugins().size());
+            } finally { // clean temp files
+                DynamicContainerFinder.SERVICES.clear();
+                doCleanup(pluginFolder);
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(contextLoader);
+        }
+
+        // it should be either 2 or 0, depending on the timing of the threads
+        Assertions.assertFalse(intermittentState.get());
+    }
+
+    public static Stream<Arguments> autoDiscoveryMultiThreadSource() {
+        return Stream.of(
+                Arguments.of((Consumer<ComponentManager>) manager -> manager.autoDiscoverPluginsIfEmpty(false, true)),
+                Arguments.of((Consumer<ComponentManager>) manager -> manager.autoDiscoverPlugins(false, true)));
     }
 
     @Test
