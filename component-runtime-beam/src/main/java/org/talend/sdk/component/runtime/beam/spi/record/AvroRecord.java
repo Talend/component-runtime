@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 
 import java.math.BigDecimal;
@@ -88,14 +88,14 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         record
                 .getSchema()
                 .getAllEntries()
-                .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
+                .forEach(entry -> ofNullable(record.get(Object.class, sanitizeName(entry.getName())))
                         .ifPresent(v -> {
                             final Object avroValue = directMapping(v, entry);
 
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
                                         this.schema.getActualDelegate()
-                                                .getField(sanitizeConnectionName(entry.getName()));
+                                                .getField(sanitizeName(entry.getName()));
                                 delegate.put(field.pos(), avroValue);
                             }
                         }));
@@ -167,7 +167,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (expectedType == Collection.class) {
             return expectedType.cast(getArray(Object.class, name));
         }
-        return doGet(expectedType, sanitizeConnectionName(name));
+        return doGet(expectedType, sanitizeName(name));
     }
 
     @Override
@@ -180,7 +180,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     @Override
     public <T> Collection<T> getArray(final Class<T> type, final String name) {
-        final String sanitizedName = sanitizeConnectionName(name);
+        final String sanitizedName = sanitizeName(name);
         return this.doGetArray(type, sanitizedName);
     }
 

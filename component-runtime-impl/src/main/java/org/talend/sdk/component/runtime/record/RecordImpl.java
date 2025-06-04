@@ -61,6 +61,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaCompanionUtil;
 import org.talend.sdk.component.api.record.SchemaProperty;
 
 import lombok.EqualsAndHashCode;
@@ -579,10 +580,9 @@ public final class RecordImpl implements Record {
 
             final Schema.Entry realEntry;
             if (this.entries != null) {
-                realEntry = Optional
-                        .ofNullable(Schema.avoidCollision(entry,
-                                this.entries::getValue,
-                                this.entries::replace))
+                realEntry = Optional.ofNullable(
+                        SchemaCompanionUtil.avoidCollision(entry, this.entries::getValue,
+                                this::replaceEntryAndItsValue))
                         .orElse(entry);
             } else {
                 realEntry = entry;
@@ -608,6 +608,17 @@ public final class RecordImpl implements Record {
                 orderState.update(realEntry);
             }
             return this;
+        }
+
+        /**
+         * Replace the entry in the entries map and update the values map with the new entry name.
+         * Because of the logic that new entry will use the simple sanitized name,
+         * and we should rename the previous entry that used that name before.
+         */
+        private void replaceEntryAndItsValue(final String id, final Entry updatedEntry) {
+            entries.replace(id, updatedEntry);
+            final Object prevValue = values.remove(id);
+            values.put(updatedEntry.getName(), prevValue);
         }
 
         private enum Order {
