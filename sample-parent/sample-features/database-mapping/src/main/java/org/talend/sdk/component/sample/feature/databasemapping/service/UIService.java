@@ -40,19 +40,13 @@ public class UIService {
         return datastore.getBackend().getKey();
     }
 
-    @DatabaseSchemaMapping("processor_mapping_extended")
-    public String getDatabaseMappingExtended(@Option("configuration") final Dataset config) {
-        log.warn("[getDatabaseMappingExtended] received dataset: {}", config);
-        return config.getDso().getBackend().getKey();
-    }
-
     @DiscoverSchema("dse")
     public Schema guessSchema(final Dataset dse) {
         return factory.newSchemaBuilder(Schema.Type.RECORD)
                 .withEntry(factory.newEntryBuilder()
                         .withName("id")
                         .withType(Schema.Type.INT)
-                        .withProp(SchemaProperty.ORIGIN_TYPE, "INT")
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "INT4")
                         .build())
                 .withEntry(factory.newEntryBuilder()
                         .withName("input")

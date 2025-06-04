@@ -228,7 +228,8 @@ class TaCoKitGuessSchemaTest {
             guessSchema.close();
             restoreStdout();
             final String flattened = flatten(byteArrayOutputStream);
-            final String expected ="[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"sourceType\":\"VARCHAR\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"sourceType\":\"LONGINT\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"sourceType\":\"BOOLEAN\",\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
+            final String expected =
+                    "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"sourceType\":\"VARCHAR\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"sourceType\":\"LONGINT\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"sourceType\":\"BOOLEAN\",\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
             final Matcher schemaMatcher = schemaPattern.matcher(flattened);
             assertFalse(errorPattern.matcher(flattened).find());
             assertTrue(schemaMatcher.find());

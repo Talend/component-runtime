@@ -270,7 +270,14 @@ public class ActionValidator implements Validator {
                 .map(m -> m + " should return a String")
                 .sorted();
 
-        return Stream.of(returnType, optionParameter)
+        final Stream<String> parameterType = finder
+                .findAnnotatedMethods(DatabaseSchemaMapping.class)
+                .stream()
+                .filter(m -> !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
+                .map(m -> m + " should have its parameter being a datastore (marked with @DataStore)")
+                .sorted();
+
+        return Stream.of(returnType, optionParameter, parameterType)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
     }
