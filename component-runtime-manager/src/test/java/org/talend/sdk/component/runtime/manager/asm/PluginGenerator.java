@@ -108,6 +108,10 @@ public class PluginGenerator {
                     });
             outputStream.putNextEntry(new JarEntry(toPack + "/Messages.properties"));
             outputStream.write(("error=An error occured").getBytes(StandardCharsets.UTF_8));
+            outputStream.closeEntry();
+            outputStream.putNextEntry(new JarEntry("TALEND-INF/dependencies.txt"));
+            outputStream.write(("test.group:" + plugin + ":jar:1:compile").getBytes(StandardCharsets.UTF_8));
+            outputStream.closeEntry();
             outputStream.putNextEntry(new JarEntry("TALEND-INF/local-configuration.properties"));
             outputStream.write(("_maxBatchSize.value=" + maxBatchSize).getBytes(StandardCharsets.UTF_8));
             outputStream.closeEntry();
