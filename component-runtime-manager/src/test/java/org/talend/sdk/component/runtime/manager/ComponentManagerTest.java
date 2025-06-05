@@ -259,12 +259,6 @@ class ComponentManagerTest {
                         if (manager.availablePlugins().size() % 2 != 0) {
                             intermittentState.set(true);
                         }
-
-                        try {
-                            Thread.sleep(1);
-                        } catch (InterruptedException e) {
-                            break;
-                        }
                     }
                 });
                 monitor.setDaemon(true);
