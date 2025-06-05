@@ -67,9 +67,7 @@ String maintenanceBranch   // created maintenance branch name
 
 pipeline {
   libraries {
-    // Externals libraries used in this job
-    // Connector lib from https://github.com/Talend/tdi-jenkins-shared-libraries
-    lib("connectors-lib@1.1.0") // Defining jenkinsJobTools
+    lib("connectors-lib@main") // Connector lib from https://github.com/Talend/tdi-jenkins-shared-libraries
   }
 
   agent {
@@ -87,7 +85,7 @@ pipeline {
   }
 
   options {
-    buildDiscarder(logRotator(artifactNumToKeepStr: '20', numToKeepStr: '20'))
+    buildDiscarder(logRotator(artifactNumToKeepStr: '5', numToKeepStr: '5'))
     timeout(time: 180, unit: 'MINUTES')
     skipStagesAfterUnstable()
   }

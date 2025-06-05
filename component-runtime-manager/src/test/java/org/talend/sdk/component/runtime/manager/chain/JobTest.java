@@ -310,7 +310,7 @@ class JobTest {
         try (final ComponentManager manager = newTestManager(jar)) {
 
             final GroupKeyProvider foreignKeyProvider =
-                    (GroupKeyProvider) context -> context.getData().get(String.class, "userId");
+                    context -> context.getData().get(String.class, "userId");
 
             Job
                     .components()

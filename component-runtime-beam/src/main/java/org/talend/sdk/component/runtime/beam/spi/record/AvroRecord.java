@@ -83,6 +83,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         this.schema = AvroSchema.toAvroSchema(record.getSchema());
         this.delegate = new GenericData.Record(this.schema.getActualDelegate());
 
+        this.delegate.getSchema().addProp(KeysForAvroProperty.RECORD_IN_ERROR, String.valueOf(!record.isValid()));
+
         record
                 .getSchema()
                 .getAllEntries()

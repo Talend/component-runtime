@@ -21,4 +21,8 @@ public interface KeysForAvroProperty {
 
     // alias that indicate field is metadata if present.
     String METADATA_ALIAS_NAME = "talend.field.__METADATA__";
+
+    String IS_ERROR_CAPABLE = "talend.component.record.entry.errorCapable";
+
+    String RECORD_IN_ERROR = "talend.component.record.value.on.error";
 }

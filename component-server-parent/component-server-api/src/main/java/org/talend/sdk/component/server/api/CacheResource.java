@@ -15,13 +15,16 @@
  */
 package org.talend.sdk.component.server.api;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.talend.sdk.component.server.front.model.CacheClear;
 
 @Path("cache")
 @Tag(name = "Cache", description = "Endpoints related to caches management.")
@@ -30,6 +33,7 @@ public interface CacheResource {
     @GET
     @Path("clear")
     @Operation(operationId = "clearCaches", description = "Clear all caches.")
-    @APIResponse(responseCode = "200", description = "Cleared caches.")
-    Response clearCaches();
+    @APIResponse(responseCode = "200", description = "Cleared caches.",
+            content = @Content(mediaType = APPLICATION_JSON))
+    CacheClear clearCaches();
 }
