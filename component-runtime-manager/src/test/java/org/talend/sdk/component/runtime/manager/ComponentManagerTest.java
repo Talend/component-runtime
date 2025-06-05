@@ -79,6 +79,9 @@ import org.talend.sdk.component.runtime.output.Processor;
 import org.talend.sdk.component.runtime.record.RecordBuilderFactoryImpl;
 import org.talend.sdk.component.runtime.serialization.EnhancedObjectInputStream;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 class ComponentManagerTest {
 
     private final PluginGenerator pluginGenerator = new PluginGenerator();
@@ -251,8 +254,16 @@ class ComponentManagerTest {
                 final Thread monitor = new Thread(() -> {
                     final Thread thread = Thread.currentThread();
                     while (!thread.isInterrupted()) {
+                        // we want to check this thread as frequent as possible, to catch the probable problem
+                        // it shouldn't be long
                         if (manager.availablePlugins().size() % 2 != 0) {
                             intermittentState.set(true);
+                        }
+
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            break;
                         }
                     }
                 });
@@ -270,6 +281,7 @@ class ComponentManagerTest {
                     thread.join();
                 }
                 monitor.interrupt();
+                monitor.join(); // it's daemon, but let's wait for it's end
 
                 Assertions.assertEquals(2, manager.availablePlugins().size());
             } finally { // clean temp files
