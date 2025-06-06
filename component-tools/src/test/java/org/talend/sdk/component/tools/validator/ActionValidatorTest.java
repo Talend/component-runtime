@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.tools.validator;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.Serializable;
@@ -56,6 +57,7 @@ import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheckStatus;
 import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
@@ -83,8 +85,26 @@ class ActionValidatorTest {
                 validator.validate(finder, Collections.singletonList(ActionDiscoverProcessorSchemaOk.class));
         assertEquals(0, noerrors.count());
         finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaKo.class));
-        final Stream<String> errors = validator.validate(finder, Collections.singletonList(ActionDiscoverProcessorSchemaKo.class));
+        final Stream<String> errors =
+                validator.validate(finder, Collections.singletonList(ActionDiscoverProcessorSchemaKo.class));
         assertEquals(13, errors.count());
+    }
+
+    @Test
+    void validateDatabaseMapping() {
+        final ActionValidator validator = new ActionValidator(new FakeHelper());
+        AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ActionDatabaseMappingOK.class));
+        final Stream<String> noerrors =
+                validator.validate(finder, Arrays.asList(ActionDatabaseMappingOK.class));
+        assertEquals(0, noerrors.count());
+        finder = new AnnotationFinder(new ClassesArchive(ActionDatabaseMappingKO.class));
+        final List<String> errors = validator.validate(finder, Arrays.asList(ActionDatabaseMappingKO.class))
+                .collect(Collectors.toList());
+        assertEquals(3, errors.size());
+        assertAll(() -> assertContains(errors, "should return a String"),
+                () -> assertContains(errors, "should have an Object parameter marked with @Option"),
+                () -> assertContains(errors, " its parameter being a datastore (marked with @DataStore)"));
+
     }
 
     @Test
@@ -96,7 +116,8 @@ class ActionValidatorTest {
         assertEquals(0, noerrors.count());
 
         finder = new AnnotationFinder(new ClassesArchive(ActionDynamicDependenciesKO.class));
-        final Stream<String> errors = validator.validate(finder, Collections.singletonList(ActionDynamicDependenciesKO.class));
+        final Stream<String> errors =
+                validator.validate(finder, Collections.singletonList(ActionDynamicDependenciesKO.class));
         assertEquals(9, errors.count());
     }
 
@@ -112,17 +133,17 @@ class ActionValidatorTest {
         Assertions.assertTrue(errors.isEmpty(), () -> errors.get(0) + " as first error");
 
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionClassKO.class));
-        final Stream<String> errorsStreamKO = validator.validate(finderKO, Collections.singletonList(ActionClassKO.class));
+        final Stream<String> errorsStreamKO =
+                validator.validate(finderKO, Collections.singletonList(ActionClassKO.class));
         final List<String> errorsKO = errorsStreamKO.collect(Collectors.toList());
         assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
 
-        Assertions
-                .assertAll(() -> assertContains(errorsKO,
-                        "hello() doesn't return a class org.talend.sdk.component.api.service.completion.Values"),
-                        () -> assertContains(errorsKO, "is not declared into a service class"),
-                        () -> assertContains(errorsKO,
-                                "health() should have its first parameter being a datastore (marked with @DataStore)"),
-                        () -> assertContains(errorsKO, "updatable() should return an object"));
+        assertAll(() -> assertContains(errorsKO,
+                "hello() doesn't return a class org.talend.sdk.component.api.service.completion.Values"),
+                () -> assertContains(errorsKO, "is not declared into a service class"),
+                () -> assertContains(errorsKO,
+                        "health() should have its first parameter being a datastore (marked with @DataStore)"),
+                () -> assertContains(errorsKO, "updatable() should return an object"));
     }
 
     @Test
@@ -136,7 +157,8 @@ class ActionValidatorTest {
         assertEquals(0, noerrors.count());
 
         finder = new AnnotationFinder(new ClassesArchive(AvailableOutputFlowsKO.class));
-        final Stream<String> errors = validator.validate(finder, Collections.singletonList(AvailableOutputFlowsKO.class));
+        final Stream<String> errors =
+                validator.validate(finder, Collections.singletonList(AvailableOutputFlowsKO.class));
         assertEquals(3, errors.count());
     }
 
@@ -302,6 +324,27 @@ class ActionValidatorTest {
 
         @DiscoverSchemaExtended("record")
         public Record guessProcessorSchemaKo6(@Option FakeDataSet configuration, RecordBuilderFactory factory) {
+            return null;
+        }
+    }
+
+    static class ActionDatabaseMappingOK {
+
+        @DatabaseSchemaMapping("test-none")
+        public String mappingsOk(@Option("datastore") FakeDataStore datastore) {
+            return null;
+        }
+    }
+
+    static class ActionDatabaseMappingKO {
+
+        @DatabaseSchemaMapping("test-option")
+        public String mappingsKoOption(FakeDataSet dataset) {
+            return null;
+        }
+
+        @DatabaseSchemaMapping("test-return")
+        public Schema mappingsKoReturn(@Option("datastore") FakeDataStore datastore) {
             return null;
         }
     }
