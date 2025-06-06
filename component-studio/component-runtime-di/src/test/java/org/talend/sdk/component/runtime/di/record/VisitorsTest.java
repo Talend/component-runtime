@@ -71,6 +71,9 @@ public class VisitorsTest {
     protected static final Record RECORD =
             factory.newRecordBuilder().withInt("ntgr", 1).withString("str", "one").build();
 
+    protected static final Record RECORD_WITH_SUB =
+            factory.newRecordBuilder().withInt("ntgr", 1).withRecord("record1", RECORD).build();
+
     protected static final Object OBJECT = new Object();
 
     protected static final Document DOCUMENT = new Document();

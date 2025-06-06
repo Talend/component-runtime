@@ -126,6 +126,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "DATES", StudioTypes.LIST, DATES);
         createMetadata(dynamic, "RECORDS", StudioTypes.LIST, RECORDS);
         createMetadata(dynamic, "RECORD", StudioTypes.OBJECT, RECORD);
+        createMetadata(dynamic, "RECORD_SUB", StudioTypes.OBJECT, RECORD_WITH_SUB);
         createMetadata(dynamic, "BIG_DECIMALS", StudioTypes.LIST, BIG_DECIMALS);
         createMetadata(dynamic, "dynDate", StudioTypes.DATE, DATE);
         createMetadata(dynamic, "dynStringDate", StudioTypes.STRING,
@@ -142,7 +143,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Record record = visitor.get(rowStruct, factory);
         final Schema schema = record.getSchema();
         // should have 3 excluded fields
-        assertEquals(59, schema.getEntries().size());
+        assertEquals(60, schema.getEntries().size());
 
         // schema metadata
         assertFalse(schema.getEntry("id").isNullable());
@@ -221,6 +222,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals(dynObject, record.get(Object.class, "dynObject"));
         assertEquals(STRINGS, record.getArray(String.class, "STRINGS"));
         assertEquals(RECORD, record.get(Record.class, "RECORD"));
+        assertEquals(RECORD_WITH_SUB, record.get(Record.class, "RECORD_SUB"));
         assertEquals(LONGS, record.getArray(Long.class, "LONGS"));
         assertEquals(FLOATS, record.getArray(Float.class, "FLOATS"));
         assertEquals(DOUBLES, record.getArray(Double.class, "DOUBLES"));
