@@ -1,0 +1,1766 @@
+﻿{
+    "details":  [
+                    {
+                        "actions":  [
+                                        {
+                                            "displayName":  "Updatable",
+                                            "family":  "sampleForm",
+                                            "name":  "UPDATABLE",
+                                            "properties":  [
+                                                               {
+                                                                   "displayName":  "singleString",
+                                                                   "metadata":  {
+                                                                                    "definition::parameter::index":  "0"
+                                                                                },
+                                                                   "name":  "singleString",
+                                                                   "path":  "singleString",
+                                                                   "placeholder":  "singleString",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "displayName":  "suggestedElement",
+                                                                   "metadata":  {
+                                                                                    "definition::parameter::index":  "1"
+                                                                                },
+                                                                   "name":  "suggestedElement",
+                                                                   "path":  "suggestedElement",
+                                                                   "placeholder":  "suggestedElement",
+                                                                   "type":  "STRING"
+                                                               }
+                                                           ],
+                                            "type":  "update"
+                                        },
+                                        {
+                                            "displayName":  "Async validation",
+                                            "family":  "sampleForm",
+                                            "name":  "ASYNC_VALIDATION",
+                                            "properties":  [
+                                                               {
+                                                                   "displayName":  "someComplexConfig",
+                                                                   "metadata":  {
+                                                                                    "ui::gridlayout::Main::value":  "aString|aBoolean|anInteger",
+                                                                                    "definition::parameter::index":  "0"
+                                                                                },
+                                                                   "name":  "someComplexConfig",
+                                                                   "path":  "someComplexConfig",
+                                                                   "placeholder":  "someComplexConfig",
+                                                                   "type":  "OBJECT"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "false",
+                                                                   "displayName":  "A boolean",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A boolean value."
+                                                                                },
+                                                                   "name":  "aBoolean",
+                                                                   "path":  "someComplexConfig.aBoolean",
+                                                                   "placeholder":  "",
+                                                                   "type":  "BOOLEAN"
+                                                               },
+                                                               {
+                                                                   "displayName":  "A string",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A String value."
+                                                                                },
+                                                                   "name":  "aString",
+                                                                   "path":  "someComplexConfig.aString",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "0",
+                                                                   "displayName":  "An integer",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "An integer value."
+                                                                                },
+                                                                   "name":  "anInteger",
+                                                                   "path":  "someComplexConfig.anInteger",
+                                                                   "placeholder":  "",
+                                                                   "type":  "NUMBER",
+                                                                   "validation":  {
+                                                                                      "max":  2147483647,
+                                                                                      "min":  -2147483648
+                                                                                  }
+                                                               }
+                                                           ],
+                                            "type":  "validation"
+                                        },
+                                        {
+                                            "displayName":  "Async validation 2",
+                                            "family":  "sampleForm",
+                                            "name":  "ASYNC_VALIDATION2",
+                                            "properties":  [
+                                                               {
+                                                                   "displayName":  "someComplexConfig",
+                                                                   "metadata":  {
+                                                                                    "definition::parameter::index":  "0"
+                                                                                },
+                                                                   "name":  "someComplexConfig",
+                                                                   "path":  "someComplexConfig",
+                                                                   "placeholder":  "someComplexConfig",
+                                                                   "type":  "STRING"
+                                                               }
+                                                           ],
+                                            "type":  "validation"
+                                        },
+                                        {
+                                            "displayName":  "Discover schema",
+                                            "family":  "sampleForm",
+                                            "name":  "DISCOVERSCHEMA",
+                                            "properties":  [
+                                                               {
+                                                                   "displayName":  "configuration",
+                                                                   "metadata":  {
+                                                                                    "ui::gridlayout::Advanced::value":  "datastore",
+                                                                                    "ui::gridlayout::Main::value":  "datastore|entity|schema",
+                                                                                    "configurationtype::name":  "default",
+                                                                                    "configurationtype::type":  "dataset",
+                                                                                    "definition::parameter::index":  "0"
+                                                                                },
+                                                                   "name":  "configuration",
+                                                                   "path":  "configuration",
+                                                                   "placeholder":  "configuration",
+                                                                   "type":  "OBJECT"
+                                                               },
+                                                               {
+                                                                   "displayName":  "Datastore configuration section",
+                                                                   "metadata":  {
+                                                                                    "ui::gridlayout::Advanced::value":  "timeout",
+                                                                                    "ui::gridlayout::Main::value":  "login,password|healthcheckOk",
+                                                                                    "documentation::value":  "The connection part.",
+                                                                                    "action::healthcheck":  "HEALTHCHECK",
+                                                                                    "configurationtype::name":  "default",
+                                                                                    "configurationtype::type":  "datastore"
+                                                                                },
+                                                                   "name":  "datastore",
+                                                                   "path":  "configuration.datastore",
+                                                                   "placeholder":  "datastore",
+                                                                   "type":  "OBJECT"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "false",
+                                                                   "displayName":  "Is healthechk successful ?",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "Force the healtcheck result."
+                                                                                },
+                                                                   "name":  "healthcheckOk",
+                                                                   "path":  "configuration.datastore.healthcheckOk",
+                                                                   "placeholder":  "healthcheckOk",
+                                                                   "type":  "BOOLEAN"
+                                                               },
+                                                               {
+                                                                   "displayName":  "Login",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A login."
+                                                                                },
+                                                                   "name":  "login",
+                                                                   "path":  "configuration.datastore.login",
+                                                                   "placeholder":  "Your login",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "displayName":  "Password",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A password.",
+                                                                                    "ui::credential":  "true"
+                                                                                },
+                                                                   "name":  "password",
+                                                                   "path":  "configuration.datastore.password",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "0",
+                                                                   "displayName":  "Timeout",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A timeout in the advanced settings form."
+                                                                                },
+                                                                   "name":  "timeout",
+                                                                   "path":  "configuration.datastore.timeout",
+                                                                   "placeholder":  "",
+                                                                   "type":  "NUMBER",
+                                                                   "validation":  {
+                                                                                      "max":  2147483647,
+                                                                                      "min":  -2147483648
+                                                                                  }
+                                                               },
+                                                               {
+                                                                   "displayName":  "Entity",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A login."
+                                                                                },
+                                                                   "name":  "entity",
+                                                                   "path":  "configuration.entity",
+                                                                   "placeholder":  "entity",
+                                                                   "proposalDisplayNames":  {
+                                                                                                "USER":  "User",
+                                                                                                "PRODUCT":  "Product",
+                                                                                                "INVOICE":  "Invoice",
+                                                                                                "ORDER":  "Order",
+                                                                                                "CATEGORY":  "Category",
+                                                                                                "ROLE":  "Role"
+                                                                                            },
+                                                                   "type":  "ENUM",
+                                                                   "validation":  {
+                                                                                      "enumValues":  [
+                                                                                                         "USER",
+                                                                                                         "PRODUCT",
+                                                                                                         "INVOICE",
+                                                                                                         "ORDER",
+                                                                                                         "CATEGORY",
+                                                                                                         "ROLE"
+                                                                                                     ]
+                                                                                  }
+                                                               },
+                                                               {
+                                                                   "displayName":  "\u003cschema\u003e",
+                                                                   "metadata":  {
+                                                                                    "ui::structure::discoverSchema":  "DISCOVERSCHEMA",
+                                                                                    "ui::structure::value":  "__default__",
+                                                                                    "ui::gridlayout::Main::value":  "label|originalDbColumnName|key|type|talendType|nullable|pattern|length|precision|defaultValue|comment",
+                                                                                    "documentation::value":  "The schema information.",
+                                                                                    "action::schema::type":  "OUT",
+                                                                                    "action::schema::discoverSchema":  "DISCOVERSCHEMA",
+                                                                                    "ui::structure::type":  "OUT",
+                                                                                    "action::schema":  "DISCOVERSCHEMA"
+                                                                                },
+                                                                   "name":  "schema",
+                                                                   "path":  "configuration.schema",
+                                                                   "placeholder":  "schema",
+                                                                   "type":  "ARRAY"
+                                                               },
+                                                               {
+                                                                   "displayName":  "\u003ccomment\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute comment."
+                                                                                },
+                                                                   "name":  "comment",
+                                                                   "path":  "configuration.schema[].comment",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "displayName":  "\u003cdefaultValue\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute default value."
+                                                                                },
+                                                                   "name":  "defaultValue",
+                                                                   "path":  "configuration.schema[].defaultValue",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "false",
+                                                                   "displayName":  "\u003ckey\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute key flag."
+                                                                                },
+                                                                   "name":  "key",
+                                                                   "path":  "configuration.schema[].key",
+                                                                   "placeholder":  "key",
+                                                                   "type":  "BOOLEAN"
+                                                               },
+                                                               {
+                                                                   "displayName":  "\u003clabel\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema label."
+                                                                                },
+                                                                   "name":  "label",
+                                                                   "path":  "configuration.schema[].label",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "0",
+                                                                   "displayName":  "\u003clength\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute length."
+                                                                                },
+                                                                   "name":  "length",
+                                                                   "path":  "configuration.schema[].length",
+                                                                   "placeholder":  "",
+                                                                   "type":  "NUMBER",
+                                                                   "validation":  {
+                                                                                      "max":  2147483647,
+                                                                                      "min":  -2147483648
+                                                                                  }
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "false",
+                                                                   "displayName":  "\u003cnullable\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute nullable flag."
+                                                                                },
+                                                                   "name":  "nullable",
+                                                                   "path":  "configuration.schema[].nullable",
+                                                                   "placeholder":  "nullable",
+                                                                   "type":  "BOOLEAN"
+                                                               },
+                                                               {
+                                                                   "displayName":  "\u003coriginalDbColumnName\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute original column name."
+                                                                                },
+                                                                   "name":  "originalDbColumnName",
+                                                                   "path":  "configuration.schema[].originalDbColumnName",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "displayName":  "\u003cpattern\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute data pattern."
+                                                                                },
+                                                                   "name":  "pattern",
+                                                                   "path":  "configuration.schema[].pattern",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "0",
+                                                                   "displayName":  "\u003cprecision\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute precision."
+                                                                                },
+                                                                   "name":  "precision",
+                                                                   "path":  "configuration.schema[].precision",
+                                                                   "placeholder":  "",
+                                                                   "type":  "NUMBER",
+                                                                   "validation":  {
+                                                                                      "max":  2147483647,
+                                                                                      "min":  -2147483648
+                                                                                  }
+                                                               },
+                                                               {
+                                                                   "displayName":  "\u003ctalendType\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute java type."
+                                                                                },
+                                                                   "name":  "talendType",
+                                                                   "path":  "configuration.schema[].talendType",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "displayName":  "\u003ctype\u003e",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "The schema attribute db type."
+                                                                                },
+                                                                   "name":  "type",
+                                                                   "path":  "configuration.schema[].type",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               }
+                                                           ],
+                                            "type":  "schema"
+                                        },
+                                        {
+                                            "displayName":  "Suggestable",
+                                            "family":  "sampleForm",
+                                            "name":  "SUGGESTABLE",
+                                            "properties":  [
+                                                               {
+                                                                   "displayName":  "singleString",
+                                                                   "metadata":  {
+                                                                                    "definition::parameter::index":  "1"
+                                                                                },
+                                                                   "name":  "singleString",
+                                                                   "path":  "singleString",
+                                                                   "placeholder":  "singleString",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "displayName":  "someComplexConfig",
+                                                                   "metadata":  {
+                                                                                    "ui::gridlayout::Main::value":  "aString|aBoolean|anInteger",
+                                                                                    "definition::parameter::index":  "0"
+                                                                                },
+                                                                   "name":  "someComplexConfig",
+                                                                   "path":  "someComplexConfig",
+                                                                   "placeholder":  "someComplexConfig",
+                                                                   "type":  "OBJECT"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "false",
+                                                                   "displayName":  "A boolean",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A boolean value."
+                                                                                },
+                                                                   "name":  "aBoolean",
+                                                                   "path":  "someComplexConfig.aBoolean",
+                                                                   "placeholder":  "",
+                                                                   "type":  "BOOLEAN"
+                                                               },
+                                                               {
+                                                                   "displayName":  "A string",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A String value."
+                                                                                },
+                                                                   "name":  "aString",
+                                                                   "path":  "someComplexConfig.aString",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "0",
+                                                                   "displayName":  "An integer",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "An integer value."
+                                                                                },
+                                                                   "name":  "anInteger",
+                                                                   "path":  "someComplexConfig.anInteger",
+                                                                   "placeholder":  "",
+                                                                   "type":  "NUMBER",
+                                                                   "validation":  {
+                                                                                      "max":  2147483647,
+                                                                                      "min":  -2147483648
+                                                                                  }
+                                                               }
+                                                           ],
+                                            "type":  "suggestions"
+                                        },
+                                        {
+                                            "displayName":  "Healthcheck",
+                                            "family":  "sampleForm",
+                                            "name":  "HEALTHCHECK",
+                                            "properties":  [
+                                                               {
+                                                                   "displayName":  "configuration",
+                                                                   "metadata":  {
+                                                                                    "ui::gridlayout::Advanced::value":  "timeout",
+                                                                                    "ui::gridlayout::Main::value":  "login,password|healthcheckOk",
+                                                                                    "action::healthcheck":  "HEALTHCHECK",
+                                                                                    "configurationtype::name":  "default",
+                                                                                    "configurationtype::type":  "datastore",
+                                                                                    "definition::parameter::index":  "0"
+                                                                                },
+                                                                   "name":  "configuration",
+                                                                   "path":  "configuration",
+                                                                   "placeholder":  "configuration",
+                                                                   "type":  "OBJECT"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "false",
+                                                                   "displayName":  "Is healthechk successful ?",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "Force the healtcheck result."
+                                                                                },
+                                                                   "name":  "healthcheckOk",
+                                                                   "path":  "configuration.healthcheckOk",
+                                                                   "placeholder":  "healthcheckOk",
+                                                                   "type":  "BOOLEAN"
+                                                               },
+                                                               {
+                                                                   "displayName":  "Login",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A login."
+                                                                                },
+                                                                   "name":  "login",
+                                                                   "path":  "configuration.login",
+                                                                   "placeholder":  "Your login",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "displayName":  "Password",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A password.",
+                                                                                    "ui::credential":  "true"
+                                                                                },
+                                                                   "name":  "password",
+                                                                   "path":  "configuration.password",
+                                                                   "placeholder":  "",
+                                                                   "type":  "STRING"
+                                                               },
+                                                               {
+                                                                   "defaultValue":  "0",
+                                                                   "displayName":  "Timeout",
+                                                                   "metadata":  {
+                                                                                    "documentation::value":  "A timeout in the advanced settings form."
+                                                                                },
+                                                                   "name":  "timeout",
+                                                                   "path":  "configuration.timeout",
+                                                                   "placeholder":  "",
+                                                                   "type":  "NUMBER",
+                                                                   "validation":  {
+                                                                                      "max":  2147483647,
+                                                                                      "min":  -2147483648
+                                                                                  }
+                                                               }
+                                                           ],
+                                            "type":  "healthcheck"
+                                        }
+                                    ],
+                        "displayName":  "Input",
+                        "icon":  "icon",
+                        "id":  {
+                                   "family":  "sampleForm",
+                                   "familyId":  "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybQ",
+                                   "id":  "Y29uZmlndXJhdGlvbkZvcm1TYW1wbGUjc2FtcGxlRm9ybSNJbnB1dA",
+                                   "name":  "Input",
+                                   "plugin":  "configurationFormSample",
+                                   "pluginLocation":  "org.talend.sdk.component:configurationFormSample:1.82.0-SNAPSHOT"
+                               },
+                        "inputFlows":  [
+
+                                       ],
+                        "links":  [
+
+                                  ],
+                        "metadata":  {
+                                         "mapper::infinite":  "false",
+                                         "mapper::optionalRow":  "false",
+                                         "documentation::value":  "A connector that returns only 1 record reflecting the configuration."
+                                     },
+                        "outputFlows":  [
+                                            "__default__"
+                                        ],
+                        "properties":  [
+                                           {
+                                               "displayName":  "config",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Advanced::value":  "dataset",
+                                                                "ui::gridlayout::Main::value":  "dataset|displayAllSupportedTypes|allSupportedTypes|displayConfiguredWidget|configuredWidgets|displaySomeLists|someLists|displayElementsWithConstraints|elementsWithConstraints|displayConditionalDisplay|conditionalDisplay|displayDynamicElements|dynamicElements",
+                                                                "definition::parameter::index":  "0"
+                                                            },
+                                               "name":  "config",
+                                               "path":  "config",
+                                               "placeholder":  "config",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "displayName":  "All supported types",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "aString|aBoolean|aBigDecimal|aFloat|aBigInteger|anInteger|aFile|aInetAddress|aURI|aURL|aLocalDateTime|aZonedDateTime",
+                                                                "condition::if::target":  "displayAllSupportedTypes",
+                                                                "documentation::value":  "A complex configuration with all supported types.",
+                                                                "condition::if::evaluationStrategy":  "DEFAULT",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "true"
+                                                            },
+                                               "name":  "allSupportedTypes",
+                                               "path":  "config.allSupportedTypes",
+                                               "placeholder":  "allSupportedTypes",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "displayName":  "A BigDecimal",
+                                               "metadata":  {
+                                                                "documentation::value":  "A BigDecimal value."
+                                                            },
+                                               "name":  "aBigDecimal",
+                                               "path":  "config.allSupportedTypes.aBigDecimal",
+                                               "placeholder":  "aBigDecimal",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A BigInteger",
+                                               "metadata":  {
+                                                                "documentation::value":  "A BigInteger value."
+                                                            },
+                                               "name":  "aBigInteger",
+                                               "path":  "config.allSupportedTypes.aBigInteger",
+                                               "placeholder":  "aBigInteger",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A Boolean",
+                                               "metadata":  {
+                                                                "documentation::value":  "A boolean value."
+                                                            },
+                                               "name":  "aBoolean",
+                                               "path":  "config.allSupportedTypes.aBoolean",
+                                               "placeholder":  "aBoolean",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "displayName":  "A File",
+                                               "metadata":  {
+                                                                "documentation::value":  "A File value."
+                                                            },
+                                               "name":  "aFile",
+                                               "path":  "config.allSupportedTypes.aFile",
+                                               "placeholder":  "aFile",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "0.0",
+                                               "displayName":  "A Float",
+                                               "metadata":  {
+                                                                "documentation::value":  "A float value."
+                                                            },
+                                               "name":  "aFloat",
+                                               "path":  "config.allSupportedTypes.aFloat",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER"
+                                           },
+                                           {
+                                               "displayName":  "An InetAddress",
+                                               "metadata":  {
+                                                                "documentation::value":  "A InetAddress value."
+                                                            },
+                                               "name":  "aInetAddress",
+                                               "path":  "config.allSupportedTypes.aInetAddress",
+                                               "placeholder":  "aInetAddress",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A LocalDateTime",
+                                               "metadata":  {
+                                                                "documentation::value":  "A LocalDateTime value.",
+                                                                "ui::datetime":  "datetime",
+                                                                "ui::datetime::useUTC":  "true",
+                                                                "ui::datetime::dateFormat":  "YYYY/MM/DD",
+                                                                "ui::datetime::useSeconds":  "true"
+                                                            },
+                                               "name":  "aLocalDateTime",
+                                               "path":  "config.allSupportedTypes.aLocalDateTime",
+                                               "placeholder":  "aLocalDateTime",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A String",
+                                               "metadata":  {
+                                                                "documentation::value":  "A String value."
+                                                            },
+                                               "name":  "aString",
+                                               "path":  "config.allSupportedTypes.aString",
+                                               "placeholder":  "A placeholder in a String input",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A URI",
+                                               "metadata":  {
+                                                                "documentation::value":  "A URI value."
+                                                            },
+                                               "name":  "aURI",
+                                               "path":  "config.allSupportedTypes.aURI",
+                                               "placeholder":  "aURI",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A URL",
+                                               "metadata":  {
+                                                                "documentation::value":  "A URL value."
+                                                            },
+                                               "name":  "aURL",
+                                               "path":  "config.allSupportedTypes.aURL",
+                                               "placeholder":  "aURL",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A ZonedDateTime",
+                                               "metadata":  {
+                                                                "documentation::value":  "A ZonedDateTime value.",
+                                                                "ui::datetime":  "zoneddatetime",
+                                                                "ui::datetime::useUTC":  "true",
+                                                                "ui::datetime::dateFormat":  "YYYY/MM/DD",
+                                                                "ui::datetime::useSeconds":  "true"
+                                                            },
+                                               "name":  "aZonedDateTime",
+                                               "path":  "config.allSupportedTypes.aZonedDateTime",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "An Integer",
+                                               "metadata":  {
+                                                                "documentation::value":  "An Integer value."
+                                                            },
+                                               "name":  "anInteger",
+                                               "path":  "config.allSupportedTypes.anInteger",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  2147483647,
+                                                                  "min":  -2147483648
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Conditional display section",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "aBoolean|aString|conditionString|secondConditionString|thirdConditionString|fourthConditionString|fifthConditionString|sixthConditionString",
+                                                                "condition::if::target":  "displayConditionalDisplay",
+                                                                "documentation::value":  "Elements with conditional display.",
+                                                                "condition::if::evaluationStrategy":  "DEFAULT",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "true"
+                                                            },
+                                               "name":  "conditionalDisplay",
+                                               "path":  "config.conditionalDisplay",
+                                               "placeholder":  "conditionalDisplay",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "A boolean",
+                                               "metadata":  {
+                                                                "documentation::value":  "A boolean."
+                                                            },
+                                               "name":  "aBoolean",
+                                               "path":  "config.conditionalDisplay.aBoolean",
+                                               "placeholder":  "aBoolean",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "displayName":  "A string",
+                                               "metadata":  {
+                                                                "documentation::value":  "A String."
+                                                            },
+                                               "name":  "aString",
+                                               "path":  "config.conditionalDisplay.aString",
+                                               "placeholder":  "Type abc or def",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Conditioned String",
+                                               "metadata":  {
+                                                                "condition::if::target":  "aBoolean",
+                                                                "documentation::value":  "Displayed if aBoolean is \u0027true\u0027.",
+                                                                "condition::if::evaluationStrategy":  "DEFAULT",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "true"
+                                                            },
+                                               "name":  "conditionString",
+                                               "path":  "config.conditionalDisplay.conditionString",
+                                               "placeholder":  "Displayed when the boolean is selected",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Fifth condition String",
+                                               "metadata":  {
+                                                                "condition::ifs::operator":  "AND",
+                                                                "condition::if::value::0":  "true",
+                                                                "condition::if::value::1":  "abc",
+                                                                "condition::if::target::0":  "aBoolean",
+                                                                "condition::if::target::1":  "aString",
+                                                                "documentation::value":  "Displayed if aBoolean is selected AND aString contain \u0027abc\u0027 (bugged in studio).",
+                                                                "condition::if::negate::1":  "false",
+                                                                "condition::if::negate::0":  "false",
+                                                                "condition::if::evaluationStrategy::0":  "DEFAULT",
+                                                                "condition::if::evaluationStrategy::1":  "CONTAINS"
+                                                            },
+                                               "name":  "fifthConditionString",
+                                               "path":  "config.conditionalDisplay.fifthConditionString",
+                                               "placeholder":  "Displayed when the boolean is selected AND the String contains \u0027abc\u0027 ",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Fourth condition String",
+                                               "metadata":  {
+                                                                "condition::if::target":  "aString",
+                                                                "documentation::value":  "Displayed if aString doesn\u0027t contain \u0027abc\u0027.",
+                                                                "condition::if::evaluationStrategy":  "CONTAINS",
+                                                                "condition::if::negate":  "true",
+                                                                "condition::if::value":  "abc"
+                                                            },
+                                               "name":  "fourthConditionString",
+                                               "path":  "config.conditionalDisplay.fourthConditionString",
+                                               "placeholder":  "Displayed when the string doesn\u0027t contain \u0027abc\u0027",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Second condition String",
+                                               "metadata":  {
+                                                                "condition::if::target":  "aString",
+                                                                "documentation::value":  "Displayed if aString contains \u0027abc\u0027 or \u0027def\u0027.",
+                                                                "condition::if::evaluationStrategy":  "CONTAINS",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "abc,def"
+                                                            },
+                                               "name":  "secondConditionString",
+                                               "path":  "config.conditionalDisplay.secondConditionString",
+                                               "placeholder":  "Displayed when the string contains \u0027abc\u0027 or \u0027def\u0027",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Sixth condition String",
+                                               "metadata":  {
+                                                                "condition::ifs::operator":  "OR",
+                                                                "condition::if::value::0":  "true",
+                                                                "condition::if::value::1":  "abc",
+                                                                "condition::if::target::0":  "aBoolean",
+                                                                "condition::if::target::1":  "aString",
+                                                                "documentation::value":  "Displayed if aBoolean is selected OR aString contain \u0027abc\u0027.",
+                                                                "condition::if::negate::1":  "false",
+                                                                "condition::if::negate::0":  "false",
+                                                                "condition::if::evaluationStrategy::0":  "DEFAULT",
+                                                                "condition::if::evaluationStrategy::1":  "CONTAINS"
+                                                            },
+                                               "name":  "sixthConditionString",
+                                               "path":  "config.conditionalDisplay.sixthConditionString",
+                                               "placeholder":  "Displayed when the boolean is selected OR the String contains \u0027abc\u0027 ",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Third condition String",
+                                               "metadata":  {
+                                                                "condition::if::target":  "aString",
+                                                                "documentation::value":  "Displayed if aString is 10 characters length.",
+                                                                "condition::if::evaluationStrategy":  "LENGTH",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "10"
+                                                            },
+                                               "name":  "thirdConditionString",
+                                               "path":  "config.conditionalDisplay.thirdConditionString",
+                                               "placeholder":  "Displayed when the String is 10 characters length",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Configured Widgets",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "stringWithDefault|hiddenString|multiline|sqlInput|jsonInput|aToken|folder|file|readOnly",
+                                                                "condition::if::target":  "displayConfiguredWidget",
+                                                                "documentation::value":  "Configured widgets section.",
+                                                                "condition::if::evaluationStrategy":  "DEFAULT",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "true"
+                                                            },
+                                               "name":  "configuredWidgets",
+                                               "path":  "config.configuredWidgets",
+                                               "placeholder":  "configuredWidgets",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "displayName":  "A Token",
+                                               "metadata":  {
+                                                                "documentation::value":  "A credential, input should be hidden and encrypted in backend.",
+                                                                "ui::credential":  "true"
+                                                            },
+                                               "name":  "aToken",
+                                               "path":  "config.configuredWidgets.aToken",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "File selection",
+                                               "metadata":  {
+                                                                "documentation::value":  "A file selector, only supported by studio.",
+                                                                "ui::path::value":  "FILE"
+                                                            },
+                                               "name":  "file",
+                                               "path":  "config.configuredWidgets.file",
+                                               "placeholder":  "file",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Folder selection",
+                                               "metadata":  {
+                                                                "documentation::value":  "A folder selector, only supported by studio.",
+                                                                "ui::path::value":  "DIRECTORY"
+                                                            },
+                                               "name":  "folder",
+                                               "path":  "config.configuredWidgets.folder",
+                                               "placeholder":  "folder",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Hidden String",
+                                               "metadata":  {
+                                                                "ui::defaultvalue::value":  "A default for the hidden value.",
+                                                                "ui::hidden":  "true",
+                                                                "documentation::value":  "Hidden field, could be set by an @Update service."
+                                                            },
+                                               "name":  "hiddenString",
+                                               "path":  "config.configuredWidgets.hiddenString",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "JSON input",
+                                               "metadata":  {
+                                                                "ui::code::value":  "json",
+                                                                "documentation::value":  "Multiline text area with syntax highlighting, here with json syntax highlighting."
+                                                            },
+                                               "name":  "jsonInput",
+                                               "path":  "config.configuredWidgets.jsonInput",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Multiline input",
+                                               "metadata":  {
+                                                                "ui::textarea":  "true",
+                                                                "documentation::value":  "A multiline input."
+                                                            },
+                                               "name":  "multiline",
+                                               "path":  "config.configuredWidgets.multiline",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "ReadOnly input",
+                                               "metadata":  {
+                                                                "ui::readonly":  "true",
+                                                                "documentation::value":  "A read only property."
+                                                            },
+                                               "name":  "readOnly",
+                                               "path":  "config.configuredWidgets.readOnly",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "SQL input",
+                                               "metadata":  {
+                                                                "ui::code::value":  "sql",
+                                                                "documentation::value":  "Multiline text area with syntax highlighting, here with sql syntax highlighting."
+                                                            },
+                                               "name":  "sqlInput",
+                                               "path":  "config.configuredWidgets.sqlInput",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "String with default",
+                                               "metadata":  {
+                                                                "ui::defaultvalue::value":  "A default value.",
+                                                                "documentation::value":  "String with a default value."
+                                                            },
+                                               "name":  "stringWithDefault",
+                                               "path":  "config.configuredWidgets.stringWithDefault",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Dataset configuration section",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Advanced::value":  "datastore",
+                                                                "ui::gridlayout::Main::value":  "datastore|entity|schema",
+                                                                "documentation::value":  "The dataset part.",
+                                                                "configurationtype::name":  "default",
+                                                                "configurationtype::type":  "dataset"
+                                                            },
+                                               "name":  "dataset",
+                                               "path":  "config.dataset",
+                                               "placeholder":  "dataset",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "displayName":  "Datastore configuration section",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Advanced::value":  "timeout",
+                                                                "ui::gridlayout::Main::value":  "login,password|healthcheckOk",
+                                                                "documentation::value":  "The connection part.",
+                                                                "action::healthcheck":  "HEALTHCHECK",
+                                                                "configurationtype::name":  "default",
+                                                                "configurationtype::type":  "datastore"
+                                                            },
+                                               "name":  "datastore",
+                                               "path":  "config.dataset.datastore",
+                                               "placeholder":  "datastore",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "Is healthechk successful ?",
+                                               "metadata":  {
+                                                                "documentation::value":  "Force the healtcheck result."
+                                                            },
+                                               "name":  "healthcheckOk",
+                                               "path":  "config.dataset.datastore.healthcheckOk",
+                                               "placeholder":  "healthcheckOk",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "displayName":  "Login",
+                                               "metadata":  {
+                                                                "documentation::value":  "A login."
+                                                            },
+                                               "name":  "login",
+                                               "path":  "config.dataset.datastore.login",
+                                               "placeholder":  "Your login",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Password",
+                                               "metadata":  {
+                                                                "documentation::value":  "A password.",
+                                                                "ui::credential":  "true"
+                                                            },
+                                               "name":  "password",
+                                               "path":  "config.dataset.datastore.password",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "0",
+                                               "displayName":  "Timeout",
+                                               "metadata":  {
+                                                                "documentation::value":  "A timeout in the advanced settings form."
+                                                            },
+                                               "name":  "timeout",
+                                               "path":  "config.dataset.datastore.timeout",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  2147483647,
+                                                                  "min":  -2147483648
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Entity",
+                                               "metadata":  {
+                                                                "documentation::value":  "A login."
+                                                            },
+                                               "name":  "entity",
+                                               "path":  "config.dataset.entity",
+                                               "placeholder":  "entity",
+                                               "proposalDisplayNames":  {
+                                                                            "USER":  "User",
+                                                                            "PRODUCT":  "Product",
+                                                                            "INVOICE":  "Invoice",
+                                                                            "ORDER":  "Order",
+                                                                            "CATEGORY":  "Category",
+                                                                            "ROLE":  "Role"
+                                                                        },
+                                               "type":  "ENUM",
+                                               "validation":  {
+                                                                  "enumValues":  [
+                                                                                     "USER",
+                                                                                     "PRODUCT",
+                                                                                     "INVOICE",
+                                                                                     "ORDER",
+                                                                                     "CATEGORY",
+                                                                                     "ROLE"
+                                                                                 ]
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "\u003cschema\u003e",
+                                               "metadata":  {
+                                                                "ui::structure::discoverSchema":  "DISCOVERSCHEMA",
+                                                                "ui::structure::value":  "__default__",
+                                                                "ui::gridlayout::Main::value":  "label|originalDbColumnName|key|type|talendType|nullable|pattern|length|precision|defaultValue|comment",
+                                                                "documentation::value":  "The schema information.",
+                                                                "action::schema::type":  "OUT",
+                                                                "action::schema::discoverSchema":  "DISCOVERSCHEMA",
+                                                                "ui::structure::type":  "OUT",
+                                                                "action::schema":  "DISCOVERSCHEMA"
+                                                            },
+                                               "name":  "schema",
+                                               "path":  "config.dataset.schema",
+                                               "placeholder":  "schema",
+                                               "type":  "ARRAY"
+                                           },
+                                           {
+                                               "displayName":  "\u003ccomment\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute comment."
+                                                            },
+                                               "name":  "comment",
+                                               "path":  "config.dataset.schema[].comment",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "\u003cdefaultValue\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute default value."
+                                                            },
+                                               "name":  "defaultValue",
+                                               "path":  "config.dataset.schema[].defaultValue",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "\u003ckey\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute key flag."
+                                                            },
+                                               "name":  "key",
+                                               "path":  "config.dataset.schema[].key",
+                                               "placeholder":  "key",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "displayName":  "\u003clabel\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema label."
+                                                            },
+                                               "name":  "label",
+                                               "path":  "config.dataset.schema[].label",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "0",
+                                               "displayName":  "\u003clength\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute length."
+                                                            },
+                                               "name":  "length",
+                                               "path":  "config.dataset.schema[].length",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  2147483647,
+                                                                  "min":  -2147483648
+                                                              }
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "\u003cnullable\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute nullable flag."
+                                                            },
+                                               "name":  "nullable",
+                                               "path":  "config.dataset.schema[].nullable",
+                                               "placeholder":  "nullable",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "displayName":  "\u003coriginalDbColumnName\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute original column name."
+                                                            },
+                                               "name":  "originalDbColumnName",
+                                               "path":  "config.dataset.schema[].originalDbColumnName",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "\u003cpattern\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute data pattern."
+                                                            },
+                                               "name":  "pattern",
+                                               "path":  "config.dataset.schema[].pattern",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "0",
+                                               "displayName":  "\u003cprecision\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute precision."
+                                                            },
+                                               "name":  "precision",
+                                               "path":  "config.dataset.schema[].precision",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  2147483647,
+                                                                  "min":  -2147483648
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "\u003ctalendType\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute java type."
+                                                            },
+                                               "name":  "talendType",
+                                               "path":  "config.dataset.schema[].talendType",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "\u003ctype\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "The schema attribute db type."
+                                                            },
+                                               "name":  "type",
+                                               "path":  "config.dataset.schema[].type",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "Display all supported type section",
+                                               "metadata":  {
+                                                                "documentation::value":  "Display \u0027All supported types\u0027 section."
+                                                            },
+                                               "name":  "displayAllSupportedTypes",
+                                               "path":  "config.displayAllSupportedTypes",
+                                               "placeholder":  "displayAllSupportedTypes",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "Display conditional display section",
+                                               "metadata":  {
+                                                                "documentation::value":  "Display \u0027Conditional display\u0027 section."
+                                                            },
+                                               "name":  "displayConditionalDisplay",
+                                               "path":  "config.displayConditionalDisplay",
+                                               "placeholder":  "displayConditionalDisplay",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "Display configured widgets",
+                                               "metadata":  {
+                                                                "documentation::value":  "Display \u0027configured widgets\u0027 section."
+                                                            },
+                                               "name":  "displayConfiguredWidget",
+                                               "path":  "config.displayConfiguredWidget",
+                                               "placeholder":  "displayConfiguredWidget",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "Display dynamic elements section",
+                                               "metadata":  {
+                                                                "documentation::value":  "Display dynamic elements section."
+                                                            },
+                                               "name":  "displayDynamicElements",
+                                               "path":  "config.displayDynamicElements",
+                                               "placeholder":  "displayDynamicElements",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "Display elements with constraints section",
+                                               "metadata":  {
+                                                                "documentation::value":  "Display \u0027Element with constraints\u0027 section."
+                                                            },
+                                               "name":  "displayElementsWithConstraints",
+                                               "path":  "config.displayElementsWithConstraints",
+                                               "placeholder":  "displayElementsWithConstraints",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "Display some lists section",
+                                               "metadata":  {
+                                                                "documentation::value":  "Display \u0027All some lists\u0027 section."
+                                                            },
+                                               "name":  "displaySomeLists",
+                                               "path":  "config.displaySomeLists",
+                                               "placeholder":  "displaySomeLists",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "displayName":  "Dynamic elements",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "singleString|someComplexConfig|asyncValidation|suggestedElement",
+                                                                "condition::if::target":  "displayDynamicElements",
+                                                                "documentation::value":  "Elements binded to some services.",
+                                                                "condition::if::evaluationStrategy":  "DEFAULT",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "true"
+                                                            },
+                                               "name":  "dynamicElements",
+                                               "path":  "config.dynamicElements",
+                                               "placeholder":  "dynamicElements",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "defaultValue":  "",
+                                               "displayName":  "Async validation on a field",
+                                               "metadata":  {
+                                                                "action::validation::parameters":  ".",
+                                                                "documentation::value":  "A String with async validation.",
+                                                                "action::validation":  "ASYNC_VALIDATION2"
+                                                            },
+                                               "name":  "asyncValidation",
+                                               "path":  "config.dynamicElements.asyncValidation",
+                                               "placeholder":  "Should not contain \u0027abc\u0027",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A single string",
+                                               "metadata":  {
+                                                                "documentation::value":  "A single option used as parameter for dynamic elements."
+                                                            },
+                                               "name":  "singleString",
+                                               "path":  "config.dynamicElements.singleString",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "",
+                                               "metadata":  {
+                                                                "action::validation::parameters":  ".",
+                                                                "action::update::after":  "anInteger",
+                                                                "action::update::parameters":  "singleString,suggestedElement",
+                                                                "ui::gridlayout::Main::value":  "aString|aBoolean|anInteger",
+                                                                "action::update":  "UPDATABLE",
+                                                                "documentation::value":  "Some configuration used by dynamics elements. This object is validated by a service call.",
+                                                                "action::update::activeIf":  "",
+                                                                "action::validation":  "ASYNC_VALIDATION"
+                                                            },
+                                               "name":  "someComplexConfig",
+                                               "path":  "config.dynamicElements.someComplexConfig",
+                                               "placeholder":  "someComplexConfig",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "defaultValue":  "false",
+                                               "displayName":  "A boolean",
+                                               "metadata":  {
+                                                                "documentation::value":  "A boolean value."
+                                                            },
+                                               "name":  "aBoolean",
+                                               "path":  "config.dynamicElements.someComplexConfig.aBoolean",
+                                               "placeholder":  "",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "displayName":  "A string",
+                                               "metadata":  {
+                                                                "documentation::value":  "A String value."
+                                                            },
+                                               "name":  "aString",
+                                               "path":  "config.dynamicElements.someComplexConfig.aString",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "0",
+                                               "displayName":  "An integer",
+                                               "metadata":  {
+                                                                "documentation::value":  "An integer value."
+                                                            },
+                                               "name":  "anInteger",
+                                               "path":  "config.dynamicElements.someComplexConfig.anInteger",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  2147483647,
+                                                                  "min":  -2147483648
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Sugggested elements",
+                                               "metadata":  {
+                                                                "action::suggestions":  "SUGGESTABLE",
+                                                                "documentation::value":  "Select one value among suggestions retrieved from a service.",
+                                                                "action::suggestions::parameters":  "someComplexConfig,singleString"
+                                                            },
+                                               "name":  "suggestedElement",
+                                               "path":  "config.dynamicElements.suggestedElement",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Elements with constraints",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "stringWithMaxLength|stringWithMinLength|stringWithPattern|intWithMin|intWithMax|aRequiredString|listWithMaxItems|listWithMinItems|listWithUniqueItems",
+                                                                "condition::if::target":  "displayElementsWithConstraints",
+                                                                "documentation::value":  "Elements with constraints.",
+                                                                "condition::if::evaluationStrategy":  "DEFAULT",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "true"
+                                                            },
+                                               "name":  "elementsWithConstraints",
+                                               "path":  "config.elementsWithConstraints",
+                                               "placeholder":  "elementsWithConstraints",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "displayName":  "Required String",
+                                               "metadata":  {
+                                                                "documentation::value":  "A required string field."
+                                                            },
+                                               "name":  "aRequiredString",
+                                               "path":  "config.elementsWithConstraints.aRequiredString",
+                                               "placeholder":  "",
+                                               "type":  "STRING",
+                                               "validation":  {
+                                                                  "required":  true
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Integer with 100 as max value",
+                                               "metadata":  {
+                                                                "documentation::value":  "An integer with 100 as max value."
+                                                            },
+                                               "name":  "intWithMax",
+                                               "path":  "config.elementsWithConstraints.intWithMax",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  100,
+                                                                  "min":  -2147483648
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Integer with 100 as min value",
+                                               "metadata":  {
+                                                                "documentation::value":  "An integer with 100 as min value."
+                                                            },
+                                               "name":  "intWithMin",
+                                               "path":  "config.elementsWithConstraints.intWithMin",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  2147483647,
+                                                                  "min":  100
+                                                              }
+                                           },
+                                           {
+                                               "defaultValue":  "[]",
+                                               "displayName":  "List with maximum number of items",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "key|value",
+                                                                "documentation::value":  "A list of key/value pairs with a maximum number of items."
+                                                            },
+                                               "name":  "listWithMaxItems",
+                                               "path":  "config.elementsWithConstraints.listWithMaxItems",
+                                               "placeholder":  "listWithMaxItems",
+                                               "type":  "ARRAY",
+                                               "validation":  {
+                                                                  "maxItems":  5
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Key",
+                                               "metadata":  {
+                                                                "documentation::value":  "The key."
+                                                            },
+                                               "name":  "key",
+                                               "path":  "config.elementsWithConstraints.listWithMaxItems[].key",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Value",
+                                               "metadata":  {
+                                                                "documentation::value":  "The value."
+                                                            },
+                                               "name":  "value",
+                                               "path":  "config.elementsWithConstraints.listWithMaxItems[].value",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "[]",
+                                               "displayName":  "List with minimum number of items",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "key|value",
+                                                                "documentation::value":  "A list of key/value pairs with a minimum number of items."
+                                                            },
+                                               "name":  "listWithMinItems",
+                                               "path":  "config.elementsWithConstraints.listWithMinItems",
+                                               "placeholder":  "listWithMinItems",
+                                               "type":  "ARRAY",
+                                               "validation":  {
+                                                                  "minItems":  2
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Key",
+                                               "metadata":  {
+                                                                "documentation::value":  "The key."
+                                                            },
+                                               "name":  "key",
+                                               "path":  "config.elementsWithConstraints.listWithMinItems[].key",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Value",
+                                               "metadata":  {
+                                                                "documentation::value":  "The value."
+                                                            },
+                                               "name":  "value",
+                                               "path":  "config.elementsWithConstraints.listWithMinItems[].value",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "[]",
+                                               "displayName":  "List with distinct items",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "key|value",
+                                                                "documentation::value":  "A list of key/value pairs with a uniq items."
+                                                            },
+                                               "name":  "listWithUniqueItems",
+                                               "path":  "config.elementsWithConstraints.listWithUniqueItems",
+                                               "placeholder":  "listWithUniqueItems",
+                                               "type":  "ARRAY",
+                                               "validation":  {
+                                                                  "uniqueItems":  true
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Key",
+                                               "metadata":  {
+                                                                "documentation::value":  "The key."
+                                                            },
+                                               "name":  "key",
+                                               "path":  "config.elementsWithConstraints.listWithUniqueItems[].key",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "Value",
+                                               "metadata":  {
+                                                                "documentation::value":  "The value."
+                                                            },
+                                               "name":  "value",
+                                               "path":  "config.elementsWithConstraints.listWithUniqueItems[].value",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "String with a max length",
+                                               "metadata":  {
+                                                                "documentation::value":  "A string with a max length."
+                                                            },
+                                               "name":  "stringWithMaxLength",
+                                               "path":  "config.elementsWithConstraints.stringWithMaxLength",
+                                               "placeholder":  "10 characters max",
+                                               "type":  "STRING",
+                                               "validation":  {
+                                                                  "maxLength":  10
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "String with a min length",
+                                               "metadata":  {
+                                                                "documentation::value":  "A string with a min length."
+                                                            },
+                                               "name":  "stringWithMinLength",
+                                               "path":  "config.elementsWithConstraints.stringWithMinLength",
+                                               "placeholder":  "3 characters at least",
+                                               "type":  "STRING",
+                                               "validation":  {
+                                                                  "minLength":  3
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "String with a pattern",
+                                               "metadata":  {
+                                                                "documentation::value":  "A string with pattern."
+                                                            },
+                                               "name":  "stringWithPattern",
+                                               "path":  "config.elementsWithConstraints.stringWithPattern",
+                                               "placeholder":  "Follow the pattern: ^start[abcdef]{0,5}END$",
+                                               "type":  "STRING",
+                                               "validation":  {
+                                                                  "pattern":  "^start[abcdef]{0,5}END$"
+                                                              }
+                                           },
+                                           {
+                                               "displayName":  "Some Lists",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "aListOfStrings|aListOfInts|aListOfBooleans|listOfAllSupportedTypes",
+                                                                "condition::if::target":  "displaySomeLists",
+                                                                "documentation::value":  "Some list of configuration.",
+                                                                "condition::if::evaluationStrategy":  "DEFAULT",
+                                                                "condition::if::negate":  "false",
+                                                                "condition::if::value":  "true"
+                                                            },
+                                               "name":  "someLists",
+                                               "path":  "config.someLists",
+                                               "placeholder":  "someLists",
+                                               "type":  "OBJECT"
+                                           },
+                                           {
+                                               "defaultValue":  "[]",
+                                               "displayName":  "A list of Booleans",
+                                               "metadata":  {
+                                                                "documentation::value":  "A list of boolean."
+                                                            },
+                                               "name":  "aListOfBooleans",
+                                               "path":  "config.someLists.aListOfBooleans",
+                                               "placeholder":  "aListOfBooleans",
+                                               "type":  "ARRAY"
+                                           },
+                                           {
+                                               "displayName":  "aListOfBooleans[${index}]",
+                                               "metadata":  {
+
+                                                            },
+                                               "name":  "aListOfBooleans[]",
+                                               "path":  "config.someLists.aListOfBooleans[]",
+                                               "placeholder":  "aListOfBooleans[${index}]",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "defaultValue":  "[]",
+                                               "displayName":  "A list of Integers",
+                                               "metadata":  {
+                                                                "documentation::value":  "A list of int."
+                                                            },
+                                               "name":  "aListOfInts",
+                                               "path":  "config.someLists.aListOfInts",
+                                               "placeholder":  "aListOfInts",
+                                               "type":  "ARRAY"
+                                           },
+                                           {
+                                               "displayName":  "aListOfInts[${index}]",
+                                               "metadata":  {
+
+                                                            },
+                                               "name":  "aListOfInts[]",
+                                               "path":  "config.someLists.aListOfInts[]",
+                                               "placeholder":  "aListOfInts[${index}]",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  2147483647,
+                                                                  "min":  -2147483648
+                                                              }
+                                           },
+                                           {
+                                               "defaultValue":  "[]",
+                                               "displayName":  "\u003caListOfStrings\u003e",
+                                               "metadata":  {
+                                                                "documentation::value":  "A list of Strings."
+                                                            },
+                                               "name":  "aListOfStrings",
+                                               "path":  "config.someLists.aListOfStrings",
+                                               "placeholder":  "aListOfStrings",
+                                               "type":  "ARRAY"
+                                           },
+                                           {
+                                               "displayName":  "aListOfStrings[${index}]",
+                                               "metadata":  {
+
+                                                            },
+                                               "name":  "aListOfStrings[]",
+                                               "path":  "config.someLists.aListOfStrings[]",
+                                               "placeholder":  "aListOfStrings[${index}]",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "defaultValue":  "[]",
+                                               "displayName":  "A list of complex object",
+                                               "metadata":  {
+                                                                "ui::gridlayout::Main::value":  "aString|aBoolean|aBigDecimal|aFloat|aBigInteger|anInteger|aFile|aInetAddress|aURI|aURL|aLocalDateTime|aZonedDateTime",
+                                                                "documentation::value":  "A list of all supported types."
+                                                            },
+                                               "name":  "listOfAllSupportedTypes",
+                                               "path":  "config.someLists.listOfAllSupportedTypes",
+                                               "placeholder":  "listOfAllSupportedTypes",
+                                               "type":  "ARRAY"
+                                           },
+                                           {
+                                               "displayName":  "A BigDecimal",
+                                               "metadata":  {
+                                                                "documentation::value":  "A BigDecimal value."
+                                                            },
+                                               "name":  "aBigDecimal",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aBigDecimal",
+                                               "placeholder":  "aBigDecimal",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A BigInteger",
+                                               "metadata":  {
+                                                                "documentation::value":  "A BigInteger value."
+                                                            },
+                                               "name":  "aBigInteger",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aBigInteger",
+                                               "placeholder":  "aBigInteger",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A Boolean",
+                                               "metadata":  {
+                                                                "documentation::value":  "A boolean value."
+                                                            },
+                                               "name":  "aBoolean",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aBoolean",
+                                               "placeholder":  "aBoolean",
+                                               "type":  "BOOLEAN"
+                                           },
+                                           {
+                                               "displayName":  "A File",
+                                               "metadata":  {
+                                                                "documentation::value":  "A File value."
+                                                            },
+                                               "name":  "aFile",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aFile",
+                                               "placeholder":  "aFile",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A Float",
+                                               "metadata":  {
+                                                                "documentation::value":  "A float value."
+                                                            },
+                                               "name":  "aFloat",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aFloat",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER"
+                                           },
+                                           {
+                                               "displayName":  "An InetAddress",
+                                               "metadata":  {
+                                                                "documentation::value":  "A InetAddress value."
+                                                            },
+                                               "name":  "aInetAddress",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aInetAddress",
+                                               "placeholder":  "aInetAddress",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A LocalDateTime",
+                                               "metadata":  {
+                                                                "documentation::value":  "A LocalDateTime value.",
+                                                                "ui::datetime":  "datetime",
+                                                                "ui::datetime::useUTC":  "true",
+                                                                "ui::datetime::dateFormat":  "YYYY/MM/DD",
+                                                                "ui::datetime::useSeconds":  "true"
+                                                            },
+                                               "name":  "aLocalDateTime",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aLocalDateTime",
+                                               "placeholder":  "aLocalDateTime",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A String",
+                                               "metadata":  {
+                                                                "documentation::value":  "A String value."
+                                                            },
+                                               "name":  "aString",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aString",
+                                               "placeholder":  "A placeholder in a String input",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A URI",
+                                               "metadata":  {
+                                                                "documentation::value":  "A URI value."
+                                                            },
+                                               "name":  "aURI",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aURI",
+                                               "placeholder":  "aURI",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A URL",
+                                               "metadata":  {
+                                                                "documentation::value":  "A URL value."
+                                                            },
+                                               "name":  "aURL",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aURL",
+                                               "placeholder":  "aURL",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "A ZonedDateTime",
+                                               "metadata":  {
+                                                                "documentation::value":  "A ZonedDateTime value.",
+                                                                "ui::datetime":  "zoneddatetime",
+                                                                "ui::datetime::useUTC":  "true",
+                                                                "ui::datetime::dateFormat":  "YYYY/MM/DD",
+                                                                "ui::datetime::useSeconds":  "true"
+                                                            },
+                                               "name":  "aZonedDateTime",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].aZonedDateTime",
+                                               "placeholder":  "",
+                                               "type":  "STRING"
+                                           },
+                                           {
+                                               "displayName":  "An Integer",
+                                               "metadata":  {
+                                                                "documentation::value":  "An Integer value."
+                                                            },
+                                               "name":  "anInteger",
+                                               "path":  "config.someLists.listOfAllSupportedTypes[].anInteger",
+                                               "placeholder":  "",
+                                               "type":  "NUMBER",
+                                               "validation":  {
+                                                                  "max":  2147483647,
+                                                                  "min":  -2147483648
+                                                              }
+                                           }
+                                       ],
+                        "type":  "input",
+                        "version":  1
+                    }
+                ]
+}

@@ -1,0 +1,1708 @@
+{
+  "jsonSchema": {
+    "properties": {
+      "config": {
+        "properties": {
+          "allSupportedTypes": {
+            "properties": {
+              "aBigDecimal": {
+                "title": "A BigDecimal",
+                "type": "string"
+              },
+              "aBigInteger": {
+                "title": "A BigInteger",
+                "type": "string"
+              },
+              "aBoolean": {
+                "title": "A Boolean",
+                "type": "boolean"
+              },
+              "aFile": {
+                "title": "A File",
+                "type": "string"
+              },
+              "aFloat": {
+                "default": 0.0,
+                "title": "A Float",
+                "type": "number"
+              },
+              "aInetAddress": {
+                "title": "An InetAddress",
+                "type": "string"
+              },
+              "aLocalDateTime": {
+                "title": "A LocalDateTime",
+                "type": "string"
+              },
+              "aString": {
+                "title": "A String",
+                "type": "string"
+              },
+              "aURI": {
+                "title": "A URI",
+                "type": "string"
+              },
+              "aURL": {
+                "title": "A URL",
+                "type": "string"
+              },
+              "aZonedDateTime": {
+                "title": "A ZonedDateTime",
+                "type": "string"
+              },
+              "anInteger": {
+                "maximum": 2.147483647E9,
+                "minimum": -2.147483648E9,
+                "title": "An Integer",
+                "type": "number"
+              }
+            },
+            "title": "All supported types",
+            "type": "object"
+          },
+          "conditionalDisplay": {
+            "properties": {
+              "aBoolean": {
+                "default": false,
+                "title": "A boolean",
+                "type": "boolean"
+              },
+              "aString": {
+                "title": "A string",
+                "type": "string"
+              },
+              "conditionString": {
+                "title": "Conditioned String",
+                "type": "string"
+              },
+              "fifthConditionString": {
+                "title": "Fifth condition String",
+                "type": "string"
+              },
+              "fourthConditionString": {
+                "title": "Fourth condition String",
+                "type": "string"
+              },
+              "secondConditionString": {
+                "title": "Second condition String",
+                "type": "string"
+              },
+              "sixthConditionString": {
+                "title": "Sixth condition String",
+                "type": "string"
+              },
+              "thirdConditionString": {
+                "title": "Third condition String",
+                "type": "string"
+              }
+            },
+            "title": "Conditional display section",
+            "type": "object"
+          },
+          "configuredWidgets": {
+            "properties": {
+              "aToken": {
+                "title": "A Token",
+                "type": "string"
+              },
+              "file": {
+                "title": "File selection",
+                "type": "string"
+              },
+              "folder": {
+                "title": "Folder selection",
+                "type": "string"
+              },
+              "hiddenString": {
+                "default": "A default for the hidden value.",
+                "title": "Hidden String",
+                "type": "string"
+              },
+              "jsonInput": {
+                "title": "JSON input",
+                "type": "string"
+              },
+              "multiline": {
+                "title": "Multiline input",
+                "type": "string"
+              },
+              "readOnly": {
+                "title": "ReadOnly input",
+                "type": "string"
+              },
+              "sqlInput": {
+                "title": "SQL input",
+                "type": "string"
+              },
+              "stringWithDefault": {
+                "default": "A default value.",
+                "title": "String with default",
+                "type": "string"
+              }
+            },
+            "title": "Configured Widgets",
+            "type": "object"
+          },
+          "dataset": {
+            "properties": {
+              "datastore": {
+                "properties": {
+                  "healthcheckOk": {
+                    "default": false,
+                    "title": "Is healthechk successful ?",
+                    "type": "boolean"
+                  },
+                  "login": {
+                    "title": "Login",
+                    "type": "string"
+                  },
+                  "password": {
+                    "title": "Password",
+                    "type": "string"
+                  },
+                  "timeout": {
+                    "default": 0.0,
+                    "maximum": 2.147483647E9,
+                    "minimum": -2.147483648E9,
+                    "title": "Timeout",
+                    "type": "number"
+                  }
+                },
+                "title": "Datastore configuration section",
+                "type": "object"
+              },
+              "entity": {
+                "enum": [
+                  "USER",
+                  "PRODUCT",
+                  "INVOICE",
+                  "ORDER",
+                  "CATEGORY",
+                  "ROLE"
+                ],
+                "title": "Entity",
+                "type": "string"
+              },
+              "schema": {
+                "items": {
+                  "properties": {
+                    "comment": {
+                      "title": "<comment>",
+                      "type": "string"
+                    },
+                    "defaultValue": {
+                      "title": "<defaultValue>",
+                      "type": "string"
+                    },
+                    "key": {
+                      "default": false,
+                      "title": "<key>",
+                      "type": "boolean"
+                    },
+                    "label": {
+                      "title": "<label>",
+                      "type": "string"
+                    },
+                    "length": {
+                      "default": 0.0,
+                      "maximum": 2.147483647E9,
+                      "minimum": -2.147483648E9,
+                      "title": "<length>",
+                      "type": "number"
+                    },
+                    "nullable": {
+                      "default": false,
+                      "title": "<nullable>",
+                      "type": "boolean"
+                    },
+                    "originalDbColumnName": {
+                      "title": "<originalDbColumnName>",
+                      "type": "string"
+                    },
+                    "pattern": {
+                      "title": "<pattern>",
+                      "type": "string"
+                    },
+                    "precision": {
+                      "default": 0.0,
+                      "maximum": 2.147483647E9,
+                      "minimum": -2.147483648E9,
+                      "title": "<precision>",
+                      "type": "number"
+                    },
+                    "talendType": {
+                      "title": "<talendType>",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "<type>",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "title": "<schema>",
+                "type": "array"
+              }
+            },
+            "title": "Dataset configuration section",
+            "type": "object"
+          },
+          "displayAllSupportedTypes": {
+            "default": false,
+            "title": "Display all supported type section",
+            "type": "boolean"
+          },
+          "displayConditionalDisplay": {
+            "default": false,
+            "title": "Display conditional display section",
+            "type": "boolean"
+          },
+          "displayConfiguredWidget": {
+            "default": false,
+            "title": "Display configured widgets",
+            "type": "boolean"
+          },
+          "displayDynamicElements": {
+            "default": false,
+            "title": "Display dynamic elements section",
+            "type": "boolean"
+          },
+          "displayElementsWithConstraints": {
+            "default": false,
+            "title": "Display elements with constraints section",
+            "type": "boolean"
+          },
+          "displaySomeLists": {
+            "default": false,
+            "title": "Display some lists section",
+            "type": "boolean"
+          },
+          "dynamicElements": {
+            "properties": {
+              "asyncValidation": {
+                "default": "",
+                "title": "Async validation on a field",
+                "type": "string"
+              },
+              "singleString": {
+                "title": "A single string",
+                "type": "string"
+              },
+              "someComplexConfig": {
+                "properties": {
+                  "aBoolean": {
+                    "default": false,
+                    "title": "A boolean",
+                    "type": "boolean"
+                  },
+                  "aString": {
+                    "title": "A string",
+                    "type": "string"
+                  },
+                  "anInteger": {
+                    "default": 0.0,
+                    "maximum": 2.147483647E9,
+                    "minimum": -2.147483648E9,
+                    "title": "An integer",
+                    "type": "number"
+                  }
+                },
+                "title": "",
+                "type": "object"
+              },
+              "suggestedElement": {
+                "title": "Sugggested elements",
+                "type": "string"
+              }
+            },
+            "title": "Dynamic elements",
+            "type": "object"
+          },
+          "elementsWithConstraints": {
+            "properties": {
+              "aRequiredString": {
+                "title": "Required String",
+                "type": "string"
+              },
+              "intWithMax": {
+                "maximum": 100.0,
+                "minimum": -2.147483648E9,
+                "title": "Integer with 100 as max value",
+                "type": "number"
+              },
+              "intWithMin": {
+                "maximum": 2.147483647E9,
+                "minimum": 100.0,
+                "title": "Integer with 100 as min value",
+                "type": "number"
+              },
+              "listWithMaxItems": {
+                "default": [],
+                "items": {
+                  "properties": {
+                    "key": {
+                      "title": "Key",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "maxItems": 5,
+                "title": "List with maximum number of items",
+                "type": "array"
+              },
+              "listWithMinItems": {
+                "default": [],
+                "items": {
+                  "properties": {
+                    "key": {
+                      "title": "Key",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "minItems": 2,
+                "title": "List with minimum number of items",
+                "type": "array"
+              },
+              "listWithUniqueItems": {
+                "default": [],
+                "items": {
+                  "properties": {
+                    "key": {
+                      "title": "Key",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "title": "List with distinct items",
+                "type": "array",
+                "uniqueItems": true
+              },
+              "stringWithMaxLength": {
+                "maxLength": 10,
+                "title": "String with a max length",
+                "type": "string"
+              },
+              "stringWithMinLength": {
+                "minLength": 3,
+                "title": "String with a min length",
+                "type": "string"
+              },
+              "stringWithPattern": {
+                "pattern": "^start[abcdef]{0,5}END$",
+                "title": "String with a pattern",
+                "type": "string"
+              }
+            },
+            "required": [
+              "aRequiredString"
+            ],
+            "title": "Elements with constraints",
+            "type": "object"
+          },
+          "someLists": {
+            "properties": {
+              "aListOfBooleans": {
+                "default": [],
+                "items": {
+                  "title": "A list of Booleans",
+                  "type": "boolean"
+                },
+                "title": "A list of Booleans",
+                "type": "array"
+              },
+              "aListOfInts": {
+                "default": [],
+                "items": {
+                  "title": "A list of Integers",
+                  "type": "number"
+                },
+                "title": "A list of Integers",
+                "type": "array"
+              },
+              "aListOfStrings": {
+                "default": [],
+                "items": {
+                  "title": "<aListOfStrings>",
+                  "type": "string"
+                },
+                "title": "<aListOfStrings>",
+                "type": "array"
+              },
+              "listOfAllSupportedTypes": {
+                "default": [],
+                "items": {
+                  "properties": {
+                    "aBigDecimal": {
+                      "title": "A BigDecimal",
+                      "type": "string"
+                    },
+                    "aBigInteger": {
+                      "title": "A BigInteger",
+                      "type": "string"
+                    },
+                    "aBoolean": {
+                      "title": "A Boolean",
+                      "type": "boolean"
+                    },
+                    "aFile": {
+                      "title": "A File",
+                      "type": "string"
+                    },
+                    "aFloat": {
+                      "title": "A Float",
+                      "type": "number"
+                    },
+                    "aInetAddress": {
+                      "title": "An InetAddress",
+                      "type": "string"
+                    },
+                    "aLocalDateTime": {
+                      "title": "A LocalDateTime",
+                      "type": "string"
+                    },
+                    "aString": {
+                      "title": "A String",
+                      "type": "string"
+                    },
+                    "aURI": {
+                      "title": "A URI",
+                      "type": "string"
+                    },
+                    "aURL": {
+                      "title": "A URL",
+                      "type": "string"
+                    },
+                    "aZonedDateTime": {
+                      "title": "A ZonedDateTime",
+                      "type": "string"
+                    },
+                    "anInteger": {
+                      "maximum": 2.147483647E9,
+                      "minimum": -2.147483648E9,
+                      "title": "An Integer",
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "title": "A list of complex object",
+                "type": "array"
+              }
+            },
+            "title": "Some Lists",
+            "type": "object"
+          }
+        },
+        "title": "config",
+        "type": "object"
+      }
+    },
+    "required": [],
+    "title": "Input",
+    "type": "object"
+  },
+  "properties": {
+    "config": {
+      "displayElementsWithConstraints": false,
+      "someLists": {
+        "aListOfBooleans": [],
+        "aListOfInts": [],
+        "aListOfStrings": [],
+        "listOfAllSupportedTypes": []
+      },
+      "dynamicElements": {
+        "asyncValidation": "",
+        "someComplexConfig": {
+          "aBoolean": false,
+          "anInteger": 0.0
+        }
+      },
+      "displayConditionalDisplay": false,
+      "elementsWithConstraints": {
+        "listWithMinItems": [],
+        "listWithMaxItems": [],
+        "listWithUniqueItems": []
+      },
+      "configuredWidgets": {
+        "stringWithDefault": "A default value.",
+        "hiddenString": "A default for the hidden value."
+      },
+      "displayDynamicElements": false,
+      "displaySomeLists": false,
+      "conditionalDisplay": {
+        "aBoolean": false
+      },
+      "allSupportedTypes": {
+        "aFloat": 0.0
+      },
+      "displayConfiguredWidget": false,
+      "dataset": {
+        "datastore": {
+          "healthcheckOk": false,
+          "timeout": 0.0
+        }
+      },
+      "displayAllSupportedTypes": false
+    }
+  },
+  "uiSchema": [
+    {
+      "items": [
+        {
+          "items": [
+            {
+              "description": "The dataset part.",
+              "items": [
+                {
+                  "description": "The connection part.",
+                  "items": [
+                    {
+                      "items": [
+                        {
+                          "description": "A login.",
+                          "key": "config.dataset.datastore.login",
+                          "placeholder": "Your login",
+                          "title": "Login",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A password.",
+                          "key": "config.dataset.datastore.password",
+                          "placeholder": "",
+                          "title": "Password",
+                          "type": "password",
+                          "widget": "text"
+                        }
+                      ],
+                      "widget": "columns"
+                    },
+                    {
+                      "description": "Force the healtcheck result.",
+                      "key": "config.dataset.datastore.healthcheckOk",
+                      "placeholder": "healthcheckOk",
+                      "title": "Is healthechk successful ?",
+                      "widget": "toggle"
+                    },
+                    {
+                      "key": "config.dataset.datastore_1",
+                      "title": "Healthcheck",
+                      "triggers": [
+                        {
+                          "action": "HEALTHCHECK",
+                          "family": "sampleForm",
+                          "parameters": [
+                            {
+                              "key": "configuration",
+                              "path": "config.dataset.datastore"
+                            }
+                          ],
+                          "type": "healthcheck"
+                        }
+                      ],
+                      "widget": "button"
+                    }
+                  ],
+                  "placeholder": "datastore",
+                  "title": "Datastore configuration section",
+                  "widget": "fieldset"
+                },
+                {
+                  "description": "A login.",
+                  "key": "config.dataset.entity",
+                  "placeholder": "entity",
+                  "restricted": true,
+                  "title": "Entity",
+                  "titleMap": [
+                    {
+                      "name": "User",
+                      "value": "USER"
+                    },
+                    {
+                      "name": "Product",
+                      "value": "PRODUCT"
+                    },
+                    {
+                      "name": "Invoice",
+                      "value": "INVOICE"
+                    },
+                    {
+                      "name": "Order",
+                      "value": "ORDER"
+                    },
+                    {
+                      "name": "Category",
+                      "value": "CATEGORY"
+                    },
+                    {
+                      "name": "Role",
+                      "value": "ROLE"
+                    }
+                  ],
+                  "widget": "datalist"
+                },
+                {
+                  "description": "The schema information.",
+                  "itemWidget": "collapsibleFieldset",
+                  "items": [
+                    {
+                      "description": "The schema information.",
+                      "items": [
+                        {
+                          "description": "The schema label.",
+                          "key": "config.dataset.schema[].label",
+                          "placeholder": "",
+                          "title": "<label>",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The schema attribute original column name.",
+                          "key": "config.dataset.schema[].originalDbColumnName",
+                          "placeholder": "",
+                          "title": "<originalDbColumnName>",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The schema attribute key flag.",
+                          "key": "config.dataset.schema[].key",
+                          "placeholder": "key",
+                          "title": "<key>",
+                          "widget": "toggle"
+                        },
+                        {
+                          "description": "The schema attribute db type.",
+                          "key": "config.dataset.schema[].type",
+                          "placeholder": "",
+                          "title": "<type>",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The schema attribute java type.",
+                          "key": "config.dataset.schema[].talendType",
+                          "placeholder": "",
+                          "title": "<talendType>",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The schema attribute nullable flag.",
+                          "key": "config.dataset.schema[].nullable",
+                          "placeholder": "nullable",
+                          "title": "<nullable>",
+                          "widget": "toggle"
+                        },
+                        {
+                          "description": "The schema attribute data pattern.",
+                          "key": "config.dataset.schema[].pattern",
+                          "placeholder": "",
+                          "title": "<pattern>",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The schema attribute length.",
+                          "key": "config.dataset.schema[].length",
+                          "placeholder": "",
+                          "title": "<length>",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The schema attribute precision.",
+                          "key": "config.dataset.schema[].precision",
+                          "placeholder": "",
+                          "title": "<precision>",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The schema attribute default value.",
+                          "key": "config.dataset.schema[].defaultValue",
+                          "placeholder": "",
+                          "title": "<defaultValue>",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The schema attribute comment.",
+                          "key": "config.dataset.schema[].comment",
+                          "placeholder": "",
+                          "title": "<comment>",
+                          "widget": "text"
+                        }
+                      ],
+                      "key": "config.dataset.schema[]",
+                      "placeholder": "schema"
+                    }
+                  ],
+                  "key": "config.dataset.schema",
+                  "placeholder": "schema",
+                  "title": "<schema>"
+                },
+                {
+                  "key": "config.dataset_2",
+                  "title": "Discover schema",
+                  "triggers": [
+                    {
+                      "action": "DISCOVERSCHEMA",
+                      "family": "sampleForm",
+                      "options": [
+                        {
+                          "path": "config.dataset.schema",
+                          "type": "array"
+                        }
+                      ],
+                      "parameters": [
+                        {
+                          "key": "configuration",
+                          "path": "config.dataset"
+                        }
+                      ],
+                      "type": "schema"
+                    }
+                  ],
+                  "widget": "button"
+                }
+              ],
+              "placeholder": "dataset",
+              "title": "Dataset configuration section",
+              "widget": "fieldset"
+            },
+            {
+              "description": "Display 'All supported types' section.",
+              "key": "config.displayAllSupportedTypes",
+              "placeholder": "displayAllSupportedTypes",
+              "title": "Display all supported type section",
+              "widget": "toggle"
+            },
+            {
+              "condition": {
+                "===": [
+                  {
+                    "var": "config.displayAllSupportedTypes"
+                  },
+                  true
+                ]
+              },
+              "description": "A complex configuration with all supported types.",
+              "items": [
+                {
+                  "description": "A String value.",
+                  "key": "config.allSupportedTypes.aString",
+                  "placeholder": "A placeholder in a String input",
+                  "title": "A String",
+                  "widget": "text"
+                },
+                {
+                  "description": "A boolean value.",
+                  "key": "config.allSupportedTypes.aBoolean",
+                  "placeholder": "aBoolean",
+                  "title": "A Boolean",
+                  "widget": "toggle"
+                },
+                {
+                  "description": "A BigDecimal value.",
+                  "key": "config.allSupportedTypes.aBigDecimal",
+                  "placeholder": "aBigDecimal",
+                  "title": "A BigDecimal",
+                  "widget": "text"
+                },
+                {
+                  "description": "A float value.",
+                  "key": "config.allSupportedTypes.aFloat",
+                  "placeholder": "",
+                  "title": "A Float",
+                  "widget": "text"
+                },
+                {
+                  "description": "A BigInteger value.",
+                  "key": "config.allSupportedTypes.aBigInteger",
+                  "placeholder": "aBigInteger",
+                  "title": "A BigInteger",
+                  "widget": "text"
+                },
+                {
+                  "description": "An Integer value.",
+                  "key": "config.allSupportedTypes.anInteger",
+                  "placeholder": "",
+                  "title": "An Integer",
+                  "widget": "text"
+                },
+                {
+                  "description": "A File value.",
+                  "key": "config.allSupportedTypes.aFile",
+                  "placeholder": "aFile",
+                  "title": "A File",
+                  "widget": "text"
+                },
+                {
+                  "description": "A InetAddress value.",
+                  "key": "config.allSupportedTypes.aInetAddress",
+                  "placeholder": "aInetAddress",
+                  "title": "An InetAddress",
+                  "widget": "text"
+                },
+                {
+                  "description": "A URI value.",
+                  "key": "config.allSupportedTypes.aURI",
+                  "placeholder": "aURI",
+                  "title": "A URI",
+                  "widget": "text"
+                },
+                {
+                  "description": "A URL value.",
+                  "key": "config.allSupportedTypes.aURL",
+                  "placeholder": "aURL",
+                  "title": "A URL",
+                  "widget": "text"
+                },
+                {
+                  "description": "A LocalDateTime value.",
+                  "key": "config.allSupportedTypes.aLocalDateTime",
+                  "options": {
+                    "useSeconds": true,
+                    "dateFormat": "YYYY/MM/DD",
+                    "useUTC": true
+                  },
+                  "placeholder": "aLocalDateTime",
+                  "title": "A LocalDateTime",
+                  "widget": "datetime"
+                },
+                {
+                  "description": "A ZonedDateTime value.",
+                  "key": "config.allSupportedTypes.aZonedDateTime",
+                  "options": {
+                    "useSeconds": true,
+                    "dateFormat": "YYYY/MM/DD",
+                    "useUTC": true
+                  },
+                  "placeholder": "",
+                  "title": "A ZonedDateTime",
+                  "widget": "datetime"
+                }
+              ],
+              "placeholder": "allSupportedTypes",
+              "title": "All supported types",
+              "widget": "fieldset"
+            },
+            {
+              "description": "Display 'configured widgets' section.",
+              "key": "config.displayConfiguredWidget",
+              "placeholder": "displayConfiguredWidget",
+              "title": "Display configured widgets",
+              "widget": "toggle"
+            },
+            {
+              "condition": {
+                "===": [
+                  {
+                    "var": "config.displayConfiguredWidget"
+                  },
+                  true
+                ]
+              },
+              "description": "Configured widgets section.",
+              "items": [
+                {
+                  "description": "String with a default value.",
+                  "key": "config.configuredWidgets.stringWithDefault",
+                  "placeholder": "",
+                  "title": "String with default",
+                  "widget": "text"
+                },
+                {
+                  "condition": {
+                    "==": [
+                      1,
+                      -1
+                    ]
+                  },
+                  "description": "Hidden field, could be set by an @Update service.",
+                  "key": "config.configuredWidgets.hiddenString",
+                  "placeholder": "",
+                  "title": "Hidden String",
+                  "widget": "text"
+                },
+                {
+                  "description": "A multiline input.",
+                  "key": "config.configuredWidgets.multiline",
+                  "placeholder": "",
+                  "title": "Multiline input",
+                  "widget": "textarea"
+                },
+                {
+                  "description": "Multiline text area with syntax highlighting, here with sql syntax highlighting.",
+                  "key": "config.configuredWidgets.sqlInput",
+                  "options": {
+                    "language": "sql"
+                  },
+                  "placeholder": "",
+                  "title": "SQL input",
+                  "widget": "code"
+                },
+                {
+                  "description": "Multiline text area with syntax highlighting, here with json syntax highlighting.",
+                  "key": "config.configuredWidgets.jsonInput",
+                  "options": {
+                    "language": "json"
+                  },
+                  "placeholder": "",
+                  "title": "JSON input",
+                  "widget": "code"
+                },
+                {
+                  "description": "A credential, input should be hidden and encrypted in backend.",
+                  "key": "config.configuredWidgets.aToken",
+                  "placeholder": "",
+                  "title": "A Token",
+                  "type": "password",
+                  "widget": "text"
+                },
+                {
+                  "description": "A folder selector, only supported by studio.",
+                  "key": "config.configuredWidgets.folder",
+                  "placeholder": "folder",
+                  "title": "Folder selection",
+                  "widget": "text"
+                },
+                {
+                  "description": "A file selector, only supported by studio.",
+                  "key": "config.configuredWidgets.file",
+                  "placeholder": "file",
+                  "title": "File selection",
+                  "widget": "text"
+                },
+                {
+                  "description": "A read only property.",
+                  "key": "config.configuredWidgets.readOnly",
+                  "placeholder": "",
+                  "readOnly": true,
+                  "title": "ReadOnly input",
+                  "widget": "text"
+                }
+              ],
+              "placeholder": "configuredWidgets",
+              "title": "Configured Widgets",
+              "widget": "fieldset"
+            },
+            {
+              "description": "Display 'All some lists' section.",
+              "key": "config.displaySomeLists",
+              "placeholder": "displaySomeLists",
+              "title": "Display some lists section",
+              "widget": "toggle"
+            },
+            {
+              "condition": {
+                "===": [
+                  {
+                    "var": "config.displaySomeLists"
+                  },
+                  true
+                ]
+              },
+              "description": "Some list of configuration.",
+              "items": [
+                {
+                  "description": "A list of Strings.",
+                  "key": "config.someLists.aListOfStrings",
+                  "placeholder": "aListOfStrings",
+                  "restricted": false,
+                  "title": "<aListOfStrings>",
+                  "titleMap": [],
+                  "widget": "multiSelect"
+                },
+                {
+                  "description": "A list of int.",
+                  "key": "config.someLists.aListOfInts",
+                  "placeholder": "aListOfInts",
+                  "restricted": false,
+                  "title": "A list of Integers",
+                  "titleMap": [],
+                  "widget": "multiSelect"
+                },
+                {
+                  "description": "A list of boolean.",
+                  "key": "config.someLists.aListOfBooleans",
+                  "placeholder": "aListOfBooleans",
+                  "restricted": false,
+                  "title": "A list of Booleans",
+                  "titleMap": [],
+                  "widget": "multiSelect"
+                },
+                {
+                  "description": "A list of all supported types.",
+                  "itemWidget": "collapsibleFieldset",
+                  "items": [
+                    {
+                      "description": "A list of all supported types.",
+                      "items": [
+                        {
+                          "description": "A String value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aString",
+                          "placeholder": "A placeholder in a String input",
+                          "title": "A String",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A boolean value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aBoolean",
+                          "placeholder": "aBoolean",
+                          "title": "A Boolean",
+                          "widget": "toggle"
+                        },
+                        {
+                          "description": "A BigDecimal value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aBigDecimal",
+                          "placeholder": "aBigDecimal",
+                          "title": "A BigDecimal",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A float value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aFloat",
+                          "placeholder": "",
+                          "title": "A Float",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A BigInteger value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aBigInteger",
+                          "placeholder": "aBigInteger",
+                          "title": "A BigInteger",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "An Integer value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].anInteger",
+                          "placeholder": "",
+                          "title": "An Integer",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A File value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aFile",
+                          "placeholder": "aFile",
+                          "title": "A File",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A InetAddress value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aInetAddress",
+                          "placeholder": "aInetAddress",
+                          "title": "An InetAddress",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A URI value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aURI",
+                          "placeholder": "aURI",
+                          "title": "A URI",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A URL value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aURL",
+                          "placeholder": "aURL",
+                          "title": "A URL",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "A LocalDateTime value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aLocalDateTime",
+                          "options": {
+                            "useSeconds": true,
+                            "dateFormat": "YYYY/MM/DD",
+                            "useUTC": true
+                          },
+                          "placeholder": "aLocalDateTime",
+                          "title": "A LocalDateTime",
+                          "widget": "datetime"
+                        },
+                        {
+                          "description": "A ZonedDateTime value.",
+                          "key": "config.someLists.listOfAllSupportedTypes[].aZonedDateTime",
+                          "options": {
+                            "useSeconds": true,
+                            "dateFormat": "YYYY/MM/DD",
+                            "useUTC": true
+                          },
+                          "placeholder": "",
+                          "title": "A ZonedDateTime",
+                          "widget": "datetime"
+                        }
+                      ],
+                      "key": "config.someLists.listOfAllSupportedTypes[]",
+                      "placeholder": "listOfAllSupportedTypes"
+                    }
+                  ],
+                  "key": "config.someLists.listOfAllSupportedTypes",
+                  "placeholder": "listOfAllSupportedTypes",
+                  "title": "A list of complex object"
+                }
+              ],
+              "placeholder": "someLists",
+              "title": "Some Lists",
+              "widget": "fieldset"
+            },
+            {
+              "description": "Display 'Element with constraints' section.",
+              "key": "config.displayElementsWithConstraints",
+              "placeholder": "displayElementsWithConstraints",
+              "title": "Display elements with constraints section",
+              "widget": "toggle"
+            },
+            {
+              "condition": {
+                "===": [
+                  {
+                    "var": "config.displayElementsWithConstraints"
+                  },
+                  true
+                ]
+              },
+              "description": "Elements with constraints.",
+              "items": [
+                {
+                  "description": "A string with a max length.",
+                  "key": "config.elementsWithConstraints.stringWithMaxLength",
+                  "placeholder": "10 characters max",
+                  "title": "String with a max length",
+                  "widget": "text"
+                },
+                {
+                  "description": "A string with a min length.",
+                  "key": "config.elementsWithConstraints.stringWithMinLength",
+                  "placeholder": "3 characters at least",
+                  "title": "String with a min length",
+                  "widget": "text"
+                },
+                {
+                  "description": "A string with pattern.",
+                  "key": "config.elementsWithConstraints.stringWithPattern",
+                  "placeholder": "Follow the pattern: ^start[abcdef]{0,5}END$",
+                  "title": "String with a pattern",
+                  "widget": "text"
+                },
+                {
+                  "description": "An integer with 100 as min value.",
+                  "key": "config.elementsWithConstraints.intWithMin",
+                  "placeholder": "",
+                  "title": "Integer with 100 as min value",
+                  "widget": "text"
+                },
+                {
+                  "description": "An integer with 100 as max value.",
+                  "key": "config.elementsWithConstraints.intWithMax",
+                  "placeholder": "",
+                  "title": "Integer with 100 as max value",
+                  "widget": "text"
+                },
+                {
+                  "description": "A required string field.",
+                  "key": "config.elementsWithConstraints.aRequiredString",
+                  "placeholder": "",
+                  "required": true,
+                  "title": "Required String",
+                  "widget": "text"
+                },
+                {
+                  "description": "A list of key/value pairs with a maximum number of items.",
+                  "itemWidget": "collapsibleFieldset",
+                  "items": [
+                    {
+                      "description": "A list of key/value pairs with a maximum number of items.",
+                      "items": [
+                        {
+                          "description": "The key.",
+                          "key": "config.elementsWithConstraints.listWithMaxItems[].key",
+                          "placeholder": "",
+                          "title": "Key",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The value.",
+                          "key": "config.elementsWithConstraints.listWithMaxItems[].value",
+                          "placeholder": "",
+                          "title": "Value",
+                          "widget": "text"
+                        }
+                      ],
+                      "key": "config.elementsWithConstraints.listWithMaxItems[]",
+                      "placeholder": "listWithMaxItems"
+                    }
+                  ],
+                  "key": "config.elementsWithConstraints.listWithMaxItems",
+                  "placeholder": "listWithMaxItems",
+                  "title": "List with maximum number of items"
+                },
+                {
+                  "description": "A list of key/value pairs with a minimum number of items.",
+                  "itemWidget": "collapsibleFieldset",
+                  "items": [
+                    {
+                      "description": "A list of key/value pairs with a minimum number of items.",
+                      "items": [
+                        {
+                          "description": "The key.",
+                          "key": "config.elementsWithConstraints.listWithMinItems[].key",
+                          "placeholder": "",
+                          "title": "Key",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The value.",
+                          "key": "config.elementsWithConstraints.listWithMinItems[].value",
+                          "placeholder": "",
+                          "title": "Value",
+                          "widget": "text"
+                        }
+                      ],
+                      "key": "config.elementsWithConstraints.listWithMinItems[]",
+                      "placeholder": "listWithMinItems"
+                    }
+                  ],
+                  "key": "config.elementsWithConstraints.listWithMinItems",
+                  "placeholder": "listWithMinItems",
+                  "title": "List with minimum number of items"
+                },
+                {
+                  "description": "A list of key/value pairs with a uniq items.",
+                  "itemWidget": "collapsibleFieldset",
+                  "items": [
+                    {
+                      "description": "A list of key/value pairs with a uniq items.",
+                      "items": [
+                        {
+                          "description": "The key.",
+                          "key": "config.elementsWithConstraints.listWithUniqueItems[].key",
+                          "placeholder": "",
+                          "title": "Key",
+                          "widget": "text"
+                        },
+                        {
+                          "description": "The value.",
+                          "key": "config.elementsWithConstraints.listWithUniqueItems[].value",
+                          "placeholder": "",
+                          "title": "Value",
+                          "widget": "text"
+                        }
+                      ],
+                      "key": "config.elementsWithConstraints.listWithUniqueItems[]",
+                      "placeholder": "listWithUniqueItems"
+                    }
+                  ],
+                  "key": "config.elementsWithConstraints.listWithUniqueItems",
+                  "placeholder": "listWithUniqueItems",
+                  "title": "List with distinct items"
+                }
+              ],
+              "placeholder": "elementsWithConstraints",
+              "title": "Elements with constraints",
+              "widget": "fieldset"
+            },
+            {
+              "description": "Display 'Conditional display' section.",
+              "key": "config.displayConditionalDisplay",
+              "placeholder": "displayConditionalDisplay",
+              "title": "Display conditional display section",
+              "widget": "toggle"
+            },
+            {
+              "condition": {
+                "===": [
+                  {
+                    "var": "config.displayConditionalDisplay"
+                  },
+                  true
+                ]
+              },
+              "description": "Elements with conditional display.",
+              "items": [
+                {
+                  "description": "A boolean.",
+                  "key": "config.conditionalDisplay.aBoolean",
+                  "placeholder": "aBoolean",
+                  "title": "A boolean",
+                  "widget": "toggle"
+                },
+                {
+                  "description": "A String.",
+                  "key": "config.conditionalDisplay.aString",
+                  "placeholder": "Type abc or def",
+                  "title": "A string",
+                  "widget": "text"
+                },
+                {
+                  "condition": {
+                    "===": [
+                      {
+                        "var": "config.conditionalDisplay.aBoolean"
+                      },
+                      true
+                    ]
+                  },
+                  "description": "Displayed if aBoolean is 'true'.",
+                  "key": "config.conditionalDisplay.conditionString",
+                  "placeholder": "Displayed when the boolean is selected",
+                  "title": "Conditioned String",
+                  "widget": "text"
+                },
+                {
+                  "condition": {
+                    "or": [
+                      {
+                        "in": [
+                          "abc",
+                          {
+                            "var": "config.conditionalDisplay.aString"
+                          }
+                        ]
+                      },
+                      {
+                        "in": [
+                          "def",
+                          {
+                            "var": "config.conditionalDisplay.aString"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "description": "Displayed if aString contains 'abc' or 'def'.",
+                  "key": "config.conditionalDisplay.secondConditionString",
+                  "placeholder": "Displayed when the string contains 'abc' or 'def'",
+                  "title": "Second condition String",
+                  "widget": "text"
+                },
+                {
+                  "condition": {
+                    "===": [
+                      {
+                        "var": "config.conditionalDisplay.aString.length"
+                      },
+                      10
+                    ]
+                  },
+                  "description": "Displayed if aString is 10 characters length.",
+                  "key": "config.conditionalDisplay.thirdConditionString",
+                  "placeholder": "Displayed when the String is 10 characters length",
+                  "title": "Third condition String",
+                  "widget": "text"
+                },
+                {
+                  "condition": {
+                    "==": [
+                      {
+                        "in": [
+                          "abc",
+                          {
+                            "var": "config.conditionalDisplay.aString"
+                          }
+                        ]
+                      },
+                      false
+                    ]
+                  },
+                  "description": "Displayed if aString doesn't contain 'abc'.",
+                  "key": "config.conditionalDisplay.fourthConditionString",
+                  "placeholder": "Displayed when the string doesn't contain 'abc'",
+                  "title": "Fourth condition String",
+                  "widget": "text"
+                },
+                {
+                  "condition": {
+                    "and": [
+                      {
+                        "===": [
+                          {
+                            "var": "config.conditionalDisplay.aBoolean"
+                          },
+                          true
+                        ]
+                      },
+                      {
+                        "in": [
+                          "abc",
+                          {
+                            "var": "config.conditionalDisplay.aString"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "description": "Displayed if aBoolean is selected AND aString contain 'abc' (bugged in studio).",
+                  "key": "config.conditionalDisplay.fifthConditionString",
+                  "placeholder": "Displayed when the boolean is selected AND the String contains 'abc' ",
+                  "title": "Fifth condition String",
+                  "widget": "text"
+                },
+                {
+                  "condition": {
+                    "or": [
+                      {
+                        "===": [
+                          {
+                            "var": "config.conditionalDisplay.aBoolean"
+                          },
+                          true
+                        ]
+                      },
+                      {
+                        "in": [
+                          "abc",
+                          {
+                            "var": "config.conditionalDisplay.aString"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "description": "Displayed if aBoolean is selected OR aString contain 'abc'.",
+                  "key": "config.conditionalDisplay.sixthConditionString",
+                  "placeholder": "Displayed when the boolean is selected OR the String contains 'abc' ",
+                  "title": "Sixth condition String",
+                  "widget": "text"
+                }
+              ],
+              "placeholder": "conditionalDisplay",
+              "title": "Conditional display section",
+              "widget": "fieldset"
+            },
+            {
+              "description": "Display dynamic elements section.",
+              "key": "config.displayDynamicElements",
+              "placeholder": "displayDynamicElements",
+              "title": "Display dynamic elements section",
+              "widget": "toggle"
+            },
+            {
+              "condition": {
+                "===": [
+                  {
+                    "var": "config.displayDynamicElements"
+                  },
+                  true
+                ]
+              },
+              "description": "Elements binded to some services.",
+              "items": [
+                {
+                  "description": "A single option used as parameter for dynamic elements.",
+                  "key": "config.dynamicElements.singleString",
+                  "placeholder": "",
+                  "title": "A single string",
+                  "widget": "text"
+                },
+                {
+                  "description": "Some configuration used by dynamics elements. This object is validated by a service call.",
+                  "items": [
+                    {
+                      "description": "A String value.",
+                      "key": "config.dynamicElements.someComplexConfig.aString",
+                      "placeholder": "",
+                      "title": "A string",
+                      "widget": "text"
+                    },
+                    {
+                      "description": "A boolean value.",
+                      "key": "config.dynamicElements.someComplexConfig.aBoolean",
+                      "placeholder": "",
+                      "title": "A boolean",
+                      "widget": "toggle"
+                    },
+                    {
+                      "items": [
+                        {
+                          "description": "An integer value.",
+                          "key": "config.dynamicElements.someComplexConfig.anInteger",
+                          "placeholder": "",
+                          "title": "An integer",
+                          "widget": "text"
+                        },
+                        {
+                          "key": "config.dynamicElements.someComplexConfig_3",
+                          "title": "Updatable",
+                          "triggers": [
+                            {
+                              "action": "UPDATABLE",
+                              "family": "sampleForm",
+                              "options": [
+                                {
+                                  "path": "config.dynamicElements.someComplexConfig",
+                                  "type": "object"
+                                }
+                              ],
+                              "parameters": [
+                                {
+                                  "key": "singleString",
+                                  "path": "config.dynamicElements.singleString"
+                                },
+                                {
+                                  "key": "suggestedElement",
+                                  "path": "config.dynamicElements.suggestedElement"
+                                }
+                              ],
+                              "type": "update"
+                            }
+                          ],
+                          "widget": "button"
+                        }
+                      ],
+                      "widget": "fieldset"
+                    }
+                  ],
+                  "placeholder": "someComplexConfig",
+                  "title": "",
+                  "triggers": [
+                    {
+                      "action": "ASYNC_VALIDATION",
+                      "family": "sampleForm",
+                      "parameters": [
+                        {
+                          "key": "someComplexConfig",
+                          "path": "config.dynamicElements.someComplexConfig"
+                        }
+                      ],
+                      "type": "validation"
+                    }
+                  ],
+                  "widget": "fieldset"
+                },
+                {
+                  "description": "A String with async validation.",
+                  "key": "config.dynamicElements.asyncValidation",
+                  "placeholder": "Should not contain 'abc'",
+                  "title": "Async validation on a field",
+                  "triggers": [
+                    {
+                      "action": "ASYNC_VALIDATION2",
+                      "family": "sampleForm",
+                      "parameters": [
+                        {
+                          "key": "someComplexConfig",
+                          "path": "config.dynamicElements.asyncValidation"
+                        }
+                      ],
+                      "type": "validation"
+                    }
+                  ],
+                  "widget": "text"
+                },
+                {
+                  "description": "Select one value among suggestions retrieved from a service.",
+                  "key": "config.dynamicElements.suggestedElement",
+                  "placeholder": "",
+                  "title": "Sugggested elements",
+                  "titleMap": [],
+                  "triggers": [
+                    {
+                      "action": "SUGGESTABLE",
+                      "family": "sampleForm",
+                      "onEvent": "focus",
+                      "parameters": [
+                        {
+                          "key": "someComplexConfig",
+                          "path": "config.dynamicElements.someComplexConfig"
+                        },
+                        {
+                          "key": "singleString",
+                          "path": "config.dynamicElements.singleString"
+                        }
+                      ],
+                      "type": "suggestions"
+                    },
+                    {
+                      "action": "SUGGESTABLE",
+                      "family": "sampleForm",
+                      "onEvent": "change",
+                      "parameters": [
+                        {
+                          "key": "someComplexConfig",
+                          "path": "config.dynamicElements.someComplexConfig"
+                        },
+                        {
+                          "key": "singleString",
+                          "path": "config.dynamicElements.singleString"
+                        }
+                      ],
+                      "type": "suggestions"
+                    }
+                  ],
+                  "widget": "datalist"
+                }
+              ],
+              "placeholder": "dynamicElements",
+              "title": "Dynamic elements",
+              "widget": "fieldset"
+            }
+          ],
+          "placeholder": "config",
+          "title": "Main",
+          "widget": "fieldset"
+        },
+        {
+          "items": [
+            {
+              "description": "The dataset part.",
+              "items": [
+                {
+                  "description": "The connection part.",
+                  "items": [
+                    {
+                      "description": "A timeout in the advanced settings form.",
+                      "key": "config.dataset.datastore.timeout",
+                      "placeholder": "",
+                      "title": "Timeout",
+                      "widget": "text"
+                    },
+                    {
+                      "key": "config.dataset.datastore_4",
+                      "title": "Healthcheck",
+                      "triggers": [
+                        {
+                          "action": "HEALTHCHECK",
+                          "family": "sampleForm",
+                          "parameters": [
+                            {
+                              "key": "configuration",
+                              "path": "config.dataset.datastore"
+                            }
+                          ],
+                          "type": "healthcheck"
+                        }
+                      ],
+                      "widget": "button"
+                    }
+                  ],
+                  "placeholder": "datastore",
+                  "title": "Datastore configuration section",
+                  "widget": "fieldset"
+                }
+              ],
+              "placeholder": "dataset",
+              "title": "Dataset configuration section",
+              "widget": "fieldset"
+            }
+          ],
+          "placeholder": "config",
+          "title": "Advanced",
+          "widget": "fieldset"
+        }
+      ],
+      "placeholder": "config",
+      "widget": "tabs"
+    }
+  ]
+}
