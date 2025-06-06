@@ -40,7 +40,7 @@ public class Datastore implements Serializable {
 
         MYSQL("mysql"),
         POSTGRESQL("postgres"),
-        DB2("db2");
+        DB2("ibmdb2");
 
         @Getter
         private final String key;

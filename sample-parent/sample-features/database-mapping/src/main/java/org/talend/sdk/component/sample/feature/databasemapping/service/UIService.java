@@ -22,6 +22,8 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
+import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
+import org.talend.sdk.component.sample.feature.databasemapping.config.Config;
 import org.talend.sdk.component.sample.feature.databasemapping.config.Dataset;
 import org.talend.sdk.component.sample.feature.databasemapping.config.Datastore;
 
@@ -42,6 +44,7 @@ public class UIService {
 
     @DiscoverSchema("dse")
     public Schema guessSchema(final Dataset dse) {
+        log.warn("[guessSchema] received : {}", dse);
         return factory.newSchemaBuilder(Schema.Type.RECORD)
                 .withEntry(factory.newEntryBuilder()
                         .withName("id")
@@ -62,6 +65,26 @@ public class UIService {
                         .withName("aBoolean")
                         .withType(Schema.Type.BOOLEAN)
                         .withProp(SchemaProperty.ORIGIN_TYPE, "BOOL")
+                        .build())
+                .build();
+    }
+
+    @DiscoverSchemaExtended("dse")
+    public Schema guessSchemaExtended(final Schema incomingSchema, final @Option Config config,
+            final String branch) {
+        log.warn("[guessSchemaExtended] received : {}", config);
+        return factory.newSchemaBuilder(Schema.Type.RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withName("id")
+                        .withType(Schema.Type.INT)
+                        .withProp(SchemaProperty.ORIGIN_TYPE,
+                                "postgres".equals(config.getDse().getDso().getBackend().getKey()) ? "INT4"
+                                        : "BIGINT")
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("input")
+                        .withType(Schema.Type.STRING)
+                        .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR")
                         .build())
                 .build();
     }
