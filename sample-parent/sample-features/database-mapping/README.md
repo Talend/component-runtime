@@ -1,4 +1,4 @@
-This is a TCK connector to validate the integration of Database Mapping property in `@Component` annotation.
+This is a TCK connector to validate the integration of Database Mapping.
 
 # How to build & deploy in a studio
 From the root of `component-runtime` workspace, run:
