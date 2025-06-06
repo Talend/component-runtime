@@ -475,11 +475,6 @@ public class DiRowStructVisitor {
     }
 
     private void onObject(final String name, final Object value) {
-        if (Record.class.isInstance(value)) {// keep old action here
-            recordBuilder.withString(name, jsonb.toJson(value));
-            return;
-        }
-
         recordBuilder.with(rowStructSchema.getEntry(name), value);
     }
 
