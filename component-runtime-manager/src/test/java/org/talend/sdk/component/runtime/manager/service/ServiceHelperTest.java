@@ -33,14 +33,14 @@ class ServiceHelperTest {
         final ServiceHelper helper = new ServiceHelper(new ProxyGenerator(), Collections.emptyMap());
         final Object service1 =
                 helper.createServiceInstance(ServiceHelperTest.class.getClassLoader(), "id", Service1.class);
-        Assertions.assertTrue(service1 instanceof Serializable);
+        Assertions.assertInstanceOf(Serializable.class, service1);
         Assertions.assertNotNull(service1.getClass().getDeclaredMethod("writeReplace"));
 
         final Object service2 =
                 helper.createServiceInstance(ServiceHelperTest.class.getClassLoader(), "id", Service2.class);
-        Assertions.assertTrue(service2 instanceof Service2);
+        Assertions.assertInstanceOf(Service2.class, service2);
         Service2 s2 = (Service2) service2;
-        Assertions.assertTrue(s2.getSerializationHelper() instanceof SerializableService);
+        Assertions.assertInstanceOf(SerializableService.class, s2.getSerializationHelper());
     }
 
     @Service

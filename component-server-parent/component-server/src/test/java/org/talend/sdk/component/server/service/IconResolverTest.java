@@ -15,9 +15,9 @@
  */
 package org.talend.sdk.component.server.service;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.IMAGE_SVG_XML_TYPE;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.THEME_DARK;
 import static org.talend.sdk.component.server.front.ComponentResourceImpl.THEME_LIGHT;

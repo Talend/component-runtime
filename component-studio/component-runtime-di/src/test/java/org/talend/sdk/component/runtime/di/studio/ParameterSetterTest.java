@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Stream;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.configuration.Option;
@@ -78,16 +78,16 @@ public class ParameterSetterTest {
         setter.change("configuration.preparedStatementParameters[1].dataValue", "abc1");
         JDBCRowConfig config =
                 TestOutputComponent.class.cast(Delegated.class.cast(processor).getDelegate()).getConfiguration();
-        Assert.assertEquals(config.getPreparedStatementParameters().get(0).getDataValue(),
-                new java.math.BigDecimal("456"));
-        Assert.assertEquals(config.getPreparedStatementParameters().get(1).getDataValue(), "abc1");
+        Assertions.assertEquals(new java.math.BigDecimal("456"),
+                config.getPreparedStatementParameters().get(0).getDataValue());
+        Assertions.assertEquals("abc1", config.getPreparedStatementParameters().get(1).getDataValue());
 
         // processor.onNext
         setter.change("configuration.preparedStatementParameters[0].dataValue", new java.math.BigDecimal("789"));
         setter.change("configuration.preparedStatementParameters[1].dataValue", "abc12");
-        Assert.assertEquals(config.getPreparedStatementParameters().get(0).getDataValue(),
-                new java.math.BigDecimal("789"));
-        Assert.assertEquals(config.getPreparedStatementParameters().get(1).getDataValue(), "abc12");
+        Assertions.assertEquals(new java.math.BigDecimal("789"),
+                config.getPreparedStatementParameters().get(0).getDataValue());
+        Assertions.assertEquals("abc12", config.getPreparedStatementParameters().get(1).getDataValue());
     }
 
     @org.talend.sdk.component.api.processor.Processor(name = "TestOutput", family = "TestFamily")

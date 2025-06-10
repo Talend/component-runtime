@@ -19,6 +19,8 @@ import static java.util.Arrays.asList;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
@@ -49,8 +51,8 @@ public class JdbcDataStore implements Serializable {
     @Option // to test tables
     @Documentation(value = "Documentation for Datastore configurations.", tooltip = true)
     private List<JdbcConfig> configurations =
-            asList(new JdbcConfig("d1", "D1", List.of("org.talend.db:zorglub:1.0:jar")),
-                    new JdbcConfig("d2", "D2", List.of("org.talend.db:zorglub:1.0:jar", "a:b:1.0:jar")));
+            asList(new JdbcConfig("d1", "D1", Collections.singletonList("org.talend.db:zorglub:1.0:jar")),
+                    new JdbcConfig("d2", "D2", Arrays.asList("org.talend.db:zorglub:1.0:jar", "a:b:1.0:jar")));
 
     @Option
     @DateTime(dateFormat = "DD-MM-YYYY", useUTC = false, useSeconds = false)

@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -61,7 +60,7 @@ class DiRecordVisitorTest extends VisitorsTest {
         try {
             DOCUMENT.setDocument(reader.read(new File("src/test/resources/documentTest.xml")));
         } catch (DocumentException e) {
-            Assert.fail("can not read the document file");
+            Assertions.fail("can not read the document file");
         }
 
         final Record record = factory
@@ -535,7 +534,7 @@ class DiRecordVisitorTest extends VisitorsTest {
                         .build(), "wrong string")
                 .build();
         final DiRecordVisitor visitor = new DiRecordVisitor(RowStruct.class, Collections.emptyMap());
-        Assert.assertThrows(IllegalStateException.class, () -> visitor.visit(record));
+        Assertions.assertThrows(IllegalStateException.class, () -> visitor.visit(record));
     }
 
     @Test
