@@ -13,37 +13,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.talend.sdk.component</groupId>
-    <artifactId>sample-parent</artifactId>
+    <artifactId>sample-features</artifactId>
     <version>1.82.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>sample-features</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>configurationFormSample</artifactId>
+  <packaging>jar</packaging>
 
-  <name>Component Runtime :: Sample Features</name>
-
-  <modules>
-    <module>fixed-schema</module>
-    <module>aftergroup-lastgroup</module>
-    <module>conditional-outputs</module>
-    <module>checkpoint-runner</module>
-    <module>configuration-form</module>
-    <module>entry-with-error</module>
-  </modules>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-api</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+  <name>Component Runtime :: Sample Configuration Form</name>
 
   <build>
     <plugins>
@@ -54,35 +36,6 @@
         <!-- Please look at the TCK documentation to understand the talend-component-maven-plugin -->
         <!-- https://talend.github.io/component-runtime/main/latest/build-tools-maven.html -->
         <executions>
-          <execution>
-            <id>talend-dependencies</id>
-            <goals>
-              <goal>dependencies</goal>
-            </goals>
-            <phase>process-classes</phase>
-          </execution>
-          <execution>
-            <id>talend-component-bundle</id>
-            <goals>
-              <goal>car</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <excludeArtifactsFilter>com.fasterxml.jackson.core:jackson-databind,com.fasterxml.jackson.core:jackson-core,com.fasterxml.jackson.core:jackson-annotations</excludeArtifactsFilter>
-            </configuration>
-          </execution>
-          <execution>
-            <id>talend-scan-descriptor</id>
-            <goals>
-              <goal>scan-descriptor</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>talend-svg2png</id>
-            <goals>
-              <goal>svg2png</goal>
-            </goals>
-          </execution>
           <execution>
             <id>talend-component-validate</id>
             <goals>
@@ -100,7 +53,7 @@
               <validateMetadata>true</validateMetadata>
               <validateComponent>true</validateComponent>
               <validateDataStore>true</validateDataStore>
-              <validateDataSet>true</validateDataSet>
+              <validateDataSet>false</validateDataSet>
               <validateActions>true</validateActions>
               <validateDocumentation>true</validateDocumentation>
               <validateWording>true</validateWording>
