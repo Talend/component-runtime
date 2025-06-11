@@ -38,7 +38,7 @@ public @interface DatabaseSchemaMapping {
     String family() default "";
 
     /**
-     * @return the identifier usable by to reference this action.
+     * @return the identifier usable to reference this action.
      */
     String value() default "default";
 

@@ -55,7 +55,6 @@ public class ComponentSchemaEnricher implements ComponentMetadataEnricher {
             return emptyMap();
         }
         final Map<String, String> metadata = new HashMap<>();
-        // add database mapping if present
         final Optional<DatabaseMapping> mappings = Arrays.stream(annotations)
                 .filter(a -> a.annotationType().equals(DatabaseMapping.class))
                 .findFirst()

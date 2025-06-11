@@ -273,7 +273,8 @@ public class ActionValidator implements Validator {
         final Stream<String> parameterType = finder
                 .findAnnotatedMethods(DatabaseSchemaMapping.class)
                 .stream()
-                .filter(m -> !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
+                .filter(m -> m.getParameterTypes().length > 0 &&
+                        !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
                 .map(m -> m + " should have its parameter being a datastore (marked with @DataStore)")
                 .sorted();
 
