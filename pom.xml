@@ -236,7 +236,7 @@
 
     <gradle.version>6.9.4</gradle.version>
     <groovy.version>3.0.18</groovy.version>
-    <gmavenplus.version>1.13.1</gmavenplus.version>
+    <gmavenplus-plugin.version>1.13.1</gmavenplus-plugin.version>
     <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
     <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
     <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
@@ -259,10 +259,10 @@
     <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-    <jacoco.version>0.8.13</jacoco.version>
+    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
     <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
-    <spotless.version>2.44.4</spotless.version>
+    <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
     <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
     <jib-core.version>0.24.0</jib-core.version>
     <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
