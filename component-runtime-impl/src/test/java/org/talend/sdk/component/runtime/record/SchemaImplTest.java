@@ -188,34 +188,55 @@ class SchemaImplTest {
                 .build();
         Schema recordSchema = record.getSchema();
         Assertions.assertEquals(1, recordSchema.getEntries().size());
-        Assertions.assertEquals(2, recordSchema.getAllEntries().filter(e -> e.isMetadata()).count());
+        Assertions.assertEquals(2, recordSchema.getAllEntries().filter(Entry::isMetadata).count());
         Assertions.assertEquals(34, record.getInt("record_id"));
         Assertions.assertEquals("Aloa", record.getString("field1"));
         Assertions.assertEquals("Hallo, wie gehst du ?", record.getString("field2"));
     }
 
     @Test
-    void testAntiCollision() {
-        final Entry entry1 = this.newEntry("1name_b", "a_value");
-        final Entry entry2 = this.newEntry("2name_b", "b_value");
-        final Entry entry3 = this.newEntry("name_b", "c_value");
+    void antiCollisionRealNameFirst() {
+        final Entry entry1 = newEntry("name_b", "c_value");
+        final Entry entry2 = newEntry("1name_b", "a_value");
+        final Entry entry3 = newEntry("2name_b", "b_value");
 
-        final Schema schema = this.newSchema(entry1, entry2, entry3);
+        final Schema schema = newSchema(entry1, entry2, entry3);
 
         final boolean checkNames = schema
                 .getAllEntries()
-                .allMatch((Entry e) -> ("1name_b".equals(e.getRawName()) && e.getName().matches("name_b_[12]")
-                        && "a_value".equals(e.getDefaultValue())) //
+                .allMatch(e -> ("1name_b".equals(e.getRawName()) && e.getName().matches("name_b_[12]")
+                        && "a_value".equals(e.getDefaultValue()))
                         || ("2name_b".equals(e.getRawName()) && e.getName().matches("name_b_[12]")
-                                && "b_value".equals(e.getDefaultValue())) //
+                                && "b_value".equals(e.getDefaultValue()))
+                        || (e.getRawName() == null && e.getName().equals("name_b")
+                                && "c_value".equals(e.getDefaultValue())));
+
+        Assertions.assertTrue(checkNames);
+        Assertions.assertEquals(3, schema.getAllEntries().map(Entry::getName).distinct().count());
+    }
+
+    @Test
+    void testAntiCollision() {
+        final Entry entry1 = newEntry("1name_b", "a_value");
+        final Entry entry2 = newEntry("2name_b", "b_value");
+        final Entry entry3 = newEntry("name_b", "c_value");
+
+        final Schema schema = newSchema(entry1, entry2, entry3);
+
+        final boolean checkNames = schema
+                .getAllEntries()
+                .allMatch(e -> ("1name_b".equals(e.getRawName()) && e.getName().matches("name_b_[12]")
+                        && "a_value".equals(e.getDefaultValue()))
+                        || ("2name_b".equals(e.getRawName()) && e.getName().matches("name_b_[12]")
+                                && "b_value".equals(e.getDefaultValue()))
                         || (e.getRawName() == null && e.getName().equals("name_b")
                                 && "c_value".equals(e.getDefaultValue())));
         Assertions.assertTrue(checkNames);
         Assertions.assertEquals(3, schema.getAllEntries().map(Entry::getName).distinct().count());
 
-        final Entry entry3Bis = this.newEntry("name_b_1", "c_value");
+        final Entry entry3Bis = newEntry("name_b_1", "c_value");
 
-        final Schema schemaBis = this.newSchema(entry1, entry2, entry3Bis);
+        final Schema schemaBis = newSchema(entry1, entry2, entry3Bis);
         final boolean checkNamesBis = schemaBis
                 .getAllEntries()
                 .allMatch((Entry e) -> ("1name_b".equals(e.getRawName()) && e.getName().matches("name_b(_2)?")
@@ -229,10 +250,10 @@ class SchemaImplTest {
 
         final Schema.Builder builder = new BuilderImpl().withType(Type.RECORD);
         for (int index = 1; index < 8; index++) {
-            final Entry e = this.newEntry(index + "name_b", index + "_value");
+            final Entry e = newEntry(index + "name_b", index + "_value");
             builder.withEntry(e);
         }
-        final Entry last = this.newEntry("name_b_5", "last_value");
+        final Entry last = newEntry("name_b_5", "last_value");
         builder.withEntry(last);
         final Schema schemaTer = builder.build();
         Assertions.assertEquals(8, schemaTer.getAllEntries().map(Entry::getName).distinct().count());
@@ -241,7 +262,7 @@ class SchemaImplTest {
                         schemaTer
                                 .getAllEntries()
                                 .map(Entry::getName)
-                                .filter((String name) -> "name_b".equals(name))
+                                .filter("name_b"::equals)
                                 .count());
         Assertions
                 .assertEquals(7,
@@ -258,10 +279,10 @@ class SchemaImplTest {
                 .withType(Type.LONG) //
                 .withDefaultValue(0L) //
                 .build();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> this.newSchema(entry3, entry3Twin));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> newSchema(entry3, entry3Twin));
     }
 
-    private Schema newSchema(Entry... entries) {
+    private static Schema newSchema(Entry... entries) {
         final Schema.Builder builder = new BuilderImpl().withType(Type.RECORD);
         for (Entry e : entries) {
             builder.withEntry(e);
@@ -269,7 +290,7 @@ class SchemaImplTest {
         return builder.build();
     }
 
-    private Entry newEntry(final String name, final String defaultValue) {
+    private static Entry newEntry(final String name, final String defaultValue) {
         return new EntryImpl.BuilderImpl() //
                 .withName(name) //
                 .withType(Type.STRING) //
@@ -408,39 +429,6 @@ class SchemaImplTest {
         assertEquals(3, schemaNew.getEntries().size());
         assertEquals(6, schemaNew.getAllEntries().count());
         assertEquals("meta1,data1,meta2,data2,data3,meta3", getSchemaFields(schemaNew));
-    }
-
-    @Test
-    void testAvoidCollision() {
-        final Map<String, Schema.Entry> entries = new HashMap<>();
-        for (int index = 1; index < 8; index++) {
-            final Schema.Entry e = this.newEntry(index + "name_b", Type.STRING);
-            final Schema.Entry realEntry = Schema.avoidCollision(e, entries::get, entries::put);
-            entries.put(realEntry.getName(), realEntry);
-        }
-        final Entry last = this.newEntry("name_b_5", Type.STRING);
-        final Schema.Entry realEntry = Schema.avoidCollision(last, entries::get, entries::put);
-        entries.put(realEntry.getName(), realEntry);
-
-        Assertions.assertEquals(8, entries.size());
-        Assertions.assertEquals("name_b", entries.get("name_b").getName());
-        Assertions
-                .assertTrue(IntStream
-                        .range(1, 8)
-                        .mapToObj((int i) -> "name_b_" + i)
-                        .allMatch((String name) -> entries.get(name).getName().equals(name)));
-
-        final Map<String, Entry> entriesDuplicate = new HashMap<>();
-        final Schema.Entry e1 = this.newEntry("goodName", Type.STRING);
-        final Schema.Entry realEntry1 =
-                Schema.avoidCollision(e1, entriesDuplicate::get, entriesDuplicate::put);
-        Assertions.assertSame(e1, realEntry1);
-        entriesDuplicate.put(realEntry1.getName(), realEntry1);
-        final Schema.Entry e2 = this.newEntry("goodName", Type.STRING);
-        final Schema.Entry realEntry2 =
-                Schema.avoidCollision(e2, entriesDuplicate::get, entriesDuplicate::put);
-
-        Assertions.assertSame(realEntry2, e2);
     }
 
     @RepeatedTest(20)

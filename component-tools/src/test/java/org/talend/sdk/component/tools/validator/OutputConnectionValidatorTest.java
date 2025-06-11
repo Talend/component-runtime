@@ -15,7 +15,6 @@
  */
 package org.talend.sdk.component.tools.validator;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Stream;
 
