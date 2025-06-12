@@ -223,8 +223,8 @@
 
     <!-- for the starter -->
     <mvn.version>3.9.9</mvn.version>
-    <mvn-minimal.version>3.8.0</mvn-minimal.version>
-    <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
+    <mvn-minimal.version>3.6.0</mvn-minimal.version>
+    <maven-shared-utils.version>3.4.2</maven-shared-utils.version>
 
     <beam.version>2.46.0</beam.version>
     <snappy.version>1.1.10.5</snappy.version>
@@ -252,7 +252,6 @@
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
-    <maven-shared-utils.version>3.4.2</maven-shared-utils.version>
     <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
@@ -1057,6 +1056,7 @@
             <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a
               href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
+            <legacyMode>true</legacyMode>
           </configuration>
         </plugin>
         <plugin>
@@ -1237,7 +1237,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <forceJavacCompilerUse>true</forceJavacCompilerUse>
+            <forceLegacyJavacApi>true</forceLegacyJavacApi>
             <compilerId>javac</compilerId>
             <fork>true</fork>
             <compilerArgs>
@@ -1459,12 +1459,12 @@
  * limitations under the License.
  */]]></content>
             </licenseHeader>
-            <eclipse>
+            <!--eclipse>
               <file>${maven.multiModuleProjectDirectory}/build/talend_java_eclipse_formatter.xml</file>
             </eclipse>
             <importOrder>
               <file>${maven.multiModuleProjectDirectory}/build/talend.importorder</file>
-            </importOrder>
+            </importOrder-->
             <removeUnusedImports/>
           </java>
           <pom>
@@ -1948,6 +1948,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.11.2</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
