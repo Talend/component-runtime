@@ -31,6 +31,7 @@ import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.LOGICAL_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
@@ -357,6 +358,7 @@ public class DiRowStructVisitor {
                             final String metaPattern =
                                     !meta.getFormat().equals("dd-MM-yyyy HH:mm:ss") ? meta.getFormat() : pattern;
                             final String metaStudioType = meta.getType();
+                            final String logicalType = meta.getLogicalType();
                             log.trace("[inferSchema] Dynamic {}\t({})\t ==> {}.", meta.getName(), metaStudioType,
                                     value);
                             switch (metaStudioType) {
@@ -383,11 +385,11 @@ public class DiRowStructVisitor {
                                 case StudioTypes.SHORT:
                                 case StudioTypes.INTEGER:
                                     schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, comment,
-                                            metaIsKey, null, null, defaultValue, null, metaStudioType));
+                                            metaIsKey, null, null, defaultValue, null, metaStudioType, logicalType));
                                     break;
                                 case StudioTypes.LONG:
                                     schema.withEntry(toEntry(metaName, LONG, metaOriginalName, metaIsNullable, comment,
-                                            metaIsKey, null, null, defaultValue, null, metaStudioType));
+                                            metaIsKey, null, null, defaultValue, null, metaStudioType, logicalType));
                                     break;
                                 case StudioTypes.FLOAT:
                                     schema.withEntry(toEntry(metaName, FLOAT, metaOriginalName, metaIsNullable, comment,
@@ -406,13 +408,14 @@ public class DiRowStructVisitor {
                                 case StudioTypes.DATE:
                                     schema.withEntry(
                                             toEntry(metaName, DATETIME, metaOriginalName, metaIsNullable, comment,
-                                                    metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
+                                                    metaIsKey, null, null, defaultValue, metaPattern, metaStudioType,
+                                                    logicalType));
                                     break;
                                 default:
                                     schema.withEntry(
                                             toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
                                                     metaIsKey, metaLength, metaPrecision, defaultValue, metaPattern,
-                                                    metaStudioType));
+                                                    metaStudioType, logicalType));
                             }
                         });
                         break;
@@ -487,6 +490,15 @@ public class DiRowStructVisitor {
     private Entry toEntry(final String name, final Schema.Type type, final String originalName,
             final boolean isNullable, final String comment, final Boolean isKey, final Integer length,
             final Integer precision, final String defaultValue, final String pattern, final String studioType) {
+        return toEntry(name, type, originalName, isNullable, comment, isKey, length, precision, defaultValue, pattern,
+                studioType, null);
+    }
+
+    // CHECKSTYLE:OFF
+    private Entry toEntry(final String name, final Schema.Type type, final String originalName,
+            final boolean isNullable, final String comment, final Boolean isKey, final Integer length,
+            final Integer precision, final String defaultValue, final String pattern, final String studioType,
+            final String logicalType) {
         // CHECKSTYLE:ON
         final Map<String, String> props = new HashMap();
         if (isKey != null) {
@@ -502,6 +514,9 @@ public class DiRowStructVisitor {
             props.put(PATTERN, pattern);
         }
         props.put(STUDIO_TYPE, studioType);
+        if (logicalType != null) {
+            props.put(LOGICAL_TYPE, logicalType);
+        }
 
         return factory
                 .newEntryBuilder()

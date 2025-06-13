@@ -22,6 +22,7 @@ import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.record.SchemaProperty.ALLOW_SPECIAL_NAME;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.LOGICAL_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -283,9 +284,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 .filter(l -> !l.isEmpty())
                 .map(Integer::valueOf)
                 .orElse(dynamicColumnPrecision);
-        final String pattern = ofNullable(entry.getProp(PATTERN))
-                .filter(l -> !l.isEmpty())
-                .orElse(dynamicColumnPattern);
         final String studioType = entry.getProps()
                 .getOrDefault(STUDIO_TYPE, StudioTypes.typeFromRecord(entry.getType()));
         metadata.getDynamicMetadata().setKey(isKey);
@@ -306,7 +304,14 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
         switch (studioType) {
             case StudioTypes.DATE:
-                metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
+                final String logicalType = entry.getProps().get(LOGICAL_TYPE);
+
+                final String pattern = ofNullable(entry.getProp(PATTERN))
+                        .filter(l -> !l.isEmpty())
+                        .orElse(dynamicColumnPattern);
+
+                metadata.getDynamicMetadata().setLogicalType(logicalType);
+
                 metadata.getDynamicMetadata().setFormat(pattern);
                 break;
             default:
