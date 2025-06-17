@@ -232,6 +232,24 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void disableNullableCheck() {
+        RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+        Schema.Builder schemaBuilder = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
+        Schema schema = schemaBuilder.withEntry(
+                recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withName("c2")
+                        .withType(Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .build();
+        Record.Builder recordBuilder = recordBuilderFactory.newRecordBuilder(schema);
+        recordBuilder.withString("c1", "v1");
+        Record record = recordBuilder.build();
+        assertNull(record.getString("c2"));
+    }
+
+    @Test
     void dateTime() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
