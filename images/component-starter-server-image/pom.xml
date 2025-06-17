@@ -93,7 +93,7 @@
                     ${docker.talend.dir.app}lib/*:${docker.talend.dir.app}custom/*:${docker.talend.dir.base}extensions/*:${docker.talend.dir.app}resources:${docker.talend.dir.app}classes
                   </CLASSPATH>
                   <JDK_JAVA_OPTIONS>
-                    -Dtalend.component.starter.security.csp="default-src 'self' 'unsafe-eval' data:; connect-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://unpkg.com; font-src 'self' data: blob:; frame-ancestors 'none'"
+                    -Dtalend.component.starter.security.csp="default-src 'self' 'unsafe-eval'; connect-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://unpkg.com; font-src 'self' data: blob:; frame-ancestors 'none'"
                     --add-opens=java.base/java.lang.invoke=ALL-UNNAMED
                     --add-opens=java.base/java.net=ALL-UNNAMED
                     --add-opens=java.base/java.nio=ALL-UNNAMED
