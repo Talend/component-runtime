@@ -74,6 +74,9 @@ import java.util.Spliterators;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -373,6 +376,8 @@ public class ComponentManager implements AutoCloseable {
     private final IconFinder iconFinder = new IconFinder();
 
     private final DefaultServiceProvider defaultServiceProvider;
+
+    private final ReentrantReadWriteLock containerLock = new ReentrantReadWriteLock();
 
     public ComponentManager(final File m2) {
         this(m2.toPath());
@@ -690,10 +695,10 @@ public class ComponentManager implements AutoCloseable {
                     .of(plugin)
                     // just a small workaround for maven/gradle
                     .flatMap(this::toPluginLocations)
-                    .filter(path -> !container.find(path.getFileName().toString()).isPresent())
+                    .filter(path -> !findPlugin(path.getFileName().toString()).isPresent())
                     .map(file -> {
                         final String id = addPlugin(file.toAbsolutePath().toString());
-                        if (container.find(id).get().get(ContainerComponentRegistry.class).getComponents().isEmpty()) {
+                        if (findPlugin(id).get().get(ContainerComponentRegistry.class).getComponents().isEmpty()) {
                             removePlugin(id);
                             return null;
                         }
@@ -742,9 +747,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public ParameterMeta findConfigurationType(final String plugin, final String name, final String configurationType) {
-        return container
-                .findAll()
-                .stream()
+        return findAll()
                 .map(c -> c.get(ContainerComponentRegistry.class))
                 .map(registry -> registry.findComponentFamily(plugin))
                 .filter(Objects::nonNull)
@@ -838,7 +841,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public <T> Stream<T> find(final Function<Container, Stream<T>> mapper) {
-        return container.findAll().stream().flatMap(mapper);
+        return findAll().flatMap(mapper);
     }
 
     // really a DIY entry point for custom flow, it creates component instances but
@@ -852,9 +855,8 @@ public class ComponentManager implements AutoCloseable {
 
     private Optional<Object> findComponentInternal(final String plugin, final String name,
             final ComponentType componentType, final int version, final Map<String, String> configuration) {
-        if (container.findAll().isEmpty()) {
-            autoDiscoverPlugins(false, true);
-        }
+        autoDiscoverPluginsIfEmpty(false, true);
+
         final Map<String, String> conf = mergeCheckpointConfiguration(plugin, name, componentType, configuration);
         return find(pluginContainer -> Stream
                 .of(findInstance(plugin, name, componentType, version, conf, pluginContainer)))
@@ -862,7 +864,35 @@ public class ComponentManager implements AutoCloseable {
                 .findFirst();
     }
 
+    public void autoDiscoverPluginsIfEmpty(final boolean callers, final boolean classpath) {
+        if (hasPlugins()) {
+            return;
+        }
+
+        final WriteLock writeLock = containerLock.writeLock();
+        writeLock.lock();
+        try {
+            if (hasPlugins()) {
+                return;
+            }
+
+            autoDiscoverPlugins0(callers, classpath);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     public void autoDiscoverPlugins(final boolean callers, final boolean classpath) {
+        final WriteLock writeLock = containerLock.writeLock();
+        writeLock.lock();
+        try {
+            autoDiscoverPlugins0(callers, classpath);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private void autoDiscoverPlugins0(final boolean callers, final boolean classpath) {
         if (callers && !Boolean.getBoolean("component.manager.callers.skip")) {
             addCallerAsPlugin();
         }
@@ -914,12 +944,10 @@ public class ComponentManager implements AutoCloseable {
             final Container pluginContainer) {
         return ofNullable(pluginContainer.get(GenericComponentExtension.class))
                 .filter(ext -> ext.canHandle(componentType.runtimeType(), plugin, name))
-                .map(ext -> Object.class
-                        .cast(ext
-                                .createInstance(componentType.runtimeType(), plugin, name, version, configuration,
-                                        ofNullable(pluginContainer.get(AllServices.class))
-                                                .map(AllServices::getServices)
-                                                .orElseGet(Collections::emptyMap))));
+                .map(ext -> ext.createInstance(componentType.runtimeType(), plugin, name, version, configuration,
+                        ofNullable(pluginContainer.get(AllServices.class))
+                                .map(AllServices::getServices)
+                                .orElseGet(Collections::emptyMap)));
     }
 
     public Optional<Mapper> findMapper(final String plugin, final String name, final int version,
@@ -940,26 +968,43 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public boolean hasPlugin(final String plugin) {
-        return container.find(plugin).isPresent();
+        return findPlugin(plugin).isPresent();
     }
 
     public Optional<Container> findPlugin(final String plugin) {
-        return container.find(plugin);
+        final ReadLock readLock = containerLock.readLock();
+        readLock.lock();
+        try {
+            return container.find(plugin);
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    public synchronized String addPlugin(final String pluginRootFile) {
-        final Optional<Container> pl = findPlugin(pluginRootFile);
-        if (pl.isPresent()) {
-            return pl.get().getId();
+    public String addPlugin(final String pluginRootFile) {
+        final WriteLock writeLock = containerLock.writeLock();
+        writeLock.lock();
+        try {
+            final String pluginId = findPluginId(pluginRootFile);
+            if (pluginId != null) {
+                return pluginId;
+            }
+
+            final String id = this.container
+                    .builder(pluginRootFile)
+                    .withCustomizer(createContainerCustomizer(pluginRootFile))
+                    .withAdditionalClasspath(findAdditionalClasspathFor(container.buildAutoIdFromName(pluginRootFile)))
+                    .create()
+                    .getId();
+            info("Adding plugin: " + pluginRootFile + ", as " + id);
+            return id;
+        } finally {
+            writeLock.unlock();
         }
-        final String id = this.container
-                .builder(pluginRootFile)
-                .withCustomizer(createContainerCustomizer(pluginRootFile))
-                .withAdditionalClasspath(findAdditionalClasspathFor(container.buildAutoIdFromName(pluginRootFile)))
-                .create()
-                .getId();
-        info("Adding plugin: " + pluginRootFile + ", as " + id);
-        return id;
+    }
+
+    private String findPluginId(final String pluginRootFile) {
+        return findPlugin(pluginRootFile).map(Container::getId).orElse(null);
     }
 
     public String addWithLocationPlugin(final String location, final String pluginRootFile) {
@@ -993,7 +1038,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public void removePlugin(final String id) {
-        container.find(id).ifPresent(Container::close);
+        findPlugin(id).ifPresent(Container::close);
         info("Removed plugin: " + id);
     }
 
@@ -1019,7 +1064,7 @@ public class ComponentManager implements AutoCloseable {
         final ClassLoader old = thread.getContextClassLoader();
         thread
                 .setContextClassLoader(
-                        container.find(plugin).map(Container::getLoader).map(ClassLoader.class::cast).orElse(old));
+                        findPlugin(plugin).map(Container::getLoader).map(ClassLoader.class::cast).orElse(old));
         try {
             return supplier.get();
         } finally {
@@ -1027,8 +1072,34 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
+    private boolean hasPlugins() {
+        final ReadLock readLock = containerLock.readLock();
+        readLock.lock();
+        try {
+            return !container.findAll().isEmpty();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    private Stream<Container> findAll() {
+        final ReadLock readLock = containerLock.readLock();
+        readLock.lock();
+        try {
+            return container.findAll().stream();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     public List<String> availablePlugins() {
-        return container.findAll().stream().map(Container::getId).collect(toList());
+        final ReadLock readLock = containerLock.readLock();
+        readLock.lock();
+        try {
+            return container.getPluginsList();
+        } finally {
+            readLock.unlock();
+        }
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {
