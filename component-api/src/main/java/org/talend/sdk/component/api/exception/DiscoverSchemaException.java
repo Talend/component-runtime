@@ -19,6 +19,7 @@ import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbPropertyOrder;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * This class is dedicated to Studio's guess schema feature.
@@ -29,6 +30,7 @@ import lombok.Data;
  * See me TCOMP-2342 for more details.
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @JsonbPropertyOrder({ "localizedMessage", "message", "stackTrace", "suppressed", "possibleHandleErrorWith" })
 public class DiscoverSchemaException extends RuntimeException {
 

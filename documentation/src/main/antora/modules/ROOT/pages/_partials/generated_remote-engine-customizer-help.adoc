@@ -1,66 +1,28 @@
-NAME
-       register-component-archive
 
-SYNOPSIS
-       register-component-archive [options]
+Usage: register-component-archive [options]
 
-OPTIONS
-       --base-image=<String>
-              Base connector image to enrich with components.
-       
-              default: auto
-
-       --cache-dir=<String>
-              Where  to cache the image layers - useful when the command is launched multiple
-              times.
-       
-              default: ${remote.engine.dir}/.remote_engine_customizer/cache
-
-       --component-archive=<String[]>
-              Component Archive (.car) to register/add in the Remote Engine.
-
-       --docker-configuration-environment=<String>
-              Docker daemon environment variables (as properties) if custom.
-       
-              default:
-
-       --docker-configuration-path=<String>
-              Docker daemon executable path if custom.
-
-       --from-image-type=<ImageType>
-              Type  of  source  image,  can  be  useful  if you don't use the default version
-              generation.
-       
-              default: AUTO. enum: AUTO, DOCKER, REGISTRY
-
-       --registry-configuration-baseUrl=<String>
-              Registry base URL when image type is REGISTRY.
-
-       --registry-configuration-password=<String>
-              Registry password when image type is REGISTRY.
-
-       --registry-configuration-username=<String>
-              Registry username when image type is REGISTRY.
-
-       --remote-engine-dir=<String>
-              Where  the  remote  engine folder is, it should host a docker-compose.yml file.
-
-       --target-image=<String>
-              Name of the target image, if not set it will be generated.
-       
-              default: auto
-
-       --to-image-type=<ImageType>
-              Type of target image, it is generally just a local DOCKER image.
-       
-              default: DOCKER. enum: AUTO, DOCKER, REGISTRY
-
-       --no-update-original-docker-compose
-              Should  the  Remote  Engine docker-compose.yml be updated once the new image is
-              built.
-
-       --work-dir=<String>
-              Where  to  create  temporary  files  needed  for  the  build  of the new image.
-       
-              default: ${java.io.tmpdir}/remote-engine-customizer
+Options: 
+  --base-image=<String>                           Base connector image to enrich with components.
+                                                  (default: auto)
+  --cache-dir=<String>                            Where to cache the image layers - useful when the command is launched multiple times.
+                                                  (default: ${remote.engine.dir}/.remote_engine_customizer/cache)
+  --component-archive=<String[]>                  Component Archive (.car) to register/add in the Remote Engine.
+  --docker-configuration-environment=<String>     Docker daemon environment variables (as properties) if custom.
+                                                  (default: )
+  --docker-configuration-path=<String>            Docker daemon executable path if custom.
+  --from-image-type=<ImageType>                   Type of source image, can be useful if you don't use the default version generation.
+                                                  (default: AUTO)
+                                                  (enum: AUTO, DOCKER, REGISTRY)
+  --registry-configuration-baseUrl=<String>       Registry base URL when image type is REGISTRY.
+  --registry-configuration-password=<String>      Registry password when image type is REGISTRY.
+  --registry-configuration-username=<String>      Registry username when image type is REGISTRY.
+  --remote-engine-dir=<String>                    Where the remote engine folder is, it should host a docker-compose.yml file.
+  --target-image=<String>                         Name of the target image, if not set it will be generated.
+                                                  (default: auto)
+  --to-image-type=<ImageType>                     Type of target image, it is generally just a local DOCKER image.
+                                                  (default: DOCKER)
+                                                  (enum: AUTO, DOCKER, REGISTRY)
+  --no-update-original-docker-compose             Should the Remote Engine docker-compose.yml be updated once the new image is built.
+  --work-dir=<String>                             Where to create temporary files needed for the build of the new image.
+                                                  (default: ${java.io.tmpdir}/remote-engine-customizer)
 
