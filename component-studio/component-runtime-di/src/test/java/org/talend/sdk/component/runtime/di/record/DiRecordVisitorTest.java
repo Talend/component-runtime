@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
@@ -32,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -434,7 +436,46 @@ class DiRecordVisitorTest extends VisitorsTest {
         assertNotNull(rowStruct2);
         assertEquals("the_name", rowStruct2.dyn.getColumnMetadata(0).getName());
         assertEquals("the$name", rowStruct2.dyn.getColumnMetadata(0).getDbName());
+    }
 
+    @Test
+    void testLogicalType() {
+        final Schema schema = factory.newSchemaBuilder(Type.RECORD)
+                .withEntry(factory.newEntryBuilder()
+                        .withName("date1")
+                        .withType(Type.DATETIME)
+                        .withProp(SchemaProperty.LOGICAL_TYPE, SchemaProperty.LogicalType.DATE.key())
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("time1")
+                        .withType(Type.DATETIME)
+                        .withProp(SchemaProperty.LOGICAL_TYPE, SchemaProperty.LogicalType.TIME.key())
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("timestamp1")
+                        .withType(Type.DATETIME)
+                        .withProp(SchemaProperty.LOGICAL_TYPE, SchemaProperty.LogicalType.TIMESTAMP.key())
+                        .build())
+                .withEntry(factory.newEntryBuilder()
+                        .withName("date2")
+                        .withType(Type.DATETIME)
+                        .build())
+                .build();
+        final Date value = new Date();
+        final Record record1 = factory
+                .newRecordBuilder(schema)
+                .withDateTime("date1", value)
+                .withDateTime("time1", value)
+                .withDateTime("timestamp1", value)
+                .withDateTime("date2", value)
+                .build();
+        final DiRecordVisitor visitor1 = new DiRecordVisitor(RowStruct3.class, Collections.emptyMap());
+        final RowStruct3 rowStruct1 = RowStruct3.class.cast(visitor1.visit(record1));
+        assertNotNull(rowStruct1);
+        assertEquals(SchemaProperty.LogicalType.DATE.key(), rowStruct1.dyn.getColumnMetadata(0).getLogicalType());
+        assertEquals(SchemaProperty.LogicalType.TIME.key(), rowStruct1.dyn.getColumnMetadata(1).getLogicalType());
+        assertEquals(SchemaProperty.LogicalType.TIMESTAMP.key(), rowStruct1.dyn.getColumnMetadata(2).getLogicalType());
+        assertNull(rowStruct1.dyn.getColumnMetadata(3).getLogicalType());
     }
 
     @Test
@@ -582,6 +623,10 @@ class DiRecordVisitorTest extends VisitorsTest {
     public static class RowStruct3 implements routines.system.IPersistableRow {
 
         public Dynamic dyn;
+
+        public Dynamic getDyn() {
+            return dyn;
+        }
 
         @Override
         public void writeData(ObjectOutputStream objectOutputStream) {
