@@ -304,6 +304,8 @@
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
     <tomitribe-crest.version>0.32</tomitribe-crest.version>
+    <httpclient.version>4.5.14</httpclient.version>
+    <guava.version>33.4.8-jre</guava.version>
   </properties>
 
   <dependencyManagement>
@@ -902,6 +904,17 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${mockito4.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
