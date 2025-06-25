@@ -100,7 +100,8 @@ class AvroRecordTest {
      * Avro logical type must be an int and contains milliseconds from 00:00:00.
      *
      * Please have a look to Avro specification:
-     * {@link <a href="https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29">Timestamp</a>}.
+     * {@link <a href=
+     * "https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29">Timestamp</a>}.
      *
      * <pre>
      * Time (millisecond precision)

@@ -83,7 +83,8 @@ class ActionValidatorTest {
                 validator.validate(finder, Collections.singletonList(ActionDiscoverProcessorSchemaOk.class));
         assertEquals(0, noerrors.count());
         finder = new AnnotationFinder(new ClassesArchive(ActionDiscoverProcessorSchemaKo.class));
-        final Stream<String> errors = validator.validate(finder, Collections.singletonList(ActionDiscoverProcessorSchemaKo.class));
+        final Stream<String> errors =
+                validator.validate(finder, Collections.singletonList(ActionDiscoverProcessorSchemaKo.class));
         assertEquals(13, errors.count());
     }
 
@@ -96,7 +97,8 @@ class ActionValidatorTest {
         assertEquals(0, noerrors.count());
 
         finder = new AnnotationFinder(new ClassesArchive(ActionDynamicDependenciesKO.class));
-        final Stream<String> errors = validator.validate(finder, Collections.singletonList(ActionDynamicDependenciesKO.class));
+        final Stream<String> errors =
+                validator.validate(finder, Collections.singletonList(ActionDynamicDependenciesKO.class));
         assertEquals(9, errors.count());
     }
 
@@ -112,7 +114,8 @@ class ActionValidatorTest {
         Assertions.assertTrue(errors.isEmpty(), () -> errors.get(0) + " as first error");
 
         AnnotationFinder finderKO = new AnnotationFinder(new ClassesArchive(ActionClassKO.class));
-        final Stream<String> errorsStreamKO = validator.validate(finderKO, Collections.singletonList(ActionClassKO.class));
+        final Stream<String> errorsStreamKO =
+                validator.validate(finderKO, Collections.singletonList(ActionClassKO.class));
         final List<String> errorsKO = errorsStreamKO.collect(Collectors.toList());
         assertEquals(6, errorsKO.size(), () -> errorsKO.get(0) + " as first error");
 
@@ -136,7 +139,8 @@ class ActionValidatorTest {
         assertEquals(0, noerrors.count());
 
         finder = new AnnotationFinder(new ClassesArchive(AvailableOutputFlowsKO.class));
-        final Stream<String> errors = validator.validate(finder, Collections.singletonList(AvailableOutputFlowsKO.class));
+        final Stream<String> errors =
+                validator.validate(finder, Collections.singletonList(AvailableOutputFlowsKO.class));
         assertEquals(3, errors.count());
     }
 
