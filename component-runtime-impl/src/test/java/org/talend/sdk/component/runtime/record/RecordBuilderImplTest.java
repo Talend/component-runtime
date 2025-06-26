@@ -48,6 +48,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.EntriesOrder;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.record.SchemaCompanionUtil;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.record.SchemaImpl.BuilderImpl;
 import org.talend.sdk.component.runtime.record.SchemaImpl.EntryImpl;
@@ -848,22 +849,31 @@ class RecordBuilderImplTest {
     }
 
     @Test
-    void testSimpleCollision() {
-        final Record record = new RecordImpl.BuilderImpl() //
-                .withString("goodName", "v1") //
-                .withString("goodName", "v2") //
+    void collisionWithSameNameAndType() {
+        // Case with collision without sanitize.
+        final Record record = new RecordImpl.BuilderImpl()
+                .withString("goodName", "v1")
+                .withString("goodName", "v2")
                 .build();
+        Assertions.assertEquals(1, record.getSchema().getEntries().size());
         Assertions.assertEquals("v2", record.getString("goodName"));
+    }
 
+    @Test
+    void simpleCollision() {
         // Case with collision and sanitize.
-        final Record recordSanitize = new RecordImpl.BuilderImpl() //
-                .withString("70歳以上", "value70") //
-                .withString("60歳以上", "value60") //
+        final Record recordSanitize = new RecordImpl.BuilderImpl()
+                .withString("70歳以上", "value70")
+                .withString("60歳以上", "value60")
                 .build();
         Assertions.assertEquals(2, recordSanitize.getSchema().getEntries().size());
-        final String name1 = Schema.sanitizeConnectionName("70歳以上");
-        Assertions.assertEquals("value70", recordSanitize.getString(name1));
-        Assertions.assertEquals("value60", recordSanitize.getString(name1 + "_1"));
+
+        // both names are sanitized to the one name, but with replacement mechanism inside and prefixes the ordering
+        // will be changed
+        // last entered will take the simpler name
+        final String name1 = SchemaCompanionUtil.sanitizeName("70歳以上");
+        Assertions.assertEquals("value60", recordSanitize.getString(name1));
+        Assertions.assertEquals("value70", recordSanitize.getString(name1 + "_1"));
     }
 
     @Test
