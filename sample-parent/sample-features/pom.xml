@@ -30,6 +30,7 @@
   <modules>
     <module>fixed-schema</module>
     <module>aftergroup-lastgroup</module>
+    <module>database-mapping</module>
     <module>conditional-outputs</module>
     <module>checkpoint-runner</module>
     <module>configuration-form</module>
