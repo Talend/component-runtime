@@ -457,7 +457,7 @@ pipeline {
           }
           else {
             repo = ['oss.sonatype.org',
-                    'https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/']
+                    'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
           }
 
           jenkinsJobTools.job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
