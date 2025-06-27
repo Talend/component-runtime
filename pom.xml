@@ -247,12 +247,16 @@
     <jgit.version>6.7.0.202309050840-r</jgit.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+    <surefire-plugin.version>${maven-surefire-plugin.version}</surefire-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+    <jacoco.version>${jacoco-maven-plugin.version}</jacoco.version>
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
     <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
     <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
     <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
+    <spotless.version>${spotless-maven-plugin.version}</spotless.version>
     <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
+    <jib.version>${jib-maven-plugin.version}</jib.version>
     <jib-core.version>0.24.0</jib-core.version>
 
     <jruby.version>9.2.19.0</jruby.version>
