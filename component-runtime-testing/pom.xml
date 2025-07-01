@@ -38,7 +38,7 @@
 
   <properties>
     <wagon.version>3.4.0</wagon.version>
-    <shrinkwrap.version>3.3.1</shrinkwrap.version>
+    <shrinkwrap.version>3.3.4</shrinkwrap.version>
   </properties>
 
   <dependencyManagement>
