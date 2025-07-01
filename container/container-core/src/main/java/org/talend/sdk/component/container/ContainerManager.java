@@ -53,7 +53,6 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.talend.sdk.component.classloader.ConfigurableClassLoader;
@@ -330,13 +329,13 @@ public class ContainerManager implements Lifecycle {
     public List<String> getPluginsList() {
         return findAll()
                 .stream()
-                .map(container -> container.getId())
+                .map(Container::getId)
                 .sorted()
                 .collect(toList());
     }
 
     public String getPluginsHash() {
-        final String plugins = getPluginsList().stream().collect(Collectors.joining());
+        final String plugins = String.join("", getPluginsList());
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(plugins.getBytes(StandardCharsets.UTF_8));
