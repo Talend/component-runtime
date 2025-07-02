@@ -120,7 +120,7 @@
     <module>component-tools</module>
     <module>slf4j-standard</module>
     <module>component-tools-webapp</module>
-    <module>component-studio</module>
+<!--    <module>component-studio</module>-->
     <module>images</module>
     <module>documentation</module>
     <module>singer-parent</module>
