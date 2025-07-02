@@ -174,11 +174,11 @@
       <artifactId>component-tools-webapp</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-runtime-di</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.talend.sdk.component</groupId>-->
+<!--      <artifactId>component-runtime-di</artifactId>-->
+<!--      <version>${project.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-image</artifactId>

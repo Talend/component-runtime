@@ -144,13 +144,13 @@
       <version>1.1.1</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-runtime-di</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-      <optional>true</optional>
-    </dependency>
+    <!--    <dependency>-->
+    <!--      <groupId>org.talend.sdk.component</groupId>-->
+    <!--      <artifactId>component-runtime-di</artifactId>-->
+    <!--      <version>${project.version}</version>-->
+    <!--      <scope>provided</scope>-->
+    <!--      <optional>true</optional>-->
+    <!--    </dependency>-->
   </dependencies>
 
   <build>
