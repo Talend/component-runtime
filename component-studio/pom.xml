@@ -27,6 +27,10 @@
 
   <name>Component Runtime :: Studio</name>
 
+  <properties>
+    <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
+  </properties>
+
   <modules>
     <module>component-runtime-di</module>
   </modules>
