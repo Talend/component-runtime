@@ -25,7 +25,6 @@
   <name>Component Runtime :: Maven Plugin :: IT :: Dependencies</name>
 
   <properties>
-    <rootlocation>${project.basedir}</rootlocation>
     <talend.build.name>${talend.build.name.base}.sample.it.dependencies</talend.build.name>
     <spotless.skip>true</spotless.skip>
   </properties>
@@ -69,10 +68,6 @@
         <artifactId>common-maven-plugin</artifactId>
         <version>@{common-plugin.version@</version>
         <executions>
-          <execution>
-            <id>set-rootlocation</id>
-            <phase>none</phase>
-          </execution>
           <execution>
             <id>frontend-filter</id>
             <phase>none</phase>

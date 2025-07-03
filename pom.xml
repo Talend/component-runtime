@@ -1428,12 +1428,6 @@
         <version>${common-plugin.version}</version>
         <executions>
           <execution>
-            <id>set-rootlocation</id>
-            <goals>
-              <goal>rootlocation</goal>
-            </goals>
-          </execution>
-          <execution>
             <id>frontend-filter</id>
             <goals>
               <goal>frontend-filter</goal>
