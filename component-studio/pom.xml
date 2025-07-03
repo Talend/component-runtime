@@ -31,6 +31,14 @@
     <module>component-runtime-di</module>
   </modules>
 
+  <!-- temporary workaround we will publish Studio related artifacts inside private repo -->
+  <distributionManagement>
+    <repository>
+      <id>talend_nexus_deployment</id>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
+    </repository>
+  </distributionManagement>
+
   <properties>
     <rootlocation>${project.basedir}/..</rootlocation>
     <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
@@ -99,9 +107,6 @@
         <executions>
           <execution>
             <id>set-rootlocation</id>
-            <goals>
-              <goal>rootlocation</goal>
-            </goals>
             <phase>none</phase>
           </execution>
         </executions>
@@ -113,7 +118,30 @@
             <id>enforce-banned-joda-time-dependency</id>
             <phase>none</phase>
           </execution>
+          <execution>
+            <id>mandatory-checks-on-project</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>mandatory-checks-on-project2</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <banDuplicatePomDependencyVersions/>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <deployAtEnd>true</deployAtEnd>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -121,22 +149,8 @@
   <profiles>
     <profile>
       <id>release</id>
-      <!-- temporary workaround we will publish Studio related artifacts inside private repo -->
-      <distributionManagement>
-        <repository>
-          <id>talend_nexus_deployment</id>
-          <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
-        </repository>
-      </distributionManagement>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <configuration>
-              <deployAtEnd>true</deployAtEnd>
-            </configuration>
-          </plugin>
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
