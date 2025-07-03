@@ -27,13 +27,15 @@
 
   <name>Component Runtime :: Studio</name>
 
-  <properties>
-    <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
-  </properties>
-
   <modules>
     <module>component-runtime-di</module>
   </modules>
+
+  <properties>
+    <rootlocation>${project.basedir}/..</rootlocation>
+    <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
+    <maven.multiModuleProjectDirectory>${rootlocation}</maven.multiModuleProjectDirectory>
+  </properties>
 
   <dependencyManagement>
     <dependencies>
@@ -90,6 +92,20 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.github.rmannibucau</groupId>
+        <artifactId>common-maven-plugin</artifactId>
+        <version>${common-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>set-rootlocation</id>
+            <goals>
+              <goal>rootlocation</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>

@@ -29,6 +29,7 @@
 
   <properties>
     <talend.build.name>${talend.build.name.base}.di</talend.build.name>
+    <maven.multiModuleProjectDirectory>${rootlocation}/..</maven.multiModuleProjectDirectory>
   </properties>
 
   <dependencies>
