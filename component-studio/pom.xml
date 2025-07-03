@@ -108,6 +108,19 @@
           <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
         </repository>
       </distributionManagement>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>talend_nexus_deployment</publishingServerId>
+              <centralBaseUrl>https://artifacts-zl.talend.com</centralBaseUrl>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
