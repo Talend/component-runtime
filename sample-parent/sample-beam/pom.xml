@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.78.4</version>
+    <version>1.78.5-SNAPSHOT</version>
   </parent>
 
   <artifactId>sample-beam</artifactId>
@@ -80,7 +80,7 @@
             <configuration>
               <target>
                 <!-- TCOMP-1983 -->
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace=""/>
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/TALEND-INF/dependencies.txt" match="(\u001B\[36m)?\s+--\s+module\s+.*$" replace="" />
               </target>
             </configuration>
           </execution>
