@@ -111,12 +111,18 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <deployAtEnd>true</deployAtEnd>
+            </configuration>
+          </plugin>
+          <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>talend_nexus_deployment</publishingServerId>
-              <centralBaseUrl>https://artifacts-zl.talend.com</centralBaseUrl>
             </configuration>
           </plugin>
         </plugins>
