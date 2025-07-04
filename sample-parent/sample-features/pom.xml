@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>sample-parent</artifactId>
-    <version>1.82.0-SNAPSHOT</version>
+    <version>1.83.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>sample-features</artifactId>
@@ -30,6 +30,7 @@
   <modules>
     <module>fixed-schema</module>
     <module>aftergroup-lastgroup</module>
+    <module>database-mapping</module>
     <module>conditional-outputs</module>
     <module>checkpoint-runner</module>
     <module>configuration-form</module>
