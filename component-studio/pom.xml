@@ -31,6 +31,19 @@
     <module>component-runtime-di</module>
   </modules>
 
+  <!-- temporary workaround we will publish Studio related artifacts inside private repo -->
+  <distributionManagement>
+    <repository>
+      <id>talend_nexus_deployment</id>
+      <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
+    </repository>
+  </distributionManagement>
+
+  <properties>
+    <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
+    <maven.multiModuleProjectDirectory>${project.basedir}/..</maven.multiModuleProjectDirectory>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -87,13 +100,47 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>com.github.rmannibucau</groupId>
+        <artifactId>common-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>set-rootlocation</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
             <id>enforce-banned-joda-time-dependency</id>
             <phase>none</phase>
           </execution>
+          <!-- suppress ban distribution manager, need it to release with talend-build-lib -->
+          <execution>
+            <id>mandatory-checks-on-project</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>mandatory-checks-on-project2</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <banDuplicatePomDependencyVersions/>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <deployAtEnd>true</deployAtEnd>
+        </configuration>
       </plugin>
     </plugins>
   </build>
