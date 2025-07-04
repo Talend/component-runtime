@@ -940,15 +940,15 @@
 
   <repositories>
     <repository>
-      <id>central.portal</id>
-      <name>Central Portal Snapshots</name>
-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
       <releases>
         <enabled>false</enabled>
       </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </repository>
     <repository>
       <releases>
@@ -1007,14 +1007,14 @@
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
     <pluginRepository>
-      <id>Cloudera.pub</id>
-      <url>https://repository.cloudera.com/content/repositories/public</url>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
+      <id>Cloudera.pub</id>
+      <url>https://repository.cloudera.com/content/repositories/public</url>
     </pluginRepository>
   </pluginRepositories>
 
