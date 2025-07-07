@@ -125,9 +125,9 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <extensions>true</extensions>
             <configuration>
               <publishingServerId>talend_nexus_deployment</publishingServerId>
+              <excludeArtifacts/>
             </configuration>
           </plugin>
           <!-- TODO: as a temp workaround -->
