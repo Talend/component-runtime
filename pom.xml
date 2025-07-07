@@ -1958,6 +1958,17 @@
               <publishingServerId>central.portal</publishingServerId>
               <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
               <failOnBuildFailure>true</failOnBuildFailure>
+              <!--                                                              -->
+              <!-- If "skipPublishing" worked per-artifact, we could use it.    -->
+              <!-- <skipPublishing>${artifact.deploy.disabled}</skipPublishing> -->
+              <!--                                                              -->
+              <!-- The entire "excludeArtifacts" configuration below could be   -->
+              <!-- removed if the behavior of "skipPublishing" changes in a     -->
+              <!-- future version of the plugin.                                -->
+              <excludeArtifacts>
+                <artifact>component-studio</artifact>
+                <artifact>component-runtime-di</artifact>
+              </excludeArtifacts>
             </configuration>
           </plugin>
           <plugin>
