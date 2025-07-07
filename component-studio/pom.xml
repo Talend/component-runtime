@@ -105,7 +105,7 @@
 
   <profiles>
     <profile>
-      <id>release</id>
+      <id>release-zl</id>
       <!-- temporary workaround we will publish Studio related artifacts inside private repo -->
       <distributionManagement>
         <repository>
@@ -122,23 +122,30 @@
               <deployAtEnd>true</deployAtEnd>
             </configuration>
           </plugin>
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <configuration>
-              <publishingServerId>talend_nexus_deployment</publishingServerId>
-              <excludeArtifacts/>
-            </configuration>
-          </plugin>
-          <!-- TODO: as a temp workaround -->
+          <!-- copied from release profile -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${gpg-plugin.version}</version>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.0.1</version>
             <executions>
               <execution>
-                <id>sign-artifacts</id>
-                <phase>none</phase>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
