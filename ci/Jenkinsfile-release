@@ -428,7 +428,9 @@ pipeline {
 
           script {
             echo "Perform release"
-            sh "bash .jenkins/scripts/release/release-3.1-perform-studio.sh $extraBuildParams"
+            sh "bash .jenkins/scripts/release/release-3.1-perform-studio.sh $releaseVersion \
+                                                                            $nextVersion \
+                                                                            $extraBuildParams"
           }
         }
       }
