@@ -41,7 +41,7 @@ main() {
     --activate-profiles ${release_profiles} \
     "${extraBuildParams[@]}"
 
-  mvn versions:set -DnewVersion="${releaseVersion}"
+  mvn versions:set -DnewVersion="${nextVersion}"
 }
 
 main "$@"
