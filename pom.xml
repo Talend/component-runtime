@@ -136,13 +136,11 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
   <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
+    <!-- looks like release and snapshot plugins are handled by sonatype plugin from the box -->
     <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -260,7 +258,8 @@
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
-    <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
+    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+    <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
     <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
     <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
     <jib-core.version>0.24.0</jib-core.version>
@@ -941,11 +940,15 @@
 
   <repositories>
     <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>oss.snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </repository>
     <repository>
       <releases>
@@ -1002,6 +1005,16 @@
       </snapshots>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>Cloudera.pub</id>
+      <url>https://repository.cloudera.com/content/repositories/public</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -1395,9 +1408,9 @@
           <version>${gpg-plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>${nexus-staging-plugin.version}</version>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>${central-publishing-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -1472,12 +1485,12 @@
  * limitations under the License.
  */]]></content>
             </licenseHeader>
-            <!--eclipse>
+            <eclipse>
               <file>${maven.multiModuleProjectDirectory}/build/talend_java_eclipse_formatter.xml</file>
             </eclipse>
             <importOrder>
               <file>${maven.multiModuleProjectDirectory}/build/talend.importorder</file>
-            </importOrder-->
+            </importOrder>
             <removeUnusedImports/>
           </java>
           <pom>
@@ -1937,13 +1950,24 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <publishingServerId>central.portal</publishingServerId>
+              <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
+              <failOnBuildFailure>true</failOnBuildFailure>
+              <!--                                                              -->
+              <!-- If "skipPublishing" worked per-artifact, we could use it.    -->
+              <!-- <skipPublishing>${artifact.deploy.disabled}</skipPublishing> -->
+              <!--                                                              -->
+              <!-- The entire "excludeArtifacts" configuration below could be   -->
+              <!-- removed if the behavior of "skipPublishing" changes in a     -->
+              <!-- future version of the plugin.                                -->
+              <excludeArtifacts>
+                <artifact>component-studio</artifact>
+                <artifact>component-runtime-di</artifact>
+              </excludeArtifacts>
             </configuration>
           </plugin>
           <plugin>
@@ -1961,7 +1985,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.11.2</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -1992,10 +2015,11 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
             <configuration>
-              <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+              <skipPublishing>true</skipPublishing>
             </configuration>
           </plugin>
         </plugins>
