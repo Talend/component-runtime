@@ -15,8 +15,6 @@
  */
 package org.talend.sdk.component.runtime.manager.util;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,9 +35,9 @@ class LazyMapTest {
         Assertions.assertEquals(8, map.get(4));
         Assertions.assertEquals(2, this.multiplyTwoSollicitation);
 
-        Assertions.assertEquals(null, map.get(0));
+        Assertions.assertNull(map.get(0));
         Assertions.assertEquals(3, this.multiplyTwoSollicitation);
-        Assertions.assertEquals(null, map.get(0));
+        Assertions.assertNull(map.get(0));
         Assertions.assertEquals(4, this.multiplyTwoSollicitation);
 
     }

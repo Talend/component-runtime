@@ -18,11 +18,10 @@ package org.talend.sdk.component.junit5;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -142,8 +141,8 @@ class ComponentExtensionTest {
 
         final Stream<String> collect = handler.collect(String.class, mapper, 2, 2);
         final List<String> threads = collect.collect(toList());
-        assertEquals(threads.toString(), 2, threads.size());
-        threads.forEach(n -> assertTrue(n, n.startsWith("ComponentExtension-pool-")));
+        assertEquals(2, threads.size(), threads.toString());
+        threads.forEach(n -> Assertions.assertTrue(n.startsWith("ComponentExtension-pool-"), n));
     }
 
     @Test

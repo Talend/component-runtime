@@ -35,7 +35,6 @@ import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -177,9 +176,15 @@ public class ComponentValidator extends BaseTask {
 
             final List<File> missingSvgs = new ArrayList<>();
 
-            final Map<String, List<File>> iconsToFiles = of(expectedIcons)
-                    .collect(Collectors.groupingBy(Function.identity(), Collectors
-                            .flatMapping((String it) -> of(classes).map(cl -> new File(cl, it)), toList())));
+            final Map<String, List<File>> iconsToFiles = new HashMap<>();
+            for (final String iconName : expectedIcons) {
+                final List<File> files = new ArrayList<>();
+                for (final File cl : classes) {
+                    files.add(new File(cl, iconName));
+                }
+                iconsToFiles.put(iconName, files);
+            }
+
             for (final List<File> potentialPaths : iconsToFiles.values()) {
                 final Map<Boolean, List<File>> partitionedByExistence =
                         potentialPaths.stream().collect(Collectors.partitioningBy(File::exists));

@@ -15,7 +15,7 @@
  */
 package org.talend.sdk.component.tools.validator;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
@@ -31,11 +31,11 @@ class OutputConnectionValidatorTest {
     @MethodSource("data")
     void validate(Class<?> clazz, boolean ok) {
         OutputConnectionValidator validator = new OutputConnectionValidator();
-        Stream<String> validate = validator.validate(null, Arrays.asList(clazz));
+        Stream<String> validate = validator.validate(null, Collections.singletonList(clazz));
         if (ok) {
-            Assertions.assertEquals(0l, validate.count(), "Class " + clazz.getName() + " should be valid");
+            Assertions.assertEquals(0L, validate.count(), "Class " + clazz.getName() + " should be valid");
         } else {
-            Assertions.assertEquals(1l, validate.count(), "Class " + clazz.getName() + " should be invalid");
+            Assertions.assertEquals(1L, validate.count(), "Class " + clazz.getName() + " should be invalid");
         }
 
     }

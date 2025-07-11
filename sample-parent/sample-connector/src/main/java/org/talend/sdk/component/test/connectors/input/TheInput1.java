@@ -23,6 +23,7 @@ import javax.annotation.PreDestroy;
 
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.context.RuntimeContextHolder;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.test.connectors.config.InputConfig;
@@ -44,10 +45,14 @@ public class TheInput1 implements Serializable {
 
     private final GenerateExceptionServices exceptionServices;
 
+    private final RuntimeContextHolder context;
+
     public TheInput1(final @Option("configin") InputConfig config,
-            final GenerateExceptionServices exceptionServices) {
+            final GenerateExceptionServices exceptionServices,
+            final RuntimeContextHolder context) {
         this.config = config;
         this.exceptionServices = exceptionServices;
+        this.context = context;
     }
 
     @PostConstruct
@@ -66,7 +71,10 @@ public class TheInput1 implements Serializable {
         if (config.getGenerateRuntimeException()) {
             exceptionServices.generateRuntimeException();
         }
-        return LocalDate.now();
+
+        final LocalDate value = LocalDate.now();
+        context.set("MAPPER_FLOW1", value.toString());
+        return value;
     }
 
 }

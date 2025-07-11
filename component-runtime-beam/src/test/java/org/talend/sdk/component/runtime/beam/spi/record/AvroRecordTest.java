@@ -19,13 +19,13 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.avro.Schema.createFixed;
 import static org.apache.beam.sdk.util.SerializableUtils.ensureSerializableByCoder;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -84,6 +84,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaCompanionUtil;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
@@ -100,7 +101,8 @@ class AvroRecordTest {
      * Avro logical type must be an int and contains milliseconds from 00:00:00.
      *
      * Please have a look to Avro specification:
-     * {@link https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29}.
+     * {@link <a href=
+     * "https://avro.apache.org/docs/1.11.0/spec.html#Timestamp+%28millisecond+precision%29">Timestamp</a>}.
      *
      * <pre>
      * Time (millisecond precision)
@@ -566,7 +568,7 @@ class AvroRecordTest {
         avro.put(0, new Utf8("test"));
         final Record record = new AvroRecord(avro);
         final Object str = record.get(Object.class, "str");
-        assertFalse(str.getClass().getName(), Utf8.class.isInstance(str));
+        assertFalse(str instanceof Utf8, str.getClass().getName());
         assertEquals("test", str);
     }
 
@@ -797,7 +799,7 @@ class AvroRecordTest {
         next = iterator.next();
         Assertions.assertEquals("XX", next.get(0));
         Assertions.assertEquals(null, next.get(1));
-        Assertions.assertFalse(iterator.hasNext());
+        assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -1059,24 +1061,32 @@ class AvroRecordTest {
     }
 
     @Test
-    void recordCollisionName() {
+    void collisionWithAcceptedNamesAndDifferentTypes() {
         // Case with collision without sanitize.
         final Record record = new AvroRecordBuilder() //
                 .withString("field", "value1") //
                 .withInt("field", 234) //
                 .build();
         final Object value = record.get(Object.class, "field");
-        Assertions.assertEquals(Integer.valueOf(234), value);
+        Assertions.assertEquals(234, value);
+    }
 
+    @Test
+    void recordCollisionName() {
         // Case with collision and sanitize.
-        final Record recordSanitize = new AvroRecordBuilder() //
-                .withString("70歳以上", "value70") //
-                .withString("60歳以上", "value60") //
+        final Record recordSanitize = new AvroRecordBuilder()
+                .withString("70歳以上", "value70")
+                .withString("60歳以上", "value60")
                 .build();
+
         Assertions.assertEquals(2, recordSanitize.getSchema().getEntries().size());
-        final String name1 = Schema.sanitizeConnectionName("70歳以上");
-        Assertions.assertEquals("value70", recordSanitize.getString(name1));
-        Assertions.assertEquals("value60", recordSanitize.getString(name1 + "_1"));
+
+        // both names are sanitized to the one name, but with replacement mechanism inside and prefixes the ordering
+        // will be changed
+        // last entered will take the simpler name
+        final String sanitizedName = SchemaCompanionUtil.sanitizeName("70歳以上");
+        Assertions.assertEquals("value60", recordSanitize.getString(sanitizedName));
+        Assertions.assertEquals("value70", recordSanitize.getString(sanitizedName + "_1"));
     }
 
     @Test

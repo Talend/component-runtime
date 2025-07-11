@@ -17,20 +17,14 @@ package org.talend.sdk.component.api.record;
 
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.temporal.Temporal;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -494,53 +488,9 @@ public interface Schema {
      *
      * @return avro compatible name.
      */
+    @Deprecated
     static String sanitizeConnectionName(final String name) {
-        if (SKIP_SANITIZE || name == null || name.isEmpty()) {
-            return name;
-        }
-
-        char current = name.charAt(0);
-        final CharsetEncoder ascii = Charset.forName(StandardCharsets.US_ASCII.name()).newEncoder();
-        final boolean skipFirstChar = ((!ascii.canEncode(current)) || (!Character.isLetter(current) && current != '_'))
-                && name.length() > 1 && (!Character.isDigit(name.charAt(1)));
-
-        final StringBuilder sanitizedBuilder = new StringBuilder();
-
-        if (!skipFirstChar) {
-            if (((!Character.isLetter(current)) && current != '_') || (!ascii.canEncode(current))) {
-                sanitizedBuilder.append('_');
-            } else {
-                sanitizedBuilder.append(current);
-            }
-        }
-        for (int i = 1; i < name.length(); i++) {
-            current = name.charAt(i);
-            if (!ascii.canEncode(current)) {
-                if (Character.isLowerCase(current) || Character.isUpperCase(current)) {
-                    sanitizedBuilder.append('_');
-                } else {
-                    final byte[] encoded =
-                            Base64.getEncoder().encode(name.substring(i, i + 1).getBytes(StandardCharsets.UTF_8));
-                    final String enc = new String(encoded);
-                    if (sanitizedBuilder.length() == 0 && Character.isDigit(enc.charAt(0))) {
-                        sanitizedBuilder.append('_');
-                    }
-                    for (int iter = 0; iter < enc.length(); iter++) {
-                        if (Character.isLetterOrDigit(enc.charAt(iter))) {
-                            sanitizedBuilder.append(enc.charAt(iter));
-                        } else {
-                            sanitizedBuilder.append('_');
-                        }
-                    }
-                }
-            } else if (Character.isLetterOrDigit(current)) {
-                sanitizedBuilder.append(current);
-            } else {
-                sanitizedBuilder.append('_');
-            }
-
-        }
-        return sanitizedBuilder.toString();
+        return SchemaCompanionUtil.sanitizeName(name);
     }
 
     @RequiredArgsConstructor
@@ -679,39 +629,13 @@ public interface Schema {
         }
     }
 
+    /**
+     * Use instead {@since SchemaCompanionUtil#avoidCollision(Schema.Entry, Function, BiConsumer)}
+     */
+    @Deprecated
     static Schema.Entry avoidCollision(final Schema.Entry newEntry,
             final Function<String, Entry> entryGetter,
             final BiConsumer<String, Entry> replaceFunction) {
-        if (SKIP_SANITIZE) {
-            return newEntry;
-        }
-        final Optional<Entry> collisionedEntry = Optional.ofNullable(entryGetter //
-                .apply(newEntry.getName())) //
-                .filter((final Entry field) -> !Objects.equals(field, newEntry));
-        if (!collisionedEntry.isPresent()) {
-            // No collision, return new entry.
-            return newEntry;
-        }
-        final Entry matchedEntry = collisionedEntry.get();
-        final boolean matchedToChange = matchedEntry.getRawName() != null && !(matchedEntry.getRawName().isEmpty());
-        if (matchedToChange) {
-            // the rename has to be applied on entry already inside schema, so replace.
-            replaceFunction.accept(matchedEntry.getName(), newEntry);
-        } else if (newEntry.getRawName() == null || newEntry.getRawName().isEmpty()) {
-            // try to add exactly same raw, skip the add here.
-            return null;
-        }
-        final Entry fieldToChange = matchedToChange ? matchedEntry : newEntry;
-        int indexForAnticollision = 1;
-        final String baseName = Schema.sanitizeConnectionName(fieldToChange.getRawName()); // recalc primiti name.
-
-        String newName = baseName + "_" + indexForAnticollision;
-        while (entryGetter.apply(newName) != null) {
-            indexForAnticollision++;
-            newName = baseName + "_" + indexForAnticollision;
-        }
-        final Entry newFieldToAdd = fieldToChange.toBuilder().withName(newName).build();
-
-        return newFieldToAdd; // matchedToChange ? newFieldToAdd : newEntry;
+        return SchemaCompanionUtil.avoidCollision(newEntry, entryGetter, replaceFunction);
     }
 }
