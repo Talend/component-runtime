@@ -1,0 +1,8 @@
+{
+  "configuration": {
+    "recordPrefix" : "myPrefix-",
+    "dataset": {
+      "maxRecords": 15
+    }
+  }
+}

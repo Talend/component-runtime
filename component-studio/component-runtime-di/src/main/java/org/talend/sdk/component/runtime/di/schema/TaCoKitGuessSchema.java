@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXCEPTION;
 import static org.talend.sdk.component.api.exception.DiscoverSchemaException.HandleErrorWith.EXECUTE_LIFECYCLE;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
+import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
@@ -32,6 +33,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,6 +72,7 @@ import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ParameterMeta;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
 import org.talend.sdk.component.runtime.manager.chain.ChainedMapper;
+import org.talend.sdk.component.runtime.manager.xbean.converter.SchemaConverter;
 import org.talend.sdk.component.runtime.output.InputFactory;
 import org.talend.sdk.component.runtime.output.OutputFactory;
 import org.talend.sdk.component.runtime.output.Processor;
@@ -92,6 +95,8 @@ public class TaCoKitGuessSchema {
     public static final String ERROR_NO_AVAILABLE_SCHEMA_FOUND = "There is no available schema found.";
 
     public static final String ERROR_INSTANCE_SCHEMA = "Result is not an instance of Talend Component Kit Schema.";
+
+    private static final String NO_COLUMN_FOUND_BY_GUESS_SCHEMA = "No column found by guess schema action";
 
     private ComponentManager componentManager;
 
@@ -144,6 +149,12 @@ public class TaCoKitGuessSchema {
         this.javaTypesManager = new JavaTypesManager();
         this.version = Optional.ofNullable(version).map(Integer::parseInt).orElse(null);
         initClass2JavaTypeMap();
+    }
+
+    public TaCoKitGuessSchema() {
+        this.lineLimit = 50;
+        this.version = null;
+        this.javaTypesManager = new JavaTypesManager();
     }
 
     private void initClass2JavaTypeMap() {
@@ -468,121 +479,132 @@ public class TaCoKitGuessSchema {
     private boolean fromSchema(final Schema schema) {
         final Collection<Schema.Entry> entries = schema.getEntries();
         if (entries == null || entries.isEmpty()) {
-            log.info("No column found by guess schema action");
+            log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
             return false;
         }
-        for (Schema.Entry entry : entries) {
-            String name = entry.getName();
-            Schema.Type entryType = entry.getType();
-            String dbName = entry.getOriginalFieldName();
-            String pattern = entry.getProps().getOrDefault(PATTERN, null);
-            String length = entry.getProps().getOrDefault(SIZE, null);
-            String precision = entry.getProps().getOrDefault(SCALE, null);
-            String isKey = entry.getProps().getOrDefault(IS_KEY, null);
-            String talendType = entry.getProps().getOrDefault(STUDIO_TYPE, "");
-            boolean isDateTime = false;
-            if (entryType == null) {
-                entryType = Schema.Type.STRING;
-            }
-            String typeName;
-            switch (entryType) {
-                case BOOLEAN:
-                    typeName = javaTypesManager.BOOLEAN.getId();
-                    break;
-                case DOUBLE:
-                    typeName = javaTypesManager.DOUBLE.getId();
-                    break;
-                case INT:
-                    if (talendType.equals(javaTypesManager.SHORT.getId())) {
-                        typeName = javaTypesManager.SHORT.getId();
-                    } else {
-                        typeName = javaTypesManager.INTEGER.getId();
-                    }
-                    break;
-                case LONG:
-                    typeName = javaTypesManager.LONG.getId();
-                    break;
-                case FLOAT:
-                    typeName = javaTypesManager.FLOAT.getId();
-                    break;
-                case BYTES:
-                    if (talendType.equals(StudioTypes.BYTE)) {
-                        typeName = javaTypesManager.BYTE.getId();
-                    } else {
-                        typeName = javaTypesManager.BYTE_ARRAY.getId();
-                    }
-                    break;
-                case DATETIME:
-                    typeName = javaTypesManager.DATE.getId();
-                    isDateTime = true;
-                    break;
-                case RECORD:
-                    if (talendType.equals(StudioTypes.DYNAMIC)) {
-                        typeName = StudioTypes.DYNAMIC;
-                    } else if (talendType.equals(StudioTypes.DOCUMENT)) {
-                        typeName = StudioTypes.DOCUMENT;
-                    } else {
-                        typeName = javaTypesManager.OBJECT.getId();
-                    }
-                    break;
-                case ARRAY:
-                    typeName = javaTypesManager.LIST.getId();
-                    break;
-                case DECIMAL:
-                    typeName = javaTypesManager.BIGDECIMAL.getId();
-                    break;
-                default:
-                    if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
-                        typeName = javaTypesManager.CHARACTER.getId();
-                    } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
-                        typeName = javaTypesManager.BYTE.getId();
-                    } else {
-                        typeName = javaTypesManager.STRING.getId();
-                    }
-                    break;
-            }
-
-            final Column column = new Column();
-            column.setLabel(name);
-            column.setOriginalDbColumnName(dbName);
-            column.setTalendType(typeName);
-            column.setNullable(entry.isNullable());
-            column.setComment(entry.getComment());
-            if (length != null) {
-                try {
-                    column.setLength(Integer.valueOf(length));
-                } catch (NumberFormatException e) {
-                    // let default values if props are trash...
-                }
-            }
-            if (precision != null) {
-                try {
-                    column.setPrecision(Integer.valueOf(precision));
-                } catch (NumberFormatException e) {
-                    // let default values if props are trash...
-                }
-            }
-            if (isDateTime || talendType.equals(StudioTypes.DYNAMIC)) {
-                if (pattern != null) {
-                    column.setPattern(STRING_ESCAPE + pattern + STRING_ESCAPE);
-                } else {
-                    // studio default pattern
-                    column.setPattern(STRING_ESCAPE + "dd-MM-yyyy" + STRING_ESCAPE);
-                }
-            }
-            if (isKey != null) {
-                column.setKey(Boolean.parseBoolean(isKey));
-            }
-            if (entry.getDefaultValue() != null) {
-                try {
-                    column.setDefault(entry.getDefaultValue().toString());
-                } catch (Exception e) {
-                    // nevermind as it's almost useless...
-                }
-            }
-            columns.put(name, column);
+        Map<String, Column> map = getSchemaMap(schema);
+        if (!map.isEmpty()) {
+            columns.putAll(map);
         }
         return true;
+    }
+
+    public Collection<Column> getFixedSchema(final String execute) {
+        SchemaConverter sc = new SchemaConverter();
+        Object o = sc.toObjectImpl(execute);
+        if (o instanceof Schema) {
+            final Schema schema = Schema.class.cast(o);
+            final Collection<Schema.Entry> entries = schema.getEntries();
+            if (entries == null || entries.isEmpty()) {
+                log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
+                return Collections.emptyList();
+            }
+            Map<String, Column> map = getSchemaMap(schema);
+            if (map != null) {
+                return map.values();
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private Map<String, Column> getSchemaMap(final Schema schema) {
+        Map<String, Column> schemaMap = new LinkedHashMap<>();
+        final Collection<Schema.Entry> entries = schema.getEntries();
+
+        if (entries == null || entries.isEmpty()) {
+            log.info(NO_COLUMN_FOUND_BY_GUESS_SCHEMA);
+            return Collections.emptyMap();
+        }
+
+        for (Schema.Entry entry : entries) {
+            Column column = createColumnFromEntry(entry);
+            schemaMap.put(entry.getName(), column);
+        }
+        return schemaMap;
+    }
+
+    private Column createColumnFromEntry(final Schema.Entry entry) {
+        Column column = new Column();
+        column.setLabel(entry.getName());
+        column.setOriginalDbColumnName(entry.getOriginalFieldName());
+
+        Schema.Type entryType = (entry.getType() != null) ? entry.getType() : Schema.Type.STRING;
+        String talendType = entry.getProps().getOrDefault(STUDIO_TYPE, "");
+
+        column.setTalendType(getTypeName(entryType, talendType));
+        column.setNullable(entry.isNullable());
+        column.setComment(entry.getComment());
+        parseInteger(entry.getProps().get(SIZE)).ifPresent(column::setLength);
+        parseInteger(entry.getProps().get(SCALE)).ifPresent(column::setPrecision);
+        Optional.ofNullable(entry.getProps().get(IS_KEY))
+                .ifPresent(value -> column.setKey(Boolean.parseBoolean(value)));
+
+        if (entryType == Schema.Type.DATETIME || talendType.equals(StudioTypes.DYNAMIC)) {
+            column.setPattern(getPattern(entry.getProps().get(PATTERN)));
+        }
+
+        if (entry.getDefaultValue() != null) {
+            column.setDefault(entry.getDefaultValue().toString());
+        }
+
+        ofNullable(entry.getProps().get(ORIGIN_TYPE)).ifPresent(v -> column.setSourceType(v));
+
+        return column;
+    }
+
+    private String getTypeName(final Schema.Type entryType, final String talendType) {
+        Map<Schema.Type, String> typeMappings = new HashMap<>();
+        typeMappings.put(Schema.Type.BOOLEAN, javaTypesManager.BOOLEAN.getId());
+        typeMappings.put(Schema.Type.DOUBLE, javaTypesManager.DOUBLE.getId());
+        typeMappings.put(Schema.Type.LONG, javaTypesManager.LONG.getId());
+        typeMappings.put(Schema.Type.FLOAT, javaTypesManager.FLOAT.getId());
+        typeMappings.put(Schema.Type.ARRAY, javaTypesManager.LIST.getId());
+        typeMappings.put(Schema.Type.DECIMAL, javaTypesManager.BIGDECIMAL.getId());
+        typeMappings.put(Schema.Type.DATETIME, javaTypesManager.DATE.getId());
+
+        if (typeMappings.containsKey(entryType)) {
+            return typeMappings.get(entryType);
+        }
+
+        switch (entryType) {
+            case INT:
+                return talendType.equals(javaTypesManager.SHORT.getId()) ? javaTypesManager.SHORT.getId()
+                        : javaTypesManager.INTEGER.getId();
+            case BYTES:
+                return talendType.equals(StudioTypes.BYTE) ? javaTypesManager.BYTE.getId()
+                        : javaTypesManager.BYTE_ARRAY.getId();
+            case RECORD:
+                if (StudioTypes.DYNAMIC.equals(talendType)) {
+                    return StudioTypes.DYNAMIC;
+                } else if (StudioTypes.DOCUMENT.equals(talendType)) {
+                    return StudioTypes.DOCUMENT;
+                } else {
+                    return javaTypesManager.OBJECT.getId();
+                }
+            default:
+                if (talendType.equals(javaTypesManager.CHARACTER.getId())) {
+                    return javaTypesManager.CHARACTER.getId();
+                } else if (talendType.equals(javaTypesManager.BYTE.getId())) {
+                    return javaTypesManager.BYTE.getId();
+                } else {
+                    return javaTypesManager.STRING.getId();
+                }
+        }
+    }
+
+    private Optional<Integer> parseInteger(final String value) {
+        if (value == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(Integer.parseInt(value));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
+    private String getPattern(final String pattern) {
+        return STRING_ESCAPE + (pattern != null ? pattern : "dd-MM-yyyy") + STRING_ESCAPE;
     }
 
     private void guessOutputComponentSchemaThroughResult() throws Exception {

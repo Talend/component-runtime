@@ -17,7 +17,7 @@ package org.talend.sdk.component.tools.validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -26,6 +26,7 @@ import org.apache.xbean.finder.AnnotationFinder;
 import org.apache.xbean.finder.archive.ClassesArchive;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.runtime.record.SchemaImpl;
 
 public class SchemaValidatorTest {
@@ -35,7 +36,7 @@ public class SchemaValidatorTest {
         final SchemaValidator validator = new SchemaValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(MySchema.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(MySchema.class));
+                validator.validate(finder, Collections.singletonList(MySchema.class));
         assertEquals(1, noerrors.count());
     }
 
@@ -44,7 +45,7 @@ public class SchemaValidatorTest {
         final SchemaValidator validator = new SchemaValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(SchemaImpl.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(SchemaImpl.class));
+                validator.validate(finder, Collections.singletonList(SchemaImpl.class));
         assertEquals(0, noerrors.count());
     }
 
@@ -53,7 +54,7 @@ public class SchemaValidatorTest {
         final SchemaValidator validator = new SchemaValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(Schema.Builder.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(Schema.Builder.class));
+                validator.validate(finder, Collections.singletonList(Builder.class));
         assertEquals(0, noerrors.count());
     }
 

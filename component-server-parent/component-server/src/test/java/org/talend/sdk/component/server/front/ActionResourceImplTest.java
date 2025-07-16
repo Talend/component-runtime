@@ -198,8 +198,10 @@ class ActionResourceImplTest {
                 "{\n  \"entries\":[\n    {\n      \"elementSchema\":{\n        \"entries\":[\n        ],\n" +
                         "        \"metadata\":[\n        ],\n        \"props\":{\n\n        },\n        \"type\":\"STRING\"\n"
                         +
-                        "      },\n      \"metadata\":false,\n      \"name\":\"array\",\n      \"nullable\":false,\n" +
-                        "      \"props\":{\n\n      },\n      \"type\":\"ARRAY\"\n    }\n  ],\n  \"metadata\":[\n" +
+                        "      },\n      \"errorCapable\":false," +
+                        "\n      \"metadata\":false,\n      \"name\":\"array\",\n      \"nullable\":false,\n" +
+                        "      \"props\":{\n\n      },\n      \"type\":\"ARRAY\",\n" +
+                        "      \"valid\":true\n    }\n  ],\n  \"metadata\":[\n" +
                         "  ],\n  \"props\":{\n    \"talend.fields.order\":\"array\"\n  },\n  \"type\":\"RECORD\"\n}";
         assertEquals(expected, schema);
     }
@@ -238,7 +240,7 @@ class ActionResourceImplTest {
                 }, APPLICATION_JSON_TYPE), JsonObject.class);
         assertNotNull(guessed);
         final String expected =
-                "{\"entries\":[{\"metadata\":false,\"name\":\"field1\",\"nullable\":false,\"props\":{},\"type\":\"STRING\"},{\"comment\":\"field2 comment\",\"metadata\":false,\"name\":\"field2\",\"nullable\":false,\"props\":{},\"type\":\"LONG\"},{\"metadata\":false,\"name\":\"V1\",\"nullable\":false,\"props\":{},\"type\":\"STRING\"},{\"metadata\":false,\"name\":\"driver\",\"nullable\":false,\"props\":{},\"type\":\"STRING\"}],\"metadata\":[],\"props\":{\"talend.fields.order\":\"field1,field2,V1,driver\"},\"type\":\"RECORD\"}";
+                "{\"entries\":[{\"errorCapable\":false,\"metadata\":false,\"name\":\"field1\",\"nullable\":false,\"props\":{},\"type\":\"STRING\",\"valid\":true},{\"comment\":\"field2 comment\",\"errorCapable\":false,\"metadata\":false,\"name\":\"field2\",\"nullable\":false,\"props\":{},\"type\":\"LONG\",\"valid\":true},{\"errorCapable\":false,\"metadata\":false,\"name\":\"V1\",\"nullable\":false,\"props\":{},\"type\":\"STRING\",\"valid\":true},{\"errorCapable\":false,\"metadata\":false,\"name\":\"driver\",\"nullable\":false,\"props\":{},\"type\":\"STRING\",\"valid\":true}],\"metadata\":[],\"props\":{\"talend.fields.order\":\"field1,field2,V1,driver\"},\"type\":\"RECORD\"}";
         assertEquals(expected, guessed.toString());
     }
 
@@ -348,7 +350,7 @@ class ActionResourceImplTest {
 
     @Test
     void executeDynamicDependencies() {
-        HashMap<String, String> params = new HashMap();
+        HashMap<String, String> params = new HashMap<>();
         List<String> drivers;
         //
         params.put("configuration.url", "zorglub://vault:8200/fail");

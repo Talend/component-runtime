@@ -15,10 +15,9 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
-import static java.time.ZoneOffset.UTC;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
 
 import java.math.BigDecimal;
@@ -26,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -43,11 +43,14 @@ import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.SchemaProperty;
+import org.talend.sdk.component.api.record.SchemaProperty.LogicalType;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 import org.talend.sdk.component.runtime.record.RecordImpl;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
+
+    public final static ZoneId UTC = ZoneId.of("UTC");
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
 
@@ -80,17 +83,19 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         this.schema = AvroSchema.toAvroSchema(record.getSchema());
         this.delegate = new GenericData.Record(this.schema.getActualDelegate());
 
+        this.delegate.getSchema().addProp(KeysForAvroProperty.RECORD_IN_ERROR, String.valueOf(!record.isValid()));
+
         record
                 .getSchema()
                 .getAllEntries()
-                .forEach(entry -> ofNullable(record.get(Object.class, sanitizeConnectionName(entry.getName())))
+                .forEach(entry -> ofNullable(record.get(Object.class, sanitizeName(entry.getName())))
                         .ifPresent(v -> {
                             final Object avroValue = directMapping(v, entry);
 
                             if (avroValue != null) {
                                 final org.apache.avro.Schema.Field field =
                                         this.schema.getActualDelegate()
-                                                .getField(sanitizeConnectionName(entry.getName()));
+                                                .getField(sanitizeName(entry.getName()));
                                 delegate.put(field.pos(), avroValue);
                             }
                         }));
@@ -125,10 +130,19 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
         if (value instanceof Long) {
             String logicalType = entry.getLogicalType();
-            if (logicalType != null && SchemaProperty.LogicalType.DATE.key().equals(logicalType)) {
-                return Math.toIntExact(
-                        Instant.ofEpochMilli((Long) value).atZone(UTC).toLocalDate().toEpochDay()); // Avro stores dates
-                // as int
+            if (logicalType != null) {
+                if (SchemaProperty.LogicalType.DATE.key().equals(logicalType)) {
+                    return Math.toIntExact(
+                            Instant.ofEpochMilli((Long) value)
+                                    .atZone(UTC)
+                                    .toLocalDate()
+                                    .toEpochDay()); // Avro stores dates as int
+                } else if (LogicalType.TIME.key().equals(logicalType)) {
+                    // QTDI-1252: Avro time-millis logical type stores int milliseconds from 0:00:00 not from Unix Epoch
+                    final Instant instant = Instant.ofEpochMilli((Long) value);
+                    final ZonedDateTime zonedDateTime = instant.atZone(UTC);
+                    return Math.toIntExact(zonedDateTime.toLocalTime().toNanoOfDay() / 1_000_000);
+                }
             }
         }
 
@@ -153,7 +167,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
         if (expectedType == Collection.class) {
             return expectedType.cast(getArray(Object.class, name));
         }
-        return doGet(expectedType, sanitizeConnectionName(name));
+        return doGet(expectedType, sanitizeName(name));
     }
 
     @Override
@@ -166,7 +180,7 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     @Override
     public <T> Collection<T> getArray(final Class<T> type, final String name) {
-        final String sanitizedName = sanitizeConnectionName(name);
+        final String sanitizedName = sanitizeName(name);
         return this.doGetArray(type, sanitizedName);
     }
 

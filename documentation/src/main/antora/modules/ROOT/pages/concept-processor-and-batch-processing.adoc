@@ -88,6 +88,29 @@ public class BulkProcessor implements Serializable {
 }
 ----
 
+When using the @aftergroup feature, it can be helpful to determine if it's the last call (last group).
+You can now annotate a Boolean with @lastgroup as a parameter of the method.
+This Boolean will be set to true for the final call, which can be useful for performing additional
+actions once all records have been processed.
+
+For example, here is a scenario inspired by Snowflake:
+
+Batches of records are staged within each @aftergroup call.
+Once all data has been staged, a final #commitBulkLoad call is executed. This action must be performed after all data has been staged.
+This process returns all rejected data, which is then transformed into TCK records and sent to the 'REJECT' flow.
+
+[source,java]
+----
+@AfterGroup
+public void afterGroup(@Output("REJECT") final OutputEmitter<Record> rejected, @LastGroup Boolean last) {
+    database.pushToStaging(records);
+    if(last){
+        List<Data> dataToReject = database.commitBulkLoad();
+        dataToReject.stream().map(d -> convertToRecord(d)).each(r -> rejected.emit(d));
+    }
+}
+----
+
 NOTE: When writing tests for components, you can force the `maxBatchSize` parameter value by setting it with the following syntax: `<configuration prefix>.$maxBatchSize=10`.
 
 You can learn more about processors in xref:component-define-processor-output.adoc[this document].

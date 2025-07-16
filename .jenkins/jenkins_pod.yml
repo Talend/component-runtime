@@ -29,11 +29,11 @@ spec:
       tty: true
       volumeMounts: [
         { name: efs-jenkins-component-runtime-m2-rootless,
-          mountPath: /home/jenkins/.m2/ },
+          mountPath: /home/jenkins/.m2/repository },
         { name: efs-jenkins-connectors-asdf-rootless,
           mountPath: /home/jenkins/.asdf/installs},
       ]
-      resources: { requests: { memory: 4G, cpu: '2' } }
+      resources: { requests: { memory: 5G, cpu: '2' } }
       env:
         - name: DOCKER_HOST # Points the Docker client to the socket hosted by the docker-daemon container (see below)
           value: tcp://localhost:2375

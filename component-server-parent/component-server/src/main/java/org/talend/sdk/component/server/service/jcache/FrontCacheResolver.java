@@ -36,8 +36,13 @@ import javax.inject.Inject;
 import org.apache.geronimo.jcache.simple.cdi.CacheResolverImpl;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.server.api.CacheResource;
+import org.talend.sdk.component.server.front.ComponentResourceImpl;
+import org.talend.sdk.component.server.front.ConfigurationTypeResourceImpl;
 import org.talend.sdk.component.server.front.EnvironmentResourceImpl;
+import org.talend.sdk.component.server.front.model.CacheClear;
 import org.talend.sdk.component.server.front.model.Environment;
+import org.talend.sdk.component.server.service.ComponentManagerService;
 import org.talend.sdk.components.vault.jcache.CacheConfigurationFactory;
 import org.talend.sdk.components.vault.jcache.CacheSizeManager;
 
@@ -45,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class FrontCacheResolver implements CacheResolverFactory {
+public class FrontCacheResolver implements CacheResolverFactory, CacheResource {
 
     @Inject
     private CacheManager cacheManager;
@@ -59,7 +64,16 @@ public class FrontCacheResolver implements CacheResolverFactory {
     private Long refreshPeriod;
 
     @Inject
+    private ComponentManagerService service;
+
+    @Inject
     EnvironmentResourceImpl env;
+
+    @Inject
+    ComponentResourceImpl components;
+
+    @Inject
+    ConfigurationTypeResourceImpl resources;
 
     private long lastUpdated;
 
@@ -111,17 +125,42 @@ public class FrontCacheResolver implements CacheResolverFactory {
         final Environment environment = env.get();
         // assumes time are synch-ed but not a high assumption
         if (lastUpdated < environment.getLastUpdated().getTime()) {
-            clearCaches();
+            cleanupCaches();
             lastUpdated = System.currentTimeMillis();
         }
     }
 
-    public void clearCaches() {
+    /**
+     * Clear all soft caches
+     */
+    public void cleanupCaches() {
         StreamSupport
                 .stream(cacheManager.getCacheNames().spliterator(), false)
                 .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))
                 .peek(c -> log.info("[clearCaches] clear cache {}.", c))
                 .forEach(r -> cacheManager.getCache(r).clear());
+        components.clearCache(null);
+        resources.clearCache(null);
+    }
+
+    @Override
+    public CacheClear clearCaches() {
+        final long clearedCacheCount = countActiveCaches();
+        service.redeployPlugins();
+        return new CacheClear(clearedCacheCount);
+    }
+
+    /**
+     * mainly used for testing purpose.
+     * 
+     * @return active caches count
+     */
+    public Long countActiveCaches() {
+        return StreamSupport
+                .stream(cacheManager.getCacheNames().spliterator(), false)
+                .filter(name -> name.startsWith("org.talend.sdk.component.server.front."))
+                .filter(c -> cacheManager.getCache(c).iterator().hasNext())
+                .count();
     }
 
     @Override

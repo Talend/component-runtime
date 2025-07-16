@@ -216,12 +216,14 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
     }
 
     private static Entry buildFromAvro(final Field field, final Type type,
-            final Optional<SchemaProperty.LogicalType> logicalType, final AvroSchema elementSchema) {
+            final Optional<SchemaProperty.LogicalType> logicalType,
+            final AvroSchema elementSchema) {
         Entry.Builder builder = new EntryImpl.BuilderImpl() //
                 .withName(field.name()) //
                 .withRawName(field.getProp(KeysForAvroProperty.LABEL)) //
                 .withType(type) //
                 .withNullable(field.schema().getType() == UNION) //
+                .withErrorCapable(Boolean.parseBoolean(field.getProp(KeysForAvroProperty.IS_ERROR_CAPABLE)))
                 .withMetadata(AvroSchema.isMetadata(field)) //
                 .withDefaultValue(field.defaultVal()) //
                 .withElementSchema(elementSchema) //
@@ -229,6 +231,8 @@ public class AvroSchema implements org.talend.sdk.component.api.record.Schema, A
                 .withProps(field.getObjectProps()
                         .entrySet()
                         .stream()
+                        // KeysForAvroProperty.IS_ERROR_CAPABLE is already managed above
+                        .filter(p -> !p.getKey().equals(KeysForAvroProperty.IS_ERROR_CAPABLE))
                         .collect(toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))));
 
         logicalType.ifPresent(builder::withLogicalType);

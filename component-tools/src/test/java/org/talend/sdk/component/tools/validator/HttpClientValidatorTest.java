@@ -17,7 +17,7 @@ package org.talend.sdk.component.tools.validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -35,7 +35,7 @@ class HttpClientValidatorTest {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ClientKoWrongExtends.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(ClientKoWrongExtends.class));
+                validator.validate(finder, Collections.singletonList(ClientKoWrongExtends.class));
         assertEquals(1, errors.count());
     }
 
@@ -44,7 +44,7 @@ class HttpClientValidatorTest {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ClientKoNotExtendsAnything.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(ClientKoNotExtendsAnything.class));
+                validator.validate(finder, Collections.singletonList(ClientKoNotExtendsAnything.class));
         assertEquals(1, errors.count());
     }
 
@@ -53,7 +53,7 @@ class HttpClientValidatorTest {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClientMissingOneRequest.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(WrongClientMissingOneRequest.class));
+                validator.validate(finder, Collections.singletonList(WrongClientMissingOneRequest.class));
         assertEquals(1, errors.count());
     }
 
@@ -62,7 +62,7 @@ class HttpClientValidatorTest {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClientUsingOneWrongAnnotation.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(WrongClientUsingOneWrongAnnotation.class));
+                validator.validate(finder, Collections.singletonList(WrongClientUsingOneWrongAnnotation.class));
         assertEquals(1, errors.count());
     }
 
@@ -71,7 +71,7 @@ class HttpClientValidatorTest {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(WrongClientNoMethodRequest.class));
         final Stream<String> errors =
-                validator.validate(finder, Arrays.asList(WrongClientNoMethodRequest.class));
+                validator.validate(finder, Collections.singletonList(WrongClientNoMethodRequest.class));
         assertEquals(1, errors.count());
     }
 
@@ -80,7 +80,7 @@ class HttpClientValidatorTest {
         final HttpValidator validator = new HttpValidator();
         AnnotationFinder finder = new AnnotationFinder(new ClassesArchive(ClientCorrect.class));
         final Stream<String> noerrors =
-                validator.validate(finder, Arrays.asList(ClientCorrect.class));
+                validator.validate(finder, Collections.singletonList(ClientCorrect.class));
         assertEquals(0, noerrors.count());
     }
 

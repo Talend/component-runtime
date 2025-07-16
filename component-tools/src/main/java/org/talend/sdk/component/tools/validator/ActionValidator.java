@@ -32,12 +32,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.xbean.finder.AnnotationFinder;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Proposable;
 import org.talend.sdk.component.api.configuration.action.Updatable;
 import org.talend.sdk.component.api.configuration.type.DataSet;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.meta.ConditionalOutput;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.ActionType;
 import org.talend.sdk.component.api.service.Service;
@@ -45,6 +47,8 @@ import org.talend.sdk.component.api.service.completion.DynamicValues;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.discovery.DiscoverDataset;
 import org.talend.sdk.component.api.service.healthcheck.HealthCheck;
+import org.talend.sdk.component.api.service.outputs.AvailableOutputFlows;
+import org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.api.service.update.Update;
@@ -98,11 +102,16 @@ public class ActionValidator implements Validator {
         // parameters for @DiscoverSchemaExtended
         final Stream<String> discoverProcessor = findDiscoverSchemaExtendedErrors(finder);
 
+        // parameters for @DatabaseMapping
+        final Stream<String> databaseMappingsErrors = findDatabaseMappingsErrors(finder);
+
         // parameters for @DynamicDependencies
         final Stream<String> dynamicDependencyErrors = findDynamicDependenciesErrors(finder);
 
         // returned type for @Update, for now limit it on objects and not primitives
         final Stream<String> updatesErrors = this.findUpdatesErrors(finder);
+
+        final Stream<String> availableOutputFlowsErrors = this.findAvailableOutputFlowsErrors(finder);
 
         final Stream<String> enumProposable = finder
                 .findAnnotatedFields(Proposable.class)
@@ -136,8 +145,10 @@ public class ActionValidator implements Validator {
                         datasetDiscover, //
                         discover, //
                         discoverProcessor, //
+                        databaseMappingsErrors, //
                         dynamicDependencyErrors, //
                         updatesErrors, //
+                        availableOutputFlowsErrors, //
                         enumProposable, //
                         proposableWithoutDynamic) //
                 .reduce(Stream::concat)
@@ -242,6 +253,124 @@ public class ActionValidator implements Validator {
         return Stream.of(returnType, optionParameter)
                 .reduce(Stream::concat)
                 .orElseGet(Stream::empty);
+    }
+
+    private Stream<String> findDatabaseMappingsErrors(final AnnotationFinder finder) {
+        final Stream<String> optionParameter = finder
+                .findAnnotatedMethods(DatabaseSchemaMapping.class)
+                .stream()
+                .filter(m -> !hasOption(m))
+                .map(m -> m + " should have an Object parameter marked with @Option")
+                .sorted();
+
+        final Stream<String> returnType = finder
+                .findAnnotatedMethods(DatabaseSchemaMapping.class)
+                .stream()
+                .filter(m -> !String.class.isAssignableFrom(m.getReturnType()))
+                .map(m -> m + " should return a String")
+                .sorted();
+
+        final Stream<String> parameterType = finder
+                .findAnnotatedMethods(DatabaseSchemaMapping.class)
+                .stream()
+                .filter(m -> m.getParameterTypes().length > 0 &&
+                        !m.getParameterTypes()[0].isAnnotationPresent(DataStore.class))
+                .map(m -> m + " should have its parameter being a datastore (marked with @DataStore)")
+                .sorted();
+
+        return Stream.of(returnType, optionParameter, parameterType)
+                .reduce(Stream::concat)
+                .orElseGet(Stream::empty);
+    }
+
+    /**
+     * Checks method signature for @AvailableOutputFlows annotation.
+     * Valid signatures are:
+     * <ul>
+     * <li>public List<String> getAvailableOutputFlows(@Option("configuration") final Configuration config)</li>
+     * </ul>
+     * <p>
+     * Checks Processors signature for @ConditionalOutputFlows annocation which Pair used with @AvailableOutputFlows
+     * Valid signatures are:
+     * <ul>
+     * <li>@AvailableOutputFlows("name-for-one-processor")</li>
+     * <li>public List<String> getAvailableOutputFlows(@Option("configuration") final Configuration config)</li>
+     * <li>@ConditionalOutputFlows("name-for-one-processor") for some Processor</li>
+     * <li>The parameter of the method like Configuration must be the configuration of the Processor which
+     * used @ConditionalOutputFlows</li>
+     * </ul>
+     *
+     * @param finder
+     * @return Errors on @AvailableOutputFlows method
+     */
+    private Stream<String> findAvailableOutputFlowsErrors(final AnnotationFinder finder) {
+
+        final Stream<String> mustHasName = finder
+                .findAnnotatedMethods(AvailableOutputFlows.class)
+                .stream()
+                .filter(m -> StringUtils.isEmpty(m.getName()))
+                .map(m -> m + " must have a name to pair with related Processor")
+                .sorted();
+
+        final Stream<String> mustHasNamePro = finder
+                .findAnnotatedClasses(ConditionalOutput.class)
+                .stream()
+                .filter(p -> StringUtils.isEmpty(p.getAnnotation(ConditionalOutput.class).value()))
+                .map(p -> p + " must have a name to pair with related annotation @AvailableOutputFlows")
+                .sorted();
+
+        final Stream<String> returnType = finder
+                .findAnnotatedMethods(AvailableOutputFlows.class)
+                .stream()
+                .filter(m -> !hasStringInList(m))
+                .map(m -> m + " should return List<String>")
+                .sorted();
+
+        final Stream<String> onlyOneProcessor = finder
+                .findAnnotatedMethods(AvailableOutputFlows.class)
+                .stream()
+                .filter(m -> !hasOneSameNameProcessor(m.getAnnotation(AvailableOutputFlows.class).value(), finder))
+                .map(m -> m + " should own one related processor for this method (by using @ConditionalOutputFlows)")
+                .sorted();
+
+        // <availableName, configurationType>
+        // for each availableName: the processor has the same name(only 1) & config type
+        final Stream<String> sameConfigWithProcessor = finder
+                .findAnnotatedMethods(AvailableOutputFlows.class)
+                .stream()
+                .filter(m -> !hasSameConfigInProcessor(m, finder))
+                .map(m -> m + " should use the same type of Configuration as the related processor for this method")
+                .sorted();
+
+        return Stream
+                .of(mustHasName, mustHasNamePro, returnType, onlyOneProcessor, sameConfigWithProcessor)
+                .reduce(Stream::concat)
+                .orElseGet(Stream::empty);
+    }
+
+    private boolean hasSameConfigInProcessor(final Method method, final AnnotationFinder finder) {
+        return finder.findAnnotatedClasses(ConditionalOutput.class)
+                .stream()
+                .filter(p -> method.getAnnotation(AvailableOutputFlows.class)
+                        .value()
+                        .equals(p.getAnnotation(ConditionalOutput.class).value()))
+                .filter(p -> hasSameConfig(method, p))
+                .count() == 1;
+    }
+
+    private boolean hasSameConfig(final Method method, final Class<?> p) {
+        return Arrays.stream(method.getParameters())
+                .filter(m -> Arrays.stream(p.getDeclaredFields())
+                        .filter(f -> f.getType() == m.getType())
+                        .count() == 1)
+                .count() == 1;
+    }
+
+    private boolean hasOneSameNameProcessor(final String name, final AnnotationFinder finder) {
+        return finder.findAnnotatedClasses(ConditionalOutput.class)
+                .stream()
+                .filter(p -> name.equals(p.getAnnotation(ConditionalOutput.class).value()))
+                .count() == 1;
     }
 
     private Stream<String> findUpdatesErrors(final AnnotationFinder finder) {

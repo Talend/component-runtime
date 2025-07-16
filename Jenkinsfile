@@ -54,6 +54,8 @@ final def gpgCredentials = usernamePassword(
     usernameVariable: 'GPG_KEYNAME',
     passwordVariable: 'GPG_PASSPHRASE')
 
+final String repository = 'component-runtime'
+
 // In PR environment, the branch name is not valid and should be swap with pr name.
 final String pull_request_id = env.CHANGE_ID
 final String branch_name = pull_request_id != null ? env.CHANGE_BRANCH : env.BRANCH_NAME
@@ -85,6 +87,7 @@ String deployOptions = "$skipOptions -Possrh -Prelease -Pgpg2 -Denforcer.skip=tr
 pipeline {
   libraries {
     lib("connectors-lib@main")  // https://github.com/Talend/tdi-jenkins-shared-libraries
+    lib("tqa-e2e-tests-tool@main_ttp2024")  // https://github.com/Talend/tqa-e2e-testing-tool
   }
   agent {
     kubernetes {
@@ -114,14 +117,12 @@ pipeline {
 
   parameters {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "BASIC_CONFIG",
-              sectionHeader: "Basic configuration",
+    separator(name: "BASIC_CONFIG", sectionHeader: "Basic configuration",
               sectionHeaderStyle: """ background-color: #ABEBC6;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     choice(
-        name: 'Action',
+        name: 'ACTION',
         choices: ['STANDARD', 'RELEASE'],
         description: 'Kind of running:\nSTANDARD: (default) classical CI\nRELEASE: Build release')
 
@@ -131,23 +132,19 @@ pipeline {
         description: 'Force documentation stage for development branches. No effect on master and maintenance.')
 
     string(name: 'JAVA_VERSION',
-           defaultValue: 'adoptopenjdk-17.0.5+8',
+           defaultValue: 'from .tool-versions',
            description: """Provided java version will be installed with asdf  
-                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9  
-                        """)
+                        Examples: adoptopenjdk-11.0.22+7, adoptopenjdk-17.0.11+9 """)
 
     string(name: 'MAVEN_VERSION',
-           defaultValue: '3.8.8',
+           defaultValue: 'from .tool-versions',
            description: """Provided maven version will be installed with asdf  
-                        Examples: 3.8.8, 4.0.0-beta-4  
-                        """)
+                        Examples: 3.8.8, 4.0.0-beta-4 """)
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "DEPLOY_CONFIG",
-              sectionHeader: "Deployment configuration",
+    separator(name: "DEPLOY_CONFIG", sectionHeader: "Deployment configuration",
               sectionHeaderStyle: """ background-color: #F9E79F;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'MAVEN_DEPLOY',
@@ -171,11 +168,9 @@ pipeline {
         description: 'Choose which docker image you want to build and push. Only available if DOCKER_PUSH == True.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "QUALIFIER_CONFIG",
-              sectionHeader: "Qualifier configuration",
+    separator(name: "QUALIFIER_CONFIG", sectionHeader: "Qualifier configuration",
               sectionHeaderStyle: """ background-color: #AED6F1;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(
         name: 'VERSION_QUALIFIER',
@@ -186,11 +181,9 @@ pipeline {
             From "user/JIRA-12345_some_information" the qualifier will be JIRA-12345.''')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "ADVANCED_CONFIG",
-              sectionHeader: "Advanced configuration",
+    separator(name: "ADVANCED_CONFIG", sectionHeader: "Advanced configuration",
               sectionHeaderStyle: """ background-color: #F8C471;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold; """)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     string(
         name: 'EXTRA_BUILD_PARAMS',
@@ -210,19 +203,29 @@ pipeline {
         description: 'Force dependencies report stage for branches.')
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "EXPERT_CONFIG",
-              sectionHeader: "Expert configuration",
+    separator(name: "EXPERT_CONFIG", sectionHeader: "Expert configuration",
               sectionHeaderStyle: """ background-color: #A9A9A9;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold;""")
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    booleanParam(
+        name: 'TRIVY_SCAN',
+        defaultValue: !isStdBranch,
+         description: '''
+            This is for trivy scan, by default this checkbox is false on master or maintenance branch.
+            It will generate the trivy report on Jenkins, the report name is `CVE Trivy Vulnerability Report`
+            ''')
+    string(
+         name: 'PACKAGE_FILTER_NAME',
+         defaultValue: "",
+         description: '''
+            This input box is used to filter the results of the `mvn dependency:tree` command.
+            This input box only works when TRIVY_SCAN checkbox is true.
+            By entering the package name, you can find out which components are affected and thus the scope of the test.
+            For example: org.eclipse.jetty:jetty-http, org.apache.avro:avro, org.apache.geronimo ...''')
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    separator(name: "DEBUG_CONFIG",
-              sectionHeader: "Jenkins job debug configuration ",
+    separator(name: "DEBUG_CONFIG", sectionHeader: "Jenkins job debug configuration ",
               sectionHeaderStyle: """ background-color: #FF0000;
-                text-align: center; font-size: 35px !important; font-weight : bold;
-			          """)
+                text-align: center; font-size: 35px !important; font-weight : bold;""")
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     booleanParam(
         name: 'JENKINS_DEBUG',
@@ -250,30 +253,26 @@ pipeline {
         }
 
         ///////////////////////////////////////////
-        // edit java version
+        // asdf install
         ///////////////////////////////////////////
         script {
           echo "edit asdf tool version with version from jenkins param"
 
-          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'java', params.JAVA_VERSION)
-          jenkinsJobTools.job_description_append("Use java version:  $params.JAVA_VERSION  ")
-          asdfTools.edit_version_in_file("$env.WORKSPACE/.tool-versions", 'maven', params.MAVEN_VERSION)
-          jenkinsJobTools.job_description_append("Use maven version:  $params.MAVEN_VERSION  ")
+          String javaVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
+                                                    'java', params.JAVA_VERSION)
+          String mavenVersion = asdfTools.setVersion("$env.WORKSPACE/.tool-versions",
+                                                     'maven', params.MAVEN_VERSION)
+          jenkinsJobTools.job_description_append("Use java $javaVersion with maven  $mavenVersion  ")
 
-        }
-
-        ///////////////////////////////////////////
-        // asdf install
-        ///////////////////////////////////////////
-        script {
           println "asdf install the content of repository .tool-versions'\n"
           sh 'bash .jenkins/scripts/asdf_install.sh'
         }
+
         ///////////////////////////////////////////
         // Variables init
         ///////////////////////////////////////////
         script {
-          stdBranch_buildOnly = isStdBranch && params.Action != 'RELEASE'
+          stdBranch_buildOnly = isStdBranch && params.ACTION != 'RELEASE'
           devBranch_mavenDeploy = !isStdBranch && params.MAVEN_DEPLOY
           devBranch_dockerPush = !isStdBranch && params.DOCKER_PUSH
 
@@ -371,11 +370,11 @@ pipeline {
             deploy_info = deploy_info + '+DOCKER'
           }
 
-          jenkinsJobTools.job_name_creation("$params.Action" + deploy_info)
+          jenkinsJobTools.job_name_creation("$params.ACTION" + deploy_info)
 
           // updating build description
           String description = """
-                      Version = $finalVersion - $params.Action Build  
+                      Version = $finalVersion - $params.ACTION Build  
                       Disable Sonar: $params.DISABLE_SONAR  
                       Debug: $params.JENKINS_DEBUG  
                       Extra build args: $extraBuildParams  """.stripIndent()
@@ -414,7 +413,7 @@ pipeline {
       }
     }
     stage('Maven validate to install') {
-      when { expression { params.Action != 'RELEASE' } }
+      when { expression { params.ACTION != 'RELEASE' } }
       steps {
         withCredentials([ossrhCredentials,
                          nexusCredentials]) {
@@ -472,7 +471,7 @@ pipeline {
           }
           else {
             repo = ['oss.sonatype.org',
-                    'https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/']
+                    'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
           }
 
           jenkinsJobTools.job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
@@ -543,7 +542,7 @@ pipeline {
     stage('Documentation') {
       when {
         expression {
-          params.FORCE_DOC || (params.Action != 'RELEASE' && isMasterBranch)
+          params.FORCE_DOC || (params.ACTION != 'RELEASE' && isMasterBranch)
         }
       }
       steps {
@@ -564,7 +563,7 @@ pipeline {
     stage('OSS security analysis') {
       when {
         anyOf {
-          expression { params.Action != 'RELEASE' && branch_name == 'master' }
+          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
           expression { params.FORCE_SECURITY_ANALYSIS == true }
         }
       }
@@ -594,7 +593,7 @@ pipeline {
     stage('Deps report') {
       when {
         anyOf {
-          expression { params.Action != 'RELEASE' && branch_name == 'master' }
+          expression { params.ACTION != 'RELEASE' && branch_name == 'master' }
           expression { params.FORCE_DEPS_REPORT == true }
         }
       }
@@ -632,7 +631,7 @@ pipeline {
     }
     stage('Sonar') {
       when {
-        expression { (params.Action != 'RELEASE') && !params.DISABLE_SONAR }
+        expression { (params.ACTION != 'RELEASE') && !params.DISABLE_SONAR }
       }
       steps {
         script {
@@ -666,7 +665,7 @@ pipeline {
     stage('Release') {
       when {
         allOf {
-          expression { params.Action == 'RELEASE' }
+          expression { params.ACTION == 'RELEASE' }
           expression { isStdBranch }
         }
       }
@@ -678,6 +677,45 @@ pipeline {
                             bash .jenkins/scripts/release_legacy.sh $branch_name $finalVersion $extraBuildParams
                             """
             }
+          }
+        }
+      }
+    }
+    stage('Trivy scan') {
+      when {
+        expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
+      }
+      steps {
+        script {
+          trivyTools.generateTrivyReport('output/trivy-results.json',
+                                         'output/trivy-results.html')
+          publishHtmlReportTools.publishHtmlReport('output/trivy-results.html',
+                                                   'CVE Trivy Vulnerability Report')
+        }
+      }
+      post {
+        always {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            archiveArtifacts artifacts: "output/trivy-results.*", allowEmptyArchive: true, onlyIfSuccessful: false
+          }
+        }
+      }
+    }
+    stage('Mvn dependency:tree') {
+      when {
+        expression { params.ACTION == 'STANDARD' && params.TRIVY_SCAN == true }
+      }
+      steps {
+        script {
+          mvnDependencyTreeTools.generateScopeOfImpactReport("output/${repository}.txt", params.PACKAGE_FILTER_NAME, "output/${repository}--ScopeOfImpact.txt", repository)
+          publishHtmlReportTools.publishHtmlReport("output/${repository}.html", 'CVE mvn dependency:tree Report')
+          publishHtmlReportTools.publishHtmlReport("output/${repository}--ScopeOfImpact.html", 'CVE Scope Of Impact Report')
+        }
+      }
+      post {
+        always {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            archiveArtifacts artifacts: "output/${repository}.txt, output/${repository}--ScopeOfImpact.txt", allowEmptyArchive: true, onlyIfSuccessful: false
           }
         }
       }
@@ -714,8 +752,8 @@ pipeline {
             currentBuild.result,
             prevResult,
             true, // Post for success
-            true, // Post for failure
-            "Failure of $pomVersion $params.ACTION.")
+            false // Post for failure
+        )
       }
       recordIssues(
           enabledForFailure: false,
