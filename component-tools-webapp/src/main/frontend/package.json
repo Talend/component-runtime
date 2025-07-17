@@ -23,7 +23,9 @@
     "react-router-dom": "^6.24.1",
     "redux": "^4.2.1",
     "redux-thunk": "2.4.2",
-    "asciidoctor": "3.0.4"
+    "asciidoctor": "3.0.4",
+    "path-to-regexp": "^3.3.0",
+    "path-to-regexp": "0.1.10"
   },
   "devDependencies": {
     "@talend/scripts-config-react-webpack": "^16.8.0",
