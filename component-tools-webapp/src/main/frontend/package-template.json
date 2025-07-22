@@ -23,7 +23,13 @@
     "react-router-dom": "^6.24.1",
     "redux": "^4.2.1",
     "redux-thunk": "2.4.2",
-    "asciidoctor": "3.0.4"
+    "asciidoctor": "3.0.4",
+    "form-data": ">=4.0.4",
+    "body-parser": "1.20.3",
+    "http-proxy-middleware": "2.0.8",
+    "@babel/runtime": "7.26.10",
+    "postcss": "8.4.31"
+
   },
   "devDependencies": {
     "@talend/scripts-config-react-webpack": "^16.8.0",
@@ -31,6 +37,8 @@
     "atob": "^2.1.2",
     "body-parser": "^1.18.3",
     "cross-env": "^7.0.3",
-    "webpack": "5.92.1"
+    "webpack": "5.94.0",
+    "form-data": ">=4.0.4",
+    "webpack-dev-server": "5.2.1"
   }
 }
