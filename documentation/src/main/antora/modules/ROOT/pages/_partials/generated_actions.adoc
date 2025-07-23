@@ -228,9 +228,20 @@ Mark a method as returning a database mapping from a connector @DataStore config
 [source,js]
 ----
 {
-
+ "value": "..."
+ "coder": "..."
+ "hash": "..."
+ "hashIsZero": "..."
+ "serialVersionUID": "..."
+ "COMPACT_STRINGS": "..."
+ "serialPersistentFields": "..."
+ "REPL": "..."
+ "CASE_INSENSITIVE_ORDER": "..."
+ "LATIN1": "..."
+ "UTF16": "..."
 }
 ----
+
 
 = Suggestions
 
