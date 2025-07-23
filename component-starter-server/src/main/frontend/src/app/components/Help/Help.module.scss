@@ -23,10 +23,12 @@
 }
 
 .Help {
-	padding: 2px;
+	padding: 4px;
 
 	svg {
 		vertical-align: middle;
+		height: 1.2rem;
+		width: 1.2rem;
 		color: var(--coral-color-accent-text);
 	}
 }
