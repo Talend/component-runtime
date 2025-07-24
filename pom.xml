@@ -265,7 +265,6 @@
     <maven-invoker-plugin.version>3.9.0</maven-invoker-plugin.version>
     <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-    <tidy-maven-plugin.version>1.4.0</tidy-maven-plugin.version>
     <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
@@ -1348,11 +1347,6 @@
           <version>${jib-maven-plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>tidy-maven-plugin</artifactId>
-          <version>${tidy-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
           <!--  mvn ossindex:audit -->
           <groupId>org.sonatype.ossindex.maven</groupId>
           <artifactId>ossindex-maven-plugin</artifactId>
@@ -1416,19 +1410,6 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>tidy-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>tidy-pom</id>
-            <goals>
-              <goal>pom</goal>
-            </goals>
-            <phase>initialize</phase>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
