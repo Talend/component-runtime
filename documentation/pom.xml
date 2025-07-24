@@ -510,10 +510,22 @@
             <phase>initialize</phase>
             <configuration>
               <target>
-                <copy file="${project.basedir}/src/main/frontend/package-template.json" overwrite="true" tofile="${project.basedir}/src/main/frontend/package.json"/>
-                <copy file="${project.basedir}/src/main/antora/antora-template.yml" overwrite="true" tofile="${project.basedir}/src/main/antora/antora.yml"/>
-                <copy file="${project.basedir}/src/main/antora/site-${antora.dev.site.mode}-template.yml" overwrite="true" tofile="${project.basedir}/src/main/antora/site-${antora.dev.site.mode}.yml"/>
-                <copy file="${project.basedir}/src/main/antora/site-template.yml" overwrite="true" tofile="${project.basedir}/src/main/antora/site.yml"/>
+                <copy todir="${project.basedir}/src/main/frontend" overwrite="true">
+                  <fileset dir="${project.basedir}/src/main/frontend">
+                    <include name="package-template.json"/>
+                  </fileset>
+                  <mapper type="glob" from="package-template.json" to="package.json"/>
+                </copy>
+                <copy todir="${project.basedir}/src/main/antora" overwrite="true">
+                  <fileset dir="${project.basedir}/src/main/antora">
+                    <include name="antora-template.yml"/>
+                    <include name="site-template.yml"/>
+                    <include name="site-${antora.dev.site.mode}-template.yml"/>
+                  </fileset>
+                  <mapper>
+                    <globmapper from="*-template.yml" to="*.yml"/>
+                  </mapper>
+                </copy>
               </target>
             </configuration>
           </execution>
