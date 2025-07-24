@@ -548,7 +548,7 @@
             <goals>
               <goal>copy-resources</goal>
             </goals>
-            <phase>process-classes</phase>
+            <phase>initialize</phase>
             <configuration>
               <outputDirectory>${project.basedir}/src/main/antora/</outputDirectory>
               <resources>
