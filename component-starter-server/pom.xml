@@ -352,7 +352,7 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <id>create src package.json</id>
+            <id>copy-package.json</id>
             <goals>
               <goal>run</goal>
             </goals>
