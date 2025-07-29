@@ -47,7 +47,7 @@ class MappingUtilsTest {
         assertEquals(new Date(1000l), MappingUtils.coerce(Date.class, 1000l, name));
         // === non-matching types ===
         // number classes mapping
-        assertEquals(shorty, MappingUtils.coerce(short.class, shorty, name));
+        assertEquals(shorty, MappingUtils.coerce(short.class, Short.valueOf(shorty), name));
         assertEquals(shorty, MappingUtils.coerce(Short.class, shorty.shortValue(), name));
         assertEquals(Byte.valueOf("123"), MappingUtils.coerce(Byte.class, 123l, name));
         assertEquals(Byte.valueOf("123"), MappingUtils.coerce(byte.class, 123l, name));
