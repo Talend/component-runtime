@@ -37,7 +37,7 @@ main() (
   # Why sonar plugin is not declared in pom.xml: https://blog.sonarsource.com/we-had-a-dream-mvn-sonarsonar
   # TODO https://jira.talendforge.org/browse/TDI-48980 (CI: Reactivate Sonar cache)
   mvn sonar:sonar \
-      --define 'sonar.host.url=https://sonar-eks.datapwn.com' \
+      --define 'sonar.host.url=https://sonar.rnd-ci.cloud.talend.com' \
       --define "sonar.login=${SONAR_LOGIN}" \
       --define "sonar.password=${SONAR_PASSWORD}" \
       --define "sonar.coverage.jacoco.xmlReportPaths='${LIST_FILE}'" \
