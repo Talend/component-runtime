@@ -23,11 +23,13 @@ import javax.json.JsonValue;
 import org.talend.sdk.component.starter.server.service.openapi.model.common.OperationBase;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Describes a single API operation on a path.
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Operation extends OperationBase {
 
     /**
