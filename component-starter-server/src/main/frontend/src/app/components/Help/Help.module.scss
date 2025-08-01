@@ -26,7 +26,12 @@
 	// padding: 4px;
 
 	svg {
-		height: 0.8rem;
+		height: 20px;
+		width: 20px;
 		color: var(--coral-color-accent-text);
+		vertical-align: middle;
+		margin-right: 4px;
+		margin-left: 4px;
+		margin-bottom: 4px;
 	}
 }
