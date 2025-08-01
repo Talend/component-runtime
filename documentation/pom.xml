@@ -118,11 +118,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.talend.ui</groupId>
-      <artifactId>talend-icon</artifactId>
-      <version>${talend-icon.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.tomee</groupId>
       <artifactId>ziplock</artifactId>
       <version>${ziplock.version}</version>
@@ -870,33 +865,6 @@
       </properties>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>unpack-icons</id>
-                <goals>
-                  <goal>unpack</goal>
-                </goals>
-                <phase>process-resources</phase>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>org.talend.ui</groupId>
-                      <artifactId>talend-icon</artifactId>
-                      <version>${talend-icon.version}</version>
-                      <type>jar</type>
-                      <overWrite>true</overWrite>
-                      <outputDirectory>${project.basedir}/src/main/antora/modules/ROOT/assets/images</outputDirectory>
-                      <includes>**/*.svg</includes>
-                      <excludes>**/filters/**</excludes>
-                    </artifactItem>
-                  </artifactItems>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
           <plugin>
             <groupId>org.codehaus.gmavenplus</groupId>
             <artifactId>gmavenplus-plugin</artifactId>
