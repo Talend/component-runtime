@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.83.0-SNAPSHOT</version>
+  <version>1.84.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -136,13 +136,11 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
   <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
+    <!-- looks like release and snapshot plugins are handled by sonatype plugin from the box -->
     <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -255,7 +253,7 @@
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
-    <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
+    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
     <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
     <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
     <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
@@ -267,7 +265,6 @@
     <maven-invoker-plugin.version>3.9.0</maven-invoker-plugin.version>
     <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-    <tidy-maven-plugin.version>1.4.0</tidy-maven-plugin.version>
     <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
@@ -304,6 +301,8 @@
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
     <tomitribe-crest.version>0.32</tomitribe-crest.version>
+    <httpclient.version>4.5.14</httpclient.version>
+    <guava.version>33.4.8-jre</guava.version>
   </properties>
 
   <dependencyManagement>
@@ -903,6 +902,17 @@
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${mockito4.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -929,11 +939,15 @@
 
   <repositories>
     <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>oss.snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </repository>
     <repository>
       <releases>
@@ -990,6 +1004,16 @@
       </snapshots>
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>Cloudera.pub</id>
+      <url>https://repository.cloudera.com/content/repositories/public</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -1323,11 +1347,6 @@
           <version>${jib-maven-plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>tidy-maven-plugin</artifactId>
-          <version>${tidy-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
           <!--  mvn ossindex:audit -->
           <groupId>org.sonatype.ossindex.maven</groupId>
           <artifactId>ossindex-maven-plugin</artifactId>
@@ -1384,26 +1403,13 @@
           <version>${gpg-plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>${nexus-staging-plugin.version}</version>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>${central-publishing-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>tidy-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>tidy-pom</id>
-            <goals>
-              <goal>pom</goal>
-            </goals>
-            <phase>initialize</phase>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
@@ -1926,13 +1932,78 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <publishingServerId>central.portal</publishingServerId>
+              <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
+              <failOnBuildFailure>true</failOnBuildFailure>
+              <!--                                                              -->
+              <!-- If "skipPublishing" worked per-artifact, we could use it.    -->
+              <!-- <skipPublishing>${artifact.deploy.disabled}</skipPublishing> -->
+              <!--                                                              -->
+              <!-- The entire "excludeArtifacts" configuration below could be   -->
+              <!-- removed if the behavior of "skipPublishing" changes in a     -->
+              <!-- future version of the plugin.                                -->
+              <excludeArtifacts>
+                <artifact>component-studio</artifact>
+                <artifact>component-runtime-di</artifact>
+              </excludeArtifacts>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>snapshot</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central.portal</publishingServerId>
+              <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
+              <failOnBuildFailure>true</failOnBuildFailure>
             </configuration>
           </plugin>
           <plugin>
@@ -1980,10 +2051,11 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
             <configuration>
-              <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+              <skipPublishing>true</skipPublishing>
             </configuration>
           </plugin>
         </plugins>

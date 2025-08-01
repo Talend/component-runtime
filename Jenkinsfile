@@ -284,6 +284,10 @@ pipeline {
             deployOptions = "$skipOptions --activate-profiles private_repository -Denforcer.skip=true"
           }
 
+          // hack to ovewrite the skip of studio modules that we can't deploy in release mode into Sonatype repo
+          // assume that we don't use this Jenkinsfile for release anymore
+          deployOptions = deployOptions.replace("-Prelease", "-Psnapshot")
+
           // By default the doc is skipped for standards branches
           Boolean skip_documentation = !(params.FORCE_DOC || isStdBranch)
           extraBuildParams = assemblyExtraBuildParams(skip_documentation)
@@ -471,7 +475,7 @@ pipeline {
           }
           else {
             repo = ['oss.sonatype.org',
-                    'https://oss.sonatype.org/content/repositories/snapshots/org/talend/sdk/component/']
+                    'https://central.sonatype.com/repository/maven-snapshots/org/talend/sdk/component/']
           }
 
           jenkinsJobTools.job_description_append("Maven artefact deployed as ${finalVersion} on [${repo[0]}](${repo[1]})  ")
