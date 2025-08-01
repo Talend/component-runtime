@@ -43,6 +43,7 @@ import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 
 import routines.system.Document;
@@ -59,16 +60,17 @@ class DiRowStructVisitorTest extends VisitorsTest {
 
     private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
             boolean isKey) {
-        createMetadata(dynamic, name, type, value, null, isKey);
+        createMetadata(dynamic, name, type, value, null, isKey, null);
     }
 
     private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
-            final String datePattern, boolean isKey) {
+            final String datePattern, boolean isKey, String logicalType) {
         final DynamicMetadata meta = new DynamicMetadata();
         meta.setName(name);
         meta.setType(type);
         meta.setKey(isKey);
         meta.setFormat(datePattern);
+        meta.setLogicalType(logicalType);
         dynamic.metadatas.add(meta);
         dynamic.addColumnValue(value);
     }
@@ -128,7 +130,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(dynamic, "BIG_DECIMALS", StudioTypes.LIST, BIG_DECIMALS);
         createMetadata(dynamic, "dynDate", StudioTypes.DATE, DATE);
         createMetadata(dynamic, "dynStringDate", StudioTypes.STRING,
-                "2010-01-31", "yyyy-MM-dd", false);
+                "2010-01-31", "yyyy-MM-dd", false, null);
         rowStruct.dynamic = dynamic;
 
         org.dom4j.Document doc = DocumentHelper.createDocument();
@@ -331,6 +333,29 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final Schema elSchemaNestedInNested = elSchemaNested.getElementSchema();
         assertNotNull(elSchemaNestedInNested);
         assertEquals(Type.INT, elSchemaNestedInNested.getType());
+    }
+
+    @Test
+    void testLogicalType() {
+        final DiRecordVisitorTest.RowStruct3 rowStruct = new DiRecordVisitorTest.RowStruct3();
+        final Dynamic dynamic = new Dynamic();
+        final Date value = new Date();
+        createMetadata(dynamic, "date1", StudioTypes.DATE, value, null, false, SchemaProperty.LogicalType.DATE.key());
+        createMetadata(dynamic, "time1", StudioTypes.DATE, value, null, false, SchemaProperty.LogicalType.TIME.key());
+        createMetadata(dynamic, "timestamp1", StudioTypes.DATE, value, null, false,
+                SchemaProperty.LogicalType.TIMESTAMP.key());
+        createMetadata(dynamic, "date2", StudioTypes.DATE, value, null, false, null);
+        rowStruct.dyn = dynamic;
+
+        final DiRowStructVisitor visitor = new DiRowStructVisitor();
+        final Schema schema = visitor.get(rowStruct, factory).getSchema();
+        assertEquals(SchemaProperty.LogicalType.DATE.key(),
+                schema.getEntry("date1").getProp(SchemaProperty.LOGICAL_TYPE));
+        assertEquals(SchemaProperty.LogicalType.TIME.key(),
+                schema.getEntry("time1").getProp(SchemaProperty.LOGICAL_TYPE));
+        assertEquals(SchemaProperty.LogicalType.TIMESTAMP.key(),
+                schema.getEntry("timestamp1").getProp(SchemaProperty.LOGICAL_TYPE));
+        assertNull(schema.getEntry("date2").getProp(SchemaProperty.LOGICAL_TYPE));
     }
 
     @Test
