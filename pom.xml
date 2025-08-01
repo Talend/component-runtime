@@ -248,14 +248,13 @@
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
-    <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
     <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
     <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
-    <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
+    <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
     <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
     <jib-core.version>0.24.0</jib-core.version>
     <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
@@ -1353,11 +1352,6 @@
           <version>${ossindex-maven-plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>com.github.rmannibucau</groupId>
-          <artifactId>common-maven-plugin</artifactId>
-          <version>${common-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
           <version>${spotless-maven-plugin.version}</version>
@@ -1428,24 +1422,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.github.rmannibucau</groupId>
-        <artifactId>common-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>set-rootlocation</id>
-            <goals>
-              <goal>rootlocation</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>frontend-filter</id>
-            <goals>
-              <goal>frontend-filter</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
         <configuration>
@@ -1475,11 +1451,6 @@
             </importOrder>
             <removeUnusedImports/>
           </java>
-          <pom>
-            <sortPom>
-              <expandEmptyElements>false</expandEmptyElements>
-            </sortPom>
-          </pom>
         </configuration>
         <executions>
           <execution>
