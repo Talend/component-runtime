@@ -615,7 +615,8 @@ pipeline {
         }
       }
       steps {
-        withCredentials([ossrhCredentials]) {
+        withCredentials([ossrhCredentials,
+                         nexusCredentials]) {
           catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
             sh """
                            bash .jenkins/scripts/mvn_dependency_updates_report.sh
