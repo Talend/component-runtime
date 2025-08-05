@@ -125,7 +125,8 @@ public class ContainerManager implements Lifecycle {
         }
         this.rootRepositoryLocation = rootRepo;
         info("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
-        final String pluginsLocation = System.getProperty("talend.component.plugins.location", "TALEND-INF/plugins.properties");
+        final String pluginsLocation = System.getProperty("talend.component.manager.plugins.location",
+                "TALEND-INF/plugins.properties");
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
                 .orElse(pluginsLocation);
         info("Using plugins location: " + Path.of(nestedPluginMappingResource).toAbsolutePath());
