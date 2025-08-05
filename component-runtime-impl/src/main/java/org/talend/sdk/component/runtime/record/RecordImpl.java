@@ -327,7 +327,8 @@ public final class RecordImpl implements Record {
                         "Entry '" + entry.getOriginalFieldName() + "' expected to be a " + entry.getType() + ", got a "
                                 + type);
             }
-            if (value == null && !entry.isNullable()) {
+            final boolean disableNullableCheck = Boolean.parseBoolean(System.getProperty("talend.sdk.nullable.check", "false"));
+            if (!disableNullableCheck && value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("Entry '" + entry.getOriginalFieldName() + "' is not nullable");
             }
             return entry;
@@ -587,10 +588,14 @@ public final class RecordImpl implements Record {
             } else {
                 realEntry = entry;
             }
-            if (value != null) {
+            if (Boolean.parseBoolean(System.getProperty("talend.sdk.nullable.check", "false"))) {
                 values.put(realEntry.getName(), value);
-            } else if (!realEntry.isNullable()) {
-                throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
+            } else {
+                if (value != null) {
+                    values.put(realEntry.getName(), value);
+                } else if (!realEntry.isNullable()) {
+                    throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
+                }
             }
 
             if (this.entries != null) {

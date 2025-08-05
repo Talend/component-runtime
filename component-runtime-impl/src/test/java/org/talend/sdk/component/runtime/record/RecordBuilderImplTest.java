@@ -233,6 +233,45 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void disableNullableCheck_no() {
+        RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+        Schema.Builder schemaBuilder = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
+        Schema schema = schemaBuilder.withEntry(
+                        recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withName("c2")
+                        .withType(Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .build();
+        Record.Builder recordBuilder = recordBuilderFactory.newRecordBuilder(schema);
+        recordBuilder.withString("c1", "v1");
+        assertThrows(IllegalArgumentException.class, () -> recordBuilder.withString("c2", null));
+    }
+
+    @Test
+    void disableNullableCheck_yes() {
+        final String nullableCheck = System.getProperty("talend.sdk.nullable.check");
+        System.setProperty("talend.sdk.nullable.check", "true");
+        RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+        Schema.Builder schemaBuilder = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
+        Schema schema = schemaBuilder.withEntry(
+                        recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withName("c2")
+                        .withType(Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .build();
+        Record.Builder recordBuilder = recordBuilderFactory.newRecordBuilder(schema);
+        recordBuilder.withString("c1", "v1");
+        recordBuilder.withString("c2", null);
+        Record record = recordBuilder.build();
+        assertNull(record.getString("c2"));
+        System.clearProperty("talend.sdk.nullable.check");
+    }
+
+    @Test
     void dateTime() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
