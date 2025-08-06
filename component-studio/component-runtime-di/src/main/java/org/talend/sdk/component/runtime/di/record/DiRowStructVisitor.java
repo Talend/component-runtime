@@ -102,7 +102,7 @@ public class DiRowStructVisitor {
                         onObject(name, raw);
                         break;
                     case StudioTypes.LIST:
-                        onArray(toCollectionEntry(name, "", raw), Collection.class.cast(raw));
+                        onArray(toCollectionEntry(name, null, raw), Collection.class.cast(raw));
                         break;
                     case StudioTypes.BYTE_ARRAY:
                         onBytes(name, byte[].class.cast(raw));
@@ -294,7 +294,7 @@ public class DiRowStructVisitor {
                 final String studioType = StudioTypes.typeFromClass(type.getName());
                 switch (studioType) {
                     case StudioTypes.LIST:
-                        schema.withEntry(toCollectionEntry(name, "", raw));
+                        schema.withEntry(toCollectionEntry(name, originalDbColumnName, raw));
                         break;
                     case StudioTypes.OBJECT:
                     case StudioTypes.STRING:
@@ -523,15 +523,17 @@ public class DiRowStructVisitor {
             elementType = getTypeFromValue(coll);
         }
 
-        return factory
+        final Entry.Builder builder = factory
                 .newEntryBuilder()
                 .withName(name)
-                .withRawName(originalName)
                 .withNullable(true)
                 .withType(ARRAY)
                 .withElementSchema(elementSchema(elementType, coll))
-                .withProp(STUDIO_TYPE, StudioTypes.LIST)
-                .build();
+                .withProp(STUDIO_TYPE, StudioTypes.LIST);
+        if (originalName != null) {
+            builder.withRawName(originalName);
+        }
+        return builder.build();
     }
 
     private Schema elementSchema(final Type type, final Object value) {
