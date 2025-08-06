@@ -165,6 +165,21 @@ class DiRowStructVisitorTest extends VisitorsTest {
 
         assertEquals(StudioTypes.DOCUMENT, schema.getEntry("document").getProp(STUDIO_TYPE));
         assertEquals(DOCUMENT.toString(), rowStruct.document.toString());
+
+        // check list without original name
+        final Entry listEntry = schema.getEntry("array0");
+        assertEquals("id_List", listEntry.getProp(STUDIO_TYPE));
+        assertEquals("array0", listEntry.getName());
+        assertEquals("array0", listEntry.getOriginalFieldName());
+        assertNull(listEntry.getRawName());
+
+        // check list with original name
+        final Entry listEntry2 = schema.getEntry("array2");
+        assertEquals("id_List", listEntry2.getProp(STUDIO_TYPE));
+        assertEquals("array2", listEntry2.getName());
+        assertEquals("Список2", listEntry2.getOriginalFieldName());
+        assertEquals("Список2", listEntry2.getRawName());
+
         // dyn
         assertTrue(schema.getEntry("dynString").isNullable());
         assertEquals("true", schema.getEntry("dynString").getProp(IS_KEY));
