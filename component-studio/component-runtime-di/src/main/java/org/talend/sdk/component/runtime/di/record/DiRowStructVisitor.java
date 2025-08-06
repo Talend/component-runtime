@@ -89,10 +89,6 @@ public class DiRowStructVisitor {
                 final String name = field.getName();
                 final Object raw = field.get(data);
                 log.trace("[visit] Field {} ({} / {}) ==> {}.", name, fieldType.getName(), studioType, raw);
-                if (raw == null) {
-                    log.trace("[visit] Skipping field {} with null value.", name);
-                    return;
-                }
                 if (!allowedFields.contains(name)) {
                     log.trace("[visit] Skipping technical field {}.", name);
                     return;

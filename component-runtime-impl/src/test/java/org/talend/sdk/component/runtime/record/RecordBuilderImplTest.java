@@ -251,8 +251,7 @@ class RecordBuilderImplTest {
 
     @Test
     void disableNullableCheck_yes() {
-        final String nullableCheck = System.getProperty("talend.sdk.nullable.check");
-        System.setProperty("talend.sdk.nullable.check", "true");
+        System.setProperty("talend.sdk.skip.nullable.check", "true");
         RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
         Schema.Builder schemaBuilder = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
         Schema schema = schemaBuilder.withEntry(
@@ -268,7 +267,7 @@ class RecordBuilderImplTest {
         recordBuilder.withString("c2", null);
         Record record = recordBuilder.build();
         assertNull(record.getString("c2"));
-        System.clearProperty("talend.sdk.nullable.check");
+        System.clearProperty("talend.sdk.skip.nullable.check");
     }
 
     @Test
