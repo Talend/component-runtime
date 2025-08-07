@@ -180,13 +180,6 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals("array0", listEntry.getOriginalFieldName());
         assertNull(listEntry.getRawName());
 
-        // check list with original name
-        final Entry listEntry2 = schema.getEntry("array2");
-        assertEquals("id_List", listEntry2.getProp(STUDIO_TYPE));
-        assertEquals("array2", listEntry2.getName());
-        assertEquals("Список2", listEntry2.getOriginalFieldName());
-        assertEquals("Список2", listEntry2.getRawName());
-
         // dyn
         assertTrue(schema.getEntry("dynString").isNullable());
         assertEquals("true", schema.getEntry("dynString").getProp(IS_KEY));
@@ -401,9 +394,19 @@ class DiRowStructVisitorTest extends VisitorsTest {
     @Test
     void visitArrayFieldsOriginalNameInDynamic() {
         @Getter
-        class RowStructLocal {
+        class RowStructLocal implements routines.system.IPersistableRow {
 
             public Dynamic dynamic;
+
+            @Override
+            public void writeData(final ObjectOutputStream objectOutputStream) {
+                throw new UnsupportedOperationException("#writeData()");
+            }
+
+            @Override
+            public void readData(final ObjectInputStream objectInputStream) {
+                throw new UnsupportedOperationException("#readData()");
+            }
         }
 
         final RowStructLocal rowStruct = new RowStructLocal();
@@ -463,7 +466,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
     @Test
     void visitArrayFieldsOriginalName() {
         @Getter
-        class RowStructLocal {
+        class RowStructLocal implements routines.system.IPersistableRow {
 
             public List<Integer> array0;
 
@@ -471,6 +474,16 @@ class DiRowStructVisitorTest extends VisitorsTest {
 
             public String array1OriginalDbColumnName() {
                 return "Список1";
+            }
+
+            @Override
+            public void writeData(final ObjectOutputStream objectOutputStream) {
+                throw new UnsupportedOperationException("#writeData()");
+            }
+
+            @Override
+            public void readData(final ObjectInputStream objectInputStream) {
+                throw new UnsupportedOperationException("#readData()");
             }
         }
 
