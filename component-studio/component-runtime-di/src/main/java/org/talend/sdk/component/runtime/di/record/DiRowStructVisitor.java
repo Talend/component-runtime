@@ -36,6 +36,7 @@ import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
 import static org.talend.sdk.component.api.record.SchemaProperty.STUDIO_TYPE;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -64,6 +65,7 @@ import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.record.MappingUtils;
 
 import routines.system.Document;
+import routines.system.DynamicMetadata;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,7 +84,7 @@ public class DiRowStructVisitor {
 
     private void visit(final Object data) {
         log.trace("[visit] Class: {} ==> {}.", data.getClass().getName(), data);
-        Arrays.stream(data.getClass().getFields()).forEach(field -> {
+        for (Field field : data.getClass().getFields()) {
             try {
                 final Class<?> fieldType = field.getType();
                 final String studioType = StudioTypes.typeFromClass(fieldType.getName());
@@ -91,11 +93,11 @@ public class DiRowStructVisitor {
                 log.trace("[visit] Field {} ({} / {}) ==> {}.", name, fieldType.getName(), studioType, raw);
                 if (raw == null) {
                     log.trace("[visit] Skipping field {} with null value.", name);
-                    return;
+                    continue;
                 }
                 if (!allowedFields.contains(name)) {
                     log.trace("[visit] Skipping technical field {}.", name);
-                    return;
+                    continue;
                 }
                 switch (studioType) {
                     case StudioTypes.OBJECT:
@@ -146,7 +148,7 @@ public class DiRowStructVisitor {
                     case StudioTypes.DOCUMENT:
                         if (Document.class.cast(raw).getDocument() == null) {
                             log.trace("[visit] Skipping field {} with null value.", name);
-                            return;
+                            continue; // loop
                         }
                         onDocument(name, raw);
                         break;
@@ -160,24 +162,25 @@ public class DiRowStructVisitor {
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
-        });
+        }
     }
 
     private void handleDynamic(final Object raw) {
         final DynamicWrapper dynamic = new DynamicWrapper(raw);
-        dynamic.getDynamic().metadatas.forEach(meta -> {
+        for (DynamicMetadata meta : dynamic.getDynamic().metadatas) {
             final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
-            final String metaName = sanitizeName(meta.getName());
+            final String metaName = sanitizeName(meta.getName()); // imo we should use the schema-entry name here
             final String metaOriginalName = meta.getDbName();
             log.trace("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
             if (value == null) {
-                return;
+                continue;
             }
             switch (meta.getType()) {
                 case StudioTypes.OBJECT:
                     onObject(metaName, value);
                     break;
                 case StudioTypes.LIST:
+                    // in theory each new row may contain different value
                     onArray(toCollectionEntry(metaName, metaOriginalName, value), Collection.class.cast(value));
                     break;
                 case StudioTypes.STRING:
@@ -191,11 +194,10 @@ public class DiRowStructVisitor {
                     } else if (ByteBuffer.class.isInstance(value)) {
                         bytes = ByteBuffer.class.cast(value).array();
                     } else {
-                        log
-                                .warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
+                        log.warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
                                         + " This should not happen! "
                                         + " Wrapping `byte[]` from `String.valueOf()`: result may be inaccurate.",
-                                        metaName, value.getClass().getSimpleName());
+                                metaName, value.getClass().getSimpleName());
                         bytes = ByteBuffer.wrap(String.valueOf(value).getBytes()).array();
                     }
                     onBytes(metaName, bytes);
@@ -232,7 +234,7 @@ public class DiRowStructVisitor {
                 default:
                     throw new IllegalStateException("Unexpected value: " + meta.getType());
             }
-        });
+        }
     }
 
     public Record get(final Object data, final RecordBuilderFactory factory) {
@@ -489,7 +491,7 @@ public class DiRowStructVisitor {
             final boolean isNullable, final String comment, final Boolean isKey, final Integer length,
             final Integer precision, final String defaultValue, final String pattern, final String studioType) {
         // CHECKSTYLE:ON
-        final Map<String, String> props = new HashMap();
+        final Map<String, String> props = new HashMap<>();
         if (isKey != null) {
             props.put(IS_KEY, String.valueOf(isKey));
         }
@@ -524,16 +526,14 @@ public class DiRowStructVisitor {
             elementType = getTypeFromValue(coll);
         }
 
-        final Entry.Builder builder = factory.newEntryBuilder()
+        return factory.newEntryBuilder()
                 .withName(name)
+                .withRawName(originalName)
                 .withNullable(true)
                 .withType(ARRAY)
                 .withElementSchema(elementSchema(elementType, coll))
-                .withProp(STUDIO_TYPE, StudioTypes.LIST);
-        if (originalName != null) {
-            builder.withRawName(originalName);
-        }
-        return builder.build();
+                .withProp(STUDIO_TYPE, StudioTypes.LIST)
+                .build();
     }
 
     private Schema elementSchema(final Type type, final Object value) {
