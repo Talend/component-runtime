@@ -5,7 +5,12 @@
   "dependencies": {
     "js-search": "1.4.2",
     "@antora/cli": "${antora.version}",
-    "@antora/site-generator-default": "${antora.version}"
+    "@antora/site-generator-default": "${antora.version}",
+    "minimist" : "1.2.6",
+    "convict": "6.2.4",
+    "braces": "3.0.3",
+    "brace-expansion": "1.1.12",
+    "json5": "2.2.2"
   },
   "scripts": {
     "antora:build": "antora --stacktrace ../antora/site.yml",
