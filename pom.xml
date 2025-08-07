@@ -147,10 +147,10 @@
   <properties>
     <scm.repository>talend/component-runtime</scm.repository>
 
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.release>8</maven.compiler.release>
 
     <!-- when using -T X, X > 1 you can set -DsimpleLogger.showThreadName=true to have something a bit more readable -->
     <org.slf4j.simpleLogger.showThreadName>${simpleLogger.showThreadName}</org.slf4j.simpleLogger.showThreadName>
@@ -216,13 +216,12 @@
     <dom4j.version>2.1.4</dom4j.version>
 
     <!-- deprecated after -->
-    <talend-icon.version>3.8.0</talend-icon.version>
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <mvn.version>3.8.8</mvn.version>
+    <mvn.version>3.9.9</mvn.version>
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
-    <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
+    <maven-shared-utils.version>3.4.2</maven-shared-utils.version>
 
     <beam.version>2.46.0</beam.version>
     <snappy.version>1.1.10.5</snappy.version>
@@ -236,39 +235,41 @@
     <groovy.version>3.0.18</groovy.version>
 
     <!-- plugins versions -->
-    <gmavenplus-plugin.version>1.13.1</gmavenplus-plugin.version>
-    <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
-    <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
-    <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
-    <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
-    <download-plugin.version>1.13.0</download-plugin.version>
-    <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
+    <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
     <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
-    <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-    <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
-    <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
-    <clirr-plugin.version>2.8</clirr-plugin.version>
-    <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-    <gpg-plugin.version>3.2.7</gpg-plugin.version>
+
     <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
-    <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
-    <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
+    <clirr-plugin.version>2.8</clirr-plugin.version>
+    <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
+    <download-plugin.version>1.13.0</download-plugin.version>
+    <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
+    <gmavenplus-plugin.version>1.13.1</gmavenplus-plugin.version>
+    <gpg-plugin.version>3.2.7</gpg-plugin.version>
+    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+    <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
     <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
     <jib-core.version>0.24.0</jib-core.version>
-    <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
+    <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
     <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-    <maven-invoker-plugin.version>3.9.0</maven-invoker-plugin.version>
-    <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
-    <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-    <tidy-maven-plugin.version>1.4.0</tidy-maven-plugin.version>
-    <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
+    <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+    <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
+    <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
+    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+    <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
+    <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+    <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
+    <maven-invoker-plugin.version>3.9.0</maven-invoker-plugin.version>
+    <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+    <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+    <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
+    <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+    <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
+
 
     <jgit.version>6.7.0.202309050840-r</jgit.version>
     <jruby.version>9.2.19.0</jruby.version>
@@ -991,6 +992,17 @@
   <pluginRepositories>
     <pluginRepository>
       <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <releases>
         <enabled>true</enabled>
       </releases>
       <id>oss.releases</id>
@@ -1082,6 +1094,7 @@
             <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a
               href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
+            <legacyMode>true</legacyMode>
           </configuration>
         </plugin>
         <plugin>
@@ -1262,9 +1275,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
-            <forceJavacCompilerUse>true</forceJavacCompilerUse>
+            <forceLegacyJavacApi>true</forceLegacyJavacApi>
             <compilerId>javac</compilerId>
             <fork>true</fork>
             <compilerArgs>
@@ -1348,20 +1359,10 @@
           <version>${jib-maven-plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>tidy-maven-plugin</artifactId>
-          <version>${tidy-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
           <!--  mvn ossindex:audit -->
           <groupId>org.sonatype.ossindex.maven</groupId>
           <artifactId>ossindex-maven-plugin</artifactId>
           <version>${ossindex-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>com.github.rmannibucau</groupId>
-          <artifactId>common-maven-plugin</artifactId>
-          <version>${common-maven-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
@@ -1394,9 +1395,9 @@
           <version>1.0.0</version>
         </plugin>
         <plugin>
-          <groupId>pl.project13.maven</groupId>
-          <artifactId>git-commit-id-plugin</artifactId>
-          <version>${git-commit-id-plugin.version}</version>
+          <groupId>io.github.git-commit-id</groupId>
+          <artifactId>git-commit-id-maven-plugin</artifactId>
+          <version>${git-commit-id-maven-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1417,19 +1418,6 @@
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>tidy-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>tidy-pom</id>
-            <goals>
-              <goal>pom</goal>
-            </goals>
-            <phase>initialize</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
@@ -1443,24 +1431,6 @@
               <goal>audit</goal>
             </goals>
             <phase/>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.github.rmannibucau</groupId>
-        <artifactId>common-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>set-rootlocation</id>
-            <goals>
-              <goal>rootlocation</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>frontend-filter</id>
-            <goals>
-              <goal>frontend-filter</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>
@@ -1494,11 +1464,6 @@
             </importOrder>
             <removeUnusedImports/>
           </java>
-          <pom>
-            <sortPom>
-              <expandEmptyElements>false</expandEmptyElements>
-            </sortPom>
-          </pom>
         </configuration>
         <executions>
           <execution>
@@ -1808,8 +1773,8 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
         <configuration>
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
         </configuration>
