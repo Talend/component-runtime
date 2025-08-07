@@ -102,7 +102,8 @@ public class DiRowStructVisitor {
                         onObject(name, raw);
                         break;
                     case StudioTypes.LIST:
-                        onArray(toCollectionEntry(name, null, raw), Collection.class.cast(raw));
+                        // for studio name == fieldName it's unique, and it allows only latin characters
+                        onArray(rowStructSchema.getEntry(name), (Collection) raw);
                         break;
                     case StudioTypes.BYTE_ARRAY:
                         onBytes(name, byte[].class.cast(raw));
@@ -523,8 +524,7 @@ public class DiRowStructVisitor {
             elementType = getTypeFromValue(coll);
         }
 
-        final Entry.Builder builder = factory
-                .newEntryBuilder()
+        final Entry.Builder builder = factory.newEntryBuilder()
                 .withName(name)
                 .withNullable(true)
                 .withType(ARRAY)
