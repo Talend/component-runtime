@@ -288,7 +288,7 @@ public class DiRowStructVisitor {
                 final Object raw = field.get(data);
                 final boolean isNullable =
                         ofNullable(getMetadata(name + "IsNullable", data, Boolean.class)).orElse(true);
-                final Boolean isKey = ofNullable(getMetadata(name + "IsKey", data, Boolean.class)).orElse(false);
+                final boolean isKey = ofNullable(getMetadata(name + "IsKey", data, Boolean.class)).orElse(false);
                 final Integer length = ofNullable(getMetadata(name + "Length", data, Integer.class)).orElse(-1);
                 final Integer precision = ofNullable(getMetadata(name + "Precision", data, Integer.class)).orElse(-1);
                 final String defaultValue = getMetadata(name + "Default", data, String.class);
@@ -499,13 +499,12 @@ public class DiRowStructVisitor {
 
     // CHECKSTYLE:OFF
     private Entry toEntry(final String name, final Schema.Type type, final String originalName,
-            final boolean isNullable, final String comment, final Boolean isKey, final Integer length,
+            final boolean isNullable, final String comment, final boolean isKey, final Integer length,
             final Integer precision, final String defaultValue, final String pattern, final String studioType) {
         // CHECKSTYLE:ON
         final Map<String, String> props = new HashMap<>();
-        if (isKey != null) {
-            props.put(IS_KEY, String.valueOf(isKey));
-        }
+        props.put(IS_KEY, String.valueOf(isKey));
+
         if (length != null) {
             props.put(SIZE, String.valueOf(length));
         }
