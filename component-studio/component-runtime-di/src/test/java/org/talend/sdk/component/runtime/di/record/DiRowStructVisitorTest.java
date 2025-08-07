@@ -398,6 +398,14 @@ class DiRowStructVisitorTest extends VisitorsTest {
 
             public Dynamic dynamic;
 
+            public Integer dynamicLength() {
+                return 20;
+            }
+
+            public Integer dynamicPrecision() {
+                return 10;
+            }
+
             @Override
             public void writeData(final ObjectOutputStream objectOutputStream) {
                 throw new UnsupportedOperationException("#writeData()");
@@ -432,35 +440,112 @@ class DiRowStructVisitorTest extends VisitorsTest {
         {
             final Entry testedEntry = schema.getEntry(name1);
             assertTrue(testedEntry.isNullable());
-            // fix test, if list can be key (it fails if fixed, so change the test)
-            assertNull(testedEntry.getProp(IS_KEY));
             assertEquals(Type.ARRAY, testedEntry.getType());
             assertEquals(StudioTypes.LIST, testedEntry.getProp(STUDIO_TYPE));
             assertEquals(name1, testedEntry.getOriginalFieldName());
+            // expected to fail, when list start to populate those properties
+            assertNull(testedEntry.getProp(IS_KEY));
+            assertNull(testedEntry.getProp(SIZE));
+            assertNull(testedEntry.getProp(SCALE));
         }
         {
             final Entry testedEntry = schema.getEntry(name2);
             assertTrue(testedEntry.isNullable());
-            // fix test, if list can be key (it fails if fixed, so change the test)
-            assertNull(testedEntry.getProp(IS_KEY));
             assertEquals(Type.ARRAY, testedEntry.getType());
             assertEquals(StudioTypes.LIST, testedEntry.getProp(STUDIO_TYPE));
             assertEquals(originalName2, testedEntry.getOriginalFieldName());
+            // expected to fail, when list start to populate those properties
+            assertNull(testedEntry.getProp(IS_KEY));
+            assertNull(testedEntry.getProp(SIZE));
+            assertNull(testedEntry.getProp(SCALE));
         }
         {
             final Entry testedEntry = schema.getEntry(name2);
             assertTrue(testedEntry.isNullable());
-            // fix test, if list can be key (it fails if fixed, so change the test)
-            assertNull(testedEntry.getProp(IS_KEY));
             assertEquals(Type.ARRAY, testedEntry.getType());
             assertEquals(StudioTypes.LIST, testedEntry.getProp(STUDIO_TYPE));
             assertEquals(originalName3, testedEntry.getOriginalFieldName());
+            // expected to fail, when list start to populate those properties
+            assertNull(testedEntry.getProp(IS_KEY));
+            assertNull(testedEntry.getProp(SIZE));
+            assertNull(testedEntry.getProp(SCALE));
         }
 
         // value
         assertEquals(STRINGS, record.getArray(String.class, name1));
         assertEquals(STRINGS, record.getArray(String.class, name2));
         assertEquals(STRINGS, record.getArray(String.class, name3));
+    }
+
+    @Test
+    void visitIntDynamicWithLengthAndScale() {
+        @Getter
+        class RowStructLocal implements routines.system.IPersistableRow {
+
+            public Dynamic dynamic;
+
+            public Integer dynamicLength() {
+                return 20;
+            }
+
+            public Integer dynamicPrecision() {
+                return 10;
+            }
+
+            @Override
+            public void writeData(final ObjectOutputStream objectOutputStream) {
+                throw new UnsupportedOperationException("#writeData()");
+            }
+
+            @Override
+            public void readData(final ObjectInputStream objectInputStream) {
+                throw new UnsupportedOperationException("#readData()");
+            }
+        }
+
+        final RowStructLocal rowStruct = new RowStructLocal();
+
+        // dynamic
+        rowStruct.dynamic = new Dynamic();
+        final String name1 = "someValue";
+        final String name2 = "anotherValue";
+        createMetadata(rowStruct.dynamic, name1, StudioTypes.BIGDECIMAL, BigDecimal.valueOf(42L));
+        createMetadata(rowStruct.dynamic, name2, StudioTypes.BIGDECIMAL, BigDecimal.valueOf(42L), null, true);
+        rowStruct.dynamic.metadatas.get(1).setLength(17);
+        rowStruct.dynamic.metadatas.get(1).setPrecision(7);
+
+        final DiRowStructVisitor visitor = new DiRowStructVisitor();
+        final Record record = visitor.get(rowStruct, factory);
+
+        // validation
+        // schema
+        final Schema schema = record.getSchema();
+        assertEquals(2, schema.getEntries().size());
+        {
+            final Entry testedEntry = schema.getEntry(name1);
+            assertTrue(testedEntry.isNullable());
+            assertEquals(Type.DECIMAL, testedEntry.getType());
+            assertEquals(StudioTypes.BIGDECIMAL, testedEntry.getProp(STUDIO_TYPE));
+            assertEquals(name1, testedEntry.getOriginalFieldName());
+            assertNull(testedEntry.getRawName());
+            assertEquals("false", testedEntry.getProp(IS_KEY));
+            assertEquals("20", testedEntry.getProp(SIZE));
+            assertEquals("10", testedEntry.getProp(SCALE));
+        }
+        {
+            final Entry testedEntry = schema.getEntry(name2);
+            assertTrue(testedEntry.isNullable());
+            assertEquals(Type.DECIMAL, testedEntry.getType());
+            assertEquals(StudioTypes.BIGDECIMAL, testedEntry.getProp(STUDIO_TYPE));
+            assertEquals(name2, testedEntry.getOriginalFieldName());
+            assertNull(testedEntry.getRawName());
+            assertEquals("true", testedEntry.getProp(IS_KEY));
+            assertEquals("17", testedEntry.getProp(SIZE));
+            assertEquals("7", testedEntry.getProp(SCALE));
+        }
+
+        // value
+        assertEquals(42, record.getInt(name1));
     }
 
     @Test
