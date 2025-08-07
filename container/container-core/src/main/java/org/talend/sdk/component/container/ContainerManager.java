@@ -129,7 +129,6 @@ public class ContainerManager implements Lifecycle {
                 "TALEND-INF/plugins.properties");
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
                 .orElse(pluginsLocation);
-        info("Using plugins location: " + Path.of(nestedPluginMappingResource).toAbsolutePath());
         this.classLoaderConfiguration = new ClassLoaderConfiguration(
                 ofNullable(classLoaderConfiguration.getParent()).orElseGet(ContainerManager.class::getClassLoader),
                 ofNullable(classLoaderConfiguration.getClassesFilter()).orElseGet(() -> name -> true),
