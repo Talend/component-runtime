@@ -349,7 +349,7 @@ public class DiRowStructVisitor {
                         break;
                     case StudioTypes.DYNAMIC:
                         final DynamicWrapper dynamic = new DynamicWrapper(raw);
-                        dynamic.getDynamic().metadatas.forEach(meta -> {
+                        for (DynamicMetadata meta : dynamic.getDynamic().metadatas) {
                             final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
                             final String metaName = sanitizeName(meta.getName());
                             final String metaOriginalName = meta.getDbName();
@@ -417,7 +417,7 @@ public class DiRowStructVisitor {
                                                     metaIsKey, metaLength, metaPrecision, defaultValue, metaPattern,
                                                     metaStudioType));
                             }
-                        });
+                        }
                         break;
                     default:
                         log.warn("Unmanaged type: {} for {}.", type, name);
