@@ -50,6 +50,7 @@ import routines.system.Dynamic;
 import routines.system.DynamicMetadata;
 
 import lombok.Data;
+import lombok.Getter;
 
 class DiRowStructVisitorTest extends VisitorsTest {
 
@@ -58,17 +59,23 @@ class DiRowStructVisitorTest extends VisitorsTest {
     }
 
     private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
-            boolean isKey) {
+            final boolean isKey) {
         createMetadata(dynamic, name, type, value, null, isKey);
     }
 
     private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
-            final String datePattern, boolean isKey) {
+            final String datePattern, final boolean isKey) {
+        createMetadata(dynamic, name, type, value, datePattern, isKey, null);
+    }
+
+    private void createMetadata(final Dynamic dynamic, final String name, final String type, final Object value,
+            final String datePattern, final boolean isKey, final String dbName) {
         final DynamicMetadata meta = new DynamicMetadata();
         meta.setName(name);
         meta.setType(type);
         meta.setKey(isKey);
         meta.setFormat(datePattern);
+        meta.setDbName(dbName);
         dynamic.metadatas.add(meta);
         dynamic.addColumnValue(value);
     }
@@ -389,6 +396,121 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertNull(rcd3.getString("City"));
         assertNull(rcd3.getString("i"));
         assertNull(rcd3.getString("A"));
+    }
+
+    @Test
+    void visitArrayFieldsOriginalNameInDynamic() {
+        @Getter
+        class RowStructLocal {
+
+            public Dynamic dynamic;
+        }
+
+        final RowStructLocal rowStruct = new RowStructLocal();
+
+        // dynamic
+        rowStruct.dynamic = new Dynamic();
+        final String name1 = "STRINGS";
+        final String name2 = "___";
+        final String name3 = "____1";
+        final String originalName2 = "санітизованийСписок";
+        final String originalName3 = "санітизованийСписок";
+        createMetadata(rowStruct.dynamic, name1, StudioTypes.LIST, STRINGS);
+        createMetadata(rowStruct.dynamic, name2, StudioTypes.LIST, STRINGS, null, false, originalName2);
+        createMetadata(rowStruct.dynamic, name3, StudioTypes.LIST, STRINGS, null, true, originalName3);
+
+        final DiRowStructVisitor visitor = new DiRowStructVisitor();
+        final Record record = visitor.get(rowStruct, factory);
+
+        // validation
+        // schema
+        final Schema schema = record.getSchema();
+        assertEquals(3, schema.getEntries().size());
+        {
+            final Entry testedEntry = schema.getEntry(name1);
+            assertTrue(testedEntry.isNullable());
+            // fix test, if list can be key (it fails if fixed, so change the test)
+            assertNull(testedEntry.getProp(IS_KEY));
+            assertEquals(Type.ARRAY, testedEntry.getType());
+            assertEquals(StudioTypes.LIST, testedEntry.getProp(STUDIO_TYPE));
+            assertEquals(name1, testedEntry.getOriginalFieldName());
+        }
+        {
+            final Entry testedEntry = schema.getEntry(name2);
+            assertTrue(testedEntry.isNullable());
+            // fix test, if list can be key (it fails if fixed, so change the test)
+            assertNull(testedEntry.getProp(IS_KEY));
+            assertEquals(Type.ARRAY, testedEntry.getType());
+            assertEquals(StudioTypes.LIST, testedEntry.getProp(STUDIO_TYPE));
+            assertEquals(originalName2, testedEntry.getOriginalFieldName());
+        }
+        {
+            final Entry testedEntry = schema.getEntry(name2);
+            assertTrue(testedEntry.isNullable());
+            // fix test, if list can be key (it fails if fixed, so change the test)
+            assertNull(testedEntry.getProp(IS_KEY));
+            assertEquals(Type.ARRAY, testedEntry.getType());
+            assertEquals(StudioTypes.LIST, testedEntry.getProp(STUDIO_TYPE));
+            assertEquals(originalName3, testedEntry.getOriginalFieldName());
+        }
+
+        // value
+        assertEquals(STRINGS, record.getArray(String.class, name1));
+        assertEquals(STRINGS, record.getArray(String.class, name2));
+        assertEquals(STRINGS, record.getArray(String.class, name3));
+    }
+
+    @Test
+    void visitArrayFieldsOriginalName() {
+        @Getter
+        class RowStructLocal {
+
+            public List<Integer> array0;
+
+            public List<List<Integer>> array1;
+
+            public String array1OriginalDbColumnName() {
+                return "Список1";
+            }
+        }
+
+        final RowStructLocal rowStruct = new RowStructLocal();
+        rowStruct.array0 = INTEGERS;
+        rowStruct.array1 = LIST_INTEGERS;
+
+        final DiRowStructVisitor visitor = new DiRowStructVisitor();
+        final Record record = visitor.get(rowStruct, factory);
+
+        final Schema schema = record.getSchema();
+        assertEquals(2, schema.getEntries().size());
+
+        // schema metadata
+        // check list without original name
+        {
+            final Entry listEntry = schema.getEntry("array0");
+            assertEquals("id_List", listEntry.getProp(STUDIO_TYPE));
+            assertEquals("array0", listEntry.getName());
+            assertEquals("array0", listEntry.getOriginalFieldName());
+            assertNull(listEntry.getRawName());
+        }
+
+        // check list with original name
+        {
+            final Entry listEntry2 = schema.getEntry("array1");
+            assertEquals("id_List", listEntry2.getProp(STUDIO_TYPE));
+            assertEquals("array1", listEntry2.getName());
+            assertEquals("Список1", listEntry2.getOriginalFieldName());
+            assertEquals("Список1", listEntry2.getRawName());
+        }
+
+        // asserts Record
+        // check list combinations
+        assertEquals(INTEGERS, record.getArray(Integer.class, "array0"));
+        assertEquals(LIST_INTEGERS, record.getArray(List.class, "array1"));
+
+        // check their schemas
+        assertSchemaArray0(schema);
+        assertSchemaArray1(schema);
     }
 
     public static class Rcd {
