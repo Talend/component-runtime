@@ -169,8 +169,8 @@ public class DiRowStructVisitor {
         final DynamicWrapper dynamic = new DynamicWrapper(raw);
         for (DynamicMetadata meta : dynamic.getDynamic().metadatas) {
             final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
-            final String metaName = sanitizeName(meta.getName()); // imo we should use the schema-entry name here
-            final String metaOriginalName = meta.getDbName();
+            // imo we should use the schema-entry name here instead, and find it by original name
+            final String metaName = sanitizeName(meta.getName());
             log.trace("[visit] Dynamic {}\t({})\t ==> {}.", meta.getName(), meta.getType(), value);
             if (value == null) {
                 continue;
@@ -180,8 +180,9 @@ public class DiRowStructVisitor {
                     onObject(metaName, value);
                     break;
                 case StudioTypes.LIST:
-                    // in theory each new row may contain different value
-                    onArray(toCollectionEntry(metaName, metaOriginalName, value), Collection.class.cast(value));
+                    // we can't add a new entry after we defined the schema
+                    // so we can pick the entry from the schema
+                    onArray(rowStructSchema.getEntry(metaName), (Collection) value);
                     break;
                 case StudioTypes.STRING:
                 case StudioTypes.CHARACTER:
