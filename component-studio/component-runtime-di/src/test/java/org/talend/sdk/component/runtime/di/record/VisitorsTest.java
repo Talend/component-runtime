@@ -229,10 +229,6 @@ public class VisitorsTest {
 
         public List<?> array2;
 
-        public String array2OriginalDbColumnName() {
-            return "Список2";
-        }
-
         public List<?> array3;
 
         public List<List<Integer>> array4;
