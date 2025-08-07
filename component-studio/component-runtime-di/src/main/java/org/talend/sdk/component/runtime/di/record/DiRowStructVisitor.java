@@ -276,12 +276,12 @@ public class DiRowStructVisitor {
                 })
                 .collect(Collectors.toSet());
         final Schema.Builder schema = factory.newSchemaBuilder(RECORD);
-        Arrays.stream(data.getClass().getFields()).forEach(field -> {
+        for (Field field : data.getClass().getFields()) {
             try {
                 final Class<?> type = field.getType();
                 if (!allowedFields.contains(field.getName())) {
                     log.trace("[inferSchema] Skipping technical field {}.", field.getName());
-                    return;
+                    continue;
                 }
                 final String name = sanitizeName(field.getName());
                 final Object raw = field.get(data);
@@ -348,76 +348,7 @@ public class DiRowStructVisitor {
                                 null, defaultValue, pattern, studioType));
                         break;
                     case StudioTypes.DYNAMIC:
-                        final DynamicWrapper dynamic = new DynamicWrapper(raw);
-                        for (DynamicMetadata meta : dynamic.getDynamic().metadatas) {
-                            final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
-                            final String metaName = sanitizeName(meta.getName());
-                            final String metaOriginalName = meta.getDbName();
-                            final boolean metaIsNullable = meta.isNullable();
-                            final boolean metaIsKey = meta.isKey();
-                            final int metaLength = meta.getLength() != -1 ? meta.getLength() : length;
-                            final int metaPrecision = meta.getPrecision() != -1 ? meta.getPrecision() : precision;
-                            final String metaPattern =
-                                    !meta.getFormat().equals("dd-MM-yyyy HH:mm:ss") ? meta.getFormat() : pattern;
-                            final String metaStudioType = meta.getType();
-                            log.trace("[inferSchema] Dynamic {}\t({})\t ==> {}.", meta.getName(), metaStudioType,
-                                    value);
-                            switch (metaStudioType) {
-                                case StudioTypes.LIST:
-                                    schema.withEntry(toCollectionEntry(metaName, metaOriginalName, value));
-                                    break;
-                                case StudioTypes.OBJECT:
-                                case StudioTypes.STRING:
-                                case StudioTypes.CHARACTER:
-                                    schema.withEntry(
-                                            toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
-                                                    metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
-                                    break;
-                                case StudioTypes.BIGDECIMAL:
-                                    schema.withEntry(toEntry(metaName, DECIMAL, metaOriginalName, metaIsNullable,
-                                            comment,
-                                            metaIsKey, metaLength, metaPrecision, defaultValue, null, metaStudioType));
-                                    break;
-                                case StudioTypes.BYTE_ARRAY:
-                                    schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, comment,
-                                            metaIsKey, null, null, defaultValue, null, metaStudioType));
-                                    break;
-                                case StudioTypes.BYTE:
-                                case StudioTypes.SHORT:
-                                case StudioTypes.INTEGER:
-                                    schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, comment,
-                                            metaIsKey, null, null, defaultValue, null, metaStudioType));
-                                    break;
-                                case StudioTypes.LONG:
-                                    schema.withEntry(toEntry(metaName, LONG, metaOriginalName, metaIsNullable, comment,
-                                            metaIsKey, null, null, defaultValue, null, metaStudioType));
-                                    break;
-                                case StudioTypes.FLOAT:
-                                    schema.withEntry(toEntry(metaName, FLOAT, metaOriginalName, metaIsNullable, comment,
-                                            metaIsKey, metaLength, metaPrecision, defaultValue, null, metaStudioType));
-                                    break;
-                                case StudioTypes.DOUBLE:
-                                    schema.withEntry(toEntry(metaName, DOUBLE, metaOriginalName, metaIsNullable,
-                                            comment,
-                                            metaIsKey, metaLength, metaPrecision, defaultValue, null, metaStudioType));
-                                    break;
-                                case StudioTypes.BOOLEAN:
-                                    schema.withEntry(
-                                            toEntry(metaName, BOOLEAN, metaOriginalName, metaIsNullable, comment,
-                                                    metaIsKey, null, null, defaultValue, null, metaStudioType));
-                                    break;
-                                case StudioTypes.DATE:
-                                    schema.withEntry(
-                                            toEntry(metaName, DATETIME, metaOriginalName, metaIsNullable, comment,
-                                                    metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
-                                    break;
-                                default:
-                                    schema.withEntry(
-                                            toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
-                                                    metaIsKey, metaLength, metaPrecision, defaultValue, metaPattern,
-                                                    metaStudioType));
-                            }
-                        }
+                        inferDynamicSchema(raw, length, precision, pattern, schema, comment, defaultValue);
                         break;
                     default:
                         log.warn("Unmanaged type: {} for {}.", type, name);
@@ -425,8 +356,87 @@ public class DiRowStructVisitor {
             } catch (final IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
-        });
+        }
         return schema.build();
+    }
+
+    private void inferDynamicSchema(final Object raw,
+            final Integer length,
+            final Integer precision,
+            final String pattern,
+            final Schema.Builder schema,
+            final String comment,
+            final String defaultValue) {
+        final DynamicWrapper dynamic = new DynamicWrapper(raw);
+        for (DynamicMetadata meta : dynamic.getDynamic().metadatas) {
+            final Object value = dynamic.getDynamic().getColumnValue(meta.getName());
+            final String metaName = sanitizeName(meta.getName());
+            final String metaOriginalName = meta.getDbName();
+            final boolean metaIsNullable = meta.isNullable();
+            final boolean metaIsKey = meta.isKey();
+            final int metaLength = meta.getLength() != -1 ? meta.getLength() : length;
+            final int metaPrecision = meta.getPrecision() != -1 ? meta.getPrecision() : precision;
+            final String metaPattern =
+                    !meta.getFormat().equals("dd-MM-yyyy HH:mm:ss") ? meta.getFormat() : pattern;
+            final String metaStudioType = meta.getType();
+            log.trace("[inferSchema] Dynamic {}\t({})\t ==> {}.", meta.getName(), metaStudioType,
+                    value);
+            switch (metaStudioType) {
+                case StudioTypes.LIST:
+                    schema.withEntry(toCollectionEntry(metaName, metaOriginalName, value));
+                    break;
+                case StudioTypes.OBJECT:
+                case StudioTypes.STRING:
+                case StudioTypes.CHARACTER:
+                    schema.withEntry(
+                            toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
+                                    metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
+                    break;
+                case StudioTypes.BIGDECIMAL:
+                    schema.withEntry(toEntry(metaName, DECIMAL, metaOriginalName, metaIsNullable,
+                            comment,
+                            metaIsKey, metaLength, metaPrecision, defaultValue, null, metaStudioType));
+                    break;
+                case StudioTypes.BYTE_ARRAY:
+                    schema.withEntry(toEntry(metaName, BYTES, metaOriginalName, metaIsNullable, comment,
+                            metaIsKey, null, null, defaultValue, null, metaStudioType));
+                    break;
+                case StudioTypes.BYTE:
+                case StudioTypes.SHORT:
+                case StudioTypes.INTEGER:
+                    schema.withEntry(toEntry(metaName, INT, metaOriginalName, metaIsNullable, comment,
+                            metaIsKey, null, null, defaultValue, null, metaStudioType));
+                    break;
+                case StudioTypes.LONG:
+                    schema.withEntry(toEntry(metaName, LONG, metaOriginalName, metaIsNullable, comment,
+                            metaIsKey, null, null, defaultValue, null, metaStudioType));
+                    break;
+                case StudioTypes.FLOAT:
+                    schema.withEntry(toEntry(metaName, FLOAT, metaOriginalName, metaIsNullable, comment,
+                            metaIsKey, metaLength, metaPrecision, defaultValue, null, metaStudioType));
+                    break;
+                case StudioTypes.DOUBLE:
+                    schema.withEntry(toEntry(metaName, DOUBLE, metaOriginalName, metaIsNullable,
+                            comment,
+                            metaIsKey, metaLength, metaPrecision, defaultValue, null, metaStudioType));
+                    break;
+                case StudioTypes.BOOLEAN:
+                    schema.withEntry(
+                            toEntry(metaName, BOOLEAN, metaOriginalName, metaIsNullable, comment,
+                                    metaIsKey, null, null, defaultValue, null, metaStudioType));
+                    break;
+                case StudioTypes.DATE:
+                    schema.withEntry(
+                            toEntry(metaName, DATETIME, metaOriginalName, metaIsNullable, comment,
+                                    metaIsKey, null, null, defaultValue, metaPattern, metaStudioType));
+                    break;
+                default:
+                    schema.withEntry(
+                            toEntry(metaName, STRING, metaOriginalName, metaIsNullable, comment,
+                                    metaIsKey, metaLength, metaPrecision, defaultValue, metaPattern,
+                                    metaStudioType));
+            }
+        }
     }
 
     private void onInt(final String name, final Object value) {
