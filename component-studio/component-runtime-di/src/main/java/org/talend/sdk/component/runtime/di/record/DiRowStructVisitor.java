@@ -195,8 +195,8 @@ public class DiRowStructVisitor {
                         bytes = ByteBuffer.class.cast(value).array();
                     } else {
                         log.warn("[visit] '{}' of type `id_byte[]` and content is contained in `{}`:"
-                                        + " This should not happen! "
-                                        + " Wrapping `byte[]` from `String.valueOf()`: result may be inaccurate.",
+                                + " This should not happen! "
+                                + " Wrapping `byte[]` from `String.valueOf()`: result may be inaccurate.",
                                 metaName, value.getClass().getSimpleName());
                         bytes = ByteBuffer.wrap(String.valueOf(value).getBytes()).array();
                     }
