@@ -478,7 +478,7 @@ class DiRowStructVisitorTest extends VisitorsTest {
     }
 
     @Test
-    void visitIntDynamicWithLengthAndScale() {
+    void visitDecimalDynamicWithLengthAndScale() {
         @Getter
         class RowStructLocal implements routines.system.IPersistableRow {
 
@@ -545,7 +545,70 @@ class DiRowStructVisitorTest extends VisitorsTest {
         }
 
         // value
-        assertEquals(42, record.getInt(name1));
+        assertEquals(BigDecimal.valueOf(42L), record.getDecimal(name1));
+        assertEquals(BigDecimal.valueOf(42L), record.getDecimal(name2));
+    }
+
+    @Test
+    void visitDecimalDynamicWithNullValue() {
+        @Getter
+        class RowStructLocal implements routines.system.IPersistableRow {
+
+            public Dynamic dynamic;
+
+            @Override
+            public void writeData(final ObjectOutputStream objectOutputStream) {
+                throw new UnsupportedOperationException("#writeData()");
+            }
+
+            @Override
+            public void readData(final ObjectInputStream objectInputStream) {
+                throw new UnsupportedOperationException("#readData()");
+            }
+        }
+
+        final RowStructLocal rowStruct = new RowStructLocal();
+
+        // dynamic
+        rowStruct.dynamic = new Dynamic();
+        final String name1 = "someValue";
+        final String name2 = "anotherValue";
+        createMetadata(rowStruct.dynamic, name1, StudioTypes.BIGDECIMAL, null);
+        createMetadata(rowStruct.dynamic, name2, StudioTypes.BIGDECIMAL, BigDecimal.valueOf(42L));
+
+        final DiRowStructVisitor visitor = new DiRowStructVisitor();
+        final Record record = visitor.get(rowStruct, factory);
+
+        // validation
+        // schema
+        final Schema schema = record.getSchema();
+        assertEquals(2, schema.getEntries().size());
+        {
+            final Entry testedEntry = schema.getEntry(name1);
+            assertTrue(testedEntry.isNullable());
+            assertEquals(Type.DECIMAL, testedEntry.getType());
+            assertEquals(StudioTypes.BIGDECIMAL, testedEntry.getProp(STUDIO_TYPE));
+            assertEquals(name1, testedEntry.getOriginalFieldName());
+            assertNull(testedEntry.getRawName());
+            assertEquals("false", testedEntry.getProp(IS_KEY));
+            assertEquals("-1", testedEntry.getProp(SIZE));
+            assertEquals("-1", testedEntry.getProp(SCALE));
+        }
+        {
+            final Entry testedEntry = schema.getEntry(name2);
+            assertTrue(testedEntry.isNullable());
+            assertEquals(Type.DECIMAL, testedEntry.getType());
+            assertEquals(StudioTypes.BIGDECIMAL, testedEntry.getProp(STUDIO_TYPE));
+            assertEquals(name2, testedEntry.getOriginalFieldName());
+            assertNull(testedEntry.getRawName());
+            assertEquals("false", testedEntry.getProp(IS_KEY));
+            assertEquals("-1", testedEntry.getProp(SIZE));
+            assertEquals("-1", testedEntry.getProp(SCALE));
+        }
+
+        // value
+        assertTrue(record.getOptionalDecimal(name1).isEmpty());
+        assertEquals(BigDecimal.valueOf(42L), record.getDecimal(name2));
     }
 
     @Test
