@@ -145,8 +145,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.emptyDocument = new Document();
 
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
-        final Record record = visitor.get(rowStruct, factory);
-        final Schema schema = record.getSchema();
+        final Record convertedRecord = visitor.get(rowStruct, factory);
+        final Schema schema = convertedRecord.getSchema();
         // should have 3 excluded fields
         assertEquals(58, schema.getEntries().size());
 
@@ -198,66 +198,66 @@ class DiRowStructVisitorTest extends VisitorsTest {
         assertEquals("yyyy-MM-dd", schema.getEntry("dynStringDate").getProp(PATTERN));
         assertEquals(StudioTypes.DOCUMENT, schema.getEntry("dynDocument").getProp(STUDIO_TYPE));
         // asserts Record
-        assertEquals(":testing:", record.getString("id"));
-        assertEquals(NAME, record.getString("name"));
-        assertEquals(SHORT, record.getInt("shortP"));
-        assertEquals(SHORT, record.getInt("shortC"));
-        assertEquals(INT, record.getInt("intP"));
-        assertEquals(INT, record.getInt("intC"));
-        assertEquals(LONG, record.getLong("longP"));
-        assertEquals(LONG, record.getLong("longC"));
-        assertEquals(FLOAT, record.getFloat("floatP"));
-        assertEquals(FLOAT, record.getFloat("floatC"));
-        assertEquals(DOUBLE, record.getDouble("doubleP"));
-        assertEquals(DOUBLE, record.getDouble("doubleC"));
-        assertEquals(DATE.toInstant(), record.getDateTime("date0").toInstant());
-        assertNull(record.getDateTime("date1"));
-        assertEquals(ZONED_DATE_TIME, record.getDateTime("date2"));
-        assertEquals(1946, record.getDateTime("date2").getYear());
-        assertEquals(INSTANT, record.getInstant("date4"));
-        assertEquals(BIGDEC.doubleValue(), new BigDecimal(record.getString("bigDecimal0")).doubleValue());
-        assertEquals(BIGDEC.toString(), record.getString("bigDecimal0"));
-        assertFalse(record.getBoolean("bool0"));
-        assertTrue(record.getBoolean("bool1"));
-        assertArrayEquals(BYTES0, record.getBytes("bytes0"));
-        assertArrayEquals(BYTES0, record.getBytes("dynBytes"));
-        assertArrayEquals(BYTES0, record.getBytes("dynBytesArray"));
-        assertArrayEquals(BYTES0, record.getBytes("dynBytesBuffer"));
-        assertArrayEquals(String.valueOf(BYTES0).getBytes(), record.getBytes("dynBytesWString"));
-        assertEquals(BIGDEC.toString(), record.getString("dynBigDecimal"));
-        assertEquals(BIGDEC, new BigDecimal(record.getString("dynBigDecimal")));
-        assertEquals(DOCUMENT.toString(), record.getString("dynDocument"));
-        assertEquals(rowStruct.object0, record.get(Object.class, "object0"));
-        assertTrue(record.getBoolean("hAshcOdEdIrtY"));
-        assertEquals(NAME, record.getString("h"));
+        assertEquals(":testing:", convertedRecord.getString("id"));
+        assertEquals(NAME, convertedRecord.getString("name"));
+        assertEquals(SHORT, convertedRecord.getInt("shortP"));
+        assertEquals(SHORT, convertedRecord.getInt("shortC"));
+        assertEquals(INT, convertedRecord.getInt("intP"));
+        assertEquals(INT, convertedRecord.getInt("intC"));
+        assertEquals(LONG, convertedRecord.getLong("longP"));
+        assertEquals(LONG, convertedRecord.getLong("longC"));
+        assertEquals(FLOAT, convertedRecord.getFloat("floatP"));
+        assertEquals(FLOAT, convertedRecord.getFloat("floatC"));
+        assertEquals(DOUBLE, convertedRecord.getDouble("doubleP"));
+        assertEquals(DOUBLE, convertedRecord.getDouble("doubleC"));
+        assertEquals(DATE.toInstant(), convertedRecord.getDateTime("date0").toInstant());
+        assertNull(convertedRecord.getDateTime("date1"));
+        assertEquals(ZONED_DATE_TIME, convertedRecord.getDateTime("date2"));
+        assertEquals(1946, convertedRecord.getDateTime("date2").getYear());
+        assertEquals(INSTANT, convertedRecord.getInstant("date4"));
+        assertEquals(BIGDEC.doubleValue(), new BigDecimal(convertedRecord.getString("bigDecimal0")).doubleValue());
+        assertEquals(BIGDEC.toString(), convertedRecord.getString("bigDecimal0"));
+        assertFalse(convertedRecord.getBoolean("bool0"));
+        assertTrue(convertedRecord.getBoolean("bool1"));
+        assertArrayEquals(BYTES0, convertedRecord.getBytes("bytes0"));
+        assertArrayEquals(BYTES0, convertedRecord.getBytes("dynBytes"));
+        assertArrayEquals(BYTES0, convertedRecord.getBytes("dynBytesArray"));
+        assertArrayEquals(BYTES0, convertedRecord.getBytes("dynBytesBuffer"));
+        assertArrayEquals(String.valueOf(BYTES0).getBytes(), convertedRecord.getBytes("dynBytesWString"));
+        assertEquals(BIGDEC.toString(), convertedRecord.getString("dynBigDecimal"));
+        assertEquals(BIGDEC, new BigDecimal(convertedRecord.getString("dynBigDecimal")));
+        assertEquals(DOCUMENT.toString(), convertedRecord.getString("dynDocument"));
+        assertEquals(rowStruct.object0, convertedRecord.get(Object.class, "object0"));
+        assertTrue(convertedRecord.getBoolean("hAshcOdEdIrtY"));
+        assertEquals(NAME, convertedRecord.getString("h"));
         assertEquals(StudioTypes.CHARACTER, schema.getEntry("char0").getProp(STUDIO_TYPE));
-        assertEquals(String.valueOf(Character.MAX_VALUE), record.getString("char0"));
-        assertEquals(dynObject, record.get(Object.class, "dynObject"));
-        assertEquals(STRINGS, record.getArray(String.class, "STRINGS"));
-        assertEquals(LONGS, record.getArray(Long.class, "LONGS"));
-        assertEquals(FLOATS, record.getArray(Float.class, "FLOATS"));
-        assertEquals(DOUBLES, record.getArray(Double.class, "DOUBLES"));
-        assertEquals(BOOLEANS, record.getArray(Boolean.class, "BOOLEANS"));
-        assertEquals(BYTES, record.getArray(byte[].class, "BYTES"));
-        assertEquals(DATES, record.getArray(ZonedDateTime.class, "DATES"));
-        assertEquals(RECORDS, record.getArray(Record.class, "RECORDS"));
-        record.getArray(Record.class, "RECORDS").forEach(r -> {
+        assertEquals(String.valueOf(Character.MAX_VALUE), convertedRecord.getString("char0"));
+        assertEquals(dynObject, convertedRecord.get(Object.class, "dynObject"));
+        assertEquals(STRINGS, convertedRecord.getArray(String.class, "STRINGS"));
+        assertEquals(LONGS, convertedRecord.getArray(Long.class, "LONGS"));
+        assertEquals(FLOATS, convertedRecord.getArray(Float.class, "FLOATS"));
+        assertEquals(DOUBLES, convertedRecord.getArray(Double.class, "DOUBLES"));
+        assertEquals(BOOLEANS, convertedRecord.getArray(Boolean.class, "BOOLEANS"));
+        assertEquals(BYTES, convertedRecord.getArray(byte[].class, "BYTES"));
+        assertEquals(DATES, convertedRecord.getArray(ZonedDateTime.class, "DATES"));
+        assertEquals(RECORDS, convertedRecord.getArray(Record.class, "RECORDS"));
+        convertedRecord.getArray(Record.class, "RECORDS").forEach(r -> {
             assertEquals(1, r.getInt("ntgr"));
             assertEquals("one", r.getString("str"));
         });
-        assertEquals(BIG_DECIMALS, record.getArray(BigDecimal.class, "BIG_DECIMALS"));
+        assertEquals(BIG_DECIMALS, convertedRecord.getArray(BigDecimal.class, "BIG_DECIMALS"));
         assertEquals(3,
                 schema.getEntries()
                         .stream()
                         .filter(entry -> entry.getName().matches("hAshcOdEdIrtY|h|id"))
                         .count());
         // check list combinations
-        assertEquals(INTEGERS, record.getArray(Integer.class, "array0"));
-        assertEquals(LIST_INTEGERS, record.getArray(List.class, "array1"));
-        assertEquals(LIST_HETEROGENEOUS_INTEGER, record.getArray(List.class, "array2"));
-        assertEquals(LIST_HETEROGENEOUS_LIST, record.getArray(List.class, "array3"));
-        assertEquals(LIST_INTEGERS_EMPTY, record.getArray(List.class, "array4"));
-        assertEquals(LIST_3_DEEP, record.getArray(List.class, "array5"));
+        assertEquals(INTEGERS, convertedRecord.getArray(Integer.class, "array0"));
+        assertEquals(LIST_INTEGERS, convertedRecord.getArray(List.class, "array1"));
+        assertEquals(LIST_HETEROGENEOUS_INTEGER, convertedRecord.getArray(List.class, "array2"));
+        assertEquals(LIST_HETEROGENEOUS_LIST, convertedRecord.getArray(List.class, "array3"));
+        assertEquals(LIST_INTEGERS_EMPTY, convertedRecord.getArray(List.class, "array4"));
+        assertEquals(LIST_3_DEEP, convertedRecord.getArray(List.class, "array5"));
         // check their schemas
         assertSchemaArray0(schema);
         assertSchemaArray1(schema);
@@ -273,9 +273,9 @@ class DiRowStructVisitorTest extends VisitorsTest {
                         .stream()
                         .filter(entry -> entry.getName().matches("hashCodeDirty|loopKey|lookKey"))
                         .count());
-        assertThrows(NullPointerException.class, () -> record.getBoolean("hashCodeDirty"));
-        assertNull(record.getString("loopKey"));
-        assertNull(record.getString("lookKey"));
+        assertThrows(NullPointerException.class, () -> convertedRecord.getBoolean("hashCodeDirty"));
+        assertNull(convertedRecord.getString("loopKey"));
+        assertNull(convertedRecord.getString("lookKey"));
     }
 
     private static void assertSchemaArray0(final Schema schema) {
@@ -431,11 +431,11 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(rowStruct.dynamic, name3, StudioTypes.LIST, STRINGS, null, true, originalName3);
 
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
-        final Record record = visitor.get(rowStruct, factory);
+        final Record convertedRecord = visitor.get(rowStruct, factory);
 
         // validation
         // schema
-        final Schema schema = record.getSchema();
+        final Schema schema = convertedRecord.getSchema();
         assertEquals(3, schema.getEntries().size());
         {
             final Entry testedEntry = schema.getEntry(name1);
@@ -472,9 +472,9 @@ class DiRowStructVisitorTest extends VisitorsTest {
         }
 
         // value
-        assertEquals(STRINGS, record.getArray(String.class, name1));
-        assertEquals(STRINGS, record.getArray(String.class, name2));
-        assertEquals(STRINGS, record.getArray(String.class, name3));
+        assertEquals(STRINGS, convertedRecord.getArray(String.class, name1));
+        assertEquals(STRINGS, convertedRecord.getArray(String.class, name2));
+        assertEquals(STRINGS, convertedRecord.getArray(String.class, name3));
     }
 
     @Test
@@ -515,11 +515,11 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.dynamic.metadatas.get(1).setPrecision(7);
 
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
-        final Record record = visitor.get(rowStruct, factory);
+        final Record convertedRecord = visitor.get(rowStruct, factory);
 
         // validation
         // schema
-        final Schema schema = record.getSchema();
+        final Schema schema = convertedRecord.getSchema();
         assertEquals(2, schema.getEntries().size());
         {
             final Entry testedEntry = schema.getEntry(name1);
@@ -545,8 +545,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         }
 
         // value
-        assertEquals(BigDecimal.valueOf(42L), record.getDecimal(name1));
-        assertEquals(BigDecimal.valueOf(42L), record.getDecimal(name2));
+        assertEquals(BigDecimal.valueOf(42L), convertedRecord.getDecimal(name1));
+        assertEquals(BigDecimal.valueOf(42L), convertedRecord.getDecimal(name2));
     }
 
     @Test
@@ -577,11 +577,11 @@ class DiRowStructVisitorTest extends VisitorsTest {
         createMetadata(rowStruct.dynamic, name2, StudioTypes.BIGDECIMAL, BigDecimal.valueOf(42L));
 
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
-        final Record record = visitor.get(rowStruct, factory);
+        final Record convertedRecord = visitor.get(rowStruct, factory);
 
         // validation
         // schema
-        final Schema schema = record.getSchema();
+        final Schema schema = convertedRecord.getSchema();
         assertEquals(2, schema.getEntries().size());
         {
             final Entry testedEntry = schema.getEntry(name1);
@@ -607,8 +607,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
         }
 
         // value
-        assertTrue(record.getOptionalDecimal(name1).isEmpty());
-        assertEquals(BigDecimal.valueOf(42L), record.getDecimal(name2));
+        assertTrue(convertedRecord.getOptionalDecimal(name1).isEmpty());
+        assertEquals(BigDecimal.valueOf(42L), convertedRecord.getDecimal(name2));
     }
 
     @Test
@@ -640,9 +640,9 @@ class DiRowStructVisitorTest extends VisitorsTest {
         rowStruct.array1 = LIST_INTEGERS;
 
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
-        final Record record = visitor.get(rowStruct, factory);
+        final Record convertedRecord = visitor.get(rowStruct, factory);
 
-        final Schema schema = record.getSchema();
+        final Schema schema = convertedRecord.getSchema();
         assertEquals(2, schema.getEntries().size());
 
         // schema metadata
@@ -666,8 +666,8 @@ class DiRowStructVisitorTest extends VisitorsTest {
 
         // asserts Record
         // check list combinations
-        assertEquals(INTEGERS, record.getArray(Integer.class, "array0"));
-        assertEquals(LIST_INTEGERS, record.getArray(List.class, "array1"));
+        assertEquals(INTEGERS, convertedRecord.getArray(Integer.class, "array0"));
+        assertEquals(LIST_INTEGERS, convertedRecord.getArray(List.class, "array1"));
 
         // check their schemas
         assertSchemaArray0(schema);
@@ -684,17 +684,17 @@ class DiRowStructVisitorTest extends VisitorsTest {
     @Data
     public static class RowStructEmptyNull implements routines.system.IPersistableRow {
 
-        public Integer meta_id;
+        public Integer meta_id; //NOSONAR
 
-        public String FirstName;
+        public String FirstName; //NOSONAR
 
         public String lastName;
 
-        public String City;
+        public String City; //NOSONAR
 
         public String i;
 
-        public String A;
+        public String A; //NOSONAR
 
         @Override
         public void writeData(final ObjectOutputStream objectOutputStream) {
