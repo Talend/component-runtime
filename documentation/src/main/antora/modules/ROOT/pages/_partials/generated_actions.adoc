@@ -1,5 +1,22 @@
 
 
+= Available Output
+
+Provide the output flows by some condition
+
+- Type: `available_output`
+- API: `@org.talend.sdk.component.api.service.outputs.AvailableOutputFlows`
+- Returned type: `java.util.Collection`
+- Sample:
+
+[source,js]
+----
+{
+
+}
+----
+
+
 = Close Connection
 
 Mark an action works for closing runtime connection, returning a close helper object which do real close action. The functionality is for the Studio only, studio will use the close object to close connection for existed connection, and no effect for cloud platform.
@@ -114,6 +131,7 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
   "entries":[
     {
       "comment":"The column 1",
+      "errorCapable":false,
       "metadata":false,
       "name":"column1",
       "nullable":false,
@@ -121,10 +139,12 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
 
       },
       "rawName":"column 1",
-      "type":"STRING"
+      "type":"STRING",
+      "valid":true
     },
     {
       "comment":"The int column",
+      "errorCapable":false,
       "metadata":false,
       "name":"column2",
       "nullable":false,
@@ -132,7 +152,8 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
 
       },
       "rawName":"column 2",
-      "type":"INT"
+      "type":"INT",
+      "valid":true
     }
   ],
   "metadata":[
@@ -160,6 +181,7 @@ Mark a method as returning a Schema resulting from a connector configuration and
   "entries":[
     {
       "comment":"The column 1",
+      "errorCapable":false,
       "metadata":false,
       "name":"column1",
       "nullable":false,
@@ -167,10 +189,12 @@ Mark a method as returning a Schema resulting from a connector configuration and
 
       },
       "rawName":"column 1",
-      "type":"STRING"
+      "type":"STRING",
+      "valid":true
     },
     {
       "comment":"The int column",
+      "errorCapable":false,
       "metadata":false,
       "name":"column2",
       "nullable":false,
@@ -178,7 +202,8 @@ Mark a method as returning a Schema resulting from a connector configuration and
 
       },
       "rawName":"column 2",
-      "type":"INT"
+      "type":"INT",
+      "valid":true
     }
   ],
   "metadata":[
@@ -187,6 +212,33 @@ Mark a method as returning a Schema resulting from a connector configuration and
     "talend.fields.order":"column1,column2"
   },
   "type":"RECORD"
+}
+----
+
+
+= Schema Mapping
+
+Mark a method as returning a database mapping from a connector @DataStore configuration. Use this annotation if database mapping can be dynamic and `@DatabaseMapping.Mapping` is set to `custom`. The functionality is for the Studio only.
+
+- Type: `schema_mapping`
+- API: `@org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping`
+- Returned type: `java.lang.String`
+- Sample:
+
+[source,js]
+----
+{
+ "value": "..."
+ "coder": "..."
+ "hash": "..."
+ "hashIsZero": "..."
+ "serialVersionUID": "..."
+ "COMPACT_STRINGS": "..."
+ "serialPersistentFields": "..."
+ "REPL": "..."
+ "CASE_INSENSITIVE_ORDER": "..."
+ "LATIN1": "..."
+ "UTF16": "..."
 }
 ----
 

@@ -35,6 +35,7 @@
 ** xref:tutorial-configuration-sensitive-data.adoc[Masking sensitive data]
 ** xref:concept-processor-and-batch-processing.adoc[Implementing batch processing]
 ** xref:component-implementing-streaming.adoc[Implementing streaming on a component]
+** xref:component-checkpoint.adoc[Implementing checkpointing on a component]
 ** xref:component-loading.adoc[Component loading]
 ** xref:build-tools-maven.adoc[Building components with Maven]
 ** xref:build-tools-gradle.adoc[Building components with Gradle]

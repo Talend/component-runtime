@@ -169,6 +169,25 @@ class ComponentResourceImplTest {
     }
 
     @Test()
+    void getDatabaseMappingMetadata() {
+        final List<ComponentIndex> components = base
+                .path("component/index")
+                .queryParam("includeIconContent", false)
+                .queryParam("q",
+                        "(id = " + client.getJdbcId() + ") AND " + "(metadata[configurationtype::type] = dataset) AND "
+                                + "(plugin = jdbc-component) AND (name = input)")
+                .request(APPLICATION_JSON_TYPE)
+                .header("Accept-Encoding", "gzip")
+                .get(ComponentIndices.class)
+                .getComponents();
+        assertEquals(1, components.size());
+        final ComponentIndex index = components.iterator().next();
+        assertEquals("jdbc#input", index.getId().getFamily() + "#" + index.getId().getName());
+        assertEquals("custom", index.getMetadata().get(ComponentSchemaEnricher.SCHEMA_MAPPING));
+        assertEquals("schema_mapping", index.getMetadata().get(ComponentSchemaEnricher.SCHEMA_MAPPER));
+    }
+
+    @Test()
     void getFixedSchemaMetadata() {
         final List<ComponentIndex> components = base
                 .path("component/index")
@@ -237,7 +256,7 @@ class ComponentResourceImplTest {
                 }, APPLICATION_JSON_TYPE), new GenericType<Map<String, String>>() {
                 });
         assertEquals(1, migrated.size());
-        assertEquals(null, migrated.get("migrated"));
+        assertNull(migrated.get("migrated"));
     }
 
     @Test

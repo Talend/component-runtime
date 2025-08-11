@@ -74,6 +74,9 @@ import java.util.Spliterators;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -85,8 +88,12 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.json.JsonReaderFactory;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.JsonWriterFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbConfig;
@@ -143,6 +150,7 @@ import org.talend.sdk.component.path.PathFactory;
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Lifecycle;
 import org.talend.sdk.component.runtime.impl.Mode;
+import org.talend.sdk.component.runtime.input.CheckpointState;
 import org.talend.sdk.component.runtime.input.LocalPartitionMapper;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.input.PartitionMapperImpl;
@@ -263,7 +271,7 @@ public class ComponentManager implements AutoCloseable {
             return manager;
         }
 
-        private static final Thread buildShutDownHook() {
+        private static Thread buildShutDownHook() {
             return new Thread(ComponentManager.class.getName() + "-" + ComponentManager.class.hashCode()) {
 
                 @Override
@@ -368,6 +376,8 @@ public class ComponentManager implements AutoCloseable {
     private final IconFinder iconFinder = new IconFinder();
 
     private final DefaultServiceProvider defaultServiceProvider;
+
+    private final ReentrantReadWriteLock containerLock = new ReentrantReadWriteLock();
 
     public ComponentManager(final File m2) {
         this(m2.toPath());
@@ -685,10 +695,10 @@ public class ComponentManager implements AutoCloseable {
                     .of(plugin)
                     // just a small workaround for maven/gradle
                     .flatMap(this::toPluginLocations)
-                    .filter(path -> !container.find(path.getFileName().toString()).isPresent())
+                    .filter(path -> !findPlugin(path.getFileName().toString()).isPresent())
                     .map(file -> {
                         final String id = addPlugin(file.toAbsolutePath().toString());
-                        if (container.find(id).get().get(ContainerComponentRegistry.class).getComponents().isEmpty()) {
+                        if (findPlugin(id).get().get(ContainerComponentRegistry.class).getComponents().isEmpty()) {
                             removePlugin(id);
                             return null;
                         }
@@ -721,8 +731,117 @@ public class ComponentManager implements AutoCloseable {
         return Stream.of(src);
     }
 
+    public Map<String, String> mergeCheckpointConfiguration(final String plugin, final String name,
+            final ComponentType componentType, final Map<String, String> configuration) {
+        if (!MAPPER.equals(componentType)) {
+            return configuration;
+        }
+        if (!Boolean.parseBoolean(System.getProperty("talend.checkpoint.enabled", "false"))) {
+            return configuration;
+        }
+        final ParameterMeta checkpoint = findCheckpointParameterMeta(plugin, name);
+        if (checkpoint == null) {
+            return configuration;
+        }
+        return replaceKeys(configuration, CheckpointState.CHECKPOINT_KEY, checkpoint.getPath());
+    }
+
+    public ParameterMeta findConfigurationType(final String plugin, final String name, final String configurationType) {
+        return findAll()
+                .map(c -> c.get(ContainerComponentRegistry.class))
+                .map(registry -> registry.findComponentFamily(plugin))
+                .filter(Objects::nonNull)
+                .map(family -> family.getPartitionMappers().get(name).getParameterMetas().get())
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .flatMap(np -> np.getNestedParameters().stream())
+                .filter(m -> configurationType
+                        .equals(m.getMetadata().getOrDefault("tcomp::configurationtype::type", "")))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public ParameterMeta findCheckpointParameterMeta(final String plugin, final String name) {
+        return findConfigurationType(plugin, name, "checkpoint");
+    }
+
+    public ParameterMeta findDatasetParameterMeta(final String plugin, final String name) {
+        return findConfigurationType(plugin, name, "dataset");
+    }
+
+    public ParameterMeta findDatastoreParameterMeta(final String plugin, final String name) {
+        return findConfigurationType(plugin, name, "datastore");
+    }
+
+    /**
+     * Convert a json value to a configuration map.
+     *
+     * @param jsonValue json value to convert to a configuration map
+     * @param path optional path to add to keys as prefix
+     * @return a configuration map from a json value
+     */
+    public static Map<String, String> jsonToMap(final JsonValue jsonValue, final String path) {
+        final Map<String, String> result = new HashMap<>();
+        if (jsonValue instanceof JsonObject) {
+            JsonObject jsonObj = (JsonObject) jsonValue;
+            for (String key : jsonObj.keySet()) {
+                String newPath = path.isEmpty() ? key : path + "." + key;
+                result.putAll(jsonToMap(jsonObj.get(key), newPath));
+            }
+        } else if (jsonValue instanceof JsonArray) {
+            JsonArray jsonArray = (JsonArray) jsonValue;
+            for (int i = 0; i < jsonArray.size(); i++) {
+                String newPath = path + "[" + i + "]";
+                result.putAll(jsonToMap(jsonArray.get(i), newPath));
+            }
+        } else {
+            String str;
+            if (jsonValue.getValueType() == JsonValue.ValueType.STRING) {
+                str = ((JsonString) (jsonValue)).getString();
+            } else {
+                str = jsonValue.toString();
+            }
+            result.put(path, str);
+        }
+        return result;
+    }
+
+    /**
+     * Convert a json value to a configuration map.
+     *
+     * @param jsonValue json value to convert to a configuration map
+     * @return a configuration map from a json value
+     */
+    public static Map<String, String> jsonToMap(final JsonValue jsonValue) {
+        return jsonToMap(jsonValue, "");
+    }
+
+    /**
+     * Replace some keys in the configuration map.
+     *
+     * @param configuration original configuration
+     * @param oldPrefix old prefix to replace
+     * @param newPrefix new prefix to replace with
+     * @return Map with keys replaced
+     */
+    public static Map<String, String> replaceKeys(final Map<String, String> configuration, final String oldPrefix,
+            final String newPrefix) {
+        final Map<String, String> replaced = new HashMap<>();
+        for (Map.Entry<String, String> entry : configuration.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key.startsWith(oldPrefix)) {
+                String newKey = newPrefix + key.substring(oldPrefix.length());
+                replaced.put(newKey, value);
+            } else {
+                replaced.put(key, value);
+            }
+        }
+        return replaced;
+    }
+
     public <T> Stream<T> find(final Function<Container, Stream<T>> mapper) {
-        return container.findAll().stream().flatMap(mapper);
+        return findAll().flatMap(mapper);
     }
 
     // really a DIY entry point for custom flow, it creates component instances but
@@ -736,16 +855,44 @@ public class ComponentManager implements AutoCloseable {
 
     private Optional<Object> findComponentInternal(final String plugin, final String name,
             final ComponentType componentType, final int version, final Map<String, String> configuration) {
-        if (container.findAll().isEmpty()) {
-            autoDiscoverPlugins(false, true);
-        }
+        autoDiscoverPluginsIfEmpty(false, true);
+
+        final Map<String, String> conf = mergeCheckpointConfiguration(plugin, name, componentType, configuration);
         return find(pluginContainer -> Stream
-                .of(findInstance(plugin, name, componentType, version, configuration, pluginContainer)))
+                .of(findInstance(plugin, name, componentType, version, conf, pluginContainer)))
                 .filter(Objects::nonNull)
                 .findFirst();
     }
 
+    public void autoDiscoverPluginsIfEmpty(final boolean callers, final boolean classpath) {
+        if (hasPlugins()) {
+            return;
+        }
+
+        final WriteLock writeLock = containerLock.writeLock();
+        writeLock.lock();
+        try {
+            if (hasPlugins()) {
+                return;
+            }
+
+            autoDiscoverPlugins0(callers, classpath);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     public void autoDiscoverPlugins(final boolean callers, final boolean classpath) {
+        final WriteLock writeLock = containerLock.writeLock();
+        writeLock.lock();
+        try {
+            autoDiscoverPlugins0(callers, classpath);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private void autoDiscoverPlugins0(final boolean callers, final boolean classpath) {
         if (callers && !Boolean.getBoolean("component.manager.callers.skip")) {
             addCallerAsPlugin();
         }
@@ -797,12 +944,10 @@ public class ComponentManager implements AutoCloseable {
             final Container pluginContainer) {
         return ofNullable(pluginContainer.get(GenericComponentExtension.class))
                 .filter(ext -> ext.canHandle(componentType.runtimeType(), plugin, name))
-                .map(ext -> Object.class
-                        .cast(ext
-                                .createInstance(componentType.runtimeType(), plugin, name, version, configuration,
-                                        ofNullable(pluginContainer.get(AllServices.class))
-                                                .map(AllServices::getServices)
-                                                .orElseGet(Collections::emptyMap))));
+                .map(ext -> ext.createInstance(componentType.runtimeType(), plugin, name, version, configuration,
+                        ofNullable(pluginContainer.get(AllServices.class))
+                                .map(AllServices::getServices)
+                                .orElseGet(Collections::emptyMap)));
     }
 
     public Optional<Mapper> findMapper(final String plugin, final String name, final int version,
@@ -823,26 +968,43 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public boolean hasPlugin(final String plugin) {
-        return container.find(plugin).isPresent();
+        return findPlugin(plugin).isPresent();
     }
 
     public Optional<Container> findPlugin(final String plugin) {
-        return container.find(plugin);
+        final ReadLock readLock = containerLock.readLock();
+        readLock.lock();
+        try {
+            return container.find(plugin);
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    public synchronized String addPlugin(final String pluginRootFile) {
-        final Optional<Container> pl = findPlugin(pluginRootFile);
-        if (pl.isPresent()) {
-            return pl.get().getId();
+    public String addPlugin(final String pluginRootFile) {
+        final WriteLock writeLock = containerLock.writeLock();
+        writeLock.lock();
+        try {
+            final String pluginId = findPluginId(pluginRootFile);
+            if (pluginId != null) {
+                return pluginId;
+            }
+
+            final String id = this.container
+                    .builder(pluginRootFile)
+                    .withCustomizer(createContainerCustomizer(pluginRootFile))
+                    .withAdditionalClasspath(findAdditionalClasspathFor(container.buildAutoIdFromName(pluginRootFile)))
+                    .create()
+                    .getId();
+            info("Adding plugin: " + pluginRootFile + ", as " + id);
+            return id;
+        } finally {
+            writeLock.unlock();
         }
-        final String id = this.container
-                .builder(pluginRootFile)
-                .withCustomizer(createContainerCustomizer(pluginRootFile))
-                .withAdditionalClasspath(findAdditionalClasspathFor(container.buildAutoIdFromName(pluginRootFile)))
-                .create()
-                .getId();
-        info("Adding plugin: " + pluginRootFile + ", as " + id);
-        return id;
+    }
+
+    private String findPluginId(final String pluginRootFile) {
+        return findPlugin(pluginRootFile).map(Container::getId).orElse(null);
     }
 
     public String addWithLocationPlugin(final String location, final String pluginRootFile) {
@@ -876,7 +1038,7 @@ public class ComponentManager implements AutoCloseable {
     }
 
     public void removePlugin(final String id) {
-        container.find(id).ifPresent(Container::close);
+        findPlugin(id).ifPresent(Container::close);
         info("Removed plugin: " + id);
     }
 
@@ -902,7 +1064,7 @@ public class ComponentManager implements AutoCloseable {
         final ClassLoader old = thread.getContextClassLoader();
         thread
                 .setContextClassLoader(
-                        container.find(plugin).map(Container::getLoader).map(ClassLoader.class::cast).orElse(old));
+                        findPlugin(plugin).map(Container::getLoader).map(ClassLoader.class::cast).orElse(old));
         try {
             return supplier.get();
         } finally {
@@ -910,8 +1072,34 @@ public class ComponentManager implements AutoCloseable {
         }
     }
 
+    private boolean hasPlugins() {
+        final ReadLock readLock = containerLock.readLock();
+        readLock.lock();
+        try {
+            return !container.findAll().isEmpty();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    private Stream<Container> findAll() {
+        final ReadLock readLock = containerLock.readLock();
+        readLock.lock();
+        try {
+            return container.findAll().stream();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     public List<String> availablePlugins() {
-        return container.findAll().stream().map(Container::getId).collect(toList());
+        final ReadLock readLock = containerLock.readLock();
+        readLock.lock();
+        try {
+            return container.getPluginsList();
+        } finally {
+            readLock.unlock();
+        }
     }
 
     protected void containerServices(final Container container, final Map<Class<?>, Object> services) {

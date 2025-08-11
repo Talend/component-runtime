@@ -19,7 +19,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PROTECTED;
-import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 
 import java.util.Map;
 
@@ -77,7 +77,7 @@ public class ViewsMappingTransform extends PTransform<PCollection<Record>, PColl
             this.views = views
                     .entrySet()
                     .stream()
-                    .collect(toMap(e -> sanitizeConnectionName(e.getKey()), Map.Entry::getValue));
+                    .collect(toMap(e -> sanitizeName(e.getKey()), Map.Entry::getValue));
             this.plugin = plugin;
         }
 

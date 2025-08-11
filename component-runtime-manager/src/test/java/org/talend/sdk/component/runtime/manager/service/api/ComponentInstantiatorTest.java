@@ -15,7 +15,12 @@
  */
 package org.talend.sdk.component.runtime.manager.service.api;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
@@ -50,7 +55,7 @@ class ComponentInstantiatorTest {
         final Lifecycle lifecycle = instanciator.instantiate(Collections.emptyMap(), 2);
 
         Assertions.assertNotNull(lifecycle, "lifecycle is null");
-        Assertions.assertTrue(lifecycle instanceof FakeMapper, lifecycle.getClass().getName());
+        Assertions.assertInstanceOf(FakeMapper.class, lifecycle, lifecycle.getClass().getName());
     }
 
     @Test
@@ -82,7 +87,7 @@ class ComponentInstantiatorTest {
         final Lifecycle lifecycle = instanciator.instantiate(Collections.emptyMap(), 2);
 
         Assertions.assertNotNull(lifecycle, "lifecycle is null");
-        Assertions.assertTrue(lifecycle instanceof FakeMapper, lifecycle.getClass().getName());
+        Assertions.assertInstanceOf(FakeMapper.class, lifecycle, lifecycle.getClass().getName());
 
         ComponentInstantiator.MetaFinder finder2 = new ComponentInstantiator.ComponentNameFinder("foo");
 
@@ -92,7 +97,7 @@ class ComponentInstantiatorTest {
         final Lifecycle lifecycle2 = instanciator2.instantiate(Collections.emptyMap(), 2);
 
         Assertions.assertNotNull(lifecycle2, "lifecycle is null");
-        Assertions.assertTrue(lifecycle2 instanceof FakeMapper, lifecycle2.getClass().getName());
+        Assertions.assertInstanceOf(FakeMapper.class, lifecycle2, lifecycle2.getClass().getName());
     }
 
     static class FakeMapperMeta extends ComponentFamilyMeta.PartitionMapperMeta {

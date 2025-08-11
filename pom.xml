@@ -13,12 +13,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.80.0-SNAPSHOT</version>
+  <version>1.84.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -123,7 +123,6 @@
     <module>component-studio</module>
     <module>images</module>
     <module>documentation</module>
-    <module>talend-component-kit-intellij-plugin</module>
     <module>singer-parent</module>
     <module>remote-engine-customizer</module>
     <module>reporting</module>
@@ -137,19 +136,20 @@
     <url>https://github.com/${scm.repository}</url>
   </scm>
   <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
+    <!-- looks like release and snapshot plugins are handled by sonatype plugin from the box -->
     <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
   <properties>
     <scm.repository>talend/component-runtime</scm.repository>
 
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- when using -T X, X > 1 you can set -DsimpleLogger.showThreadName=true to have something a bit more readable -->
@@ -174,12 +174,12 @@
     <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.100</tomcat.version>
+    <tomcat.version>9.0.104</tomcat.version>
     <cxf.version>3.5.10</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
 
-    <logback.version>1.2.5</logback.version>
+    <logback.version>1.5.18</logback.version>
     <reload4j.version>1.2.19</reload4j.version>
     <geronimo-jcdi.version>1.1</geronimo-jcdi.version>
     <geronimo-atinject.version>1.1</geronimo-atinject.version>
@@ -216,13 +216,12 @@
     <dom4j.version>2.1.4</dom4j.version>
 
     <!-- deprecated after -->
-    <talend-icon.version>3.8.0</talend-icon.version>
     <talend-ui.version>5.23.0</talend-ui.version>
 
     <!-- for the starter -->
-    <mvn.version>3.8.8</mvn.version>
+    <mvn.version>3.9.9</mvn.version>
     <mvn-minimal.version>3.6.0</mvn-minimal.version>
-    <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
+    <maven-shared-utils.version>3.4.2</maven-shared-utils.version>
 
     <beam.version>2.46.0</beam.version>
     <snappy.version>1.1.10.5</snappy.version>
@@ -232,31 +231,47 @@
     <spark.version>3.2.2</spark.version>
     <spark-scala.version>2.12</spark-scala.version>
 
-    <gradle.version>6.9.1</gradle.version>
+    <gradle.version>6.9.4</gradle.version>
     <groovy.version>3.0.18</groovy.version>
-    <gmavenplus.version>1.13.1</gmavenplus.version>
-    <dependency-plugin.version>3.3.0</dependency-plugin.version>
-    <assembly-plugin.version>3.3.0</assembly-plugin.version>
-    <javadoc-plugin.version>3.3.2</javadoc-plugin.version>
-    <deploy-plugin.version>3.0.0-M2</deploy-plugin.version>
-    <clean-plugin.version>3.1.0</clean-plugin.version>
-    <download-plugin.version>1.4.2</download-plugin.version>
-    <shade-plugin.version>3.3.0</shade-plugin.version>
-    <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-    <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
-    <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-    <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
-    <common-plugin.version>1.0.7</common-plugin.version>
-    <jgit.version>6.7.0.202309050840-r</jgit.version>
-    <clirr-plugin.version>2.8</clirr-plugin.version>
-    <surefire-plugin.version>3.0.0</surefire-plugin.version>
-    <jacoco.version>0.8.10</jacoco.version>
-    <gpg-plugin.version>3.0.1</gpg-plugin.version>
-    <nexus-staging-plugin.version>1.6.12</nexus-staging-plugin.version>
-    <spotless.version>2.43.0</spotless.version>
-    <jib.version>3.3.2</jib.version>
-    <jib-core.version>0.24.0</jib-core.version>
 
+    <!-- plugins versions -->
+    <apache-rat-plugin.version>0.16.1</apache-rat-plugin.version>
+    <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+
+    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+    <clirr-plugin.version>2.8</clirr-plugin.version>
+    <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
+    <download-plugin.version>1.13.0</download-plugin.version>
+    <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
+    <gmavenplus-plugin.version>1.13.1</gmavenplus-plugin.version>
+    <gpg-plugin.version>3.2.7</gpg-plugin.version>
+    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+    <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
+    <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
+    <jib-core.version>0.24.0</jib-core.version>
+    <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
+    <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+    <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+    <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
+    <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
+    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+    <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
+    <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+    <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+    <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
+    <maven-invoker-plugin.version>3.9.0</maven-invoker-plugin.version>
+    <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+    <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+    <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
+    <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+    <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+    <ossindex-maven-plugin.version>3.2.0</ossindex-maven-plugin.version>
+
+
+    <jgit.version>6.7.0.202309050840-r</jgit.version>
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v20.12.0</node.version>
     <npm.version>10.5.0</npm.version>
@@ -288,6 +303,8 @@
     <log4j2.version>2.20.0</log4j2.version>
     <rhino.version>1.7.14</rhino.version>
     <tomitribe-crest.version>0.32</tomitribe-crest.version>
+    <httpclient.version>4.5.14</httpclient.version>
+    <guava.version>33.4.8-jre</guava.version>
   </properties>
 
   <dependencyManagement>
@@ -887,6 +904,17 @@
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${mockito4.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -913,11 +941,15 @@
 
   <repositories>
     <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>oss.snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </repository>
     <repository>
       <releases>
@@ -960,6 +992,17 @@
   <pluginRepositories>
     <pluginRepository>
       <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>central.portal</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <releases>
         <enabled>true</enabled>
       </releases>
       <id>oss.releases</id>
@@ -975,6 +1018,16 @@
       <id>TalendOpenSourceRelease</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceRelease/</url>
     </pluginRepository>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>Cloudera.pub</id>
+      <url>https://repository.cloudera.com/content/repositories/public</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <build>
@@ -983,7 +1036,7 @@
         <plugin>
           <groupId>org.codehaus.gmavenplus</groupId>
           <artifactId>gmavenplus-plugin</artifactId>
-          <version>${gmavenplus.version}</version>
+          <version>${gmavenplus-plugin.version}</version>
           <dependencies>
             <dependency>
               <groupId>org.codehaus.groovy</groupId>
@@ -1028,7 +1081,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${javadoc-plugin.version}</version>
+          <version>${maven-javadoc-plugin.version}</version>
           <configuration>
             <source>8</source>
             <jarOutputDirectory>${project.build.directory}/javadoc/binary</jarOutputDirectory>
@@ -1038,8 +1091,10 @@
             <windowtitle>${project.name}</windowtitle>
             <header>${project.name} - ${project.version}</header>
             <doctitle>${project.name} - ${project.version}</doctitle>
-            <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a
+              href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
             <use>true</use>
+            <legacyMode>true</legacyMode>
           </configuration>
         </plugin>
         <plugin>
@@ -1206,7 +1261,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>${maven-antrun-plugin.version}</version>
           <dependencies>
             <dependency>
               <groupId>org.apache.ant</groupId>
@@ -1220,9 +1275,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
-            <forceJavacCompilerUse>true</forceJavacCompilerUse>
+            <forceLegacyJavacApi>true</forceLegacyJavacApi>
             <compilerId>javac</compilerId>
             <fork>true</fork>
             <compilerArgs>
@@ -1238,62 +1291,62 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>${clean-plugin.version}</version>
+          <version>${maven-clean-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.2.1</version>
+          <version>${maven-source-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>${maven-jar-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.0.0-M1</version>
+          <version>${maven-install-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0-M2</version>
+          <version>${maven-deploy-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>3.11.0</version>
+          <version>${maven-site-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.0.0-M5</version>
+          <version>${maven-release-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>${surefire-plugin.version}</version>
+          <version>${maven-surefire-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>${dependency-plugin.version}</version>
+          <version>${maven-dependency-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>${assembly-plugin.version}</version>
+          <version>${maven-assembly-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-invoker-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>${maven-invoker-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>${shade-plugin.version}</version>
+          <version>${maven-shade-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven</groupId>
@@ -1303,30 +1356,71 @@
         <plugin>
           <groupId>com.google.cloud.tools</groupId>
           <artifactId>jib-maven-plugin</artifactId>
-          <version>${jib.version}</version>
+          <version>${jib-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <!--  mvn ossindex:audit -->
+          <groupId>org.sonatype.ossindex.maven</groupId>
+          <artifactId>ossindex-maven-plugin</artifactId>
+          <version>${ossindex-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${spotless-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+          <version>${apache-rat-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>${maven-checkstyle-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>templating-maven-plugin</artifactId>
+          <version>1.0.0</version>
+        </plugin>
+        <plugin>
+          <groupId>io.github.git-commit-id</groupId>
+          <artifactId>git-commit-id-maven-plugin</artifactId>
+          <version>${git-commit-id-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${maven-enforcer-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${gpg-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>${central-publishing-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>tidy-maven-plugin</artifactId>
-        <version>1.1.0</version>
-        <executions>
-          <execution>
-            <id>tidy-pom</id>
-            <goals>
-              <goal>pom</goal>
-            </goals>
-            <phase>initialize</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <!--  mvn ossindex:audit -->
         <groupId>org.sonatype.ossindex.maven</groupId>
         <artifactId>ossindex-maven-plugin</artifactId>
-        <version>3.1.0</version>
         <configuration>
           <scope>compile,runtime</scope>
         </configuration>
@@ -1341,28 +1435,8 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.github.rmannibucau</groupId>
-        <artifactId>common-maven-plugin</artifactId>
-        <version>${common-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>set-rootlocation</id>
-            <goals>
-              <goal>rootlocation</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>frontend-filter</id>
-            <goals>
-              <goal>frontend-filter</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>${spotless.version}</version>
         <configuration>
           <java>
             <licenseHeader>
@@ -1390,11 +1464,6 @@
             </importOrder>
             <removeUnusedImports/>
           </java>
-          <pom>
-            <sortPom>
-              <expandEmptyElements>false</expandEmptyElements>
-            </sortPom>
-          </pom>
         </configuration>
         <executions>
           <execution>
@@ -1409,7 +1478,6 @@
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.14</version>
         <configuration>
           <consoleOutput>true</consoleOutput>
           <reportFile>${project.build.directory}/${project.build.finalName}.rat</reportFile>
@@ -1438,6 +1506,7 @@
             <exclude>**/*.html</exclude>
             <exclude>**/*.adoc</exclude>
             <exclude>**/*.md</exclude>
+            <exclude>**/*.csv</exclude>
             <exclude>**/node_modules/**/*</exclude>
             <exclude>**/bower_components/**/*</exclude>
             <exclude>**/.node/**/*</exclude>
@@ -1464,6 +1533,7 @@
             <exclude>**/component-tools/src/test/resources/DitaDocumentationGeneratorTest/*.dita</exclude>
             <exclude>**/src/main/resources/WebsiteBuilderMojo/*.mustache</exclude>
             <exclude>**/src/test/resources/DitaDocumentationGeneratorTest/**</exclude>
+            <exclude>**/talend-component-kit-intellij-plugin/gradle/wrapper/gradle-wrapper.properties</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -1491,7 +1561,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${surefire-plugin.version}</version>
         <configuration>
           <forkCount>1</forkCount>
           <trimStackTrace>false</trimStackTrace>
@@ -1514,7 +1583,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.2.1</version>
         <configuration>
           <logViolationsToConsole>true</logViolationsToConsole>
           <excludes>**/HelpMojo*,**/maven/legacy/model/**</excludes>
@@ -1611,7 +1679,6 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${jacoco.version}</version>
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -1681,7 +1748,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
         <configuration>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <localCheckout>true</localCheckout>
@@ -1693,7 +1759,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>templating-maven-plugin</artifactId>
-        <version>1.0.0</version>
         <executions>
           <execution>
             <id>filter-src</id>
@@ -1708,9 +1773,8 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
-        <version>${git-commit-id-plugin.version}</version>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
         <configuration>
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
         </configuration>
@@ -1727,7 +1791,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.1.2</version>
         <configuration>
           <archive combine.children="append">
             <manifestEntries>
@@ -1742,12 +1805,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.7.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0</version>
         <executions>
           <execution>
             <id>enforce-maven-3</id>
@@ -1846,7 +1907,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>${gpg-plugin.version}</version>
           </plugin>
         </plugins>
       </build>
@@ -1856,20 +1916,29 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${nexus-staging-plugin.version}</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <publishingServerId>central.portal</publishingServerId>
+              <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
+              <failOnBuildFailure>true</failOnBuildFailure>
+              <!--                                                              -->
+              <!-- If "skipPublishing" worked per-artifact, we could use it.    -->
+              <!-- <skipPublishing>${artifact.deploy.disabled}</skipPublishing> -->
+              <!--                                                              -->
+              <!-- The entire "excludeArtifacts" configuration below could be   -->
+              <!-- removed if the behavior of "skipPublishing" changes in a     -->
+              <!-- future version of the plugin.                                -->
+              <excludeArtifacts>
+                <artifact>component-studio</artifact>
+                <artifact>component-runtime-di</artifact>
+              </excludeArtifacts>
             </configuration>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.0.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -1882,7 +1951,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${javadoc-plugin.version}</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -1895,7 +1963,60 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>${gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>snapshot</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central.portal</publishingServerId>
+              <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
+              <failOnBuildFailure>true</failOnBuildFailure>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -1914,11 +2035,11 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${nexus-staging-plugin.version}</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
             <configuration>
-              <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+              <skipPublishing>true</skipPublishing>
             </configuration>
           </plugin>
         </plugins>

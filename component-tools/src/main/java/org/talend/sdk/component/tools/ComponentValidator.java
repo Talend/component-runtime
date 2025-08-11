@@ -36,6 +36,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -164,33 +165,44 @@ public class ComponentValidator extends BaseTask {
 
         if (annotation.value() == Icon.IconType.CUSTOM) {
             final String icon = annotation.custom();
-            Set<File> svgs;
-            // legacy checks
-            if (configuration.isValidateLegacyIcons()) {
-                svgs = of(classes)
-                        .map(it -> new File(it, ICONS + icon + ".svg"))
-                        .collect(toSet());
-            } else {
-                // themed icons check
-                List<String> prefixes = new ArrayList<>();
-                of(classes).forEach(s -> {
-                    prefixes.add(s + File.separator + ICONS + "light" + File.separator + icon);
-                    prefixes.add(s + File.separator + ICONS + "dark" + File.separator + icon);
-                });
-                svgs = prefixes.stream().map(s -> new File(s + ".svg")).collect(toSet());
+            final String[] expectedIcons = configuration.isValidateLegacyIcons()
+                    // legacy checks
+                    ? new String[] { ICONS + icon + ".svg" }
+                    // themed icons checks
+                    : new String[] {
+                            ICONS + "light" + File.separator + icon + ".svg",
+                            ICONS + "dark" + File.separator + icon + ".svg"
+                    };
+
+            final List<File> missingSvgs = new ArrayList<>();
+
+            final Map<String, List<File>> iconsToFiles = new HashMap<>();
+            for (final String iconName : expectedIcons) {
+                final List<File> files = new ArrayList<>();
+                for (final File cl : classes) {
+                    files.add(new File(cl, iconName));
+                }
+                iconsToFiles.put(iconName, files);
             }
 
-            if (configuration.isValidateSvg()) {
-                errors.addAll(svgs.stream().filter(File::exists).flatMap(this::validateSvg).collect(toSet()));
+            for (final List<File> potentialPaths : iconsToFiles.values()) {
+                final Map<Boolean, List<File>> partitionedByExistence =
+                        potentialPaths.stream().collect(Collectors.partitioningBy(File::exists));
+                final List<File> existedPaths = partitionedByExistence.get(true);
+
+                if (configuration.isValidateSvg()) {
+                    errors.addAll(existedPaths.stream().flatMap(this::validateSvg).collect(toSet()));
+                }
+
+                if (existedPaths.isEmpty()) {
+                    missingSvgs.addAll(partitionedByExistence.get(false));
+                }
             }
 
-            List<File> missingSvgs = svgs.stream().filter(f -> !f.exists()).collect(toList());
             if (!missingSvgs.isEmpty()) {
-                errors.addAll(missingSvgs.stream()
-                        .map(p -> String.format(
-                                "No '%s' found.",
-                                stripPath(p)))
-                        .collect(toList()));
+                missingSvgs.stream()
+                        .map(p -> String.format("No '%s' found.", stripPath(p)))
+                        .forEach(errors::add);
                 return "Missing icon(s) in resources:";
             }
         }
@@ -301,6 +313,8 @@ public class ComponentValidator extends BaseTask {
         private boolean validateSchema;
 
         private boolean validateFixedSchema;
+
+        private boolean validateCheckpoint;
 
     }
 }

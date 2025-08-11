@@ -17,7 +17,7 @@ package org.talend.sdk.component.runtime.beam.spi.record;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
-import static org.talend.sdk.component.api.record.Schema.sanitizeConnectionName;
+import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 import static org.talend.sdk.component.runtime.record.SchemaImpl.ENTRIES_ORDER_PROP;
 import static org.talend.sdk.component.runtime.record.Schemas.EMPTY_RECORD;
 
@@ -36,6 +36,7 @@ import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Builder;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaCompanionUtil;
 import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.runtime.beam.avro.AvroSchemas;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
@@ -181,7 +182,7 @@ public class AvroSchemaBuilder implements Schema.Builder {
             fields = new OrderedMap<>(Schema.Entry::getName, Collections.singletonList(entry));
         }
 
-        final Schema.Entry realEntry = Schema.avoidCollision(entry, fields::getValue, fields::replace);
+        final Schema.Entry realEntry = SchemaCompanionUtil.avoidCollision(entry, fields::getValue, fields::replace);
         fields.addValue(realEntry);
         return this;
     }
@@ -442,13 +443,13 @@ public class AvroSchemaBuilder implements Schema.Builder {
         public static Field toField(final org.apache.avro.Schema schema, final Schema.Entry entry) {
             Field field = null;
             try {
-                field = new Field(sanitizeConnectionName(entry.getName()),
+                field = new Field(sanitizeName(entry.getName()),
                         entry.isNullable() && schema.getType() != Type.UNION
                                 ? org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA))
                                 : schema,
                         entry.getComment(), (Object) entry.getDefaultValue());
             } catch (AvroTypeException e) {
-                field = new Field(sanitizeConnectionName(entry.getName()),
+                field = new Field(sanitizeName(entry.getName()),
                         entry.isNullable() && schema.getType() != Type.UNION
                                 ? org.apache.avro.Schema.createUnion(asList(schema, NULL_SCHEMA))
                                 : schema,
@@ -463,7 +464,9 @@ public class AvroSchemaBuilder implements Schema.Builder {
             for (Map.Entry<String, String> e : entry.getProps().entrySet()) {
                 field.addProp(e.getKey(), e.getValue());
             }
-
+            if (entry.isErrorCapable()) {
+                field.addProp(KeysForAvroProperty.IS_ERROR_CAPABLE, String.valueOf(entry.isErrorCapable()));
+            }
             return field;
         }
     }

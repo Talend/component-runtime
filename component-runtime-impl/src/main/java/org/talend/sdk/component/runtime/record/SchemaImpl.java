@@ -34,6 +34,7 @@ import javax.json.bind.annotation.JsonbTransient;
 
 import org.talend.sdk.component.api.record.OrderedMap;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.api.record.SchemaCompanionUtil;
 import org.talend.sdk.component.api.record.SchemaProperty;
 
 import lombok.EqualsAndHashCode;
@@ -200,20 +201,20 @@ public class SchemaImpl implements Schema {
             if (type != Type.RECORD) {
                 throw new IllegalArgumentException("entry is only valid for RECORD type of schema");
             }
-            final Entry entryToAdd = Schema.avoidCollision(entry,
+            final Entry entryToAdd = SchemaCompanionUtil.avoidCollision(entry,
                     this::getEntry,
                     this::replaceEntry);
             if (entryToAdd == null) {
                 // mean try to add entry with same name.
                 throw new IllegalArgumentException("Entry with name " + entry.getName() + " already exist in schema");
             }
-            if (entry.isMetadata()) {
+            if (entryToAdd.isMetadata()) {
                 this.metadataEntries.addValue(entryToAdd);
             } else {
                 this.entries.addValue(entryToAdd);
             }
 
-            entriesOrder.add(entry.getName());
+            entriesOrder.add(entryToAdd.getName());
             return this;
         }
 
@@ -230,7 +231,7 @@ public class SchemaImpl implements Schema {
         }
 
         private void replaceEntry(final String name, final Schema.Entry entry) {
-            if (this.entries.getValue(entry.getName()) != null) {
+            if (this.entries.getValue(name) != null) {
                 this.entries.replace(name, entry);
             } else if (this.metadataEntries.getValue(name) != null) {
                 this.metadataEntries.replace(name, entry);
@@ -352,6 +353,7 @@ public class SchemaImpl implements Schema {
                 this.type = builder.type;
             }
             this.nullable = builder.nullable;
+            this.errorCapable = builder.errorCapable;
             this.metadata = builder.metadata;
             this.defaultValue = builder.defaultValue;
             this.elementSchema = builder.elementSchema;
@@ -378,6 +380,11 @@ public class SchemaImpl implements Schema {
          * Is this entry nullable or always valued.
          */
         private final boolean nullable;
+
+        /**
+         * Is this entry can be in error.
+         */
+        private final boolean errorCapable;
 
         /**
          * Is this entry a metadata entry.
@@ -441,6 +448,11 @@ public class SchemaImpl implements Schema {
         }
 
         @Override
+        public boolean isErrorCapable() {
+            return this.errorCapable;
+        }
+
+        @Override
         public boolean isMetadata() {
             return this.metadata;
         }
@@ -465,6 +477,15 @@ public class SchemaImpl implements Schema {
             return this.props;
         }
 
+        @Override
+        public boolean isValid() {
+            String property = this.getProp(SchemaProperty.ENTRY_IS_ON_ERROR);
+            if (property == null) {
+                return true;
+            }
+            return !Boolean.parseBoolean(property);
+        }
+
         /**
          * Plain builder matching {@link Entry} structure.
          */
@@ -477,6 +498,8 @@ public class SchemaImpl implements Schema {
             private Schema.Type type;
 
             private boolean nullable;
+
+            private boolean errorCapable;
 
             private boolean metadata = false;
 
@@ -497,6 +520,7 @@ public class SchemaImpl implements Schema {
                 this.name = entry.getName();
                 this.rawName = entry.getRawName();
                 this.nullable = entry.isNullable();
+                this.errorCapable = entry.isErrorCapable();
                 this.type = entry.getType();
                 this.comment = entry.getComment();
                 this.elementSchema = entry.getElementSchema();
@@ -506,7 +530,7 @@ public class SchemaImpl implements Schema {
             }
 
             public Builder withName(final String name) {
-                this.name = Schema.sanitizeConnectionName(name);
+                this.name = SchemaCompanionUtil.sanitizeName(name);
                 // if raw name is changed as follow name rule, use label to store raw name
                 // if not changed, not set label to save space
                 if (!name.equals(this.name)) {
@@ -537,6 +561,12 @@ public class SchemaImpl implements Schema {
             @Override
             public Builder withNullable(final boolean nullable) {
                 this.nullable = nullable;
+                return this;
+            }
+
+            @Override
+            public Builder withErrorCapable(final boolean errorCapable) {
+                this.errorCapable = errorCapable;
                 return this;
             }
 
