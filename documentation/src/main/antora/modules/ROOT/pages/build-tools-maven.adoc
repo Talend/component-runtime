@@ -233,7 +233,7 @@ a|`${classes}/TALEND-INF/documentation.adoc`
 
 ==== Rendering your documentation
 
-To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin (or Gradle equivalent). You can configure both executions if you want both HTML and PDF renderings.
+To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin. You can configure both executions if you want both HTML and PDF renderings.
 
 Make sure to execute the rendering after the documentation generation.
 
@@ -503,6 +503,5 @@ ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
 == Related articles
 - xref:best-practices.adoc[Best practices]
-- xref:build-tools-gradle.adoc[Building components with Gradle]
 - xref:studio.adoc[Integrating to the Studio]
 endif::[]

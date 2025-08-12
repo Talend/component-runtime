@@ -15,13 +15,13 @@ _Talend Component Kit_ is a Java framework designed to simplify the development 
 * The **Runtime**, that injects the specific component code into a job or pipeline. The framework helps unifying as much as possible the code required to run in Data Integration (DI) and BEAM environments.
 * The **Graphical interface**. The framework helps unifying the code required to render the component in a browser or in the Eclipse-based Talend Studio (SWT).
 
-Most part of the development happens as a Maven or Gradle project and requires a dedicated tool such as IntelliJ.
+Most part of the development happens as a Maven project and requires a dedicated tool such as IntelliJ.
 
 The Component Kit is made of:
 
 * A Starter, that is a graphical interface allowing you to define the skeleton of your development project.
 * APIs to implement components UI and runtime.
-* Development tools: Maven and Gradle wrappers, validation rules, packaging, Web preview, etc.
+* Development tools: Maven wrappers, validation rules, packaging, Web preview, etc.
 * A testing kit based on JUnit 4 and 5.
 
 By using this tooling in a development environment, you can start creating components as described below.

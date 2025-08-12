@@ -1,6 +1,5 @@
 {
     "buildTypes": [
-        "Gradle",
         "Maven"
     ],
     "facets": {

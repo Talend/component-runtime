@@ -31,8 +31,6 @@ include::component-checkpoint.adoc[leveloffset=+1]
 
 include::build-tools-maven.adoc[leveloffset=+1]
 
-include::build-tools-gradle.adoc[leveloffset=+1]
-
 include::wrapping-a-beam-io.adoc[leveloffset=+1]
 
 include::best-practices.adoc[leveloffset=+1]
