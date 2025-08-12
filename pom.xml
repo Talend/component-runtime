@@ -115,7 +115,6 @@
     <module>component-server-parent</module>
     <module>component-form</module>
     <module>talend-component-maven-plugin</module>
-    <module>gradle-talend-component</module>
     <module>component-starter-server</module>
     <module>component-tools</module>
     <module>slf4j-standard</module>
@@ -231,7 +230,6 @@
     <spark.version>3.2.2</spark.version>
     <spark-scala.version>2.12</spark-scala.version>
 
-    <gradle.version>6.9.4</gradle.version>
     <groovy.version>3.0.18</groovy.version>
 
     <!-- plugins versions -->
@@ -977,16 +975,6 @@
       </snapshots>
       <id>TalendOpenSourceSnapshot</id>
       <url>https://artifacts-oss.talend.com/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>gradle-libs-releases-local</id>
-      <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
     </repository>
   </repositories>
   <pluginRepositories>

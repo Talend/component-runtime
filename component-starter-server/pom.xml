@@ -25,7 +25,7 @@
   <artifactId>component-starter-server</artifactId>
 
   <name>Component Runtime :: Starter Server</name>
-  <description>Web application allowing to generate maven or gradle project skeleton to speed up component development.</description>
+  <description>Web application allowing to generate maven project skeleton to speed up component development.</description>
 
   <properties>
     <node.version>v20.12.0</node.version>
@@ -404,63 +404,6 @@
               </resources>
               <overwrite>true</overwrite>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.googlecode.maven-download-plugin</groupId>
-        <artifactId>download-maven-plugin</artifactId>
-        <version>${download-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>download-gradle</id>
-            <goals>
-              <goal>wget</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <url>https://services.gradle.org/distributions/gradle-${gradle.version}-bin.zip</url>
-              <outputFileName>gradle-${gradle.version}.zip</outputFileName>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-              <unpack>true</unpack>
-              <cacheDirectory>${project.basedir}/.cache</cacheDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <configuration>
-          <allowSystemExits>true</allowSystemExits>
-          <scripts>
-            <script>${project.basedir}/src/build/GrabGradleWrapper.groovy</script>
-            <script>${project.basedir}/src/build/GrabMavenWrapper.groovy</script>
-          </scripts>
-          <properties>
-            <gradleHome>${project.build.directory}/gradle-${gradle.version}</gradleHome>
-          </properties>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit</artifactId>
-            <version>${jgit.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-jdk14</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <id>grab-gradle-wrapper</id>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <phase>process-resources</phase>
           </execution>
         </executions>
       </plugin>
