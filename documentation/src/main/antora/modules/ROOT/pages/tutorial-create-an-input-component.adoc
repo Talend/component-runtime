@@ -9,7 +9,7 @@ This tutorial walks you through the creation, from scratch, of a complete Talend
 Hazelcast is an in-memory distributed system that can store data, which makes it a good example of input component for distributed systems. This is enough for you to get started with this tutorial, but you can find more information about it here: https://hazelcast.org/. 
 
 == Creating the project
-A *TCK* project is a simple Java project with specific configurations and dependencies. You can choose your preferred build tool from *Maven* or *Gradle* as TCK supports both. *In this tutorial, Maven is used.*
+A *TCK* project is a simple Java project with specific configurations and dependencies. You can choose your preferred build tool from *Maven* as TCK supports both. *In this tutorial, Maven is used.*
 
 The first step consists in generating the project structure using *Talend Starter Toolkit* .
 

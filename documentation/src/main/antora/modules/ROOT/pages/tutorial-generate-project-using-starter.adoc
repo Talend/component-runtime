@@ -18,7 +18,7 @@ Before being able to create components, you need to define the general settings 
 
 . Create a folder on your local machine to store the resource files of the component you want to create. For example, `C:/my_components`.
 . Open the https://starter-toolkit.talend.io[Starter] in the web browser of your choice.
-. Select your build tool. This tutorial uses Maven, but you can select Gradle instead.
+. Select your build tool. This tutorial uses Maven.
 . Add any facet you need. For example, add the *Talend Component Kit Testing* facet to your project to automatically generate unit tests for the components created in the project. +
 +
 image::starter/starter_test_facet.png[Test facet,window="_blank",link=self,80%]
@@ -158,7 +158,6 @@ Once the package is available on your machine, you can compile it using the buil
 * In the tutorial, *Maven* is the build tool selected for the project. +
 In the project directory, execute the `mvn package` command. +
 If you don't have Maven installed on your machine, you can use the Maven wrapper provided in the generated project, by executing the `./mvnw package` command.
-* If you have created a Gradle project, you can compile it using the `gradle build` command or using the Gradle wrapper: `./gradlew build`.
 
 The generated project code contains documentation that can guide and help you implementing the component logic.
 Import the project to your favorite IDE to start the implementation.

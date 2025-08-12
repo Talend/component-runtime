@@ -151,11 +151,6 @@
     </dependency>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>gradle-talend-component</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-starter-server</artifactId>
       <version>${project.version}</version>
     </dependency>
