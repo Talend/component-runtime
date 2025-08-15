@@ -25,7 +25,7 @@
   <artifactId>component-tools</artifactId>
 
   <name>Component Runtime :: Tools</name>
-  <description>A shared module by Maven and Gradle integration for common tasks.</description>
+  <description>A shared module by Maven integration for common tasks.</description>
 
   <properties>
     <talend.build.name>${talend.build.name.base}.tools</talend.build.name>

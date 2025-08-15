@@ -55,15 +55,6 @@ export default class BuildTypeSelector extends React.Component {
                                 Maven is the most commonly used build tool and Talend Component Kit
                                 integrates with it smoothly.
                             </p>
-                            <p>
-                                Gradle is less used but get more and more attraction because it is
-                                communicated as being faster than Maven.
-                            </p>
-                            <p>
-                                <Icon name="talend-warning" /> Talend Component Kit does not provide as much
-                                features with Gradle than with Maven. The components validation is not yet
-                                supported for instance.
-                            </p>
                         </div>
                     }
                 />

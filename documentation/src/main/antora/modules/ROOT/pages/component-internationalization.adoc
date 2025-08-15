@@ -22,7 +22,7 @@ Out of the box components are internationalized using the same location logic fo
 |`${family}.actions.${actionType}.${actionName}._displayName`| Display name of an action of the family. Specifying it is optional and will default on the action name if not set.
 |`${family}.${component_name}._displayName`| Display name of the component (used by the GUIs)
 |`${property_path}._displayName`| Display name of the option.
-|`${property_path}._documentation`| Equivalent to `@Documentation("...")` but supporting internationalization (see Maven/Gradle documentation goal/task).
+|`${property_path}._documentation`| Equivalent to `@Documentation("...")` but supporting internationalization (see Maven documentation goal/task).
 |`${property_path}._placeholder`| Placeholder of the option.
 |`${simple_class_name}.${property_name}._displayName`| Display name of the option using its class name.
 |`${simple_class_name}.${property_name}._documentation`| See `${property_path}._documentation`.

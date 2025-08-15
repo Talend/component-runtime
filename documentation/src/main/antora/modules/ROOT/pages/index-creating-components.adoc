@@ -33,7 +33,6 @@ You can also make certain configurations reusable across your project by xref:in
 Using your Java IDE along with a build tool supported by the framework, you can then compile your components to xref:index-testing-components.adoc[test] and xref:index-deploying-components.adoc[deploy] them to Talend Studio or other Talend applications:
 
 * xref:build-tools-maven.adoc[Building components with Maven]
-* xref:build-tools-gradle.adoc[Building components with Gradle]
 * xref:wrapping-a-beam-io.adoc[Wrapping a Beam I/O]
 
 In any case, follow these xref:best-practices.adoc[best practices] to ensure the components you develop are optimized.
