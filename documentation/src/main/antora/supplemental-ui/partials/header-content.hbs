@@ -46,7 +46,7 @@
                 <li class="navbar-item version
                   {{~#if (and (eq site.components @root.page.component) (eq this @root.page.componentVersion))}} is-current{{/if~}}
                   {{~#if (eq this site.components.latest)}} is-latest{{/if}}">
-                    <a href="{{{relativize (currentPage this.url @root.page.url) @root.page.url}}}">{{this.version}}{{~#if (eq this site.components.latest)}} (dev){{/if}}</a>
+                    <a href="{{{relativize (or (existPath (swapLastSegment this.url @root.page.url) @root.page.component) this.url) @root.page.url}}}">{{this.version}}{{~#if (eq this site.components.latest)}} (dev){{/if}}</a>
                 </li>
               {{/each}}
           </ul>

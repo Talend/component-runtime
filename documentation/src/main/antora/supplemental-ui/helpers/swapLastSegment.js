@@ -24,23 +24,21 @@ function getLastPathSegment(path) {
     return segments[segments.length - 1];
 }
 
-function replaceIndexHtml(path, replacement) {
+function replaceLastPathSegment(path, newSegment) {
     if (!path || typeof path !== 'string') {
         return path;
     }
-    return path.replace('index.html', replacement);
-}
 
-function currentPageInDifferentVersion(targetIndexPage, currentPage) {
-    if (!targetIndexPage || !currentPage || typeof targetIndexPage !== 'string' || typeof currentPage !== 'string') {
-        return targetIndexPage;
+    const segments = path.split('/');
+    if (segments.length === 0) {
+        return path;
     }
 
-    const currentLastSegment = getLastPathSegment(currentPage);
-    return replaceIndexHtml(targetIndexPage, currentLastSegment);
+    segments[segments.length - 1] = newSegment;
+    return segments.join('/');
 }
 
 
-module.exports = (targetIndexPage, currentPage) => {
-  return currentPageInDifferentVersion(targetIndexPage, currentPage);
+module.exports = (targetPath, currentPath) => {
+  return replaceLastPathSegment(targetPath, getLastPathSegment(currentPath));
 };
