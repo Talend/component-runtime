@@ -49,7 +49,7 @@ function replaceLastPathSegment(path, newSegment) {
         return path;
     }
 
-    const base = segments.slice(0, VERSIONED_SEGMENTS).join('/')
+    const base = segments.slice(0, VERSIONED_SEGMENTS).join('/');
     return '/' + base + '/' + newSegment;
 }
 
