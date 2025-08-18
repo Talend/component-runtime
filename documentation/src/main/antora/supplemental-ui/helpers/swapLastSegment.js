@@ -16,12 +16,17 @@
 
 'use strict';
 
-function getLastPathSegment(path) {
+function retrieveLastSegments(path) {
     if (!path || typeof path !== 'string') {
         return '';
     }
-    const segments = path.split('/');
-    return segments[segments.length - 1];
+    const segments = path.split('/').filter(segment => segment !== '');
+    if (segments.length < 3) {
+        console.warn(`Path "${path}" does not have enough segments to extract a page path.`);
+        return '';
+    }
+
+    return segments.slice(2).join('/');
 }
 
 function replaceLastPathSegment(path, newSegment) {
@@ -29,16 +34,17 @@ function replaceLastPathSegment(path, newSegment) {
         return path;
     }
 
-    const segments = path.split('/');
-    if (segments.length === 0) {
+    const segments = path.split('/').filter(segment => segment !== '');
+    if (segments.length < 3) {
+        console.warn(`Path "${path}" does not have enough segments to extract base path.`);
         return path;
     }
 
-    segments[segments.length - 1] = newSegment;
-    return segments.join('/');
+    const base = segments.slice(0, 2).join('/')
+    return '/' + base + '/' + newSegment;
 }
 
 
 module.exports = (targetPath, currentPath) => {
-  return replaceLastPathSegment(targetPath, getLastPathSegment(currentPath));
+  return replaceLastPathSegment(targetPath, retrieveLastSegments(currentPath));
 };

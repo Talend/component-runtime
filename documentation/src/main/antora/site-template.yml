@@ -95,3 +95,6 @@ asciidoc:
     hide-uri-scheme: true
     icons: font
     icon-set: octicon
+antora:
+  extensions:
+    - ./supplemental-ui/extensions/site-map.js
