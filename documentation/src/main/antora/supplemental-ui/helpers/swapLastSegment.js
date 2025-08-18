@@ -16,9 +16,13 @@
 
 'use strict';
 
-// 1 - is component
-// 2 - is version
-// 3+ - is page path
+
+/*
+ * /component name/version/pagePart1/pagePart2
+ * 1 - is component
+ * 2 - is version
+ * 3+ - is page path
+*/
 const VERSIONED_SEGMENTS = 2
 
 function retrieveLastSegments(path) {
