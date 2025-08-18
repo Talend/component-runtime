@@ -16,17 +16,22 @@
 
 'use strict';
 
+// 1 - is component
+// 2 - is version
+// 3+ - is page path
+const VERSIONED_SEGMENTS = 2
+
 function retrieveLastSegments(path) {
     if (!path || typeof path !== 'string') {
         return '';
     }
     const segments = path.split('/').filter(segment => segment !== '');
-    if (segments.length < 3) {
+    if (segments.length <= VERSIONED_SEGMENTS) {
         console.warn(`Path "${path}" does not have enough segments to extract a page path.`);
         return '';
     }
 
-    return segments.slice(2).join('/');
+    return segments.slice(VERSIONED_SEGMENTS).join('/');
 }
 
 function replaceLastPathSegment(path, newSegment) {
@@ -35,12 +40,12 @@ function replaceLastPathSegment(path, newSegment) {
     }
 
     const segments = path.split('/').filter(segment => segment !== '');
-    if (segments.length < 3) {
+    if (segments.length <= VERSIONED_SEGMENTS) {
         console.warn(`Path "${path}" does not have enough segments to extract base path.`);
         return path;
     }
 
-    const base = segments.slice(0, 2).join('/')
+    const base = segments.slice(0, VERSIONED_SEGMENTS).join('/')
     return '/' + base + '/' + newSegment;
 }
 
