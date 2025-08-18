@@ -42,4 +42,4 @@ asciidoc:
     icon-set: octicon
 antora:
   extensions:
-    - ./supplemental-ui/extensions/site-map.js
+    - ./supplemental-ui/extensions/siteMap.js
