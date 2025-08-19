@@ -180,7 +180,7 @@ content:
       - '!component-runtime-1.64.5'
       - '!component-runtime-1.64.6'
       - '!component-runtime-1.64.7'
-      - '!component-runtime-1.64.8'
+#      - '!component-runtime-1.64.8'
       - '!component-runtime-1.65.0'
       - '!component-runtime-1.*.0M*'
       - '!component-runtime-1.66.0'
