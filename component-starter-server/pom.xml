@@ -173,8 +173,8 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
         <configuration>
           <generateGitPropertiesFile>true</generateGitPropertiesFile>
           <generateGitPropertiesFilename>${project.build.outputDirectory}/TALEND-INF/git.properties</generateGitPropertiesFilename>
@@ -349,6 +349,24 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-package.json</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <target>
+                <copy file="${project.basedir}/src/main/frontend/package-template.json" overwrite="true" tofile="${project.basedir}/src/main/frontend/package.json"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
@@ -365,6 +383,26 @@
                   <filtering>false</filtering>
                 </resource>
               </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>filter-frontend</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <outputDirectory>${project.basedir}/src/main/frontend</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/src/main/frontend</directory>
+                  <includes>
+                    <include>package.json</include>
+                  </includes>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+              <overwrite>true</overwrite>
             </configuration>
           </execution>
         </executions>
@@ -401,7 +439,6 @@
           </scripts>
           <properties>
             <gradleHome>${project.build.directory}/gradle-${gradle.version}</gradleHome>
-            <mvnVersion>${mvn.version}</mvnVersion>
           </properties>
         </configuration>
         <dependencies>

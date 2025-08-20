@@ -65,21 +65,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.github.rmannibucau</groupId>
-        <artifactId>common-maven-plugin</artifactId>
-        <version>@{common-plugin.version@</version>
-        <executions>
-          <execution>
-            <id>set-rootlocation</id>
-            <phase>none</phase>
-          </execution>
-          <execution>
-            <id>frontend-filter</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>talend-component-maven-plugin</artifactId>
         <version>@project.version@</version>
