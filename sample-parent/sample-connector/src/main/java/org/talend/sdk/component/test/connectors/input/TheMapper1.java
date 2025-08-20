@@ -20,8 +20,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.talend.sdk.component.api.component.Icon;
+import org.talend.sdk.component.api.component.ReturnVariables.ReturnVariable;
+import org.talend.sdk.component.api.component.ReturnVariables.ReturnVariable.AVAILABILITY;
 import org.talend.sdk.component.api.component.Version;
 import org.talend.sdk.component.api.configuration.Option;
+import org.talend.sdk.component.api.context.RuntimeContext;
+import org.talend.sdk.component.api.context.RuntimeContextHolder;
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.PartitionMapper;
@@ -36,6 +40,7 @@ import org.talend.sdk.component.test.connectors.service.GenerateExceptionService
         migrationHandler = AbstractMigrationHandler.InputMigrationHandler.class)
 @Icon(value = Icon.IconType.CUSTOM, custom = "mapper")
 @PartitionMapper(name = "TheMapper1", infinite = false)
+@ReturnVariable(value = "MAPPER_FLOW1", availability = AVAILABILITY.FLOW, description = "Mapper flow variable")
 @Documentation("Doc: default TheMapper1 documentation without Internationalization.")
 public class TheMapper1 implements Serializable {
 
@@ -49,6 +54,9 @@ public class TheMapper1 implements Serializable {
     private InputConfig config;
 
     private final GenerateExceptionServices exceptionServices;
+
+    @RuntimeContext
+    private transient RuntimeContextHolder context;
 
     public TheMapper1(final @Option("configin") InputConfig config,
             final GenerateExceptionServices exceptionServices) {
@@ -70,7 +78,7 @@ public class TheMapper1 implements Serializable {
     @Emitter
     public TheInput1 createSource() {
 
-        return new TheInput1(this.config, this.exceptionServices);
+        return new TheInput1(config, exceptionServices, context);
     }
 
 }

@@ -33,6 +33,8 @@ import org.talend.sdk.component.runtime.reflect.JavaVersion;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
+// as deprecation was introduced since = "17", can ignore it for now...
+@SuppressWarnings({ "deprecation", "removal" })
 public final class Unsafes {
 
     private static final Object UNSAFE;
