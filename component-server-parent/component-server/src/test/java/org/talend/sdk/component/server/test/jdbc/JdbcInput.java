@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.talend.sdk.component.api.component.DatabaseMapping;
 import org.talend.sdk.component.api.component.Icon;
 import org.talend.sdk.component.api.component.MigrationHandler;
 import org.talend.sdk.component.api.component.Version;
@@ -46,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @Icon(Icon.IconType.DB_INPUT)
 @Version(value = 2, migrationHandler = JdbcInput.JdbcTestHandler.class)
 @Emitter(family = "jdbc", name = "input")
+@DatabaseMapping(value = "custom", mapping = "schema_mapping")
 @FixedSchema("jdbc_discover_schema")
 public class JdbcInput implements Serializable {
 
