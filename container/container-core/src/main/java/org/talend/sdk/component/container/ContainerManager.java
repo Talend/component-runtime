@@ -29,9 +29,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -110,16 +112,23 @@ public class ContainerManager implements Lifecycle {
         this.logInfoLevelMapping = logInfoLevelMapping;
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
-        this.rootRepositoryLocation = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
+
+        Path rootRepo = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
                 .filter(Files::exists)
-                .orElseGet(() -> PathFactory.get(System.getProperty("user.home", "")).resolve(".m2/repository"));
-
-        if (log.isDebugEnabled()) {
-            log.debug("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
+                .orElseGet(() -> PathFactory.get(System.getProperty("user.home")).resolve(".m2/repository"));
+        // if we've defaulted to user home m2 (fallback), we want to check if we're in running in a fatjar
+        if (PathFactory.get(System.getProperty("user.home")).resolve(".m2/repository").equals(rootRepo)) {
+            final URL nested = classLoaderConfiguration.getParent().getResource("MAVEN-INF/repository");
+            if (nested != null) {
+                rootRepo = Paths.get(nested.getFile().replace("file:", ""));
+            }
         }
-
+        this.rootRepositoryLocation = rootRepo;
+        info("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
+        final String pluginsLocation = System.getProperty("talend.component.manager.plugins.location",
+                "TALEND-INF/plugins.properties");
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
-                .orElse("TALEND-INF/plugins.properties");
+                .orElse(pluginsLocation);
         this.classLoaderConfiguration = new ClassLoaderConfiguration(
                 ofNullable(classLoaderConfiguration.getParent()).orElseGet(ContainerManager.class::getClassLoader),
                 ofNullable(classLoaderConfiguration.getClassesFilter()).orElseGet(() -> name -> true),
@@ -477,8 +486,8 @@ public class ContainerManager implements Lifecycle {
                     ? nestedContainerMapping.getOrDefault(module, module)
                     : module;
             final Path resolved = resolve(moduleLocation);
-            info("Creating module " + moduleLocation + " (from " + module
-                    + (Files.exists(resolved) ? ", location=" + resolved.toAbsolutePath().toString() : "") + ")");
+            info(String.format("Creating module %s (from %s, location=%s)", moduleLocation, module,
+                    resolved.toAbsolutePath()));
             final Stream<Artifact> classpath = Stream
                     .concat(getBuiltInClasspath(moduleLocation),
                             additionalClasspath == null ? Stream.empty() : additionalClasspath.stream());
