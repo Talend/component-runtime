@@ -19,7 +19,8 @@ set -xe
 
 main() (
 
-  mvn versions:dependency-updates-report versions:plugin-updates-report
+  mvn versions:dependency-updates-report versions:plugin-updates-report \
+    --settings .jenkins/settings.xml
 
 )
 

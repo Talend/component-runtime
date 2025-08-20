@@ -23,16 +23,23 @@
     "react-i18next": "^13.5.0",
     "react-router": "~6.3.0",
     "react-router-dom": "~6.3.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "form-data": ">=4.0.4",
+    "body-parser": "1.20.3",
+    "http-proxy-middleware": "2.0.9",
+    "path-to-regexp": "0.1.10",
+    "@babel/runtime": "7.26.10"
   },
   "devDependencies": {
     "@talend/scripts-config-react-webpack": "^16.8.1",
     "@talend/scripts-core": "^16.5.1",
     "atob": "^2.1.2",
-    "body-parser": "^1.18.3"
+    "body-parser": "^1.18.3",
+    "path-to-regexp": "0.1.10",
+    "form-data": ">=4.0.4"
   },
   "proxy": "http://localhost:8080/",
   "overrides": {
-    "webpack": "^5.92.0"
+    "webpack": "^5.94.0"
   }
 }
