@@ -65,6 +65,7 @@ import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
@@ -197,15 +198,18 @@ class TaCoKitGuessSchemaTest {
             final Entry f1 = factory.newEntryBuilder()
                     .withName("f1")
                     .withType(Schema.Type.STRING)
+                    .withProp(SchemaProperty.ORIGIN_TYPE, "VARCHAR")
                     .build();
             final Entry f2 = factory.newEntryBuilder()
                     .withName("f2")
                     .withType(Schema.Type.LONG)
                     .withDefaultValue(11l)
+                    .withProp(SchemaProperty.ORIGIN_TYPE, "LONGINT")
                     .build();
             final Entry f3 = factory.newEntryBuilder()
                     .withName("f3")
                     .withType(Schema.Type.BOOLEAN)
+                    .withProp(SchemaProperty.ORIGIN_TYPE, "BOOLEAN")
                     .build();
             final Schema schema = factory.newSchemaBuilder(Schema.Type.RECORD)
                     .withProp("aprop", "a property!")
@@ -225,7 +229,7 @@ class TaCoKitGuessSchemaTest {
             restoreStdout();
             final String flattened = flatten(byteArrayOutputStream);
             final String expected =
-                    "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
+                    "[{\"label\":\"f1\",\"nullable\":false,\"originalDbColumnName\":\"f1\",\"sourceType\":\"VARCHAR\",\"talendType\":\"id_String\"},{\"default\":\"11\",\"defaut\":\"11\",\"label\":\"f2\",\"nullable\":false,\"originalDbColumnName\":\"f2\",\"sourceType\":\"LONGINT\",\"talendType\":\"id_Long\"},{\"label\":\"f3\",\"nullable\":false,\"originalDbColumnName\":\"f3\",\"sourceType\":\"BOOLEAN\",\"talendType\":\"id_Boolean\"},{\"comment\":\"branch name\",\"label\":\"out\",\"nullable\":false,\"originalDbColumnName\":\"out\",\"talendType\":\"id_String\"}]";
             final Matcher schemaMatcher = schemaPattern.matcher(flattened);
             assertFalse(errorPattern.matcher(flattened).find());
             assertTrue(schemaMatcher.find());
