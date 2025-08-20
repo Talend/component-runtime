@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.82.0-SNAPSHOT</version>
+    <version>1.84.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-studio</artifactId>
@@ -30,6 +30,11 @@
   <modules>
     <module>component-runtime-di</module>
   </modules>
+
+  <properties>
+    <talend.build.name.base>${project.groupId}.runtime</talend.build.name.base>
+    <maven.multiModuleProjectDirectory>${project.basedir}/..</maven.multiModuleProjectDirectory>
+  </properties>
 
   <dependencyManagement>
     <dependencies>
@@ -59,7 +64,8 @@
         <version>${project.version}</version>
       </dependency>
 
-      <dependency><!-- needed by tomcat-websocket -->
+      <dependency>
+        <!-- needed by tomcat-websocket -->
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-api</artifactId>
         <version>${tomcat.version}</version>
@@ -96,4 +102,53 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>release-zl</id>
+      <!-- temporary workaround we will publish Studio related artifacts inside private repo -->
+      <distributionManagement>
+        <repository>
+          <id>talend_nexus_deployment</id>
+          <url>https://artifacts-zl.talend.com/nexus/content/repositories/releases/</url>
+        </repository>
+      </distributionManagement>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <deployAtEnd>true</deployAtEnd>
+            </configuration>
+          </plugin>
+          <!-- copied from release profile -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
