@@ -178,6 +178,8 @@ public class VaultClient {
         }
     }
 
+    // as deprecation was introduced since = "17", can ignore it for now...
+    @SuppressWarnings({ "deprecation", "removal" })
     public void init(@Observes @Initialized(ApplicationScoped.class) final ServletContext init) {
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 
