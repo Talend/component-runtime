@@ -118,7 +118,6 @@
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend.version}</version>
         <configuration>
           <installDirectory>${project.basedir}/.node</installDirectory>
           <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>

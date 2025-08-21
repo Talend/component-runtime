@@ -578,7 +578,6 @@
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend.version}</version>
         <configuration>
           <skip>${antora.skip}</skip>
           <installDirectory>${project.basedir}/.node</installDirectory>
@@ -772,7 +771,6 @@
               <backend>pdf</backend>
               <sourceDirectory>src/main/antora/modules/ROOT/pages</sourceDirectory>
               <sourceDocumentName>all-in-one.adoc</sourceDocumentName>
-              <sourceHighlighter>coderay</sourceHighlighter>
               <attributes>
                 <pdf-style>talend</pdf-style>
                 <pdf-stylesdir>${project.basedir}/src/main/asciidoctor/pdf/theme</pdf-stylesdir>
@@ -791,6 +789,7 @@
                 <page-component-version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</page-component-version>
                 <deploymentRoot>https://talend.github.io/component-runtime</deploymentRoot>
                 <git_branch>${git.branch}</git_branch>
+                <sourceHighlighter>coderay</sourceHighlighter>
               </attributes>
               <logHandler>
                 <outputToConsole>false</outputToConsole>
