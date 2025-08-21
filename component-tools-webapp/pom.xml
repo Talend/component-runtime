@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.84.0-SNAPSHOT</version>
+    <version>1.84.0</version>
   </parent>
 
   <artifactId>component-tools-webapp</artifactId>
@@ -168,7 +168,7 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase/>
+            <phase />
             <configuration>
               <arguments>run watch</arguments>
               <environmentVariables>
@@ -216,7 +216,7 @@
             <phase>initialize</phase>
             <configuration>
               <target>
-                <copy file="${project.basedir}/src/main/frontend/package-template.json" overwrite="true" tofile="${project.basedir}/src/main/frontend/package.json"/>
+                <copy file="${project.basedir}/src/main/frontend/package-template.json" overwrite="true" tofile="${project.basedir}/src/main/frontend/package.json" />
               </target>
             </configuration>
           </execution>

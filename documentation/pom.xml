@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.84.0-SNAPSHOT</version>
+    <version>1.84.0</version>
   </parent>
 
   <artifactId>documentation</artifactId>
@@ -507,18 +507,18 @@
               <target>
                 <copy todir="${project.basedir}/src/main/frontend" overwrite="true">
                   <fileset dir="${project.basedir}/src/main/frontend">
-                    <include name="package-template.json"/>
+                    <include name="package-template.json" />
                   </fileset>
-                  <mapper type="glob" from="package-template.json" to="package.json"/>
+                  <mapper type="glob" from="package-template.json" to="package.json" />
                 </copy>
                 <copy todir="${project.basedir}/src/main/antora" overwrite="true">
                   <fileset dir="${project.basedir}/src/main/antora">
-                    <include name="antora-template.yml"/>
-                    <include name="site-template.yml"/>
-                    <include name="site-${antora.dev.site.mode}-template.yml"/>
+                    <include name="antora-template.yml" />
+                    <include name="site-template.yml" />
+                    <include name="site-${antora.dev.site.mode}-template.yml" />
                   </fileset>
                   <mapper>
-                    <globmapper from="*-template.yml" to="*.yml"/>
+                    <globmapper from="*-template.yml" to="*.yml" />
                   </mapper>
                 </copy>
               </target>
@@ -626,7 +626,7 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase/>
+            <phase />
             <configuration>
               <skip>${component.front.build.skip}</skip>
               <arguments>run antora:${antora.dev.site.mode}</arguments>
@@ -777,11 +777,11 @@
                 <pdf-style>talend</pdf-style>
                 <pdf-stylesdir>${project.basedir}/src/main/asciidoctor/pdf/theme</pdf-stylesdir>
                 <pdf-fonts>${project.build.directory}/build-dependencies/asciidoctorj-pdf/gems/asciidoctor-pdf-${asciidoctor-pdf-gem.version}/data/fonts</pdf-fonts>
-                <pagenums/>
-                <toc/>
-                <numbered/>
-                <hide-uri-scheme/>
-                <idprefix/>
+                <pagenums />
+                <toc />
+                <numbered />
+                <hide-uri-scheme />
+                <idprefix />
                 <icons>font</icons>
                 <icon-set>fa</icon-set>
                 <idseparator>-</idseparator>
