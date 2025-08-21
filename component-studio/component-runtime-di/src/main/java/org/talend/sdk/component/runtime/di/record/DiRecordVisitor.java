@@ -22,7 +22,6 @@ import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.talend.sdk.component.api.record.SchemaProperty.ALLOW_SPECIAL_NAME;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
-import static org.talend.sdk.component.api.record.SchemaProperty.LOGICAL_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.ORIGIN_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
@@ -304,7 +303,7 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
         switch (studioType) {
             case StudioTypes.DATE:
-                final String logicalType = entry.getProps().get(LOGICAL_TYPE);
+                final String logicalType = entry.getLogicalType();
 
                 final String pattern = ofNullable(entry.getProp(PATTERN))
                         .filter(l -> !l.isEmpty())

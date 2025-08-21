@@ -31,7 +31,6 @@ import static org.talend.sdk.component.api.record.Schema.Type.RECORD;
 import static org.talend.sdk.component.api.record.Schema.Type.STRING;
 import static org.talend.sdk.component.api.record.SchemaCompanionUtil.sanitizeName;
 import static org.talend.sdk.component.api.record.SchemaProperty.IS_KEY;
-import static org.talend.sdk.component.api.record.SchemaProperty.LOGICAL_TYPE;
 import static org.talend.sdk.component.api.record.SchemaProperty.PATTERN;
 import static org.talend.sdk.component.api.record.SchemaProperty.SCALE;
 import static org.talend.sdk.component.api.record.SchemaProperty.SIZE;
@@ -60,6 +59,7 @@ import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Entry;
 import org.talend.sdk.component.api.record.Schema.Type;
+import org.talend.sdk.component.api.record.SchemaProperty;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.di.schema.StudioTypes;
 import org.talend.sdk.component.runtime.record.MappingUtils;
@@ -514,11 +514,8 @@ public class DiRowStructVisitor {
             props.put(PATTERN, pattern);
         }
         props.put(STUDIO_TYPE, studioType);
-        if (logicalType != null) {
-            props.put(LOGICAL_TYPE, logicalType);
-        }
 
-        return factory
+        Entry.Builder builder = factory
                 .newEntryBuilder()
                 .withName(name)
                 .withRawName(originalName)
@@ -526,8 +523,13 @@ public class DiRowStructVisitor {
                 .withType(type)
                 .withComment(comment)
                 .withDefaultValue(defaultValue)
-                .withProps(props)
-                .build();
+                .withProps(props);
+
+        if (logicalType != null) {
+            builder.withLogicalType(SchemaProperty.LogicalType.valueOf(logicalType.toUpperCase()));
+        }
+
+        return builder.build();
     }
 
     private Entry toCollectionEntry(final String name, final String originalName, final Object value) {

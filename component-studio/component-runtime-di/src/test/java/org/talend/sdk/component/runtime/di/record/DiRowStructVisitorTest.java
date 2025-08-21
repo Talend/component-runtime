@@ -350,12 +350,12 @@ class DiRowStructVisitorTest extends VisitorsTest {
         final DiRowStructVisitor visitor = new DiRowStructVisitor();
         final Schema schema = visitor.get(rowStruct, factory).getSchema();
         assertEquals(SchemaProperty.LogicalType.DATE.key(),
-                schema.getEntry("date1").getProp(SchemaProperty.LOGICAL_TYPE));
+                schema.getEntry("date1").getLogicalType());
         assertEquals(SchemaProperty.LogicalType.TIME.key(),
-                schema.getEntry("time1").getProp(SchemaProperty.LOGICAL_TYPE));
+                schema.getEntry("time1").getLogicalType());
         assertEquals(SchemaProperty.LogicalType.TIMESTAMP.key(),
-                schema.getEntry("timestamp1").getProp(SchemaProperty.LOGICAL_TYPE));
-        assertNull(schema.getEntry("date2").getProp(SchemaProperty.LOGICAL_TYPE));
+                schema.getEntry("timestamp1").getLogicalType());
+        assertNull(schema.getEntry("date2").getLogicalType());
     }
 
     @Test
