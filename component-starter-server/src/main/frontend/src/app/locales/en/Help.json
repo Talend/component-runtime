@@ -20,7 +20,7 @@
   "processor_outputs_title": "Outputs",
   "project_artifact": "<0><0>The project artifact used when deployed on a repository (like a Nexus or central repository).</0><1>It must be a unique identifier in the group namespace.</1><2>Talend recommends to follow the following pattern: <1>${component}-component</1>.</2></0>",
   "project_artifact_title": "Project Artifact",
-  "project_build_tool": "<0><0>Maven is the most commonly used build tool and Talend Component Kit integrates with it smoothly.</0><1>Gradle is another popular build tool featured as being faster than Maven, but is still less used.</1><2><0></0> Talend Component Kit does not support as much features with Gradle as it does with Maven. For example, component validation is not supported yet with Gradle.</2></0>",
+  "project_build_tool": "<0><0>Maven is the most commonly used build tool and Talend Component Kit integrates with it smoothly.</0></0>",
   "project_build_tool_title": "Build Tool",
   "project_category": "<0><0>The category is a group used by the Studio to organize components of different families in the same bucket in the <1>Palette</1>.</0><1>It is recommended to use a two-level category. The first level is usually very general and the second one is close to the family name.</1><2></2> Category names must be valid Java names (no space, no special character, and so on).</0>",
   "project_category_title": "Category",

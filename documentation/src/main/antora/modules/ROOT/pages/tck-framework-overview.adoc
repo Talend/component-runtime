@@ -17,7 +17,7 @@ The *Talend Component Kit* framework is made of several tools designed to help y
 image:tutorial_component_configuration_model.png[Starter,window="_blank",link=self,75%]
 
 * *Component API*: Check all classes available to implement components.
-* *Build tools*: The framework comes with xref:build-tools-maven.adoc[Maven] and xref:build-tools-gradle.adoc[Gradle] wrappers, which allow to always use the version of Maven or Gradle that is right for your component development environment and version.
+* *Build tools*: The framework comes with xref:build-tools-maven.adoc[Maven] wrappers, which allow to always use the version of Maven that is right for your component development environment and version.
 * *Testing tools*: Test components before integrating them into Talend Studio or Cloud applications. Testing tools include the *Talend Component Kit Web Tester*, which allows to check the web UI of your components on your local machine.
 
 image:component_kit_web_tester.png[Web tester,window="_blank",link=self,75%]
