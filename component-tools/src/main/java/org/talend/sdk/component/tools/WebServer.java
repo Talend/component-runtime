@@ -79,7 +79,7 @@ public class WebServer implements Runnable {
 
                             @Override
                             protected void registerURLStreamHandlerFactory() {
-                                // no-op - gradle supports to reuse the same JVM so it would be broken
+                                // no-op
                             }
                         });
                     }, null));
