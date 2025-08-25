@@ -695,7 +695,7 @@ public class ComponentManager implements AutoCloseable {
             }
             return Stream
                     .of(plugin)
-                    // just a small workaround for maven/gradle
+                    // just a small workaround for maven
                     .flatMap(this::toPluginLocations)
                     .filter(path -> !findPlugin(path.getFileName().toString()).isPresent())
                     .map(file -> {
@@ -718,13 +718,6 @@ public class ComponentManager implements AutoCloseable {
             return Stream.of(src.getParent().resolve("classes"), src);
         }
 
-        // gradle (v3 & v4)
-        if ("classes".equals(filename) && src.getParent() != null
-                && "test".equals(src.getParent().getFileName().toString()) && src.getParent().getParent() != null) {
-            return Stream
-                    .of(src.getParent().getParent().resolve("production/classes"), src)
-                    .filter(java.nio.file.Files::exists);
-        }
         if ("test".equals(filename) && src.getParent() != null
                 && "java".equals(src.getParent().getFileName().toString())) {
             return Stream.of(src.getParent().resolve("main"), src).filter(java.nio.file.Files::exists);
