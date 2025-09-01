@@ -15,7 +15,7 @@
     <meta name="description" content="How to customize components for testing on a remote engine">
     <meta name="keywords" content="remote engine, docker, customizer, tool, car, car-bundler, test, testing, cloud, extension, custom">
     <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2025-05-27T00:55:02.313Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2025-09-01T01:23:08.109Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -86,12 +86,21 @@
         <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                1.82.0 (dev)
+                1.85.0 (dev)
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
                 <li class="navbar-item version">
-                    <a href="index.html">1.82.0</a>
+                    <a href="index.html">1.85.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.84.0/index.html">1.84.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.83.0/index.html">1.83.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.82.0/index.html">1.82.0</a>
                 </li>
                 <li class="navbar-item version">
                     <a href="../1.81.0/index.html">1.81.0</a>
@@ -104,6 +113,21 @@
                 </li>
                 <li class="navbar-item version">
                     <a href="../1.79.0/index.html">1.79.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.78.6/index.html">1.78.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.78.5/index.html">1.78.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.78.4/index.html">1.78.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.78.3/index.html">1.78.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.78.2/index.html">1.78.2</a>
                 </li>
                 <li class="navbar-item version">
                     <a href="../1.78.1/index.html">1.78.1</a>
@@ -470,7 +494,7 @@
     </nav>
 </header>
             <main class="main">
-              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.82.0">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.85.0">
   <aside class="navigation" role="navigation">
     <div class="panels">
       <div class="input-group nav-filter-group">
@@ -847,71 +871,32 @@ You can find out all the available versions at <a href="https://hub.docker.com/r
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">NAME
-       register-component-archive
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">Usage: register-component-archive [options]
 
-SYNOPSIS
-       register-component-archive [options]
-
-OPTIONS
-       --base-image=&lt;String&gt;
-              Base connector image to enrich with components.
-
-              default: auto
-
-       --cache-dir=&lt;String&gt;
-              Where  to cache the image layers - useful when the command is launched multiple
-              times.
-
-              default: ${remote.engine.dir}/.remote_engine_customizer/cache
-
-       --component-archive=&lt;String[]&gt;
-              Component Archive (.car) to register/add in the Remote Engine.
-
-       --docker-configuration-environment=&lt;String&gt;
-              Docker daemon environment variables (as properties) if custom.
-
-              default:
-
-       --docker-configuration-path=&lt;String&gt;
-              Docker daemon executable path if custom.
-
-       --from-image-type=&lt;ImageType&gt;
-              Type  of  source  image,  can  be  useful  if you don't use the default version
-              generation.
-
-              default: AUTO. enum: AUTO, DOCKER, REGISTRY
-
-       --registry-configuration-baseUrl=&lt;String&gt;
-              Registry base URL when image type is REGISTRY.
-
-       --registry-configuration-password=&lt;String&gt;
-              Registry password when image type is REGISTRY.
-
-       --registry-configuration-username=&lt;String&gt;
-              Registry username when image type is REGISTRY.
-
-       --remote-engine-dir=&lt;String&gt;
-              Where  the  remote  engine folder is, it should host a docker-compose.yml file.
-
-       --target-image=&lt;String&gt;
-              Name of the target image, if not set it will be generated.
-
-              default: auto
-
-       --to-image-type=&lt;ImageType&gt;
-              Type of target image, it is generally just a local DOCKER image.
-
-              default: DOCKER. enum: AUTO, DOCKER, REGISTRY
-
-       --no-update-original-docker-compose
-              Should  the  Remote  Engine docker-compose.yml be updated once the new image is
-              built.
-
-       --work-dir=&lt;String&gt;
-              Where  to  create  temporary  files  needed  for  the  build  of the new image.
-
-              default: ${java.io.tmpdir}/remote-engine-customizer</code></pre>
+Options:
+  --base-image=&lt;String&gt;                           Base connector image to enrich with components.
+                                                  (default: auto)
+  --cache-dir=&lt;String&gt;                            Where to cache the image layers - useful when the command is launched multiple times.
+                                                  (default: ${remote.engine.dir}/.remote_engine_customizer/cache)
+  --component-archive=&lt;String[]&gt;                  Component Archive (.car) to register/add in the Remote Engine.
+  --docker-configuration-environment=&lt;String&gt;     Docker daemon environment variables (as properties) if custom.
+                                                  (default: )
+  --docker-configuration-path=&lt;String&gt;            Docker daemon executable path if custom.
+  --from-image-type=&lt;ImageType&gt;                   Type of source image, can be useful if you don't use the default version generation.
+                                                  (default: AUTO)
+                                                  (enum: AUTO, DOCKER, REGISTRY)
+  --registry-configuration-baseUrl=&lt;String&gt;       Registry base URL when image type is REGISTRY.
+  --registry-configuration-password=&lt;String&gt;      Registry password when image type is REGISTRY.
+  --registry-configuration-username=&lt;String&gt;      Registry username when image type is REGISTRY.
+  --remote-engine-dir=&lt;String&gt;                    Where the remote engine folder is, it should host a docker-compose.yml file.
+  --target-image=&lt;String&gt;                         Name of the target image, if not set it will be generated.
+                                                  (default: auto)
+  --to-image-type=&lt;ImageType&gt;                     Type of target image, it is generally just a local DOCKER image.
+                                                  (default: DOCKER)
+                                                  (enum: AUTO, DOCKER, REGISTRY)
+  --no-update-original-docker-compose             Should the Remote Engine docker-compose.yml be updated once the new image is built.
+  --work-dir=&lt;String&gt;                             Where to create temporary files needed for the build of the new image.
+                                                  (default: ${java.io.tmpdir}/remote-engine-customizer)</code></pre>
 </div>
 </div>
 <div class="paragraph">
