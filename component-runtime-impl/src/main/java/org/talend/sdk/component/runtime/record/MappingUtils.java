@@ -179,8 +179,9 @@ public class MappingUtils {
         if ("null".equalsIgnoreCase(value.trim())) {
             return null;
         }
-        //
-        final boolean isNumeric = value.chars().allMatch(Character::isDigit);
+
+        // A timestamp can be negative if before 1/1/1970, so need to consider '-' as first character.
+        boolean isNumeric = !value.isEmpty() && (value.charAt(0) == '-' ? value.substring(1) : value).chars().allMatch(Character::isDigit);
         if (ZonedDateTime.class == expected) {
             if (isNumeric) {
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(value)), UTC);
@@ -191,7 +192,6 @@ public class MappingUtils {
         if (Date.class == expected) {
             if (isNumeric) {
                 return Date.from(Instant.ofEpochMilli(Long.valueOf(value)));
-
             } else {
                 return Date.from(ZonedDateTime.parse(value).toInstant());
             }
