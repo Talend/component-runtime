@@ -25,7 +25,7 @@
   <artifactId>component-starter-server</artifactId>
 
   <name>Component Runtime :: Starter Server</name>
-  <description>Web application allowing to generate maven or gradle project skeleton to speed up component development.</description>
+  <description>Web application allowing to generate maven project skeleton to speed up component development.</description>
 
   <properties>
     <node.version>v20.12.0</node.version>
@@ -410,22 +410,6 @@
         <groupId>io.github.download-maven-plugin</groupId>
         <artifactId>download-maven-plugin</artifactId>
         <version>${download-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>download-gradle</id>
-            <goals>
-              <goal>wget</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <url>https://services.gradle.org/distributions/gradle-${gradle.version}-bin.zip</url>
-              <outputFileName>gradle-${gradle.version}.zip</outputFileName>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-              <unpack>true</unpack>
-              <cacheDirectory>${project.basedir}/.cache</cacheDirectory>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
@@ -433,12 +417,8 @@
         <configuration>
           <allowSystemExits>true</allowSystemExits>
           <scripts>
-            <script>${project.basedir}/src/build/GrabGradleWrapper.groovy</script>
             <script>${project.basedir}/src/build/GrabMavenWrapper.groovy</script>
           </scripts>
-          <properties>
-            <gradleHome>${project.build.directory}/gradle-${gradle.version}</gradleHome>
-          </properties>
         </configuration>
         <dependencies>
           <dependency>
@@ -453,9 +433,19 @@
             </exclusions>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <configuration>
+          <allowSystemExits>true</allowSystemExits>
+          <scripts>
+            <script>${project.basedir}/src/build/GrabMavenWrapper.groovy</script>
+          </scripts>
+        </configuration>
         <executions>
           <execution>
-            <id>grab-gradle-wrapper</id>
+            <id>grab-maven-wrapper</id>
             <goals>
               <goal>execute</goal>
             </goals>

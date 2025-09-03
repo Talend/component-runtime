@@ -205,7 +205,7 @@ public class KafkaInput extends PTransform<PBegin, PCollection<Record>> { <1>
 <2> The `expand` method chains the native I/O with a custom mapper (`BytesToRecord`).
 <3> The mapper uses the SchemaRegistry coder automatically created from the contextual component.
 
-Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no `@Emitter`), you need to set the `<talend.validation.component>false</talend.validation.component>` property in your `pom.xml` file (or equivalent for Gradle) to skip the component programming model validations of the framework.
+Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no `@Emitter`), you need to set the `<talend.validation.component>false</talend.validation.component>` property in your `pom.xml` file to skip the component programming model validations of the framework.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]

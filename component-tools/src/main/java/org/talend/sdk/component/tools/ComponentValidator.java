@@ -54,7 +54,6 @@ import org.talend.sdk.component.tools.validator.Validators.ValidatorHelper;
 
 import lombok.Data;
 
-// IMPORTANT: this class is used by reflection in gradle integration, don't break signatures without checking it
 public class ComponentValidator extends BaseTask {
 
     public static final String ICONS = "icons" + File.separator;

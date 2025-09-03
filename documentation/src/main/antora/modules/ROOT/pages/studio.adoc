@@ -15,7 +15,7 @@ Refer to xref:compatibility.adoc[this document] to learn about compatibility bet
 
 == Installing the components
 
-Learn how to build and deploy components to Talend Studio using xref:build-tools-maven.adoc[Maven] or xref:build-tools-gradle.adoc[Gradle] Talend Component Kit plugins.
+Learn how to build and deploy components to Talend Studio using xref:build-tools-maven.adoc[Maven] Talend Component Kit plugins.
 
 This can be done using the `deploy-in-studio` goal from your development environment.
 
@@ -131,6 +131,5 @@ ifeval::["{backend}" == "html5"]
 == Related articles
 - xref:best-practices.adoc[Best practices]
 - xref:build-tools-maven.adoc[Building components with Maven]
-- xref:build-tools-gradle.adoc[Building components with Gradle]
 - xref:creating-dataset-datastore.adoc[Learn how to use datasets and datastores with Talend Studio]
 endif::[]
