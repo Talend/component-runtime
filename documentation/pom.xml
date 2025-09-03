@@ -28,7 +28,7 @@
   <description>Actually framework documentation, generated as a website and pushed to Github pages.</description>
 
   <properties>
-    <antora.version>3.0.1</antora.version>
+    <antora.version>3.0.3</antora.version>
 
     <!-- -Dantora.site.mode=dev-poc to test new theme -->
     <antora.dev.site.mode>dev</antora.dev.site.mode>
@@ -701,7 +701,7 @@
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>2.2.2</version>
+        <version>2.2.6</version>
         <dependencies>
           <dependency>
             <groupId>org.asciidoctor</groupId>
