@@ -28,8 +28,13 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class MappingUtilsTest {
 
@@ -104,5 +109,75 @@ class MappingUtilsTest {
         assertThrows(IllegalArgumentException.class, () -> MappingUtils.coerce(Long.class, "nul", name));
         // incompatible mapping: fail
         assertThrows(IllegalArgumentException.class, () -> MappingUtils.coerce(List.class, 123, name));
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("mapStringProvider")
+    void mapString(final Class expectedType, final String inputValue, final Object expectedResult) {
+        Object mapped = MappingUtils.coerce(expectedType, inputValue, "::testing::mapString");
+        if(expectedResult instanceof byte[]){
+            Assertions.assertArrayEquals((byte[])expectedResult, (byte[])mapped);
+        }
+        else {
+            Assertions.assertEquals(expectedResult, mapped);
+        }
+    }
+
+    static Stream<Arguments> mapStringProvider() {
+        final ZonedDateTime zdtAfterEpochWithNano = ZonedDateTime.of(
+                2024, 7, 15,  // Année, mois, jour
+                14, 30, 45,   // Heure, minute, seconde
+                123_456_789,  // Nanosecondes
+                ZoneId.of("Europe/Paris"));
+
+        final Date dateAfterEpoch = Date.from(zdtAfterEpochWithNano.toInstant());
+
+        java.time.Instant instant = dateAfterEpoch.toInstant();
+        final ZonedDateTime zdtAfterEpochUTCNoNano = instant.atZone(UTC);
+
+        final ZonedDateTime zdtBeforeEpochWithNano = ZonedDateTime.of(
+                1930, 7, 15,  // Année, mois, jour
+                14, 30, 45,   // Heure, minute, seconde
+                123_456_789,  // Nanosecondes
+                ZoneId.of("Europe/Paris"));
+
+        final Date dateBeforeEpoch = Date.from(zdtBeforeEpochWithNano.toInstant());
+
+        instant = dateBeforeEpoch.toInstant();
+        final ZonedDateTime zdtBeforeEpochUTCNoNano = instant.atZone(UTC);
+
+
+        return Stream.of(
+                // (expectedType, inputValue, expectedResult)
+                Arguments.of(String.class, "A String", "A String"),
+                Arguments.of(String.class, "-100", "-100"),
+                Arguments.of(String.class, "100", "100"),
+                Arguments.of(Boolean.class, "true", Boolean.TRUE),
+                Arguments.of(Boolean.class, "tRuE", Boolean.TRUE),
+                Arguments.of(Boolean.class, "false", Boolean.FALSE),
+                Arguments.of(Boolean.class, "xxx", Boolean.FALSE),
+                Arguments.of(Date.class, "null", null),
+                Arguments.of(ZonedDateTime.class, "2024-07-15T14:30:45.123456789+02:00[Europe/Paris]",
+                        zdtAfterEpochWithNano),
+                Arguments.of(ZonedDateTime.class, "1721046645123",
+                        zdtAfterEpochUTCNoNano),
+                Arguments.of(ZonedDateTime.class, "1930-07-15T14:30:45.123456789+01:00[Europe/Paris]",
+                        zdtBeforeEpochWithNano),
+                Arguments.of(ZonedDateTime.class, "-1245407354877",
+                        zdtBeforeEpochUTCNoNano),
+                Arguments.of(Character.class, "abcde", 'a'),
+                Arguments.arguments(byte[].class, "Ojp0ZXN0aW5nOjptYXBTdHJpbmc=",
+                        new byte[]{58, 58, 116, 101, 115, 116, 105, 110, 103, 58,
+                                58, 109, 97, 112, 83, 116, 114, 105, 110, 103}),
+                Arguments.of(BigDecimal.class, "123456789123456789",
+                        new BigDecimal("123456789123456789")),
+                Arguments.of(Integer.class, String.valueOf(Integer.MIN_VALUE), Integer.MIN_VALUE),
+                Arguments.of(Long.class, String.valueOf(Long.MIN_VALUE), Long.MIN_VALUE),
+                Arguments.of(Short.class, String.valueOf(Short.MIN_VALUE), Short.MIN_VALUE),
+                Arguments.of(Byte.class, String.valueOf(Byte.MIN_VALUE), Byte.MIN_VALUE),
+                Arguments.of(Float.class, String.valueOf(Float.MIN_VALUE), Float.MIN_VALUE),
+                Arguments.of(Double.class, String.valueOf(Double.MIN_VALUE), Double.MIN_VALUE)
+        );
     }
 }
