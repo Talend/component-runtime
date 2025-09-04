@@ -413,12 +413,18 @@ public class ComponentManager implements AutoCloseable {
         } else {
             classpathContributors = emptyList();
         }
-        classesFilter = new FilterList(Stream
-                .concat(Stream
-                        .of("org.talend.sdk.component.api.", "org.talend.sdk.component.spi.", "javax.annotation.",
-                                "javax.json.", "org.talend.sdk.component.classloader.",
-                                "org.talend.sdk.component.runtime.", "org.slf4j.", "org.apache.johnzon."),
-                        additionalContainerClasses())
+        classesFilter = new FilterList(Stream.concat(
+                Stream.of("org.talend.sdk.component.api.",
+                        "org.talend.sdk.component.spi.",
+                        "javax.annotation.",
+                        "javax.json.",
+                        "org.talend.sdk.component.classloader.",
+                        "org.talend.sdk.component.runtime.",
+                        "org.talend.sdk.component.container.",
+                        "org.talend.sdk.component.dependencies.",
+                        "org.slf4j.",
+                        "org.apache.johnzon."),
+                additionalContainerClasses())
                 .distinct()
                 .map(PrefixFilter::new)
                 .toArray(Filter[]::new));
