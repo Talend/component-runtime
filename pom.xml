@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.84.0-SNAPSHOT</version>
+  <version>1.85.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -241,7 +241,7 @@
     <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
-    <download-plugin.version>1.13.0</download-plugin.version>
+    <download-plugin.version>2.0.0</download-plugin.version>
     <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
     <gmavenplus-plugin.version>1.13.1</gmavenplus-plugin.version>
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
@@ -261,7 +261,7 @@
     <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
     <maven-invoker-plugin.version>3.9.0</maven-invoker-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.11.3</maven-javadoc-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
@@ -275,7 +275,7 @@
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v20.12.0</node.version>
     <npm.version>10.5.0</npm.version>
-    <frontend.version>1.12.1</frontend.version>
+    <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
 
     <!-- misc dependencies -->
     <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
@@ -1083,7 +1083,6 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven-javadoc-plugin.version}</version>
           <configuration>
-            <source>8</source>
             <jarOutputDirectory>${project.build.directory}/javadoc/binary</jarOutputDirectory>
             <outputDirectory>${project.build.directory}/javadoc/apidocs</outputDirectory>
             <splitindex>true</splitindex>
@@ -1091,10 +1090,12 @@
             <windowtitle>${project.name}</windowtitle>
             <header>${project.name} - ${project.version}</header>
             <doctitle>${project.name} - ${project.version}</doctitle>
-            <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a
-              href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <bottom>
+              <![CDATA[${project.version} - Copyright &amp;copy; 2025 <a href="https://talend.github.io/component-runtime/" target="_top">Talend Component Kit Documentation</a>]]>
+            </bottom>
             <use>true</use>
             <legacyMode>true</legacyMode>
+            <doclint>none</doclint>
           </configuration>
         </plugin>
         <plugin>
@@ -1414,6 +1415,11 @@
           <artifactId>central-publishing-maven-plugin</artifactId>
           <version>${central-publishing-maven-plugin.version}</version>
         </plugin>
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>${frontend-maven-plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -1430,7 +1436,7 @@
             <goals>
               <goal>audit</goal>
             </goals>
-            <phase/>
+            <phase />
           </execution>
         </executions>
       </plugin>
@@ -1462,7 +1468,7 @@
             <importOrder>
               <file>${maven.multiModuleProjectDirectory}/build/talend.importorder</file>
             </importOrder>
-            <removeUnusedImports/>
+            <removeUnusedImports />
           </java>
         </configuration>
         <executions>
@@ -1589,78 +1595,78 @@
           <checkstyleRules>
             <module name="Checker">
               <module name="FileLength">
-                <property name="max" value="3500"/>
-                <property name="fileExtensions" value="java"/>
+                <property name="max" value="3500" />
+                <property name="fileExtensions" value="java" />
               </module>
-              <module name="FileTabCharacter"/>
+              <module name="FileTabCharacter" />
               <module name="LineLength">
-                <property name="max" value="180"/>
-                <property name="ignorePattern" value="@version|@see"/>
+                <property name="max" value="180" />
+                <property name="ignorePattern" value="@version|@see" />
               </module>
               <module name="TreeWalker">
-                <module name="SuppressionCommentFilter"/>
-                <module name="FinalParameters"/>
+                <module name="SuppressionCommentFilter" />
+                <module name="FinalParameters" />
                 <module name="ConstantName">
-                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$"/>
+                  <property name="format" value="^_?((log)|(logger)|([a-z][a-zA-Z]*ThreadLocal)|([A-Z][A-Z0-9]*(_[A-Z0-9]+)*))$" />
                 </module>
-                <module name="LocalVariableName"/>
+                <module name="LocalVariableName" />
                 <module name="MethodName">
-                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$"/>
+                  <property name="format" value="^_?[a-z][a-zA-Z0-9]*$" />
                 </module>
-                <module name="PackageName"/>
-                <module name="LocalFinalVariableName"/>
-                <module name="ParameterName"/>
-                <module name="StaticVariableName"/>
+                <module name="PackageName" />
+                <module name="LocalFinalVariableName" />
+                <module name="ParameterName" />
+                <module name="StaticVariableName" />
                 <module name="TypeName">
-                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$"/>
+                  <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$" />
                 </module>
                 <module name="AvoidStarImport">
-                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context"/>
+                  <property name="excludes" value="java.io,java.net,java.util,javax.enterprise.inject.spi,javax.enterprise.context" />
                 </module>
-                <module name="IllegalImport"/>
-                <module name="RedundantImport"/>
-                <module name="UnusedImports"/>
+                <module name="IllegalImport" />
+                <module name="RedundantImport" />
+                <module name="UnusedImports" />
                 <module name="MethodLength">
-                  <property name="max" value="250"/>
+                  <property name="max" value="250" />
                 </module>
                 <module name="ParameterNumber">
-                  <property name="max" value="10"/>
+                  <property name="max" value="10" />
                 </module>
                 <module name="EmptyBlock">
-                  <property name="option" value="text"/>
+                  <property name="option" value="text" />
                 </module>
-                <module name="NeedBraces"/>
+                <module name="NeedBraces" />
                 <module name="LeftCurly">
-                  <property name="option" value="EOL"/>
+                  <property name="option" value="EOL" />
                 </module>
                 <module name="RightCurly">
-                  <property name="option" value="SAME"/>
+                  <property name="option" value="SAME" />
                 </module>
-                <module name="EmptyStatement"/>
-                <module name="EqualsHashCode"/>
-                <module name="DefaultComesLast"/>
-                <module name="MissingSwitchDefault"/>
-                <module name="FallThrough"/>
-                <module name="MultipleVariableDeclarations"/>
+                <module name="EmptyStatement" />
+                <module name="EqualsHashCode" />
+                <module name="DefaultComesLast" />
+                <module name="MissingSwitchDefault" />
+                <module name="FallThrough" />
+                <module name="MultipleVariableDeclarations" />
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck">
-                  <property name="severity" value="ignore"/>
+                  <property name="severity" value="ignore" />
                 </module>
                 <!-- using lombok this constraint is not accurate
                 <module name="HideUtilityClassConstructor" />
                 -->
                 <module name="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck">
-                  <property name="packageAllowed" value="false"/>
-                  <property name="protectedAllowed" value="true"/>
-                  <property name="publicMemberPattern" value="^serialVersionUID"/>
-                  <property name="severity" value="warning"/>
+                  <property name="packageAllowed" value="false" />
+                  <property name="protectedAllowed" value="true" />
+                  <property name="publicMemberPattern" value="^serialVersionUID" />
+                  <property name="severity" value="warning" />
                 </module>
-                <module name="UpperEll"/>
+                <module name="UpperEll" />
                 <module name="ImportOrder">
-                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,routines,lombok"/>
-                  <property name="ordered" value="true"/>
-                  <property name="separated" value="true"/>
-                  <property name="option" value="top"/>
-                  <property name="sortStaticImportsAlphabetically" value="true"/>
+                  <property name="groups" value="*,java,javafx,javax,jdk,com,crawlercommons,org,orgomg,brave,com.jcraft,freemarker,io,zipkin2,routines,lombok" />
+                  <property name="ordered" value="true" />
+                  <property name="separated" value="true" />
+                  <property name="option" value="top" />
+                  <property name="sortStaticImportsAlphabetically" value="true" />
                 </module>
               </module>
             </module>
@@ -1847,8 +1853,8 @@
             </goals>
             <configuration>
               <rules>
-                <banDistributionManagement/>
-                <banDuplicatePomDependencyVersions/>
+                <banDistributionManagement />
+                <banDuplicatePomDependencyVersions />
               </rules>
               <fail>true</fail>
             </configuration>
@@ -1860,7 +1866,7 @@
             </goals>
             <configuration>
               <rules>
-                <dependencyConvergence/>
+                <dependencyConvergence />
               </rules>
               <fail>false</fail>
             </configuration>
@@ -2051,7 +2057,7 @@
         <jdk>1.8</jdk>
       </activation>
       <properties>
-        <extraJvmFlags/>
+        <extraJvmFlags />
       </properties>
     </profile>
     <profile>

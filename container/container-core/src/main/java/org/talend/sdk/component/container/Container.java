@@ -307,6 +307,10 @@ public class Container implements Lifecycle {
         return created.get();
     }
 
+    public boolean hasNestedRepository() {
+        return hasNestedRepository;
+    }
+
     public void registerTransformer(final ClassFileTransformer transformer) {
         transformers.add(transformer);
     }
