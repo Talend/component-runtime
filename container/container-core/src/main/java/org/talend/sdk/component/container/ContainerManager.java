@@ -33,7 +33,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -120,7 +119,7 @@ public class ContainerManager implements Lifecycle {
         if (PathFactory.get(System.getProperty("user.home")).resolve(".m2/repository").equals(rootRepo)) {
             final URL nested = classLoaderConfiguration.getParent().getResource("MAVEN-INF/repository");
             if (nested != null) {
-                rootRepo = Paths.get(nested.getFile().replace("file:", ""));
+                rootRepo = PathFactory.get(nested.getFile().replace("file:", ""));
             }
         }
         this.rootRepositoryLocation = rootRepo;
