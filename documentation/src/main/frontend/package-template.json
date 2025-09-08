@@ -13,7 +13,7 @@
     "json5": "2.2.2"
   },
   "scripts": {
-    "antora:build": "antora --stacktrace ../antora/site.yml",
-    "antora:${antora.dev.site.mode}": "antora --stacktrace ../antora/site-${antora.dev.site.mode}.yml"
+    "antora:build": "antora --stacktrace --log-level=error ../antora/site.yml",
+    "antora:${antora.dev.site.mode}": "antora --stacktrace --log-level=error ../antora/site-${antora.dev.site.mode}.yml"
   }
 }
