@@ -35,6 +35,7 @@ export default class Mapper extends React.Component {
 		this.state = {
 			configurationStructure: props.component.source.configurationStructure,
 			outputStructure: props.component.source.outputStructure,
+			recordType: props.component.source.genericOutput ? 'generic' : 'custom',
 		};
 		[
 			'onStreamChange',
@@ -49,6 +50,7 @@ export default class Mapper extends React.Component {
 			this.setState({
 				configurationStructure: nextProps.component.source.configurationStructure,
 				outputStructure: nextProps.component.source.outputStructure,
+				recordType: nextProps.component.source.genericOutput ? 'generic' : 'custom',
 			});
 		}
 	}

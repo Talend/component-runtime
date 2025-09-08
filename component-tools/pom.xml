@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.84.0-SNAPSHOT</version>
+    <version>1.85.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-tools</artifactId>
@@ -154,7 +154,6 @@
         <!-- grab asciidoctor.css as a base of our theme for now -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend.version}</version>
         <configuration>
           <installDirectory>${project.basedir}/.node</installDirectory>
           <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.talend.sdk.component</groupId>
     <artifactId>component-runtime</artifactId>
-    <version>1.84.0-SNAPSHOT</version>
+    <version>1.85.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>component-starter-server</artifactId>
@@ -173,8 +173,8 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
         <configuration>
           <generateGitPropertiesFile>true</generateGitPropertiesFile>
           <generateGitPropertiesFilename>${project.build.outputDirectory}/TALEND-INF/git.properties</generateGitPropertiesFilename>
@@ -286,7 +286,6 @@
         <!-- frontend build (nodejs), generated at prepare-package to be there for tests -->
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend.version}</version>
         <configuration>
           <installDirectory>${project.basedir}/.node</installDirectory>
           <workingDirectory>${project.basedir}/src/main/frontend</workingDirectory>
@@ -335,7 +334,7 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase/>
+            <phase />
             <configuration>
               <arguments>start</arguments>
               <environmentVariables>
@@ -359,7 +358,7 @@
             <phase>initialize</phase>
             <configuration>
               <target>
-                <copy file="${project.basedir}/src/main/frontend/package-template.json" overwrite="true" tofile="${project.basedir}/src/main/frontend/package.json"/>
+                <copy file="${project.basedir}/src/main/frontend/package-template.json" overwrite="true" tofile="${project.basedir}/src/main/frontend/package.json" />
               </target>
             </configuration>
           </execution>
@@ -408,7 +407,7 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.googlecode.maven-download-plugin</groupId>
+        <groupId>io.github.download-maven-plugin</groupId>
         <artifactId>download-maven-plugin</artifactId>
         <version>${download-plugin.version}</version>
         <executions>
