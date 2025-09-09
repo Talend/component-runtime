@@ -327,8 +327,6 @@ public final class RecordImpl implements Record {
                         "Entry '" + entry.getOriginalFieldName() + "' expected to be a " + entry.getType() + ", got a "
                                 + type);
             }
-//            final boolean disableNullableCheck = Boolean.parseBoolean(System.getProperty("talend.sdk.skip.nullable.check", "false"));
-            //!disableNullableCheck &&
             if (value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("Entry '" + entry.getOriginalFieldName() + "' is not nullable");
             }
@@ -352,6 +350,7 @@ public final class RecordImpl implements Record {
 
         public Record build() {
             final Schema currentSchema;
+            final boolean skipNullCheck = Boolean.parseBoolean(System.getProperty(Record.RECORD_NULLABLE_CHECK, "false"));
             if (this.providedSchema != null) {
                 final String missing = this.providedSchema
                         .getAllEntries()
@@ -359,9 +358,7 @@ public final class RecordImpl implements Record {
                         .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
                         .map(Schema.Entry::getName)
                         .collect(joining(", "));
-
-                if (!Boolean.parseBoolean(System.getProperty("talend.sdk.skip.nullable.check", "false"))
-                        && !missing.isEmpty()) {
+                if (!skipNullCheck && !missing.isEmpty()) {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
 
@@ -585,21 +582,18 @@ public final class RecordImpl implements Record {
             final Schema.Entry realEntry;
             if (this.entries != null) {
                 realEntry = Optional.ofNullable(
-                        SchemaCompanionUtil.avoidCollision(entry, this.entries::getValue,
-                                this::replaceEntryAndItsValue))
+                                SchemaCompanionUtil.avoidCollision(entry, this.entries::getValue,
+                                        this::replaceEntryAndItsValue))
                         .orElse(entry);
             } else {
                 realEntry = entry;
             }
-//            if (Boolean.parseBoolean(System.getProperty("talend.sdk.skip.nullable.check", "false"))) {
-//                values.put(realEntry.getName(), value);
-//            } else {
-                if (value != null) {
-                    values.put(realEntry.getName(), value);
-                } else if (!realEntry.isNullable()) {
-                    throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
-                }
-//            }
+
+            if (value != null) {
+                values.put(realEntry.getName(), value);
+            } else if (!realEntry.isNullable()) {
+                throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
+            }
 
             if (this.entries != null) {
                 this.entries.addValue(realEntry);
