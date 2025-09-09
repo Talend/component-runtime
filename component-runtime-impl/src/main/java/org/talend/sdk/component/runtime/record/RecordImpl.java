@@ -123,6 +123,8 @@ public final class RecordImpl implements Record {
     // Entry creation can be optimized a bit but recent GC should not see it as a big deal
     public static class BuilderImpl implements Builder {
 
+        private final boolean skipNullCheck = Boolean.parseBoolean(System.getProperty(Record.RECORD_NULLABLE_CHECK, "false"));
+
         private final Map<String, Object> values = new HashMap<>(8);
 
         private final OrderedMap<Schema.Entry> entries;
@@ -350,7 +352,6 @@ public final class RecordImpl implements Record {
 
         public Record build() {
             final Schema currentSchema;
-            final boolean skipNullCheck = Boolean.parseBoolean(System.getProperty(Record.RECORD_NULLABLE_CHECK, "false"));
             if (this.providedSchema != null) {
                 final String missing = this.providedSchema
                         .getAllEntries()

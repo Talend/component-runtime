@@ -259,7 +259,7 @@ class RecordBuilderImplTest {
                 .build();
         Record.Builder recordBuilder2 = recordBuilderFactory.newRecordBuilder(schema2);
         recordBuilder2.withString("c1", "v1");
-        assertThrows(IllegalArgumentException.class, () -> recordBuilder2.build());
+        assertThrows(IllegalArgumentException.class, recordBuilder2::build);
     }
 
     @Test
@@ -277,8 +277,8 @@ class RecordBuilderImplTest {
                 .build();
         Record.Builder recordBuilder = recordBuilderFactory.newRecordBuilder(schema);
         recordBuilder.withString("c1", "v1");
-        Record record = recordBuilder.build();
-        assertNull(record.getString("c2"));
+        Record recordOne = recordBuilder.build();
+        assertNull(recordOne.getString("c2"));
         System.setProperty(Record.RECORD_NULLABLE_CHECK, "false");
     }
 
