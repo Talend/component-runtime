@@ -237,7 +237,7 @@ class RecordBuilderImplTest {
         RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
         Schema.Builder schemaBuilder = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
         Schema schema = schemaBuilder.withEntry(
-                        recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
                 .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("c2")
                         .withType(Type.STRING)
@@ -250,7 +250,7 @@ class RecordBuilderImplTest {
 
         Schema.Builder schemaBuilder2 = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
         Schema schema2 = schemaBuilder2.withEntry(
-                        recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
                 .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("c2")
                         .withType(Type.STRING)
@@ -268,7 +268,7 @@ class RecordBuilderImplTest {
         RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
         Schema.Builder schemaBuilder = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
         Schema schema = schemaBuilder.withEntry(
-                        recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
                 .withEntry(recordBuilderFactory.newEntryBuilder()
                         .withName("c2")
                         .withType(Type.STRING)
@@ -277,6 +277,7 @@ class RecordBuilderImplTest {
                 .build();
         Record.Builder recordBuilder = recordBuilderFactory.newRecordBuilder(schema);
         recordBuilder.withString("c1", "v1");
+        recordBuilder.withString("c2", null);
         Record recordOne = recordBuilder.build();
         assertNull(recordOne.getString("c2"));
         System.setProperty(Record.RECORD_NULLABLE_CHECK, "false");
