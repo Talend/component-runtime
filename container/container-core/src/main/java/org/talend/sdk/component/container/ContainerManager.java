@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -120,11 +119,7 @@ public class ContainerManager implements Lifecycle {
         if (PathFactory.get(System.getProperty("user.home")).resolve(".m2/repository").equals(rootRepo)) {
             final URL nested = classLoaderConfiguration.getParent().getResource("MAVEN-INF/repository");
             if (nested != null) {
-                try {
-                    rootRepo = Path.of(nested.toURI());
-                } catch (URISyntaxException e) {
-                    info("Cannot convert MAVEN-INF/repository url to path: " + e.getMessage());
-                }
+                    rootRepo = PathFactory.get(nested.getFile().replace("file:", ""));
             }
         }
         this.rootRepositoryLocation = rootRepo;
