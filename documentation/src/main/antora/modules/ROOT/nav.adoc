@@ -38,7 +38,6 @@
 ** xref:component-checkpoint.adoc[Implementing checkpointing on a component]
 ** xref:component-loading.adoc[Component loading]
 ** xref:build-tools-maven.adoc[Building components with Maven]
-** xref:build-tools-gradle.adoc[Building components with Gradle]
 ** xref:wrapping-a-beam-io.adoc[Wrapping a Beam I/O]
 * xref:index-defining-services.adoc[Defining services]
 ** xref:index-defining-services.adoc[Service overview]
