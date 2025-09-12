@@ -233,6 +233,57 @@ class RecordBuilderImplTest {
     }
 
     @Test
+    void disableNullableCheck_no() {
+        RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+        Schema.Builder schemaBuilder = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
+        Schema schema = schemaBuilder.withEntry(
+                recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withName("c2")
+                        .withType(Type.STRING)
+                        .withNullable(true)
+                        .build())
+                .build();
+        Record.Builder recordBuilder = recordBuilderFactory.newRecordBuilder(schema);
+        recordBuilder.withString("c1", "v1");
+        recordBuilder.build();
+
+        Schema.Builder schemaBuilder2 = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
+        Schema schema2 = schemaBuilder2.withEntry(
+                recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withName("c2")
+                        .withType(Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .build();
+        Record.Builder recordBuilder2 = recordBuilderFactory.newRecordBuilder(schema2);
+        recordBuilder2.withString("c1", "v1");
+        assertThrows(IllegalArgumentException.class, recordBuilder2::build);
+    }
+
+    @Test
+    void disableNullableCheck_yes() {
+        System.setProperty(Record.RECORD_NULLABLE_CHECK, "true");
+        RecordBuilderFactoryImpl recordBuilderFactory = new RecordBuilderFactoryImpl("test");
+        Schema.Builder schemaBuilder = recordBuilderFactory.newSchemaBuilder(Type.RECORD);
+        Schema schema = schemaBuilder.withEntry(
+                recordBuilderFactory.newEntryBuilder().withType(Type.STRING).withName("c1").withNullable(false).build())
+                .withEntry(recordBuilderFactory.newEntryBuilder()
+                        .withName("c2")
+                        .withType(Type.STRING)
+                        .withNullable(false)
+                        .build())
+                .build();
+        Record.Builder recordBuilder = recordBuilderFactory.newRecordBuilder(schema);
+        recordBuilder.withString("c1", "v1");
+        recordBuilder.withString("c2", null);
+        Record recordOne = recordBuilder.build();
+        assertNull(recordOne.getString("c2"));
+        System.setProperty(Record.RECORD_NULLABLE_CHECK, "false");
+    }
+
+    @Test
     void dateTime() {
         final Schema schema = new SchemaImpl.BuilderImpl()
                 .withType(Schema.Type.RECORD)
