@@ -11,7 +11,7 @@
     <title>Talend Component Kit Developer Guide :: Talend Component Kit Developer Reference Guide</title>
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/all-in-one.html">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2025-09-15T11:24:23.717Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2025-09-15T12:30:06.102Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -273,9 +273,6 @@
     <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
   </li>
   <li data-depth="2">
-    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
-  </li>
-  <li data-depth="2">
     <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
   </li>
 </ul>
@@ -455,7 +452,7 @@
 </ul>
 </div>
 <div class="paragraph">
-<p>Most part of the development happens as a Maven or Gradle project and requires a dedicated tool such as IntelliJ.</p>
+<p>Most part of the development happens as a Maven project and requires a dedicated tool such as IntelliJ.</p>
 </div>
 <div class="paragraph">
 <p>The Component Kit is made of:</p>
@@ -469,7 +466,7 @@
 <p>APIs to implement components UI and runtime.</p>
 </li>
 <li>
-<p>Development tools: Maven and Gradle wrappers, validation rules, packaging, Web preview, etc.</p>
+<p>Development tools: Maven wrappers, validation rules, packaging, Web preview, etc.</p>
 </li>
 <li>
 <p>A testing kit based on JUnit 4 and 5.</p>
@@ -809,7 +806,7 @@ Because the component is a processor, it has an output branch by default. A proc
 </li>
 <li>
 <p>Compile the project by running the following command: <code>mvnw clean install</code>.<br>
-The <code>mvnw</code> command refers to the Maven wrapper that is embedded in Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.</p>
+The <code>mvnw</code> command refers to the Maven wrapper that is embedded in Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand.</p>
 </li>
 <li>
 <p>Once the command is executed and you see <strong>BUILD SUCCESS</strong> in the terminal, deploy the component to your local instance of Talend Open Studio using the following command:<br>
@@ -1354,7 +1351,7 @@ public Schema guessSchema(@Option MyDataset dataset, final MyDataLoaderService m
 <p>Before being able to develop components using Talend Component Kit, you need the right system configuration and tools.</p>
 </div>
 <div class="paragraph">
-<p>Although Talend Component Kit comes with some embedded tools, such as Maven and Gradle wrappers, you still need to prepare your system. A Talend Component Kit plugin for IntelliJ is also available and allows to design and generate your component project right from IntelliJ.</p>
+<p>Although Talend Component Kit comes with some embedded tools, such as Maven wrappers, you still need to prepare your system. A Talend Component Kit plugin for IntelliJ is also available and allows to design and generate your component project right from IntelliJ.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1391,9 +1388,6 @@ public Schema guessSchema(@Option MyDataset dataset, final MyDataLoaderService m
 <ul>
 <li>
 <p>Apache Maven 3.5.4 is recommended to develop a component or the project itself. You can download it from <a href="https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F">Apache Maven</a> website.<br></p>
-</li>
-<li>
-<p>You can also use Gradle, but at the moment certain features are not supported, such as validations.<br></p>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1401,7 +1395,7 @@ public Schema guessSchema(@Option MyDataset dataset, final MyDataLoaderService m
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-It is optional to install a build tool independently since Maven and Gradle wrappers are already available with Talend Component Kit.
+It is optional to install a build tool independently since Maven wrappers are already available with Talend Component Kit.
 </td>
 </tr>
 </table>
@@ -1634,7 +1628,7 @@ When defining a project using the Starter, do not refresh the page to avoid losi
 <p>Open the <a href="https://starter-toolkit.talend.io">Starter</a> in the web browser of your choice.</p>
 </li>
 <li>
-<p>Select your build tool. This tutorial uses Maven, but you can select Gradle instead.</p>
+<p>Select your build tool. This tutorial uses Maven.</p>
 </li>
 <li>
 <p>Add any facet you need. For example, add the <strong>Talend Component Kit Testing</strong> facet to your project to automatically generate unit tests for the components created in the project.<br></p>
@@ -2032,9 +2026,6 @@ In this tutorial, the project was configured and three components of different t
 In the project directory, execute the <code>mvn package</code> command.<br>
 If you don&#8217;t have Maven installed on your machine, you can use the Maven wrapper provided in the generated project, by executing the <code>./mvnw package</code> command.</p>
 </li>
-<li>
-<p>If you have created a Gradle project, you can compile it using the <code>gradle build</code> command or using the Gradle wrapper: <code>./gradlew build</code>.</p>
-</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -2265,9 +2256,6 @@ Using your Java IDE along with a build tool supported by the framework, you can 
 <p><a href="build-tools-maven.html" class="xref page">Building components with Maven</a></p>
 </li>
 <li>
-<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
-</li>
-<li>
 <p><a href="wrapping-a-beam-io.html" class="xref page">Wrapping a Beam I/O</a></p>
 </li>
 </ul>
@@ -2416,7 +2404,7 @@ You have to define a custom icon as follows:</p>
 <p>Note that SVG icons are not supported by Talend Studio and can cause the deployment of the component to fail.</p>
 </div>
 <div class="paragraph">
-<p>If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven (or Gradle) <code>svg2png</code> plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component.</p>
+<p>If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven <code>svg2png</code> plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component.</p>
 </div>
 <div class="paragraph">
 <p>Ultimately, you can also remove SVG parameters from the <code>talend.component.server.icon.paths</code> property in the HTTP server configuration.</p>
@@ -5801,7 +5789,7 @@ The framework is designed to be as declarative as possible but also to stay exte
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>${property_path}._documentation</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Equivalent to <code>@Documentation("&#8230;&#8203;")</code> but supporting internationalization (see Maven/Gradle documentation goal/task).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Equivalent to <code>@Documentation("&#8230;&#8203;")</code> but supporting internationalization (see Maven documentation goal/task).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>${property_path}._placeholder</code></p></td>
@@ -7511,7 +7499,7 @@ if you use that plugin, ensure to set it before the validate mojo otherwise vali
 <div class="sect5">
 <h6 id="_rendering_your_documentation"><a class="anchor" href="#_rendering_your_documentation"></a>Rendering your documentation</h6>
 <div class="paragraph">
-<p>To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin (or Gradle equivalent). You can configure both executions if you want both HTML and PDF renderings.</p>
+<p>To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin. You can configure both executions if you want both HTML and PDF renderings.</p>
 </div>
 <div class="paragraph">
 <p>Make sure to execute the rendering after the documentation generation.</p>
@@ -7957,112 +7945,6 @@ Call <code>mvn talend-component:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</cod
 <p><a href="best-practices.html" class="xref page">Best practices</a></p>
 </li>
 <li>
-<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
-</li>
-<li>
-<p><a href="studio.html" class="xref page">Integrating to the Studio</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_building_components_with_gradle"><a class="anchor" href="#_building_components_with_gradle"></a>Building components with Gradle</h3>
-<div class="paragraph">
-<p>To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter. With this build tool, you will also be able to implement the logic of your component and to install and deploy it to Talend applications.
-A Talend Component Kit plugin is available for each of the supported build tools.</p>
-</div>
-<div class="paragraph">
-<p><strong>gradle-talend-component</strong> helps you write components that match the best practices. It is inspired from the Maven plugin and adds the ability to generate automatically the <code>dependencies.txt</code> file used by the SDK to build the component classpath. For more information on the configuration, refer to the <a href="build-tools-maven.html" class="xref page">Maven</a> properties matching the attributes.</p>
-</div>
-<div class="paragraph">
-<p>By default, Gradle does not log information messages. To see messages, use <code>--info</code> in your commands. Refer to <a href="https://docs.gradle.org/current/userguide/logging.html">Gradle&#8217;s documentation</a> to learn about log levels.</p>
-</div>
-<div class="paragraph">
-<p>You can use it as follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">buildscript {
-  repositories {
-    mavenLocal()
-    mavenCentral()
-  }
-  dependencies {
-    classpath "org.talend.sdk.component:gradle-talend-component:${talendComponentVersion}"
-  }
-}
-
-apply plugin: 'org.talend.sdk.component'
-apply plugin: 'java'
-
-// optional customization
-talendComponentKit {
-    // dependencies.txt generation, replaces maven-dependency-plugin
-    dependenciesLocation = "TALEND-INF/dependencies.txt"
-    boolean skipDependenciesFile = false;
-
-    // classpath for validation utilities
-    sdkVersion = "${talendComponentVersion}"
-    apiVersion = "${talendComponentApiVersion}"
-
-    // documentation
-    skipDocumentation = false
-    documentationOutput = new File(....)
-    documentationLevel = 2 // first level will be == in the generated .adoc
-    documentationTitle = 'My Component Family' // defaults to ${project.name}
-    documentationAttributes = [:] // adoc attributes
-    documentationFormats = [:] // renderings to do
-    documentationVersion = 1.1 // defaults to the .pom version
-
-    // validation
-    skipValidation = false
-    validateFamily = true
-    validateSerializable = true
-    validateInternationalization = true
-    validateModel = true
-    validateOptionNames = true
-    validateMetadata = true
-    validateComponent = true
-    validateDataStore = true
-    validateDataSet = true
-    validateActions = true
-    validateLocalConfiguration = true
-    validateOutputConnection = true
-    validateLayout = true
-    validateDocumentation = true
-
-    // web
-    serverArguments = []
-    serverPort = 8080
-
-    // car
-    carAttach = true
-    carClassifier = component // classifier to use if carAttach is set to true
-    carOutput = new File(....)
-    carMetadata = [:] // custom meta (string key-value pairs)
-    carPackaging = ${project.packaging}
-
-    // deploy-in-studio
-    studioHome = "C:\&lt;pathToSutdio&gt;"
-
-    // svg2png
-    icons = 'resources/main/icons'
-    useIconWorkarounds = true
-}</code></pre>
-</div>
-</div>
-<div class="sect3 relatedlinks">
-<h4 id="_related_articles_16"><a class="anchor" href="#_related_articles_16"></a>Related articles</h4>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="best-practices.html" class="xref page">Best practices</a></p>
-</li>
-<li>
-<p><a href="build-tools-maven.html" class="xref page">Building components with Maven</a></p>
-</li>
-<li>
 <p><a href="studio.html" class="xref page">Integrating to the Studio</a></p>
 </li>
 </ul>
@@ -8332,12 +8214,12 @@ public class KafkaInput extends PTransform&lt;PBegin, PCollection&lt;Record&gt;&
 </table>
 </div>
 <div class="paragraph">
-<p>Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no <code>@Emitter</code>), you need to set the <code>&lt;talend.validation.component&gt;false&lt;/talend.validation.component&gt;</code> property in your <code>pom.xml</code> file (or equivalent for Gradle) to skip the component programming model validations of the framework.</p>
+<p>Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no <code>@Emitter</code>), you need to set the <code>&lt;talend.validation.component&gt;false&lt;/talend.validation.component&gt;</code> property in your <code>pom.xml</code> file to skip the component programming model validations of the framework.</p>
 </div>
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_17"><a class="anchor" href="#_related_articles_17"></a>Related articles</h4>
+<h4 id="_related_articles_16"><a class="anchor" href="#_related_articles_16"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -8765,7 +8647,7 @@ public class JdbcPartitionMapper
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_18"><a class="anchor" href="#_related_articles_18"></a>Related articles</h4>
+<h4 id="_related_articles_17"><a class="anchor" href="#_related_articles_17"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9389,7 +9271,7 @@ In such a case, exclusions win over inclusions.
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_19"><a class="anchor" href="#_related_articles_19"></a>Related articles</h4>
+<h4 id="_related_articles_18"><a class="anchor" href="#_related_articles_18"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9602,7 +9484,7 @@ Add the <code>junit-jupiter-params</code> dependency to benefit from this featur
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_20"><a class="anchor" href="#_related_articles_20"></a>Related articles</h4>
+<h4 id="_related_articles_19"><a class="anchor" href="#_related_articles_19"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10443,7 +10325,7 @@ void run() throws Exception {
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_21"><a class="anchor" href="#_related_articles_21"></a>Related articles</h4>
+<h4 id="_related_articles_20"><a class="anchor" href="#_related_articles_20"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10477,7 +10359,7 @@ void run() throws Exception {
 <p>Check <a href="https://beam.apache.org/contribute/testing/" class="bare">beam.apache.org/contribute/testing/</a> for more details.</p>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_22"><a class="anchor" href="#_related_articles_22"></a>Related articles</h4>
+<h4 id="_related_articles_21"><a class="anchor" href="#_related_articles_21"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10738,7 +10620,7 @@ class TheComponentTest {
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_23"><a class="anchor" href="#_related_articles_23"></a>Related articles</h4>
+<h4 id="_related_articles_22"><a class="anchor" href="#_related_articles_22"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10794,7 +10676,7 @@ Even if you do not use Maven on the platform, you can generate the <code>setting
 </table>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_24"><a class="anchor" href="#_related_articles_24"></a>Related articles</h4>
+<h4 id="_related_articles_23"><a class="anchor" href="#_related_articles_23"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10888,7 +10770,7 @@ An alternative to data generation can be to import <em>real</em> data and use Ta
 <p>If you are using JUnit 5, you can have a look at <a href="https://glytching.github.io/junit-extensions/randomBeans" class="bare">glytching.github.io/junit-extensions/randomBeans</a>.</p>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_25"><a class="anchor" href="#_related_articles_25"></a>Related articles</h4>
+<h4 id="_related_articles_24"><a class="anchor" href="#_related_articles_24"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11204,7 +11086,7 @@ You can use <code>ViewsMappingTransform</code> or <code>CoGroupByKeyResultMappin
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_26"><a class="anchor" href="#_related_articles_26"></a>Related articles</h4>
+<h4 id="_related_articles_25"><a class="anchor" href="#_related_articles_25"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11730,7 +11612,7 @@ You can use the <code>Response</code> wrapper, or not.
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_27"><a class="anchor" href="#_related_articles_27"></a>Related articles</h4>
+<h4 id="_related_articles_26"><a class="anchor" href="#_related_articles_26"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11833,7 +11715,7 @@ Translator.localized = Some other message with string {0}</code></pre>
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_28"><a class="anchor" href="#_related_articles_28"></a>Related articles</h4>
+<h4 id="_related_articles_27"><a class="anchor" href="#_related_articles_27"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -12499,7 +12381,7 @@ You can combine the <code>$lang</code> option with the <code>@Internationalized<
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_29"><a class="anchor" href="#_related_articles_29"></a>Related articles</h4>
+<h4 id="_related_articles_28"><a class="anchor" href="#_related_articles_28"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -12597,7 +12479,7 @@ The <code>findAnnotation</code> annotation, inherited from <code>InterceptorHand
 </table>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_30"><a class="anchor" href="#_related_articles_30"></a>Related articles</h4>
+<h4 id="_related_articles_29"><a class="anchor" href="#_related_articles_29"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -12644,7 +12526,7 @@ public @interface MyLayout {
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_31"><a class="anchor" href="#_related_articles_31"></a>Related articles</h4>
+<h4 id="_related_articles_30"><a class="anchor" href="#_related_articles_30"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -12796,7 +12678,7 @@ You can use a Snapshot of the version under development using the <code>-SNAPSHO
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_32"><a class="anchor" href="#_related_articles_32"></a>Related articles</h4>
+<h4 id="_related_articles_31"><a class="anchor" href="#_related_articles_31"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -12831,7 +12713,7 @@ You can use a Snapshot of the version under development using the <code>-SNAPSHO
 <div class="sect3">
 <h4 id="_installing_the_components"><a class="anchor" href="#_installing_the_components"></a>Installing the components</h4>
 <div class="paragraph">
-<p>Learn how to build and deploy components to Talend Studio using <a href="build-tools-maven.html" class="xref page">Maven</a> or <a href="build-tools-gradle.html" class="xref page">Gradle</a> Talend Component Kit plugins.</p>
+<p>Learn how to build and deploy components to Talend Studio using <a href="build-tools-maven.html" class="xref page">Maven</a> Talend Component Kit plugins.</p>
 </div>
 <div class="paragraph">
 <p>This can be done using the <code>deploy-in-studio</code> goal from your development environment.</p>
@@ -13094,7 +12976,7 @@ You still need to add and remove the components to see the changes.
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_33"><a class="anchor" href="#_related_articles_33"></a>Related articles</h4>
+<h4 id="_related_articles_32"><a class="anchor" href="#_related_articles_32"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13102,9 +12984,6 @@ You still need to add and remove the components to see the changes.
 </li>
 <li>
 <p><a href="build-tools-maven.html" class="xref page">Building components with Maven</a></p>
-</li>
-<li>
-<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
 </li>
 <li>
 <p><a href="creating-dataset-datastore.html" class="xref page">Learn how to use datasets and datastores with Talend Studio</a></p>
@@ -15330,7 +15209,7 @@ Because the component is a processor, it has an output branch by default. A proc
 </li>
 <li>
 <p>Compile the project by running the following command: <code>mvnw clean install</code>.<br>
-The <code>mvnw</code> command refers to the Maven wrapper that is embedded in Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.</p>
+The <code>mvnw</code> command refers to the Maven wrapper that is embedded in Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand.</p>
 </li>
 <li>
 <p>Once the command is executed and you see <strong>BUILD SUCCESS</strong> in the terminal, deploy the component to your local instance of Talend Open Studio using the following command:<br>
@@ -15507,7 +15386,7 @@ The job is executed. You can observe in the console that each of the 10 generate
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_34"><a class="anchor" href="#_related_articles_34"></a>Related articles</h4>
+<h4 id="_related_articles_33"><a class="anchor" href="#_related_articles_33"></a>Related articles</h4>
 <div class="paragraph">
 <p>To go further and start implementing more complex components, you can refer to the following documents:</p>
 </div>
@@ -15587,7 +15466,7 @@ When defining a project using the Starter, do not refresh the page to avoid losi
 <p>Open the <a href="https://starter-toolkit.talend.io">Starter</a> in the web browser of your choice.</p>
 </li>
 <li>
-<p>Select your build tool. This tutorial uses Maven, but you can select Gradle instead.</p>
+<p>Select your build tool. This tutorial uses Maven.</p>
 </li>
 <li>
 <p>Add any facet you need. For example, add the <strong>Talend Component Kit Testing</strong> facet to your project to automatically generate unit tests for the components created in the project.<br></p>
@@ -15985,9 +15864,6 @@ In this tutorial, the project was configured and three components of different t
 In the project directory, execute the <code>mvn package</code> command.<br>
 If you don&#8217;t have Maven installed on your machine, you can use the Maven wrapper provided in the generated project, by executing the <code>./mvnw package</code> command.</p>
 </li>
-<li>
-<p>If you have created a Gradle project, you can compile it using the <code>gradle build</code> command or using the Gradle wrapper: <code>./gradlew build</code>.</p>
-</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -16056,7 +15932,7 @@ Import the project to your favorite IDE to start the implementation.</p>
 </div>
 </div>
 <div class="sect3 relatedlinks">
-<h4 id="_related_articles_35"><a class="anchor" href="#_related_articles_35"></a>Related articles</h4>
+<h4 id="_related_articles_34"><a class="anchor" href="#_related_articles_34"></a>Related articles</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16095,7 +15971,7 @@ Import the project to your favorite IDE to start the implementation.</p>
 <div class="sect3">
 <h4 id="_creating_the_project"><a class="anchor" href="#_creating_the_project"></a>Creating the project</h4>
 <div class="paragraph">
-<p>A <strong>TCK</strong> project is a simple Java project with specific configurations and dependencies. You can choose your preferred build tool from <strong>Maven</strong> or <strong>Gradle</strong> as TCK supports both. <strong>In this tutorial, Maven is used.</strong></p>
+<p>A <strong>TCK</strong> project is a simple Java project with specific configurations and dependencies. You can choose your preferred build tool from <strong>Maven</strong> as TCK supports both. <strong>In this tutorial, Maven is used.</strong></p>
 </div>
 <div class="paragraph">
 <p>The first step consists in generating the project structure using <strong>Talend Starter Toolkit</strong> .</p>

@@ -15,7 +15,7 @@
     <meta name="description" content="Get an overview of the first step to create a new component, which consists in building a project using the Component Kit Starter or the Component Kit plugin for IntelliJ">
     <meta name="keywords" content="starter, starter, overview, component project, intelliJ, intellij">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2025-09-15T11:24:23.805Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2025-09-15T12:30:06.196Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -277,9 +277,6 @@
     <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
   </li>
   <li data-depth="2">
-    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
-  </li>
-  <li data-depth="2">
     <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
   </li>
 </ul>
@@ -509,7 +506,7 @@ When defining a project using the Starter, do not refresh the page to avoid losi
 <p>Open the <a href="https://starter-toolkit.talend.io">Starter</a> in the web browser of your choice.</p>
 </li>
 <li>
-<p>Select your build tool. This tutorial uses Maven, but you can select Gradle instead.</p>
+<p>Select your build tool. This tutorial uses Maven.</p>
 </li>
 <li>
 <p>Add any facet you need. For example, add the <strong>Talend Component Kit Testing</strong> facet to your project to automatically generate unit tests for the components created in the project.<br></p>
@@ -906,9 +903,6 @@ In this tutorial, the project was configured and three components of different t
 <p>In the tutorial, <strong>Maven</strong> is the build tool selected for the project.<br>
 In the project directory, execute the <code>mvn package</code> command.<br>
 If you don&#8217;t have Maven installed on your machine, you can use the Maven wrapper provided in the generated project, by executing the <code>./mvnw package</code> command.</p>
-</li>
-<li>
-<p>If you have created a Gradle project, you can compile it using the <code>gradle build</code> command or using the Gradle wrapper: <code>./gradlew build</code>.</p>
 </li>
 </ul>
 </div>

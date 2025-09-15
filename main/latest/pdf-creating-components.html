@@ -15,7 +15,7 @@
     <meta name="description" content="Get an overview of the main steps to code the logic of your custom Talend Componit Kit components">
     <meta name="keywords" content="create, code, class, logic, layout, configuration, dev, overview, api">
     <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2025-09-15T11:24:23.799Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+<meta name="date" content="2025-09-15T12:30:06.189Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -277,9 +277,6 @@
     <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
   </li>
   <li data-depth="2">
-    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
-  </li>
-  <li data-depth="2">
     <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
   </li>
 </ul>
@@ -507,9 +504,6 @@ Using your Java IDE along with a build tool supported by the framework, you can 
 <p><a href="build-tools-maven.html" class="xref page">Building components with Maven</a></p>
 </li>
 <li>
-<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
-</li>
-<li>
 <p><a href="wrapping-a-beam-io.html" class="xref page">Wrapping a Beam I/O</a></p>
 </li>
 </ul>
@@ -661,7 +655,7 @@ You have to define a custom icon as follows:</p>
 <p>Note that SVG icons are not supported by Talend Studio and can cause the deployment of the component to fail.</p>
 </div>
 <div class="paragraph">
-<p>If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven (or Gradle) <code>svg2png</code> plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component.</p>
+<p>If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven <code>svg2png</code> plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component.</p>
 </div>
 <div class="paragraph">
 <p>Ultimately, you can also remove SVG parameters from the <code>talend.component.server.icon.paths</code> property in the HTTP server configuration.</p>
@@ -4060,7 +4054,7 @@ The framework is designed to be as declarative as possible but also to stay exte
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>${property_path}._documentation</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Equivalent to <code>@Documentation("&#8230;&#8203;")</code> but supporting internationalization (see Maven/Gradle documentation goal/task).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Equivalent to <code>@Documentation("&#8230;&#8203;")</code> but supporting internationalization (see Maven documentation goal/task).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>${property_path}._placeholder</code></p></td>
@@ -5782,7 +5776,7 @@ if you use that plugin, ensure to set it before the validate mojo otherwise vali
 <div class="sect4">
 <h5 id="_rendering_your_documentation"><a class="anchor" href="#_rendering_your_documentation"></a>Rendering your documentation</h5>
 <div class="paragraph">
-<p>To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin (or Gradle equivalent). You can configure both executions if you want both HTML and PDF renderings.</p>
+<p>To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin. You can configure both executions if you want both HTML and PDF renderings.</p>
 </div>
 <div class="paragraph">
 <p>Make sure to execute the rendering after the documentation generation.</p>
@@ -6228,114 +6222,6 @@ Call <code>mvn talend-component:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</cod
 <p><a href="best-practices.html" class="xref page">Best practices</a></p>
 </li>
 <li>
-<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
-</li>
-<li>
-<p><a href="studio.html" class="xref page">Integrating to the Studio</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_building_components_with_gradle"><a class="anchor" href="#_building_components_with_gradle"></a>Building components with Gradle</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter. With this build tool, you will also be able to implement the logic of your component and to install and deploy it to Talend applications.
-A Talend Component Kit plugin is available for each of the supported build tools.</p>
-</div>
-<div class="paragraph">
-<p><strong>gradle-talend-component</strong> helps you write components that match the best practices. It is inspired from the Maven plugin and adds the ability to generate automatically the <code>dependencies.txt</code> file used by the SDK to build the component classpath. For more information on the configuration, refer to the <a href="build-tools-maven.html" class="xref page">Maven</a> properties matching the attributes.</p>
-</div>
-<div class="paragraph">
-<p>By default, Gradle does not log information messages. To see messages, use <code>--info</code> in your commands. Refer to <a href="https://docs.gradle.org/current/userguide/logging.html">Gradle&#8217;s documentation</a> to learn about log levels.</p>
-</div>
-<div class="paragraph">
-<p>You can use it as follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">buildscript {
-  repositories {
-    mavenLocal()
-    mavenCentral()
-  }
-  dependencies {
-    classpath "org.talend.sdk.component:gradle-talend-component:${talendComponentVersion}"
-  }
-}
-
-apply plugin: 'org.talend.sdk.component'
-apply plugin: 'java'
-
-// optional customization
-talendComponentKit {
-    // dependencies.txt generation, replaces maven-dependency-plugin
-    dependenciesLocation = "TALEND-INF/dependencies.txt"
-    boolean skipDependenciesFile = false;
-
-    // classpath for validation utilities
-    sdkVersion = "${talendComponentVersion}"
-    apiVersion = "${talendComponentApiVersion}"
-
-    // documentation
-    skipDocumentation = false
-    documentationOutput = new File(....)
-    documentationLevel = 2 // first level will be == in the generated .adoc
-    documentationTitle = 'My Component Family' // defaults to ${project.name}
-    documentationAttributes = [:] // adoc attributes
-    documentationFormats = [:] // renderings to do
-    documentationVersion = 1.1 // defaults to the .pom version
-
-    // validation
-    skipValidation = false
-    validateFamily = true
-    validateSerializable = true
-    validateInternationalization = true
-    validateModel = true
-    validateOptionNames = true
-    validateMetadata = true
-    validateComponent = true
-    validateDataStore = true
-    validateDataSet = true
-    validateActions = true
-    validateLocalConfiguration = true
-    validateOutputConnection = true
-    validateLayout = true
-    validateDocumentation = true
-
-    // web
-    serverArguments = []
-    serverPort = 8080
-
-    // car
-    carAttach = true
-    carClassifier = component // classifier to use if carAttach is set to true
-    carOutput = new File(....)
-    carMetadata = [:] // custom meta (string key-value pairs)
-    carPackaging = ${project.packaging}
-
-    // deploy-in-studio
-    studioHome = "C:\&lt;pathToSutdio&gt;"
-
-    // svg2png
-    icons = 'resources/main/icons'
-    useIconWorkarounds = true
-}</code></pre>
-</div>
-</div>
-<div class="sect2 relatedlinks">
-<h3 id="_related_articles_11"><a class="anchor" href="#_related_articles_11"></a>Related articles</h3>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="best-practices.html" class="xref page">Best practices</a></p>
-</li>
-<li>
-<p><a href="build-tools-maven.html" class="xref page">Building components with Maven</a></p>
-</li>
-<li>
 <p><a href="studio.html" class="xref page">Integrating to the Studio</a></p>
 </li>
 </ul>
@@ -6607,12 +6493,12 @@ public class KafkaInput extends PTransform&lt;PBegin, PCollection&lt;Record&gt;&
 </table>
 </div>
 <div class="paragraph">
-<p>Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no <code>@Emitter</code>), you need to set the <code>&lt;talend.validation.component&gt;false&lt;/talend.validation.component&gt;</code> property in your <code>pom.xml</code> file (or equivalent for Gradle) to skip the component programming model validations of the framework.</p>
+<p>Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no <code>@Emitter</code>), you need to set the <code>&lt;talend.validation.component&gt;false&lt;/talend.validation.component&gt;</code> property in your <code>pom.xml</code> file to skip the component programming model validations of the framework.</p>
 </div>
 </div>
 </div>
 <div class="sect2 relatedlinks">
-<h3 id="_related_articles_12"><a class="anchor" href="#_related_articles_12"></a>Related articles</h3>
+<h3 id="_related_articles_11"><a class="anchor" href="#_related_articles_11"></a>Related articles</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -7042,7 +6928,7 @@ public class JdbcPartitionMapper
 </div>
 </div>
 <div class="sect2 relatedlinks">
-<h3 id="_related_articles_13"><a class="anchor" href="#_related_articles_13"></a>Related articles</h3>
+<h3 id="_related_articles_12"><a class="anchor" href="#_related_articles_12"></a>Related articles</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -7668,7 +7554,7 @@ In such a case, exclusions win over inclusions.
 </div>
 </div>
 <div class="sect2 relatedlinks">
-<h3 id="_related_articles_14"><a class="anchor" href="#_related_articles_14"></a>Related articles</h3>
+<h3 id="_related_articles_13"><a class="anchor" href="#_related_articles_13"></a>Related articles</h3>
 <div class="ulist">
 <ul>
 <li>
