@@ -36,6 +36,8 @@ public interface Record {
 
     String RECORD_ERROR_SUPPORT = "talend.component.record.error.support";
 
+    String RECORD_NULLABLE_CHECK = "talend.component.record.nullable.check";
+
     /**
      * @return the schema of this record.
      */

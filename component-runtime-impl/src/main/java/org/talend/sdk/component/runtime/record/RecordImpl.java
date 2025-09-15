@@ -123,6 +123,9 @@ public final class RecordImpl implements Record {
     // Entry creation can be optimized a bit but recent GC should not see it as a big deal
     public static class BuilderImpl implements Builder {
 
+        private final boolean skipNullCheck =
+                Boolean.parseBoolean(System.getProperty(Record.RECORD_NULLABLE_CHECK, "false"));
+
         private final Map<String, Object> values = new HashMap<>(8);
 
         private final OrderedMap<Schema.Entry> entries;
@@ -327,7 +330,7 @@ public final class RecordImpl implements Record {
                         "Entry '" + entry.getOriginalFieldName() + "' expected to be a " + entry.getType() + ", got a "
                                 + type);
             }
-            if (value == null && !entry.isNullable()) {
+            if (!skipNullCheck && value == null && !entry.isNullable()) {
                 throw new IllegalArgumentException("Entry '" + entry.getOriginalFieldName() + "' is not nullable");
             }
             return entry;
@@ -357,7 +360,7 @@ public final class RecordImpl implements Record {
                         .filter(it -> !it.isNullable() && !values.containsKey(it.getName()))
                         .map(Schema.Entry::getName)
                         .collect(joining(", "));
-                if (!missing.isEmpty()) {
+                if (!skipNullCheck && !missing.isEmpty()) {
                     throw new IllegalArgumentException("Missing entries: " + missing);
                 }
 
@@ -587,10 +590,15 @@ public final class RecordImpl implements Record {
             } else {
                 realEntry = entry;
             }
-            if (value != null) {
+
+            if (skipNullCheck) {
                 values.put(realEntry.getName(), value);
-            } else if (!realEntry.isNullable()) {
-                throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
+            } else {
+                if (value != null) {
+                    values.put(realEntry.getName(), value);
+                } else if (!realEntry.isNullable()) {
+                    throw new IllegalArgumentException(realEntry.getName() + " is not nullable but got a null value");
+                }
             }
 
             if (this.entries != null) {
