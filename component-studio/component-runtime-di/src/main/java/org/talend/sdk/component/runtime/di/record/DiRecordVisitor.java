@@ -283,9 +283,6 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
                 .filter(l -> !l.isEmpty())
                 .map(Integer::valueOf)
                 .orElse(dynamicColumnPrecision);
-        final String pattern = ofNullable(entry.getProp(PATTERN))
-                .filter(l -> !l.isEmpty())
-                .orElse(dynamicColumnPattern);
         final String studioType = entry.getProps()
                 .getOrDefault(STUDIO_TYPE, StudioTypes.typeFromRecord(entry.getType()));
         metadata.getDynamicMetadata().setKey(isKey);
@@ -306,7 +303,14 @@ public class DiRecordVisitor implements RecordVisitor<Object> {
 
         switch (studioType) {
             case StudioTypes.DATE:
-                metadata.getDynamicMetadata().setLogicalType("timestamp-millis");
+                final String logicalType = entry.getLogicalType();
+
+                final String pattern = ofNullable(entry.getProp(PATTERN))
+                        .filter(l -> !l.isEmpty())
+                        .orElse(dynamicColumnPattern);
+
+                metadata.getDynamicMetadata().setLogicalType(logicalType);
+
                 metadata.getDynamicMetadata().setFormat(pattern);
                 break;
             default:

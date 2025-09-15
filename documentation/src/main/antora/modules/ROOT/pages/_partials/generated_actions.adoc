@@ -156,6 +156,34 @@ Mark an action as returning a discovered schema. Its parameter MUST be a dataset
       "valid":true
     }
   ],
+  "entriesOrdered":[
+    {
+      "comment":"The column 1",
+      "errorCapable":false,
+      "metadata":false,
+      "name":"column1",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 1",
+      "type":"STRING",
+      "valid":true
+    },
+    {
+      "comment":"The int column",
+      "errorCapable":false,
+      "metadata":false,
+      "name":"column2",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 2",
+      "type":"INT",
+      "valid":true
+    }
+  ],
   "metadata":[
   ],
   "props":{
@@ -179,6 +207,34 @@ Mark a method as returning a Schema resulting from a connector configuration and
 ----
 {
   "entries":[
+    {
+      "comment":"The column 1",
+      "errorCapable":false,
+      "metadata":false,
+      "name":"column1",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 1",
+      "type":"STRING",
+      "valid":true
+    },
+    {
+      "comment":"The int column",
+      "errorCapable":false,
+      "metadata":false,
+      "name":"column2",
+      "nullable":false,
+      "props":{
+
+      },
+      "rawName":"column 2",
+      "type":"INT",
+      "valid":true
+    }
+  ],
+  "entriesOrdered":[
     {
       "comment":"The column 1",
       "errorCapable":false,

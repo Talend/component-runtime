@@ -174,7 +174,7 @@
     <ziplock.test.version>8.0.14</ziplock.test.version>
     <meecrowave.version>1.2.15</meecrowave.version>
     <owb.version>2.0.27</owb.version>
-    <tomcat.version>9.0.104</tomcat.version>
+    <tomcat.version>9.0.108</tomcat.version>
     <cxf.version>3.5.11</cxf.version>
 
     <woodstox.version>6.5.0</woodstox.version>
@@ -241,7 +241,7 @@
     <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
     <clirr-plugin.version>2.8</clirr-plugin.version>
     <common-maven-plugin.version>1.0.7</common-maven-plugin.version>
-    <download-plugin.version>1.13.0</download-plugin.version>
+    <download-plugin.version>2.0.0</download-plugin.version>
     <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
     <gmavenplus-plugin.version>1.13.1</gmavenplus-plugin.version>
     <gpg-plugin.version>3.2.7</gpg-plugin.version>
@@ -261,7 +261,7 @@
     <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
     <maven-invoker-plugin.version>3.9.0</maven-invoker-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>3.11.3</maven-javadoc-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
@@ -275,7 +275,7 @@
     <jruby.version>9.2.19.0</jruby.version>
     <node.version>v20.12.0</node.version>
     <npm.version>10.5.0</npm.version>
-    <frontend.version>1.12.1</frontend.version>
+    <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
 
     <!-- misc dependencies -->
     <maven-bundle-plugin.version>4.2.1</maven-bundle-plugin.version>
@@ -1083,7 +1083,6 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven-javadoc-plugin.version}</version>
           <configuration>
-            <source>8</source>
             <jarOutputDirectory>${project.build.directory}/javadoc/binary</jarOutputDirectory>
             <outputDirectory>${project.build.directory}/javadoc/apidocs</outputDirectory>
             <splitindex>true</splitindex>
@@ -1091,10 +1090,12 @@
             <windowtitle>${project.name}</windowtitle>
             <header>${project.name} - ${project.version}</header>
             <doctitle>${project.name} - ${project.version}</doctitle>
-            <bottom>${project.version} - Copyright &amp;copy; 2024 &lt;a
-              href="https://talend.github.io/component-runtime/" target="_top"&gt;Talend Component Kit Documentation&lt;a&gt;</bottom>
+            <bottom>
+              <![CDATA[${project.version} - Copyright &amp;copy; 2025 <a href="https://talend.github.io/component-runtime/" target="_top">Talend Component Kit Documentation</a>]]>
+            </bottom>
             <use>true</use>
             <legacyMode>true</legacyMode>
+            <doclint>none</doclint>
           </configuration>
         </plugin>
         <plugin>
@@ -1413,6 +1414,11 @@
           <groupId>org.sonatype.central</groupId>
           <artifactId>central-publishing-maven-plugin</artifactId>
           <version>${central-publishing-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>${frontend-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
