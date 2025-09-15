@@ -26,7 +26,7 @@ Custom icons must comply with the following requirements:
 ====
 Note that SVG icons are not supported by Talend Studio and can cause the deployment of the component to fail. 
 
-If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven (or Gradle) `svg2png` plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component. 
+If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven `svg2png` plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component.
 
 Ultimately, you can also remove SVG parameters from the `talend.component.server.icon.paths` property in the HTTP server configuration.
 ====

@@ -20,7 +20,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.talend.sdk.component.starter.server.service.Resources.resourceFileToString;
@@ -29,8 +28,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +42,6 @@ import javax.json.Json;
 import javax.json.bind.Jsonb;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.meecrowave.junit5.MonoMeecrowaveConfig;
@@ -131,7 +127,7 @@ class ProjectResourceTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(FactoryConfiguration.class);
         final String debug = config.toString();
-        assertEquals(new HashSet<>(asList("Gradle", "Maven")), new HashSet<>(config.getBuildTypes()), debug);
+        assertEquals(new HashSet<>(asList("Maven")), new HashSet<>(config.getBuildTypes()), debug);
         assertEquals(new HashMap<String, List<FactoryConfiguration.Facet>>() {
 
             {
@@ -324,39 +320,6 @@ class ProjectResourceTest {
     }
 
     @Test
-    void formProject(final WebTarget target) throws IOException {
-        final ProjectModel projectModel = new ProjectModel();
-        projectModel.setBuildType("Gradle");
-        final Map<String, String> files = createZip(projectModel, model -> target
-                .path("project/zip/form")
-                .queryParam("compressionType", "gzip")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .accept("application/zip")
-                .post(Entity
-                        .entity(new Form()
-                                .param("project", Base64
-                                        .getEncoder()
-                                        .encodeToString(jsonb.toJson(projectModel).getBytes(StandardCharsets.UTF_8))),
-                                APPLICATION_FORM_URLENCODED_TYPE),
-                        InputStream.class));
-        assertTrue(files.containsKey("application/build.gradle"));
-    }
-
-    @Test
-    void emptyGradleProject(final WebTarget target) throws IOException {
-        final ProjectModel projectModel = new ProjectModel();
-        projectModel.setBuildType("Gradle");
-        final Map<String, String> files = createZip(projectModel, target);
-
-        assertEquals(Stream
-                .of("application/gradle/", "application/", "application/gradle/wrapper/gradle-wrapper.jar",
-                        "application/gradlew.bat", "application/gradlew",
-                        "application/gradle/wrapper/gradle-wrapper.properties", "application/gradle/wrapper/",
-                        "application/README.adoc", "application/build.gradle")
-                .collect(toSet()), files.keySet());
-    }
-
-    @Test
     void testingProject(final WebTarget target) throws IOException {
         final ProjectModel projectModel = new ProjectModel();
         projectModel.setFacets(singletonList("Talend Component Kit Testing"));
@@ -376,18 +339,6 @@ class ProjectResourceTest {
                 + "=== Talend Component Kit Testing\n" + "\n"
                 + "Talend Component Kit Testing skeleton generator. For each component selected it generates an associated test suffixed with `Test`.\n"
                 + "\n" + "\n", files.get("application/README.adoc"));
-    }
-
-    @Test
-    void gradleTestingProject(final WebTarget target) throws IOException {
-        final ProjectModel projectModel = new ProjectModel();
-        projectModel.setBuildType("Gradle");
-        projectModel.setFacets(singletonList("Talend Component Kit Testing"));
-        final String buildFile = createZip(projectModel, target).get("application/build.gradle");
-        assertTrue(buildFile
-                .contains("group: 'org.talend.sdk.component', name: 'component-runtime-junit', version: '"
-                        + versions.getSnapshot().getKit() + "'"),
-                buildFile);
     }
 
     @Test
@@ -428,50 +379,6 @@ class ProjectResourceTest {
 
         assertTrue(files.get("application/README.adoc").contains("=== Travis CI\n"));
         assertTrue(files.get("application/.travis.yml").contains("language: java"));
-    }
-
-    @Test
-    void wadlFacetGradle(final WebTarget target) throws IOException {
-        final ProjectModel projectModel = new ProjectModel();
-        projectModel.setBuildType("Gradle");
-        projectModel.setPackageBase("com.foo");
-        projectModel.setFacets(singletonList("WADL Client Generation"));
-        final Map<String, String> files = createZip(projectModel, target);
-
-        assertWadl(files);
-        assertEquals("apply plugin: 'nebula.provided-base'\n" + "apply plugin: 'org.talend.sdk.component'\n"
-                + "apply plugin: 'java'\napply plugin: 'maven-publish'\n" + "\n" + "tasks.withType(JavaCompile) {\n"
-                + "    sourceCompatibility = 1.8\n" + "    targetCompatibility = 1.8\n"
-                + "    options.compilerArgs << '-parameters'\n" + "    options.fork = true\n" + "}\n" + "\n"
-                + "import org.apache.cxf.tools.common.ToolContext\n" + "import org.apache.cxf.tools.wadlto.WADLToJava\n"
-                + "\n" + "buildscript {\n" + "  repositories {\n" + "    mavenLocal()\n" + "    mavenCentral()\n"
-                + "    maven {\n" + "      url \"https://plugins.gradle.org/m2/\"\n" + "    }\n" + "  }\n"
-                + "  dependencies {\n"
-                + "    classpath \"com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3\"\n"
-                + "    classpath \"org.talend.sdk.component:gradle-talend-component:" + versions.getSnapshot().getKit()
-                + "\"\n" + "    classpath \"org.apache.cxf:cxf-tools-wadlto-jaxrs:" + versions.getSnapshot().getCxf()
-                + "\"\n" + "  }\n" + "}\n" + "\n" + "repositories {\n" + "  mavenLocal()\n" + "  mavenCentral()\n"
-                + "}\n" + "\n" + "group = 'com.component'\n"
-                + "description = 'An application generated by the Talend Component Kit Starter'\n"
-                + "version = '0.0.1-SNAPSHOT'\n\n\n" + "jar {\n" + "  baseName = 'application'\n"
-                + "  version = '0.0.1-SNAPSHOT'\n" + "}\n" + "\n" + "test {\n"
-                + "  testLogging.showStandardStreams = true\n" + "}\n"
-                + "def wadlGeneratedFolder = \"$buildDir/generated-sources/cxf\"\n" + "task generateWadlClient {\n"
-                + "  def wadl = \"$projectDir/src/main/resources/wadl/client.xml\"\n" + "\n" + "  inputs.file(wadl)\n"
-                + "  outputs.dir(wadlGeneratedFolder)\n" + "\n" + "  doLast {\n"
-                + "    new File(wadlGeneratedFolder).mkdirs()\n" + "\n" + "    new WADLToJava([\n"
-                + "      \"-d\", wadlGeneratedFolder,\n" + "      \"-p\", \"com.application.client.wadl\",\n"
-                + "      wadl\n" + "    ] as String[]).run(new ToolContext())\n" + "  }\n" + "}\n" + "\n"
-                + "sourceSets {\n" + "  main {\n" + "    java {\n"
-                + "      project.tasks.compileJava.dependsOn project.tasks.generateWadlClient\n"
-                + "      srcDir wadlGeneratedFolder\n" + "    }\n" + "  }\n" + "}\n" + "\n" + "repositories {\n"
-                + "  mavenCentral()\n" + "}\n" + "\n" + "dependencies {\n"
-                + "  provided group: 'org.talend.sdk.component', name: 'component-api', version: '"
-                + versions.getSnapshot().getApiKit() + "'\n"
-                + "  compile group: 'org.apache.cxf', name: 'cxf-rt-rs-client', version: '"
-                + versions.getSnapshot().getCxf() + "'\n" + "}\n" + "\n" + "publishing {\n" + "  publications {\n"
-                + "    mavenJava(MavenPublication) {\n" + "      from components.java\n" + "    }\n" + "  }\n"
-                + "  repositories {\n" + "    mavenLocal()\n" + "  }\n" + "}\n", files.get("application/build.gradle"));
     }
 
     @Test

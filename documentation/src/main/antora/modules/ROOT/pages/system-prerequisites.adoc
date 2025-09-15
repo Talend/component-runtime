@@ -13,9 +13,8 @@ In order to use Talend Component Kit, you need the following tools installed on 
 * Optional: If you use IntelliJ, you can install the xref:installing-talend-intellij-plugin.adoc[Talend Component Kit plugin for IntelliJ].
 * Optional: A build tool:
 - Apache Maven 3.5.4 is recommended to develop a component or the project itself. You can download it from https://maven.apache.org/download.cgi?Preferred=ftp%3A%2F%2Fmirror.reverse.net%2Fpub%2Fapache%2F[Apache Maven] website. +
-- You can also use Gradle, but at the moment certain features are not supported, such as validations. +
 +
-NOTE:  It is optional to install a build tool independently since Maven and Gradle wrappers are already available with Talend Component Kit.
+NOTE:  It is optional to install a build tool independently since Maven wrappers are already available with Talend Component Kit.
 
 ifeval::["{backend}" == "html5"]
 [role="relatedlinks"]
