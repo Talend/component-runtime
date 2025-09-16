@@ -37,9 +37,11 @@ import static org.talend.sdk.component.runtime.manager.ComponentManager.Componen
 import static org.talend.sdk.component.runtime.manager.reflect.Constructors.findConstructor;
 import static org.talend.sdk.component.runtime.manager.util.Lazy.lazy;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -1302,16 +1304,42 @@ public class ComponentManager implements AutoCloseable {
             try {
                 String alreadyScannedClasses = null;
                 Filter filter = KnownClassesFilter.INSTANCE;
-                try (final InputStream containerFilterConfig =
-                        container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
-                    if (containerFilterConfig != null) {
+                // we need to scan the nested repository
+                if (container.hasNestedRepository()) {
+                    try {
+                        final Enumeration<URL> urls = loader.getResources("TALEND-INF/scanning.properties");
                         final Properties config = new Properties();
-                        config.load(containerFilterConfig);
-                        filter = createScanningFilter(config);
-                        alreadyScannedClasses = config.getProperty("classes.list");
+                        while (urls.hasMoreElements()) {
+                            final URL url = urls.nextElement();
+                            // ensure we scan the correct classes of plugin in the nested repository
+                            if ("nested".equals(url.getProtocol())
+                                    && url.getPath().contains(container.getRootModule())) {
+                                try (final BufferedReader reader =
+                                        new BufferedReader(new InputStreamReader(url.openStream()))) {
+                                    config.load(reader);
+                                    filter = createScanningFilter(config);
+                                    alreadyScannedClasses = config.getProperty("classes.list");
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (IOException e) {
+                        log.info("[onCreate] Can't read nested scanning.properties: {}", e.getMessage());
                     }
-                } catch (final IOException e) {
-                    log.debug(e.getMessage(), e);
+                }
+                // normal scanning or nested scan failed
+                if (alreadyScannedClasses == null) {
+                    try (final InputStream containerFilterConfig =
+                            container.getLoader().getResourceAsStream("TALEND-INF/scanning.properties")) {
+                        if (containerFilterConfig != null) {
+                            final Properties config = new Properties();
+                            config.load(containerFilterConfig);
+                            filter = createScanningFilter(config);
+                            alreadyScannedClasses = config.getProperty("classes.list");
+                        }
+                    } catch (final IOException e) {
+                        log.debug(e.getMessage(), e);
+                    }
                 }
 
                 AnnotationFinder optimizedFinder = null;
