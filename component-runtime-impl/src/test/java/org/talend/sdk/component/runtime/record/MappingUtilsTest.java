@@ -111,24 +111,22 @@ class MappingUtilsTest {
         assertThrows(IllegalArgumentException.class, () -> MappingUtils.coerce(List.class, 123, name));
     }
 
-
     @ParameterizedTest
     @MethodSource("mapStringProvider")
     void mapString(final Class expectedType, final String inputValue, final Object expectedResult) {
         Object mapped = MappingUtils.coerce(expectedType, inputValue, "::testing::mapString");
-        if(expectedResult instanceof byte[]){
-            Assertions.assertArrayEquals((byte[])expectedResult, (byte[])mapped);
-        }
-        else {
+        if (expectedResult instanceof byte[]) {
+            Assertions.assertArrayEquals((byte[]) expectedResult, (byte[]) mapped);
+        } else {
             Assertions.assertEquals(expectedResult, mapped);
         }
     }
 
     static Stream<Arguments> mapStringProvider() {
         final ZonedDateTime zdtAfterEpochWithNano = ZonedDateTime.of(
-                2024, 7, 15,  // Année, mois, jour
-                14, 30, 45,   // Heure, minute, seconde
-                123_456_789,  // Nanosecondes
+                2024, 7, 15, // Année, mois, jour
+                14, 30, 45, // Heure, minute, seconde
+                123_456_789, // Nanosecondes
                 ZoneId.of("Europe/Paris"));
 
         final Date dateAfterEpoch = Date.from(zdtAfterEpochWithNano.toInstant());
@@ -137,16 +135,15 @@ class MappingUtilsTest {
         final ZonedDateTime zdtAfterEpochUTCNoNano = instant.atZone(UTC);
 
         final ZonedDateTime zdtBeforeEpochWithNano = ZonedDateTime.of(
-                1930, 7, 15,  // Année, mois, jour
-                14, 30, 45,   // Heure, minute, seconde
-                123_456_789,  // Nanosecondes
+                1930, 7, 15, // Année, mois, jour
+                14, 30, 45, // Heure, minute, seconde
+                123_456_789, // Nanosecondes
                 ZoneId.of("Europe/Paris"));
 
         final Date dateBeforeEpoch = Date.from(zdtBeforeEpochWithNano.toInstant());
 
         instant = dateBeforeEpoch.toInstant();
         final ZonedDateTime zdtBeforeEpochUTCNoNano = instant.atZone(UTC);
-
 
         return Stream.of(
                 // (expectedType, inputValue, expectedResult)
@@ -168,8 +165,8 @@ class MappingUtilsTest {
                         zdtBeforeEpochUTCNoNano),
                 Arguments.of(Character.class, "abcde", 'a'),
                 Arguments.arguments(byte[].class, "Ojp0ZXN0aW5nOjptYXBTdHJpbmc=",
-                        new byte[]{58, 58, 116, 101, 115, 116, 105, 110, 103, 58,
-                                58, 109, 97, 112, 83, 116, 114, 105, 110, 103}),
+                        new byte[] { 58, 58, 116, 101, 115, 116, 105, 110, 103, 58,
+                                58, 109, 97, 112, 83, 116, 114, 105, 110, 103 }),
                 Arguments.of(BigDecimal.class, "123456789123456789",
                         new BigDecimal("123456789123456789")),
                 Arguments.of(Integer.class, String.valueOf(Integer.MIN_VALUE), Integer.MIN_VALUE),
@@ -177,7 +174,6 @@ class MappingUtilsTest {
                 Arguments.of(Short.class, String.valueOf(Short.MIN_VALUE), Short.MIN_VALUE),
                 Arguments.of(Byte.class, String.valueOf(Byte.MIN_VALUE), Byte.MIN_VALUE),
                 Arguments.of(Float.class, String.valueOf(Float.MIN_VALUE), Float.MIN_VALUE),
-                Arguments.of(Double.class, String.valueOf(Double.MIN_VALUE), Double.MIN_VALUE)
-        );
+                Arguments.of(Double.class, String.valueOf(Double.MIN_VALUE), Double.MIN_VALUE));
     }
 }
