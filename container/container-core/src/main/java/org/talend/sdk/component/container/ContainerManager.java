@@ -137,6 +137,9 @@ public class ContainerManager implements Lifecycle {
         if (classLoaderConfiguration.isSupportsResourceDependencies()) {
             try (final InputStream mappingStream =
                     classLoaderConfiguration.getParent().getResourceAsStream(nestedPluginMappingResource)) {
+                // When a `classpath.jar` is provided to jvm (like JobServer) using plugin path based on maven
+                // repository structure is not functional. Therefore, we skip loading the nested plugin mapping when
+                // hasClasspathJar is true. Autodiscovery will find plugins later.
                 if (mappingStream != null && !hasClasspathJar) {
                     final Properties properties = new Properties() {
 
