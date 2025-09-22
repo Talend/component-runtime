@@ -111,6 +111,7 @@ public class ContainerManager implements Lifecycle {
         this.logInfoLevelMapping = logInfoLevelMapping;
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
+        final boolean hasClasspathJar = "classpath.jar".equals(System.getProperty("java.class.path", ""));
 
         Path rootRepo = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
                 .filter(Files::exists)
@@ -136,7 +137,7 @@ public class ContainerManager implements Lifecycle {
         if (classLoaderConfiguration.isSupportsResourceDependencies()) {
             try (final InputStream mappingStream =
                     classLoaderConfiguration.getParent().getResourceAsStream(nestedPluginMappingResource)) {
-                if (mappingStream != null) {
+                if (mappingStream != null && !hasClasspathJar) {
                     final Properties properties = new Properties() {
 
                         {
