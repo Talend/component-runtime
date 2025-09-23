@@ -42,6 +42,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.talend.sdk.component.api.exception.ComponentException;
+import org.talend.sdk.component.api.exception.ComponentException.ErrorOrigin;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.runtime.manager.ComponentManager;
 import org.talend.sdk.component.runtime.manager.ContainerComponentRegistry;
 import org.talend.sdk.component.runtime.manager.ServiceMeta;
@@ -212,29 +214,34 @@ public class ActionResourceImpl implements ActionResource {
 
     private Response onError(final Throwable re) {
         log.warn(re.getMessage(), re);
-        if (WebApplicationException.class.isInstance(re.getCause())) {
-            return WebApplicationException.class.cast(re.getCause()).getResponse();
+        if (re.getCause() instanceof WebApplicationException webException) {
+            return webException.getResponse();
         }
 
-        if (ComponentException.class.isInstance(re)) {
-            final ComponentException ce = (ComponentException) re;
+        final String description = "Action execution failed with: " + ofNullable(re.getMessage())
+                .orElseGet(() -> re instanceof NullPointerException
+                        ? "unexpected null"
+                        : "no error message");
+        if (re instanceof final DiscoverSchemaException eSchema) {
+            // we send reason to recognize the error on client side
+            final String subCode = eSchema.getPossibleHandleErrorWith().toString();
             throw new WebApplicationException(Response
-                    .status(ce.getErrorOrigin() == ComponentException.ErrorOrigin.USER ? 400
-                            : ce.getErrorOrigin() == ComponentException.ErrorOrigin.BACKEND ? 456 : 520,
+                    .status(400, subCode)
+                    .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR, subCode, description))
+                    .build());
+        } else if (re instanceof final ComponentException eComponent) {
+            throw new WebApplicationException(Response
+                    .status(eComponent.getErrorOrigin() == ErrorOrigin.USER
+                            ? 400
+                            : eComponent.getErrorOrigin() == ErrorOrigin.BACKEND ? 456 : 520,
                             "Unexpected callback error")
-                    .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
-                            "Action execution failed with: " + ofNullable(re.getMessage())
-                                    .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
-                                            : "no error message")))
+                    .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR, description))
                     .build());
         }
 
         throw new WebApplicationException(Response
                 .status(520, "Unexpected callback error")
-                .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR,
-                        "Action execution failed with: " + ofNullable(re.getMessage())
-                                .orElseGet(() -> NullPointerException.class.isInstance(re) ? "unexpected null"
-                                        : "no error message")))
+                .entity(new ErrorPayload(ErrorDictionary.ACTION_ERROR, description))
                 .build());
     }
 
