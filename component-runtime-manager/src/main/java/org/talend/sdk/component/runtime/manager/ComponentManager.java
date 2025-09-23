@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -213,11 +214,14 @@ public class ComponentManager implements AutoCloseable {
                 {
                     info("ComponentManager version: " + ComponentManagerVersion.VERSION);
                     info("Creating the contextual ComponentManager instance " + getIdentifiers());
-
-                    parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
-                            container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
-                            .forEach(this::addPlugin);
-                    info("Components: " + availablePlugins());
+                    try {
+                        parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
+                                container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
+                                .forEach(this::addPlugin);
+                        info("Components: " + availablePlugins());
+                    } catch (Exception e) {
+                        info(format("Error while loading plugin found in plugins.properties: %s.", e.getMessage()));
+                    }
                 }
 
                 @Override

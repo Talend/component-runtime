@@ -120,7 +120,8 @@ public class ContainerManager implements Lifecycle {
         if (PathFactory.get(System.getProperty("user.home")).resolve(".m2/repository").equals(rootRepo)) {
             final URL nested = classLoaderConfiguration.getParent().getResource("MAVEN-INF/repository");
             if (nested != null) {
-                rootRepo = PathFactory.get(nested.getFile().replace("file:", ""));
+                info("Nested maven repository: " + nested.getFile());
+                rootRepo = PathFactory.get(nested.getFile().replaceAll("^(file|nested):", ""));
             }
         }
         this.rootRepositoryLocation = rootRepo;
