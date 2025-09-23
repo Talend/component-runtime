@@ -24,6 +24,7 @@ import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -70,57 +71,81 @@ public class PropertiesService {
 
     private Stream<SimplePropertyDefinition> buildProperties(final List<ParameterMeta> meta, final ClassLoader loader,
             final Locale locale, final DefaultValueInspector.Instance rootInstance, final ParameterMeta parent) {
-        return meta.stream().flatMap(p -> {
-            final String path = sanitizePropertyName(p.getPath());
-            final String name = sanitizePropertyName(p.getName());
-            final String type = p.getType().name();
-            final boolean isEnum = p.getType() == ParameterMeta.Type.ENUM;
-            PropertyValidation validation = propertyValidationService.map(p.getMetadata());
-            if (isEnum) {
-                if (validation == null) {
-                    validation = new PropertyValidation();
-                }
-                validation.setEnumValues(p.getProposals());
-            }
-            final Map<String, String> sanitizedMetadata = ofNullable(p.getMetadata())
-                    .map(m -> m
-                            .entrySet()
-                            .stream()
-                            .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
-                            .collect(toLinkedMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
-                    .orElse(null);
-            final Map<String, String> metadata;
-            if (parent != null) {
-                metadata = sanitizedMetadata;
-            } else {
-                metadata = ofNullable(sanitizedMetadata).orElseGet(HashMap::new);
-                metadata.put("definition::parameter::index", String.valueOf(meta.indexOf(p)));
-                if (p.getJavaType() instanceof Class clazzType && Schema.class.isAssignableFrom(clazzType)) {
-                    metadata.put("definition::parameter::schema", "");
-                }
-            }
-            final DefaultValueInspector.Instance instance = defaultValueInspector
-                    .createDemoInstance(
-                            ofNullable(rootInstance).map(DefaultValueInspector.Instance::getValue).orElse(null), p);
-            final ParameterBundle bundle = p.findBundle(loader, locale);
-            final ParameterBundle parentBundle = parent == null ? null : parent.findBundle(loader, locale);
-            return Stream
-                    .concat(Stream
-                            .of(new SimplePropertyDefinition(path, name,
-                                    bundle.displayName(parentBundle).orElse(p.getName()), type, toDefault(instance, p),
-                                    validation, rewriteMetadataForLocale(metadata, parentBundle, bundle),
-                                    bundle.placeholder(parentBundle).orElse(p.getName()),
-                                    !isEnum ? null
-                                            : p
-                                                    .getProposals()
-                                                    .stream()
-                                                    .collect(toLinkedMap(identity(),
-                                                            key -> bundle
-                                                                    .enumDisplayName(parentBundle, key)
-                                                                    .orElse(key))))),
-                            buildProperties(p.getNestedParameters(), loader, locale, instance, p));
-        }).sorted(Comparator.comparing(SimplePropertyDefinition::getPath)); // important cause it is the way you want to
-        // see it
+        return meta.stream()
+                .flatMap(p -> buildProperty(p, meta, loader, locale, rootInstance, parent))
+                // important cause it is the way you want to see it
+                .sorted(Comparator.comparing(SimplePropertyDefinition::getPath));
+    }
+
+    private Stream<SimplePropertyDefinition> buildProperty(final ParameterMeta p,
+            final List<ParameterMeta> siblings,
+            final ClassLoader loader,
+            final Locale locale,
+            final DefaultValueInspector.Instance rootInstance,
+            final ParameterMeta parent) {
+        final String path = sanitizePropertyName(p.getPath());
+        final String name = sanitizePropertyName(p.getName());
+        final String type = p.getType().name();
+        final PropertyValidation validation = buildValidation(p);
+        final Map<String, String> metadata = buildMetadata(p, siblings, parent);
+        final DefaultValueInspector.Instance instance = defaultValueInspector
+                .createDemoInstance(ofNullable(rootInstance)
+                        .map(DefaultValueInspector.Instance::getValue)
+                        .orElse(null), p);
+        final ParameterBundle bundle = p.findBundle(loader, locale);
+        final ParameterBundle parentBundle = parent == null ? null : parent.findBundle(loader, locale);
+        final String displayName = bundle.displayName(parentBundle).orElse(p.getName());
+        final String placeholder = bundle.placeholder(parentBundle).orElse(p.getName());
+        final LinkedHashMap<String, String> enumValues = buildEnumDisplayNames(p, bundle, parentBundle);
+        final SimplePropertyDefinition def = new SimplePropertyDefinition(path, name, displayName, type,
+                toDefault(instance, p), validation, rewriteMetadataForLocale(metadata, parentBundle, bundle),
+                placeholder, enumValues);
+        return Stream.concat(
+                Stream.of(def),
+                buildProperties(p.getNestedParameters(), loader, locale, instance, p));
+    }
+
+    private PropertyValidation buildValidation(final ParameterMeta p) {
+        PropertyValidation validation = propertyValidationService.map(p.getMetadata());
+        if (p.getType() != ParameterMeta.Type.ENUM) {
+            return validation;
+        }
+        if (validation == null) {
+            validation = new PropertyValidation();
+        }
+        validation.setEnumValues(p.getProposals());
+        return validation;
+    }
+
+    private Map<String, String> buildMetadata(final ParameterMeta p, final List<ParameterMeta> siblings,
+            final ParameterMeta parent) {
+        final Map<String, String> sanitized = ofNullable(p.getMetadata())
+                .map(m -> m
+                        .entrySet()
+                        .stream()
+                        .filter(e -> !e.getKey().startsWith(ValidationParameterEnricher.META_PREFIX))
+                        .collect(toLinkedMap(e -> e.getKey().replace("tcomp::", ""), Map.Entry::getValue)))
+                .orElse(null);
+        if (parent != null) {
+            return sanitized;
+        }
+
+        final Map<String, String> metadata = ofNullable(sanitized).orElseGet(HashMap::new);
+        metadata.put("definition::parameter::index", String.valueOf(siblings.indexOf(p)));
+        if (p.getJavaType() instanceof Class<?> clazzType && Schema.class.isAssignableFrom(clazzType)) {
+            metadata.put("definition::parameter::schema", "");
+        }
+        return metadata;
+    }
+
+    private LinkedHashMap<String, String> buildEnumDisplayNames(final ParameterMeta p, final ParameterBundle bundle,
+            final ParameterBundle parentBundle) {
+        if (p.getType() != ParameterMeta.Type.ENUM) {
+            return null;
+        }
+        return p.getProposals()
+                .stream()
+                .collect(toLinkedMap(identity(), key -> bundle.enumDisplayName(parentBundle, key).orElse(key)));
     }
 
     private Map<String, String> rewriteMetadataForLocale(final Map<String, String> metadata,
