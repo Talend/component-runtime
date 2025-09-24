@@ -38,6 +38,9 @@ public class JAXBDecoder implements Decoder {
     private final Map<Class<?>, JAXBContext> jaxbContexts;
 
     @Override
+
+    public Object decode(final byte[] value, final Type expectedType) {
+        try {
             // Harden against XXE by configuring XMLReader
             final SAXParserFactory spf = SAXParserFactory.newInstance();
             spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
@@ -45,9 +48,6 @@ public class JAXBDecoder implements Decoder {
             spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             spf.setNamespaceAware(true);
             final XMLReader xmlReader = spf.newSAXParser().getXMLReader();
-
-    public Object decode(final byte[] value, final Type expectedType) {
-        try {
             final Class key = Class.class.cast(expectedType);
             return jaxbContexts
                     .get(key)
