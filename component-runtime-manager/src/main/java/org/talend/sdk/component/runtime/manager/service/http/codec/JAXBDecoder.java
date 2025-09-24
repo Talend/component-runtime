@@ -22,8 +22,13 @@ import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.talend.sdk.component.api.service.http.Decoder;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import lombok.AllArgsConstructor;
 
@@ -33,15 +38,23 @@ public class JAXBDecoder implements Decoder {
     private final Map<Class<?>, JAXBContext> jaxbContexts;
 
     @Override
+            // Harden against XXE by configuring XMLReader
+            final SAXParserFactory spf = SAXParserFactory.newInstance();
+            spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            spf.setNamespaceAware(true);
+            final XMLReader xmlReader = spf.newSAXParser().getXMLReader();
+
     public Object decode(final byte[] value, final Type expectedType) {
         try {
             final Class key = Class.class.cast(expectedType);
             return jaxbContexts
                     .get(key)
                     .createUnmarshaller()
-                    .unmarshal(new StreamSource(new ByteArrayInputStream(value)), key)
+                    .unmarshal(new SAXSource(xmlReader, new InputSource(new ByteArrayInputStream(value))), key)
                     .getValue();
-        } catch (final JAXBException e) {
+        } catch (final JAXBException | org.xml.sax.SAXException | javax.xml.parsers.ParserConfigurationException e) {
             throw new IllegalArgumentException(e);
         }
 
