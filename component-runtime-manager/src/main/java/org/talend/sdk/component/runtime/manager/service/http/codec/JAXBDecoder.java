@@ -21,12 +21,10 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.sax.SAXSource;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.sax.SAXSource;
 
 import org.talend.sdk.component.api.service.http.Decoder;
-
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -38,7 +36,6 @@ public class JAXBDecoder implements Decoder {
     private final Map<Class<?>, JAXBContext> jaxbContexts;
 
     @Override
-
     public Object decode(final byte[] value, final Type expectedType) {
         try {
             // Harden against XXE by configuring XMLReader
