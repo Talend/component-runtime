@@ -223,8 +223,8 @@ class HttpClientFactoryImplTest {
 
         try {
             server.start();
-            final ResponseXml client = newDefaultFactory().create(ResponseXml.class, null);
-            client.base("http://localhost:" + server.getAddress().getPort() + "/api");
+            final ResponseXml client = newDefaultFactory().create(ResponseXml.class,
+                    "http://localhost:" + server.getAddress().getPort() + "/api");
 
             final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
             assertEquals("xml content", result.body().getValue());
@@ -254,9 +254,8 @@ class HttpClientFactoryImplTest {
 
         try {
             server.start();
-            final ResponseXml client = newDefaultFactory().create(ResponseXml.class, null);
-            client.base("http://localhost:" + server.getAddress().getPort() + "/api");
-
+            final ResponseXml client = newDefaultFactory().create(ResponseXml.class,
+                    "http://localhost:" + server.getAddress().getPort() + "/api");
             final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
             assertThrows(java.lang.IllegalArgumentException.class, result::body,
                     "lineNumber: 1; columnNumber: 10; DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.");
@@ -284,9 +283,8 @@ class HttpClientFactoryImplTest {
 
         try {
             server.start();
-            final ResponseXml client = newDefaultFactory().create(ResponseXml.class, null);
-            client.base("http://localhost:" + server.getAddress().getPort() + "/api");
-
+            final ResponseXml client = newDefaultFactory().create(ResponseXml.class,
+                    "http://localhost:" + server.getAddress().getPort() + "/api");
             final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
             assertThrows(java.lang.IllegalArgumentException.class, result::body);
         } finally {
