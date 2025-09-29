@@ -10,8 +10,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Talend Component Kit Reference guide :: Talend Component Kit Developer Reference Guide</title>
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/index-reference-guide.html">
-    <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2025-09-29T01:04:29.776Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+    <meta name="generator" content="Antora 3.0.1">
+<meta name="date" content="2025-09-29T12:44:49.001Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -41,12 +41,13 @@
 </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
     <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+    <script>var uiRootPath = '../../_'</script>
   </head>
   <body>
       <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
     <symbol id="talend-logo-square">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"/>
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
         </svg>
     </symbol>
     <symbol id="talend-component-kit-positive">
@@ -82,33 +83,192 @@
         <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                1.86.0 (dev)
+                1.45.0 (dev)
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
                 <li class="navbar-item version">
-                    <a href="index-reference-guide.html">1.86.0</a>
+                    <a href="index.html">1.45.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.85.0/index-reference-guide.html">1.85.0</a>
+                    <a href="../1.43.1/index.html">1.43.1</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.84.1/index-reference-guide.html">1.84.1</a>
+                    <a href="../1.42.0/index.html">1.42.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.84.0/index-reference-guide.html">1.84.0</a>
+                    <a href="../1.41.1/index.html">1.41.1</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.83.0/index-reference-guide.html">1.83.0</a>
+                    <a href="../1.40.0/index.html">1.40.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.64.8/index-reference-guide.html">1.64.8</a>
+                    <a href="../1.39.3/index.html">1.39.3</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.38.16/index-reference-guide.html">1.38.16</a>
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.30.0/index.html">1.30.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.29.2/index.html">1.29.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.15/index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.13/index.html">0.0.13</a>
                 </li>
                 <li class="navbar-item version">
                     <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
                 </li>
           </ul>
         </div>
@@ -136,7 +296,7 @@
     </nav>
 </header>
             <main class="main">
-              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.86.0">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.45.0">
   <aside class="navigation" role="navigation">
     <div class="panels">
       <div class="input-group nav-filter-group">
@@ -270,13 +430,13 @@
     <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
   </li>
   <li data-depth="2">
-    <a class="menu-link" href="component-checkpoint.html">Implementing checkpointing on a component</a>
-  </li>
-  <li data-depth="2">
     <a class="menu-link" href="component-loading.html">Component loading</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
@@ -370,6 +530,9 @@
   <li data-depth="2">
     <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
   </li>
+  <li data-depth="2">
+    <a class="menu-link" href="vault-proxy.html">Component Server Vault Proxy</a>
+  </li>
 </ul>
   </li>
   <li data-depth="1">
@@ -453,55 +616,55 @@
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=activeif-component-distribution">ActiveIf</a>: Add visibility conditions on some configurations.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=activeif-component-distribution">ActiveIf</a>: Add visibility conditions on some configurations.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=checkbox-component-distribution">Checkbox</a>: Add checkboxes or toggles to your component.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=checkbox-component-distribution">Checkbox</a>: Add checkboxes or toggles to your component.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=code-component-distribution">Code</a>: Allow users to enter their own code.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=code-component-distribution">Code</a>: Allow users to enter their own code.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=credentials-component-distribution">Credential</a>: Mark a configuration as sensitive data to avoid displaying it as plain text.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=credentials-component-distribution">Credential</a>: Mark a configuration as sensitive data to avoid displaying it as plain text.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=datastorevalidation-component-distribution">Datastore</a>: Add a button allowing to check the connection to a datastore.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=datastorevalidation-component-distribution">Datastore</a>: Add a button allowing to check the connection to a datastore.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=dropdownlist-component-distribution">Datalist</a>: Two ways of implementing a dropdown list with predefined choices.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=dropdownlist-component-distribution">Datalist</a>: Two ways of implementing a dropdown list with predefined choices.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=integer-component-distribution">Integer</a>: Add numeric fields to your component configuration.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=integer-component-distribution">Integer</a>: Add numeric fields to your component configuration.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=minmaxvalidation-component-distribution">Min/Max</a>: Specify a minimum or a maximum value for a numeric configuration.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=minmaxvalidation-component-distribution">Min/Max</a>: Specify a minimum or a maximum value for a numeric configuration.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=multiselect-component-distribution">Multiselect</a>: Add a list and allow users to select multiple elements of that list.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=multiselect-component-distribution">Multiselect</a>: Add a list and allow users to select multiple elements of that list.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=patternvalidation-component-distribution">Pattern</a>: Enforce rules based on a specific a pattern to prevent users from entering invalid values.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=patternvalidation-component-distribution">Pattern</a>: Enforce rules based on a specific a pattern to prevent users from entering invalid values.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=requiredvalidation-component-distribution">Required</a>: Make a configuration mandatory.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=requiredvalidation-component-distribution">Required</a>: Make a configuration mandatory.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=suggestions-component-distribution">Suggestions</a>: Suggest possible values in a field based on what the users are entering.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=suggestions-component-distribution">Suggestions</a>: Suggest possible values in a field based on what the users are entering.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=table-component-distribution">Table</a>: Add a table to your component configuration.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=table-component-distribution">Table</a>: Add a table to your component configuration.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=textarea-component-distribution">Textarea</a>: Add a text area for configurations expecting long texts or values.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=textarea-component-distribution">Textarea</a>: Add a text area for configurations expecting long texts or values.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=textinput-component-distribution">Input</a>: Add a simple text input field to the component configuration</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=textinput-component-distribution">Input</a>: Add a simple text input field to the component configuration</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=updatable-component-distribution">Update</a>: Provide a button allowing to fill a part of the component configuration based on a service.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=updatable-component-distribution">Update</a>: Provide a button allowing to fill a part of the component configuration based on a service.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=urlvalidation-component-distribution">Validation</a>: Specify constraints to make sure that a URL is well formed.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=urlvalidation-component-distribution">Validation</a>: Specify constraints to make sure that a URL is well formed.</p>
 </li>
 </ul>
 </div>
@@ -533,12 +696,12 @@ String config;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/input.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/input.png" alt="Studio Input" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/input.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/input.png" alt="Studio Input" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/input.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/input.png" alt="Web Input" width="40%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/input.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/input.png" alt="Web Input" width="40%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -569,12 +732,12 @@ String config;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/password.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/password.png" alt="Studio Password" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/password.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/password.png" alt="Studio Password" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/password.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/password.png" alt="Web Password" width="50%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/password.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/password.png" alt="Web Password" width="50%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -605,12 +768,12 @@ String config;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/textarea.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/textarea.png" alt="Studio Textarea" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/textarea.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/textarea.png" alt="Studio Textarea" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/textarea.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/textarea.png" alt="Web Textarea" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/textarea.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/textarea.png" alt="Web Textarea" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -641,12 +804,12 @@ public Integer number;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/studio_talend_component_kit_number_widget.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/studio_talend_component_kit_number_widget.png" alt="Studio Integer" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/studio_talend_component_kit_number_widget.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/studio_talend_component_kit_number_widget.png" alt="Studio Integer" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/web_talend_component_kit_number_widget.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/web_talend_component_kit_number_widget.png" alt="Web Textarea" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/web_talend_component_kit_number_widget.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/web_talend_component_kit_number_widget.png" alt="Web Textarea" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -676,12 +839,12 @@ Boolean config;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/checkbox.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/checkbox.png" alt="Studio Checkbox" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/checkbox.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/checkbox.png" alt="Studio Checkbox" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/checkbox.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/checkbox.png" alt="Web Checkbox" width="40%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/checkbox.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/checkbox.png" alt="Web Checkbox" width="40%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -714,12 +877,12 @@ LocalDateTime startTime;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/widget_calendar.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/widget_calendar.png" alt="Studio Calendar" width="40%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/widget_calendar.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/widget_calendar.png" alt="Studio Calendar" width="40%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/widget_calendar.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/widget_calendar.png" alt="Web Calendar" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/widget_calendar.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/widget_calendar.png" alt="Web Calendar" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -773,12 +936,12 @@ enum ActionEnum {
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/list.png" alt="Studio List" width="40%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/list.png" alt="Studio List" width="40%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/list.png" alt="Web List" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/list.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/list.png" alt="Web List" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -815,24 +978,24 @@ public SuggestionValues loadModules(@Option final MyConfig myconfig) { }</code><
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png" alt="Studio suggestions loading" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loading.png" alt="Studio suggestions loading" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png" alt="Web suggestions loading" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loading.png" alt="Web suggestions loading" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png" alt="Studio suggestions loaded" width="80%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/studio_talend_component_kit_suggestion_widget_loaded.png" alt="Studio suggestions loaded" width="80%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png" alt="Web suggestions loaded" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/web_talend_component_kit_suggestion_widget_loaded.png" alt="Web suggestions loaded" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -862,12 +1025,12 @@ List&lt;MyObject&gt; config;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/table.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/table.png" alt="Studio Table" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/table.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/table.png" alt="Studio Table" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/table.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/table.png" alt="Web Table" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/table.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/table.png" alt="Web Table" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -898,12 +1061,12 @@ String config;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/javaCode.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/javaCode.png" alt="Studio Code" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/javaCode.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/javaCode.png" alt="Studio Code" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/javaCode.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/javaCode.png" alt="Web Code" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/javaCode.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/javaCode.png" alt="Web Code" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -934,12 +1097,12 @@ List&lt;String&gt; config;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/schema.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/schema.png" alt="Studio Schema" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/schema.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/schema.png" alt="Studio Schema" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/schema.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/schema.png" alt="Web Schema" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/schema.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/schema.png" alt="Web Schema" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -983,12 +1146,12 @@ ValidationResult doValidate(String url) {
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/validation_property.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_property.png" alt="Studio Code" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/validation_property.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_property.png" alt="Studio Code" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/validation_property.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_property.png" alt="Web Code" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/validation_property.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_property.png" alt="Web Code" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -1020,12 +1183,12 @@ String username;</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/validation_pattern.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_pattern.png" alt="Studio Code" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/validation_pattern.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_pattern.png" alt="Studio Code" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/validation_pattern.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_pattern.png" alt="Web Code" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/validation_pattern.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_pattern.png" alt="Web Code" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -1065,12 +1228,12 @@ public HealthCheckStatus testConnection(){
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/studio/validation_datastore.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_datastore.png" alt="Studio Code" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/studio/prop_validation.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/studio/validation_datastore.png" alt="Studio Code" width="100%"></a>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
 <div class="content">
-<a class="image" href="_images/gallery/widgets/web/validation_datastore.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_datastore.png" alt="Web Code" width="100%"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/gallery/widgets/web/prop_validation.png" target="_blank" rel="noopener"><img src="_images/gallery/widgets/web/validation_datastore.png" alt="Web Code" width="100%"></a>
 </div>
 </div></div></td>
 </tr>
@@ -1099,35 +1262,6 @@ public HealthCheckStatus testConnection(){
 <div class="sect1">
 <h2 id="_actions"><a class="anchor" href="#_actions"></a>Actions</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_available_output"><a class="anchor" href="#_available_output"></a>Available Output</h3>
-<div class="paragraph">
-<p>Provide the output flows by some condition</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Type: <code>available_output</code></p>
-</li>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.service.outputs.AvailableOutputFlows</code></p>
-</li>
-<li>
-<p>Returned type: <code>java.util.Collection</code></p>
-</li>
-<li>
-<p>Sample:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-
-}</code></pre>
-</div>
-</div>
-</div>
 <div class="sect2">
 <h3 id="_close_connection"><a class="anchor" href="#_close_connection"></a>Close Connection</h3>
 <div class="paragraph">
@@ -1198,35 +1332,6 @@ public HealthCheckStatus testConnection(){
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
  "datasetDescriptionList": "..."
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_dynamic_dependencies"><a class="anchor" href="#_dynamic_dependencies"></a>Dynamic Dependencies</h3>
-<div class="paragraph">
-<p>Mark a method as returning a list of dynamic dependencies with GAV formatting.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Type: <code>dynamic_dependencies</code></p>
-</li>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.service.dependency.DynamicDependencies</code></p>
-</li>
-<li>
-<p>Returned type: <code>java.util.List</code></p>
-</li>
-<li>
-<p>Sample:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-
 }</code></pre>
 </div>
 </div>
@@ -1322,7 +1427,6 @@ public HealthCheckStatus testConnection(){
   "entries":[
     {
       "comment":"The column 1",
-      "errorCapable":false,
       "metadata":false,
       "name":"column1",
       "nullable":false,
@@ -1330,12 +1434,10 @@ public HealthCheckStatus testConnection(){
 
       },
       "rawName":"column 1",
-      "type":"STRING",
-      "valid":true
+      "type":"STRING"
     },
     {
       "comment":"The int column",
-      "errorCapable":false,
       "metadata":false,
       "name":"column2",
       "nullable":false,
@@ -1343,8 +1445,7 @@ public HealthCheckStatus testConnection(){
 
       },
       "rawName":"column 2",
-      "type":"INT",
-      "valid":true
+      "type":"INT"
     }
   ],
   "metadata":[
@@ -1353,107 +1454,6 @@ public HealthCheckStatus testConnection(){
     "talend.fields.order":"column1,column2"
   },
   "type":"RECORD"
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_schema_extended"><a class="anchor" href="#_schema_extended"></a>Schema Extended</h3>
-<div class="paragraph">
-<p>Mark a method as returning a Schema resulting from a connector configuration and some other parameters.Parameters can be an incoming schema and/or an outgoing branch.`value' name should match the connector&#8217;s name.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Type: <code>schema_extended</code></p>
-</li>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended</code></p>
-</li>
-<li>
-<p>Returned type: <code>org.talend.sdk.component.api.record.Schema</code></p>
-</li>
-<li>
-<p>Sample:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "entries":[
-    {
-      "comment":"The column 1",
-      "errorCapable":false,
-      "metadata":false,
-      "name":"column1",
-      "nullable":false,
-      "props":{
-
-      },
-      "rawName":"column 1",
-      "type":"STRING",
-      "valid":true
-    },
-    {
-      "comment":"The int column",
-      "errorCapable":false,
-      "metadata":false,
-      "name":"column2",
-      "nullable":false,
-      "props":{
-
-      },
-      "rawName":"column 2",
-      "type":"INT",
-      "valid":true
-    }
-  ],
-  "metadata":[
-  ],
-  "props":{
-    "talend.fields.order":"column1,column2"
-  },
-  "type":"RECORD"
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_schema_mapping"><a class="anchor" href="#_schema_mapping"></a>Schema Mapping</h3>
-<div class="paragraph">
-<p>Mark a method as returning a database mapping from a connector @DataStore configuration. Use this annotation if database mapping can be dynamic and <code>@DatabaseMapping.Mapping</code> is set to <code>custom</code>. The functionality is for the Studio only.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Type: <code>schema_mapping</code></p>
-</li>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.service.schema.DatabaseSchemaMapping</code></p>
-</li>
-<li>
-<p>Returned type: <code>java.lang.String</code></p>
-</li>
-<li>
-<p>Sample:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
- "value": "..."
- "coder": "..."
- "hash": "..."
- "hashIsZero": "..."
- "serialVersionUID": "..."
- "COMPACT_STRINGS": "..."
- "serialPersistentFields": "..."
- "REPL": "..."
- "CASE_INSENSITIVE_ORDER": "..."
- "LATIN1": "..."
- "UTF16": "..."
 }</code></pre>
 </div>
 </div>
@@ -1739,30 +1739,6 @@ always ensure you don&#8217;t require this action in your component.
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
   "tcomp::configurationtype::name":"test",
   "tcomp::configurationtype::type":"datasetDiscovery"
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h3>
-<div class="paragraph">
-<p>Mark a model (complex object) as being a checkpoint configuration and state.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: @org.talend.sdk.component.api.input.checkpoint.Checkpoint</p>
-</li>
-<li>
-<p>Sample:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "tcomp::configurationtype::name":"test",
-  "tcomp::configurationtype::type":"checkpoint"
 }</code></pre>
 </div>
 </div>
@@ -2339,18 +2315,6 @@ the configuration is read from system properties, environment variables, &#8230;
 <dd>
 <p>Default value: <code>icons/%s.svg,icons/svg/%s.svg,icons/%s_icon32.png,icons/png/%s_icon32.png</code>. These patterns are used to find the icons in the classpath(s).</p>
 </dd>
-<dt class="hdlist1">talend.component.server.icon.theme.default</dt>
-<dd>
-<p>Default value: <code>light</code>. Icon default theme (light/dark).</p>
-</dd>
-<dt class="hdlist1">talend.component.server.icon.theme.legacy</dt>
-<dd>
-<p>Default value: <code>true</code>. Do we support legacy (not themed) icons. If true, lookup will be done if not themed icon found.</p>
-</dd>
-<dt class="hdlist1">talend.component.server.icon.theme.support</dt>
-<dd>
-<p>Default value: <code>true</code>. Do we support icons theme.</p>
-</dd>
 <dt class="hdlist1">talend.component.server.jaxrs.exceptionhandler.defaultMessage</dt>
 <dd>
 <p>Default value: <code>false</code>. If set it will replace any message for exceptions. Set to <code>false</code> to use the actual exception message.</p>
@@ -2448,29 +2412,6 @@ de*=de</code>. For caching reasons the goal is to reduce the locales to the mini
 </div>
 </div>
 <div class="sect2">
-<h3 id="_hidden"><a class="anchor" href="#_hidden"></a>@Hidden</h3>
-<div class="paragraph">
-<p>Mark an @Option as being hidden.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.Hidden</code></p>
-</li>
-</ul>
-</div>
-<div class="sect3">
-<h4 id="_snippets_2"><a class="anchor" href="#_snippets_2"></a>Snippets</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::hidden":"true"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
 <h3 id="_optionsorder"><a class="anchor" href="#_optionsorder"></a>@OptionsOrder</h3>
 <div class="paragraph">
 <p>Allows to sort a class properties.</p>
@@ -2483,7 +2424,7 @@ de*=de</code>. For caching reasons the goal is to reduce the locales to the mini
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_3"><a class="anchor" href="#_snippets_3"></a>Snippets</h4>
+<h4 id="_snippets_2"><a class="anchor" href="#_snippets_2"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -2506,7 +2447,7 @@ de*=de</code>. For caching reasons the goal is to reduce the locales to the mini
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_4"><a class="anchor" href="#_snippets_4"></a>Snippets</h4>
+<h4 id="_snippets_3"><a class="anchor" href="#_snippets_3"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -2541,7 +2482,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_5"><a class="anchor" href="#_snippets_5"></a>Snippets</h4>
+<h4 id="_snippets_4"><a class="anchor" href="#_snippets_4"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -2565,7 +2506,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_6"><a class="anchor" href="#_snippets_6"></a>Snippets</h4>
+<h4 id="_snippets_5"><a class="anchor" href="#_snippets_5"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -2589,7 +2530,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_7"><a class="anchor" href="#_snippets_7"></a>Snippets</h4>
+<h4 id="_snippets_6"><a class="anchor" href="#_snippets_6"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -2612,34 +2553,11 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_8"><a class="anchor" href="#_snippets_8"></a>Snippets</h4>
+<h4 id="_snippets_7"><a class="anchor" href="#_snippets_7"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
   "ui::verticallayout":"true"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_basedonschema"><a class="anchor" href="#_basedonschema"></a>@BasedOnSchema</h3>
-<div class="paragraph">
-<p>Mark a table column filled by component&#8217;s schema auto. Only for studio.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.BasedOnSchema</code></p>
-</li>
-</ul>
-</div>
-<div class="sect3">
-<h4 id="_snippets_9"><a class="anchor" href="#_snippets_9"></a>Snippets</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::basedonschema":"true"
 }</code></pre>
 </div>
 </div>
@@ -2658,7 +2576,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_10"><a class="anchor" href="#_snippets_10"></a>Snippets</h4>
+<h4 id="_snippets_8"><a class="anchor" href="#_snippets_8"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -2681,7 +2599,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_11"><a class="anchor" href="#_snippets_11"></a>Snippets</h4>
+<h4 id="_snippets_9"><a class="anchor" href="#_snippets_9"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -2704,109 +2622,32 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_12"><a class="anchor" href="#_snippets_12"></a>Snippets</h4>
+<h4 id="_snippets_10"><a class="anchor" href="#_snippets_10"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::datetime":"time",
-  "ui::datetime::useSeconds":"false"
+  "ui::datetime":"time"
 }</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::datetime":"date",
-  "ui::datetime::dateFormat":"test"
+  "ui::datetime":"date"
 }</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::datetime":"datetime",
-  "ui::datetime::dateFormat":"test",
-  "ui::datetime::useSeconds":"false",
-  "ui::datetime::useUTC":"false"
+  "ui::datetime":"datetime"
 }</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::datetime":"zoneddatetime",
-  "ui::datetime::dateFormat":"test",
-  "ui::datetime::useSeconds":"false",
-  "ui::datetime::useUTC":"false"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_modulelist"><a class="anchor" href="#_modulelist"></a>@ModuleList</h3>
-<div class="paragraph">
-<p>Mark a string field as being represented by selected module list widget, only for studio</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.ModuleList</code></p>
-</li>
-</ul>
-</div>
-<div class="sect3">
-<h4 id="_snippets_13"><a class="anchor" href="#_snippets_13"></a>Snippets</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::modulelist":"true"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_path"><a class="anchor" href="#_path"></a>@Path</h3>
-<div class="paragraph">
-<p>Mark a option as being represented by file or directory widget. Only for studio.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.Path</code></p>
-</li>
-</ul>
-</div>
-<div class="sect3">
-<h4 id="_snippets_14"><a class="anchor" href="#_snippets_14"></a>Snippets</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::path::value":"null"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_readonly"><a class="anchor" href="#_readonly"></a>@ReadOnly</h3>
-<div class="paragraph">
-<p>Mark a option as being read-only widget. User cannot modify widget.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.ReadOnly</code></p>
-</li>
-</ul>
-</div>
-<div class="sect3">
-<h4 id="_snippets_15"><a class="anchor" href="#_snippets_15"></a>Snippets</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::readonly":"true"
+  "ui::datetime":"zoneddatetime"
 }</code></pre>
 </div>
 </div>
@@ -2825,7 +2666,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_16"><a class="anchor" href="#_snippets_16"></a>Snippets</h4>
+<h4 id="_snippets_11"><a class="anchor" href="#_snippets_11"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -2850,7 +2691,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_snippets_17"><a class="anchor" href="#_snippets_17"></a>Snippets</h4>
+<h4 id="_snippets_12"><a class="anchor" href="#_snippets_12"></a>Snippets</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{

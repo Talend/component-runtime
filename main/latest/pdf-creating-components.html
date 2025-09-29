@@ -14,8 +14,8 @@
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/pdf-creating-components.html">
     <meta name="description" content="Get an overview of the main steps to code the logic of your custom Talend Componit Kit components">
     <meta name="keywords" content="create, code, class, logic, layout, configuration, dev, overview, api">
-    <meta name="generator" content="Antora 3.0.3">
-<meta name="date" content="2025-09-29T01:04:29.795Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+    <meta name="generator" content="Antora 3.0.1">
+<meta name="date" content="2025-09-29T12:44:49.005Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -45,12 +45,13 @@
 </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
     <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
+    <script>var uiRootPath = '../../_'</script>
   </head>
   <body>
       <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
     <symbol id="talend-logo-square">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"/>
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
         </svg>
     </symbol>
     <symbol id="talend-component-kit-positive">
@@ -86,33 +87,192 @@
         <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                1.86.0 (dev)
+                1.45.0 (dev)
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
                 <li class="navbar-item version">
-                    <a href="pdf-creating-components.html">1.86.0</a>
+                    <a href="index.html">1.45.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.85.0/pdf-creating-components.html">1.85.0</a>
+                    <a href="../1.43.1/index.html">1.43.1</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.84.1/pdf-creating-components.html">1.84.1</a>
+                    <a href="../1.42.0/index.html">1.42.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.84.0/pdf-creating-components.html">1.84.0</a>
+                    <a href="../1.41.1/index.html">1.41.1</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.83.0/pdf-creating-components.html">1.83.0</a>
+                    <a href="../1.40.0/index.html">1.40.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.64.8/pdf-creating-components.html">1.64.8</a>
+                    <a href="../1.39.3/index.html">1.39.3</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.38.16/pdf-creating-components.html">1.38.16</a>
+                    <a href="../1.37.1/index.html">1.37.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.36.1/index.html">1.36.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.35.1/index.html">1.35.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.34.1/index.html">1.34.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.33.2/index.html">1.33.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.32.2/index.html">1.32.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.31.2/index.html">1.31.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.30.0/index.html">1.30.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.29.2/index.html">1.29.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.28.2/index.html">1.28.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.27/index.html">1.1.27</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.26/index.html">1.1.26</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.25/index.html">1.1.25</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.24/index.html">1.1.24</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.23/index.html">1.1.23</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.22/index.html">1.1.22</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.21/index.html">1.1.21</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.20/index.html">1.1.20</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.19/index.html">1.1.19</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.18/index.html">1.1.18</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.17/index.html">1.1.17</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.16/index.html">1.1.16</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.15/index.html">1.1.15</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.14/index.html">1.1.14</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.13/index.html">1.1.13</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.12/index.html">1.1.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.11/index.html">1.1.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.10/index.html">1.1.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.9/index.html">1.1.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.8/index.html">1.1.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.7/index.html">1.1.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.6/index.html">1.1.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.5/index.html">1.1.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.4/index.html">1.1.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.3/index.html">1.1.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.2/index.html">1.1.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.1/index.html">1.1.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.1.0/index.html">1.1.0</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.4/index.html">1.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.3/index.html">1.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.2/index.html">1.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../1.0.1/index.html">1.0.1</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.13/index.html">0.0.13</a>
                 </li>
                 <li class="navbar-item version">
                     <a href="../0.0.12/index.html">0.0.12</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.11/index.html">0.0.11</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.10/index.html">0.0.10</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.9/index.html">0.0.9</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.8/index.html">0.0.8</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.7/index.html">0.0.7</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.6/index.html">0.0.6</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.5/index.html">0.0.5</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.4/index.html">0.0.4</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.3/index.html">0.0.3</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.2/index.html">0.0.2</a>
+                </li>
+                <li class="navbar-item version">
+                    <a href="../0.0.1/index.html">0.0.1</a>
                 </li>
           </ul>
         </div>
@@ -140,7 +300,7 @@
     </nav>
 </header>
             <main class="main">
-              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.86.0">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.45.0">
   <aside class="navigation" role="navigation">
     <div class="panels">
       <div class="input-group nav-filter-group">
@@ -274,13 +434,13 @@
     <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
   </li>
   <li data-depth="2">
-    <a class="menu-link" href="component-checkpoint.html">Implementing checkpointing on a component</a>
-  </li>
-  <li data-depth="2">
     <a class="menu-link" href="component-loading.html">Component loading</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
@@ -373,6 +533,9 @@
   </li>
   <li data-depth="2">
     <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
+  </li>
+  <li data-depth="2">
+    <a class="menu-link" href="vault-proxy.html">Component Server Vault Proxy</a>
   </li>
 </ul>
   </li>
@@ -470,7 +633,7 @@
 </ul>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="_images/implementing-components.png" target="_blank" rel="noopener"><img src="_images/implementing-components.png" alt="Implementing component"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/implementing-components.png" target="_blank" rel="noopener"><img src="_images/implementing-components.png" alt="Implementing component"></a></span></p>
 </div>
 <div class="paragraph">
 <p>In some cases, you will require specific implementations to handle more advanced cases, such as:</p>
@@ -492,12 +655,6 @@
 <li>
 <p><a href="component-implementing-streaming.html" class="xref page">Implementing streaming on a component</a></p>
 </li>
-<li>
-<p><a href="component-checkpoint.html" class="xref page">Implementing checkpointing on a component</a></p>
-</li>
-<li>
-<p><a href="component-record.html" class="xref page">Error handling in records</a></p>
-</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -508,6 +665,9 @@ Using your Java IDE along with a build tool supported by the framework, you can 
 <ul>
 <li>
 <p><a href="build-tools-maven.html" class="xref page">Building components with Maven</a></p>
+</li>
+<li>
+<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
 </li>
 <li>
 <p><a href="wrapping-a-beam-io.html" class="xref page">Wrapping a Beam I/O</a></p>
@@ -638,9 +798,6 @@ You have to define a custom icon as follows:</p>
 <p>Icon file names need to match one of the following patterns: <code>IconName.svg</code> or <code>IconName_icon32.png</code>. The latter will run in degraded mode in Talend Cloud. Replace <code>IconName</code> by the name of your choice.</p>
 </li>
 <li>
-<p>The icon size for PNG must be 32x32. For SVG, the viewBox must be 16x16.</p>
-</li>
-<li>
 <p>Icons must be squared, even for the SVG format.</p>
 </li>
 </ul>
@@ -661,7 +818,7 @@ You have to define a custom icon as follows:</p>
 <p>Note that SVG icons are not supported by Talend Studio and can cause the deployment of the component to fail.</p>
 </div>
 <div class="paragraph">
-<p>If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven <code>svg2png</code> plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component.</p>
+<p>If you aim at deploying a custom component to Talend Studio, specify PNG icons or use the Maven (or Gradle) <code>svg2png</code> plugin to convert SVG icons to PNG. If you want a finer control over both images, you can provide both in your component.</p>
 </div>
 <div class="paragraph">
 <p>Ultimately, you can also remove SVG parameters from the <code>talend.component.server.icon.paths</code> property in the HTTP server configuration.</p>
@@ -843,7 +1000,7 @@ public class MyProcessor {
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/datastore_and_dataset_validation.png" target="_blank" rel="noopener"><img src="_images/datastore_and_dataset_validation.png" alt="Dataset validation"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/datastore_and_dataset_validation.png" target="_blank" rel="noopener"><img src="_images/datastore_and_dataset_validation.png" alt="Dataset validation"></a>
 </div>
 </div>
 <div class="admonitionblock important">
@@ -914,7 +1071,7 @@ Make sure to modelize the data your components are designed to handle before def
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/datastore_view_intellij.png" target="_blank" rel="noopener"><img src="_images/datastore_view_intellij.png" alt="Datastore view"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/datastore_view_intellij.png" target="_blank" rel="noopener"><img src="_images/datastore_view_intellij.png" alt="Datastore view"></a>
 </div>
 </div>
 <div class="paragraph">
@@ -1028,7 +1185,7 @@ Make sure to modelize the data your components are designed to handle before def
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/dataset_view_intellij.png" target="_blank" rel="noopener"><img src="_images/dataset_view_intellij.png" alt="Dataset view"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/dataset_view_intellij.png" target="_blank" rel="noopener"><img src="_images/dataset_view_intellij.png" alt="Dataset view"></a>
 </div>
 </div>
 <div class="paragraph">
@@ -1102,7 +1259,7 @@ ComponentFamily.datastore.DatastoreA._displayName=Datastore A</code></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/studio_create_dataset.png" target="_blank" rel="noopener"><img src="_images/studio_create_dataset.png" alt="Dataset in Studio"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/studio_create_dataset.png" target="_blank" rel="noopener"><img src="_images/studio_create_dataset.png" alt="Dataset in Studio"></a>
 </div>
 </div>
 <div class="paragraph">
@@ -1110,7 +1267,7 @@ ComponentFamily.datastore.DatastoreA._displayName=Datastore A</code></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/studio_select_predefined_dataset.png" target="_blank" rel="noopener"><img src="_images/studio_select_predefined_dataset.png" alt="Dataset in Component"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/studio_select_predefined_dataset.png" target="_blank" rel="noopener"><img src="_images/studio_select_predefined_dataset.png" alt="Dataset in Component"></a>
 </div>
 </div>
 </div>
@@ -1237,30 +1394,6 @@ public class SomeInputMapper implements Serializable {
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
   "tcomp::configurationtype::name":"test",
   "tcomp::configurationtype::type":"datasetDiscovery"
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_checkpoint"><a class="anchor" href="#_checkpoint"></a>Checkpoint</h4>
-<div class="paragraph">
-<p>Mark a model (complex object) as being a checkpoint configuration and state.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: @org.talend.sdk.component.api.input.checkpoint.Checkpoint</p>
-</li>
-<li>
-<p>Sample:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "tcomp::configurationtype::name":"test",
-  "tcomp::configurationtype::type":"checkpoint"
 }</code></pre>
 </div>
 </div>
@@ -1481,9 +1614,6 @@ public MyData produces() {
 <p><a href="component-implementing-streaming.html" class="xref page">Implementing streaming on a component</a></p>
 </li>
 <li>
-<p><a href="component-checkpoint.html" class="xref page">Implementing checkpointing on a component</a></p>
-</li>
-<li>
 <p><a href="best-practices.html" class="xref page">Best practices</a></p>
 </li>
 </ul>
@@ -1663,74 +1793,6 @@ public MyNewData map(final MyData data,
 </div>
 </div>
 <div class="sect3">
-<h4 id="_defining_conditional_outputs_flows"><a class="anchor" href="#_defining_conditional_outputs_flows"></a>Defining conditional outputs flows</h4>
-<div class="paragraph">
-<p>Processors @ElementListerner methods can declare several output flows.
-At design time, usually, all output flows are available, but, in certain cases,
-we want disabled some of them according to the configuration the user has already set.
-In that case, a service will be call that will return available output flows.
-(Currently only Studio supports this feature)</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>A processor without @ConditionalOutputFlows keep the current behavior. All declated flows are visible at design time</p>
-</li>
-<li>
-<p>A processor with @ConditionalOutputFlows has its output flows list conditioned by its configuration</p>
-<div class="ulist">
-<ul>
-<li>
-<p>The @ConditionalOutputFlows has one parameter: the name of a @AvailableOutputFlows service:
-@ConditionalOutputFlows("the_name")</p>
-</li>
-<li>
-<p>Each processor in a same TCK container can use a different service to retrieve the list of available output flows</p>
-<div class="ulist">
-<ul>
-<li>
-<p>So several services can be annotated with @AvailableOutputFlows but their name must be different
-@AvailableOutputFlows("the_name"), @AvailableOutputFlow("another_name"), &#8230;&#8203;</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>The return type of a @AvailableOutputFlows service is a List&lt;String&gt;, the build should fail if not.</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Processor(name = "Processor")
-@ConditionalOutputFlows("my_service_that_return_active_flows")
-public class MyProcessor implements Serializable {
-
-  @ElementListener
-  public void process(@Input final Record input,
-          @Output final OutputEmitter&lt;Record&gt; main,
-          @Output("second_flow") final OutputEmitter&lt;Record&gt; second,
-          @Output("third_flow") final OutputEmitter&lt;Record&gt; third) {
-      [.........]
-  }
-}
-
- @AvailableOutputFlows("my_service_that_return_active_flows")
-  //After the @Option, must follow ("configuration")
-  public Collection&lt;String&gt; getAvailableFlows(@Option("configuration") Config config) {
-      final List&lt;String&gt; flows = Arrays.asList("<em>default</em>", "second_flow");
-      if (config.isABoolean()) {
-          flows.add("third_flow");
-      }
-      return flows;
-  }</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
 <h4 id="_defining_multiple_inputs"><a class="anchor" href="#_defining_multiple_inputs"></a>Defining multiple inputs</h4>
 <div class="paragraph">
 <p>Having multiple inputs is similar to having multiple outputs, except that an <code>OutputEmitter</code> wrapper is not needed:</p>
@@ -1778,7 +1840,7 @@ public MyNewData map(@Input final MyData data, @Input("input2") final MyData2 da
 </div>
 <div class="paragraph">
 <div class="title"><strong>Processing schema (values are examples):</strong></div>
-<p><span class="image"><a class="image" href="_images/batch-processing-maxbatchsize.png" target="_blank" rel="noopener"><img src="_images/batch-processing-maxbatchsize.png" alt="Batch processing"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/batch-processing-maxbatchsize.png" target="_blank" rel="noopener"><img src="_images/batch-processing-maxbatchsize.png" alt="Batch processing"></a></span></p>
 </div>
 </div>
 <div class="sect4">
@@ -1816,7 +1878,7 @@ The group size automatic estimation logic is automatically implemented when a co
 </div>
 <div class="paragraph">
 <div class="title"><strong>Group execution detail (values are examples):</strong></div>
-<p><span class="image"><a class="image" href="_images/batch-processing-group.png" target="_blank" rel="noopener"><img src="_images/batch-processing-group.png" alt="Group batch processing"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/batch-processing-group.png" target="_blank" rel="noopener"><img src="_images/batch-processing-group.png" alt="Group batch processing"></a></span></p>
 </div>
 <div class="paragraph">
 <p>You can define the following logic in the processor configuration:</p>
@@ -1866,32 +1928,6 @@ public class BulkProcessor implements Serializable {
     @AfterGroup
     public void commit(final Collection&lt;Record&gt; records) {
         // saves records
-    }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>When using the @aftergroup feature, it can be helpful to determine if it&#8217;s the last call (last group).
-You can now annotate a Boolean with @lastgroup as a parameter of the method.
-This Boolean will be set to true for the final call, which can be useful for performing additional
-actions once all records have been processed.</p>
-</div>
-<div class="paragraph">
-<p>For example, here is a scenario inspired by Snowflake:</p>
-</div>
-<div class="paragraph">
-<p>Batches of records are staged within each @aftergroup call.
-Once all data has been staged, a final #commitBulkLoad call is executed. This action must be performed after all data has been staged.
-This process returns all rejected data, which is then transformed into TCK records and sent to the 'REJECT' flow.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@AfterGroup
-public void afterGroup(@Output("REJECT") final OutputEmitter&lt;Record&gt; rejected, @LastGroup Boolean last) {
-    database.pushToStaging(records);
-    if(last){
-        List&lt;Data&gt; dataToReject = database.commitBulkLoad();
-        dataToReject.stream().map(d -&gt; convertToRecord(d)).each(r -&gt; rejected.emit(d));
     }
 }</code></pre>
 </div>
@@ -2073,9 +2109,6 @@ public void run() {
 </li>
 <li>
 <p><a href="component-implementing-streaming.html" class="xref page">Implementing streaming on a component</a></p>
-</li>
-<li>
-<p><a href="component-checkpoint.html" class="xref page">Implementing checkpointing on a component</a></p>
 </li>
 <li>
 <p><a href="best-practices.html" class="xref page">Best practices</a></p>
@@ -2684,7 +2717,7 @@ If it breaks your application, you can disable that validation on the JVM by set
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/datastore_and_dataset_validation.png" target="_blank" rel="noopener"><img src="_images/datastore_and_dataset_validation.png" alt="Dataset validation"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/datastore_and_dataset_validation.png" target="_blank" rel="noopener"><img src="_images/datastore_and_dataset_validation.png" alt="Dataset validation"></a>
 </div>
 </div>
 <div class="admonitionblock important">
@@ -2755,7 +2788,7 @@ Make sure to modelize the data your components are designed to handle before def
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/datastore_view_intellij.png" target="_blank" rel="noopener"><img src="_images/datastore_view_intellij.png" alt="Datastore view"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/datastore_view_intellij.png" target="_blank" rel="noopener"><img src="_images/datastore_view_intellij.png" alt="Datastore view"></a>
 </div>
 </div>
 <div class="paragraph">
@@ -2869,7 +2902,7 @@ Make sure to modelize the data your components are designed to handle before def
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/dataset_view_intellij.png" target="_blank" rel="noopener"><img src="_images/dataset_view_intellij.png" alt="Dataset view"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/dataset_view_intellij.png" target="_blank" rel="noopener"><img src="_images/dataset_view_intellij.png" alt="Dataset view"></a>
 </div>
 </div>
 <div class="paragraph">
@@ -2943,7 +2976,7 @@ ComponentFamily.datastore.DatastoreA._displayName=Datastore A</code></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/studio_create_dataset.png" target="_blank" rel="noopener"><img src="_images/studio_create_dataset.png" alt="Dataset in Studio"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/studio_create_dataset.png" target="_blank" rel="noopener"><img src="_images/studio_create_dataset.png" alt="Dataset in Studio"></a>
 </div>
 </div>
 <div class="paragraph">
@@ -2951,7 +2984,7 @@ ComponentFamily.datastore.DatastoreA._displayName=Datastore A</code></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/studio_select_predefined_dataset.png" target="_blank" rel="noopener"><img src="_images/studio_select_predefined_dataset.png" alt="Dataset in Component"></a>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/studio_select_predefined_dataset.png" target="_blank" rel="noopener"><img src="_images/studio_select_predefined_dataset.png" alt="Dataset in Component"></a>
 </div>
 </div>
 </div>
@@ -3078,30 +3111,6 @@ public class SomeInputMapper implements Serializable {
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
   "tcomp::configurationtype::name":"test",
   "tcomp::configurationtype::type":"datasetDiscovery"
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_checkpoint_2"><a class="anchor" href="#_checkpoint_2"></a>Checkpoint</h5>
-<div class="paragraph">
-<p>Mark a model (complex object) as being a checkpoint configuration and state.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: @org.talend.sdk.component.api.input.checkpoint.Checkpoint</p>
-</li>
-<li>
-<p>Sample:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "tcomp::configurationtype::name":"test",
-  "tcomp::configurationtype::type":"checkpoint"
 }</code></pre>
 </div>
 </div>
@@ -3396,29 +3405,6 @@ For example, a password value that must be hidden and not a simple clear input b
 </div>
 </div>
 <div class="sect3">
-<h4 id="_hidden"><a class="anchor" href="#_hidden"></a>@Hidden</h4>
-<div class="paragraph">
-<p>Mark an @Option as being hidden.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.Hidden</code></p>
-</li>
-</ul>
-</div>
-<div class="sect4">
-<h5 id="_snippets_2"><a class="anchor" href="#_snippets_2"></a>Snippets</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::hidden":"true"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect3">
 <h4 id="_optionsorder"><a class="anchor" href="#_optionsorder"></a>@OptionsOrder</h4>
 <div class="paragraph">
 <p>Allows to sort a class properties.</p>
@@ -3431,7 +3417,7 @@ For example, a password value that must be hidden and not a simple clear input b
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_3"><a class="anchor" href="#_snippets_3"></a>Snippets</h5>
+<h5 id="_snippets_2"><a class="anchor" href="#_snippets_2"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3454,7 +3440,7 @@ For example, a password value that must be hidden and not a simple clear input b
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_4"><a class="anchor" href="#_snippets_4"></a>Snippets</h5>
+<h5 id="_snippets_3"><a class="anchor" href="#_snippets_3"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3489,7 +3475,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_5"><a class="anchor" href="#_snippets_5"></a>Snippets</h5>
+<h5 id="_snippets_4"><a class="anchor" href="#_snippets_4"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3513,7 +3499,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_6"><a class="anchor" href="#_snippets_6"></a>Snippets</h5>
+<h5 id="_snippets_5"><a class="anchor" href="#_snippets_5"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3537,7 +3523,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_7"><a class="anchor" href="#_snippets_7"></a>Snippets</h5>
+<h5 id="_snippets_6"><a class="anchor" href="#_snippets_6"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3560,34 +3546,11 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_8"><a class="anchor" href="#_snippets_8"></a>Snippets</h5>
+<h5 id="_snippets_7"><a class="anchor" href="#_snippets_7"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
   "ui::verticallayout":"true"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_basedonschema"><a class="anchor" href="#_basedonschema"></a>@BasedOnSchema</h4>
-<div class="paragraph">
-<p>Mark a table column filled by component&#8217;s schema auto. Only for studio.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.BasedOnSchema</code></p>
-</li>
-</ul>
-</div>
-<div class="sect4">
-<h5 id="_snippets_9"><a class="anchor" href="#_snippets_9"></a>Snippets</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::basedonschema":"true"
 }</code></pre>
 </div>
 </div>
@@ -3606,7 +3569,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_10"><a class="anchor" href="#_snippets_10"></a>Snippets</h5>
+<h5 id="_snippets_8"><a class="anchor" href="#_snippets_8"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3629,7 +3592,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_11"><a class="anchor" href="#_snippets_11"></a>Snippets</h5>
+<h5 id="_snippets_9"><a class="anchor" href="#_snippets_9"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3652,109 +3615,32 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_12"><a class="anchor" href="#_snippets_12"></a>Snippets</h5>
+<h5 id="_snippets_10"><a class="anchor" href="#_snippets_10"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::datetime":"time",
-  "ui::datetime::useSeconds":"false"
+  "ui::datetime":"time"
 }</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::datetime":"date",
-  "ui::datetime::dateFormat":"test"
+  "ui::datetime":"date"
 }</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::datetime":"datetime",
-  "ui::datetime::dateFormat":"test",
-  "ui::datetime::useSeconds":"false",
-  "ui::datetime::useUTC":"false"
+  "ui::datetime":"datetime"
 }</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::datetime":"zoneddatetime",
-  "ui::datetime::dateFormat":"test",
-  "ui::datetime::useSeconds":"false",
-  "ui::datetime::useUTC":"false"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_modulelist"><a class="anchor" href="#_modulelist"></a>@ModuleList</h4>
-<div class="paragraph">
-<p>Mark a string field as being represented by selected module list widget, only for studio</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.ModuleList</code></p>
-</li>
-</ul>
-</div>
-<div class="sect4">
-<h5 id="_snippets_13"><a class="anchor" href="#_snippets_13"></a>Snippets</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::modulelist":"true"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_path"><a class="anchor" href="#_path"></a>@Path</h4>
-<div class="paragraph">
-<p>Mark a option as being represented by file or directory widget. Only for studio.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.Path</code></p>
-</li>
-</ul>
-</div>
-<div class="sect4">
-<h5 id="_snippets_14"><a class="anchor" href="#_snippets_14"></a>Snippets</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::path::value":"null"
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_readonly"><a class="anchor" href="#_readonly"></a>@ReadOnly</h4>
-<div class="paragraph">
-<p>Mark a option as being read-only widget. User cannot modify widget.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>API: <code>@org.talend.sdk.component.api.configuration.ui.widget.ReadOnly</code></p>
-</li>
-</ul>
-</div>
-<div class="sect4">
-<h5 id="_snippets_15"><a class="anchor" href="#_snippets_15"></a>Snippets</h5>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
-  "ui::readonly":"true"
+  "ui::datetime":"zoneddatetime"
 }</code></pre>
 </div>
 </div>
@@ -3773,7 +3659,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_16"><a class="anchor" href="#_snippets_16"></a>Snippets</h5>
+<h5 id="_snippets_11"><a class="anchor" href="#_snippets_11"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3798,7 +3684,7 @@ the logic to handle forms (gridlayout names) is to use the only layout if there 
 </ul>
 </div>
 <div class="sect4">
-<h5 id="_snippets_17"><a class="anchor" href="#_snippets_17"></a>Snippets</h5>
+<h5 id="_snippets_12"><a class="anchor" href="#_snippets_12"></a>Snippets</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-js hljs" data-lang="js">{
@@ -3835,55 +3721,55 @@ When using the programmatic API, metadata is prefixed with <code>tcomp::</code>.
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=activeif-component-distribution">ActiveIf</a>: Add visibility conditions on some configurations.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=activeif-component-distribution">ActiveIf</a>: Add visibility conditions on some configurations.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=checkbox-component-distribution">Checkbox</a>: Add checkboxes or toggles to your component.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=checkbox-component-distribution">Checkbox</a>: Add checkboxes or toggles to your component.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=code-component-distribution">Code</a>: Allow users to enter their own code.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=code-component-distribution">Code</a>: Allow users to enter their own code.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=credentials-component-distribution">Credential</a>: Mark a configuration as sensitive data to avoid displaying it as plain text.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=credentials-component-distribution">Credential</a>: Mark a configuration as sensitive data to avoid displaying it as plain text.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=datastorevalidation-component-distribution">Datastore</a>: Add a button allowing to check the connection to a datastore.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=datastorevalidation-component-distribution">Datastore</a>: Add a button allowing to check the connection to a datastore.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=dropdownlist-component-distribution">Datalist</a>: Two ways of implementing a dropdown list with predefined choices.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=dropdownlist-component-distribution">Datalist</a>: Two ways of implementing a dropdown list with predefined choices.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=integer-component-distribution">Integer</a>: Add numeric fields to your component configuration.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=integer-component-distribution">Integer</a>: Add numeric fields to your component configuration.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=minmaxvalidation-component-distribution">Min/Max</a>: Specify a minimum or a maximum value for a numeric configuration.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=minmaxvalidation-component-distribution">Min/Max</a>: Specify a minimum or a maximum value for a numeric configuration.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=multiselect-component-distribution">Multiselect</a>: Add a list and allow users to select multiple elements of that list.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=multiselect-component-distribution">Multiselect</a>: Add a list and allow users to select multiple elements of that list.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=patternvalidation-component-distribution">Pattern</a>: Enforce rules based on a specific a pattern to prevent users from entering invalid values.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=patternvalidation-component-distribution">Pattern</a>: Enforce rules based on a specific a pattern to prevent users from entering invalid values.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=requiredvalidation-component-distribution">Required</a>: Make a configuration mandatory.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=requiredvalidation-component-distribution">Required</a>: Make a configuration mandatory.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=suggestions-component-distribution">Suggestions</a>: Suggest possible values in a field based on what the users are entering.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=suggestions-component-distribution">Suggestions</a>: Suggest possible values in a field based on what the users are entering.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=table-component-distribution">Table</a>: Add a table to your component configuration.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=table-component-distribution">Table</a>: Add a table to your component configuration.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=textarea-component-distribution">Textarea</a>: Add a text area for configurations expecting long texts or values.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=textarea-component-distribution">Textarea</a>: Add a text area for configurations expecting long texts or values.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=textinput-component-distribution">Input</a>: Add a simple text input field to the component configuration</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=textinput-component-distribution">Input</a>: Add a simple text input field to the component configuration</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=updatable-component-distribution">Update</a>: Provide a button allowing to fill a part of the component configuration based on a service.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=updatable-component-distribution">Update</a>: Provide a button allowing to fill a part of the component configuration based on a service.</p>
 </li>
 <li>
-<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.86.0-SNAPSHOT&amp;e=zip&amp;c=urlvalidation-component-distribution">Validation</a>: Specify constraints to make sure that a URL is well formed.</p>
+<p><a href="https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&amp;g=org.talend.sdk.component&amp;a=documentation-sample&amp;v=1.45.0-SNAPSHOT&amp;e=zip&amp;c=urlvalidation-component-distribution">Validation</a>: Specify constraints to make sure that a URL is well formed.</p>
 </li>
 </ul>
 </div>
@@ -3953,7 +3839,7 @@ In distributed environments, class constructor are called on cluster manager nod
 </table>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="_images/deployment-diagram.png" target="_blank" rel="noopener"><img src="_images/deployment-diagram.png" alt="Deployment diagram"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/deployment-diagram.png" target="_blank" rel="noopener"><img src="_images/deployment-diagram.png" alt="Deployment diagram"></a></span></p>
 </div>
 <div class="colist arabic">
 <table>
@@ -3986,10 +3872,10 @@ All the methods managed by the framework must be public. Private methods are ign
 </table>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="_images/driver-processing-workflow.png" target="_blank" rel="noopener"><img src="_images/driver-processing-workflow.png" alt="Driver processing workflow"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/driver-processing-workflow.png" target="_blank" rel="noopener"><img src="_images/driver-processing-workflow.png" alt="Driver processing workflow"></a></span></p>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="_images/worker-processing-workflow.png" target="_blank" rel="noopener"><img src="_images/worker-processing-workflow.png" alt="Worker processing workflow"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/worker-processing-workflow.png" target="_blank" rel="noopener"><img src="_images/worker-processing-workflow.png" alt="Worker processing workflow"></a></span></p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -4060,7 +3946,7 @@ The framework is designed to be as declarative as possible but also to stay exte
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>${property_path}._documentation</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Equivalent to <code>@Documentation("&#8230;&#8203;")</code> but supporting internationalization (see Maven documentation goal/task).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Equivalent to <code>@Documentation("&#8230;&#8203;")</code> but supporting internationalization (see Maven/Gradle documentation goal/task).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>${property_path}._placeholder</code></p></td>
@@ -4432,7 +4318,7 @@ public class RestApiConfiguration implements Serializable {
 </div>
 <div class="paragraph">
 <div class="title"><strong>Processing schema (values are examples):</strong></div>
-<p><span class="image"><a class="image" href="_images/batch-processing-maxbatchsize.png" target="_blank" rel="noopener"><img src="_images/batch-processing-maxbatchsize.png" alt="Batch processing"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/batch-processing-maxbatchsize.png" target="_blank" rel="noopener"><img src="_images/batch-processing-maxbatchsize.png" alt="Batch processing"></a></span></p>
 </div>
 </div>
 <div class="sect2">
@@ -4470,7 +4356,7 @@ The group size automatic estimation logic is automatically implemented when a co
 </div>
 <div class="paragraph">
 <div class="title"><strong>Group execution detail (values are examples):</strong></div>
-<p><span class="image"><a class="image" href="_images/batch-processing-group.png" target="_blank" rel="noopener"><img src="_images/batch-processing-group.png" alt="Group batch processing"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/batch-processing-group.png" target="_blank" rel="noopener"><img src="_images/batch-processing-group.png" alt="Group batch processing"></a></span></p>
 </div>
 <div class="paragraph">
 <p>You can define the following logic in the processor configuration:</p>
@@ -4520,32 +4406,6 @@ public class BulkProcessor implements Serializable {
     @AfterGroup
     public void commit(final Collection&lt;Record&gt; records) {
         // saves records
-    }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>When using the @aftergroup feature, it can be helpful to determine if it&#8217;s the last call (last group).
-You can now annotate a Boolean with @lastgroup as a parameter of the method.
-This Boolean will be set to true for the final call, which can be useful for performing additional
-actions once all records have been processed.</p>
-</div>
-<div class="paragraph">
-<p>For example, here is a scenario inspired by Snowflake:</p>
-</div>
-<div class="paragraph">
-<p>Batches of records are staged within each @aftergroup call.
-Once all data has been staged, a final #commitBulkLoad call is executed. This action must be performed after all data has been staged.
-This process returns all rejected data, which is then transformed into TCK records and sent to the 'REJECT' flow.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@AfterGroup
-public void afterGroup(@Output("REJECT") final OutputEmitter&lt;Record&gt; rejected, @LastGroup Boolean last) {
-    database.pushToStaging(records);
-    if(last){
-        List&lt;Data&gt; dataToReject = database.commitBulkLoad();
-        dataToReject.stream().map(d -&gt; convertToRecord(d)).each(r -&gt; rejected.emit(d));
     }
 }</code></pre>
 </div>
@@ -4620,171 +4480,7 @@ This default configuration implements a constant pause duration of 500 ms betwee
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="_images/starter/starter_enabling_streaming.png" target="_blank" rel="noopener"><img src="_images/starter/starter_enabling_streaming.png" alt="Stream Toggle"></a>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_enabling_limitations_stop_conditions_for_streaming_components"><a class="anchor" href="#_enabling_limitations_stop_conditions_for_streaming_components"></a>Enabling limitations (stop conditions) for Streaming components</h3>
-<div class="paragraph">
-<p>Without any configuration, streaming components have an infinite lifecycle and will never stop.
-Sometimes, you may need to stop component after a certain amount of records read or time elapsed.</p>
-</div>
-<div class="paragraph">
-<p>You can add configuration that helps you to stop the data reading in your input component when it reaches required limitations. To enable it you need to set <code>true</code> in <code>PartitionMapper#stoppable</code>. An important condition is that <code>PartitionMapper#infinite</code> should also be <code>true</code>.</p>
-</div>
-<div class="paragraph">
-<p>Here&#8217;s a sample code:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@PartitionMapper(name = "Input",
-                 infinite = true, <i class="conum" data-value="1"></i><b>(1)</b>
-                 stoppable = true) <i class="conum" data-value="2"></i><b>(2)</b>
-public class YourPartitionMapper {
-  ...
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Define your component as a streaming component.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Define that your component may be stopped under conditions.</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>There are two reading stop conditions (can be combined):</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>maxDurationMs</code> : stop after <em>n</em> milliseconds elapsed.</p>
-</li>
-<li>
-<p><code>maxRecords</code> : stop after <em>n</em> records read.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>See next subsections for configuring those values.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-If you choose to use a <code>stoppable</code> streaming component, you will have certainly to adapt your code according the backend technology and how to read values. For instance, if in your component you read 100 values at once and the <code>maxRecords</code> value is 50, you may lose 50 values (if the 100 values were acknowledged).
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>In that case, to build a correct strategy in your component, you can access to stop condition values.
-To access these informations use the <code>@PostConstruct</code> method with <code>@Option</code> annotation in your Emitter class.</p>
-</div>
-<div class="paragraph">
-<p>Available options:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>Option.MAX_DURATION_PARAMETER</code> : reflects the <code>maxDurationMs</code> parameter.</p>
-</li>
-<li>
-<p><code>Option.MAX_RECORDS_PARAMETER</code> : reflects the <code>maxRecords</code> parameter.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Here a code sample:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Version
-@PartitionMapper(name = "Input", infinite = true, stoppable = true)
-public class YourPartitionMapper {
-    // partition mapper code
-
-    @Emitter
-    public YourEmitter createWorker() {
-        return new YourEmitter(configuration);
-    }
-}
-
-public class YourEmitter {
-
-    @PostConstruct
-    public void init(@Option(Option.MAX_DURATION_PARAMETER) long maxDurationMs, @Option(Option.MAX_RECORDS_PARAMETER) long maxRecords ) {
-    	// connector's specific logic here
-    }
-    // other component's code
-}</code></pre>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_configuring_streaming_stop_strategy_during_job_design_time"><a class="anchor" href="#_configuring_streaming_stop_strategy_during_job_design_time"></a>Configuring streaming stop strategy during job design time</h4>
-<div class="paragraph">
-<p>If your streaming connector (<code>infinite=true</code>) is defined with the <code>stoppable=true</code>, you will have a design time UI for specifying stop strategy:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Cloud</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p><span class="image"><a class="image" href="_images/streaming-limits-ui-cloud.png" target="_blank" rel="noopener"><img src="_images/streaming-limits-ui-cloud.png" alt="Stream Toggle"></a></span></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Studio</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p><span class="image"><a class="image" href="_images/streaming-limits-ui-studio.png" target="_blank" rel="noopener"><img src="_images/streaming-limits-ui-studio.png" alt="Stream Toggle"></a></span></p>
-</div>
-<div class="paragraph">
-<p>By default, in the setting those values are set to <strong>-1</strong>. It means <em>infinity</em> behavior.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_other_ways_for_configuring_streaming_stop_strategy"><a class="anchor" href="#_other_ways_for_configuring_streaming_stop_strategy"></a>Other ways for configuring streaming stop strategy</h4>
-<div class="paragraph">
-<p>At runtime, you can set system properties to apply the strategy. You need to prefix properties with the component&#8217;s family.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>&lt;family&gt;.talend.input.streaming.maxRecords</code></p>
-</li>
-<li>
-<p><code>&lt;family&gt;.talend.input.streaming.maxDurationMs</code></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>You can also use the <a href="services-built-in.html#_localconfiguration" class="xref page">LocalConfiguration</a> (see next section) with the following properties:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>talend.input.streaming.maxRecords</code></p>
-</li>
-<li>
-<p><code>talend.input.streaming.maxDurationMs</code></p>
-</li>
-</ul>
+<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter/starter_enabling_streaming.png" target="_blank" rel="noopener"><img src="_images/starter/starter_enabling_streaming.png" alt="Stream Toggle"></a>
 </div>
 </div>
 </div>
@@ -4966,345 +4662,6 @@ For more clarity in the formulas below, parameter names have been replaced with 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_checkpointing"><a class="anchor" href="#_checkpointing"></a>Checkpointing</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_introduction"><a class="anchor" href="#_introduction"></a>Introduction</h3>
-<div class="paragraph">
-<p>Checkpointing is a feature in the Talend Component Kit (TCK) that enables an input connector to resume processing from the last recorded checkpoint. This ensures fault tolerance and better handling of large data streams by avoiding reprocessing from the beginning in case of failures.</p>
-</div>
-<div class="paragraph">
-<p>This feature targets mainly upcoming tck integration in Qlik Data Integration (QDI) platforms.
-(Studio and Talend Cloud are not targeted).</p>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-The feature is disabled by default, to use the checkpoint, you need to add a system property <strong><code>talend.checkpoint.enable</code></strong>  in the runtime jvm like this:
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">-Dtalend.checkpoint.enable=true</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_checkpointing_mechanism"><a class="anchor" href="#_checkpointing_mechanism"></a>Checkpointing Mechanism</h3>
-<div class="paragraph">
-<p>Checkpointing in TCK is implemented using specific annotations and an interface that defines the required methods. The checkpointing mechanism allows the runtime to save and restore processing states efficiently.</p>
-</div>
-<div class="sect3">
-<h4 id="_checkpointing_annotations"><a class="anchor" href="#_checkpointing_annotations"></a>Checkpointing Annotations</h4>
-<div class="paragraph">
-<p><code>@CheckpointData</code>: This annotation marks a method that returns a checkpoint object annotated with <code>@Checkpoint</code>.</p>
-</div>
-<div class="paragraph">
-<p><code>@CheckpointAvailable</code>: This annotation marks a method that indicates when a new checkpoint is available.</p>
-</div>
-<div class="paragraph">
-<p><code>@Checkpoint</code>: This annotation is used to mark a class as a checkpointing configuration and state class. This configuration let user define how checkpoints should be built by the connector, and what are data that are set in checkpoint. Those are instances of that class that are given to the connector to configure it to restart at the expected state.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_connector_implementation"><a class="anchor" href="#_connector_implementation"></a>Connector Implementation</h4>
-<div class="paragraph">
-<p>To support checkpointing, the input component used in the lifecycle implement the following interface (this is an internal implementation, connectors developers don&#8217;t have to implement it):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface Input extends Lifecycle {
-
-...
-
-default void start(final Consumer&lt;CheckpointState&gt; checkpointCallback) {
-    throw new IllegalArgumentException("Checkpoint feature is not implemented.");
-}
-
-default Object getCheckpoint() {
-    throw new IllegalArgumentException("Checkpoint feature is not implemented.");
-}
-
-default Boolean isCheckpointReady() {
-    throw new IllegalArgumentException("Checkpoint feature is not implemented.");
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The <code>start()</code> method is called with a callback function that retrieves and serializes checkpoint instances. The <code>getCheckpoint()</code> method returns those checkpoint instances, and <code>isCheckpointReady()</code> checks if a new checkpoint is available.</p>
-</div>
-<div class="paragraph">
-<p>Those methods are frontend methods for connectors' methods annotated with <code>@CheckpointAvailable</code>, and <code>@Checkpoint</code>.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_example_checkpointing_producer"><a class="anchor" href="#_example_checkpointing_producer"></a>Example: Checkpointing Producer</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Emitter(family = "checkpoint", name = "list-input")
-public class CheckpointInputDemo implements Serializable {
-
-    private final JsonBuilderFactory factory;
-
-    private final Jsonb jsonb;
-
-    private List&lt;Integer&gt; data;
-
-    private transient ListIterator&lt;Integer&gt; iterator;
-
-    private Integer bookmark;
-
-    private boolean newBookmark;
-
-    private final InputConfig configuration;
-
-    public CheckpointInputDemo(final JsonBuilderFactory factory, final Jsonb jsonb,
-            @Option("configuration") final InputConfig config) {
-        this.factory = factory;
-        this.jsonb = jsonb;
-        this.configuration = config;
-        log.warn("[CheckpointInput] config: {}.", config);
-    }
-
-    @PostConstruct
-    public void init() {
-        ...
-        if (configuration.checkpoint == null) {
-            log.info("[resume] No valid checkpoint configuration found, using start of dataset.");
-            bookmark = 0;
-        } else {
-            bookmark = configuration.checkpoint.sinceId;
-        }
-        ...
-    }
-
-    @Producer
-    public JsonObject data() {
-        ...
-        final Integer produced = iterator.hasNext() ? iterator.next() : null;
-        if (produced == null) {
-            configuration.checkpoint.sinceId = bookmark;
-            return null;
-        }
-        bookmark = produced;
-        configuration.checkpoint.sinceId = produced;
-
-        if (isCheckpointCondition(produced)) {
-            newBookmark = true;
-        }
-
-        return factory.createObjectBuilder().add("data", produced).build();
-    }
-
-    @CheckpointData
-    public Object getCheckpoint() {
-        newBookmark = false;
-        return configuration.checkpoint;
-    }
-
-    @CheckpointAvailable
-    public Boolean isCheckpointReady() {
-        return newBookmark;
-    }
-    ...</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_checkpointing_usage_scenarios"><a class="anchor" href="#_checkpointing_usage_scenarios"></a>Checkpointing Usage Scenarios</h3>
-<div class="paragraph">
-<p>At runtime, checkpointing can be used in two ways:</p>
-</div>
-<div class="sect3">
-<h4 id="_1_explicit_runtime_usage"><a class="anchor" href="#_1_explicit_runtime_usage"></a>1. Explicit Runtime Usage</h4>
-<div class="paragraph">
-<p>In this mode, the runtime directly calls the methods of the input connector to manage checkpointing. It is responsible for:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Determining when to create a checkpoint.</p>
-</li>
-<li>
-<p>Checking if a checkpoint is available using <code>isCheckpointReady()</code>.</p>
-</li>
-<li>
-<p>Retrieving and storing the checkpoint using <code>getCheckpoint()</code>.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Simple example of explicit checkpointing usage:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  ...
-  input.start();
-  while ((input.next()) != null) {
-    if (input.isCheckpointReady()) {
-      serializeCheckpoint(input.getCheckpoint());
-    }
-  }
-  input.stop();</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_2_automatic_mode"><a class="anchor" href="#_2_automatic_mode"></a>2. Automatic Mode</h4>
-<div class="paragraph">
-<p>In this mode, checkpointing is handled automatically during the lifecycle:</p>
-</div>
-<div class="paragraph">
-<p>The <code>start()</code> method is called with a callback function that retrieves and serializes the checkpoint object.</p>
-</div>
-<div class="paragraph">
-<p>While reading records (<code>next()</code> method), the connector checks whether a checkpoint can be provided.</p>
-</div>
-<div class="paragraph">
-<p>If necessary, the checkpoint is generated by calling <code>getCheckpoint()</code>, which internally calls the method annotated with <code>@CheckpointData</code>.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  final Consumer&lt;CheckpointState&gt; checkpointCallback = bookmark -&gt; {
-    serializeCheckpoint(bookmark);
-  };
-  ...
-  input.start(checkpointCallback);
-  Record record;
-  while ((record = input.next()) != null) {
-    // process records
-  }
-  input.stop();</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_how_to_resume"><a class="anchor" href="#_how_to_resume"></a>How to resume</h3>
-<div class="paragraph">
-<p>As state previously, checkpoints are configured via the <code>@Checkpoint</code> annotated configuration class. The <code>@Checkpoint</code> annotation can be used to specify the method type used for checkpointing and the checkpointing frequency.
-The checkpointing frequency can be set to options such as RECORD or TIME. For example, selecting the RECORD frequency saves the checkpoint after processing a certain number of records, while selecting the TIME frequency generates checkpoints at specified time intervals.</p>
-</div>
-<div class="paragraph">
-<p>When the component is restarted, the runtime calls the <code>start()</code> method. The connector receives its configuration which is merged with the checkpoint object. It can then resume processing from the last saved state from the configuration.</p>
-</div>
-<div class="paragraph">
-<p>When implementing checkpointing, it is recommended to use a separate configuration class for checkpointing. This class should be nested within the main configuration class and annotated with <code>@Checkpoint</code>. This ensures that the checkpointing configuration is separate from the main configuration and can be easily managed by the runtime.</p>
-</div>
-<div class="paragraph">
-<p>Sample configuration class with checkpointing annotations:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    ...
-    @Checkpoint
-    @Version(value = 2, migrationHandler = CheckpointMigrationHandler.class)
-    public static class CheckPointInputConfig implements Serializable {
-
-        public enum Strategy {
-            BY_ID,
-            BY_DATE
-        }
-
-        @Option
-        @DefaultValue("BY_ID")
-        private Strategy strategy = Strategy.BY_ID;
-
-        @Option
-        private String startDate;
-
-        @Option
-        private int sinceId;
-
-    }
-
-    @Data
-    @GridLayout(value = { @GridLayout.Row("user"), @GridLayout.Row("pass")})
-    @GridLayout(names = GridLayout.FormType.CHECKPOINT, value = { @GridLayout.Row("checkPointInputConfig") })
-    public static class InputConfig {
-
-        @Option
-        private String user;
-
-        @Option
-        private String pass;
-
-        @Option
-        private CheckPointInputConfig checkpoint = new CheckPointInputConfig();
-    }</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Calling the <code>getCheckpoint()</code> returns <code>CheckpointState</code> class, which is a simple POJO class that holds the checkpoint data and version. This class has to be serializable to allow the runtime to save and restore the checkpoint object. For that, it provides a helper method <code>toJson()</code> to serialize the checkpoint state object.</p>
-</div>
-<div class="paragraph">
-<p>Here&#8217;s a simple example of a <code>CheckpointState</code> class serialized to JSON:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
-  "$checkpoint": { <i class="conum" data-value="1"></i><b>(1)</b>
-    "lastId": 95,
-    "lastUpdate": "2023-04-04",
-    "strategy": "BY_ID",
-    "__version": 2 <i class="conum" data-value="2"></i><b>(2)</b>
-  }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Notice the following which are important (automatically done using <code>toJson()</code>):</p>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Configuration and state of the checkpoint should be a member of a <code>$checkpoint</code> object.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Version of the checkpoint configuration is stored for eventual migration.</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>The checkpointing configuration class is defined as a nested class within the component configuration class. The runtime has to provide the checkpointing configuration to the component when it is started.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  configuration.put("configuration.datastore.user", "usr");
-  configuration.put("configuration.datastore.pass", "pwd");
-  ...
-  configuration.put("$checkpoint.strategy", "BY_ID");
-  configuration.put("$checkpoint.sinceId", "5");
-  //
-  final Mapper mapper = mgr.findMapper("checkpoint", "list-input", 1, configuration).get();
-  ...</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Important points to remember when providing the configuration to the component, you don&#8217;t need to respect the internal configuration path of checkpoint configuration class in your connector. The runtime will automatically map the configuration to the checkpoint configuration class when you prefix your checkpoint state with <code>$checkpoint</code>.</p>
-</div>
-<div class="paragraph">
-<p>It&#8217;s quite easy to translate configuration and checkpoints in json format to a <code>Map&lt;String, String&gt;</code> object (see helper method <code>jsonToMap()</code> in <code>ComponentManager</code>). This object can be passed to the component manager to create a mapper instance.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_conclusion"><a class="anchor" href="#_conclusion"></a>Conclusion</h3>
-<div class="paragraph">
-<p>The checkpointing feature in TCK improves resilience by allowing input connectors to resume from the last saved state. By leveraging annotations and the input interface, developers can integrate checkpointing seamlessly into their components, ensuring efficient and fault-tolerant data processing.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_building_components_with_maven"><a class="anchor" href="#_building_components_with_maven"></a>Building components with Maven</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -5351,7 +4708,7 @@ A Talend Component Kit plugin is available for each of the supported build tools
 For example, to compile the project and prepare for deploying your component, run <code>mvn clean install</code>. Using this command, the following goals are executed:</p>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="_images/mvn_clean_install.png" target="_blank" rel="noopener"><img src="_images/mvn_clean_install.png" alt="Maven clean install"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/mvn_clean_install.png" target="_blank" rel="noopener"><img src="_images/mvn_clean_install.png" alt="Maven clean install"></a></span></p>
 </div>
 <div class="paragraph">
 <p>The build is split into several phases. The different goals are executed in the order shown above. Talend Component Kit uses default goals from the Maven build lifecycle and adds additional goals to the building and packaging phases.</p>
@@ -5782,7 +5139,7 @@ if you use that plugin, ensure to set it before the validate mojo otherwise vali
 <div class="sect4">
 <h5 id="_rendering_your_documentation"><a class="anchor" href="#_rendering_your_documentation"></a>Rendering your documentation</h5>
 <div class="paragraph">
-<p>To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin. You can configure both executions if you want both HTML and PDF renderings.</p>
+<p>To render the generated documentation in HTML or PDF, you can use the Asciidoctor Maven plugin (or Gradle equivalent). You can configure both executions if you want both HTML and PDF renderings.</p>
 </div>
 <div class="paragraph">
 <p>Make sure to execute the rendering after the documentation generation.</p>
@@ -6082,12 +5439,6 @@ This is an advanced feature designed for expert users. Use it with caution.
 <td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">${project.packaging}</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the type: `connector' or server `extension'</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">talend.car.type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">connector</p></td>
-</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -6226,6 +5577,114 @@ Call <code>mvn talend-component:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</cod
 <ul>
 <li>
 <p><a href="best-practices.html" class="xref page">Best practices</a></p>
+</li>
+<li>
+<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
+</li>
+<li>
+<p><a href="studio.html" class="xref page">Integrating to the Studio</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_building_components_with_gradle"><a class="anchor" href="#_building_components_with_gradle"></a>Building components with Gradle</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To develop new components, Talend Component Kit requires a build tool in which you will import the component project generated from the starter. With this build tool, you will also be able to implement the logic of your component and to install and deploy it to Talend applications.
+A Talend Component Kit plugin is available for each of the supported build tools.</p>
+</div>
+<div class="paragraph">
+<p><strong>gradle-talend-component</strong> helps you write components that match the best practices. It is inspired from the Maven plugin and adds the ability to generate automatically the <code>dependencies.txt</code> file used by the SDK to build the component classpath. For more information on the configuration, refer to the <a href="build-tools-maven.html" class="xref page">Maven</a> properties matching the attributes.</p>
+</div>
+<div class="paragraph">
+<p>By default, Gradle does not log information messages. To see messages, use <code>--info</code> in your commands. Refer to <a href="https://docs.gradle.org/current/userguide/logging.html">Gradle&#8217;s documentation</a> to learn about log levels.</p>
+</div>
+<div class="paragraph">
+<p>You can use it as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  dependencies {
+    classpath "org.talend.sdk.component:gradle-talend-component:${talendComponentVersion}"
+  }
+}
+
+apply plugin: 'org.talend.sdk.component'
+apply plugin: 'java'
+
+// optional customization
+talendComponentKit {
+    // dependencies.txt generation, replaces maven-dependency-plugin
+    dependenciesLocation = "TALEND-INF/dependencies.txt"
+    boolean skipDependenciesFile = false;
+
+    // classpath for validation utilities
+    sdkVersion = "${talendComponentVersion}"
+    apiVersion = "${talendComponentApiVersion}"
+
+    // documentation
+    skipDocumentation = false
+    documentationOutput = new File(....)
+    documentationLevel = 2 // first level will be == in the generated .adoc
+    documentationTitle = 'My Component Family' // defaults to ${project.name}
+    documentationAttributes = [:] // adoc attributes
+    documentationFormats = [:] // renderings to do
+    documentationVersion = 1.1 // defaults to the .pom version
+
+    // validation
+    skipValidation = false
+    validateFamily = true
+    validateSerializable = true
+    validateInternationalization = true
+    validateModel = true
+    validateOptionNames = true
+    validateMetadata = true
+    validateComponent = true
+    validateDataStore = true
+    validateDataSet = true
+    validateActions = true
+    validateLocalConfiguration = true
+    validateOutputConnection = true
+    validateLayout = true
+    validateDocumentation = true
+
+    // web
+    serverArguments = []
+    serverPort = 8080
+
+    // car
+    carAttach = true
+    carClassifier = component // classifier to use if carAttach is set to true
+    carOutput = new File(....)
+    carMetadata = [:] // custom meta (string key-value pairs)
+    carPackaging = ${project.packaging}
+
+    // deploy-in-studio
+    studioHome = "C:\&lt;pathToSutdio&gt;"
+
+    // svg2png
+    icons = 'resources/main/icons'
+    useIconWorkarounds = true
+}</code></pre>
+</div>
+</div>
+<div class="sect2 relatedlinks">
+<h3 id="_related_articles_11"><a class="anchor" href="#_related_articles_11"></a>Related articles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="best-practices.html" class="xref page">Best practices</a></p>
+</li>
+<li>
+<p><a href="build-tools-maven.html" class="xref page">Building components with Maven</a></p>
 </li>
 <li>
 <p><a href="studio.html" class="xref page">Integrating to the Studio</a></p>
@@ -6499,12 +5958,12 @@ public class KafkaInput extends PTransform&lt;PBegin, PCollection&lt;Record&gt;&
 </table>
 </div>
 <div class="paragraph">
-<p>Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no <code>@Emitter</code>), you need to set the <code>&lt;talend.validation.component&gt;false&lt;/talend.validation.component&gt;</code> property in your <code>pom.xml</code> file to skip the component programming model validations of the framework.</p>
+<p>Because the Beam wrapper does not respect the standard Talend Component Kit programming model ( for example, there is no <code>@Emitter</code>), you need to set the <code>&lt;talend.validation.component&gt;false&lt;/talend.validation.component&gt;</code> property in your <code>pom.xml</code> file (or equivalent for Gradle) to skip the component programming model validations of the framework.</p>
 </div>
 </div>
 </div>
 <div class="sect2 relatedlinks">
-<h3 id="_related_articles_11"><a class="anchor" href="#_related_articles_11"></a>Related articles</h3>
+<h3 id="_related_articles_12"><a class="anchor" href="#_related_articles_12"></a>Related articles</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -6934,7 +6393,7 @@ public class JdbcPartitionMapper
 </div>
 </div>
 <div class="sect2 relatedlinks">
-<h3 id="_related_articles_12"><a class="anchor" href="#_related_articles_12"></a>Related articles</h3>
+<h3 id="_related_articles_13"><a class="anchor" href="#_related_articles_13"></a>Related articles</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -7006,7 +6465,7 @@ For example, the tree classloading is commonly used by Servlet containers where 
 <p>Here is a representation of this solution:</p>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="_images/classloader-layout.png" target="_blank" rel="noopener"><img src="_images/classloader-layout.png" alt="Classloader layout"></a></span></p>
+<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/classloader-layout.png" target="_blank" rel="noopener"><img src="_images/classloader-layout.png" alt="Classloader layout"></a></span></p>
 </div>
 <div class="paragraph">
 <p>The <em>shared</em> area contains Talend Component Kit API, which only contains by default the classes shared by the plugins.</p>
@@ -7560,7 +7019,7 @@ In such a case, exclusions win over inclusions.
 </div>
 </div>
 <div class="sect2 relatedlinks">
-<h3 id="_related_articles_13"><a class="anchor" href="#_related_articles_13"></a>Related articles</h3>
+<h3 id="_related_articles_14"><a class="anchor" href="#_related_articles_14"></a>Related articles</h3>
 <div class="ulist">
 <ul>
 <li>
