@@ -10,8 +10,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Tutorials :: Talend Component Kit Developer Reference Guide</title>
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/pdf-tutorials.html">
-    <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2025-09-29T15:14:07.200Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+    <meta name="generator" content="Antora 3.0.3">
+<meta name="date" content="2025-09-30T01:05:12.995Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -41,13 +41,12 @@
 </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
     <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
-    <script>var uiRootPath = '../../_'</script>
   </head>
   <body>
       <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
     <symbol id="talend-logo-square">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"/>
         </svg>
     </symbol>
     <symbol id="talend-component-kit-positive">
@@ -83,192 +82,33 @@
         <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                1.45.0 (dev)
+                1.86.0 (dev)
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
                 <li class="navbar-item version">
-                    <a href="index.html">1.45.0</a>
+                    <a href="pdf-tutorials.html">1.86.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.43.1/index.html">1.43.1</a>
+                    <a href="../1.85.0/pdf-tutorials.html">1.85.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.42.0/index.html">1.42.0</a>
+                    <a href="../1.84.1/pdf-tutorials.html">1.84.1</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.41.1/index.html">1.41.1</a>
+                    <a href="../1.84.0/pdf-tutorials.html">1.84.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.40.0/index.html">1.40.0</a>
+                    <a href="../1.83.0/pdf-tutorials.html">1.83.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.39.3/index.html">1.39.3</a>
+                    <a href="../1.64.8/pdf-tutorials.html">1.64.8</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.37.1/index.html">1.37.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.36.1/index.html">1.36.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.35.1/index.html">1.35.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.34.1/index.html">1.34.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.33.2/index.html">1.33.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.32.2/index.html">1.32.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.31.2/index.html">1.31.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.30.0/index.html">1.30.0</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.29.2/index.html">1.29.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.28.2/index.html">1.28.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.27/index.html">1.1.27</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.26/index.html">1.1.26</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.25/index.html">1.1.25</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.24/index.html">1.1.24</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.23/index.html">1.1.23</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.22/index.html">1.1.22</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.21/index.html">1.1.21</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.20/index.html">1.1.20</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.19/index.html">1.1.19</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.18/index.html">1.1.18</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.17/index.html">1.1.17</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.16/index.html">1.1.16</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.15/index.html">1.1.15</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.14/index.html">1.1.14</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.13/index.html">1.1.13</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.12/index.html">1.1.12</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.11/index.html">1.1.11</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.10/index.html">1.1.10</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.9/index.html">1.1.9</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.8/index.html">1.1.8</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.7/index.html">1.1.7</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.6/index.html">1.1.6</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.5/index.html">1.1.5</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.4/index.html">1.1.4</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.3/index.html">1.1.3</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.2/index.html">1.1.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.1/index.html">1.1.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.0/index.html">1.1.0</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.0.4/index.html">1.0.4</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.0.3/index.html">1.0.3</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.0.2/index.html">1.0.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.0.1/index.html">1.0.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.13/index.html">0.0.13</a>
+                    <a href="../1.38.16/pdf-tutorials.html">1.38.16</a>
                 </li>
                 <li class="navbar-item version">
                     <a href="../0.0.12/index.html">0.0.12</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.11/index.html">0.0.11</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.10/index.html">0.0.10</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.9/index.html">0.0.9</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.8/index.html">0.0.8</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.7/index.html">0.0.7</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.6/index.html">0.0.6</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.5/index.html">0.0.5</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.4/index.html">0.0.4</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.3/index.html">0.0.3</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.2/index.html">0.0.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.1/index.html">0.0.1</a>
                 </li>
           </ul>
         </div>
@@ -296,7 +136,7 @@
     </nav>
 </header>
             <main class="main">
-              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.45.0">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.86.0">
   <aside class="navigation" role="navigation">
     <div class="panels">
       <div class="input-group nav-filter-group">
@@ -430,13 +270,13 @@
     <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
   </li>
   <li data-depth="2">
+    <a class="menu-link" href="component-checkpoint.html">Implementing checkpointing on a component</a>
+  </li>
+  <li data-depth="2">
     <a class="menu-link" href="component-loading.html">Component loading</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
-  </li>
-  <li data-depth="2">
-    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
@@ -529,9 +369,6 @@
   </li>
   <li data-depth="2">
     <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
-  </li>
-  <li data-depth="2">
-    <a class="menu-link" href="vault-proxy.html">Component Server Vault Proxy</a>
   </li>
 </ul>
   </li>
@@ -627,7 +464,7 @@ The component designed in this tutorial is a processor and does not require nor 
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_build_job_run.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_run.png" alt="Job run"></a>
+<a class="image" href="_images/tutorial_build_job_run.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_run.png" alt="Job run"></a>
 </div>
 </div>
 <div class="sect2">
@@ -663,7 +500,7 @@ The component designed in this tutorial is a processor and does not require nor 
 <p>Start IntelliJ and create a new project. In the available options, you should see <strong>Talend Component</strong>.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/intellij_new_component_project.png" target="_blank" rel="noopener"><img src="_images/intellij_new_component_project.png" alt="New project"></a>
+<a class="image" href="_images/intellij_new_component_project.png" target="_blank" rel="noopener"><img src="_images/intellij_new_component_project.png" alt="New project"></a>
 </div>
 </div>
 </li>
@@ -675,7 +512,7 @@ The <strong>Talend Component Kit Starter</strong> opens.</p>
 <p>Enter the component and project metadata. Change the default values, for example as presented in the screenshot below:<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/intellij_tutorial_project_metadata.png" target="_blank" rel="noopener"><img src="_images/intellij_tutorial_project_metadata.png" alt="Project metadata"></a>
+<a class="image" href="_images/intellij_tutorial_project_metadata.png" target="_blank" rel="noopener"><img src="_images/intellij_tutorial_project_metadata.png" alt="Project metadata"></a>
 </div>
 </div>
 <div class="ulist">
@@ -699,7 +536,7 @@ The <strong>Talend Component Kit Starter</strong> opens.</p>
 <p>Select <strong>Configuration Model</strong> and add a string type field named <code>level</code>. This input field will be used in the component configuration for final users to enter additional information to display in the logs.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_component_configuration_model.png" target="_blank" rel="noopener"><img src="_images/tutorial_component_configuration_model.png" alt="Configuration Model"></a>
+<a class="image" href="_images/tutorial_component_configuration_model.png" target="_blank" rel="noopener"><img src="_images/tutorial_component_configuration_model.png" alt="Configuration Model"></a>
 </div>
 </div>
 </li>
@@ -707,7 +544,7 @@ The <strong>Talend Component Kit Starter</strong> opens.</p>
 <p>In the <strong>Input(s) / Output(s)</strong> section, click the default <strong>MAIN</strong> input branch to access its detail, and make sure that the record model is set to <strong>Generic</strong>. Leave the <strong>Name</strong> of the branch with its default <code>MAIN</code> value.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_component_generic_input.png" target="_blank" rel="noopener"><img src="_images/tutorial_component_generic_input.png" alt="Generic Input"></a>
+<a class="image" href="_images/tutorial_component_generic_input.png" target="_blank" rel="noopener"><img src="_images/tutorial_component_generic_input.png" alt="Generic Input"></a>
 </div>
 </div>
 </li>
@@ -736,7 +573,7 @@ Because the component is a processor, it has an output branch by default. A proc
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_generated_project_view.png" target="_blank" rel="noopener"><img src="_images/tutorial_generated_project_view.png" alt="Project view"></a>
+<a class="image" href="_images/tutorial_generated_project_view.png" target="_blank" rel="noopener"><img src="_images/tutorial_generated_project_view.png" alt="Project view"></a>
 </div>
 </div>
 <div class="ulist">
@@ -786,13 +623,13 @@ Because the component is a processor, it has an output branch by default. A proc
 <p>From the component project in IntelliJ, open a Terminal and make sure that the selected directory is the root of the project. All commands shown in this tutorial are performed from this location.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_intellij_terminal_blank.png" target="_blank" rel="noopener"><img src="_images/tutorial_intellij_terminal_blank.png" alt="Compile terminal"></a>
+<a class="image" href="_images/tutorial_intellij_terminal_blank.png" target="_blank" rel="noopener"><img src="_images/tutorial_intellij_terminal_blank.png" alt="Compile terminal"></a>
 </div>
 </div>
 </li>
 <li>
 <p>Compile the project by running the following command: <code>mvnw clean install</code>.<br>
-The <code>mvnw</code> command refers to the Maven wrapper that is embedded in Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand. An equivalent wrapper is available for Gradle.</p>
+The <code>mvnw</code> command refers to the Maven wrapper that is embedded in Talend Component Kit. It allows to use the right version of Maven for your project without having to install it manually beforehand.</p>
 </li>
 <li>
 <p>Once the command is executed and you see <strong>BUILD SUCCESS</strong> in the terminal, deploy the component to your local instance of Talend Open Studio using the following command:<br>
@@ -814,7 +651,7 @@ Replace the path with your own value. If the path contains spaces (for example, 
 <p>Make sure the build is successful.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_deploy_in_studio_success.png" target="_blank" rel="noopener"><img src="_images/tutorial_deploy_in_studio_success.png" alt="Build success"></a>
+<a class="image" href="_images/tutorial_deploy_in_studio_success.png" target="_blank" rel="noopener"><img src="_images/tutorial_deploy_in_studio_success.png" alt="Build success"></a>
 </div>
 </div>
 </li>
@@ -829,7 +666,7 @@ Replace the path with your own value. If the path contains spaces (for example, 
 <p>Notice that the <strong>level</strong> field specified in the configuration model of the component in the <strong>Talend Component Kit Starter</strong> is present.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_first_component_in_studio.png" target="_blank" rel="noopener"><img src="_images/tutorial_first_component_in_studio.png" alt="Component in Studio"></a>
+<a class="image" href="_images/tutorial_first_component_in_studio.png" target="_blank" rel="noopener"><img src="_images/tutorial_first_component_in_studio.png" alt="Component in Studio"></a>
 </div>
 </div>
 </li>
@@ -938,7 +775,7 @@ Replace the path with your own value. If the path contains spaces (for example, 
 <p>Set the <strong>Number of Rows for RowGenerator</strong> to <code>10</code>.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_build_job_trowgenerator.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_trowgenerator.png" alt="tRowGenerator"></a>
+<a class="image" href="_images/tutorial_build_job_trowgenerator.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_trowgenerator.png" alt="tRowGenerator"></a>
 </div>
 </div>
 </li>
@@ -952,7 +789,7 @@ Replace the path with your own value. If the path contains spaces (for example, 
 <p>Open the <strong>TutorialFamilyLogger</strong> component and set the <strong>level</strong> field to <code>info</code>.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_build_job_logger.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_logger.png" alt="Logger"></a>
+<a class="image" href="_images/tutorial_build_job_logger.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_logger.png" alt="Logger"></a>
 </div>
 </div>
 </li>
@@ -964,7 +801,7 @@ The job is executed. You can observe in the console that each of the 10 generate
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_build_job_run.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_run.png" alt="Job run"></a>
+<a class="image" href="_images/tutorial_build_job_run.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_run.png" alt="Job run"></a>
 </div>
 </div>
 </div>
@@ -1051,13 +888,13 @@ When defining a project using the Starter, do not refresh the page to avoid losi
 <p>Open the <a href="https://starter-toolkit.talend.io">Starter</a> in the web browser of your choice.</p>
 </li>
 <li>
-<p>Select your build tool. This tutorial uses Maven, but you can select Gradle instead.</p>
+<p>Select your build tool. This tutorial uses Maven.</p>
 </li>
 <li>
 <p>Add any facet you need. For example, add the <strong>Talend Component Kit Testing</strong> facet to your project to automatically generate unit tests for the components created in the project.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter/starter_test_facet.png" target="_blank" rel="noopener"><img src="_images/starter/starter_test_facet.png" alt="Test facet"></a>
+<a class="image" href="_images/starter/starter_test_facet.png" target="_blank" rel="noopener"><img src="_images/starter/starter_test_facet.png" alt="Test facet"></a>
 </div>
 </div>
 </li>
@@ -1098,7 +935,7 @@ Input and Output components without dataset (itself containing a datastore) will
 <p>Components added to the project using <strong>Add A Component</strong> can now be processors, input or output components.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter/starter_activate_io.png" target="_blank" rel="noopener"><img src="_images/starter/starter_activate_io.png" alt="Activate IO"></a>
+<a class="image" href="_images/starter/starter_activate_io.png" target="_blank" rel="noopener"><img src="_images/starter/starter_activate_io.png" alt="Activate IO"></a>
 </div>
 </div>
 </li>
@@ -1203,7 +1040,7 @@ The intent in this tutorial is to create an input component that connects to a M
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter/starter_add_component.png" target="_blank" rel="noopener"><img src="_images/starter/starter_add_component.png" alt="Input configuration"></a>
+<a class="image" href="_images/starter/starter_add_component.png" target="_blank" rel="noopener"><img src="_images/starter/starter_add_component.png" alt="Input configuration"></a>
 </div>
 </div>
 <div class="olist arabic">
@@ -1241,7 +1078,7 @@ Closing the configuration panel on the right does <strong>not</strong> delete yo
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter/starter_input-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_input-config.png" alt="Input configuration"></a>
+<a class="image" href="_images/starter/starter_input-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_input-config.png" alt="Input configuration"></a>
 </div>
 </div>
 </li>
@@ -1299,7 +1136,7 @@ If you selected <strong>Activate IO</strong>, you can choose the component type.
 The input in this tutorial is a generic record. Enable the <strong>Generic</strong> option and click <strong>Save</strong>.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter/starter_processor-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_processor-config.png" alt="Processor configuration"></a>
+<a class="image" href="_images/starter/starter_processor-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_processor-config.png" alt="Processor configuration"></a>
 </div>
 </div>
 </li>
@@ -1337,7 +1174,7 @@ The intent in this tutorial is to create an output component that receives a rec
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter/starter_output-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_output-config.png" alt="Output configuration"></a>
+<a class="image" href="_images/starter/starter_output-config.png" target="_blank" rel="noopener"><img src="_images/starter/starter_output-config.png" alt="Output configuration"></a>
 </div>
 </div>
 <div class="olist arabic">
@@ -1414,7 +1251,7 @@ In this tutorial, the project was configured and three components of different t
 <p>Click <strong>Finish</strong> on the left panel. You are redirected to a page that summarizes the project. On the left panel, you can also see all the components that you added to the project.</p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter/starter_project-download.png" target="_blank" rel="noopener"><img src="_images/starter/starter_project-download.png" alt="Output configuration"></a>
+<a class="image" href="_images/starter/starter_project-download.png" target="_blank" rel="noopener"><img src="_images/starter/starter_project-download.png" alt="Output configuration"></a>
 </div>
 </div>
 </li>
@@ -1449,9 +1286,6 @@ In this tutorial, the project was configured and three components of different t
 In the project directory, execute the <code>mvn package</code> command.<br>
 If you don&#8217;t have Maven installed on your machine, you can use the Maven wrapper provided in the generated project, by executing the <code>./mvnw package</code> command.</p>
 </li>
-<li>
-<p>If you have created a Gradle project, you can compile it using the <code>gradle build</code> command or using the Gradle wrapper: <code>./gradlew build</code>.</p>
-</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -1473,7 +1307,7 @@ Import the project to your favorite IDE to start the implementation.</p>
 <p>Enable the <strong>OpenAPI</strong> mode using the toggle in the header.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter_openapi_toggle.png" target="_blank" rel="noopener"><img src="_images/starter_openapi_toggle.png" alt="Open API toggle"></a>
+<a class="image" href="_images/starter_openapi_toggle.png" target="_blank" rel="noopener"><img src="_images/starter_openapi_toggle.png" alt="Open API toggle"></a>
 </div>
 </div>
 </li>
@@ -1487,7 +1321,7 @@ Import the project to your favorite IDE to start the implementation.</p>
 <p>Unselect the endpoints that you do not want to use in the future components. By default, all detected endpoints are selected.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/starter_openapi_json.png" target="_blank" rel="noopener"><img src="_images/starter_openapi_json.png" alt="Open API menu"></a>
+<a class="image" href="_images/starter_openapi_json.png" target="_blank" rel="noopener"><img src="_images/starter_openapi_json.png" alt="Open API menu"></a>
 </div>
 </div>
 </li>
@@ -1561,7 +1395,7 @@ Import the project to your favorite IDE to start the implementation.</p>
 <div class="sect2">
 <h3 id="_creating_the_project"><a class="anchor" href="#_creating_the_project"></a>Creating the project</h3>
 <div class="paragraph">
-<p>A <strong>TCK</strong> project is a simple Java project with specific configurations and dependencies. You can choose your preferred build tool from <strong>Maven</strong> or <strong>Gradle</strong> as TCK supports both. <strong>In this tutorial, Maven is used.</strong></p>
+<p>A <strong>TCK</strong> project is a simple Java project with specific configurations and dependencies. You can choose your preferred build tool from <strong>Maven</strong> as TCK supports both. <strong>In this tutorial, Maven is used.</strong></p>
 </div>
 <div class="paragraph">
 <p>The first step consists in generating the project structure using <strong>Talend Starter Toolkit</strong> .</p>
@@ -1653,7 +1487,7 @@ You can use the <strong>Starter Toolkit</strong> to define the full configuratio
       &lt;plugin&gt;
         &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
         &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
-        &lt;version&gt;3.8.1&lt;/version&gt;
+        &lt;version&gt;3.14.0&lt;/version&gt;
         &lt;configuration&gt;
           &lt;source&gt;1.8&lt;/source&gt;
           &lt;target&gt;1.8&lt;/target&gt;
@@ -5533,7 +5367,7 @@ in the <code>talend.maven.decrypter.m2.location</code> environment variable.
 <p>Click <strong>New Item</strong> to create a new build job.</p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/jenkins/1_jenkins_new_item.png" target="_blank" rel="noopener"><img src="_images/jenkins/1_jenkins_new_item.png" alt="Create a new job"></a>
+<a class="image" href="_images/jenkins/1_jenkins_new_item.png" target="_blank" rel="noopener"><img src="_images/jenkins/1_jenkins_new_item.png" alt="Create a new job"></a>
 </div>
 </div>
 </li>
@@ -5541,7 +5375,7 @@ in the <code>talend.maven.decrypter.m2.location</code> environment variable.
 <p>Enter an Item name (Job name) and choose the freestyle job. Then click OK.</p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/jenkins/2_jenkins_new_item.png" target="_blank" rel="noopener"><img src="_images/jenkins/2_jenkins_new_item.png" alt="Create a new job"></a>
+<a class="image" href="_images/jenkins/2_jenkins_new_item.png" target="_blank" rel="noopener"><img src="_images/jenkins/2_jenkins_new_item.png" alt="Create a new job"></a>
 </div>
 </div>
 </li>
@@ -5552,7 +5386,7 @@ in the <code>talend.maven.decrypter.m2.location</code> environment variable.
 <p>Specify the <code>master</code> branch as <strong>Branches to build</strong>.</p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/jenkins/4_jenkins_source_code.png" target="_blank" rel="noopener"><img src="_images/jenkins/4_jenkins_source_code.png" alt="Source Code Management"></a>
+<a class="image" href="_images/jenkins/4_jenkins_source_code.png" target="_blank" rel="noopener"><img src="_images/jenkins/4_jenkins_source_code.png" alt="Source Code Management"></a>
 </div>
 </div>
 </li>
@@ -5560,7 +5394,7 @@ in the <code>talend.maven.decrypter.m2.location</code> environment variable.
 <p>In the <strong>Build</strong> section, click <strong>Add build step</strong> and choose <strong>Invoke top-level Maven targets</strong>.</p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/jenkins/6_jenkins_build_cmd.png" target="_blank" rel="noopener"><img src="_images/jenkins/6_jenkins_build_cmd.png" alt="Build Section"></a>
+<a class="image" href="_images/jenkins/6_jenkins_build_cmd.png" target="_blank" rel="noopener"><img src="_images/jenkins/6_jenkins_build_cmd.png" alt="Build Section"></a>
 </div>
 </div>
 </li>
@@ -5568,7 +5402,7 @@ in the <code>talend.maven.decrypter.m2.location</code> environment variable.
 <p>Choose your Maven version and enter the Maven build command. In this case: <code>clean install</code>. Then, click <strong>Save</strong>.</p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/jenkins/6_jenkins_build_cmd_2.png" target="_blank" rel="noopener"><img src="_images/jenkins/6_jenkins_build_cmd_2.png" alt="Build Section"></a>
+<a class="image" href="_images/jenkins/6_jenkins_build_cmd_2.png" target="_blank" rel="noopener"><img src="_images/jenkins/6_jenkins_build_cmd_2.png" alt="Build Section"></a>
 </div>
 </div>
 <div class="paragraph">
@@ -5595,7 +5429,7 @@ You can configure the <strong>passthrough</strong> mode globally on your CI serv
 <p>Test the job by selecting <strong>Build now</strong>, and check that the job has built correctly.</p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/jenkins/7_jenkins_build_result.png" target="_blank" rel="noopener"><img src="_images/jenkins/7_jenkins_build_result.png" alt="Test the job"></a>
+<a class="image" href="_images/jenkins/7_jenkins_build_result.png" target="_blank" rel="noopener"><img src="_images/jenkins/7_jenkins_build_result.png" alt="Test the job"></a>
 </div>
 </div>
 </li>

@@ -14,8 +14,8 @@
     <link rel="canonical" href="https://talend.github.io/component-runtime/main/latest/pdf-deploying-components.html">
     <meta name="description" content="Get an overview of how to integrate your components created using Talend Component Kit to Talend Studio">
     <meta name="keywords" content="integration, deployment, open studio, studio, studio-integration">
-    <meta name="generator" content="Antora 3.0.1">
-<meta name="date" content="2025-09-29T15:14:07.198Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
+    <meta name="generator" content="Antora 3.0.3">
+<meta name="date" content="2025-09-30T01:05:12.986Z" scheme="YYYY-MM-DDTHH:mm:ss.sssZ">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/idea.min.css" integrity="sha256-rD61BPsgKHzJPyg7vpXaYOw6tMYuY2fz1p9033NYeM8=" crossorigin="anonymous" />
@@ -45,13 +45,12 @@
 </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-PSBN"></script>
     <script>function gtag(){dataLayer.push(arguments)};window.dataLayer=window.dataLayer||[];gtag('js',new Date());gtag('config','GTM-PSBN')</script>
-    <script>var uiRootPath = '../../_'</script>
   </head>
   <body>
       <svg xmlns="http://www.w3.org/2000/svg" focusable="false" style="display: none;">
     <symbol id="talend-logo-square">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"</path>
+            <path fill="#FFF" d="M8,5.32907052e-14 C12.4182648,5.32907052e-14 16,3.58173516 16,8 C16,12.4188737 12.4182648,16.0006088 8,16.0006088 C3.58173516,16.0006088 0,12.4188737 0,8 C0,3.58173516 3.58173516,5.32907052e-14 8,5.32907052e-14 Z M7.86070588,3.63987227 C7.41418487,4.67207395 6.53747899,5.46891429 5.4532437,5.80834286 C5.4532437,5.80834286 5.23179832,5.86098151 5.28867227,6.09271261 C5.29532773,6.11267899 5.30137815,6.13264538 5.31105882,6.15261176 C5.34191597,6.21735126 5.37942857,6.25062857 5.42359664,6.25607395 L6.13391597,6.25607395 L6.13391597,10.6517042 C6.13391597,11.2755025 6.32329412,11.7117378 6.70205042,11.959805 C7.08020168,12.2072672 7.58843697,12.3306958 8.22554622,12.3306958 C8.42521008,12.3306958 8.65633613,12.2937882 8.91952941,12.218763 C9.18272269,12.1431328 9.43078992,12.0469311 9.66312605,11.9295529 C9.89606723,11.8127798 10.0672941,11.6941916 10.1780168,11.5737882 C10.2046387,11.5568471 10.2046387,11.5090487 10.1780168,11.4316034 C10.151395,11.354158 10.1138824,11.282158 10.0648739,11.2162084 C10.0164706,11.1496538 9.97895798,11.1230319 9.95233613,11.1363429 C9.78413445,11.2198387 9.60020168,11.2912336 9.40114286,11.3487126 C9.20208403,11.4061916 9.02904202,11.4352336 8.88322689,11.4352336 C8.7192605,11.4352336 8.59401681,11.397721 8.50810084,11.325721 C8.42157983,11.2525109 8.35986555,11.1169815 8.32235294,10.9203429 C8.28423529,10.7237042 8.26547899,10.4363092 8.26547899,10.0599731 L8.26547899,6.24276303 L9.69337815,6.24276303 C9.74178151,6.24276303 9.78715966,6.19617479 9.82951261,6.10239328 C9.8712605,6.01042689 9.89243697,5.89546891 9.89243697,5.75812437 C9.89243697,5.70004034 9.87791597,5.64861176 9.84887395,5.60504874 C9.82043697,5.56088067 9.78171429,5.53667899 9.73331092,5.5324437 L8.26547899,5.5324437 L8.26547899,3.6792 C8.26547899,3.60235966 8.21465546,3.54790588 8.1245042,3.51099832 C7.95811765,3.45896471 7.86070588,3.63987227 7.86070588,3.63987227 Z"/>
         </svg>
     </symbol>
     <symbol id="talend-component-kit-positive">
@@ -87,192 +86,33 @@
         <a class="navbar-single-link" href="https://talend.github.io/component-runtime/main/latest/index.html">Talend Component Kit</a>
         <div class="btn-group navbar-versions">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                1.45.0 (dev)
+                1.86.0 (dev)
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
                 <li class="navbar-item version">
-                    <a href="index.html">1.45.0</a>
+                    <a href="pdf-deploying-components.html">1.86.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.43.1/index.html">1.43.1</a>
+                    <a href="../1.85.0/pdf-deploying-components.html">1.85.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.42.0/index.html">1.42.0</a>
+                    <a href="../1.84.1/pdf-deploying-components.html">1.84.1</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.41.1/index.html">1.41.1</a>
+                    <a href="../1.84.0/pdf-deploying-components.html">1.84.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.40.0/index.html">1.40.0</a>
+                    <a href="../1.83.0/pdf-deploying-components.html">1.83.0</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.39.3/index.html">1.39.3</a>
+                    <a href="../1.64.8/pdf-deploying-components.html">1.64.8</a>
                 </li>
                 <li class="navbar-item version">
-                    <a href="../1.37.1/index.html">1.37.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.36.1/index.html">1.36.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.35.1/index.html">1.35.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.34.1/index.html">1.34.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.33.2/index.html">1.33.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.32.2/index.html">1.32.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.31.2/index.html">1.31.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.30.0/index.html">1.30.0</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.29.2/index.html">1.29.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.28.2/index.html">1.28.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.27/index.html">1.1.27</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.26/index.html">1.1.26</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.25/index.html">1.1.25</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.24/index.html">1.1.24</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.23/index.html">1.1.23</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.22/index.html">1.1.22</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.21/index.html">1.1.21</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.20/index.html">1.1.20</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.19/index.html">1.1.19</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.18/index.html">1.1.18</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.17/index.html">1.1.17</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.16/index.html">1.1.16</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.15/index.html">1.1.15</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.14/index.html">1.1.14</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.13/index.html">1.1.13</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.12/index.html">1.1.12</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.11/index.html">1.1.11</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.10/index.html">1.1.10</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.9/index.html">1.1.9</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.8/index.html">1.1.8</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.7/index.html">1.1.7</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.6/index.html">1.1.6</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.5/index.html">1.1.5</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.4/index.html">1.1.4</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.3/index.html">1.1.3</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.2/index.html">1.1.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.1/index.html">1.1.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.1.0/index.html">1.1.0</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.0.4/index.html">1.0.4</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.0.3/index.html">1.0.3</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.0.2/index.html">1.0.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../1.0.1/index.html">1.0.1</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.13/index.html">0.0.13</a>
+                    <a href="../1.38.16/pdf-deploying-components.html">1.38.16</a>
                 </li>
                 <li class="navbar-item version">
                     <a href="../0.0.12/index.html">0.0.12</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.11/index.html">0.0.11</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.10/index.html">0.0.10</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.9/index.html">0.0.9</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.8/index.html">0.0.8</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.7/index.html">0.0.7</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.6/index.html">0.0.6</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.5/index.html">0.0.5</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.4/index.html">0.0.4</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.3/index.html">0.0.3</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.2/index.html">0.0.2</a>
-                </li>
-                <li class="navbar-item version">
-                    <a href="../0.0.1/index.html">0.0.1</a>
                 </li>
           </ul>
         </div>
@@ -300,7 +140,7 @@
     </nav>
 </header>
             <main class="main">
-              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.45.0">
+              <div class="navigation-container grey-background hidden-xs col-sm-2" data-component="main" data-version="1.86.0">
   <aside class="navigation" role="navigation">
     <div class="panels">
       <div class="input-group nav-filter-group">
@@ -434,13 +274,13 @@
     <a class="menu-link" href="component-implementing-streaming.html">Implementing streaming on a component</a>
   </li>
   <li data-depth="2">
+    <a class="menu-link" href="component-checkpoint.html">Implementing checkpointing on a component</a>
+  </li>
+  <li data-depth="2">
     <a class="menu-link" href="component-loading.html">Component loading</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="build-tools-maven.html">Building components with Maven</a>
-  </li>
-  <li data-depth="2">
-    <a class="menu-link" href="build-tools-gradle.html">Building components with Gradle</a>
   </li>
   <li data-depth="2">
     <a class="menu-link" href="wrapping-a-beam-io.html">Wrapping a Beam I/O</a>
@@ -533,9 +373,6 @@
   </li>
   <li data-depth="2">
     <a class="menu-link" href="documentation-rest.html">Component server and HTTP API</a>
-  </li>
-  <li data-depth="2">
-    <a class="menu-link" href="vault-proxy.html">Component Server Vault Proxy</a>
   </li>
 </ul>
   </li>
@@ -652,7 +489,7 @@
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_build_job_run.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_run.png" alt="Job run"></a>
+<a class="image" href="_images/tutorial_build_job_run.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_run.png" alt="Job run"></a>
 </div>
 </div>
 <div class="sect2">
@@ -763,7 +600,7 @@ You can use a Snapshot of the version under development using the <code>-SNAPSHO
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/tutorial_build_job_run.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_run.png" alt="Job run"></a>
+<a class="image" href="_images/tutorial_build_job_run.png" target="_blank" rel="noopener"><img src="_images/tutorial_build_job_run.png" alt="Job run"></a>
 </div>
 </div>
 <div class="sect2">
@@ -778,7 +615,7 @@ You can use a Snapshot of the version under development using the <code>-SNAPSHO
 <div class="sect2">
 <h3 id="_installing_the_components"><a class="anchor" href="#_installing_the_components"></a>Installing the components</h3>
 <div class="paragraph">
-<p>Learn how to build and deploy components to Talend Studio using <a href="build-tools-maven.html" class="xref page">Maven</a> or <a href="build-tools-gradle.html" class="xref page">Gradle</a> Talend Component Kit plugins.</p>
+<p>Learn how to build and deploy components to Talend Studio using <a href="build-tools-maven.html" class="xref page">Maven</a> Talend Component Kit plugins.</p>
 </div>
 <div class="paragraph">
 <p>This can be done using the <code>deploy-in-studio</code> goal from your development environment.</p>
@@ -853,6 +690,11 @@ You can use a Snapshot of the version under development using the <code>-SNAPSHO
 <td class="tableblock halign-left valign-top"><p class="tableblock">random</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">component.server.extensions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A comma separated list of gav to locate the extensions.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">components.server.beam.active</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Active, if set to true, Beam support (<em>Experimental</em>). It requires Beam SDK Java core dependencies to be available.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
@@ -894,7 +736,7 @@ java.util.logging.SimpleFormatter.format = [%4$s] %5$s%6$s%n</code></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/studio-reload-button.png" target="_blank" rel="noopener"><img src="_images/studio-reload-button.png" alt="Studio Reload Button"></a>
+<a class="image" href="_images/studio-reload-button.png" target="_blank" rel="noopener"><img src="_images/studio-reload-button.png" alt="Studio Reload Button"></a>
 </div>
 </div>
 <div class="paragraph">
@@ -937,7 +779,7 @@ You still need to add and remove the components to see the changes.
 <p>the <strong>address</strong> parameter of the -agentlib argument is the port used for the remote configuration. Make sure this port is available.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/talend_studio_debug_remote_config_1.png" target="_blank" rel="noopener"><img src="_images/talend_studio_debug_remote_config_1.png" alt="IntelliJ remote configuration"></a>
+<a class="image" href="_images/talend_studio_debug_remote_config_1.png" target="_blank" rel="noopener"><img src="_images/talend_studio_debug_remote_config_1.png" alt="IntelliJ remote configuration"></a>
 </div>
 </div>
 </li>
@@ -960,7 +802,7 @@ You still need to add and remove the components to see the changes.
 <p>In the popup window, paste the arguments copied from the IDE.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/talend_studio_debug_remote_config_2.png" target="_blank" rel="noopener"><img src="_images/talend_studio_debug_remote_config_2.png" alt="IntelliJ remote configuration"></a>
+<a class="image" href="_images/talend_studio_debug_remote_config_2.png" target="_blank" rel="noopener"><img src="_images/talend_studio_debug_remote_config_2.png" alt="IntelliJ remote configuration"></a>
 </div>
 </div>
 </li>
@@ -995,7 +837,7 @@ You still need to add and remove the components to see the changes.
 <p><strong>address</strong> is the port used for the remote configuration. Make sure this port is available.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/talend_studio_debug_remote_config_1.png" target="_blank" rel="noopener"><img src="_images/talend_studio_debug_remote_config_1.png" alt="IntelliJ remote configuration"></a>
+<a class="image" href="_images/talend_studio_debug_remote_config_1.png" target="_blank" rel="noopener"><img src="_images/talend_studio_debug_remote_config_1.png" alt="IntelliJ remote configuration"></a>
 </div>
 </div>
 </li>
@@ -1012,7 +854,7 @@ You still need to add and remove the components to see the changes.
 <p>Paste the arguments copied from the IDE in a new line of the file.<br></p>
 <div class="imageblock">
 <div class="content">
-<a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/talend_studio_debug_remote_config_3.png" target="_blank" rel="noopener"><img src="_images/talend_studio_debug_remote_config_3.png" alt="IntelliJ remote configuration"></a>
+<a class="image" href="_images/talend_studio_debug_remote_config_3.png" target="_blank" rel="noopener"><img src="_images/talend_studio_debug_remote_config_3.png" alt="IntelliJ remote configuration"></a>
 </div>
 </div>
 </li>
@@ -1044,9 +886,6 @@ You still need to add and remove the components to see the changes.
 </li>
 <li>
 <p><a href="build-tools-maven.html" class="xref page">Building components with Maven</a></p>
-</li>
-<li>
-<p><a href="build-tools-gradle.html" class="xref page">Building components with Gradle</a></p>
 </li>
 <li>
 <p><a href="creating-dataset-datastore.html" class="xref page">Learn how to use datasets and datastores with Talend Studio</a></p>
@@ -1449,6 +1288,39 @@ List&lt;MyObject&gt; config;</code></pre>
 </div>
 </div>
 <div class="sect4">
+<h5 id="_module_list"><a class="anchor" href="#_module_list"></a>Module List</h5>
+<div class="paragraph">
+<p>Javajet</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-XML hljs" data-lang="XML">&lt;PARAMETER NAME="DRIVER_JAR" FIELD="TABLE" NUM_ROW="3" NB_LINES="2" REQUIRED="true"&gt;
+    &lt;ITEMS&gt;
+        &lt;ITEM NAME="JAR_NAME" FIELD="MODULE_LIST"  /&gt;
+    &lt;/ITEMS&gt;
+&lt;/PARAMETER&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Component Kit</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class Driver implements Serializable {
+
+    @ModuleList
+    @Option
+    private String path;
+
+}
+
+//define it in config class like this:
+@Option
+List&lt;Driver&gt; config;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
 <h5 id="_code"><a class="anchor" href="#_code"></a>Code</h5>
 <div class="paragraph">
 <p>Javajet</p>
@@ -1651,6 +1523,99 @@ private String password;</code></pre>
 </div>
 </div>
 <div class="sect3">
+<h4 id="_return_variables"><a class="anchor" href="#_return_variables"></a>Return Variables</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Return variables availability (1.51+) deprecates <a href="#_after_variables">After Variables</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Javajet</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-XML hljs" data-lang="XML">&lt;RETURNS&gt;
+    &lt;RETURN NAME="QUERY" TYPE="id_String" AVAILABILITY="FLOW"/&gt;
+    &lt;RETURN NAME="NAME_1_OF_AFTER_VARIABLE" TYPE="id_Integer" AVAILABILITY="AFTER"/&gt;
+&lt;/RETURNS&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>AVAILABILITY</code> can be :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>AFTER</code> : set after component finished.</p>
+</li>
+<li>
+<p><code>FLOW</code> : changed on row level.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Component Kit</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Slf4j
+@Version(1)
+@ReturnVariable(value = "QUERY", availability = FLOW, type = String.class, description = "Current row query")
+@Processor(name = "Row")
+@Documentation("JDBC Row component.")
+public class JDBCRowProcessor implements Serializable {
+
+    @RuntimeContext
+    private transient RuntimeContextHolder context;
+
+    @ElementListener
+    public void elementListener(@Input final Record record,
+                                @Output final OutputEmitter&lt;Record&gt; success) throws SQLException {
+        ...
+
+        if (context != null) {
+            context.set("QUERY", configuration.getDataSet().getSqlQuery());
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Return variables can be nested as below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import org.talend.sdk.component.api.component.ReturnVariables;
+import org.talend.sdk.component.api.component.ReturnVariables.ReturnVariable;
+import org.talend.sdk.component.api.processor.Processor;
+
+
+    @ReturnVariables({
+            @ReturnVariable(value = "PROCESS_COUNT", type = Integer.class,
+                            availability = ReturnVariable.AVAILABILITY.AFTER),
+            @ReturnVariable(value = "MISC", type = String.class,
+                            availability = ReturnVariable.AVAILABILITY.FLOW) })
+    @Processor
+    public class ClassWithReturnVariablesGroup {
+        ...
+
+        @PreDestroy
+        public void close() {
+            context.set("PROCESS_COUNT", counted);
+        }
+
+    }</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
 <h4 id="_after_variables"><a class="anchor" href="#_after_variables"></a>After Variables</h4>
 <div class="paragraph">
 <p>Javajet</p>
@@ -1756,7 +1721,7 @@ In distributed environments, class constructor are called on cluster manager nod
 </table>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/deployment-diagram.png" target="_blank" rel="noopener"><img src="_images/deployment-diagram.png" alt="Deployment diagram"></a></span></p>
+<p><span class="image"><a class="image" href="_images/deployment-diagram.png" target="_blank" rel="noopener"><img src="_images/deployment-diagram.png" alt="Deployment diagram"></a></span></p>
 </div>
 <div class="colist arabic">
 <table>
@@ -1789,10 +1754,10 @@ All the methods managed by the framework must be public. Private methods are ign
 </table>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/driver-processing-workflow.png" target="_blank" rel="noopener"><img src="_images/driver-processing-workflow.png" alt="Driver processing workflow"></a></span></p>
+<p><span class="image"><a class="image" href="_images/driver-processing-workflow.png" target="_blank" rel="noopener"><img src="_images/driver-processing-workflow.png" alt="Driver processing workflow"></a></span></p>
 </div>
 <div class="paragraph">
-<p><span class="image"><a class="image" href="https://talend.github.io/component-runtime/main/1.45.0/_images/worker-processing-workflow.png" target="_blank" rel="noopener"><img src="_images/worker-processing-workflow.png" alt="Worker processing workflow"></a></span></p>
+<p><span class="image"><a class="image" href="_images/worker-processing-workflow.png" target="_blank" rel="noopener"><img src="_images/worker-processing-workflow.png" alt="Worker processing workflow"></a></span></p>
 </div>
 <div class="admonitionblock note">
 <table>
