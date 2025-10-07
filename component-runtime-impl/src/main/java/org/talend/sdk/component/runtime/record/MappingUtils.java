@@ -181,7 +181,8 @@ public class MappingUtils {
         }
 
         // A timestamp can be negative if before 1/1/1970, so need to consider '-' as first character.
-        boolean isNumeric = !value.isEmpty() && (value.charAt(0) == '-' ? value.substring(1) : value).chars().allMatch(Character::isDigit);
+        boolean isNumeric = !value.isEmpty()
+                && (value.charAt(0) == '-' ? value.substring(1) : value).chars().allMatch(Character::isDigit);
         if (ZonedDateTime.class == expected) {
             if (isNumeric) {
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(value)), UTC);
