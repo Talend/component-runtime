@@ -31,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -222,13 +223,70 @@ class HttpClientFactoryImplTest {
 
         try {
             server.start();
-            final ResponseXml client = newDefaultFactory().create(ResponseXml.class, null);
-            client.base("http://localhost:" + server.getAddress().getPort() + "/api");
+            final ResponseXml client = newDefaultFactory().create(ResponseXml.class,
+                    "http://localhost:" + server.getAddress().getPort() + "/api");
 
             final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
             assertEquals("xml content", result.body().getValue());
             assertEquals(HttpURLConnection.HTTP_OK, result.status());
             assertEquals("104", result.headers().get("content-length").iterator().next());
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void requestWithXMLXXE() throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/").setHandler(httpExchange -> {
+            final Headers headers = httpExchange.getResponseHeaders();
+            headers.set("content-type", "application/xml;charset=UTF-8");
+            final byte[] bytes;
+            String xmlContent = "<!DOCTYPE foo [ <!ENTITY xxe SYSTEM \"file:///etc/passwd\"> ]><foo>&xxe;</foo>";
+            try (final BufferedReader in =
+                         new BufferedReader(new StringReader(xmlContent))) {
+                bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
+            }
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
+            httpExchange.getResponseBody().write(bytes);
+            httpExchange.close();
+        });
+
+        try {
+            server.start();
+            final ResponseXml client = newDefaultFactory().create(ResponseXml.class,
+                    "http://localhost:" + server.getAddress().getPort() + "/api");
+            final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
+            assertThrows(java.lang.IllegalArgumentException.class, result::body,
+                    "lineNumber: 1; columnNumber: 10; DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.");
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void requestWithInvalidXML() throws IOException {
+        final HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/").setHandler(httpExchange -> {
+            final Headers headers = httpExchange.getResponseHeaders();
+            headers.set("content-type", "application/xml;charset=UTF-8");
+            final byte[] bytes;
+            String xmlContent = "<!ENTITY xxe SYSTEM \"file:///etc/passwd\"><foo>invalid;";
+            try (final BufferedReader in =
+                         new BufferedReader(new StringReader(xmlContent))) {
+                bytes = in.lines().collect(joining("\n")).getBytes(StandardCharsets.UTF_8);
+            }
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, bytes.length);
+            httpExchange.getResponseBody().write(bytes);
+            httpExchange.close();
+        });
+
+        try {
+            server.start();
+            final ResponseXml client = newDefaultFactory().create(ResponseXml.class,
+                    "http://localhost:" + server.getAddress().getPort() + "/api");
+            final Response<XmlRecord> result = client.main("application/xml", new XmlRecord("xml content"));
+            assertThrows(java.lang.IllegalArgumentException.class, result::body);
         } finally {
             server.stop(0);
         }
