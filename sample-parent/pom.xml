@@ -33,6 +33,7 @@
     <module>documentation-sample</module>
     <module>sample-connector</module>
     <module>sample-features</module>
+    <module>sample-features/dynamic-dependencies</module>
   </modules>
 
   <dependencies>
