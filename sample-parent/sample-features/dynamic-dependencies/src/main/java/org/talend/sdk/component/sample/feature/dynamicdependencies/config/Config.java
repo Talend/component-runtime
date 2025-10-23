@@ -40,4 +40,12 @@ public class Config implements Serializable {
     @Documentation("If enable throw an exception for any error, if not just log the error.")
     private boolean dieOnError = false;
 
+    @Option
+    @Documentation("The info about root repository.")
+    private boolean rootRepository = false;
+
+    @Option
+    @Documentation("The info about Runtime classpath.")
+    private boolean runtimeClassPath = false;
+
 }

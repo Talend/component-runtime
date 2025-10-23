@@ -59,6 +59,10 @@ public class DynamicDependenciesService implements Serializable {
 
     public static final String ENTRY_IS_LOADED_IN_TCK = "is_loaded_in_tck_manager";
 
+    public static final String ENTRY_ROOT_REPOSITORY = "root_repository";
+
+    public static final String ENTRY_RUNTIME_CLASSPATH = "runtime_classpath";
+
     @Service
     private RecordBuilderFactory factory;
 
@@ -93,6 +97,8 @@ public class DynamicDependenciesService implements Serializable {
 
             boolean isTckContainer = false; // to improve
             boolean isLoadedInTck = false; // to improve
+            String rootRepository = config.isRootRepository() ? System.getProperty("talend.component.manager.m2.repository") : "";
+            String runtimeClasspath = "";
 
             Record record = builder
                     .withString(ENTRY_MAVEN, maven)
@@ -102,6 +108,8 @@ public class DynamicDependenciesService implements Serializable {
                     .withString(ENTRY_FROM_LOCATION, fromLocation)
                     .withBoolean(ENTRY_IS_TCK_CONTAINER, isTckContainer)
                     .withBoolean(ENTRY_IS_LOADED_IN_TCK, isLoadedInTck)
+                    .withString(ENTRY_ROOT_REPOSITORY, rootRepository)
+                    .withString(ENTRY_RUNTIME_CLASSPATH, runtimeClasspath)
                     .build();
             records.add(record);
         }
@@ -118,6 +126,8 @@ public class DynamicDependenciesService implements Serializable {
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_FROM_LOCATION).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_TCK_CONTAINER).withType(Type.BOOLEAN).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_LOADED_IN_TCK).withType(Type.BOOLEAN).build())
+                .withEntry(factory.newEntryBuilder().withName(ENTRY_ROOT_REPOSITORY).withType(Type.STRING).build())
+                .withEntry(factory.newEntryBuilder().withName(ENTRY_RUNTIME_CLASSPATH).withType(Type.STRING).build())
                 .build();
     }
 
