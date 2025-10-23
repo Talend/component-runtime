@@ -28,7 +28,8 @@ import lombok.Data;
  */
 @Data
 @GridLayout({
-        @GridLayout.Row({ "dse" })
+        @GridLayout.Row({ "dse" }),
+        @GridLayout.Row({ "environmentInformation" })
 })
 public class Config implements Serializable {
 
@@ -41,11 +42,7 @@ public class Config implements Serializable {
     private boolean dieOnError = false;
 
     @Option
-    @Documentation("The info about root repository.")
-    private boolean rootRepository = false;
-
-    @Option
-    @Documentation("The info about Runtime classpath.")
-    private boolean runtimeClassPath = false;
+    @Documentation("More environment information.")
+    private boolean environmentInformation = false;
 
 }

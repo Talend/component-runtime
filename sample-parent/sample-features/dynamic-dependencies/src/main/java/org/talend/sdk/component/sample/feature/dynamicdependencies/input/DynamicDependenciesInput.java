@@ -26,7 +26,6 @@ import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.api.service.schema.FixedSchema;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Config;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService;
 
@@ -49,7 +48,6 @@ import org.talend.sdk.component.sample.feature.dynamicdependencies.service.Dynam
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Emitter(name = "Input")
-@FixedSchema(DynamicDependenciesService.FIXEDSCHEMA_ACTION)
 @Documentation("Dynamic dependencies sample input connector.")
 public class DynamicDependenciesInput implements Serializable {
 

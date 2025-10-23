@@ -17,20 +17,14 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.config;
 
 import java.io.Serializable;
 
-import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DataStore;
-import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
-import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
 
 import lombok.Data;
 
 @Data
 @DataStore("dyndepsdso")
-@GridLayout(value = { @GridLayout.Row({ "input" }) })
+@AutoLayout
 public class Datastore implements Serializable {
-
-    @Option
-    @Documentation("An input string that is not used.")
-    private String input;
 
 }
