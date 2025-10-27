@@ -24,74 +24,13 @@
     </parent>
 
     <artifactId>dynamicdependencies</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>Component Runtime :: Sample Feature @DynamicDependency</name>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.talend.sdk.component</groupId>
-                <artifactId>talend-component-maven-plugin</artifactId>
-                <version>${project.version}</version>
-                <!-- Please look at the TCK documentation to understand the talend-component-maven-plugin -->
-                <!-- https://talend.github.io/component-runtime/main/latest/build-tools-maven.html -->
-                <executions>
-                    <execution>
-                        <id>talend-dependencies</id>
-                        <goals>
-                            <goal>dependencies</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                    </execution>
-                    <execution>
-                        <id>talend-component-bundle</id>
-                        <goals>
-                            <goal>car</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                    <execution>
-                        <id>talend-scan-descriptor</id>
-                        <goals>
-                            <goal>scan-descriptor</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>talend-component-validate</id>
-                        <goals>
-                            <goal>validate</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                        <configuration>
-                            <validatePlaceholder>true</validatePlaceholder>
-                            <validateSvg>true</validateSvg>
-                            <validateLegacyIcons>false</validateLegacyIcons>
-                            <validateFamily>true</validateFamily>
-                            <validateSerializable>true</validateSerializable>
-                            <validateInternationalization>true</validateInternationalization>
-                            <validateModel>true</validateModel>
-                            <validateMetadata>true</validateMetadata>
-                            <validateComponent>true</validateComponent>
-                            <validateDataStore>true</validateDataStore>
-                            <validateDataSet>true</validateDataSet>
-                            <validateActions>true</validateActions>
-                            <validateDocumentation>true</validateDocumentation>
-                            <validateWording>true</validateWording>
-                            <validateLayout>true</validateLayout>
-                            <validateOptionNames>true</validateOptionNames>
-                            <validateOutputConnection>true</validateOutputConnection>
-                            <validateLocalConfiguration>true</validateLocalConfiguration>
-                            <validateNoFinalOption>true</validateNoFinalOption>
-                            <validateExceptions>true</validateExceptions>
-                            <failOnValidateExceptions>true</failOnValidateExceptions>
-                            <validateRecord>true</validateRecord>
-                            <validateSchema>true</validateSchema>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <modules>
+        <module>dynamic-dependencies-common</module>
+        <module>dynamic-dependencies-with-dataset</module>
+        <module>dynamic-dependencies-with-datastore</module>
+    </modules>
 
 </project>
