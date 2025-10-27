@@ -180,7 +180,7 @@ public abstract class Schemas implements Schema, Schema.Builder {
     @Override
     @JsonbTransient
     public List<Entry> getEntriesOrdered() {
-        throw new UnsupportedOperationException("#getEntriesOrdered()");
+        return emptyList();
     }
 
     @Override
@@ -251,7 +251,12 @@ public abstract class Schemas implements Schema, Schema.Builder {
 
     @Override
     public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
-        throw new UnsupportedOperationException("#getEntriesOrdered()");
+        return emptyList();
+    }
+
+    @Override
+    public Map<String, Entry> getEntryMap() {
+        return emptyMap();
     }
 
     @Override
