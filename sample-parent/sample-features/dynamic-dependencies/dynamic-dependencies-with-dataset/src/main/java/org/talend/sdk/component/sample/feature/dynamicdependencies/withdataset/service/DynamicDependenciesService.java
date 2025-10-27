@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.sample.feature.dynamicdependencies.service;
+package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.service;
 
 import java.io.Serializable;
 import java.net.URL;

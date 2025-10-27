@@ -17,7 +17,7 @@
         family = "dynamicDependencies",
         categories = "sample")
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
-package org.talend.sdk.component.sample.feature.dynamicdependencies;
+package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset;
 
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;

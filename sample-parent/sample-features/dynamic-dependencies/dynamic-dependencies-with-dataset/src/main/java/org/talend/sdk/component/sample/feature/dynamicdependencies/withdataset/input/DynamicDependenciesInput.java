@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.sample.feature.dynamicdependencies.input;
+package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.input;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -27,7 +27,7 @@ import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Config;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.service.DynamicDependenciesService;
 
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
