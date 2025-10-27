@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 @Components(
-        family = "dynamicDependenciesWithDataset",
+        family = "dynamicDependenciesWithDatastore",
         categories = "sample")
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
-package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset;
+package org.talend.sdk.component.sample.feature.dynamicdependencies.withdatastore;
 
 import org.talend.sdk.component.api.component.Components;
 import org.talend.sdk.component.api.component.Icon;

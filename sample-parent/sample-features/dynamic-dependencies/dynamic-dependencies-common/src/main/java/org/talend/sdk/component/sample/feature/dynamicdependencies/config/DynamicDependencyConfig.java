@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(
-        family = "dynamicDependenciesWithDataset",
-        categories = "sample")
-@Icon(value = Icon.IconType.CUSTOM, custom = "icon")
-package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset;
+package org.talend.sdk.component.sample.feature.dynamicdependencies.config;
 
-import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
+import java.util.List;
+
+public interface DynamicDependencyConfig {
+
+    List<Dependency> getDependencies();
+
+    boolean isEnvironmentInformation();
+
+    boolean isDieOnError();
+
+}

@@ -30,7 +30,8 @@
     <modules>
         <module>dynamic-dependencies-common</module>
         <module>dynamic-dependencies-with-dataset</module>
-        <!-- module>dynamic-dependencies-with-datastore</module -->
+        <module>dynamic-dependencies-with-datastore</module>
+        <module>dynamic-dependencies-with-dynamicDependenciesConfiguration</module>
     </modules>
 
     <dependencies>

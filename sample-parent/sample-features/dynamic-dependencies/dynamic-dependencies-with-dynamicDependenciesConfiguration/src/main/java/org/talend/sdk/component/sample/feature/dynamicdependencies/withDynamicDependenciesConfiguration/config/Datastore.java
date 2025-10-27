@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Components(
-        family = "dynamicDependenciesWithDataset",
-        categories = "sample")
-@Icon(value = Icon.IconType.CUSTOM, custom = "icon")
-package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset;
+package org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.config;
 
-import org.talend.sdk.component.api.component.Components;
-import org.talend.sdk.component.api.component.Icon;
+import java.io.Serializable;
+
+import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.layout.AutoLayout;
+
+import lombok.Data;
+
+@Data
+@DataStore("dyndepsdso")
+@AutoLayout
+public class Datastore implements Serializable {
+
+}
