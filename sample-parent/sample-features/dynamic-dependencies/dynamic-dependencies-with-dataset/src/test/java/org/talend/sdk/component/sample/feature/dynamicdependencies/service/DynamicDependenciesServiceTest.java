@@ -15,10 +15,16 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.service;
 
+import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_CLASS;
+import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_FROM_LOCATION;
+import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_MAVEN;
+import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_ROOT_REPOSITORY;
+import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_RUNTIME_CLASSPATH;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,11 +35,7 @@ import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Config
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dataset;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Datastore;
 
-import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_CLASS;
-import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_FROM_LOCATION;
-import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_MAVEN;
-import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_RUNTIME_CLASSPATH;
-import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.DynamicDependenciesService.ENTRY_ROOT_REPOSITORY;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @WithComponents(value = "org.talend.sdk.component.sample.feature.dynamicdependencies")
@@ -64,13 +66,13 @@ public class DynamicDependenciesServiceTest {
     }
 
     @Test
-    void testloadIterator(){
+    void testloadIterator() {
         final Iterator<Record> result = dynamicDependenciesServiceService.loadIterator(config);
 
         Assertions.assertTrue(result.hasNext());
         final Record record = result.next();
         Assertions.assertNotNull(record);
- //       Assertions.assertEquals(" ", record.getString(ENTRY_CLASSLOADER));
+        // Assertions.assertEquals(" ", record.getString(ENTRY_CLASSLOADER));
         Assertions.assertEquals(" ", record.getString(ENTRY_MAVEN));
         Assertions.assertEquals(" ", record.getString(ENTRY_CLASS));
         Assertions.assertEquals(" ", record.getString(ENTRY_FROM_LOCATION));
