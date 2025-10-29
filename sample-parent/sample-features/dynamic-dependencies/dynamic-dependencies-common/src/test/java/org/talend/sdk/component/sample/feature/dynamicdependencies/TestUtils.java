@@ -28,6 +28,7 @@ import static org.talend.sdk.component.sample.feature.dynamicdependencies.servic
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_MAVEN;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_ROOT_REPOSITORY;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_RUNTIME_CLASSPATH;
+import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_WORKING_DIRECTORY;
 
 public class TestUtils {
     public static List<Dependency> getDependList() {
@@ -60,6 +61,7 @@ public class TestUtils {
                         "org/apache/commons/commons-numbers-primes/1.2/commons-numbers-primes-1.2.jar!/org/apache/commons/numbers/primes/SmallPrimes.class"));
         Assertions.assertEquals("./lib/", record.getString(ENTRY_ROOT_REPOSITORY));
         Assertions.assertNotNull(record.getString(ENTRY_RUNTIME_CLASSPATH));
+        Assertions.assertNotNull(record.getString(ENTRY_WORKING_DIRECTORY));
         Assertions.assertTrue(record.getString(ENTRY_RUNTIME_CLASSPATH).contains("commons-numbers-primes-1.2.jar"));
     }
 }

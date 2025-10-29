@@ -60,6 +60,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
     public static final String ENTRY_RUNTIME_CLASSPATH = "runtime_classpath";
 
+    public static final String ENTRY_WORKING_DIRECTORY = "Working_directory";
+
     @Service
     private RecordBuilderFactory factory;
 
@@ -109,10 +111,12 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
             if (dynamicDependencyConfig.isEnvironmentInformation()) {
                 String rootRepository = System.getProperty("talend.component.manager.m2.repository");
                 String runtimeClasspath = System.getProperty("java.class.path");
+                String workDirectory = System.getProperty("user.dir");
 
                 recordBuilder = recordBuilder
                         .withString(ENTRY_ROOT_REPOSITORY, rootRepository)
-                        .withString(ENTRY_RUNTIME_CLASSPATH, runtimeClasspath);
+                        .withString(ENTRY_RUNTIME_CLASSPATH, runtimeClasspath)
+                        .withString(ENTRY_WORKING_DIRECTORY, workDirectory);
             }
 
             Record record = recordBuilder.build();
@@ -137,8 +141,8 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         if (dynamicDependencyConfig.isEnvironmentInformation()) {
             builder = builder
                     .withEntry(factory.newEntryBuilder().withName(ENTRY_ROOT_REPOSITORY).withType(Type.STRING).build())
-                    .withEntry(
-                            factory.newEntryBuilder().withName(ENTRY_RUNTIME_CLASSPATH).withType(Type.STRING).build());
+                    .withEntry(factory.newEntryBuilder().withName(ENTRY_RUNTIME_CLASSPATH).withType(Type.STRING).build())
+                    .withEntry(factory.newEntryBuilder().withName(ENTRY_WORKING_DIRECTORY).withType(Type.STRING).build());
         }
 
         return builder.build();
