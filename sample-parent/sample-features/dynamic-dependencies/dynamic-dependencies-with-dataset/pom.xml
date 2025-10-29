@@ -41,7 +41,6 @@
             <groupId>org.talend.sdk.sample</groupId>
             <artifactId>dynamic-dependencies-common</artifactId>
             <version>${project.version}</version>
-            <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

@@ -15,11 +15,6 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.jupiter.api.Assertions;
-import org.talend.sdk.component.api.record.Record;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_CLASS;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_CLAZZ_CLASSLOADER;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_CONNECTOR_CLASSLOADER;
@@ -30,8 +25,43 @@ import static org.talend.sdk.component.sample.feature.dynamicdependencies.servic
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_RUNTIME_CLASSPATH;
 import static org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService.ENTRY_WORKING_DIRECTORY;
 
-public class TestUtils {
-    public static List<Dependency> getDependList() {
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.config.DynamicDependencyConfig;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService;
+
+public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDependencyConfig, S extends AbstractDynamicDependenciesService> {
+
+    private C config;
+
+    protected abstract C buildConfig();
+
+    protected abstract S getService();
+
+    @BeforeEach
+    void setUp() {
+        this.config = this.buildConfig();
+    }
+
+    @Test
+    void testloadIterator() {
+        System.setProperty("talend.component.manager.m2.repository", "./lib/");
+
+        final Iterator<Record> result = getService().loadIterator(config);
+
+        Assertions.assertTrue(result.hasNext());
+        this.assertRecord(result.next());
+        Assertions.assertFalse(result.hasNext());
+    }
+
+    protected List<Dependency> getDependList() {
         List<Dependency> depends = new ArrayList<>();
         Dependency depend = new Dependency();
         depend.setArtifactId("commons-numbers-primes");
@@ -42,7 +72,7 @@ public class TestUtils {
         return depends;
     }
 
-    public static void assertRecord(Record record) {
+    private void assertRecord(Record record) {
         Assertions.assertNotNull(record);
         Assertions.assertEquals("org.apache.commons:commons-numbers-primes:1.2", record.getString(ENTRY_MAVEN));
         Assertions.assertEquals(
@@ -61,7 +91,7 @@ public class TestUtils {
                         "org/apache/commons/commons-numbers-primes/1.2/commons-numbers-primes-1.2.jar!/org/apache/commons/numbers/primes/SmallPrimes.class"));
         Assertions.assertEquals("./lib/", record.getString(ENTRY_ROOT_REPOSITORY));
         Assertions.assertNotNull(record.getString(ENTRY_RUNTIME_CLASSPATH));
-        Assertions.assertNotNull(record.getString(ENTRY_WORKING_DIRECTORY));
+        Assertions.assertEquals(System.getProperty("user.dir"), record.getString(ENTRY_WORKING_DIRECTORY));
         Assertions.assertTrue(record.getString(ENTRY_RUNTIME_CLASSPATH).contains("commons-numbers-primes-1.2.jar"));
     }
 }

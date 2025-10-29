@@ -41,7 +41,7 @@ public class DynamicDependenciesWithDatastoreService extends AbstractDynamicDepe
         return super.getDynamicDependencies(datastore.getDependencies());
     }
 
-    @DiscoverSchemaExtended(DISCOVERSCHEMA_ACTION)
+    @DiscoverSchemaExtended(DEPENDENCY_WITHDATASTORE_ACTION)
     public Schema guessSchema4Input(final @Option("configuration") Config config) {
         return super.buildSchema(config);
     }

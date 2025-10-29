@@ -41,7 +41,7 @@ public class DynamicDependenciesConfigurationService extends AbstractDynamicDepe
         return super.getDynamicDependencies(subConfig.getDependencies());
     }
 
-    @DiscoverSchemaExtended(DISCOVERSCHEMA_ACTION)
+    @DiscoverSchemaExtended(DEPENDENCY_WITHDATASET_ACTION)
     public Schema guessSchema4Input(final @Option("configuration") Config config) {
         return super.buildSchema(config);
     }

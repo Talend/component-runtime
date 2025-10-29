@@ -36,8 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractDynamicDependenciesService implements Serializable {
 
-    public static final String DEPENDENCY_ACTION = "DEPENDENCY_ACTION";
-
     public static final String DISCOVERSCHEMA_ACTION = "DISCOVERSCHEMA_ACTION";
 
     public static final String ENTRY_MAVEN = "maven";
@@ -141,8 +139,10 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         if (dynamicDependencyConfig.isEnvironmentInformation()) {
             builder = builder
                     .withEntry(factory.newEntryBuilder().withName(ENTRY_ROOT_REPOSITORY).withType(Type.STRING).build())
-                    .withEntry(factory.newEntryBuilder().withName(ENTRY_RUNTIME_CLASSPATH).withType(Type.STRING).build())
-                    .withEntry(factory.newEntryBuilder().withName(ENTRY_WORKING_DIRECTORY).withType(Type.STRING).build());
+                    .withEntry(
+                            factory.newEntryBuilder().withName(ENTRY_RUNTIME_CLASSPATH).withType(Type.STRING).build())
+                    .withEntry(
+                            factory.newEntryBuilder().withName(ENTRY_WORKING_DIRECTORY).withType(Type.STRING).build());
         }
 
         return builder.build();

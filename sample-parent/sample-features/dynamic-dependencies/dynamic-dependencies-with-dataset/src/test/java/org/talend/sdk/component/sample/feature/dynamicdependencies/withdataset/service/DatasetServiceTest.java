@@ -15,17 +15,11 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.service;
 
-import org.talend.sdk.component.sample.feature.dynamicdependencies.TestUtils;
-
-import java.util.Iterator;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.junit5.WithComponents;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.AbstractDynamicDependenciesServiceTest;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.config.Config;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.config.Dataset;
@@ -35,33 +29,28 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @WithComponents(value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset")
-public class DatasetServiceTest {
+public class DatasetServiceTest
+        extends AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDatasetService> {
 
     @Service
-    DynamicDependenciesWithDatasetService dynamicDependenciesServiceService;
+    private DynamicDependenciesWithDatasetService dynamicDependenciesServiceService;
 
-    private Config config;
-
-    @BeforeEach
-    void setUp() {
-        config = new Config();
+    @Override
+    protected Config buildConfig() {
+        Config config = new Config();
         Dataset dse = new Dataset();
         Datastore dso = new Datastore();
-        List<Dependency> depends = TestUtils.getDependList();
+        List<Dependency> depends = this.getDependList();
         dse.setDependencies(depends);
         dse.setDso(dso);
         config.setDse(dse);
         config.setEnvironmentInformation(true);
+
+        return config;
     }
 
-    @Test
-    void testloadIterator() {
-        System.setProperty("talend.component.manager.m2.repository", "./lib/");
-
-        final Iterator<Record> result = dynamicDependenciesServiceService.loadIterator(config);
-
-        Assertions.assertTrue(result.hasNext());
-        TestUtils.assertRecord(result.next());
-        Assertions.assertFalse(result.hasNext());
+    @Override
+    protected DynamicDependenciesWithDatasetService getService() {
+        return dynamicDependenciesServiceService;
     }
 }
