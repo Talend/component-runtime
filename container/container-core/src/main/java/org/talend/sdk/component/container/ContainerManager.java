@@ -119,7 +119,7 @@ public class ContainerManager implements Lifecycle {
 
         if (log.isDebugEnabled()) {
             log.debug("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
-            getSystemInformations();
+            getSystemInformation();
         }
 
         final String nestedPluginMappingResource = ofNullable(classLoaderConfiguration.getNestedPluginMappingResource())
@@ -407,13 +407,14 @@ public class ContainerManager implements Lifecycle {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    private void getSystemInformations() {
+    private void getSystemInformation() {
         try {
             final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
             log.debug("[sysinfo] JVM arguments: " + rt.getInputArguments());
             try {
                 log.debug("[sysinfo] Boot classpath: " + rt.getBootClassPath());
             } catch (Exception e) {
+                // nop, will fail in some cases for boot classpath
             }
             log.debug("[sysinfo] Runtime classpath: " + rt.getClassPath());
             log.debug("[sysinfo] Runtime arguments: " + System.getProperty("sun.java.command"));
