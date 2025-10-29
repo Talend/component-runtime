@@ -250,13 +250,9 @@ public abstract class Schemas implements Schema, Schema.Builder {
     }
 
     @Override
+    @JsonbTransient
     public List<Entry> getEntriesOrdered(final Comparator<Entry> comparator) {
-        return emptyList();
-    }
-
-    @Override
-    public Map<String, Entry> getEntryMap() {
-        return emptyMap();
+        throw new UnsupportedOperationException("#getEntriesOrdered()");
     }
 
     @Override
