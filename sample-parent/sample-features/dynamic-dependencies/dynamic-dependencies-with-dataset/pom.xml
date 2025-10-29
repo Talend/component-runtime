@@ -36,6 +36,15 @@
             <artifactId>dynamic-dependencies-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Test -->
+        <dependency>
+            <groupId>org.talend.sdk.sample</groupId>
+            <artifactId>dynamic-dependencies-common</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <!-- The dependency that simulate a dynamic one. -->
             <groupId>org.apache.commons</groupId>

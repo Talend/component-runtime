@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class DynamicDependenciesWithDynamicDependenciesConfigurationService extends AbstractDynamicDependenciesService
+public class DynamicDependenciesConfigurationService extends AbstractDynamicDependenciesService
         implements Serializable {
 
     public final static String DEPENDENCY_WITHDATASET_ACTION = "DEPENDENCY_WITHDATASET_ACTION";
