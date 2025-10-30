@@ -60,7 +60,9 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.xbean.finder.util.Files;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -96,6 +98,16 @@ class ComponentManagerTest {
 
     private ComponentManager newManager() {
         return newManager(new File("target/test-dependencies"));
+    }
+
+    @BeforeAll
+    static void setup() {
+        System.setProperty("talend.component.manager.m2.fallback", "true");
+    }
+
+    @AfterAll
+    static void teardown() {
+        System.clearProperty("talend.component.manager.m2.fallback");
     }
 
     @Test

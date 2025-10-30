@@ -52,6 +52,8 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
 
     private PathHandler handler = new PathHandlerImpl();
 
+    private boolean hasFallback = Boolean.getBoolean("talend.component.manager.m2.fallback");
+
     @Override
     public Path discover() {
         return Stream
@@ -63,8 +65,12 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
 
     @Override
     public Path fallback() {
-        log.debug("[fallback] default to user's default repository.");
-        return Paths.get(USER_HOME).resolve(M2_REPOSITORY);
+        log.debug("[fallback::{}] default to user's default repository.", hasFallback);
+        if (hasFallback) {
+            return Paths.get(USER_HOME).resolve(M2_REPOSITORY);
+        } else {
+            return Paths.get(USER_HOME);
+        }
     }
 
     public Path fromSystemProperties() {
@@ -119,30 +125,38 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
     }
 
     public Path fromMavenSettings() {
-        return Stream.of(
-                Optional.ofNullable(System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS))
-                        .map(Paths::get)
-                        .orElse(null), //
-                Optional.ofNullable(System.getProperty("user.home")).map(it -> Paths.get(it, M2_SETTINGS)).orElse(null),
-                Optional.ofNullable(System.getenv(MAVEN_HOME)).map(it -> Paths.get(it, CONF_SETTINGS)).orElse(null),
-                Optional.ofNullable(System.getenv(M2_HOME)).map(it -> Paths.get(it, CONF_SETTINGS)).orElse(null))
-                .filter(Objects::nonNull)
-                .filter(Files::exists)
-                .map(MavenRepositoryDefaultResolver::parseSettings)
-                .filter(Objects::nonNull)
-                .map(handler::get)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        if (hasFallback) {
+            return Stream.of(
+                    Optional.ofNullable(System.getProperty(TALEND_COMPONENT_MANAGER_M2_SETTINGS))
+                            .map(Paths::get)
+                            .orElse(null), //
+                    Optional.ofNullable(System.getProperty("user.home"))
+                            .map(it -> Paths.get(it, M2_SETTINGS))
+                            .orElse(null),
+                    Optional.ofNullable(System.getenv(MAVEN_HOME)).map(it -> Paths.get(it, CONF_SETTINGS)).orElse(null),
+                    Optional.ofNullable(System.getenv(M2_HOME)).map(it -> Paths.get(it, CONF_SETTINGS)).orElse(null))
+                    .filter(Objects::nonNull)
+                    .filter(Files::exists)
+                    .map(MavenRepositoryDefaultResolver::parseSettings)
+                    .filter(Objects::nonNull)
+                    .map(handler::get)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        } else {
+            return null;
+        }
     }
 
     public Path fromEnvironmentVariables() {
-        final String vm2 = System.getenv(M2_HOME);
-        log.debug("[fromEnvironmentVariables] M2_HOME={}", vm2);
-        if (vm2 != null) {
-            return handler.get(Paths.get(vm2, "repository").toString());
+        if (hasFallback) {
+            final String vm2 = System.getenv(M2_HOME);
+            log.debug("[fromEnvironmentVariables] M2_HOME={}", vm2);
+            if (vm2 != null) {
+                return handler.get(Paths.get(vm2, "repository").toString());
+            }
+            log.debug("[fromEnvironmentVariables] Could not get m2 from environment.");
         }
-        log.debug("[fromEnvironmentVariables] Could not get m2 from environment.");
         return null;
     }
 

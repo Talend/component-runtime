@@ -113,9 +113,7 @@ public class ContainerManager implements Lifecycle {
         this.logInfoLevelMapping = logInfoLevelMapping;
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
-        this.rootRepositoryLocation = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
-                .filter(Files::exists)
-                .orElseGet(() -> PathFactory.get(System.getProperty("user.home", "")).resolve(".m2/repository"));
+        this.rootRepositoryLocation = dependenciesResolutionConfiguration.getRootRepositoryLocation();
 
         if (log.isDebugEnabled()) {
             log.debug("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
