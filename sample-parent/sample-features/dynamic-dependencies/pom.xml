@@ -32,6 +32,7 @@
         <module>dynamic-dependencies-with-dataset</module>
         <module>dynamic-dependencies-with-datastore</module>
         <module>dynamic-dependencies-with-dynamicDependenciesConfiguration</module>
+        <module>dynamic-dependencies-with-dataprepRunAnnotation</module>
     </modules>
 
     <dependencies>
