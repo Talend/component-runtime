@@ -18,6 +18,7 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprep
 import java.util.List;
 
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.junit5.WithComponents;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.AbstractDynamicDependenciesServiceTest;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation.config.Config;

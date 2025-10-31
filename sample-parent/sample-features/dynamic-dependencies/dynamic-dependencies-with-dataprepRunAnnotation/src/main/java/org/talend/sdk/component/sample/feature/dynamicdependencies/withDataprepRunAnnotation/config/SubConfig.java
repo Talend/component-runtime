@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.configuration.type.DynamicDependenciesConfiguration;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;

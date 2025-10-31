@@ -25,8 +25,6 @@ import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation.config.Config;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.config.Config;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.config.SubConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,7 +35,9 @@ public class DynamicDependenciesDataprepRunAnnotationService extends AbstractDyn
 
     public final static String DEPENDENCY_WITHDATAPREPRUN_ACTION = "DEPENDENCY_WITHDATAPREPRUN_ACTION";
 
-    @DynamicDependencies()
+    public static final String DEPENDENCY_ACTION = "dataprep-dependencies";
+
+    @DynamicDependencies(DEPENDENCY_ACTION)
     public List<String> getDynamicDependencies(@Option("theConfig") final Config config) {
         return super.getDynamicDependencies(config.getDependencies());
     }
