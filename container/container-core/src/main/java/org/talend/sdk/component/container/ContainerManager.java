@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -111,18 +110,11 @@ public class ContainerManager implements Lifecycle {
         this.logInfoLevelMapping = logInfoLevelMapping;
         this.containerInitializer = containerInitializer;
         this.resolver = dependenciesResolutionConfiguration.getResolver();
+        this.rootRepositoryLocation = dependenciesResolutionConfiguration.getRootRepositoryLocation();
 
-        Path rootRepo = ofNullable(dependenciesResolutionConfiguration.getRootRepositoryLocation())
-                .filter(Files::exists)
-                .orElseGet(() -> PathFactory.get(System.getProperty("user.home")).resolve(".m2/repository"));
-        // if we've defaulted to user home m2 (fallback), we want to check if we're in running in a fatjar
-        if (PathFactory.get(System.getProperty("user.home")).resolve(".m2/repository").equals(rootRepo)) {
-            final URL nested = classLoaderConfiguration.getParent().getResource("MAVEN-INF/repository");
-            if (nested != null) {
-                rootRepo = PathFactory.get(nested.getFile().replace("file:", ""));
-            }
+        if (log.isDebugEnabled()) {
+            log.debug("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
         }
-        this.rootRepositoryLocation = rootRepo;
         info("Using root repository: " + this.rootRepositoryLocation.toAbsolutePath());
         final String pluginsLocation = System.getProperty("talend.component.manager.plugins.location",
                 "TALEND-INF/plugins.properties");

@@ -70,6 +70,7 @@ class MavenRepositoryResolverTest {
 
     @BeforeAll
     static void setup() throws IOException {
+        System.setProperty("talend.component.manager.m2.fallback", "true");
         final Path repository = Paths.get(new File("target/test-classes").getAbsolutePath());
         Files.createDirectories(repository.resolve(M2_REPOSITORY));
     }
