@@ -15,6 +15,7 @@
  */
 package org.talend.sdk.component.runtime.manager.service;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -69,7 +70,13 @@ public class MavenRepositoryDefaultResolver implements MavenRepositoryResolver {
         if (hasFallback) {
             return Paths.get(USER_HOME).resolve(M2_REPOSITORY);
         } else {
-            return Paths.get(USER_HOME);
+            try {
+                // we create an empty temporary folder as our default m2.
+                return Files.createTempDirectory("empty_m2_");
+            } catch (IOException e) {
+                // if any permission issue or other, we go to user's dir.
+                return Paths.get(USER_HOME);
+            }
         }
     }
 
