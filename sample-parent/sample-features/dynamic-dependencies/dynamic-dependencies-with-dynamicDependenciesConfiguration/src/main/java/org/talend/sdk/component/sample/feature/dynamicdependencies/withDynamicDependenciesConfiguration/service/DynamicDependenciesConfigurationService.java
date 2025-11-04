@@ -34,14 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 public class DynamicDependenciesConfigurationService extends AbstractDynamicDependenciesService
         implements Serializable {
 
-    public final static String DEPENDENCY_WITHDATASET_ACTION = "DEPENDENCY_WITHDATASET_ACTION";
+    public final static String DEPENDENCY_WITHDYNDEPSCONFIG_ACTION = "DEPENDENCY_WITHDYNDEPSCONFIG_ACTION";
 
     @DynamicDependencies()
     public List<String> getDynamicDependencies(@Option("theSubConfig") final SubConfig subConfig) {
         return super.getDynamicDependencies(subConfig.getDependencies());
     }
 
-    @DiscoverSchemaExtended(DEPENDENCY_WITHDATASET_ACTION)
+    @DiscoverSchemaExtended(DEPENDENCY_WITHDYNDEPSCONFIG_ACTION)
     public Schema guessSchema4Input(final @Option("configuration") Config config) {
         return super.buildSchema(config);
     }

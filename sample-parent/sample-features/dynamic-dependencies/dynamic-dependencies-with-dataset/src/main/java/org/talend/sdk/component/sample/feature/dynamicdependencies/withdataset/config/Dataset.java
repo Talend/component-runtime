@@ -33,6 +33,9 @@ import lombok.Data;
         @GridLayout.Row({ "dso" }),
         @GridLayout.Row({ "dependencies" })
 })
+@GridLayout(names = GridLayout.FormType.ADVANCED, value = {
+        @GridLayout.Row({ "dso" })
+})
 public class Dataset implements Serializable {
 
     @Option

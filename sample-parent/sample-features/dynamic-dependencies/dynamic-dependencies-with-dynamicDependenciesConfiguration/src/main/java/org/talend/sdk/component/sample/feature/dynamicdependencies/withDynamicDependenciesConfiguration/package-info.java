@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @Components(
-        family = "dynamicDependenciesWithDynamicDependenciesConfiguration",
+        family = "DynamicDependenciesWithDynamicDependenciesConfiguration",
         categories = "sample")
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 package org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration;

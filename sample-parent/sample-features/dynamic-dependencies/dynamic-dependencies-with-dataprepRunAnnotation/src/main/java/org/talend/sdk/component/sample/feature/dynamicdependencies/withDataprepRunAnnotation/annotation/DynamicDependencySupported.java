@@ -29,5 +29,6 @@ import org.talend.sdk.component.api.meta.Documentation;
 @ConfigurationType("configuration")
 @Documentation("Copy/past of the annotation from tDataprepRun.")
 public @interface DynamicDependencySupported {
+
     String value() default "default";
 }

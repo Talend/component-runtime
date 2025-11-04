@@ -34,8 +34,11 @@ import lombok.Data;
 @GridLayout({
         @GridLayout.Row({ "dse" }),
         @GridLayout.Row({ "subConfig" }),
-        @GridLayout.Row({ "dieOnError" }),
         @GridLayout.Row({ "environmentInformation" })
+})
+@GridLayout(names = GridLayout.FormType.ADVANCED, value = {
+        @GridLayout.Row({ "dse" }),
+        @GridLayout.Row({ "dieOnError" }),
 })
 public class Config implements DynamicDependencyConfig, Serializable {
 
