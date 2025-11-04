@@ -111,8 +111,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
     @Getter
     private final List<String> cacheableClasses;
 
-    private List<URL> nestedURLs = new ArrayList<>();
-
     public ConfigurableClassLoader(final String id, final URL[] urls, final ClassLoader parent,
             final Predicate<String> parentFilter, final Predicate<String> childFirstFilter,
             final String[] nestedDependencies, final String[] jvmPrefixes) {
@@ -157,7 +155,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
             if (url == null) {
                 throw new IllegalArgumentException("Didn't find " + resource + " in " + asList(nestedDependencies));
             }
-            nestedURLs.add(url);
             final Map<String, Resource> resources = new HashMap<>();
             final URLConnection urlConnection;
             final Manifest manifest;
@@ -459,15 +456,6 @@ public class ConfigurableClassLoader extends URLClassLoader {
         final Collection<URL> aggregated = new ArrayList<>(list(delegates));
         aggregated.addAll(nested.stream().map(r -> nestedResourceToURL(name, r)).collect(toList()));
         return enumeration(aggregated);
-    }
-
-    @Override
-    public URL[] getURLs() {
-        final List<URL> urls = new ArrayList<>(Arrays.asList(super.getURLs()));
-        if (!nestedURLs.isEmpty()) {
-            urls.addAll(nestedURLs);
-        }
-        return urls.toArray(new URL[0]);
     }
 
     private boolean isNestedDependencyResource(final String name) {
