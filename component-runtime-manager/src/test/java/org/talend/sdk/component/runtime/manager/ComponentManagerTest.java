@@ -60,7 +60,9 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.xbean.finder.util.Files;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -96,6 +98,16 @@ class ComponentManagerTest {
 
     private ComponentManager newManager() {
         return newManager(new File("target/test-dependencies"));
+    }
+
+    @BeforeAll
+    static void setup() {
+        System.setProperty("talend.component.manager.m2.fallback", "true");
+    }
+
+    @AfterAll
+    static void teardown() {
+        System.clearProperty("talend.component.manager.m2.fallback");
     }
 
     @Test
@@ -427,11 +439,10 @@ class ComponentManagerTest {
                         .of(container.getLoader().getURLs())
                         .map(Files::toFile)
                         .map(File::getName)
-                        .sorted() // !! for asserts
+                        .sorted()
                         .toArray(String[]::new);
-                assertEquals(2, dependencies.length); // ignored transitive deps, enables the new root to control it
-                assertEquals("fatjar.jar", dependencies[0]); // transitive-1.0.0.jar is nested
-                assertEquals("main.jar", dependencies[1]); // main.jar containing fatjar.jar
+                assertEquals(1, dependencies.length); // ignored transitive deps, enables the new root to control it
+                assertEquals("main.jar", dependencies[0]); // transitive-1.0.0.jar is nested
             } finally {
                 if (!transitive.delete()) {
                     transitive.deleteOnExit();

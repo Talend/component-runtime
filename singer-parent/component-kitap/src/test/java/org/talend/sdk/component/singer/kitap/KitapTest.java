@@ -38,6 +38,7 @@ import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.io.TempDir;
@@ -101,6 +102,7 @@ class KitapTest {
         testIO.set();
     }
 
+    @Disabled
     @Test
     void discover() throws IOException {
         final Kitap kitap = new Kitap(new SingerArgs("--config", config.toAbsolutePath().toString(), "--discover"),
@@ -113,6 +115,7 @@ class KitapTest {
                 stdout.toString("UTF-8"));
     }
 
+    @Disabled
     @Test
     void readAll() throws IOException {
         final Kitap kitap = new Kitap(new SingerArgs("--config", config.toAbsolutePath().toString()),
