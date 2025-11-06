@@ -211,11 +211,14 @@ public class ComponentManager implements AutoCloseable {
                 {
                     info("ComponentManager version: " + ComponentManagerVersion.VERSION);
                     info("Creating the contextual ComponentManager instance " + getIdentifiers());
-
-                    parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
-                            container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
-                            .forEach(this::addPlugin);
-                    info("Components: " + availablePlugins());
+                    try {
+                        parallelIf(Boolean.getBoolean("talend.component.manager.plugins.parallel"),
+                                container.getDefinedNestedPlugin().stream().filter(p -> !hasPlugin(p)))
+                                .forEach(this::addPlugin);
+                        info("Components: " + availablePlugins());
+                    } catch (Exception e) {
+                        info("Failed to load plugins from plugins.properties: " + e.getMessage());
+                    }
                 }
 
                 @Override
