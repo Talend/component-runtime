@@ -18,7 +18,7 @@
 
   <groupId>org.talend.sdk.component</groupId>
   <artifactId>component-runtime</artifactId>
-  <version>1.84.4-SNAPSHOT</version>
+  <version>1.84.4</version>
   <packaging>pom</packaging>
 
   <name>Component Runtime</name>
@@ -132,7 +132,7 @@
     <!-- scm.repository can be overwritten if you are running from a project fork-->
     <connection>scm:git:git://github.com/${scm.repository}.git</connection>
     <developerConnection>scm:git:git@github.com:${scm.repository}.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>component-runtime-1.84.4</tag>
     <url>https://github.com/${scm.repository}</url>
   </scm>
   <distributionManagement>
