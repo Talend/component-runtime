@@ -87,7 +87,7 @@
                 "version": "V11"
               },
               "host": "${\"server-ip\"}:${\"server-port\"}",
-              "path": "/api/v1/component/dependency/org.apache.commons:commons-lang3:jar:3.12.0"
+              "path": "/api/v1/component/dependency/org.apache.commons:commons-lang3:jar:3.18.0"
             },
             "description": "Call using a maven coordinate as id",
             "id": "bf2d61ec-73bc-4bab-bdda-3aea33176431",
