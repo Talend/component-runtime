@@ -52,7 +52,7 @@ public class KitapSource implements Serializable {
         if (remaining > 0) {
             remaining--;
             switch (remaining) {
-                case 9:
+                case -1: // not managed anymore
                     final org.apache.logging.log4j.Logger log4j2 = LogManager.getLogger("log4j2");
                     log4j2.info("log4j2 info");
                     log4j2.error("log4j2 error");

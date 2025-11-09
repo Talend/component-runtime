@@ -35,9 +35,16 @@ public class IO {
         this(System.in, System.out, System.err);
     }
 
+    public void println(final String message) {
+        stdout.println(message);
+    }
+
+    /**
+     * Force all System.out.printXxx to write to standard error output
+     */
     public void set() {
         System.setIn(stdin);
-        System.setOut(stdout);
+        System.setOut(stderr);
         System.setErr(stderr);
     }
 }
