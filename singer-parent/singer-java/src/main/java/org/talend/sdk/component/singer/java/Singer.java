@@ -28,11 +28,11 @@ import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
-@RequiredArgsConstructor
 public class Singer {
 
+    @Getter
     private final IO runIo;
 
     private final Supplier<ZonedDateTime> dateTimeSupplier;
@@ -44,6 +44,13 @@ public class Singer {
 
     public Singer() {
         this(new IO(), ZonedDateTime::now);
+
+    }
+
+    public Singer(final IO runIo, final Supplier<ZonedDateTime> dateTimeSupplier) {
+        this.runIo = runIo;
+        this.dateTimeSupplier = dateTimeSupplier;
+        this.runIo.set();
     }
 
     public String formatDate(final ZonedDateTime dateTime) {
@@ -80,7 +87,7 @@ public class Singer {
     }
 
     public synchronized void stdout(final String message) {
-        runIo.getStdout().println(message);
+        runIo.println(message);
     }
 
     public synchronized void stderr(final String message) {
