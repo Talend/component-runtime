@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,8 +18,10 @@ package org.talend.sdk.component.sample.feature.dynamicdependencies.service;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.record.Record;
@@ -28,6 +30,7 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
+import org.talend.sdk.component.api.service.source.ProducerFinder;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.DynamicDependencyConfig;
 
@@ -63,6 +66,9 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
     @Service
     private RecordBuilderFactory factory;
 
+    @Service
+    private ProducerFinder finder;
+
     public Iterator<Record> loadIterator(final DynamicDependencyConfig dynamicDependencyConfig) {
         Schema schema = buildSchema(dynamicDependencyConfig);
 
@@ -92,9 +98,13 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                         "Cannot load class %s from system classloader".formatted(dependency.getClazz()), e);
             }
 
-            boolean isTckContainer = isTCKContainer(fromLocation);
-            // package-info@Components
-            boolean isLoadedInTck = false; // to improve
+            boolean isTckContainer = false;
+            boolean isLoadedInTck = false;
+            if (dependency.getConnectorFamily() != null && !dependency.getConnectorFamily().isEmpty()) {
+                isTckContainer = isTCKContainer(fromLocation); // not now
+                // package-info@Components
+                isLoadedInTck = testLoadingData(dependency); // to improve
+            }
 
             Builder recordBuilder = builder
                     .withString(ENTRY_MAVEN, maven)
@@ -124,6 +134,16 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         return records.iterator();
     }
 
+    private boolean testLoadingData(final Dependency dependency) {
+        Iterator<Record> recordIterator = this.loadData(dependency.getConnectorFamily(), dependency.getConnectorName(), dependency.getConnectorVersion(), json2Map(dependency.getConnectorConfiguration()));
+        return recordIterator.hasNext();
+    }
+
+    private Map<String, String> json2Map(final String json) {
+        // Transform the given json to map
+        return Collections.emptyMap();
+    }
+
     protected Schema buildSchema(final DynamicDependencyConfig dynamicDependencyConfig) {
         Schema.Builder builder = factory.newSchemaBuilder(Type.RECORD)
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_MAVEN).withType(Type.STRING).build())
@@ -146,6 +166,10 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         }
 
         return builder.build();
+    }
+
+    protected Iterator<Record> loadData(String family, String name, int version, Map<String, String> parameters) {
+        return finder.find(family, name, version, parameters);
     }
 
     private void manageException(final boolean dieOnError, final String message, final Exception e) {

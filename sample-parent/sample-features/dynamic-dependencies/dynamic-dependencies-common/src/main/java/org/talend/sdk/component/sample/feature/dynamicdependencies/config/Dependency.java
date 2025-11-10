@@ -45,4 +45,17 @@ public class Dependency implements Serializable {
     @Documentation("The class to try to load from this dependency.")
     private String clazz;
 
+    @Option
+    private String connectorFamily;
+
+    @Option
+    private String connectorName;
+
+    @Option
+    private int connectorVersion;
+
+    @Option
+    private String connectorConfiguration;
+
+
 }
