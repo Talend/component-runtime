@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2006-2025 Talend Inc. - www.talend.com
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,13 +15,20 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.jar.JarFile;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.record.Record;
@@ -67,7 +74,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
     private RecordBuilderFactory factory;
 
     @Service
-    private ProducerFinder finder;
+    protected ProducerFinder finder;
 
     public Iterator<Record> loadIterator(final DynamicDependencyConfig dynamicDependencyConfig) {
         Schema schema = buildSchema(dynamicDependencyConfig);
@@ -103,7 +110,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
             if (dependency.getConnectorFamily() != null && !dependency.getConnectorFamily().isEmpty()) {
                 isTckContainer = isTCKContainer(fromLocation); // not now
                 // package-info@Components
-                isLoadedInTck = testLoadingData(dependency); // to improve
+                isLoadedInTck = testLoadingData(dynamicDependencyConfig, dependency); // to improve
             }
 
             Builder recordBuilder = builder
@@ -134,9 +141,27 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         return records.iterator();
     }
 
-    private boolean testLoadingData(final Dependency dependency) {
-        Iterator<Record> recordIterator = this.loadData(dependency.getConnectorFamily(), dependency.getConnectorName(), dependency.getConnectorVersion(), json2Map(dependency.getConnectorConfiguration()));
+    protected boolean testLoadingData(final DynamicDependencyConfig dynamicDependencyConfig, final Dependency dependency) {
+        Iterator<Record> recordIterator = finder.find(dependency.getConnectorFamily(), dependency.getConnectorName(),
+                dependency.getConnectorVersion(), Collections.emptyMap());
         return recordIterator.hasNext();
+    }
+
+    //If the dependency is a TCK connector, get its dependencies list
+    protected Map<String, String> loadComponentDepends(final DynamicDependencyConfig dynamicDependencyConfig, final String jarPath) {
+        Map<String, String> configMap = new HashMap<>();
+        final Path archive = FileSystems.getDefault().getPath(jarPath);
+        try (final JarFile file = new JarFile(archive.toFile());
+            final InputStream stream = file.getInputStream(file.getEntry("TALEND-INF/dependencies.txt"))) {
+            final Properties properties = new Properties();
+            properties.load(stream);
+            properties.stringPropertyNames().forEach(name -> {
+                configMap.put(name, properties.getProperty(name));
+            });
+            return configMap;//empty if no dependencies
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private Map<String, String> json2Map(final String json) {
@@ -168,9 +193,6 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         return builder.build();
     }
 
-    protected Iterator<Record> loadData(String family, String name, int version, Map<String, String> parameters) {
-        return finder.find(family, name, version, parameters);
-    }
 
     private void manageException(final boolean dieOnError, final String message, final Exception e) {
         String msg = "Dynamic dependencies connector raised an exception: %s : %s".formatted(message, e.getMessage());

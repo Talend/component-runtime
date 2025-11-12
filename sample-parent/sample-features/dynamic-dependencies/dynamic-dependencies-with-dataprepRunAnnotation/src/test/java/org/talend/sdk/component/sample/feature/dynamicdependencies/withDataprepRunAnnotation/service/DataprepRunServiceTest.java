@@ -15,8 +15,14 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation.service;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.junit5.WithComponents;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.AbstractDynamicDependenciesServiceTest;
@@ -35,6 +41,27 @@ public class DataprepRunServiceTest
     @Service
     DynamicDependenciesDataprepRunAnnotationService dynamicDependenciesServiceService;
 
+
+    @Test
+    void testloadIterator() {
+        System.setProperty("talend.component.manager.m2.repository", "./lib/");
+
+        final Iterator<Record> result = getService().loadIterator(config);
+
+        Assertions.assertTrue(result.hasNext());
+        this.assertRecord(result.next());
+        Assertions.assertFalse(result.hasNext());
+    }
+
+    @Test
+    void testLoadDependency() {
+        System.setProperty("talend.component.manager.m2.repository", "./lib/");
+
+        Map<String, String> depends = getService().loadComponentDepends(config, "C:\\Users\\ODG\\.m2\\repository\\org\\talend\\components\\record-provider\\1.71.0-SNAPSHOT\\record-provider-1.71.0-SNAPSHOT.jar");
+        Assertions.assertEquals(2, depends.size());
+
+    }
+
     @Override
     protected Config buildConfig() {
         Config config = new Config();
@@ -47,6 +74,32 @@ public class DataprepRunServiceTest
         config.setEnvironmentInformation(true);
 
         return config;
+    }
+
+    //use tck cnnector as dependency
+    protected List<Dependency> getDependList() {
+        List<Dependency> depends = new ArrayList<>();
+        Dependency depend = new Dependency();
+        depend.setArtifactId("commons-numbers-primes");
+        depend.setVersion("1.2");
+        depend.setGroupId("org.apache.commons");
+        depend.setClazz("org.apache.commons.numbers.primes.SmallPrimes");
+        depends.add(depend);
+
+        //for connector depend
+        Dependency depend2 = new Dependency();
+        depend.setArtifactId("record-provider");
+        depend.setVersion("1.71.0-SNAPSHOT");
+        depend.setGroupId("org.talend.components");
+        depend.setClazz("org.talend.components.recordprovider.source.GenericMapper");
+        //set a TCK connector as one dependency for depend2.
+        depend.setConnectorFamily("JDBC");
+        depend.setConnectorName("newjdbc");
+        depend.setConnectorVersion(1);
+        depend.setConnectorConfiguration("");
+
+        depends.add(depend2);
+        return depends;
     }
 
     @Override

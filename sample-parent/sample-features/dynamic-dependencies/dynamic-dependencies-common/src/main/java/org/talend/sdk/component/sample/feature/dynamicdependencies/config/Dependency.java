@@ -46,15 +46,19 @@ public class Dependency implements Serializable {
     private String clazz;
 
     @Option
+    @Documentation("The family for depended connector.")
     private String connectorFamily;
 
     @Option
+    @Documentation("The name for depended connector.")
     private String connectorName;
 
     @Option
+    @Documentation("The version for depended connector.")
     private int connectorVersion;
 
     @Option
+    @Documentation("The configuration for depended connector.")
     private String connectorConfiguration;
 
 
