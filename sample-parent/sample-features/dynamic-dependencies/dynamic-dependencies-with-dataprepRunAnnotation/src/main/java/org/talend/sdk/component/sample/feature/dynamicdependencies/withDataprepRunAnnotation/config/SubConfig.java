@@ -29,7 +29,8 @@ import lombok.Data;
 
 @Data
 @GridLayout({
-        @GridLayout.Row({ "dependencies", "connectors" })
+        @GridLayout.Row({ "dependencies" }),
+        @GridLayout.Row({ "connectors" })
 })
 public class SubConfig implements Serializable {
 

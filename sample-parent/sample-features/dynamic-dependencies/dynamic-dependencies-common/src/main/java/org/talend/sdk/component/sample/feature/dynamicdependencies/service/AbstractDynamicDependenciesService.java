@@ -16,15 +16,18 @@
 package org.talend.sdk.component.sample.feature.dynamicdependencies.service;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -282,10 +285,20 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         }
 
         File file = connectorFile.iterator().next();
-
         // Load dependencies.txt and return all dependencies.....
+        List<String> depends = new ArrayList<>();
+        try (final JarFile jarFile = new JarFile(file);
+            final InputStream stream = jarFile.getInputStream(jarFile.getEntry("TALEND-INF/dependencies.txt"))) {
+            final Properties properties = new Properties();
+            properties.load(stream);
+            properties.stringPropertyNames().forEach(name -> {
+                depends.add(name + ":" + properties.getProperty(name));
+            });
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
 
-        return Arrays.asList("xxx", file.getAbsolutePath(), "zzzz").stream(); // This line was just for testing...
+        return depends.stream();
     }
 
     /**
