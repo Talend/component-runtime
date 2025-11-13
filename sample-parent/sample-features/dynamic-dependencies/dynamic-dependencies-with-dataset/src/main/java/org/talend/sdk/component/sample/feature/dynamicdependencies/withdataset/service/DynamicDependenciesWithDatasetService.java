@@ -37,7 +37,7 @@ public class DynamicDependenciesWithDatasetService extends AbstractDynamicDepend
 
     @DynamicDependencies()
     public List<String> getDynamicDependencies(@Option("theDataset") final Dataset dataset) {
-        return super.getDynamicDependencies(dataset.getDependencies());
+        return super.getDynamicDependencies(dataset.getDependencies(), dataset.getConnectors());
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATASET_ACTION)

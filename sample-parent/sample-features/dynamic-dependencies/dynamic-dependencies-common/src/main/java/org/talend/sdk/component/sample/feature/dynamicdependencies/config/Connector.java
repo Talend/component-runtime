@@ -25,24 +25,37 @@ import lombok.Data;
 
 @Data
 @GridLayout(value = {
-        @GridLayout.Row({ "groupId", "artifactId", "version", "clazz" })
+        @GridLayout.Row({ "groupId", "artifactId", "version", "connectorFamily", "connectorName", "connectorVersion",
+                "connectorConfiguration" })
 })
-public class Dependency implements Serializable {
+public class Connector implements Serializable {
 
     @Option
-    @Documentation("The groupId of the dependency.")
+    @Documentation("The connector's group id.")
     private String groupId;
 
     @Option
-    @Documentation("The artifactId of the dependency.")
+    @Documentation("The connector's artifact id.")
     private String artifactId;
 
     @Option
-    @Documentation("The version of the dependency.")
+    @Documentation("The connector's artifact version.")
     private String version;
 
     @Option
-    @Documentation("The class to try to load from this dependency.")
-    private String clazz;
+    @Documentation("The connector's family.")
+    private String connectorFamily;
+
+    @Option
+    @Documentation("The connector's namer.")
+    private String connectorName;
+
+    @Option
+    @Documentation("The connector's version.")
+    private int connectorVersion;
+
+    @Option
+    @Documentation("The connector's configuration.")
+    private String connectorConfiguration;
 
 }

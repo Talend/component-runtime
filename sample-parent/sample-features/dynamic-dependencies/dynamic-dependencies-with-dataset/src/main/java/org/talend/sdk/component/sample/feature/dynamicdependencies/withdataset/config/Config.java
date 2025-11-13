@@ -22,6 +22,7 @@ import java.util.List;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Connector;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.DynamicDependencyConfig;
 
@@ -56,6 +57,10 @@ public class Config implements DynamicDependencyConfig, Serializable {
     @Override
     public List<Dependency> getDependencies() {
         return new ArrayList<>(this.getDse().getDependencies());
+    }
+
+    public List<Connector> getConnectors() {
+        return new ArrayList<>(this.getDse().getConnectors());
     }
 
 }

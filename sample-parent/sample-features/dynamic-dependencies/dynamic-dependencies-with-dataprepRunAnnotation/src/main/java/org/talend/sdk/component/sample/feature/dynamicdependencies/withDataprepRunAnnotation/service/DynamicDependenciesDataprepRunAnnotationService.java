@@ -39,7 +39,7 @@ public class DynamicDependenciesDataprepRunAnnotationService extends AbstractDyn
 
     @DynamicDependencies(DEPENDENCY_ACTION)
     public List<String> getDynamicDependencies(@Option("theConfig") final Config config) {
-        return super.getDynamicDependencies(config.getDependencies());
+        return super.getDynamicDependencies(config.getDependencies(), config.getConnectors());
     }
 
     @DiscoverSchemaExtended(DEPENDENCY_WITHDATAPREPRUN_ACTION)
