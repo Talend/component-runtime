@@ -35,7 +35,7 @@ public class LoggingHandler implements InterceptorHandler {
     // internal
     private final ConcurrentMap<Method, String> loggerNames = new ConcurrentHashMap<>();
 
-    public CacheHandler(final BiFunction<Method, Object[], Object> invoker, final SomeService service) {
+    public LoggingHandler(final BiFunction<Method, Object[], Object> invoker, final SomeService service) {
         this.invoker = invoker;
         this.service = service;
     }
