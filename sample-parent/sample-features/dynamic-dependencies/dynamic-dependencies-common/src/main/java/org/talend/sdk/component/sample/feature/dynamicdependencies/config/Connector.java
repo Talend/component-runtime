@@ -26,7 +26,7 @@ import lombok.Data;
 @Data
 @GridLayout(value = {
         @GridLayout.Row({ "groupId", "artifactId", "version", "connectorFamily", "connectorName", "connectorVersion",
-                "connectorConfiguration" })
+                "loadTransitiveDependencies", "connectorConfiguration" })
 })
 public class Connector implements Serializable {
 
@@ -53,6 +53,10 @@ public class Connector implements Serializable {
     @Option
     @Documentation("The connector's version.")
     private int connectorVersion;
+
+    @Option
+    @Documentation("Load transitive dependencies from TALEND-INF/dependencies.txt.")
+    private boolean loadTransitiveDependencies;
 
     @Option
     @Documentation("The connector's configuration.")
