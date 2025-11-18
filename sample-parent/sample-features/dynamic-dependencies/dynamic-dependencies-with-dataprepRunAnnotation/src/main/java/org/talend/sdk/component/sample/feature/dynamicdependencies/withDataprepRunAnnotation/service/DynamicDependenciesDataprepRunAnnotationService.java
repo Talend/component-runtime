@@ -62,46 +62,4 @@ public class DynamicDependenciesDataprepRunAnnotationService extends AbstractDyn
         return super.buildSchema(config);
     }
 
-    protected boolean testLoadingData(final DynamicDependencyConfig dynamicDependencyConfig, final Dependency dependency) {
-        //if depend on tck connector, load this connector's depends in its dependencies.txt into subconfig.
-        //loadComponentDepends(dynamicDependencyConfig, dependency.getConnectorFamily() + ":" + dependency.getConnectorName());
-
-        //In junit, can only find one : test.
-        Iterator<Record> recordIterator = finder.find(dependency.getConnectorFamily(), dependency.getConnectorName(),
-                dependency.getConnectorVersion(), Collections.emptyMap());
-        return recordIterator.hasNext();
-    }
-
-    protected Map<String, String> loadComponentDepends(final DynamicDependencyConfig dynamicDependencyConfig, final String jarPath) {
-        Map<String, String> configMap = new HashMap<>();
-        SubConfig subConfig = ((Config)dynamicDependencyConfig).getSubConfig();
-        final Path archive = FileSystems.getDefault().getPath(jarPath);
-
-        if (!Files.exists(archive)) {
-            throw new IllegalArgumentException("--Dependency does not exist: '" + archive + "'");
-        }
-        try (final JarFile file = new JarFile(archive.toFile());
-            final InputStream stream = file.getInputStream(file.getEntry("TALEND-INF/dependencies.txt"))) {
-            final Properties properties = new Properties();
-            properties.load(stream);
-            properties.stringPropertyNames().forEach(name -> {
-                configMap.put(name, properties.getProperty(name));
-                addToDependList(subConfig, name, properties.getProperty(name));
-            });
-            return configMap;
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static void addToDependList(final SubConfig subConfig, final String name, final String property) {
-        Dependency depend = new Dependency();
-        depend.setArtifactId(name);
-        depend.setVersion("1.2");
-        depend.setGroupId(property);
-        depend.setClazz("FromDependency");
-
-        subConfig.getDependencies().add(depend);
-    }
-
 }

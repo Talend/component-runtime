@@ -34,7 +34,7 @@ import org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepR
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Emitter(name = "Input")
 @Documentation("Dynamic dependencies sample input connector.")
-public class DynamicDependenciesWithDynamicDependenciesconfigurationInput extends AbstractDynamicDependenciesService
+public class DynamicDependenciesWithDataprepRunAnnotationInput extends AbstractDynamicDependenciesService
         implements Serializable {
 
     private final Config config;
@@ -43,8 +43,8 @@ public class DynamicDependenciesWithDynamicDependenciesconfigurationInput extend
 
     private Iterator<Record> recordIterator;
 
-    public DynamicDependenciesWithDynamicDependenciesconfigurationInput(final Config config,
-            final DynamicDependenciesDataprepRunAnnotationService service) {
+    public DynamicDependenciesWithDataprepRunAnnotationInput(final Config config,
+                                                             final DynamicDependenciesDataprepRunAnnotationService service) {
         this.config = config;
         this.service = service;
     }
