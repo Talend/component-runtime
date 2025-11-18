@@ -44,7 +44,7 @@ public class DynamicDependenciesWithDataprepRunAnnotationInput extends AbstractD
     private Iterator<Record> recordIterator;
 
     public DynamicDependenciesWithDataprepRunAnnotationInput(final Config config,
-                                                             final DynamicDependenciesDataprepRunAnnotationService service) {
+            final DynamicDependenciesDataprepRunAnnotationService service) {
         this.config = config;
         this.service = service;
     }

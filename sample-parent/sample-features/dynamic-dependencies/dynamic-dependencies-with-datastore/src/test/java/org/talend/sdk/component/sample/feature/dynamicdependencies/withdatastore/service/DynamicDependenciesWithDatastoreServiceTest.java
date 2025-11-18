@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @WithComponents(value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withdatastore")
-public class DatastoreServiceTest
+public class DynamicDependenciesWithDatastoreServiceTest
         extends AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDatastoreService> {
 
     @Service

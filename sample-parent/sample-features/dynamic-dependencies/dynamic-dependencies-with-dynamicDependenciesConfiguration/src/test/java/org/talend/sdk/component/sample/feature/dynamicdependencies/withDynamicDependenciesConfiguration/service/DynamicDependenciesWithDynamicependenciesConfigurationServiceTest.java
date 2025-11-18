@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.service;
+package org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.service;
 
 import java.util.List;
 
@@ -21,19 +21,21 @@ import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.junit5.WithComponents;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.AbstractDynamicDependenciesServiceTest;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.config.Config;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.config.Dataset;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset.config.Datastore;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.config.Config;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.config.Dataset;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.config.Datastore;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@WithComponents(value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withdataset")
-public class DatasetServiceTest
-        extends AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDatasetService> {
+@WithComponents(
+        value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration")
+public class DynamicDependenciesWithDynamicependenciesConfigurationServiceTest
+        extends
+        AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesWithDynamicependenciesConfigurationService> {
 
     @Service
-    private DynamicDependenciesWithDatasetService dynamicDependenciesServiceService;
+    DynamicDependenciesWithDynamicependenciesConfigurationService dynamicDependenciesServiceService;
 
     @Override
     protected Config buildConfig() {
@@ -41,7 +43,7 @@ public class DatasetServiceTest
         Dataset dse = new Dataset();
         Datastore dso = new Datastore();
         List<Dependency> depends = this.getDependList();
-        dse.setDependencies(depends);
+        config.getSubConfig().setDependencies(depends);
         dse.setDso(dso);
         config.setDse(dse);
         config.setEnvironmentInformation(true);
@@ -50,7 +52,7 @@ public class DatasetServiceTest
     }
 
     @Override
-    protected DynamicDependenciesWithDatasetService getService() {
+    protected DynamicDependenciesWithDynamicependenciesConfigurationService getService() {
         return dynamicDependenciesServiceService;
     }
 }

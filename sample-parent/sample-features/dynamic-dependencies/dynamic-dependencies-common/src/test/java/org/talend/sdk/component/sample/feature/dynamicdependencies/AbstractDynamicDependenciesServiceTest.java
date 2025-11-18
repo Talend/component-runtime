@@ -32,15 +32,17 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.DynamicDependencyConfig;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService;
 
+import lombok.Getter;
+
 public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDependencyConfig, S extends AbstractDynamicDependenciesService> {
 
-    protected C config;
+    @Getter
+    private C config;
 
     protected abstract C buildConfig();
 
@@ -73,7 +75,7 @@ public abstract class AbstractDynamicDependenciesServiceTest<C extends DynamicDe
         return depends;
     }
 
-    protected void assertRecord(Record record) {
+    private void assertRecord(Record record) {
         Assertions.assertNotNull(record);
         Assertions.assertEquals("org.apache.commons:commons-numbers-primes:1.2", record.getString(ENTRY_MAVEN));
         Assertions.assertEquals(

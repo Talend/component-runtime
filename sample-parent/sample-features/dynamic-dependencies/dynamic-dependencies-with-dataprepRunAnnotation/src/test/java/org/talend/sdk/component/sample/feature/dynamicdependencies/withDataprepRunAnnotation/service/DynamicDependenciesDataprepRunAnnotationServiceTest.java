@@ -16,12 +16,8 @@
 package org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation.service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.junit5.WithComponents;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.AbstractDynamicDependenciesServiceTest;
@@ -34,23 +30,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @WithComponents(value = "org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation")
-public class DataprepRunServiceTest
+public class DynamicDependenciesDataprepRunAnnotationServiceTest
         extends AbstractDynamicDependenciesServiceTest<Config, DynamicDependenciesDataprepRunAnnotationService> {
 
     @Service
     DynamicDependenciesDataprepRunAnnotationService dynamicDependenciesServiceService;
-
-
-    @Test
-    void testloadIterator() {
-        System.setProperty("talend.component.manager.m2.repository", "./lib/");
-
-        final Iterator<Record> result = getService().loadIterator(config);
-
-        Assertions.assertTrue(result.hasNext());
-        this.assertRecord(result.next());
-        Assertions.assertFalse(result.hasNext());
-    }
 
     @Override
     protected Config buildConfig() {
@@ -66,7 +50,7 @@ public class DataprepRunServiceTest
         return config;
     }
 
-    //use tck cnnector as dependency
+    // use tck cnnector as dependency
     protected List<Dependency> getDependList() {
         List<Dependency> depends = new ArrayList<>();
         Dependency depend = new Dependency();
@@ -76,13 +60,13 @@ public class DataprepRunServiceTest
         depend.setClazz("org.apache.commons.numbers.primes.SmallPrimes");
         depends.add(depend);
 
-//        //for connector depend
-//        Dependency depend2 = new Dependency();
-//        depend.setArtifactId("record-provider");
-//        depend.setVersion("1.71.0-SNAPSHOT");
-//        depend.setGroupId("org.talend.components");
-//        depend.setClazz("org.talend.components.recordprovider.source.GenericMapper");
-//        depends.add(depend2);
+        // //for connector depend
+        // Dependency depend2 = new Dependency();
+        // depend.setArtifactId("record-provider");
+        // depend.setVersion("1.71.0-SNAPSHOT");
+        // depend.setGroupId("org.talend.components");
+        // depend.setClazz("org.talend.components.recordprovider.source.GenericMapper");
+        // depends.add(depend2);
         return depends;
     }
 

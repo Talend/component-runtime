@@ -28,23 +28,23 @@ import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.config.Config;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.service.DynamicDependenciesConfigurationService;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.withDynamicDependenciesConfiguration.service.DynamicDependenciesWithDynamicependenciesConfigurationService;
 
 @Version
 @Icon(value = Icon.IconType.CUSTOM, custom = "icon")
 @Emitter(name = "Input")
 @Documentation("Dynamic dependencies sample input connector.")
-public class DynamicDependenciesWithDynamicDependenciesconfigurationInput extends AbstractDynamicDependenciesService
+public class DynamicDependenciesWithDynamicDependenciesConfigurationInput extends AbstractDynamicDependenciesService
         implements Serializable {
 
     private final Config config;
 
-    private final DynamicDependenciesConfigurationService service;
+    private final DynamicDependenciesWithDynamicependenciesConfigurationService service;
 
     private Iterator<Record> recordIterator;
 
-    public DynamicDependenciesWithDynamicDependenciesconfigurationInput(final Config config,
-            final DynamicDependenciesConfigurationService service) {
+    public DynamicDependenciesWithDynamicDependenciesConfigurationInput(final Config config,
+            final DynamicDependenciesWithDynamicependenciesConfigurationService service) {
         this.config = config;
         this.service = service;
     }
