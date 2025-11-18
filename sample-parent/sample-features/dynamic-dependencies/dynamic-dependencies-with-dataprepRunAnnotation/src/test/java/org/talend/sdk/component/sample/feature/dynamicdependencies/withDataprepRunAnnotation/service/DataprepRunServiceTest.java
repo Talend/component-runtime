@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.talend.sdk.component.api.record.Record;
@@ -53,15 +52,6 @@ public class DataprepRunServiceTest
         Assertions.assertFalse(result.hasNext());
     }
 
-    @Test
-    void testLoadDependency() {
-        System.setProperty("talend.component.manager.m2.repository", "./lib/");
-
-        Map<String, String> depends = getService().loadComponentDepends(config, "C:\\Users\\ODG\\.m2\\repository\\org\\talend\\components\\record-provider\\1.71.0-SNAPSHOT\\record-provider-1.71.0-SNAPSHOT.jar");
-        Assertions.assertEquals(2, depends.size());
-
-    }
-
     @Override
     protected Config buildConfig() {
         Config config = new Config();
@@ -86,19 +76,13 @@ public class DataprepRunServiceTest
         depend.setClazz("org.apache.commons.numbers.primes.SmallPrimes");
         depends.add(depend);
 
-        //for connector depend
-        Dependency depend2 = new Dependency();
-        depend.setArtifactId("record-provider");
-        depend.setVersion("1.71.0-SNAPSHOT");
-        depend.setGroupId("org.talend.components");
-        depend.setClazz("org.talend.components.recordprovider.source.GenericMapper");
-        //set a TCK connector as one dependency for depend2.
-        depend.setConnectorFamily("JDBC");
-        depend.setConnectorName("newjdbc");
-        depend.setConnectorVersion(1);
-        depend.setConnectorConfiguration("");
-
-        depends.add(depend2);
+//        //for connector depend
+//        Dependency depend2 = new Dependency();
+//        depend.setArtifactId("record-provider");
+//        depend.setVersion("1.71.0-SNAPSHOT");
+//        depend.setGroupId("org.talend.components");
+//        depend.setClazz("org.talend.components.recordprovider.source.GenericMapper");
+//        depends.add(depend2);
         return depends;
     }
 

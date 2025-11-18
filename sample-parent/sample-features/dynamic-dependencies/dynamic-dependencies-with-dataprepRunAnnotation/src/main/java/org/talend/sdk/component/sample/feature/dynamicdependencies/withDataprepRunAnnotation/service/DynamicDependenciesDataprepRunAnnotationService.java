@@ -15,31 +15,16 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation.service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.jar.JarFile;
 
 import org.talend.sdk.component.api.configuration.Option;
-import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.dependency.DynamicDependencies;
 import org.talend.sdk.component.api.service.schema.DiscoverSchemaExtended;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.config.DynamicDependencyConfig;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.service.AbstractDynamicDependenciesService;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation.config.Config;
-import org.talend.sdk.component.sample.feature.dynamicdependencies.withDataprepRunAnnotation.config.SubConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
