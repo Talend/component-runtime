@@ -23,6 +23,7 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.type.DynamicDependenciesConfiguration;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.meta.Documentation;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Connector;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
 
 import lombok.Data;
@@ -30,12 +31,17 @@ import lombok.Data;
 @Data
 @DynamicDependenciesConfiguration
 @GridLayout({
-        @GridLayout.Row({ "dependencies" })
+        @GridLayout.Row({ "dependencies" }),
+        @GridLayout.Row({ "connectors" })
 })
 public class SubConfig implements Serializable {
 
     @Option
     @Documentation("The dependencies to load dynamically.")
     private List<Dependency> dependencies = new ArrayList<>();
+
+    @Option
+    @Documentation("The connectors to load dynamically.")
+    private List<Connector> connectors = new ArrayList<>();
 
 }

@@ -15,20 +15,24 @@
  */
 package org.talend.sdk.component.sample.feature.dynamicdependencies.service;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Optional;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.talend.sdk.component.api.exception.ComponentException;
 import org.talend.sdk.component.api.record.Record;
@@ -36,8 +40,10 @@ import org.talend.sdk.component.api.record.Record.Builder;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.record.Schema.Type;
 import org.talend.sdk.component.api.service.Service;
+import org.talend.sdk.component.api.service.dependency.Resolver;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.source.ProducerFinder;
+import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Connector;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.Dependency;
 import org.talend.sdk.component.sample.feature.dynamicdependencies.config.DynamicDependencyConfig;
 
@@ -45,8 +51,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractDynamicDependenciesService implements Serializable {
-
-    public static final String DISCOVERSCHEMA_ACTION = "DISCOVERSCHEMA_ACTION";
 
     public static final String ENTRY_MAVEN = "maven";
 
@@ -62,7 +66,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
 
     public static final String ENTRY_IS_TCK_CONTAINER = "is_tck_container";
 
-    public static final String ENTRY_IS_LOADED_IN_TCK = "is_loaded_in_tck_manager";
+    public static final String ENTRY_FIRST_RECORD = "first_record";
 
     public static final String ENTRY_ROOT_REPOSITORY = "root_repository";
 
@@ -74,14 +78,24 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
     private RecordBuilderFactory factory;
 
     @Service
-    protected ProducerFinder finder;
+    private ProducerFinder finder;
+
+    @Service
+    private Resolver resolver;
 
     public Iterator<Record> loadIterator(final DynamicDependencyConfig dynamicDependencyConfig) {
         Schema schema = buildSchema(dynamicDependencyConfig);
 
+        List<Record> standardDependencies = loadStandarDependencies(dynamicDependencyConfig, schema);
+        List<Record> additionalConnectors = loadConnectors(dynamicDependencyConfig, schema);
+
+        return Stream.concat(standardDependencies.stream(), additionalConnectors.stream()).iterator();
+    }
+
+    private List<Record> loadStandarDependencies(final DynamicDependencyConfig dynamicDependencyConfig,
+            final Schema schema) {
         List<Record> records = new ArrayList<>();
         for (Dependency dependency : dynamicDependencyConfig.getDependencies()) {
-            Builder builder = factory.newRecordBuilder(schema);
 
             String maven = String.format("%s:%s:%s", dependency.getGroupId(), dependency.getArtifactId(),
                     dependency.getVersion());
@@ -105,63 +119,95 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                         "Cannot load class %s from system classloader".formatted(dependency.getClazz()), e);
             }
 
-            boolean isTckContainer = false;
-            boolean isLoadedInTck = false;
-            if (dependency.getConnectorFamily() != null && !dependency.getConnectorFamily().isEmpty()) {
-                isTckContainer = isTCKContainer(fromLocation); // not now
-                // package-info@Components
-                isLoadedInTck = testLoadingData(dynamicDependencyConfig, dependency); // to improve
-            }
-
-            Builder recordBuilder = builder
-                    .withString(ENTRY_MAVEN, maven)
-                    .withString(ENTRY_CLASS, dependency.getClazz())
-                    .withBoolean(ENTRY_IS_LOADED, isLoaded)
-                    .withString(ENTRY_CONNECTOR_CLASSLOADER, connectorClassLoaderId)
-                    .withString(ENTRY_CLAZZ_CLASSLOADER, clazzClassLoaderId)
-                    .withString(ENTRY_FROM_LOCATION, fromLocation)
-                    .withBoolean(ENTRY_IS_TCK_CONTAINER, isTckContainer)
-                    .withBoolean(ENTRY_IS_LOADED_IN_TCK, isLoadedInTck);
-
-            if (dynamicDependencyConfig.isEnvironmentInformation()) {
-                String rootRepository = System.getProperty("talend.component.manager.m2.repository");
-                String runtimeClasspath = System.getProperty("java.class.path");
-                String workDirectory = System.getProperty("user.dir");
-
-                recordBuilder = recordBuilder
-                        .withString(ENTRY_ROOT_REPOSITORY, rootRepository)
-                        .withString(ENTRY_RUNTIME_CLASSPATH, runtimeClasspath)
-                        .withString(ENTRY_WORKING_DIRECTORY, workDirectory);
-            }
-
-            Record record = recordBuilder.build();
+            Record record = buildRecord(schema,
+                    dynamicDependencyConfig,
+                    maven,
+                    dependency.getClazz(),
+                    isLoaded,
+                    connectorClassLoaderId,
+                    clazzClassLoaderId,
+                    fromLocation,
+                    false,
+                    Optional.empty());
             records.add(record);
         }
 
-        return records.iterator();
+        return records;
     }
 
-    protected boolean testLoadingData(final DynamicDependencyConfig dynamicDependencyConfig, final Dependency dependency) {
-        Iterator<Record> recordIterator = finder.find(dependency.getConnectorFamily(), dependency.getConnectorName(),
-                dependency.getConnectorVersion(), Collections.emptyMap());
-        return recordIterator.hasNext();
-    }
+    private List<Record> loadConnectors(final DynamicDependencyConfig dynamicDependencyConfig, final Schema schema) {
+        List<Record> records = new ArrayList<>();
+        for (Connector connector : dynamicDependencyConfig.getConnectors()) {
 
-    //If the dependency is a TCK connector, get its dependencies list
-    protected Map<String, String> loadComponentDepends(final DynamicDependencyConfig dynamicDependencyConfig, final String jarPath) {
-        Map<String, String> configMap = new HashMap<>();
-        final Path archive = FileSystems.getDefault().getPath(jarPath);
-        try (final JarFile file = new JarFile(archive.toFile());
-            final InputStream stream = file.getInputStream(file.getEntry("TALEND-INF/dependencies.txt"))) {
-            final Properties properties = new Properties();
-            properties.load(stream);
-            properties.stringPropertyNames().forEach(name -> {
-                configMap.put(name, properties.getProperty(name));
-            });
-            return configMap;//empty if no dependencies
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
+            String maven = String.format("%s:%s:%s", connector.getGroupId(), connector.getArtifactId(),
+                    connector.getVersion());
+
+            String connectorClassLoaderId = this.getClass().getClassLoader().toString();
+            String clazzClassLoaderId = "N/A";
+            String fromLocation = "N/A";
+            Optional<Record> optionalRecord = testLoadingData(connector);
+            boolean isLoaded = optionalRecord.isPresent();
+
+            Record record = buildRecord(schema,
+                    dynamicDependencyConfig,
+                    maven,
+                    "N/A",
+                    isLoaded,
+                    connectorClassLoaderId,
+                    clazzClassLoaderId,
+                    fromLocation,
+                    true,
+                    optionalRecord);
+            records.add(record);
         }
+
+        return records;
+
+    }
+
+    private Record buildRecord(final Schema schema,
+            final DynamicDependencyConfig dynamicDependencyConfig,
+            final String maven,
+            final String clazz,
+            final boolean isLoaded,
+            final String connectorClassLoaderId,
+            final String clazzClassLoaderId,
+            final String fromLocation,
+            final boolean isTckContainer,
+            final Optional<Record> firstRecord) {
+        Builder builder = factory.newRecordBuilder(schema);
+        Builder recordBuilder = builder
+                .withString(ENTRY_MAVEN, maven)
+                .withString(ENTRY_CLASS, clazz)
+                .withBoolean(ENTRY_IS_LOADED, isLoaded)
+                .withString(ENTRY_CONNECTOR_CLASSLOADER, connectorClassLoaderId)
+                .withString(ENTRY_CLAZZ_CLASSLOADER, clazzClassLoaderId)
+                .withString(ENTRY_FROM_LOCATION, fromLocation)
+                .withBoolean(ENTRY_IS_TCK_CONTAINER, isTckContainer);
+
+        if (firstRecord.isPresent()) {
+            builder.withRecord(ENTRY_FIRST_RECORD, firstRecord.get());
+        }
+
+        if (dynamicDependencyConfig.isEnvironmentInformation()) {
+            String rootRepository = System.getProperty("talend.component.manager.m2.repository");
+            String runtimeClasspath = System.getProperty("java.class.path");
+            String workDirectory = System.getProperty("user.dir");
+
+            recordBuilder = recordBuilder
+                    .withString(ENTRY_ROOT_REPOSITORY, rootRepository)
+                    .withString(ENTRY_RUNTIME_CLASSPATH, runtimeClasspath)
+                    .withString(ENTRY_WORKING_DIRECTORY, workDirectory);
+        }
+
+        return recordBuilder.build();
+    }
+
+    private Optional<Record> testLoadingData(final Connector connector) {
+        Iterator<Record> recordIterator = this.loadData(connector.getConnectorFamily(), connector.getConnectorName(),
+                connector.getConnectorVersion(), json2Map(connector.getConnectorConfiguration()));
+        return Optional.ofNullable(
+                recordIterator.hasNext() ? recordIterator.next() : null);
     }
 
     private Map<String, String> json2Map(final String json) {
@@ -178,8 +224,7 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
                         factory.newEntryBuilder().withName(ENTRY_CONNECTOR_CLASSLOADER).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_CLAZZ_CLASSLOADER).withType(Type.STRING).build())
                 .withEntry(factory.newEntryBuilder().withName(ENTRY_FROM_LOCATION).withType(Type.STRING).build())
-                .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_TCK_CONTAINER).withType(Type.BOOLEAN).build())
-                .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_LOADED_IN_TCK).withType(Type.BOOLEAN).build());
+                .withEntry(factory.newEntryBuilder().withName(ENTRY_IS_TCK_CONTAINER).withType(Type.BOOLEAN).build());
 
         if (dynamicDependencyConfig.isEnvironmentInformation()) {
             builder = builder
@@ -193,6 +238,10 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         return builder.build();
     }
 
+    protected Iterator<Record> loadData(final String family, final String name, final int version,
+            final Map<String, String> parameters) {
+        return finder.find(family, name, version, parameters);
+    }
 
     private void manageException(final boolean dieOnError, final String message, final Exception e) {
         String msg = "Dynamic dependencies connector raised an exception: %s : %s".formatted(message, e.getMessage());
@@ -202,11 +251,75 @@ public abstract class AbstractDynamicDependenciesService implements Serializable
         }
     }
 
-    protected List<String> getDynamicDependencies(final List<Dependency> dependencies) {
-        return dependencies
+    protected List<String> getDynamicDependencies(final List<Dependency> dependencies,
+            final List<Connector> connectors) {
+        List<String> standardDependencies = dependencies
                 .stream()
                 .map(d -> String.format("%s:%s:%s", d.getGroupId(), d.getArtifactId(), d.getVersion()))
                 .toList();
+
+        List<String> additionalConnectors = connectors
+                .stream()
+                .map(c -> String.format("%s:%s:%s", c.getGroupId(), c.getArtifactId(), c.getVersion()))
+                .toList();
+
+        List<String> connectorsDependencies = connectors
+                .stream()
+                .flatMap(this::getConnectorDependencies)
+                .toList();
+        List<String> all = Stream.of(standardDependencies, additionalConnectors, connectorsDependencies)
+                .flatMap(Collection::stream)
+                .toList();
+
+        if (log.isInfoEnabled()) {
+            String collect = all.stream().collect(Collectors.joining("\n- ", "- ", ""));
+            log.info("All identified dependencies:\n" + collect);
+        }
+        return all;
+    }
+
+    private Stream<String> getConnectorDependencies(final Connector connector) {
+        if (!connector.isLoadTransitiveDependencies()) {
+            return Stream.empty();
+        }
+
+        List<String> result;
+
+        String gav = String.format("%s:%s:%s", connector.getGroupId(),
+                connector.getArtifactId(),
+                connector.getVersion());
+        Collection<File> jarFiles = resolver.resolveFromDescriptor(
+                Collections.singletonList(gav));
+
+        if (jarFiles == null || jarFiles.size() <= 0) {
+            throw new ComponentException("Can't find additional connector '%s'.".formatted(gav));
+        }
+        if (jarFiles.size() > 1) {
+            String join = jarFiles.stream().map(File::getAbsolutePath).collect(Collectors.joining(","));
+            throw new ComponentException("Several files have been found to resolve '%s': %s".formatted(gav, join));
+        }
+
+        File jarFile = jarFiles.iterator().next();
+
+        try (JarFile jar = new JarFile(jarFile)) {
+            JarEntry entry = jar.getJarEntry("TALEND-INF/dependencies.txt");
+            if (entry == null) {
+                throw new ComponentException("TALEND-INF/dependencies.txt not found in JAR");
+            }
+
+            try (InputStream is = jar.getInputStream(entry);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+
+                result = reader.lines()
+                        .filter(line -> !line.isBlank()) // skip empty lines
+                        .map(line -> line.substring(0, line.lastIndexOf(":"))) // remove last ':xxx'
+                        .collect(Collectors.toList());
+            }
+
+        } catch (IOException e) {
+            throw new ComponentException("Can't load dependencies for %s: %s".formatted(gav, e.getMessage()), e);
+        }
+        return result.stream();
     }
 
     /**

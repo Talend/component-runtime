@@ -21,6 +21,8 @@ public interface DynamicDependencyConfig {
 
     List<Dependency> getDependencies();
 
+    List<Connector> getConnectors();
+
     boolean isEnvironmentInformation();
 
     boolean isDieOnError();
