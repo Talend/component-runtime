@@ -41,6 +41,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -197,7 +198,7 @@ public class VaultClientSetup {
             builder.hostnameVerifier((host, session) -> true);
             builder.sslContext(createUnsafeSSLContext());
         } else if (keystoreLocation.isPresent()) {
-            builder.hostnameVerifier((host, session) -> serverHostnames.contains(host));
+            builder.hostnameVerifier((host, session) -> HttpsURLConnection.getDefaultHostnameVerifier().verify(host, session));
             builder.sslContext(createSSLContext(keystoreLocation, keystoreType, keystorePassword, truststoreType));
         }
         providers.map(it -> Stream.of(it.split(",")).map(String::trim).filter(v -> !v.isEmpty()).map(fqn -> {
